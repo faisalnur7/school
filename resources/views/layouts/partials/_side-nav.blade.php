@@ -4,7 +4,7 @@
     <a href="{{ route('dashboard') }}" class="brand-link">
         <img src="{{ asset('assets/dist/img/AdminLTELogo.png') }}" alt="Logo"
             class="brand-image img-circle elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-light">School Management System</span>
+        <span class="brand-text font-weight-light">SMS</span>
     </a>
 
     <!-- Sidebar -->
@@ -16,7 +16,7 @@
                     alt="User Image">
             </div>
             <div class="info">
-                <a href="#" class="d-block">{{ auth()->user()->name }}</a>
+                <a href="#" class="d-block">{{ auth()->user()?->name }}</a>
             </div>
         </div>
 

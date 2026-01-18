@@ -68,7 +68,6 @@ use App\Http\Controllers\{
     MessageController
 };
 
-Route::get('/', [DashboardController::class, 'index'])->name('homepage');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -83,6 +82,7 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 Route::group(['middleware' => ['auth']], function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('homepage');
     // ------------------- Dashboard -------------------
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
