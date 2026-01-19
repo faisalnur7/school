@@ -6,7 +6,7 @@ use App\Http\Controllers\{
     ClassController,
     SectionController,
     GroupController,
-    SessionController,
+    AcademicSessionController,
     SubjectController,
     RoutineController,
     ClassroomController,
@@ -119,12 +119,13 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/groups/{id}/update', [GroupController::class, 'update'])->name('groups.update');
     Route::delete('/groups/{id}/delete', [GroupController::class, 'destroy'])->name('groups.delete');
 
-    Route::get('/sessions', [SessionController::class, 'index'])->name('sessions.index');
-    Route::get('/sessions/create', [SessionController::class, 'create'])->name('sessions.create');
-    Route::post('/sessions/store', [SessionController::class, 'store'])->name('sessions.store');
-    Route::get('/sessions/{id}/edit', [SessionController::class, 'edit'])->name('sessions.edit');
-    Route::post('/sessions/{id}/update', [SessionController::class, 'update'])->name('sessions.update');
-    Route::delete('/sessions/{id}/delete', [SessionController::class, 'destroy'])->name('sessions.delete');
+    Route::get('/sessions', [AcademicSessionController::class, 'index'])->name('sessions.index');
+    Route::get('/sessions/create', [AcademicSessionController::class, 'create'])->name('sessions.create');
+    Route::post('/sessions/store', [AcademicSessionController::class, 'store'])->name('sessions.store');
+    Route::get('/sessions/{id}/edit', [AcademicSessionController::class, 'edit'])->name('sessions.edit');
+    Route::post('/sessions/{id}/update', [AcademicSessionController::class, 'update'])->name('sessions.update');
+    Route::delete('/sessions/{id}/delete', [AcademicSessionController::class, 'destroy'])->name('sessions.delete');
+    Route::post('/sessions/{id}/toggle_status', [AcademicSessionController::class, 'toggleStatus'])->name('sessions.toggle-status');
 
     Route::get('/subjects', [SubjectController::class, 'index'])->name('subjects.index');
     Route::get('/subjects/create', [SubjectController::class, 'create'])->name('subjects.create');
