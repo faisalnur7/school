@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     DashboardController,
-    ClassController,
+    SchoolClassController,
     SectionController,
     GroupController,
     AcademicSessionController,
@@ -98,12 +98,14 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // ------------------- Academics -------------------
-    Route::get('/classes', [ClassController::class, 'index'])->name('classes.index');
-    Route::get('/classes/create', [ClassController::class, 'create'])->name('classes.create');
-    Route::post('/classes/store', [ClassController::class, 'store'])->name('classes.store');
-    Route::get('/classes/{id}/edit', [ClassController::class, 'edit'])->name('classes.edit');
-    Route::post('/classes/{id}/update', [ClassController::class, 'update'])->name('classes.update');
-    Route::delete('/classes/{id}/delete', [ClassController::class, 'destroy'])->name('classes.delete');
+    Route::get('/classes', [SchoolClassController::class, 'index'])->name('classes.index');
+    Route::get('/classes/create', [SchoolClassController::class, 'create'])->name('classes.create');
+    Route::post('/classes/store', [SchoolClassController::class, 'store'])->name('classes.store');
+    Route::get('/classes/{id}/edit', [SchoolClassController::class, 'edit'])->name('classes.edit');
+    Route::post('/classes/{id}/update', [SchoolClassController::class, 'update'])->name('classes.update');
+    Route::delete('/classes/{id}/delete', [SchoolClassController::class, 'destroy'])->name('classes.delete');
+    Route::post('/classes/{id}/toggle_status', [SchoolClassController::class, 'toggleStatus'])->name('classes.toggle-status');
+
 
     Route::get('/sections', [SectionController::class, 'index'])->name('sections.index');
     Route::get('/sections/create', [SectionController::class, 'create'])->name('sections.create');
