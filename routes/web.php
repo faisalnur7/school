@@ -65,7 +65,11 @@ use App\Http\Controllers\{
     IdCardController,
     CertificateController,
     TimetableController,
-    MessageController
+    MessageController,
+    DivisionController,
+    DistrictController,
+    PoliceStationController,
+    PostOfficeController
 };
 
 
@@ -113,6 +117,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/sections/{id}/edit', [SectionController::class, 'edit'])->name('sections.edit');
     Route::post('/sections/{id}/update', [SectionController::class, 'update'])->name('sections.update');
     Route::delete('/sections/{id}/delete', [SectionController::class, 'destroy'])->name('sections.delete');
+    Route::post('/sections/{id}/toggle_status', [SectionController::class, 'toggleStatus'])->name('sections.toggle-status');
+
 
     Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
     Route::get('/groups/create', [GroupController::class, 'create'])->name('groups.create');
@@ -120,6 +126,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/groups/{id}/edit', [GroupController::class, 'edit'])->name('groups.edit');
     Route::post('/groups/{id}/update', [GroupController::class, 'update'])->name('groups.update');
     Route::delete('/groups/{id}/delete', [GroupController::class, 'destroy'])->name('groups.delete');
+    Route::post('/groups/{id}/toggle_status', [GroupController::class, 'toggleStatus'])->name('groups.toggle-status');
+
 
     Route::get('/sessions', [AcademicSessionController::class, 'index'])->name('sessions.index');
     Route::get('/sessions/create', [AcademicSessionController::class, 'create'])->name('sessions.create');
@@ -558,6 +566,42 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/complaints', [DashboardController::class, 'complainIndex'])->name('complain.index');
         Route::get('/student-certificate', [CertificateController::class, 'index'])->name('student.certificate');
         Route::get('/student-idcard', [IdCardController::class, 'index'])->name('student.idcard');
+    });
+
+    Route::prefix('division')->group(function () {
+        Route::get('/list', [DivisionController::class, 'index'])->name('division.index');
+        Route::get('/create', [DivisionController::class, 'create'])->name('division.create');
+        Route::post('/store', [DivisionController::class, 'store'])->name('division.store');
+        Route::get('/edit/{id}', [DivisionController::class, 'edit'])->name('division.edit');
+        Route::post('/update/{id}', [DivisionController::class, 'update'])->name('division.update');
+        Route::delete('/delete/{id}', [DivisionController::class, 'destroy'])->name('division.destroy');
+    });
+
+    Route::prefix('district')->group(function () {
+        Route::get('/list', [DistrictController::class, 'index'])->name('district.index');
+        Route::get('/create', [DistrictController::class, 'create'])->name('district.create');
+        Route::post('/store', [DistrictController::class, 'store'])->name('district.store');
+        Route::get('/edit/{id}', [DistrictController::class, 'edit'])->name('district.edit');
+        Route::post('/update/{id}', [DistrictController::class, 'update'])->name('district.update');
+        Route::delete('/delete/{id}', [DistrictController::class, 'destroy'])->name('district.destroy');
+    });
+
+    Route::prefix('police-station')->group(function () {
+        Route::get('/list', [PoliceStationController::class, 'index'])->name('police-station.index');
+        Route::get('/create', [PoliceStationController::class, 'create'])->name('police-station.create');
+        Route::post('/store', [PoliceStationController::class, 'store'])->name('police-station.store');
+        Route::get('/edit/{id}', [PoliceStationController::class, 'edit'])->name('police-station.edit');
+        Route::post('/update/{id}', [PoliceStationController::class, 'update'])->name('police-station.update');
+        Route::delete('/delete/{id}', [PoliceStationController::class, 'destroy'])->name('police-station.destroy');
+    });
+
+    Route::prefix('post-office')->group(function () {
+        Route::get('/list', [PostOfficeController::class, 'index'])->name('post-office.index');
+        Route::get('/create', [PostOfficeController::class, 'create'])->name('post-office.create');
+        Route::post('/store', [PostOfficeController::class, 'store'])->name('post-office.store');
+        Route::get('/edit/{id}', [PostOfficeController::class, 'edit'])->name('post-office.edit');
+        Route::post('/update/{id}', [PostOfficeController::class, 'update'])->name('post-office.update');
+        Route::delete('/delete/{id}', [PostOfficeController::class, 'destroy'])->name('post-office.destroy');
     });
 
     // ------------------- Homework -------------------

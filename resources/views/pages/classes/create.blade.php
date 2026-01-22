@@ -5,7 +5,7 @@
         <div class="row justify-content-center">
             <div class="col-md-4">
                 <div class="card card-primary">
-                    <div class="card-header">
+                    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3" style="background: linear-gradient(90deg, #343a40, #212529);">
                         <h3 class="card-title">Create Class</h3>
                     </div>
 
@@ -42,61 +42,7 @@
             </div>
 
             <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Classes</h3>
-                        <a href="{{ route('classes.create') }}" class="btn btn-primary float-right">
-                            + Add Class
-                        </a>
-                    </div>
-
-                    <div class="card-body">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Name (EN)</th>
-                                    <th>Name (BN)</th>
-                                    <th class="text-center">Status</th>
-                                    <th width="180">Action</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                @foreach ($classes as $class)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $class->name_en }}</td>
-                                        <td>{{ $class->name_bn }}</td>
-                                        <td class="text-center">
-                                            <form action="{{ route('classes.toggle-status', $class->id) }}" method="POST">
-                                                @csrf
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input"
-                                                        id="statusSwitch{{ $class->id }}" onchange="this.form.submit()"
-                                                        {{ $class->status ? 'checked' : '' }}>
-                                                    <label class="custom-control-label"
-                                                        for="statusSwitch{{ $class->id }}">
-                                                    </label>
-                                                </div>
-                                            </form>
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('classes.edit', $class->id) }}"
-                                                class="btn btn-sm btn-info">Edit</a>
-
-                                            <form action="{{ route('classes.delete', $class->id) }}" method="POST"
-                                                class="d-inline" onsubmit="return confirm('Delete this class?')">
-                                                @csrf @method('DELETE')
-                                                <button class="btn btn-sm btn-danger">Delete</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                @include('pages.classes.table')
             </div>
         </div>
     </div>

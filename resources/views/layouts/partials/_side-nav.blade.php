@@ -34,7 +34,7 @@
                 </li>
 
                 <!-- Admissions -->
-                <li class="nav-item has-treeview">
+                {{-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-user-plus"></i>
                         <p>Admissions<i class="right fas fa-angle-left"></i></p>
@@ -46,27 +46,27 @@
                         <li><a href="{{ route('admissions.interviews') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Interview Scheduling</a></li>
                         <li><a href="{{ route('admissions.portal') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Online Portal</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Academics -->
-                <li class="nav-item has-treeview">
+                <li class="nav-item has-treeview  {{ menuOpen(['classes.*','sections.*','groups.*','sessions.*']) ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-school"></i>
                         <p>Academics<i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li><a href="{{ route('classes.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Classes</a></li>
-                        <li><a href="{{ route('sections.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Sections</a></li>
-                        <li><a href="{{ route('groups.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Groups</a></li>
-                        <li><a href="{{ route('sessions.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Sessions</a></li>
-                        <li><a href="{{ route('subjects.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Subjects</a></li>
+                        <li><a href="{{ route('sessions.index') }}" class="nav-link {{ request()->routeIs('sessions.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Sessions</a></li>
+                        <li><a href="{{ route('classes.index') }}" class="nav-link {{ request()->routeIs('classes.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Classes</a></li>
+                        <li><a href="{{ route('sections.index') }}" class="nav-link {{ request()->routeIs('sections.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Sections</a></li>
+                        <li><a href="{{ route('groups.index') }}" class="nav-link {{ request()->routeIs('groups.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Groups</a></li>
+                        {{-- <li><a href="{{ route('subjects.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Subjects</a></li>
                         <li><a href="{{ route('routines.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Class Routine</a></li>
-                        <li><a href="{{ route('classrooms.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Class Room</a></li>
+                        <li><a href="{{ route('classrooms.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Class Room</a></li> --}}
                     </ul>
                 </li>
 
                 <!-- Online Learning & LMS -->
-                <li class="nav-item has-treeview">
+                {{-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-laptop"></i>
                         <p>Online Learning<i class="right fas fa-angle-left"></i></p>
@@ -78,10 +78,10 @@
                         <li><a href="{{ route('lms.video_conference') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Video Conferencing</a></li>
                         <li><a href="{{ route('lms.content_management') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Content Management</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Lesson Plan -->
-                <li class="nav-item has-treeview">
+                {{-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-book-open"></i>
                         <p>Lesson Plan<i class="right fas fa-angle-left"></i></p>
@@ -92,7 +92,7 @@
                         <li><a href="{{ route('lessonplans.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Lesson Plans</a></li>
                         <li><a href="{{ route('lessonplan.overview') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Plan Overview</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Students -->
                 <li class="nav-item has-treeview">
@@ -110,7 +110,7 @@
                 </li>
 
                 <!-- Student Services -->
-                <li class="nav-item has-treeview">
+                {{-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-hands-helping"></i>
                         <p>Student Services<i class="right fas fa-angle-left"></i></p>
@@ -123,7 +123,7 @@
                         <li><a href="{{ route('clubs.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Club Management</a></li>
                         <li><a href="{{ route('counseling.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Counseling Records</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Fees & Accounts -->
                 <li class="nav-item has-treeview">
@@ -141,7 +141,7 @@
                 </li>
 
                 <!-- Procurement & Budget -->
-                <li class="nav-item has-treeview">
+                {{-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-shopping-cart"></i>
                         <p>Procurement<i class="right fas fa-angle-left"></i></p>
@@ -152,10 +152,10 @@
                         <li><a href="{{ route('procurement.budget') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Budget Tracking</a></li>
                         <li><a href="{{ route('procurement.allocation') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Budget Allocation</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Exams -->
-                <li class="nav-item has-treeview">
+                {{-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-clipboard-check"></i>
                         <p>Exams<i class="right fas fa-angle-left"></i></p>
@@ -165,10 +165,10 @@
                         <li><a href="{{ route('marks.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Marks</a></li>
                         <li><a href="{{ route('onlineexams.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Online Exam</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Result Management -->
-                <li class="nav-item has-treeview">
+                {{-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-poll"></i>
                         <p>Result Management<i class="right fas fa-angle-left"></i></p>
@@ -178,10 +178,10 @@
                         <li><a href="{{ route('results.create') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Add Result</a></li>
                         <li><a href="{{ route('results.reports') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Result Reports</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Assessment & Analytics -->
-                <li class="nav-item has-treeview">
+                {{-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-chart-bar"></i>
                         <p>Analytics<i class="right fas fa-angle-left"></i></p>
@@ -193,34 +193,34 @@
                         <li><a href="{{ route('analytics.predictive') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Predictive Analytics</a></li>
                         <li><a href="{{ route('analytics.reports') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Advanced Reports</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Library -->
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a href="{{ route('library.index') }}" class="nav-link">
                         <i class="nav-icon fas fa-book-reader"></i>
                         <p>Library</p>
                     </a>
-                </li>
+                </li> --}}
 
                 <!-- Transport -->
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a href="{{ route('transport.index') }}" class="nav-link">
                         <i class="nav-icon fas fa-bus"></i>
                         <p>Transport</p>
                     </a>
-                </li>
+                </li> --}}
 
                 <!-- Dormitory -->
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a href="{{ route('dormitory.index') }}" class="nav-link">
                         <i class="nav-icon fas fa-bed"></i>
                         <p>Dormitory</p>
                     </a>
-                </li>
+                </li> --}}
 
                 <!-- Asset Management -->
-                <li class="nav-item has-treeview">
+                {{-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-building"></i>
                         <p>Asset Management<i class="right fas fa-angle-left"></i></p>
@@ -232,10 +232,10 @@
                         <li><a href="{{ route('assets.depreciation') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Depreciation</a></li>
                         <li><a href="{{ route('facilities.booking') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Facility Booking</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Visitor Management -->
-                <li class="nav-item has-treeview">
+                {{-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-user-check"></i>
                         <p>Visitor Management<i class="right fas fa-angle-left"></i></p>
@@ -246,15 +246,15 @@
                         <li><a href="{{ route('visitors.appointments') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Appointments</a></li>
                         <li><a href="{{ route('visitors.security') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Security Clearance</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Reports -->
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a href="{{ route('reports.index') }}" class="nav-link">
                         <i class="nav-icon fas fa-chart-line"></i>
                         <p>Reports</p>
                     </a>
-                </li>
+                </li> --}}
 
                 <!-- Teachers -->
                 <li class="nav-item has-treeview">
@@ -283,7 +283,7 @@
                 </li>
 
                 <!-- Communication -->
-                <li class="nav-item has-treeview">
+                {{-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-comments"></i>
                         <p>Communication<i class="right fas fa-angle-left"></i></p>
@@ -295,10 +295,10 @@
                         <li><a href="{{ route('communication.notifications') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Push Notifications</a></li>
                         <li><a href="{{ route('social.integration') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Social Media</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Parent Portal -->
-                <li class="nav-item has-treeview">
+                {{-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-user-friends"></i>
                         <p>Parent Portal<i class="right fas fa-angle-left"></i></p>
@@ -307,9 +307,9 @@
                         <li><a href="{{ route('parents.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Parents List</a></li>
                         <li><a href="{{ route('communication.parent') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Communication</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
-                <!-- Alumni -->
+                {{-- <!-- Alumni -->
                 <li class="nav-item">
                     <a href="{{ route('alumni.index') }}" class="nav-link">
                         <i class="nav-icon fas fa-user-clock"></i>
@@ -336,7 +336,7 @@
                         <i class="nav-icon fas fa-calendar-alt"></i>
                         <p>Event Management</p>
                     </a>
-                </li>
+                </li> --}}
 
                 <!-- ID Cards & Certificates -->
                 <li class="nav-item has-treeview">
@@ -350,7 +350,7 @@
                     </ul>
                 </li>
 
-                <!-- Timetable Generator -->
+                {{-- <!-- Timetable Generator -->
                 <li class="nav-item">
                     <a href="{{ route('timetable.index') }}" class="nav-link">
                         <i class="nav-icon fas fa-table"></i>
@@ -384,7 +384,7 @@
                         <li><a href="{{ route('privacy.gdpr') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Data Privacy</a></li>
                         <li><a href="{{ route('security.audit') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Audit Trails</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Users & Roles -->
                 <li class="nav-item has-treeview">
@@ -400,8 +400,21 @@
                 </li>
 
                 <!-- Settings -->
-                <li class="nav-item has-treeview">
-                    <a href="{{ route('settings.index') }}" class="nav-link">
+                <li class="nav-item has-treeview {{ menuOpen(['division.*','district.*','police-station.*','post-office.*']) ? 'menu-is-opening menu-open' : '' }}">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-cogs"></i>
+                        <p>Location Settings<i class="right fas fa-angle-left"></i></p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li><a href="{{ route('division.index') }}" class="nav-link  {{ request()->routeIs('division.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Division</a></li>
+                        <li><a href="{{ route('district.index') }}" class="nav-link  {{ request()->routeIs('district.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>District</a></li>
+                        <li><a href="{{ route('police-station.index') }}" class="nav-link  {{ request()->routeIs('police-station.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Police Station</a></li>
+                        <li><a href="{{ route('post-office.index') }}" class="nav-link  {{ request()->routeIs('post-office.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Post Office</a></li>
+                    </ul>
+                </li>
+
+                {{-- <li class="nav-item has-treeview">
+                    <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-cogs"></i>
                         <p>System Settings<i class="right fas fa-angle-left"></i></p>
                     </a>
@@ -411,7 +424,7 @@
                         <li><a href="{{ route('payment.settings') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Payments</a></li>
                         <li><a href="{{ route('backup.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Backup</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
             </ul>
         </nav>

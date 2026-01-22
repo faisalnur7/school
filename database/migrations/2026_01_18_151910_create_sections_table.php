@@ -13,15 +13,11 @@ return new class extends Migration
     {
         Schema::create('sections', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('school_class_id');
+            $table->foreignId('school_class_id')->nullable()->constrained('school_classes');
             $table->string('name_bn')->comment('Section name in Bengali');
             $table->string('name_en')->comment('Section name in English');
+            $table->integer('status')->default(1);
             $table->timestamps();
-
-            $table->foreign('school_class_id')
-                ->references('id')
-                ->on('school_classes')
-                ->onDelete('cascade');
         });
 
     }

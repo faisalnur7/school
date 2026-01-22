@@ -66,5 +66,14 @@ class SectionController extends Controller
         return redirect()->route('sections.index')
             ->with('success', 'Section deleted successfully');
     }
+
+    public function toggleStatus($id)
+    {
+        $section = Section::findOrFail($id);
+        $section->status = !$section->status;
+        $section->save();
+
+        return back()->with('success', 'Status updated.');
+    }
 }
 

@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('groups', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('school_class_id')->nullable()->constrained('school_classes');
             $table->string('name_bn')->comment('Group name in Bengali');
             $table->string('name_en')->comment('Group name in English');
-            $table->integer('status')->nullable()->default('1');
+            $table->integer('status')->default(1);
             $table->timestamps();
         });
     }
