@@ -1,0 +1,192 @@
+<!-- Students Table -->
+<div class="card">
+    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
+        <h3 class="card-title">
+            Students
+            @if ($students->total() > 0)
+                <span class="badge badge-light">{{ $students->total() }}</span>
+            @endif
+        </h3>
+        <div class="ml-auto d-flex gap-2">
+            <a href="{{ route('students.export', request()->all()) }}" class="btn btn-success btn-sm mr-2">
+                <i class="fas fa-file-excel"></i> Export
+            </a>
+            <a href="{{ route('students.create') }}" class="btn btn-primary btn-sm text-bold">
+                <i class="fas fa-plus"></i> Add Student
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body px-0 pb-4 pt-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Photo</th>
+                        <th>Student Info</th>
+                        <th>Academic Info</th>
+                        <th>Contact</th>
+                        <th>Guardian</th>
+                        <th class="text-center">Status</th>
+                        <th width="180">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach ($students as $index => $student)
+                        <tr>
+                            <td>{{ $students->firstItem() + $index }}</td>
+
+                            <td>
+                                @if ($student->image)
+                                    <img src="{{ asset($student->image) }}" alt="{{ $student->full_name_en }}"
+                                        class="rounded-circle" width="40" height="40" style="object-fit: cover;">
+                                @else
+                                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
+                                        style="width: 40px; height: 40px; font-size: 16px;">
+                                        {{ strtoupper(substr($student->full_name_en, 0, 1)) }}
+                                    </div>
+                                @endif
+                            </td>
+
+                            <td>
+                                <div>
+                                    <strong>{{ $student->full_name_en }}</strong>
+                                    @if ($student->full_name_bn)
+                                        <br><small class="text-muted">{{ $student->full_name_bn }}</small>
+                                    @endif
+                                    @if ($student->date_of_birth)
+                                        <br><small class="text-muted">
+                                            <i class="fas fa-birthday-cake"></i>
+                                            {{ \Carbon\Carbon::parse($student->date_of_birth)->format('d M, Y') }}
+                                            ({{ \Carbon\Carbon::parse($student->date_of_birth)->age }} yrs)
+                                        </small>
+                                    @endif
+                                </div>
+                            </td>
+
+                            <td>
+                                @if ($student->academicInformations && $student->academicInformations->isNotEmpty())
+                                    <small>
+                                        @php
+                                            $academicInformations = $student->academicInformations->last();
+                                        @endphp
+                                        <strong>Session:</strong>
+                                        {{ $academicInformations->academicSession->name_en ?? 'N/A' }}<br>
+                                        <strong>Class:</strong>
+                                        {{ $academicInformations->schoolClass->name_en ?? 'N/A' }}<br>
+                                        <strong>Section:</strong>
+                                        {{ $academicInformations->section->name_en ?? 'N/A' }}<br>
+                                        <strong>Roll:</strong> {{ $academicInformations->roll ?? 'N/A' }}
+                                    </small>
+                                @else
+                                    <small class="text-muted">No academic info</small>
+                                @endif
+                            </td>
+
+                            <td>
+                                <small>
+                                    @if ($student->father_phone)
+                                        <i class="fas fa-phone"></i> {{ $student->father_phone }}<br>
+                                    @endif
+                                    @if ($student->father_email)
+                                        <i class="fas fa-envelope"></i> {{ $student->father_email }}
+                                    @endif
+                                    @if (!$student->father_phone && !$student->father_email)
+                                        <span class="text-muted">No contact</span>
+                                    @endif
+                                </small>
+                            </td>
+
+                            <td>
+                                <small>
+                                    @if ($student->guardian_type == 1)
+                                        <span class="badge badge-info">Father</span>
+                                    @elseif($student->guardian_type == 2)
+                                        <span class="badge badge-success">Mother</span>
+                                    @elseif($student->guardian_type == 3)
+                                        <span class="badge badge-warning">Other</span>
+                                        @if ($student->guardian_name)
+                                            <br>{{ $student->guardian_name }}
+                                        @endif
+                                    @endif
+                                </small>
+                            </td>
+
+                            <td class="text-center">
+                                <form action="{{ route('students.toggle-status', $student->id) }}" method="POST">
+                                    @csrf
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input"
+                                            id="statusSwitch{{ $student->id }}" onchange="this.form.submit()"
+                                            {{ $student->status ? 'checked' : '' }}>
+                                        <label class="custom-control-label" for="statusSwitch{{ $student->id }}">
+                                        </label>
+                                    </div>
+                                </form>
+                            </td>
+
+                            <td style="display: flex; justify-content: center; align-items: self-start; gap: 5px;">
+                                <a href="{{ route('students.show', $student->id) }}" class="btn btn-sm btn-info"
+                                    title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+
+                                <a href="{{ route('students.edit', $student->id) }}" class="btn btn-sm btn-dark"
+                                    title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <form action="{{ route('students.destroy', $student->id) }}" method="POST"
+                                    style="display:inline;" onsubmit="return confirm('Delete this student?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+
+                    @if ($students->isEmpty())
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                <i class="fas fa-user-slash fa-3x mb-3"></i>
+                                <p>No Students found</p>
+                                @if (request()->hasAny([
+                                        'search',
+                                        'academic_session_id',
+                                        'school_class_id',
+                                        'section_id',
+                                        'group_id',
+                                        'phone',
+                                        'age_from',
+                                        'age_to',
+                                        'gender',
+                                        'status',
+                                        'permanent_division_id',
+                                        'permanent_district_id',
+                                        'permanent_police_station_id',
+                                        'permanent_post_office_id',
+                                    ]))
+                                    <a href="{{ route('students.index') }}" class="btn btn-sm btn-primary">
+                                        Clear Filters
+                                    </a>
+                                @endif
+                            </td>
+                        </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        @if ($students->hasPages())
+            <div class="px-3 pt-3">
+                {{ $students->appends(request()->query())->links() }}
+            </div>
+        @endif
+    </div>
+</div>

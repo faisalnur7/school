@@ -26,6 +26,9 @@ return new class extends Migration
             // Foreign keys
             $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
             $table->foreign('fee_set_id')->references('id')->on('fee_sets')->onDelete('cascade');
+
+            $table->index('student_id');
+            $table->index('fee_set_id');
         });
     }
 

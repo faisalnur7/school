@@ -10,55 +10,65 @@ class Student extends Model
     use HasFactory;
 
     protected $fillable = [
-        // Basic info
-        'full_name_bn',
-        'full_name_en',
-        'image',
-        'date_of_birth',
-        'gender',
-        'birth_certificate_number',
-        'religion',
-        'blood_group',
-        'disable',
+            // ================= BASIC INFO =================
+            'student_cid',
+            'full_name_bn',
+            'full_name_en',
+            'image',
+            'date_of_birth',
+            'gender',
+            'birth_certificate_number',
+            'religion',
+            'blood_group',
+            'disable',
 
-        // Father info
-        'father_name',
-        'father_nid_number',
-        'father_occupation',
-        'father_phone',
-        'father_email',
+            // ================= FATHER =================
+            'father_name',
+            'father_nid_number',
+            'father_occupation',
+            'father_phone',
+            'father_email',
 
-        // Mother info
-        'mother_name',
-        'mother_nid_number',
-        'mother_occupation',
-        'mother_phone',
-        'mother_email',
+            // ================= MOTHER =================
+            'mother_name',
+            'mother_nid_number',
+            'mother_occupation',
+            'mother_phone',
+            'mother_email',
 
-        // Income
-        'annual_income',
+            // ================= INCOME =================
+            'annual_income',
 
-        // Address
-        'present_address',
-        'permanent_address',
-        'division_id',
-        'district_id',
-        'police_station_id',
-        'post_office_id',
+            // ================= PRESENT ADDRESS =================
+            'present_address',
+            'present_division_id',
+            'present_district_id',
+            'present_police_station_id',
+            'present_post_office_id',
 
-        // Guardian info
-        'guardian_name',
-        'guardian_relation',
-        'guardian_occupation',
-        'guardian_address',
-        'guardian_phone',
-        'guardian_email',
+            // ================= PERMANENT ADDRESS =================
+            'permanent_address',
+            'permanent_division_id',
+            'permanent_district_id',
+            'permanent_police_station_id',
+            'permanent_post_office_id',
 
-        // Academic history
-        'previous_school',
-        'previous_class_appeared',
-        'tc_number',
-    ];
+            // ================= GUARDIAN =================
+            'guardian_type',
+            'guardian_name',
+            'guardian_relation',
+            'guardian_occupation',
+            'guardian_address',
+            'guardian_phone',
+            'guardian_email',
+
+            // ================= ACADEMIC HISTORY =================
+            'previous_school',
+            'previous_class_appeared',
+            'tc_number',
+
+            'status'
+        ];
 
 
     protected $casts = [
@@ -146,7 +156,13 @@ class Student extends Model
         return $this->belongsTo(PostOffice::class);
     }
 
+    public function academicInformations()
+    {
+        return $this->hasMany(StudentAcademicInformation::class);
+    }
 
-
+    public function payments(){
+        return $this->hasMany(Payment::class);
+    }
 
 }

@@ -14,21 +14,26 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('fee_id')->comment('Reference to the student fee');
-            $table->decimal('amount', 10, 2)->comment('Amount paid');
+            $table->unsignedBigInteger('collected_by')->nullable();
+            $table->unsignedBigInteger('student_id')->comment('Reference to the student fee');
+            $table->decimal('amount', 10, 2)->default(0)->comment('Amount paid');
+            $table->string('receipt_no')->unique()->nullable();
             $table->date('payment_date')->nullable()->comment('Date of payment');
             $table->string('payment_method')->nullable()->comment('Cash, Bank Transfer, Card, etc.');
             $table->string('transaction_id')->nullable()->comment('Optional transaction reference');
             $table->text('remarks')->nullable()->comment('Optional notes about payment');
+            $table->string('status')->default('completed');
 
             $table->timestamps();
 
             // Foreign key
-            $table->foreign('fee_id')->references('id')->on('fees')->onDelete('cascade');
+            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+            $table->foreign('collected_by')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
     /**
+     * 
      * Reverse the migrations.
      */
     public function down(): void

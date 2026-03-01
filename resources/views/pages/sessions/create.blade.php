@@ -5,7 +5,8 @@
         <div class="row">
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3"
+                       >
                         <h3>{{ isset($session) ? 'Edit' : 'Create' }} Academic Session</h3>
                     </div>
 

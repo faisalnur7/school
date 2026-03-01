@@ -5,7 +5,7 @@
         <div class="row justify-content-center">
             <div class="col-md-4">
                 <div class="card card-primary">
-                    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3" style="background: linear-gradient(90deg, #343a40, #212529);">
+                    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
                         <h3 class="card-title">Edit Group</h3>
                     </div>
 

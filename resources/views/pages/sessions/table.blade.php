@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3"
-        style="background: linear-gradient(90deg, #343a40, #212529);">
+       >
         <h3 class="card-title">Academic Sessions</h3>
         <a href="{{ route('sessions.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
             + Add Session

@@ -5,7 +5,8 @@
         <div class="row justify-content-center">
             <div class="col-md-4">
                 <div class="card card-primary">
-                    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3" style="background: linear-gradient(90deg, #343a40, #212529);">
+                    <div
+                        class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
                         <h3 class="card-title">Create Class</h3>
                     </div>
 
@@ -26,8 +27,8 @@
                             <div class="form-group">
                                 <label>Status</label>
                                 <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="statusSwitch" name="status" value="1"
-                                        checked>
+                                    <input type="checkbox" class="custom-control-input" id="statusSwitch" name="status"
+                                        value="1" checked>
                                     <label class="custom-control-label" for="statusSwitch">Active</label>
                                 </div>
                             </div>

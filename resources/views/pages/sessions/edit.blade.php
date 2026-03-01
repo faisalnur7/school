@@ -5,7 +5,8 @@
         <div class="row justify-content-center">
             <div class="col-md-4">
                 <div class="card card-primary">
-                    <div class="card-header">
+                    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3"
+                       >
                         <h3 class="card-title">Edit Academic Session</h3>
                     </div>
 

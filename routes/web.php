@@ -2,6 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
+    CommonController,
+    FeeCategoryController,
+    FeeSetController,
+    FeeCollectionController,
+    IncomeCategoryController,
+    ExpenseCategoryController,
     DashboardController,
     SchoolClassController,
     SectionController,
@@ -212,6 +218,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/students/{id}/update', [StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/{id}/delete', [StudentController::class, 'destroy'])->name('students.delete');
     Route::get('/students/progress', [StudentController::class, 'progressTracking'])->name('students.progress');
+    Route::get('/students/progress', [StudentController::class, 'progressTracking'])->name('students.show');
+    Route::get('/students/destroy/{id}', [StudentController::class, 'progressTracking'])->name('students.destroy');
+    Route::post('students/{id}/toggle-status', [StudentController::class, 'toggleStatus'])->name('students.toggle-status');
+    Route::get('students/export', [StudentController::class, 'export'])->name('students.export');
 
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('/attendance/store', [AttendanceController::class, 'store'])->name('attendance.store');
@@ -268,16 +278,68 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/reports/student', [ReportController::class, 'student'])->name('reports.student');
 
     // ------------------- Fees & Accounts -------------------
-    Route::get('/fees', [FeeController::class, 'index'])->name('fees.index');
-    Route::get('/fees/create', [FeeController::class, 'create'])->name('fees.create');
-    Route::post('/fees/store', [FeeController::class, 'store'])->name('fees.store');
-    Route::get('/fees/{id}/edit', [FeeController::class, 'edit'])->name('fees.edit');
-    Route::post('/fees/{id}/update', [FeeController::class, 'update'])->name('fees.update');
-    Route::delete('/fees/{id}/delete', [FeeController::class, 'destroy'])->name('fees.delete');
+
+    Route::prefix('fee-categories')->group(function () {
+        Route::get('/', [FeeCategoryController::class, 'index'])->name('fee-categories.index');
+        Route::get('/create', [FeeCategoryController::class, 'create'])->name('fee-categories.create');
+        Route::post('/', [FeeCategoryController::class, 'store'])->name('fee-categories.store');
+        Route::get('{id}/edit', [FeeCategoryController::class, 'edit'])->name('fee-categories.edit');
+        Route::put('{id}', [FeeCategoryController::class, 'update'])->name('fee-categories.update');
+        Route::post('{id}/toggle-status', [FeeCategoryController::class, 'toggleStatus'])->name('fee-categories.toggle-status');
+        Route::delete('{id}', [FeeCategoryController::class, 'destroy'])->name('fee-categories.delete');
+    });
+
+    Route::prefix('fee-sets')->group(function () {
+        Route::get('/', [FeeSetController::class, 'index'])->name('fee-sets.index');
+        Route::get('/create', [FeeSetController::class, 'create'])->name('fee-sets.create');
+        Route::post('/', [FeeSetController::class, 'store'])->name('fee-sets.store');
+        Route::get('{id}/edit', [FeeSetController::class, 'edit'])->name('fee-sets.edit');
+        Route::put('{id}', [FeeSetController::class, 'update'])->name('fee-sets.update');
+        Route::delete('{id}', [FeeSetController::class, 'destroy'])->name('fee-sets.destroy');
+    });
+
+
+    Route::prefix('fees')->group(function () {
+        Route::get('/', [FeeController::class, 'index'])->name('fees.index');
+        Route::get('/create', [FeeController::class, 'create'])->name('fees.create');
+        Route::post('/store', [FeeController::class, 'store'])->name('fees.store');
+        Route::get('/{id}/edit', [FeeController::class, 'edit'])->name('fees.edit');
+        Route::post('/{id}/update', [FeeController::class, 'update'])->name('fees.update');
+        Route::delete('/{id}/delete', [FeeController::class, 'destroy'])->name('fees.delete');
+    });
+
+    Route::prefix('income-categories')->group(function () {
+        Route::get('/', [IncomeCategoryController::class, 'index'])->name('income-categories.index');
+        Route::get('/create', [IncomeCategoryController::class, 'create'])->name('income-categories.create');
+        Route::post('/store', [IncomeCategoryController::class, 'store'])->name('income-categories.store');
+        Route::get('/{incomeCategory}/edit', [IncomeCategoryController::class, 'edit'])->name('income-categories.edit');
+        Route::put('/{incomeCategory}/update', [IncomeCategoryController::class, 'update'])->name('income-categories.update');
+        Route::delete('/{incomeCategory}/destroy', [IncomeCategoryController::class, 'destroy'])->name('income-categories.destroy');
+    });
+
+    Route::prefix('expense-categories')->group(function () {
+        Route::get('/', [ExpenseCategoryController::class, 'index'])->name('expense-categories.index');
+        Route::get('/create', [ExpenseCategoryController::class, 'create'])->name('expense-categories.create');
+        Route::post('/store', [ExpenseCategoryController::class, 'store'])->name('expense-categories.store');
+        Route::get('/{expenseCategory}/edit', [ExpenseCategoryController::class, 'edit'])->name('expense-categories.edit');
+        Route::put('/{expenseCategory}/update', [ExpenseCategoryController::class, 'update'])->name('expense-categories.update');
+        Route::delete('/{expenseCategory}/destroy', [ExpenseCategoryController::class, 'destroy'])->name('expense-categories.destroy');
+    });
+
+    // Fee collection
+    Route::get('/fees/collect', [FeeCollectionController::class, 'index'])->name('fees.collect');
+    Route::get('/fees/collect_payment/{student_id}', [FeeCollectionController::class, 'collect_payment'])->name('fees.collect_payment');
+    Route::get('/fees/search-student', [FeeCollectionController::class, 'search'])->name('fees.search');
+    Route::post('/fees/pay', [FeeCollectionController::class, 'pay'])->name('fees.pay');
+    Route::get('/fees/category-pay', [FeeCollectionController::class,'categoryPay'])->name('fees.category.pay');
+    Route::get('/fees/load-category-fees', [FeeCollectionController::class,'loadCategoryFees'])->name('fees.load.category');
+    Route::post('/fees/category-pay', [FeeCollectionController::class,'storeCategoryPayment'])->name('fees.category.store');
+    Route::get('/fees/search', [FeeCollectionController::class,'search'])->name('fees.search');
 
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::post('/payments/store', [PaymentController::class, 'store'])->name('payments.store');
-
+    Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
+    
     Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
 
     Route::prefix('scholarships')->group(function () {
@@ -606,5 +668,12 @@ Route::group(['middleware' => ['auth']], function () {
 
     // ------------------- Homework -------------------
     Route::get('/homework', [LessonPlanController::class, 'homework'])->name('homework.index');
+
+    // ------------------- AJAX Calls -------------------
+    Route::get('load_districts', [CommonController::class,'load_districts'])->name('load_districts');
+    Route::get('load_police_stations',[CommonController::class,'load_police_stations'])->name('load_police_stations');
+    Route::get('load_post_offices',[CommonController::class,'load_post_offices'])->name('load_post_offices');
+    Route::get('load_section_groups',[CommonController::class,'load_section_groups'])->name('load_section_groups');
+    Route::get('load_groups',[CommonController::class,'load_groups'])->name('load_groups');
 
 });

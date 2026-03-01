@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('fee_categories', function (Blueprint $table) {
+        Schema::create('income_categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->comment('Category name, e.g., Tuition, Lab, Library');
-            $table->text('description')->nullable()->comment('Optional description of the fee category');
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->string('description')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -24,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('fee_categories');
+        Schema::dropIfExists('income_categories');
     }
 };

@@ -15,16 +15,21 @@ return new class extends Migration
             $table->id();
 
             $table->string('name')->comment('Fee set name, e.g., Tuition Fee, Lab Fee');
+            $table->string('bn_name')->nullable()->comment('Fee set name, e.g., Tuition Fee, Lab Fee');
             $table->unsignedBigInteger('school_class_id')->nullable()->comment('Class this fee set applies to');
-            $table->unsignedBigInteger('fee_category_id')->nullable()->comment('Category of the fee set');
-            $table->decimal('amount', 10, 2)->comment('Amount for this fee set');
-            $table->enum('frequency', ['monthly', 'quarterly', 'yearly'])->default('monthly')->comment('Billing frequency');
+            $table->unsignedBigInteger('group_id')->nullable()->comment('Optional group/stream within the class');
+            $table->unsignedBigInteger('academic_session_id')->nullable()->comment('Academic session to isolate the fee sets');
+            $table->enum('frequency', ['monthly', 'yearly', 'others'])->default('monthly')->comment('Billing frequency');
             $table->text('description')->nullable()->comment('Optional notes about this fee set');
             $table->timestamps();
 
             // Foreign keys
             $table->foreign('school_class_id')->references('id')->on('school_classes')->onDelete('set null');
-            $table->foreign('fee_category_id')->references('id')->on('fee_categories')->onDelete('set null');
+            $table->foreign('group_id')->references('id')->on('groups')->onDelete('set null');
+            $table->foreign('academic_session_id')->references('id')->on('academic_sessions')->onDelete('set null');
+            
+            $table->index('school_class_id');
+
         });
     }
 

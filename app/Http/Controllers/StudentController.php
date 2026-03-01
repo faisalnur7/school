@@ -4,17 +4,173 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
+use App\Models\AcademicSession;
+use App\Models\SchoolClass;
+use App\Models\Section;
+use App\Models\Group;
+use App\Models\Division;
+use App\Models\District;
+use App\Models\PoliceStation;
+use App\Models\PostOffice;
+use App\Models\FeeSet;
+use App\Models\Fee;
+use App\Models\StudentAcademicInformation;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class StudentController extends Controller
 {
     /**
-     * Display a listing of students
+     * Display a listing of students with filters
      */
-    public function index()
+    public function index(Request $request)
     {
-        $students = Student::latest()->paginate(10);
+        // Base query with relationships
+        $query = Student::with([
+            'academicInformations.academicSession',
+            'academicInformations.schoolClass',
+            'academicInformations.section',
+            'academicInformations.group'
+        ]);
 
-        return view('pages.students.index', compact('students'));
+        // Academic filters
+        if ($request->filled('academic_session_id')) {
+            $query->whereHas('academicInformations', function($q) use ($request) {
+                $q->where('academic_session_id', $request->academic_session_id);
+            });
+        }
+
+        if ($request->filled('school_class_id')) {
+            $query->whereHas('academicInformations', function($q) use ($request) {
+                $q->where('school_class_id', $request->school_class_id);
+            });
+        }
+
+        if ($request->filled('section_id')) {
+            $query->whereHas('academicInformations', function($q) use ($request) {
+                $q->where('section_id', $request->section_id);
+            });
+        }
+
+        if ($request->filled('group_id')) {
+            $query->whereHas('academicInformations', function($q) use ($request) {
+                $q->where('group_id', $request->group_id);
+            });
+        }
+
+        // Location filters (Permanent Address)
+        if ($request->filled('permanent_division_id')) {
+            $query->where('permanent_division_id', $request->permanent_division_id);
+        }
+
+        if ($request->filled('permanent_district_id')) {
+            $query->where('permanent_district_id', $request->permanent_district_id);
+        }
+
+        if ($request->filled('permanent_police_station_id')) {
+            $query->where('permanent_police_station_id', $request->permanent_police_station_id);
+        }
+
+        if ($request->filled('permanent_post_office_id')) {
+            $query->where('permanent_post_office_id', $request->permanent_post_office_id);
+        }
+
+        // Phone number filter (Father, Mother, or Guardian)
+        if ($request->filled('phone')) {
+            $phone = $request->phone;
+            $query->where(function($q) use ($phone) {
+                $q->where('father_phone', 'like', "%{$phone}%")
+                  ->orWhere('mother_phone', 'like', "%{$phone}%")
+                  ->orWhere('guardian_phone', 'like', "%{$phone}%");
+            });
+        }
+
+        // Age filter
+        if ($request->filled('age_from') || $request->filled('age_to')) {
+            $today = Carbon::today();
+            
+            if ($request->filled('age_from')) {
+                $dateFrom = $today->copy()->subYears($request->age_from)->endOfYear();
+                $query->where('date_of_birth', '<=', $dateFrom);
+            }
+            
+            if ($request->filled('age_to')) {
+                $dateTo = $today->copy()->subYears($request->age_to)->startOfYear();
+                $query->where('date_of_birth', '>=', $dateTo);
+            }
+        }
+
+        // Gender filter
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+
+        // Status filter
+        // if ($request->has('status') && $request->status !== '') {
+        //     $query->where('status', $request->status);
+        // }
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('full_name_en', 'like', "%{$search}%")
+                  ->orWhere('full_name_bn', 'like', "%{$search}%")
+                  ->orWhere('birth_certificate_number', 'like', "%{$search}%")
+                  ->orWhereHas('academicInformations', function($subQ) use ($search) {
+                      $subQ->where('roll', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Get paginated results
+        $students = $query->latest()->paginate(15);
+
+        // Get filter data
+        $academicSessions = AcademicSession::where('status', 1)->get();
+        $classes = SchoolClass::where('status', 1)->get();
+        $sections = Section::where('status', 1)->get();
+        $groups = Group::where('status', 1)->get();
+        $divisions = Division::where('status', 1)->get();
+        
+        // Get districts based on selected division or all
+        if ($request->filled('permanent_division_id')) {
+            $districts = District::where('division_id', $request->permanent_division_id)
+                                ->where('status', 1)
+                                ->get();
+        } else {
+            $districts = District::where('status', 1)->get();
+        }
+        
+        // Get police stations based on selected district or all
+        if ($request->filled('permanent_district_id')) {
+            $policeStations = PoliceStation::where('district_id', $request->permanent_district_id)
+                                          ->where('status', 1)
+                                          ->get();
+        } else {
+            $policeStations = PoliceStation::where('status', 1)->get();
+        }
+        
+        // Get post offices based on selected police station or all
+        if ($request->filled('permanent_police_station_id')) {
+            $postOffices = PostOffice::where('police_station_id', $request->permanent_police_station_id)
+                                    ->where('status', 1)
+                                    ->get();
+        } else {
+            $postOffices = PostOffice::where('status', 1)->get();
+        }
+
+        return view('pages.students.index', compact(
+            'students',
+            'academicSessions',
+            'classes',
+            'sections',
+            'groups',
+            'divisions',
+            'districts',
+            'policeStations',
+            'postOffices'
+        ));
     }
 
     /**
@@ -22,74 +178,306 @@ class StudentController extends Controller
      */
     public function create()
     {
-        return view('pages.students.create');
+        $data['academicSessions'] = AcademicSession::all();
+        $data['classes'] = SchoolClass::all();
+        $data['sections'] = Section::all();
+        $data['groups'] = Group::all();
+        $data['divisions'] = Division::all();
+        $data['districts'] = District::all();
+        $data['policeStations'] = PoliceStation::all();
+        $data['postOffices'] = PostOffice::all();
+        $data['feeSets'] = FeeSet::all();
+        return view('pages.students.create', $data);
     }
 
     /**
      * Store a newly created student
      */
+
     public function store(Request $request)
     {
+        $validated = $this->validateData($request);
+
+        DB::transaction(function () use ($validated, $request) {
+
+            // ====== Upload Image ======
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $filename = time().'_'.uniqid().'.'.$image->getClientOriginalExtension();
+                $image->move(public_path('uploads/students'), $filename);
+                $validated['student']['image'] = 'uploads/students/'.$filename;
+            }
+
+            // ====== Create Student ======
+            $student = Student::create($validated['student']);
+
+            // ====== Create Academic Info ======
+            StudentAcademicInformation::create([
+                'student_id'          => $student->id,
+                'academic_session_id' => $request->academic_session_id,
+                'school_class_id'     => $request->school_class_id,
+                'section_id'          => $request->section_id,
+                'group_id'            => $request->group_id,
+                'roll'                => $request->roll,
+            ]);
+
+            // ====== Apply Fee Sets with Due Dates ======
+            $this->applyFeeSetsToStudentWithDueDates(
+                $student,
+                $request->school_class_id,
+                $request->academic_session_id,
+                $request->group_id
+            );
+        });
+
+        return redirect()->route('students.index')->with('success', 'Student created successfully');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $this->validateData($request);
+        $student = Student::findOrFail($id);
+
+        DB::transaction(function () use ($validated, $request, $student) {
+
+            // ====== Handle Image Upload ======
+            if ($request->hasFile('image')) {
+                if ($student->image && file_exists(public_path($student->image))) {
+                    unlink(public_path($student->image));
+                }
+
+                $image = $request->file('image');
+                $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/students'), $filename);
+                $validated['student']['image'] = 'uploads/students/' . $filename;
+            }
+
+            // ====== Update Student ======
+            $student->update($validated['student']);
+
+            // ====== Get Old Academic Info ======
+            $oldAcademic = $student->academicInformations()->first();
+
+            // ====== Update Academic Info ======
+            $student->academicInformations()->updateOrCreate(
+                ['student_id' => $student->id],
+                [
+                    'academic_session_id' => $request->academic_session_id,
+                    'school_class_id'     => $request->school_class_id,
+                    'section_id'          => $request->section_id,
+                    'group_id'            => $request->group_id,
+                    'roll'                => $request->roll,
+                ]
+            );
+
+            // ====== Check if class/group/session changed ======
+            $changed = !$oldAcademic
+                || $oldAcademic->school_class_id != $request->school_class_id
+                || $oldAcademic->academic_session_id != $request->academic_session_id
+                || $oldAcademic->group_id != $request->group_id;
+
+            if ($changed) {
+                // Delete old fees
+                Fee::where('student_id', $student->id)->delete();
+
+                // Apply new fee sets with due dates
+                $this->applyFeeSetsToStudentWithDueDates(
+                    $student,
+                    $request->school_class_id,
+                    $request->academic_session_id,
+                    $request->group_id
+                );
+            }
+        });
+
+        return redirect()->route('students.index')->with('success', 'Student updated successfully');
+    }
+
+    /**
+     * Apply Fee Sets to a Student with Due Dates
+     */
+    protected function applyFeeSetsToStudentWithDueDates($student, $classId, $sessionId, $groupId = null)
+    {
+        $feeSets = FeeSet::with('items')
+            ->where('school_class_id', $classId)
+            ->where('academic_session_id', $sessionId)
+            ->get();
+
+        foreach ($feeSets as $feeSet) {
+
+            $totalAmount = $feeSet->items->sum('amount');
+
+            // Generate due dates
+            $dueDates = $this->generateDueDates($feeSet->frequency);
+
+            foreach ($dueDates as $dueDate) {
+                Fee::create([
+                    'student_id' => $student->id,
+                    'fee_set_id' => $feeSet->id,
+                    'amount'     => $totalAmount,
+                    'due_date'   => $dueDate,
+                    'status'     => 'pending',
+                ]);
+            }
+        }
+    }
+
+    public function edit($id)
+    {
+        $student = Student::with('academicInformations')->findOrFail($id);
+
+        $data['student'] = $student;
+        $data['academicInfo'] = $student->academicInformations->last();
+
+        // Dropdown Data (same as create)
+        $data['academicSessions'] = AcademicSession::all();
+        $data['classes']          = SchoolClass::all();
+        $data['sections']         = Section::all();
+        $data['groups']           = Group::all();
+        $data['divisions']        = Division::all();
+        $data['districts']        = District::all();
+        $data['policeStations']   = PoliceStation::all();
+        $data['postOffices']      = PostOffice::all();
+        $data['feeSets']          = FeeSet::all();
+
+        return view('pages.students.edit', $data);
+    }
+
+
+
+    /**
+     * Toggle student status
+     */
+    public function toggleStatus($id)
+    {
+        $student = Student::findOrFail($id);
+        $student->status = !$student->status;
+        $student->save();
+        
+        return back()->with('success', 'Student status updated successfully');
+    }
+
+    /**
+     * Export students (placeholder for Excel export)
+     */
+    public function export(Request $request)
+    {
+        // You can implement Excel export here using Laravel Excel package
+        // For now, returning a simple response
+        return back()->with('info', 'Export functionality will be implemented');
+    }
+
+    /**
+     * Validation + separation
+     */
+    private function validateData(Request $request): array
+    {
         $validated = $request->validate([
-            'name'        => 'required|string|max:255',
-            'email'       => 'nullable|email|unique:students,email',
-            'phone'       => 'nullable|string|max:20',
-            'class_id'    => 'required|integer',
-            'section_id'  => 'nullable|integer',
+            // ================= BASIC INFO =================
+            'full_name_bn' => 'nullable|string|max:255',
+            'full_name_en' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|integer',
+            'birth_certificate_number' => 'nullable|string|max:255',
+            'religion' => 'nullable|integer',
+            'blood_group' => 'nullable|integer',
+            'disable' => 'nullable|boolean',
+
+            // ================= FATHER =================
+            'father_name' => 'nullable|string|max:255',
+            'father_nid_number' => 'nullable|string|max:255',
+            'father_occupation' => 'nullable|string|max:255',
+            'father_phone' => 'nullable|string|max:50',
+            'father_email' => 'nullable|email|max:255',
+
+            // ================= MOTHER =================
+            'mother_name' => 'nullable|string|max:255',
+            'mother_nid_number' => 'nullable|string|max:255',
+            'mother_occupation' => 'nullable|string|max:255',
+            'mother_phone' => 'nullable|string|max:50',
+            'mother_email' => 'nullable|email|max:255',
+
+            // ================= INCOME =================
+            'annual_income' => 'nullable|string|max:255',
+
+            // ================= PRESENT ADDRESS =================
+            'present_address' => 'nullable|string',
+            'present_division_id' => 'nullable|integer|exists:divisions,id',
+            'present_district_id' => 'nullable|integer|exists:districts,id',
+            'present_police_station_id' => 'nullable|integer|exists:police_stations,id',
+            'present_post_office_id' => 'nullable|integer|exists:post_offices,id',
+
+            // ================= PERMANENT ADDRESS =================
+            'permanent_address' => 'nullable|string',
+            'permanent_division_id' => 'nullable|integer|exists:divisions,id',
+            'permanent_district_id' => 'nullable|integer|exists:districts,id',
+            'permanent_police_station_id' => 'nullable|integer|exists:police_stations,id',
+            'permanent_post_office_id' => 'nullable|integer|exists:post_offices,id',
+
+            // ================= GUARDIAN =================
+            'guardian_type' => 'nullable|integer|in:1,2,3',
+            'guardian_name' => 'nullable|string|max:255',
+            'guardian_relation' => 'nullable|string|max:255',
+            'guardian_address' => 'nullable|string',
+            'guardian_phone' => 'nullable|string|max:50',
+            'guardian_email' => 'nullable|email|max:255',
+
+            // ================= PREVIOUS ACADEMIC =================
+            'previous_school' => 'nullable|string|max:255',
+            'previous_class_appeared' => 'nullable|string|max:255',
+            'tc_number' => 'nullable|string|max:255',
+
+            // ================= ACADEMIC =================
+            'academic_session_id' => 'nullable|integer|exists:academic_sessions,id',
+            'school_class_id' => 'nullable|integer|exists:school_classes,id',
+            'section_id' => 'nullable|integer|exists:sections,id',
+            'group_id' => 'nullable|integer|exists:groups,id',
+            'roll' => 'nullable|string|max:50',
         ]);
 
-        Student::create($validated);
+        // Separate student fields
+        $studentFields = collect($validated)->except([
+            'academic_session_id',
+            'school_class_id',
+            'section_id',
+            'group_id',
+            'roll',
+            'image', // Exclude image as it's handled separately
+        ])->toArray();
 
-        return redirect()
-            ->route('students.index')
-            ->with('success', 'Student created successfully.');
+        return [
+            'student' => $studentFields,
+        ];
     }
 
-    /**
-     * Display the specified student
-     */
-    public function show(Student $student)
+    private function generateDueDates($frequency, $months = [], $year = null)
     {
-        return view('pages.students.show', compact('student'));
-    }
+        // dd($frequency, $months, $year);
+        $year = $year ?? now()->year;
+        $dates = [];
 
-    /**
-     * Show the form for editing the specified student
-     */
-    public function edit(Student $student)
-    {
-        return view('pages.students.edit', compact('student'));
-    }
+        switch ($frequency) {
 
-    /**
-     * Update the specified student
-     */
-    public function update(Request $request, Student $student)
-    {
-        $validated = $request->validate([
-            'name'        => 'required|string|max:255',
-            'email'       => 'nullable|email|unique:students,email,' . $student->id,
-            'phone'       => 'nullable|string|max:20',
-            'class_id'    => 'required|integer',
-            'section_id'  => 'nullable|integer',
-        ]);
+            case 'monthly':
+                for ($m = 1; $m <= 12; $m++) {
+                    $dates[] = Carbon::create($year, $m, 1)->endOfMonth();
+                }
+                break;
 
-        $student->update($validated);
+            case 'yearly':
+                $dates[] = Carbon::create($year, 12, 31);
+                break;
 
-        return redirect()
-            ->route('students.index')
-            ->with('success', 'Student updated successfully.');
-    }
+            case 'others':
+                if (!empty($months)) {
+                    foreach ($months as $m) {
+                        $dates[] = Carbon::create($year, $m, 1)->endOfMonth();
+                    }
+                }
+                break;
+        }
 
-    /**
-     * Remove the specified student
-     */
-    public function destroy(Student $student)
-    {
-        $student->delete();
-
-        return redirect()
-            ->route('students.index')
-            ->with('success', 'Student deleted successfully.');
+        return $dates;
     }
 }

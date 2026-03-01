@@ -95,17 +95,17 @@
                 </li> --}}
 
                 <!-- Students -->
-                <li class="nav-item has-treeview">
+                <li class="nav-item has-treeview {{ menuOpen(['students.*','attendance.*']) ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-user-graduate"></i>
                         <p>Students<i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li><a href="{{ route('students.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Student List</a></li>
-                        <li><a href="{{ route('students.create') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Add Student</a></li>
-                        <li><a href="{{ route('attendance.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Attendance</a></li>
-                        <li><a href="{{ route('students.progress') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Progress Tracking</a></li>
-                        <li><a href="{{ route('reports.student') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Reports</a></li>
+                        <li><a href="{{ route('students.index') }}" class="nav-link {{ request()->routeIs('students.index') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Student List</a></li>
+                        <li><a href="{{ route('students.create') }}" class="nav-link {{ request()->routeIs('students.create') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Add Student</a></li>
+                        <li><a href="{{ route('attendance.index') }}" class="nav-link {{ request()->routeIs('attendance.index') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Attendance</a></li>
+                        {{-- <li><a href="{{ route('students.progress') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Progress Tracking</a></li> --}}
+                        {{-- <li><a href="{{ route('reports.student') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Reports</a></li> --}}
                     </ul>
                 </li>
 
@@ -126,17 +126,32 @@
                 </li> --}}
 
                 <!-- Fees & Accounts -->
-                <li class="nav-item has-treeview">
+                <li class="nav-item has-treeview {{ menuOpen(['fee-categories.*','fees.*','fee-sets.*','fees.collect']) ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-money-bill"></i>
                         <p>Fees & Accounts<i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li><a href="{{ route('fees.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Fees</a></li>
-                        <li><a href="{{ route('payments.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Payments</a></li>
-                        <li><a href="{{ route('accounts.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Accounts</a></li>
-                        <li><a href="{{ route('scholarships.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Scholarships</a></li>
-                        <li><a href="{{ route('financial_aid.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Financial Aid</a></li>
+                        <li><a href="{{ route('fee-categories.index') }}" class="nav-link  {{ request()->routeIs('fee-categories.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Fee  Category</a></li>
+                        <li><a href="{{ route('fee-sets.index') }}" class="nav-link  {{ request()->routeIs('fee-sets.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Fee Set</a></li>
+                        <li><a href="{{ route('fees.collect') }}" class="nav-link  {{ request()->routeIs('fees.collect') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Collect Payments</a></li>
+                        {{-- <li><a href="{{ route('fees.index') }}" class="nav-link  {{ request()->routeIs('fees.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Fees</a></li> --}}
+                        <li><a href="{{ route('payments.index') }}" class="nav-link  {{ request()->routeIs('payments.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Student Payments</a></li>
+                        <li><a href="{{ route('accounts.index') }}" class="nav-link  {{ request()->routeIs('accounts.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Accounts</a></li>
+                        <li><a href="{{ route('scholarships.index') }}" class="nav-link  {{ request()->routeIs('scholarships.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Scholarships</a></li>
+                        <li><a href="{{ route('financial_aid.index') }}" class="nav-link  {{ request()->routeIs('financial_aid.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Financial Aid</a></li>
+                    </ul>
+                </li>
+
+                <!-- Transaction Categories -->
+                <li class="nav-item has-treeview {{ menuOpen(['income-categories.*','expense-categories.*']) ? 'menu-is-opening menu-open' : '' }}">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-tags"></i>
+                        <p>Transaction Categories<i class="right fas fa-angle-left"></i></p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li><a href="{{ route('income-categories.index') }}" class="nav-link {{ request()->routeIs('income-categories.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Income Categories</a></li>
+                        <li><a href="{{ route('expense-categories.index') }}" class="nav-link {{ request()->routeIs('expense-categories.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Expense Categories</a></li>
                     </ul>
                 </li>
 

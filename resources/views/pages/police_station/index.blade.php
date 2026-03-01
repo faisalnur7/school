@@ -8,7 +8,7 @@
         <div class="card border-0 shadow-sm rounded mb-4">
             {{-- <div
                 class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3"
-                    style="background: linear-gradient(90deg, #343a40, #212529);">
+                   >
                 <h4 class="mb-0">Filter Police Station</h4>
             </div> --}}
             <div class="card-body">
@@ -17,7 +17,7 @@
         </div>
         <div class="card">
             <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3"
-                    style="background: linear-gradient(90deg, #343a40, #212529);">
+                   >
                 <h3 class="card-title mb-0">All Police Stations</h3>
                 <a href="{{ route('police-station.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
                     <i class="fas fa-plus"></i> Add Police Station
