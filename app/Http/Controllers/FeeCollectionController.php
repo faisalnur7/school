@@ -13,9 +13,12 @@ use App\Models\FeeCategory;
 use App\Models\AcademicSession;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\Payment;
 use App\Models\PaymentItem;
 use App\Models\IncomeCategory;
+use App\Models\Transport;
+use App\Models\Scholarship;
 use App\Traits\HasTransactions;
 
 class FeeCollectionController extends Controller
@@ -113,7 +116,7 @@ class FeeCollectionController extends Controller
 
         $sessionId = optional($student->academicInformations->last())->academic_session_id;
 
-        $pendingFees = Fee::with('feeSet')
+        $pendingFees = Fee::with(['feeSet.items.category', 'scholarship'])
             ->where('student_id', $student->id)
             ->whereIn('status', ['pending','partial'])
             ->when($sessionId, function($q) use ($sessionId){
@@ -124,6 +127,49 @@ class FeeCollectionController extends Controller
             ->orderBy('due_date')
             ->get();
 
+        // Get active scholarships for this student
+        $scholarships = Scholarship::where('student_id', $student->id)
+            ->where('status', 'active')
+            ->when($sessionId, fn($q) => $q->where('academic_session_id', $sessionId))
+            ->get()
+            ->keyBy('fee_category_id');
+
+        // Get active transports for this student
+        $transports = Transport::where('student_id', $student->id)
+            ->where('status', 'active')
+            ->when($sessionId, fn($q) => $q->where('academic_session_id', $sessionId))
+            ->get()
+            ->keyBy('fee_category_id');
+
+        // Calculate category-specific discounts and transport fees for each fee
+        foreach ($pendingFees as $fee) {
+            $categoryDiscounts = [];
+            $categoryTransports = [];
+            $totalDiscount = 0;
+            $totalTransport = 0;
+
+            foreach ($fee->feeSet->items as $item) {
+                // Scholarships
+                if (isset($scholarships[$item->fee_category_id])) {
+                    $scholarship = $scholarships[$item->fee_category_id];
+                    $discount = $scholarship->calculateDiscount($item->amount);
+                    $categoryDiscounts[] = [
+                        'category' => $item->category->name_en,
+                        'amount' => $item->amount,
+                        'discount' => $discount,
+                        'net' => $item->amount - $discount,
+                    ];
+                    $totalDiscount += $discount;
+                }
+            }
+
+            $fee->category_discounts = $categoryDiscounts;
+            // $fee->category_transports = $categoryTransports;
+            $fee->total_scholarship_discount = $totalDiscount;
+            $fee->total_transport_fee = $totalTransport;
+            $fee->calculated_net_amount = $fee->amount - $totalDiscount + $totalTransport;
+        }
+
         return view('pages.fees.collect_fee', compact('pendingFees','student','payments'));
 
     }
@@ -131,95 +177,159 @@ class FeeCollectionController extends Controller
     public function pay(Request $request)
     {
         $request->validate([
-            'fees' => 'required|array',
-            'fees.*' => 'exists:fees,id',
-            'payment_method' => 'nullable|string'
+            'fees'           => 'required|array',
+            'fees.*'         => 'exists:fees,id',
+            'payment_method' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
 
         try {
-
-            $fees = Fee::whereIn('id', $request->fees)->lockForUpdate()->get();
+            $fees = Fee::with(['feeSet.items.category'])->whereIn('id', $request->fees)->lockForUpdate()->get();
 
             if ($fees->isEmpty()) {
-                return back()->with('error', 'No fees selected');
+                return response()->json(['message' => 'No fees selected'], 422);
             }
 
-            // Ensure all fees belong to same student
             $studentId = $fees->first()->student_id;
 
             if ($fees->where('student_id', '!=', $studentId)->count()) {
-                return back()->with('error', 'Fees must belong to same student');
+                return response()->json(['message' => 'Fees must belong to the same student'], 422);
             }
 
-            // Calculate total due
-            $totalAmount = $fees->sum(function ($fee) {
-                return max(0, $fee->amount - $fee->paid_amount);
-            });
+            $student = Student::with('academicInformations')->find($studentId);
+            $sessionId = optional($student->academicInformations->last())->academic_session_id;
 
-            if ($totalAmount <= 0) {
-                return back()->with('error', 'Selected fees already paid');
-            }
+            $scholarships = Scholarship::where('student_id', $studentId)
+                ->where('status', 'active')
+                ->when($sessionId, fn($q) => $q->where('academic_session_id', $sessionId))
+                ->get()
+                ->keyBy('fee_category_id');
 
-            $payment_data = [
-                'student_id'     => $studentId,
-                'amount'         => $totalAmount ?? 0,
-                'payment_date'   => now(),
-                'payment_method' => $request->payment_method ?? 'Cash',
-                'receipt_no'     => 'R-' . now()->timestamp . rand(100000,999999),
-                'collected_by'   => auth()->id()
-            ];
+            $transports = Transport::where('student_id', $studentId)
+                ->where('status', 'active')
+                ->when($sessionId, fn($q) => $q->where('academic_session_id', $sessionId))
+                ->get()
+                ->keyBy('fee_category_id');
 
-            // Create Payment
-            $payment = Payment::create($payment_data);
-
+            $totalAmount = 0;
             foreach ($fees as $fee) {
+                $feeAmount = $fee->amount - $fee->paid_amount;
+                $totalDiscount = 0;
 
-                $dueAmount = $fee->amount - $fee->paid_amount;
-
-                if ($dueAmount <= 0) {
-                    continue;
+                foreach ($fee->feeSet->items as $item) {
+                    if (isset($scholarships[$item->fee_category_id])) {
+                        $scholarship = $scholarships[$item->fee_category_id];
+                        $discount = $scholarship->calculateDiscount($item->amount);
+                        $totalDiscount += $discount;
+                        \Log::debug('[pay] Scholarship discount', [
+                            'fee_id'       => $fee->id,
+                            'category_id'  => $item->fee_category_id,
+                            'item_amount'  => $item->amount,
+                            'discount'     => $discount,
+                        ]);
+                    }
                 }
 
-                // Create Payment Item
+                $netAmount = max(0, $feeAmount - $totalDiscount);
+                $totalAmount += $netAmount;
+
+                \Log::debug('[pay] Fee total calculation', [
+                    'fee_id'        => $fee->id,
+                    'fee_amount'    => $fee->amount,
+                    'paid_amount'   => $fee->paid_amount,
+                    'fee_due'       => $feeAmount,
+                    'total_discount'=> $totalDiscount,
+                    'net_amount'    => $netAmount,
+                    'running_total' => $totalAmount,
+                ]);
+            }
+
+            if ($totalAmount <= 0) {
+                return response()->json(['message' => 'Selected fees are already paid'], 422);
+            }
+
+            $payment = Payment::create([
+                'student_id'     => $studentId,
+                'amount'         => $totalAmount,
+                'payment_date'   => now(),
+                'payment_method' => $request->payment_method ?? 'Cash',
+                'receipt_no'     => 'R-' . now()->format('Ymd') . '-' . str_pad(
+                                        Payment::whereDate('created_at', today())->count() + 1,
+                                        4, '0', STR_PAD_LEFT
+                                    ),
+                'collected_by'   => auth()->id(),
+            ]);
+
+            foreach ($fees as $fee) {
+                $feeAmount = $fee->amount - $fee->paid_amount;
+                $totalDiscount = 0;
+
+                foreach ($fee->feeSet->items as $item) {
+                    if (isset($scholarships[$item->fee_category_id])) {
+                        $scholarship = $scholarships[$item->fee_category_id];
+                        $discount = $scholarship->calculateDiscount($item->amount);
+                        $totalDiscount += $discount;
+                        \Log::debug('[pay] Scholarship discount (payment loop)', [
+                            'fee_id'      => $fee->id,
+                            'category_id' => $item->fee_category_id,
+                            'item_amount' => $item->amount,
+                            'discount'    => $discount,
+                        ]);
+                    }
+                }
+
+                $netAmount = max(0, $feeAmount - $totalDiscount);
+
+                \Log::debug('[pay] PaymentItem calculation', [
+                    'fee_id'         => $fee->id,
+                    'fee_due'        => $feeAmount,
+                    'total_discount' => $totalDiscount,
+                    'net_amount'     => $netAmount,
+                    'new_paid_amount'=> $fee->paid_amount + $netAmount,
+                ]);
+
+                if ($netAmount <= 0) continue;
+
                 PaymentItem::create([
                     'payment_id' => $payment->id,
                     'fee_id'     => $fee->id,
-                    'amount'     => $dueAmount
+                    'amount'     => $netAmount,
                 ]);
 
-                // Update Fee
-                $fee->paid_amount += $dueAmount;
-
-                if ($fee->paid_amount >= $fee->amount) {
-                    $fee->status = 'paid';
-                } else {
-                    $fee->status = 'partial';
-                }
-
+                $fee->paid_amount += $netAmount;
+                $netDue = max(0, $fee->amount - $totalDiscount);
+                $fee->status = $fee->paid_amount >= $netDue ? 'paid' : 'partial';
                 $fee->save();
+
+                \Log::debug('[pay] Fee status updated', [
+                    'fee_id'     => $fee->id,
+                    'paid_amount'=> $fee->paid_amount,
+                    'status'     => $fee->status,
+                ]);
             }
 
-            // Record Income
             $category = IncomeCategory::where('slug', 'student-payment')->firstOrFail();
+            $title = 'Student Payment';
 
-            $payment->recordIncome($category->id, [
+            $payment->recordIncome($category->id, $title, [
                 'amount'         => $totalAmount,
                 'payment_method' => $payment->payment_method,
-                'description'    => "Fee payment for student ID {$studentId}",
+                'description'    => "Fee payment for student ID {$studentId} (including transport fees)",
             ]);
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Payment collected successfully');
+            return response()->json([
+                'success'    => true,
+                'payment_id' => $payment->id,
+                'receipt_no' => $payment->receipt_no,
+                'message'    => 'Payment collected successfully',
+            ]);
 
         } catch (\Exception $e) {
-            
-            dd($e->getMessage());
             DB::rollBack();
-
-            return back()->with('error', $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 

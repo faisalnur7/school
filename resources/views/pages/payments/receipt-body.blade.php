@@ -56,7 +56,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach ($payment->items as $i => $item)    
+        @foreach ($payment->items as $i => $item)
             @foreach ($item?->fee?->feeSet?->items as $feeSetItem)
                 @php 
                     if($item?->fee?->feeSet->frequency == 'monthly'){
@@ -67,7 +67,7 @@
                 @endphp
                 <tr>
                     <td>{{ $feeSetItem->category->name ?? '—' }} @if($monthName){{' - '.$monthName}}@endif</td>
-                    <td>{{ number_format($feeSetItem->amount, 2) }}</td>
+                    <td>{{ number_format($item->amount, 2) }}</td>
                 </tr>
             @endforeach
         @endforeach

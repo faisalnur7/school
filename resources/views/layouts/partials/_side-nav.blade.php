@@ -126,32 +126,89 @@
                 </li> --}}
 
                 <!-- Fees & Accounts -->
-                <li class="nav-item has-treeview {{ menuOpen(['fee-categories.*','fees.*','fee-sets.*','fees.collect']) ? 'menu-is-opening menu-open' : '' }}">
+                <li class="nav-item has-treeview {{ menuOpen(['fee-categories.*','fees.*','fee-sets.*','fees.collect','payments.*','accounts.*','scholarships.*','transports.*','financial_aid.*','bank-accounts.*','mobile-banking-accounts.*','hand-cash.*']) ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-money-bill"></i>
                         <p>Fees & Accounts<i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li><a href="{{ route('fee-categories.index') }}" class="nav-link  {{ request()->routeIs('fee-categories.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Fee  Category</a></li>
-                        <li><a href="{{ route('fee-sets.index') }}" class="nav-link  {{ request()->routeIs('fee-sets.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Fee Set</a></li>
-                        <li><a href="{{ route('fees.collect') }}" class="nav-link  {{ request()->routeIs('fees.collect') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Collect Payments</a></li>
-                        {{-- <li><a href="{{ route('fees.index') }}" class="nav-link  {{ request()->routeIs('fees.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Fees</a></li> --}}
-                        <li><a href="{{ route('payments.index') }}" class="nav-link  {{ request()->routeIs('payments.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Student Payments</a></li>
-                        <li><a href="{{ route('accounts.index') }}" class="nav-link  {{ request()->routeIs('accounts.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Accounts</a></li>
-                        <li><a href="{{ route('scholarships.index') }}" class="nav-link  {{ request()->routeIs('scholarships.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Scholarships</a></li>
-                        <li><a href="{{ route('financial_aid.index') }}" class="nav-link  {{ request()->routeIs('financial_aid.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Financial Aid</a></li>
+
+                        {{-- Fee Management --}}
+                        <li><a href="{{ route('fee-categories.index') }}" class="nav-link {{ request()->routeIs('fee-categories.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Fee Category</a></li>
+                        <li><a href="{{ route('fee-sets.index') }}" class="nav-link {{ request()->routeIs('fee-sets.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Fee Set</a></li>
+                        <li><a href="{{ route('fees.collect') }}" class="nav-link {{ request()->routeIs('fees.collect') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Collect Payments</a></li>
+                        <li><a href="{{ route('payments.index') }}" class="nav-link {{ request()->routeIs('payments.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Student Payments</a></li>
+                        <li><a href="{{ route('scholarships.index') }}" class="nav-link {{ request()->routeIs('scholarships.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Scholarships</a></li>
+                        <li><a href="{{ route('transports.index') }}" class="nav-link {{ request()->routeIs('transports.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Transport Fees</a></li>
+                        <li><a href="{{ route('financial_aid.index') }}" class="nav-link {{ request()->routeIs('financial_aid.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Financial Aid</a></li>
+
+                        {{-- Accounts --}}
+                        <li class="nav-item has-treeview {{ menuOpen(['bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*']) ? 'menu-is-opening menu-open' : '' }}">
+                            <a href="#" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Account Management<i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li>
+                                    <a href="{{ route('bank-accounts.index') }}" class="nav-link {{ request()->routeIs('bank-accounts.*') ? 'active' : '' }}">
+                                        <i class="far fa-dot-circle nav-icon"></i>Bank Accounts
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('mobile-banking-accounts.index') }}" class="nav-link {{ request()->routeIs('mobile-banking-accounts.*') ? 'active' : '' }}">
+                                        <i class="far fa-dot-circle nav-icon"></i>Mobile Banking
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('hand-cash.index') }}" class="nav-link {{ request()->routeIs('hand-cash.*') ? 'active' : '' }}">
+                                        <i class="far fa-dot-circle nav-icon"></i>Hand Cash
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
                     </ul>
                 </li>
-
-                <!-- Transaction Categories -->
-                <li class="nav-item has-treeview {{ menuOpen(['income-categories.*','expense-categories.*']) ? 'menu-is-opening menu-open' : '' }}">
+                {{-- Incomes & Expenses --}}
+                <li class="nav-item has-treeview {{ menuOpen(['incomes.*', 'expenses.*', 'income-categories.*', 'expense-categories.*']) ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-tags"></i>
-                        <p>Transaction Categories<i class="right fas fa-angle-left"></i></p>
+                        <i class="nav-icon fas fa-chart-line"></i>
+                        <p>Incomes & Expenses<i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li><a href="{{ route('income-categories.index') }}" class="nav-link {{ request()->routeIs('income-categories.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Income Categories</a></li>
-                        <li><a href="{{ route('expense-categories.index') }}" class="nav-link {{ request()->routeIs('expense-categories.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Expense Categories</a></li>
+
+                        <li>
+                            <a href="{{ route('incomes.index') }}" class="nav-link {{ request()->routeIs('incomes.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Incomes
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{{ route('expenses.index') }}" class="nav-link {{ request()->routeIs('expenses.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Expenses
+                            </a>
+                        </li>
+
+                        <!-- Categories -->
+                        <li class="nav-item has-treeview {{ menuOpen(['income-categories.*', 'expense-categories.*']) ? 'menu-is-opening menu-open' : '' }}">
+                            <a href="#" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Categories<i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li>
+                                    <a href="{{ route('income-categories.index') }}" class="nav-link {{ request()->routeIs('income-categories.*') ? 'active' : '' }}">
+                                        <i class="far fa-dot-circle nav-icon"></i>Income Categories
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('expense-categories.index') }}" class="nav-link {{ request()->routeIs('expense-categories.*') ? 'active' : '' }}">
+                                        <i class="far fa-dot-circle nav-icon"></i>Expense Categories
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
                     </ul>
                 </li>
 

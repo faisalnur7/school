@@ -165,4 +165,9 @@ class Student extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function scholarships()
+    {
+        return $this->hasMany(Scholarship::class);
+    }
+
 }

@@ -79,7 +79,8 @@
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="fs-5">🗂️</span>
-                                    <span class="fw-bold text-white" style="font-size:12px;letter-spacing:.06em">FEE CATEGORIES</span>
+                                    <span class="fw-bold text-white" style="font-size:12px;letter-spacing:.06em">FEE
+                                        CATEGORIES</span>
                                 </div>
                             </div>
                             <div class="card-body p-3">
@@ -109,7 +110,8 @@
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="fs-5">📋</span>
-                                    <span class="fw-bold text-white" style="font-size:12px;letter-spacing:.06em">PENDING FEES</span>
+                                    <span class="fw-bold text-white" style="font-size:12px;letter-spacing:.06em">PENDING
+                                        FEES</span>
                                 </div>
                             </div>
                             <div class="card-body p-3">
@@ -123,13 +125,12 @@
                                     <div class="d-flex flex-column gap-3" id="feeList">
                                         @foreach ($pendingFees as $fee)
                                             @php
-                                                $feeSetName =
-                                                    $fee->feeSet->frequency == 'monthly'
-                                                        ? Carbon\Carbon::parse($fee->due_date)->format('F - Y')
-                                                        : $fee->feeSet->name;
+                                                $feeSetName = $fee->feeSet->frequency == 'monthly'
+                                                    ? Carbon\Carbon::parse($fee->due_date)->format('F - Y')
+                                                    : $fee->feeSet->name;
                                             @endphp
                                             <div class="fee-card bg-white rounded-4 p-3" data-cat="{{ $fee->fee_set_id }}"
-                                                data-id="{{ $fee->id }}" data-amount="{{ $fee->amount }}"
+                                                data-id="{{ $fee->id }}" data-amount="{{ $fee->calculated_net_amount ?? $fee->net_amount }}"
                                                 data-name="{{ $feeSetName }}" style="display:none!important">
                                                 <div class="d-flex justify-content-between align-items-start">
                                                     <div>
@@ -139,10 +140,33 @@
                                                         <p class="mono text-muted mb-0" style="font-size:12px">
                                                             Due: {{ $fee->due_date }}
                                                         </p>
+                                                        @if(!empty($fee->category_discounts))
+                                                            @foreach($fee->category_discounts as $catDiscount)
+                                                                <p class="mono mb-0 mt-1" style="font-size:11px;color:#059669">
+                                                                    <span class="badge rounded-pill" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-size:10px">
+                                                                        🎓 {{ $catDiscount['category'] }}: -৳{{ number_format($catDiscount['discount'], 2) }}
+                                                                    </span>
+                                                                </p>
+                                                            @endforeach
+                                                        @endif
+                                                        @if(!empty($fee->category_transports))
+                                                            @foreach($fee->category_transports as $catTransport)
+                                                                <p class="mono mb-0 mt-1" style="font-size:11px;color:#4338ca">
+                                                                    <span class="badge rounded-pill" style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:10px">
+                                                                        🚌 {{ $catTransport['category'] }}: +৳{{ number_format($catTransport['amount'], 2) }}
+                                                                    </span>
+                                                                </p>
+                                                            @endforeach
+                                                        @endif
                                                     </div>
                                                     <div class="text-end ms-3">
+                                                        @if(!empty($fee->category_discounts) || !empty($fee->category_transports))
+                                                            <p class="mono text-muted mb-0" style="font-size:12px;text-decoration:line-through">
+                                                                {{ number_format($fee->amount, 2) }}
+                                                            </p>
+                                                        @endif
                                                         <p class="mono fw-bold mb-1" style="font-size:19px;color:#4338ca">
-                                                            {{ number_format($fee->amount, 2) }}
+                                                            {{ number_format($fee->calculated_net_amount ?? $fee->net_amount, 2) }}
                                                         </p>
                                                         <span class="badge rounded-pill"
                                                             style="font-size:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
@@ -165,14 +189,15 @@
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="fs-5">🧾</span>
-                                    <span class="fw-bold text-white" style="font-size:12px;letter-spacing:.06em">SELECTED FEES</span>
+                                    <span class="fw-bold text-white" style="font-size:12px;letter-spacing:.06em">SELECTED
+                                        FEES</span>
                                     <span id="cartBadge" class="mono ms-auto badge rounded-pill"
                                         style="font-size:11px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
                                         0 items
                                     </span>
                                 </div>
                             </div>
-                            <form method="POST" action="{{ route('fees.pay') }}" id="feeForm">
+                            <form id="feeForm">
                                 @csrf
                                 <div class="card-body p-3">
                                     <div class="scroll-area" style="max-height:280px">
@@ -223,7 +248,7 @@
                                                 style="font-size:28px;color:#4338ca">0.00</span>
                                         </div>
                                     </div>
-                                    <button type="submit" class="collect-btn btn w-100 fw-bold text-white rounded-3 py-3"
+                                    <button type="button" class="collect-btn btn w-100 fw-bold text-white rounded-3 py-3"
                                         id="collectBtn" disabled
                                         style="background:linear-gradient(135deg,#6366f1,#4338ca);font-size:14px">
                                         ✓ &nbsp;COLLECT PAYMENT
@@ -245,7 +270,8 @@
                     <div class="card-header bg-white border-bottom py-3 px-4" style="border-color:#f1f5f9!important">
                         <div class="d-flex align-items-center gap-2">
                             <span class="fs-5">📑</span>
-                            <span class="fw-bold text-white" style="font-size:12px;letter-spacing:.06em">PAYMENT HISTORY</span>
+                            <span class="fw-bold text-white" style="font-size:12px;letter-spacing:.06em">PAYMENT
+                                HISTORY</span>
                             <span class="ms-auto text-white" style="font-size:12px">
                                 Total Paid:
                                 <strong class="text-white">
@@ -460,6 +486,88 @@
                 $badgeEl.text(cartIds.size + (cartIds.size === 1 ? ' item' : ' items'));
                 $collectBtn.prop('disabled', cartIds.size === 0);
             }
+
+
+
+            /* ── AJAX Collect ── */
+            $('#collectBtn').on('click', function () {
+
+                if (cartIds.size === 0) return;
+
+                const $btn = $(this);
+                $btn.prop('disabled', true).html('⏳ &nbsp;Processing...');
+
+                // Build payload
+                const payload = {
+                    _token:          $('input[name="_token"]').first().val(),
+                    fees:            [...cartIds],
+                    discount:        $('#discountInput').val() || 0,
+                    discount_type:   $('#discountTypeHidden').val(),
+                    discount_amount: $('#discountAmountHidden').val(),
+                };
+
+                $.ajax({
+                    url:         '{{ route('fees.pay') }}',
+                    method:      'POST',
+                    data:        payload,
+                    dataType:    'json',
+
+                    success: function (res) {
+
+                        // ── Show toast ──
+                        $('#toastReceiptNo').text('Receipt: ' + res.receipt_no);
+                        const $toast = $('#paymentToast');
+                        $toast.css('display', 'flex').hide().fadeIn(250);
+                        setTimeout(function () { $toast.fadeOut(400); }, 3500);
+
+                        // ── Reset cart ──
+                        cartIds.clear();
+                        subtotal = 0;
+                        cartData = [];
+                        $('#cartItems').empty();
+                        $('#cartEmpty').show();
+                        $('#discountInput').val(0);
+                        $btn.prop('disabled', true).html('✓ &nbsp;COLLECT PAYMENT');
+                        updateUI();
+
+                        // ── Open receipt in new tab & auto-print ──
+                        const receiptUrl = '{{ url('payments') }}/' + res.payment_id + '/receipt';
+                        const win = window.open(receiptUrl, '_blank');
+
+                        // Fire print once the new tab has loaded
+                        if (win) {
+                            win.addEventListener('load', function () {
+                                setTimeout(function () {
+                                    win.focus();
+                                    win.print();
+                                }, 600); // small delay for fonts/styles to settle
+                            });
+                        }
+                    },
+
+                    error: function (xhr) {
+                        const msg = xhr.responseJSON?.message ?? 'Something went wrong. Please try again.';
+
+                        // ── Error toast ──
+                        const $toast = $('#paymentToast');
+                        $toast.css('background', '#dc2626');
+                        $('#paymentToast span:first').text('✕');
+                        $toast.find('.fw-800, [style*="font-weight:800"]').text('PAYMENT FAILED');
+                        $('#toastReceiptNo').text(msg);
+                        $toast.css('display', 'flex').hide().fadeIn(250);
+                        setTimeout(function () {
+                            $toast.fadeOut(400, function () {
+                                // Reset toast to success style for next time
+                                $toast.css('background', '#111');
+                                $('#paymentToast span:first').text('✓');
+                                $toast.find('[style*="font-weight:800"]').text('PAYMENT COLLECTED');
+                            });
+                        }, 4000);
+
+                        $btn.prop('disabled', false).html('✓ &nbsp;COLLECT PAYMENT');
+                    }
+                });
+            });
         });
     </script>
 @endsection

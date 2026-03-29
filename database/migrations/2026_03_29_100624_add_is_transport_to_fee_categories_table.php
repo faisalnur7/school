@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transports', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('fee_categories', function (Blueprint $table) {
+            $table->integer('is_transport')->default(0);
         });
     }
 
@@ -22,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transports');
+        Schema::table('fee_categories', function (Blueprint $table) {
+            //
+        });
     }
 };

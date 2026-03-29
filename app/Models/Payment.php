@@ -15,7 +15,9 @@ class Payment extends Model
         'transaction_id',
         'remarks',
         'receipt_no',
-        'collected_by'
+        'collected_by',
+        'account_type',
+        'account_id',
     ];
 
     public function items()
@@ -31,5 +33,15 @@ class Payment extends Model
     public function collector()
     {
         return $this->belongsTo(User::class,'collected_by');
+    }
+
+    public function getAccountModelAttribute()
+    {
+        return match($this->account_type) {
+            'App\Models\BankAccount'          => \App\Models\BankAccount::find($this->account_id),
+            'App\Models\MobileBankingAccount' => \App\Models\MobileBankingAccount::find($this->account_id),
+            'App\Models\HandCash'             => \App\Models\HandCash::find($this->account_id),
+            default                           => null,
+        };
     }
 }

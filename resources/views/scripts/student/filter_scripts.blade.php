@@ -100,9 +100,7 @@ $(document).ready(function() {
         }
     });
 
-    $(document).on('click','.filter_button',function(){
-        ($('#filterCollapse').hasClass('hidden')) ? $('#filterCollapse').removeClass('hidden') : $('#filterCollapse').addClass('hidden'); 
-    })
+
 
     // ============= AUTO-SUBMIT ON FILTER CHANGE (OPTIONAL) =============
     

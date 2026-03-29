@@ -8,6 +8,11 @@ use App\Http\Controllers\{
     FeeCollectionController,
     IncomeCategoryController,
     ExpenseCategoryController,
+    IncomeController,
+    ExpenseController,
+    BankAccountController,
+    MobileBankingAccountController,
+    HandCashController,    
     DashboardController,
     SchoolClassController,
     SectionController,
@@ -326,6 +331,56 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('/{expenseCategory}/destroy', [ExpenseCategoryController::class, 'destroy'])->name('expense-categories.destroy');
     });
 
+    // Incomes
+    Route::prefix('incomes')->group(function () {
+        Route::get('/',                  [IncomeController::class,  'index'])->name('incomes.index');
+        Route::get('/create',            [IncomeController::class,  'create'])->name('incomes.create');
+        Route::post('/store',            [IncomeController::class,  'store'])->name('incomes.store');
+        Route::get('/{income}/edit',     [IncomeController::class,  'edit'])->name('incomes.edit');
+        Route::put('/{income}/update',   [IncomeController::class,  'update'])->name('incomes.update');
+        Route::delete('/{income}/destroy', [IncomeController::class, 'destroy'])->name('incomes.destroy');
+    });
+
+    // Expenses
+    Route::prefix('expenses')->group(function () {
+        Route::get('/',                    [ExpenseController::class, 'index'])->name('expenses.index');
+        Route::get('/create',              [ExpenseController::class, 'create'])->name('expenses.create');
+        Route::post('/store',              [ExpenseController::class, 'store'])->name('expenses.store');
+        Route::get('/{expense}/edit',      [ExpenseController::class, 'edit'])->name('expenses.edit');
+        Route::put('/{expense}/update',    [ExpenseController::class, 'update'])->name('expenses.update');
+        Route::delete('/{expense}/destroy',[ExpenseController::class, 'destroy'])->name('expenses.destroy');
+    });
+
+    // Bank Accounts
+    Route::prefix('bank-accounts')->group(function () {
+        Route::get('/',                      [BankAccountController::class, 'index'])->name('bank-accounts.index');
+        Route::get('/create',                [BankAccountController::class, 'create'])->name('bank-accounts.create');
+        Route::post('/store',                [BankAccountController::class, 'store'])->name('bank-accounts.store');
+        Route::get('/{bankAccount}/edit',    [BankAccountController::class, 'edit'])->name('bank-accounts.edit');
+        Route::put('/{bankAccount}/update',  [BankAccountController::class, 'update'])->name('bank-accounts.update');
+        Route::delete('/{bankAccount}/destroy', [BankAccountController::class, 'destroy'])->name('bank-accounts.destroy');
+    });
+
+    // Mobile Banking Accounts
+    Route::prefix('mobile-banking-accounts')->group(function () {
+        Route::get('/',                             [MobileBankingAccountController::class, 'index'])->name('mobile-banking-accounts.index');
+        Route::get('/create',                       [MobileBankingAccountController::class, 'create'])->name('mobile-banking-accounts.create');
+        Route::post('/store',                       [MobileBankingAccountController::class, 'store'])->name('mobile-banking-accounts.store');
+        Route::get('/{mobileBankingAccount}/edit',  [MobileBankingAccountController::class, 'edit'])->name('mobile-banking-accounts.edit');
+        Route::put('/{mobileBankingAccount}/update',[MobileBankingAccountController::class, 'update'])->name('mobile-banking-accounts.update');
+        Route::delete('/{mobileBankingAccount}/destroy', [MobileBankingAccountController::class, 'destroy'])->name('mobile-banking-accounts.destroy');
+    });
+
+    // Hand Cash
+    Route::prefix('hand-cash')->group(function () {
+        Route::get('/',                  [HandCashController::class, 'index'])->name('hand-cash.index');
+        Route::get('/create',            [HandCashController::class, 'create'])->name('hand-cash.create');
+        Route::post('/store',            [HandCashController::class, 'store'])->name('hand-cash.store');
+        Route::get('/{handCash}/edit',   [HandCashController::class, 'edit'])->name('hand-cash.edit');
+        Route::put('/{handCash}/update', [HandCashController::class, 'update'])->name('hand-cash.update');
+        Route::delete('/{handCash}/destroy', [HandCashController::class, 'destroy'])->name('hand-cash.destroy');
+    });
+
     // Fee collection
     Route::get('/fees/collect', [FeeCollectionController::class, 'index'])->name('fees.collect');
     Route::get('/fees/collect_payment/{student_id}', [FeeCollectionController::class, 'collect_payment'])->name('fees.collect_payment');
@@ -345,9 +400,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::prefix('scholarships')->group(function () {
         Route::get('/', [ScholarshipController::class, 'index'])->name('scholarships.index');
         Route::get('/create', [ScholarshipController::class, 'create'])->name('scholarships.create');
-        Route::post('/store', [ScholarshipController::class, 'store'])->name('scholarships.store');
-        Route::get('/applications', [ScholarshipController::class, 'applications'])->name('scholarships.applications');
-        Route::get('/awards', [ScholarshipController::class, 'awards'])->name('scholarships.awards');
+        Route::get('/students', [ScholarshipController::class, 'getStudents'])->name('scholarships.students');
+        Route::post('/bulk', [ScholarshipController::class, 'storeBulk'])->name('scholarships.storeBulk');
+        Route::delete('/{scholarship}', [ScholarshipController::class, 'destroy'])->name('scholarships.destroy');
     });
 
     Route::prefix('financial-aid')->group(function () {
@@ -398,6 +453,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/library', [LibraryController::class, 'index'])->name('library.index');
 
     // ------------------- Transport -------------------
+    Route::prefix('transports')->group(function () {
+        Route::get('/', [TransportController::class, 'index'])->name('transports.index');
+        Route::get('/create', [TransportController::class, 'create'])->name('transports.create');
+        Route::get('/edit/{id}', [TransportController::class, 'edit'])->name('transports.edit');
+        Route::get('/students', [TransportController::class, 'getStudents'])->name('transports.get-students');
+        Route::post('/bulk', [TransportController::class, 'storeBulk'])->name('transports.store-bulk');
+        Route::delete('/{transport}', [TransportController::class, 'destroy'])->name('transports.destroy');
+    });
+
     Route::get('/transport', [TransportController::class, 'index'])->name('transport.index');
 
     // ------------------- Dormitory -------------------
