@@ -45,7 +45,7 @@
                                 </a>
 
                                 <form action="{{ route('groups.delete', $group->id) }}" method="POST"
-                                    class="btn btn-sm btn-danger d-inline"
+                                    class="btn btn-sm btn-danger d-inline m-0"
                                     onsubmit="return confirm('Delete this group?')">
                                     @csrf
                                     @method('DELETE')

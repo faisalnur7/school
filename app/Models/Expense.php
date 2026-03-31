@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\AccountTransaction;
 
 class Expense extends Model
 {
@@ -57,6 +58,33 @@ class Expense extends Model
             'App\Models\HandCash'             => \App\Models\HandCash::find($this->account_id),
             default                           => null,
         };
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(function (Expense $expense) {
+            if ($expense->account_type && $expense->account_id) {
+                AccountTransaction::upsertForSource(
+                    $expense->account_type,
+                    $expense->account_id,
+                    'debit',
+                    $expense->amount,
+                    'expense',
+                    $expense->reference_no,
+                    $expense->description,
+                    $expense->expense_date,
+                    self::class,
+                    $expense->id,
+                    $expense->recorded_by
+                );
+            } else {
+                AccountTransaction::removeSource(self::class, $expense->id);
+            }
+        });
+
+        static::deleted(function (Expense $expense) {
+            AccountTransaction::removeSource(self::class, $expense->id);
+        });
     }
 
 }

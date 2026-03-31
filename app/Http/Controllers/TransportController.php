@@ -19,22 +19,88 @@ class TransportController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Transport::with(['student', 'academicSession', 'feeCategory'])->latest();
-        $feeCategory = FeeCategory::where('is_transport',1)->first();
-        if ($request->academic_session_id) {
-            $query->where('academic_session_id', $request->academic_session_id);
+        $feeCategory = FeeCategory::where('is_transport', 1)->first();
+
+        $query = Transport::with(['student', 'academicSession', 'feeCategory'])
+            ->join('students', 'students.id', '=', 'transports.student_id')
+            ->select('transports.*')
+            ->orderBy('students.full_name_en');
+
+        // Always restrict to transport category, if defined
+        if ($feeCategory && $feeCategory->id) {
+            $query->where('transports.fee_category_id', $feeCategory->id);
         }
-        if ($feeCategory->id) {
-            $query->where('fee_category_id', $feeCategory->id);
+
+        // Academic filters (transport-level)
+        if ($request->filled('academic_session_id')) {
+            $query->where('transports.academic_session_id', $request->academic_session_id);
         }
-        if ($request->school_class_id) {
+
+        if ($request->filled('school_class_id')) {
             $query->whereHas('studentAcademicInformation', fn($q) => $q->where('school_class_id', $request->school_class_id));
         }
-        if ($request->section_id) {
+
+        if ($request->filled('section_id')) {
             $query->whereHas('studentAcademicInformation', fn($q) => $q->where('section_id', $request->section_id));
         }
-        if ($request->group_id) {
+
+        if ($request->filled('group_id')) {
             $query->whereHas('studentAcademicInformation', fn($q) => $q->where('group_id', $request->group_id));
+        }
+
+        // Student-level filters (match StudentController)
+        if ($request->filled('permanent_division_id')) {
+            $query->where('students.permanent_division_id', $request->permanent_division_id);
+        }
+
+        if ($request->filled('permanent_district_id')) {
+            $query->where('students.permanent_district_id', $request->permanent_district_id);
+        }
+
+        if ($request->filled('permanent_police_station_id')) {
+            $query->where('students.permanent_police_station_id', $request->permanent_police_station_id);
+        }
+
+        if ($request->filled('permanent_post_office_id')) {
+            $query->where('students.permanent_post_office_id', $request->permanent_post_office_id);
+        }
+
+        if ($request->filled('phone')) {
+            $phone = $request->phone;
+            $query->where(function ($q) use ($phone) {
+                $q->where('students.father_phone', 'like', "%{$phone}%")
+                  ->orWhere('students.mother_phone', 'like', "%{$phone}%")
+                  ->orWhere('students.guardian_phone', 'like', "%{$phone}%");
+            });
+        }
+
+        if ($request->filled('age_from') || $request->filled('age_to')) {
+            $today = Carbon::today();
+            if ($request->filled('age_from')) {
+                $dateFrom = $today->copy()->subYears($request->age_from)->endOfYear();
+                $query->where('students.date_of_birth', '<=', $dateFrom);
+            }
+            if ($request->filled('age_to')) {
+                $dateTo = $today->copy()->subYears($request->age_to)->startOfYear();
+                $query->where('students.date_of_birth', '>=', $dateTo);
+            }
+        }
+
+        if ($request->filled('gender')) {
+            $query->where('students.gender', $request->gender);
+        }
+
+        // Same as StudentController search scope
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('students.full_name_en', 'like', "%{$search}%")
+                  ->orWhere('students.full_name_bn', 'like', "%{$search}%")
+                  ->orWhere('students.birth_certificate_number', 'like', "%{$search}%")
+                  ->orWhereHas('studentAcademicInformation', function ($subQ) use ($search) {
+                      $subQ->where('roll', 'like', "%{$search}%");
+                  });
+            });
         }
 
         $transports = $query->paginate(20)->withQueryString();
@@ -181,6 +247,23 @@ class TransportController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function toggleStatus(Transport $transport)
+    {
+        $transport->status = $transport->status === Transport::STATUS_ACTIVE ? Transport::STATUS_INACTIVE : Transport::STATUS_ACTIVE;
+        $transport->save();
+
+        // Reflect transport active/inactive on pending/unpaid fee rows for this student and category
+        Fee::where('student_id', $transport->student_id)
+            ->where('status', '!=', 'paid')
+            ->whereHas('feeSet.items', function ($q) use ($transport) {
+                $q->where('fee_category_id', $transport->fee_category_id);
+            })
+            ->update(['is_active' => $transport->status === Transport::STATUS_ACTIVE ? 1 : 0]);
+
+        return redirect()->route('transports.index')
+            ->with('success', 'Transport fee status updated successfully');
     }
 
     public function destroy($id)

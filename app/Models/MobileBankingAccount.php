@@ -10,7 +10,7 @@ class MobileBankingAccount extends Model
 
     protected $fillable = [
         'provider', 'account_name', 'account_number', 'account_type',
-        'opening_balance', 'opening_date', 'is_active', 'notes',
+        'opening_balance', 'balance', 'opening_date', 'is_active', 'notes',
     ];
 
     protected $casts = [
@@ -18,4 +18,14 @@ class MobileBankingAccount extends Model
         'opening_balance' => 'decimal:2',
         'is_active'       => 'boolean',
     ];
+
+    public function accountTransactions()
+    {
+        return $this->morphMany(AccountTransaction::class, 'account', 'account_type', 'account_id');
+    }
+
+    public function getCurrentBalanceAttribute()
+    {
+        return $this->accountTransactions()->latest('id')->value('balance_after') ?? 0;
+    }
 }

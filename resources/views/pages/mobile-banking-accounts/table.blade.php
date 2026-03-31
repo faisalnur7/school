@@ -50,7 +50,7 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <form action="{{ route('mobile-banking-accounts.destroy', $account->id) }}"
-                                    method="POST" class="btn btn-sm btn-danger d-inline"
+                                    method="POST" class="btn btn-sm btn-danger d-inline m-0"
                                     onsubmit="return confirm('Delete this account?')">
                                     @csrf
                                     @method('DELETE')

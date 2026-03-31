@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
+use App\Models\Transaction;
+use App\Models\AccountTransaction;
 use Illuminate\Http\Request;
 
 class ExpenseController extends Controller
@@ -47,6 +49,7 @@ class ExpenseController extends Controller
             'amount'              => 'required|numeric|min:0.01',
             'expense_date'        => 'required|date_format:d/m/Y',
             'payment_method'      => 'required|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other',
+            'account_id'          => 'nullable|integer',
             'reference_no'        => 'nullable|string|max:100',
             'description'         => 'nullable|string',
             'attachment'          => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
@@ -54,7 +57,7 @@ class ExpenseController extends Controller
 
         $data = $request->only([
             'expense_category_id', 'title', 'amount',
-            'expense_date', 'payment_method', 'reference_no', 'description',
+            'expense_date', 'payment_method', 'account_type', 'account_id', 'reference_no', 'description',
         ]);
 
         $data['expense_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->expense_date)->format('Y-m-d');
@@ -64,7 +67,36 @@ class ExpenseController extends Controller
             $data['attachment'] = $request->file('attachment')->store('expenses', 'public');
         }
 
-        Expense::create($data);
+        $expense = Expense::create($data);
+
+        Transaction::create([
+            'reference_no'         => Transaction::generateReference(),
+            'type'                 => 'expense',
+            'expense_category_id'  => $expense->expense_category_id,
+            'amount'               => $expense->amount,
+            'description'          => $expense->description,
+            'transaction_date'     => $expense->expense_date,
+            'payment_method'       => $expense->payment_method,
+            'transactionable_type' => Expense::class,
+            'transactionable_id'   => $expense->id,
+            'recorded_by'          => auth()->id(),
+        ]);
+
+        if ($expense->account_type && $expense->account_id) {
+            AccountTransaction::record(
+                $expense->account_type,
+                $expense->account_id,
+                'debit',
+                $expense->amount,
+                'expense',
+                $expense->reference_no,
+                $expense->description,
+                $expense->expense_date,
+                Expense::class,
+                $expense->id,
+                auth()->id()
+            );
+        }
 
         return redirect()->route('expenses.index')->with('success', 'Expense recorded successfully.');
     }
@@ -85,6 +117,7 @@ class ExpenseController extends Controller
             'amount'              => 'required|numeric|min:0.01',
             'expense_date'        => 'required|date_format:d/m/Y',
             'payment_method'      => 'required|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other',
+            'account_id'          => 'nullable|integer',
             'reference_no'        => 'nullable|string|max:100',
             'description'         => 'nullable|string',
             'attachment'          => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
@@ -92,7 +125,7 @@ class ExpenseController extends Controller
 
         $data = $request->only([
             'expense_category_id', 'title', 'amount',
-            'expense_date', 'payment_method', 'reference_no', 'description',
+            'expense_date', 'payment_method', 'account_type', 'account_id', 'reference_no', 'description',
         ]);
 
         $data['expense_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->expense_date)->format('Y-m-d');
@@ -106,6 +139,20 @@ class ExpenseController extends Controller
 
         $expense->update($data);
 
+        Transaction::updateOrCreate(
+            ['transactionable_type' => Expense::class, 'transactionable_id' => $expense->id],
+            [
+                'reference_no'         => $expense->reference_no ?: Transaction::generateReference(),
+                'type'                 => 'expense',
+                'expense_category_id'  => $expense->expense_category_id,
+                'amount'               => $expense->amount,
+                'description'          => $expense->description,
+                'transaction_date'     => $expense->expense_date,
+                'payment_method'       => $expense->payment_method,
+                'recorded_by'          => auth()->id(),
+            ]
+        );
+
         return redirect()->route('expenses.index')->with('success', 'Expense updated successfully.');
     }
 
@@ -114,6 +161,12 @@ class ExpenseController extends Controller
         if ($expense->attachment) {
             \Storage::disk('public')->delete($expense->attachment);
         }
+
+        AccountTransaction::removeSource(Expense::class, $expense->id);
+
+        Transaction::where('transactionable_type', Expense::class)
+            ->where('transactionable_id', $expense->id)
+            ->delete();
 
         $expense->delete();
 

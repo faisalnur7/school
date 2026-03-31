@@ -96,7 +96,7 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <form action="{{ route('expenses.destroy', $expense->id) }}" method="POST"
-                                      class="btn btn-sm btn-danger d-inline"
+                                      class="btn btn-sm btn-danger d-inline m-0"
                                       onsubmit="return confirm('Delete this expense record?')">
                                     @csrf
                                     @method('DELETE')

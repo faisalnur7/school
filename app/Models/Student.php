@@ -161,8 +161,14 @@ class Student extends Model
         return $this->hasMany(StudentAcademicInformation::class);
     }
 
-    public function payments(){
+    public function payments()
+    {
         return $this->hasMany(Payment::class);
+    }
+
+    public function fees()
+    {
+        return $this->hasMany(\App\Models\Fee::class);
     }
 
     public function scholarships()

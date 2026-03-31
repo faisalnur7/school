@@ -4,8 +4,8 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h4>Scholarships</h4>
-            <a href="{{ route('scholarships.create') }}" class="btn btn-primary">Assign Scholarships</a>
+            <h4 class="text-white font-bold text-lg">Scholarships</h4>
+            <a href="{{ route('scholarships.create') }}" class="btn btn-primary ml-auto">Assign Scholarships</a>
         </div>
         <div class="card-body">
             @if(session('success'))
@@ -50,7 +50,7 @@
                                     <form action="{{ route('scholarships.destroy', $scholarship) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

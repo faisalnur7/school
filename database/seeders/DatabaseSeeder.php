@@ -30,6 +30,9 @@ class DatabaseSeeder extends Seeder
             StudentSeeder::class,
             IncomeCategorySeeder::class,
             ExpenseCategorySeeder::class,
+            HandCashSeeder::class,
+            BankAccountSeeder::class,
+            MobileBankingAccountSeeder::class,
         ]);
     }
 }

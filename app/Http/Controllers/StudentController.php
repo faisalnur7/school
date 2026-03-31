@@ -12,9 +12,12 @@ use App\Models\Division;
 use App\Models\District;
 use App\Models\PoliceStation;
 use App\Models\PostOffice;
+use App\Models\FeeCategory;
 use App\Models\FeeSet;
+use App\Models\FeeSetItem;
 use App\Models\Fee;
 use App\Models\StudentAcademicInformation;
+use App\Models\Transport;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -123,8 +126,13 @@ class StudentController extends Controller
             });
         }
 
-        // Get paginated results
-        $students = $query->latest()->paginate(15);
+        // Sort by numeric roll extracted from latest academic info, fallback to created_at
+        $students = $query
+            ->with(['academicInformations' => function ($q) {
+                $q->orderByRaw('CAST(roll AS UNSIGNED) ASC');
+            }])
+            ->orderByRaw("(SELECT CAST(roll AS UNSIGNED) FROM student_academic_information WHERE student_id = students.id ORDER BY id DESC LIMIT 1) ASC")
+            ->paginate(15);
 
         // Get filter data
         $academicSessions = AcademicSession::where('status', 1)->get();
@@ -320,6 +328,53 @@ class StudentController extends Controller
                 ]);
             }
         }
+    }
+
+    public function show($id)
+    {
+        $student = Student::with([
+            'academicInformations.academicSession',
+            'academicInformations.schoolClass',
+            'academicInformations.section',
+            'academicInformations.group',
+            'fees.feeSet',
+            'payments',
+        ])->findOrFail($id);
+
+        $studentFees = $student->fees()->with(['feeSet', 'feeSet.items'])->latest()->get();
+
+        $transportCategory = FeeCategory::where('is_transport', 1)->first();
+        $transportFeeSetIds = collect();
+        if ($transportCategory) {
+            $transportFeeSetIds = FeeSetItem::where('fee_category_id', $transportCategory->id)
+                ->pluck('fee_set_id');
+        }
+
+        // Use feeSet_id and fallback to name heuristic for transport fees
+        $transportFeesFromBilling = $studentFees->filter(function ($fee) use ($transportFeeSetIds) {
+            $isByCategory = $transportFeeSetIds->contains($fee->fee_set_id);
+            $isByName = str_contains(strtolower($fee->feeSet->name ?? ''), 'transport fee');
+            return $isByCategory || $isByName;
+        })->sortBy('due_date');
+
+        $regularFees = $studentFees->reject(function ($fee) use ($transportFeeSetIds) {
+            $isByCategory = $transportFeeSetIds->contains($fee->fee_set_id);
+            $isByName = str_contains(strtolower($fee->feeSet->name ?? ''), 'transport fee');
+            return $isByCategory || $isByName;
+        })->sortBy('due_date');
+
+        $totalDue = $studentFees->sum('due_amount');
+        $totalPaid = $studentFees->sum('paid_amount');
+        $totalAmount = $studentFees->sum('amount');
+
+        $transports = Transport::with(['academicSession', 'feeCategory'])
+            ->where('student_id', $id)
+            ->get();
+
+        return view(
+            'pages.students.show',
+            compact('student', 'regularFees', 'transportFeesFromBilling', 'totalDue', 'totalPaid', 'totalAmount', 'transports')
+        );
     }
 
     public function edit($id)

@@ -51,12 +51,21 @@
 
                             <div class="form-group">
                                 <label>Payment Method</label>
-                                <select name="payment_method" class="form-control" required>
+                                <select id="paymentMethod" name="payment_method" class="form-control" required>
                                     @foreach (['Cash', 'Bank Transfer', 'Cheque', 'Mobile Banking', 'Other'] as $method)
                                         <option value="{{ $method }}" {{ old('payment_method') == $method ? 'selected' : '' }}>
                                             {{ $method }}
                                         </option>
                                     @endforeach
+                                </select>
+                            </div>
+
+                            <input type="hidden" name="account_type" id="incomeAccountType" value="{{ old('account_type') }}">
+
+                            <div class="form-group" id="incomeAccountWrapper" style="display: none;">
+                                <label>Account <small class="text-muted">(optional for Cash/Bank/Mobile)</small></label>
+                                <select name="account_id" id="incomeAccountSelect" class="form-control">
+                                    <option value="">Select Account</option>
                                 </select>
                             </div>
 
@@ -93,4 +102,79 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+<script>
+    const incomeAccountsUrl = '{{ route('accounts.index') }}';
+
+    const incomeMethodTypeMap = {
+        'Cash': 'hand_cash',
+        'Bank Transfer': 'bank',
+        'Mobile Banking': 'mobile',
+    };
+
+    const incomeAccountTypeMap = {
+        'Cash': '\\App\\Models\\HandCash',
+        'Bank Transfer': '\\App\\Models\\BankAccount',
+        'Mobile Banking': '\\App\\Models\\MobileBankingAccount',
+    };
+
+    function incomeLoadAccounts(method, selectedId = null) {
+        const type = incomeMethodTypeMap[method];
+        const accountType = incomeAccountTypeMap[method];
+        const wrapper = $('#incomeAccountWrapper');
+        const select  = $('#incomeAccountSelect');
+
+        if (!type) {
+            wrapper.hide();
+            $('#incomeAccountType').val('');
+            select.html('<option value="">Select Account</option>');
+            return;
+        }
+
+        $('#incomeAccountType').val(accountType);
+
+        $.ajax({
+            url: incomeAccountsUrl,
+            method: 'GET',
+            dataType: 'json',
+            data: { type: type },
+            success: function (accounts) {
+                select.html('<option value="">Select Account</option>');
+                accounts.forEach(a => {
+                    const selected = selectedId && String(a.id) === String(selectedId) ? 'selected' : '';
+                    select.append(`<option value="${a.id}" ${selected}>${a.label}</option>`);
+                });
+                if (accounts.length > 0) {
+                    wrapper.show();
+                } else {
+                    wrapper.hide();
+                }
+            },
+            error: function () {
+                wrapper.hide();
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        const initialMethod = $('#paymentMethod').val();
+        const initialAccount = '{{ old('account_id', '') }}';
+        const initialType = '{{ old('account_type', '') }}';
+
+        if (initialType && initialAccount) {
+            $('#incomeAccountType').val(initialType);
+            if (incomeMethodTypeMap[initialMethod]) {
+                incomeLoadAccounts(initialMethod, initialAccount);
+            }
+        } else if (incomeMethodTypeMap[initialMethod]) {
+            incomeLoadAccounts(initialMethod, initialAccount);
+        }
+
+        $('#paymentMethod').on('change', function () {
+            incomeLoadAccounts($(this).val());
+        });
+    });
+</script>
 @endsection

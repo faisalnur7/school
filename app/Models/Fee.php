@@ -15,6 +15,7 @@ class Fee extends Model
         'paid_amount',
         'due_date',
         'status',
+        'is_active',
         'remarks',
     ];
 
@@ -23,6 +24,7 @@ class Fee extends Model
         'scholarship_discount' => 'decimal:2',
         'paid_amount' => 'decimal:2',
         'due_date' => 'date',
+        'is_active' => 'boolean',
     ];
 
     public function feeSet()

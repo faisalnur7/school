@@ -63,6 +63,16 @@
                                             ({{ \Carbon\Carbon::parse($student->date_of_birth)->age }} yrs)
                                         </small>
                                     @endif
+                                    @if ($student->gender)
+                                        <br><small class="text-muted">
+                                            <i class="fas fa-venus-mars"></i> {{ ucfirst($student->gender_text ?? $student->gender) }}
+                                        </small>
+                                    @endif
+                                    @if ($student->blood_group_text)
+                                        <br><small class="text-muted">
+                                            <i class="fas fa-tint"></i> {{ $student->blood_group_text }}
+                                        </small>
+                                    @endif
                                 </div>
                             </td>
 
@@ -88,12 +98,27 @@
                             <td>
                                 <small>
                                     @if ($student->father_phone)
-                                        <i class="fas fa-phone"></i> {{ $student->father_phone }}<br>
+                                        <i class="fas fa-phone"></i> Father: {{ $student->father_phone }}<br>
                                     @endif
                                     @if ($student->father_email)
-                                        <i class="fas fa-envelope"></i> {{ $student->father_email }}
+                                        <i class="fas fa-envelope"></i> Father: {{ $student->father_email }}<br>
                                     @endif
-                                    @if (!$student->father_phone && !$student->father_email)
+
+                                    @if ($student->mother_phone)
+                                        <i class="fas fa-phone"></i> Mother: {{ $student->mother_phone }}<br>
+                                    @endif
+                                    @if ($student->mother_email)
+                                        <i class="fas fa-envelope"></i> Mother: {{ $student->mother_email }}<br>
+                                    @endif
+
+                                    @if ($student->guardian_phone)
+                                        <i class="fas fa-phone"></i> Guardian: {{ $student->guardian_phone }}<br>
+                                    @endif
+                                    @if ($student->guardian_email)
+                                        <i class="fas fa-envelope"></i> Guardian: {{ $student->guardian_email }}
+                                    @endif
+
+                                    @if (!$student->father_phone && !$student->father_email && !$student->mother_phone && !$student->mother_email && !$student->guardian_phone && !$student->guardian_email)
                                         <span class="text-muted">No contact</span>
                                     @endif
                                 </small>

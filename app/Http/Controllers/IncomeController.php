@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Income;
 use App\Models\IncomeCategory;
+use App\Models\Transaction;
+use App\Models\AccountTransaction;
 use Illuminate\Http\Request;
 
 class IncomeController extends Controller
@@ -47,6 +49,7 @@ class IncomeController extends Controller
             'amount'             => 'required|numeric|min:0.01',
             'income_date'        => 'required|date_format:d/m/Y',
             'payment_method'     => 'required|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other',
+            'account_id'         => 'nullable|integer',
             'reference_no'       => 'nullable|string|max:100',
             'description'        => 'nullable|string',
             'attachment'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
@@ -54,7 +57,7 @@ class IncomeController extends Controller
 
         $data = $request->only([
             'income_category_id', 'title', 'amount',
-            'income_date', 'payment_method', 'reference_no', 'description',
+            'income_date', 'payment_method', 'account_type', 'account_id', 'reference_no', 'description',
         ]);
 
         $data['income_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->income_date)->format('Y-m-d');
@@ -64,7 +67,36 @@ class IncomeController extends Controller
             $data['attachment'] = $request->file('attachment')->store('incomes', 'public');
         }
 
-        Income::create($data);
+        $income = Income::create($data);
+
+        Transaction::create([
+            'reference_no'         => Transaction::generateReference(),
+            'type'                 => 'income',
+            'income_category_id'   => $income->income_category_id,
+            'amount'               => $income->amount,
+            'description'          => $income->description,
+            'transaction_date'     => $income->income_date,
+            'payment_method'       => $income->payment_method,
+            'transactionable_type' => Income::class,
+            'transactionable_id'   => $income->id,
+            'recorded_by'          => auth()->id(),
+        ]);
+
+        if ($income->account_type && $income->account_id) {
+            AccountTransaction::record(
+                $income->account_type,
+                $income->account_id,
+                'credit',
+                $income->amount,
+                'income',
+                $income->reference_no,
+                $income->description,
+                $income->income_date,
+                Income::class,
+                $income->id,
+                auth()->id()
+            );
+        }
 
         return redirect()->route('incomes.index')->with('success', 'Income recorded successfully.');
     }
@@ -85,6 +117,8 @@ class IncomeController extends Controller
             'amount'             => 'required|numeric|min:0.01',
             'income_date'        => 'required|date_format:d/m/Y',
             'payment_method'     => 'required|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other',
+            'account_type'       => 'nullable|in:App\\Models\\HandCash,App\\Models\\BankAccount,App\\Models\\MobileBankingAccount',
+            'account_id'         => 'nullable|integer',
             'reference_no'       => 'nullable|string|max:100',
             'description'        => 'nullable|string',
             'attachment'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
@@ -92,7 +126,7 @@ class IncomeController extends Controller
 
         $data = $request->only([
             'income_category_id', 'title', 'amount',
-            'income_date', 'payment_method', 'reference_no', 'description',
+            'income_date', 'payment_method', 'account_type', 'account_id', 'reference_no', 'description',
         ]);
 
         $data['income_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->income_date)->format('Y-m-d');
@@ -106,6 +140,20 @@ class IncomeController extends Controller
 
         $income->update($data);
 
+        Transaction::updateOrCreate(
+            ['transactionable_type' => Income::class, 'transactionable_id' => $income->id],
+            [
+                'reference_no'         => $income->reference_no ?: Transaction::generateReference(),
+                'type'                 => 'income',
+                'income_category_id'   => $income->income_category_id,
+                'amount'               => $income->amount,
+                'description'          => $income->description,
+                'transaction_date'     => $income->income_date,
+                'payment_method'       => $income->payment_method,
+                'recorded_by'          => auth()->id(),
+            ]
+        );
+
         return redirect()->route('incomes.index')->with('success', 'Income updated successfully.');
     }
 
@@ -116,6 +164,13 @@ class IncomeController extends Controller
         }
 
         $income->delete();
+
+        AccountTransaction::removeSource(Income::class, $income->id);
+
+        // delete matching transaction record if exists
+        Transaction::where('transactionable_type', Income::class)
+            ->where('transactionable_id', $income->id)
+            ->delete();
 
         return redirect()->route('incomes.index')->with('success', 'Income deleted successfully.');
     }

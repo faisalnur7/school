@@ -51,7 +51,7 @@
                                 </a>
 
                                 <form action="{{ route('fee-categories.delete', $feeCategory->id) }}" method="POST"
-                                    class="btn btn-sm btn-danger d-inline"
+                                    class="btn btn-sm btn-danger d-inline m-0"
                                     onsubmit="return confirm('Delete this fee category?')">
                                     @csrf
                                     @method('DELETE')

@@ -41,7 +41,7 @@
                                 </a>
 
                                 <form action="{{ route('expense-categories.destroy', $category->id) }}" method="POST"
-                                    class="btn btn-sm btn-danger d-inline"
+                                    class="btn btn-sm btn-danger d-inline m-0"
                                     onsubmit="return confirm('Delete this expense category?')">
                                     @csrf
                                     @method('DELETE')

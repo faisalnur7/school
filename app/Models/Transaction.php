@@ -13,6 +13,7 @@ class Transaction extends Model
         'type',
         'income_category_id',
         'expense_category_id',
+        'shareholder_id',
         'amount',
         'description',
         'transaction_date',
@@ -50,6 +51,11 @@ class Transaction extends Model
         return $this->belongsTo(User::class, 'recorded_by');
     }
 
+    public function shareholder()
+    {
+        return $this->belongsTo(Shareholder::class);
+    }
+
     // ── Accessors ──────────────────────────────────────────────
 
     /**
@@ -70,6 +76,65 @@ class Transaction extends Model
         return $this->type === 'income';
     }
 
+    public function getIsCapitalAttribute(): bool
+    {
+        return $this->type === 'capital';
+    }
+
+    public function getIsWithdrawalAttribute(): bool
+    {
+        return $this->type === 'withdrawal';
+    }
+
+    /**
+     * Resolve a display name for the cash/bank account linked via the transactionable.
+     * Falls back to the payment_method string when no account is stored.
+     */
+    public function getAccountDisplayNameAttribute(): string
+    {
+        $source = $this->transactionable;
+
+        $accountType = $source?->account_type ?? null;
+        $accountId   = $source?->account_id   ?? null;
+
+        if ($accountType && $accountId) {
+            $account = $accountType::find($accountId);
+
+            if ($account) {
+                return match ($accountType) {
+                    \App\Models\BankAccount::class          => $account->bank_name . ' — ' . $account->account_number,
+                    \App\Models\MobileBankingAccount::class => $account->provider  . ' — ' . $account->account_number,
+                    \App\Models\HandCash::class             => $account->label,
+                    default                                 => $this->payment_method ?? '—',
+                };
+            }
+        }
+
+        return $this->payment_method ?? '—';
+    }
+
+    public function getDebitAccountNameAttribute(): string
+    {
+        return match ($this->type) {
+            'income'     => $this->account_display_name,
+            'expense'    => $this->expenseCategory?->name ?? '—',
+            'capital'    => $this->account_display_name,
+            'withdrawal' => 'Drawings — ' . ($this->shareholder?->name ?? '—'),
+            default      => '—',
+        };
+    }
+
+    public function getCreditAccountNameAttribute(): string
+    {
+        return match ($this->type) {
+            'income'     => $this->incomeCategory?->name ?? '—',
+            'expense'    => $this->account_display_name,
+            'capital'    => 'Capital — ' . ($this->shareholder?->name ?? '—'),
+            'withdrawal' => $this->account_display_name,
+            default      => '—',
+        };
+    }
+
     // ── Scopes ─────────────────────────────────────────────────
 
     public function scopeIncome($query)
@@ -80,6 +145,21 @@ class Transaction extends Model
     public function scopeExpense($query)
     {
         return $query->where('type', 'expense');
+    }
+
+    public function scopeCapital($query)
+    {
+        return $query->where('type', 'capital');
+    }
+
+    public function scopeWithdrawal($query)
+    {
+        return $query->where('type', 'withdrawal');
+    }
+
+    public function scopeForShareholder($query, int $shareholderId)
+    {
+        return $query->where('shareholder_id', $shareholderId);
     }
 
     public function scopeForPeriod($query, $from, $to)
@@ -103,21 +183,33 @@ class Transaction extends Model
     protected static function booted(): void
     {
         static::saving(function (Transaction $txn) {
-            if ($txn->type === 'income') {
-                $txn->expense_category_id = null;
+            match ($txn->type) {
+                'income' => (function () use ($txn) {
+                    $txn->expense_category_id = null;
+                    $txn->shareholder_id      = null;
+                    if (empty($txn->income_category_id)) {
+                        throw new \InvalidArgumentException('income_category_id is required for income transactions.');
+                    }
+                })(),
 
-                if (empty($txn->income_category_id)) {
-                    throw new InvalidArgumentException('income_category_id is required for income transactions.');
-                }
-            }
+                'expense' => (function () use ($txn) {
+                    $txn->income_category_id = null;
+                    $txn->shareholder_id     = null;
+                    if (empty($txn->expense_category_id)) {
+                        throw new \InvalidArgumentException('expense_category_id is required for expense transactions.');
+                    }
+                })(),
 
-            if ($txn->type === 'expense') {
-                $txn->income_category_id = null;
+                'capital', 'withdrawal' => (function () use ($txn) {
+                    $txn->income_category_id  = null;
+                    $txn->expense_category_id = null;
+                    if (empty($txn->shareholder_id)) {
+                        throw new \InvalidArgumentException('shareholder_id is required for capital/withdrawal transactions.');
+                    }
+                })(),
 
-                if (empty($txn->expense_category_id)) {
-                    throw new InvalidArgumentException('expense_category_id is required for expense transactions.');
-                }
-            }
+                default => throw new \InvalidArgumentException("Invalid transaction type: {$txn->type}"),
+            };
         });
     }
 }

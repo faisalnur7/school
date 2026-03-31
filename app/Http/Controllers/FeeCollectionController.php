@@ -19,6 +19,7 @@ use App\Models\PaymentItem;
 use App\Models\IncomeCategory;
 use App\Models\Transport;
 use App\Models\Scholarship;
+use App\Models\AccountTransaction;
 use App\Traits\HasTransactions;
 
 class FeeCollectionController extends Controller
@@ -118,6 +119,7 @@ class FeeCollectionController extends Controller
 
         $pendingFees = Fee::with(['feeSet.items.category', 'scholarship'])
             ->where('student_id', $student->id)
+            ->where('is_active', true)
             ->whereIn('status', ['pending','partial'])
             ->when($sessionId, function($q) use ($sessionId){
                 $q->whereHas('feeSet', function($subQ) use ($sessionId) {
@@ -254,6 +256,8 @@ class FeeCollectionController extends Controller
                 'amount'         => $totalAmount,
                 'payment_date'   => now(),
                 'payment_method' => $request->payment_method ?? 'Cash',
+                'account_type'   => $request->account_type ?? null,
+                'account_id'     => $request->account_id ?? null,
                 'receipt_no'     => 'R-' . now()->format('Ymd') . '-' . str_pad(
                                         Payment::whereDate('created_at', today())->count() + 1,
                                         4, '0', STR_PAD_LEFT
@@ -317,6 +321,22 @@ class FeeCollectionController extends Controller
                 'payment_method' => $payment->payment_method,
                 'description'    => "Fee payment for student ID {$studentId} (including transport fees)",
             ]);
+
+            if ($payment->account_type && $payment->account_id) {
+                AccountTransaction::record(
+                    $payment->account_type,
+                    $payment->account_id,
+                    'credit',
+                    $totalAmount,
+                    'student_payment',
+                    $payment->receipt_no,
+                    "Fee payment for student ID {$studentId}",
+                    now(),
+                    Payment::class,
+                    $payment->id,
+                    auth()->id()
+                );
+            }
 
             DB::commit();
 

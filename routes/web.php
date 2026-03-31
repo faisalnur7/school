@@ -60,6 +60,8 @@ use App\Http\Controllers\{
     ProcurementController,
     AnalyticsController,
     AssetController,
+    AssetCategoryController,
+    AssetPurchaseController,
     VisitorController,
     MobileController,
     SecurityController,
@@ -80,7 +82,8 @@ use App\Http\Controllers\{
     DivisionController,
     DistrictController,
     PoliceStationController,
-    PostOfficeController
+    PostOfficeController,
+    ProfileController
 };
 
 
@@ -219,11 +222,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/students', [StudentController::class, 'index'])->name('students.index');
     Route::get('/students/create', [StudentController::class, 'create'])->name('students.create');
     Route::post('/students/store', [StudentController::class, 'store'])->name('students.store');
+    Route::get('/students/{id}', [StudentController::class, 'show'])->name('students.show');
     Route::get('/students/{id}/edit', [StudentController::class, 'edit'])->name('students.edit');
     Route::post('/students/{id}/update', [StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/{id}/delete', [StudentController::class, 'destroy'])->name('students.delete');
     Route::get('/students/progress', [StudentController::class, 'progressTracking'])->name('students.progress');
-    Route::get('/students/progress', [StudentController::class, 'progressTracking'])->name('students.show');
+    Route::get('/students/progress', [StudentController::class, 'progressTracking'])->name('students.progress');
     Route::get('/students/destroy/{id}', [StudentController::class, 'progressTracking'])->name('students.destroy');
     Route::post('students/{id}/toggle-status', [StudentController::class, 'toggleStatus'])->name('students.toggle-status');
     Route::get('students/export', [StudentController::class, 'export'])->name('students.export');
@@ -310,6 +314,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/store', [FeeController::class, 'store'])->name('fees.store');
         Route::get('/{id}/edit', [FeeController::class, 'edit'])->name('fees.edit');
         Route::post('/{id}/update', [FeeController::class, 'update'])->name('fees.update');
+        Route::post('/{id}/toggle-status', [FeeController::class, 'toggleStatus'])->name('fees.toggle-status');
         Route::delete('/{id}/delete', [FeeController::class, 'destroy'])->name('fees.delete');
     });
 
@@ -395,7 +400,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/payments/store', [PaymentController::class, 'store'])->name('payments.store');
     Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
     
-    Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
+    Route::get('/accounts', [AccountController::class, 'getAccounts'])->name('accounts.index');
 
     Route::prefix('scholarships')->group(function () {
         Route::get('/', [ScholarshipController::class, 'index'])->name('scholarships.index');
@@ -457,6 +462,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/', [TransportController::class, 'index'])->name('transports.index');
         Route::get('/create', [TransportController::class, 'create'])->name('transports.create');
         Route::get('/edit/{id}', [TransportController::class, 'edit'])->name('transports.edit');
+        Route::post('/toggle-status/{transport}', [TransportController::class, 'toggleStatus'])->name('transports.toggle-status');
         Route::get('/students', [TransportController::class, 'getStudents'])->name('transports.get-students');
         Route::post('/bulk', [TransportController::class, 'storeBulk'])->name('transports.store-bulk');
         Route::delete('/{transport}', [TransportController::class, 'destroy'])->name('transports.destroy');
@@ -467,14 +473,44 @@ Route::group(['middleware' => ['auth']], function () {
     // ------------------- Dormitory -------------------
     Route::get('/dormitory', [DormitoryController::class, 'index'])->name('dormitory.index');
 
+    // ------------------- Shareholders -------------------
+    Route::resource('shareholders', \App\Http\Controllers\ShareholderController::class);
+    Route::resource('shareholder-transactions', \App\Http\Controllers\ShareholderTransactionController::class);
+
+    // ------------------- Ledger -------------------
+    Route::get('/ledger', [\App\Http\Controllers\LedgerController::class, 'index'])->name('ledger.index');
+
+    // unified transaction routes for all transaction types
+    Route::get('/transactions', [\App\Http\Controllers\ShareholderTransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/create', [\App\Http\Controllers\ShareholderTransactionController::class, 'create'])->name('transactions.create');
+    Route::post('/transactions', [\App\Http\Controllers\ShareholderTransactionController::class, 'store'])->name('transactions.store');
+    Route::get('/transactions/{shareholderTransaction}/edit', [\App\Http\Controllers\ShareholderTransactionController::class, 'edit'])->name('transactions.edit');
+    Route::put('/transactions/{shareholderTransaction}', [\App\Http\Controllers\ShareholderTransactionController::class, 'update'])->name('transactions.update');
+    Route::delete('/transactions/{shareholderTransaction}', [\App\Http\Controllers\ShareholderTransactionController::class, 'destroy'])->name('transactions.destroy');
+
     // ------------------- Asset Management -------------------
-    Route::prefix('assets')->group(function () {
-        Route::get('/property', [AssetController::class, 'property'])->name('assets.property');
-        Route::get('/equipment', [AssetController::class, 'equipment'])->name('assets.equipment');
-        Route::get('/equipment/create', [AssetController::class, 'createEquipment'])->name('assets.equipment.create');
-        Route::post('/equipment/store', [AssetController::class, 'storeEquipment'])->name('assets.equipment.store');
-        Route::get('/maintenance', [AssetController::class, 'maintenance'])->name('assets.maintenance');
-        Route::get('/depreciation', [AssetController::class, 'depreciation'])->name('assets.depreciation');
+    Route::prefix('asset-categories')->group(function () {
+        Route::get('/', [AssetCategoryController::class, 'index'])->name('asset-categories.index');
+        Route::post('/', [AssetCategoryController::class, 'store'])->name('asset-categories.store');
+        Route::put('/{assetCategory}', [AssetCategoryController::class, 'update'])->name('asset-categories.update');
+        Route::delete('/{assetCategory}', [AssetCategoryController::class, 'destroy'])->name('asset-categories.destroy');
+    });
+
+    Route::prefix('manage-assets')->group(function () {
+        Route::get('/', [AssetController::class, 'index'])->name('assets.index');
+        Route::get('/create', [AssetController::class, 'create'])->name('assets.create');
+        Route::post('/', [AssetController::class, 'store'])->name('assets.store');
+        Route::get('/{asset}/edit', [AssetController::class, 'edit'])->name('assets.edit');
+        Route::put('/{asset}', [AssetController::class, 'update'])->name('assets.update');
+        Route::delete('/{asset}', [AssetController::class, 'destroy'])->name('assets.destroy');
+    });
+
+    Route::prefix('asset-purchases')->group(function () {
+        Route::get('/accounts/load', [AssetPurchaseController::class, 'getAccounts'])->name('asset-purchases.accounts');
+        Route::get('/', [AssetPurchaseController::class, 'index'])->name('asset-purchases.index');
+        Route::get('/create', [AssetPurchaseController::class, 'create'])->name('asset-purchases.create');
+        Route::post('/', [AssetPurchaseController::class, 'store'])->name('asset-purchases.store');
+        Route::get('/{assetPurchase}', [AssetPurchaseController::class, 'show'])->name('asset-purchases.show');
     });
 
     Route::prefix('facilities')->group(function () {

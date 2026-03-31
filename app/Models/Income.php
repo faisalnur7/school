@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\AccountTransaction;
 
 class Income extends Model
 {
@@ -51,5 +52,32 @@ class Income extends Model
             'App\Models\HandCash'             => \App\Models\HandCash::find($this->account_id),
             default                           => null,
         };
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(function (Income $income) {
+            if ($income->account_type && $income->account_id) {
+                AccountTransaction::upsertForSource(
+                    $income->account_type,
+                    $income->account_id,
+                    'credit',
+                    $income->amount,
+                    'income',
+                    $income->reference_no,
+                    $income->description,
+                    $income->income_date,
+                    self::class,
+                    $income->id,
+                    $income->recorded_by
+                );
+            } else {
+                AccountTransaction::removeSource(self::class, $income->id);
+            }
+        });
+
+        static::deleted(function (Income $income) {
+            AccountTransaction::removeSource(self::class, $income->id);
+        });
     }
 }

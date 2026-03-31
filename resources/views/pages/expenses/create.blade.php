@@ -51,12 +51,21 @@
 
                             <div class="form-group">
                                 <label>Payment Method</label>
-                                <select name="payment_method" class="form-control" required>
+                                <select id="expensePaymentMethod" name="payment_method" class="form-control" required>
                                     @foreach (['Cash', 'Bank Transfer', 'Cheque', 'Mobile Banking', 'Other'] as $method)
                                         <option value="{{ $method }}" {{ old('payment_method') == $method ? 'selected' : '' }}>
                                             {{ $method }}
                                         </option>
                                     @endforeach
+                                </select>
+                            </div>
+
+                            <input type="hidden" name="account_type" id="expenseAccountType" value="{{ old('account_type') }}">
+
+                            <div class="form-group" id="expenseAccountWrapper" style="display: none;">
+                                <label>Account <small class="text-muted">(optional for Cash/Bank/Mobile)</small></label>
+                                <select name="account_id" id="expenseAccountSelect" class="form-control">
+                                    <option value="">Select Account</option>
                                 </select>
                             </div>
 
@@ -93,4 +102,78 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+<script>
+    const expenseAccountsUrl = '{{ route('accounts.index') }}';
+
+    const expenseMethodTypeMap = {
+        'Cash': 'hand_cash',
+        'Bank Transfer': 'bank',
+        'Mobile Banking': 'mobile',
+    };
+
+    const expenseAccountTypeMap = {
+        'Cash': '\\App\\Models\\HandCash',
+        'Bank Transfer': '\\App\\Models\\BankAccount',
+        'Mobile Banking': '\\App\\Models\\MobileBankingAccount',
+    };
+
+    function expenseLoadAccounts(method, selectedId = null) {
+        const type = expenseMethodTypeMap[method];
+        const accountType = expenseAccountTypeMap[method];
+        const wrapper = $('#expenseAccountWrapper');
+        const select  = $('#expenseAccountSelect');
+
+        if (!type) {
+            wrapper.hide();
+            $('#expenseAccountType').val('');
+            select.html('<option value="">Select Account</option>');
+            return;
+        }
+
+        $('#expenseAccountType').val(accountType);
+
+        $.ajax({
+            url: expenseAccountsUrl,
+            method: 'GET',
+            dataType: 'json',
+            data: { type: type },
+            success: function (accounts) {
+                select.html('<option value="">Select Account</option>');
+                accounts.forEach(a => {
+                    const selected = selectedId && String(a.id) === String(selectedId) ? 'selected' : '';
+                    select.append(`<option value="${a.id}" ${selected}>${a.label}</option>`);
+                });
+                if (accounts.length > 0) {
+                    wrapper.show();
+                } else {
+                    wrapper.hide();
+                }
+            },
+            error: function () {
+                wrapper.hide();
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        const initialMethod = $('#expensePaymentMethod').val();
+        const initialAccount = '{{ old('account_id', '') }}';
+        const initialType = '{{ old('account_type', '') }}';
+
+        if (initialType) {
+            $('#expenseAccountType').val(initialType);
+        }
+
+        if (expenseMethodTypeMap[initialMethod]) {
+            expenseLoadAccounts(initialMethod, initialAccount);
+        }
+
+        $('#expensePaymentMethod').on('change', function () {
+            expenseLoadAccounts($(this).val());
+        });
+    });
+</script>
 @endsection

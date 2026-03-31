@@ -4,24 +4,31 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-header">
-            <h4>Assign Scholarships</h4>
+            <h4 class="font-bold text-white text-lg">Assign Scholarships</h4>
         </div>
         <div class="card-body">
             @include('scholarships.filter')
 
             <!-- Student List -->
             <div id="studentListContainer" style="display: none;">
-                <h5 class="mb-3">Students List</h5>
+                <div class="flex justify-between">
+                <h5 class="mb-3 text-lg font-bold">Students List</h5>
+                <div class="text-right mb-3">
+                    <button type="button" class="btn btn-success saveScholarships">Save Scholarships</button>
+                </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
+                                <th width="8%">Roll</th>
                                 <th width="10%">Student ID</th>
-                                <th width="25%">Student Name</th>
-                                <th width="15%">Fee Amount</th>
-                                <th width="15%">Scholarship Type</th>
-                                <th width="15%">Value</th>
-                                <th width="20%">Current Scholarship</th>
+                                <th width="10%">Student Name</th>
+                                <th width="10%">Academic Info</th>
+                                <th width="10%">Fee Amount</th>
+                                <th width="27%">Type</th>
+                                <th width="10%">Value</th>
+                                <th width="10%">Current Scholarship</th>
                             </tr>
                         </thead>
                         <tbody id="studentTableBody">
@@ -29,7 +36,7 @@
                     </table>
                 </div>
                 <div class="text-right mt-3">
-                    <button type="button" id="saveScholarships" class="btn btn-success">Save Scholarships</button>
+                    <button type="button" class="btn btn-success saveScholarships">Save Scholarships</button>
                 </div>
             </div>
         </div>
@@ -91,8 +98,21 @@ $(document).ready(function() {
 
             html += `
                 <tr data-student-id="${student.id}" data-academic-info-id="${student.academic_info_id}">
+                    <td>${student.roll || '—'}</td>
                     <td>${student.student_cid}</td>
-                    <td>${student.name}</td>
+                    <td>
+                        <strong>${student.name}</strong>
+                        <br><small class="text-muted">Father: ${student.father_name || '—'}</small>
+                        <br><small class="text-muted">Mother: ${student.mother_name || '—'}</small>
+                    </td>
+                    <td>
+                        <small>
+                            <strong>Class:</strong> ${student.class || '—'}<br>
+                            <strong>Section:</strong> ${student.section || '—'}<br>
+                            <strong>Group:</strong> ${student.group || '—'}<br>
+                            <strong>Session:</strong> ${student.academic_session || '—'}
+                        </small>
+                    </td>
                     <td><strong>${feeAmount}</strong></td>
                     <td>
                         <select class="form-control scholarship-type">
@@ -114,7 +134,7 @@ $(document).ready(function() {
         $('#studentTableBody').html(html);
     }
 
-    $('#saveScholarships').click(function() {
+    $('.saveScholarships').click(function() {
         const sessionId = $('#academic_session_id').val();
         const feeCategoryId = $('#fee_category_id').val();
 

@@ -9,7 +9,7 @@ class HandCash extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'label', 'opening_amount', 'opening_date',
+        'label', 'opening_amount', 'balance', 'opening_date',
         'is_active', 'notes', 'recorded_by',
     ];
 
@@ -22,5 +22,15 @@ class HandCash extends Model
     public function recorder()
     {
         return $this->belongsTo(User::class, 'recorded_by');
+    }
+
+    public function accountTransactions()
+    {
+        return $this->morphMany(AccountTransaction::class, 'account', 'account_type', 'account_id');
+    }
+
+    public function getCurrentBalanceAttribute()
+    {
+        return $this->accountTransactions()->latest('id')->value('balance_after') ?? 0;
     }
 }

@@ -35,12 +35,12 @@
                                 </span>
                             </td>
                             <td class="text-muted" style="font-size:13px">{{ Str::limit($cash->notes, 40) ?? '—' }}</td>
-                            <td style="display:flex;gap:5px;align-items:center">
+                            <td style="display:flex;gap:5px;align-items:center;">
                                 <a href="{{ route('hand-cash.edit', $cash->id) }}" class="btn btn-sm btn-dark">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <form action="{{ route('hand-cash.destroy', $cash->id) }}" method="POST"
-                                      class="btn btn-sm btn-danger d-inline"
+                                      class="btn btn-sm btn-danger d-inline m-0"
                                       onsubmit="return confirm('Delete this hand cash entry?')">
                                     @csrf
                                     @method('DELETE')

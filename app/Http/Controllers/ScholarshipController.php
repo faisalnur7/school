@@ -37,7 +37,8 @@ class ScholarshipController extends Controller
     public function getStudents(Request $request)
     {
         $query = StudentAcademicInformation::with('student')
-            ->where('academic_session_id', $request->academic_session_id);
+            ->where('academic_session_id', $request->academic_session_id)
+            ->orderByRaw('CAST(roll AS UNSIGNED)');
 
         if ($request->school_class_id) {
             $query->where('school_class_id', $request->school_class_id);
@@ -51,7 +52,7 @@ class ScholarshipController extends Controller
             $query->where('group_id', $request->group_id);
         }
 
-        $students = $query->get()->map(function ($academicInfo) use ($request) {
+        $students = $query->orderBy('roll')->get()->map(function ($academicInfo) use ($request) {
             $existingScholarship = Scholarship::where('student_id', $academicInfo->student_id)
                 ->where('academic_session_id', $request->academic_session_id)
                 ->where('fee_category_id', $request->fee_category_id)
@@ -75,6 +76,13 @@ class ScholarshipController extends Controller
                 'academic_info_id' => $academicInfo->id,
                 'student_cid' => $academicInfo->student->student_cid,
                 'name' => $academicInfo->student->full_name_en,
+                'father_name' => $academicInfo->student->father_name,
+                'mother_name' => $academicInfo->student->mother_name,
+                'roll' => $academicInfo->roll,
+                'class' => optional($academicInfo->schoolClass)->name_en,
+                'section' => optional($academicInfo->section)->name_en,
+                'group' => optional($academicInfo->group)->name_en,
+                'academic_session' => optional($academicInfo->academicSession)->name_en,
                 'fee_category_amount' => $feeCategoryAmount,
                 'existing_type' => $existingScholarship?->type,
                 'existing_amount' => $existingScholarship?->amount,

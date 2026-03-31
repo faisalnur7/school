@@ -170,10 +170,10 @@
                     </ul>
                 </li>
                 {{-- Incomes & Expenses --}}
-                <li class="nav-item has-treeview {{ menuOpen(['incomes.*', 'expenses.*', 'income-categories.*', 'expense-categories.*']) ? 'menu-is-opening menu-open' : '' }}">
+                <li class="nav-item has-treeview {{ menuOpen(['incomes.*', 'expenses.*', 'transactions.*', 'income-categories.*', 'expense-categories.*']) ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-chart-line"></i>
-                        <p>Incomes & Expenses<i class="right fas fa-angle-left"></i></p>
+                        <p>Financials<i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
 
@@ -186,6 +186,12 @@
                         <li>
                             <a href="{{ route('expenses.index') }}" class="nav-link {{ request()->routeIs('expenses.*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>Expenses
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{{ route('transactions.index') }}" class="nav-link {{ request()->routeIs('transactions.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Transactions
                             </a>
                         </li>
 
@@ -409,6 +415,66 @@
                         <p>Event Management</p>
                     </a>
                 </li> --}}
+
+                <!-- Shareholders -->
+                <li class="nav-item has-treeview {{ menuOpen(['shareholders.*', 'shareholder-transactions.*', 'ledger.*']) ? 'menu-is-opening menu-open' : '' }}">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-user-tie"></i>
+                        <p>Shareholders<i class="right fas fa-angle-left"></i></p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li>
+                            <a href="{{ route('shareholders.index') }}" class="nav-link {{ request()->routeIs('shareholders.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>All Shareholders
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('shareholder-transactions.index') }}" class="nav-link {{ request()->routeIs('shareholder-transactions.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Capital & Withdrawals
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('shareholders.create') }}" class="nav-link {{ request()->routeIs('shareholders.create') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Add Shareholder
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('ledger.index') }}" class="nav-link {{ request()->routeIs('ledger.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Ledger View
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Asset Management -->
+                <li class="nav-item has-treeview {{ menuOpen(['assets.*', 'asset-categories.*', 'asset-purchases.*']) ? 'menu-is-opening menu-open' : '' }}">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-building"></i>
+                        <p>Assets<i class="right fas fa-angle-left"></i>
+                            @php $assetCount = \App\Models\Asset::where('status', 'active')->sum('quantity'); @endphp
+                            @if($assetCount > 0)
+                                <span class="badge badge-info right">{{ $assetCount }}</span>
+                            @endif
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li>
+                            <a href="{{ route('asset-categories.index') }}" class="nav-link {{ request()->routeIs('asset-categories.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Categories
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('assets.index') }}" class="nav-link {{ request()->routeIs('assets.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Assets List
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('asset-purchases.index') }}" class="nav-link {{ request()->routeIs('asset-purchases.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Purchases
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
                 <!-- ID Cards & Certificates -->
                 <li class="nav-item has-treeview">

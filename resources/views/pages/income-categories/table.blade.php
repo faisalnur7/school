@@ -41,7 +41,7 @@
                                 </a>
 
                                 <form action="{{ route('income-categories.destroy', $category->id) }}" method="POST"
-                                    class="btn btn-sm btn-danger d-inline"
+                                    class="btn btn-sm btn-danger d-inline m-0"
                                     onsubmit="return confirm('Delete this income category?')">
                                     @csrf
                                     @method('DELETE')
