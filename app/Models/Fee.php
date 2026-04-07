@@ -37,6 +37,11 @@ class Fee extends Model
         return $this->belongsTo(Student::class);
     }
 
+    public function paymentItems()
+    {
+        return $this->hasMany(\App\Models\PaymentItem::class);
+    }
+
     public function scholarship()
     {
         return $this->belongsTo(Scholarship::class);

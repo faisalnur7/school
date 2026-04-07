@@ -16,20 +16,83 @@ use Illuminate\Support\Facades\DB;
 
 class ScholarshipController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $scholarships = Scholarship::with(['student', 'academicSession', 'feeCategory'])
+        $sessions = AcademicSession::orderByDesc('id')->get();
+        $classes  = SchoolClass::orderBy('id')->get();
+        $sections = $request->filled('class_id')
+            ? Section::where('school_class_id', $request->class_id)->orderBy('name_en')->get()
+            : collect();
+        $groups = $request->filled('class_id')
+            ? Group::where('school_class_id', $request->class_id)->orderBy('name_en')->get()
+            : collect();
+
+        $scholarships = Scholarship::with(['student', 'academicSession', 'feeCategory', 'studentAcademicInformation.schoolClass', 'studentAcademicInformation.section', 'studentAcademicInformation.group'])
+            ->when($request->filled('session_id'), fn($q) =>
+                $q->where('academic_session_id', $request->session_id)
+            )
+            ->when($request->filled('class_id'), fn($q) =>
+                $q->whereHas('studentAcademicInformation', fn($q) =>
+                    $q->where('school_class_id', $request->class_id)
+                )
+            )
+            ->when($request->filled('section_id'), fn($q) =>
+                $q->whereHas('studentAcademicInformation', fn($q) =>
+                    $q->where('section_id', $request->section_id)
+                )
+            )
+            ->when($request->filled('group_id'), fn($q) =>
+                $q->whereHas('studentAcademicInformation', fn($q) =>
+                    $q->where('group_id', $request->group_id)
+                )
+            )
             ->latest()
-            ->paginate(20);
-        
-        return view('scholarships.index', compact('scholarships'));
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('scholarships.index', compact(
+            'scholarships', 'sessions', 'classes', 'sections', 'groups'
+        ));
+    }
+
+    public function pdf(Request $request)
+    {
+        $scholarships = Scholarship::with(['student', 'academicSession', 'feeCategory', 'studentAcademicInformation.schoolClass', 'studentAcademicInformation.section', 'studentAcademicInformation.group'])
+            ->when($request->filled('session_id'), fn($q) =>
+                $q->where('academic_session_id', $request->session_id)
+            )
+            ->when($request->filled('class_id'), fn($q) =>
+                $q->whereHas('studentAcademicInformation', fn($q) =>
+                    $q->where('school_class_id', $request->class_id)
+                )
+            )
+            ->when($request->filled('section_id'), fn($q) =>
+                $q->whereHas('studentAcademicInformation', fn($q) =>
+                    $q->where('section_id', $request->section_id)
+                )
+            )
+            ->when($request->filled('group_id'), fn($q) =>
+                $q->whereHas('studentAcademicInformation', fn($q) =>
+                    $q->where('group_id', $request->group_id)
+                )
+            )
+            ->latest()
+            ->get();
+
+        $session = AcademicSession::find($request->session_id);
+
+        $html = view('scholarships.pdf', compact('scholarships', 'session'))->render();
+
+        $mpdf = new \Mpdf\Mpdf(['margin_top' => 10, 'margin_bottom' => 10]);
+        $mpdf->WriteHTML($html);
+        $mpdf->Output('scholarships.pdf', 'D');
     }
 
     public function create()
     {
         $sessions = AcademicSession::all();
         $classes = SchoolClass::all();
-        $feeCategories = FeeCategory::all();
+        $feeCategories = FeeCategory::where('status', 1)->where('is_transport',0)->get();
 
         return view('scholarships.create', compact('sessions', 'classes', 'feeCategories'));
     }

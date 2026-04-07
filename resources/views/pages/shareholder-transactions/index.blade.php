@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
-            <h3 class="card-title mb-0">All Transactions</h3>
+            <h3 class="card-title mb-0 text-white text-lg">All Transactions</h3>
             <a href="{{ route('shareholder-transactions.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
                 + Add Transaction
             </a>
@@ -134,7 +134,7 @@
                                 </td>
                                 <td>{{ $txn->description ?? '—' }}</td>
                                 <td>{{ $txn->recorder->name ?? '—' }}</td>
-                                <td style="display:flex;gap:5px;align-items:center">
+                                <td style="display:flex;gap:5px; justify-content: center; align-items: center;;align-items:center">
                                     <a href="{{ route('shareholder-transactions.edit', $txn->id) }}" class="btn btn-sm btn-dark">
                                         <i class="fas fa-edit"></i>
                                     </a>

@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
-        <h3 class="card-title mb-0">Income Categories</h3>
+        <h3 class="card-title mb-0 text-white text-lg">Income Categories</h3>
         <a href="{{ route('income-categories.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
             + Add Income Category
         </a>

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Transaction;
 use App\Models\AccountTransaction;
+use App\Services\JournalService;
 use Illuminate\Http\Request;
 
 class ExpenseController extends Controller
@@ -97,6 +99,18 @@ class ExpenseController extends Controller
                 auth()->id()
             );
         }
+
+        JournalService::postSafe(
+            $expense->expense_date->toDateString(),
+            $expense->title,
+            [
+                ['account_id' => Account::resolveForSource(ExpenseCategory::class, $expense->expense_category_id), 'debit' => (float) $expense->amount, 'credit' => 0],
+                ['account_id' => Account::resolveForSource($expense->account_type ?? '', $expense->account_id ?? 0), 'debit' => 0, 'credit' => (float) $expense->amount],
+            ],
+            Expense::class,
+            $expense->id,
+            auth()->id()
+        );
 
         return redirect()->route('expenses.index')->with('success', 'Expense recorded successfully.');
     }

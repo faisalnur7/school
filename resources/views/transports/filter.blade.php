@@ -44,15 +44,15 @@
         </select>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-1">
         <label class="form-label">&nbsp;</label>
         @isset($isIndex)
             <button type="submit" class="btn btn-primary btn-block">
-                <i class="fas fa-search"></i> Search
+                <i class="fas fa-search"></i>
             </button>
         @else
             <button type="button" id="loadStudents" class="btn btn-primary btn-block">
-                <i class="fas fa-search"></i> Load Students
+                <i class="fas fa-search"></i>
             </button>
         @endisset
     </div>

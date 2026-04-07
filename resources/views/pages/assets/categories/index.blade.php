@@ -7,7 +7,7 @@
         <div class="col-md-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
-                    <h3 class="card-title mb-0">Add Asset Category</h3>
+                    <h3 class="card-title mb-0 text-white text-lg">Add Asset Category</h3>
                 </div>
                 <div class="card-body">
                     @if(session('success'))
@@ -37,7 +37,7 @@
         <div class="col-md-8">
             <div class="card border-0 shadow-sm">
                 <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
-                    <h3 class="card-title mb-0">Asset Categories</h3>
+                    <h3 class="card-title mb-0 text-white text-lg">Asset Categories</h3>
                 </div>
 
                 <div class="card-body p-0">

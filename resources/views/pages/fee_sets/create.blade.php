@@ -8,7 +8,7 @@
         <div class="col-md-5">
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white p-3">
-                    <h3 class="card-title mb-0">Create Fee Set</h3>
+                    <h3 class="card-title mb-0 text-white text-lg">Create Fee Set</h3>
                 </div>
 
                 <form method="POST" action="{{ route('fee-sets.store') }}">

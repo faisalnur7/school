@@ -33,6 +33,9 @@ class DatabaseSeeder extends Seeder
             HandCashSeeder::class,
             BankAccountSeeder::class,
             MobileBankingAccountSeeder::class,
+            AccountingSeeder::class,
+            DesignationSeeder::class,
+            HrSeeder::class,
         ]);
     }
 }

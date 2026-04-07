@@ -73,8 +73,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Description <small class="text-muted">(optional)</small></label>
-                            <textarea name="description" class="form-control" rows="3">{{ old('description', $transaction->description) }}</textarea>
+                            <label>Description <small class="text-muted">(optional — defaults to type name if blank)</small></label>
+                            <textarea name="description" class="form-control" rows="2" placeholder="e.g. Initial investment, Monthly drawing...">{{ old('description', $transaction->description) }}</textarea>
                         </div>
 
                         <div class="form-group">

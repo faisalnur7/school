@@ -171,9 +171,18 @@ class Student extends Model
         return $this->hasMany(\App\Models\Fee::class);
     }
 
+    public function getPhotoUrlAttribute(): string
+    {
+        if ($this->image && file_exists(public_path($this->image))) {
+            return asset($this->image);
+        }
+        return $this->gender == self::FEMALE
+            ? asset('assets/img/female-placeholder.png')
+            : asset('assets/img/male-placeholder.png');
+    }
+
     public function scholarships()
     {
         return $this->hasMany(Scholarship::class);
     }
-
 }

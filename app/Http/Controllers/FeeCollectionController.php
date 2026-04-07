@@ -214,85 +214,64 @@ class FeeCollectionController extends Controller
                 ->get()
                 ->keyBy('fee_category_id');
 
-            $totalAmount = 0;
+            // ── Pass 1: compute per-fee scholarship discount & totals ──
+            $grossAmount              = 0;
+            $totalScholarshipDiscount = 0;
+            $feeNetAmounts            = []; // fee_id => net after scholarship
+
             foreach ($fees as $fee) {
-                $feeAmount = $fee->amount - $fee->paid_amount;
-                $totalDiscount = 0;
+                $feeGross       = $fee->amount - $fee->paid_amount;
+                $feeScholarship = 0;
 
                 foreach ($fee->feeSet->items as $item) {
                     if (isset($scholarships[$item->fee_category_id])) {
-                        $scholarship = $scholarships[$item->fee_category_id];
-                        $discount = $scholarship->calculateDiscount($item->amount);
-                        $totalDiscount += $discount;
-                        \Log::debug('[pay] Scholarship discount', [
-                            'fee_id'       => $fee->id,
-                            'category_id'  => $item->fee_category_id,
-                            'item_amount'  => $item->amount,
-                            'discount'     => $discount,
-                        ]);
+                        $feeScholarship += $scholarships[$item->fee_category_id]->calculateDiscount($item->amount);
                     }
                 }
 
-                $netAmount = max(0, $feeAmount - $totalDiscount);
-                $totalAmount += $netAmount;
-
-                \Log::debug('[pay] Fee total calculation', [
-                    'fee_id'        => $fee->id,
-                    'fee_amount'    => $fee->amount,
-                    'paid_amount'   => $fee->paid_amount,
-                    'fee_due'       => $feeAmount,
-                    'total_discount'=> $totalDiscount,
-                    'net_amount'    => $netAmount,
-                    'running_total' => $totalAmount,
-                ]);
+                $netAfterScholarship              = max(0, $feeGross - $feeScholarship);
+                $feeNetAmounts[$fee->id]           = $netAfterScholarship;
+                $grossAmount                      += $feeGross;
+                $totalScholarshipDiscount         += $feeScholarship;
             }
 
-            if ($totalAmount <= 0) {
+            $totalAfterScholarship = $grossAmount - $totalScholarshipDiscount;
+            $cartDiscount          = (float)($request->discount_amount ?? 0);
+            $finalAmount           = max(0, $totalAfterScholarship - $cartDiscount);
+
+            if ($finalAmount <= 0 && $totalAfterScholarship <= 0) {
                 return response()->json(['message' => 'Selected fees are already paid'], 422);
             }
 
             $payment = Payment::create([
-                'student_id'     => $studentId,
-                'amount'         => $totalAmount,
-                'payment_date'   => now(),
-                'payment_method' => $request->payment_method ?? 'Cash',
-                'account_type'   => $request->account_type ?? null,
-                'account_id'     => $request->account_id ?? null,
-                'receipt_no'     => 'R-' . now()->format('Ymd') . '-' . str_pad(
+                'student_id'         => $studentId,
+                'amount'             => $finalAmount,
+                'gross_amount'       => $grossAmount,
+                'scholarship_amount' => $totalScholarshipDiscount,
+                'discount_type'      => $cartDiscount > 0 ? ($request->discount_type ?? 'flat') : null,
+                'discount_amount'    => $cartDiscount,
+                'payment_date'    => now(),
+                'payment_method'  => $request->payment_method ?? 'Cash',
+                'account_type'    => $request->account_type ?? null,
+                'account_id'      => $request->account_id ?? null,
+                'receipt_no'      => 'R-' . now()->format('Ymd') . '-' . str_pad(
                                         Payment::whereDate('created_at', today())->count() + 1,
                                         4, '0', STR_PAD_LEFT
                                     ),
-                'collected_by'   => auth()->id(),
+                'collected_by'    => auth()->id(),
             ]);
 
+            // ── Pass 2: create PaymentItems distributing cart discount proportionally ──
             foreach ($fees as $fee) {
-                $feeAmount = $fee->amount - $fee->paid_amount;
-                $totalDiscount = 0;
+                $netAfterScholarship = $feeNetAmounts[$fee->id] ?? 0;
+                if ($netAfterScholarship <= 0) continue;
 
-                foreach ($fee->feeSet->items as $item) {
-                    if (isset($scholarships[$item->fee_category_id])) {
-                        $scholarship = $scholarships[$item->fee_category_id];
-                        $discount = $scholarship->calculateDiscount($item->amount);
-                        $totalDiscount += $discount;
-                        \Log::debug('[pay] Scholarship discount (payment loop)', [
-                            'fee_id'      => $fee->id,
-                            'category_id' => $item->fee_category_id,
-                            'item_amount' => $item->amount,
-                            'discount'    => $discount,
-                        ]);
-                    }
-                }
+                // Distribute cart discount proportionally based on share of totalAfterScholarship
+                $feeCartDiscount = $totalAfterScholarship > 0
+                    ? round($cartDiscount * ($netAfterScholarship / $totalAfterScholarship), 2)
+                    : 0;
 
-                $netAmount = max(0, $feeAmount - $totalDiscount);
-
-                \Log::debug('[pay] PaymentItem calculation', [
-                    'fee_id'         => $fee->id,
-                    'fee_due'        => $feeAmount,
-                    'total_discount' => $totalDiscount,
-                    'net_amount'     => $netAmount,
-                    'new_paid_amount'=> $fee->paid_amount + $netAmount,
-                ]);
-
+                $netAmount = max(0, $netAfterScholarship - $feeCartDiscount);
                 if ($netAmount <= 0) continue;
 
                 PaymentItem::create([
@@ -301,25 +280,20 @@ class FeeCollectionController extends Controller
                     'amount'     => $netAmount,
                 ]);
 
+                $feeScholarship = ($fee->amount - $fee->paid_amount) - $netAfterScholarship;
+                $netDue = max(0, $fee->amount - $feeScholarship - $feeCartDiscount);
                 $fee->paid_amount += $netAmount;
-                $netDue = max(0, $fee->amount - $totalDiscount);
                 $fee->status = $fee->paid_amount >= $netDue ? 'paid' : 'partial';
                 $fee->save();
-
-                \Log::debug('[pay] Fee status updated', [
-                    'fee_id'     => $fee->id,
-                    'paid_amount'=> $fee->paid_amount,
-                    'status'     => $fee->status,
-                ]);
             }
 
             $category = IncomeCategory::where('slug', 'student-payment')->firstOrFail();
             $title = 'Student Payment';
 
             $payment->recordIncome($category->id, $title, [
-                'amount'         => $totalAmount,
+                'amount'         => $finalAmount,
                 'payment_method' => $payment->payment_method,
-                'description'    => "Fee payment for student ID {$studentId} (including transport fees)",
+                'description'    => "Fee payment for student ID {$studentId}",
             ]);
 
             if ($payment->account_type && $payment->account_id) {
@@ -327,7 +301,7 @@ class FeeCollectionController extends Controller
                     $payment->account_type,
                     $payment->account_id,
                     'credit',
-                    $totalAmount,
+                    $finalAmount,
                     'student_payment',
                     $payment->receipt_no,
                     "Fee payment for student ID {$studentId}",

@@ -27,7 +27,7 @@ class FeeSetController extends Controller
                     ->get();
 
         $classes       = SchoolClass::all();
-        $feeCategories = FeeCategory::where('status', 1)->get();
+        $feeCategories = FeeCategory::where('status', 1)->where('is_transport',0)->get();
         $sessions = AcademicSession::all(); 
 
         return view('pages.fee_sets.create', compact(
@@ -145,7 +145,7 @@ class FeeSetController extends Controller
                     ->get();
 
         $classes       = SchoolClass::all();
-        $feeCategories = FeeCategory::where('status', 1)->get();
+        $feeCategories = FeeCategory::where('status', 1)->where('is_transport',0)->get();
         $sessions = AcademicSession::all();
         $groups = Group::all();
 

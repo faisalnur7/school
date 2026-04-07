@@ -3,7 +3,7 @@
 @section('contents')
     <div class="container-fluid py-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold">🚌 Transport Fee Management</h4>
+            <h4 class="font-bold text-lg">🚌 Transport Fee Management</h4>
             <a href="{{ route('transports.create') }}" class="btn btn-primary">
                 + Assign Transport Fee
             </a>
@@ -18,7 +18,7 @@
 
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white border-bottom py-3">
-                <h6 class="mb-0 fw-bold">Filter Students</h6>
+                <h6 class="mb-0 font-bold text-white text-lg">Filter Students</h6>
             </div>
             <div class="card-body">
                 <form method="GET" action="{{ route('transports.index') }}">

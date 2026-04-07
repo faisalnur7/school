@@ -83,7 +83,8 @@ use App\Http\Controllers\{
     DistrictController,
     PoliceStationController,
     PostOfficeController,
-    ProfileController
+    ProfileController,
+    StudentDueReportController
 };
 
 
@@ -219,6 +220,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('/lessonplans/{id}/delete', [LessonPlanController::class, 'destroy'])->name('lessonplans.delete');
 
     // ------------------- Students -------------------
+    Route::get('/students/id-cards', [\App\Http\Controllers\GenerateIdCardController::class, 'index'])->name('students.id-cards');
+    Route::get('/students/id-cards/pdf', [\App\Http\Controllers\GenerateIdCardController::class, 'pdf'])->name('students.id-cards.pdf');
+
     Route::get('/students', [StudentController::class, 'index'])->name('students.index');
     Route::get('/students/create', [StudentController::class, 'create'])->name('students.create');
     Route::post('/students/store', [StudentController::class, 'store'])->name('students.store');
@@ -387,6 +391,12 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // Fee collection
+    Route::get('/fees/due-report', [\App\Http\Controllers\FeeDueReportController::class, 'index'])->name('fees.due-report');
+    Route::get('/fees/due-report/pdf', [\App\Http\Controllers\FeeDueReportController::class, 'pdf'])->name('fees.due-report.pdf');
+    Route::get('/fees/student-due-report', [\App\Http\Controllers\StudentDueReportController::class, 'index'])->name('fees.student-due-report');
+    Route::get('/fees/student-due-report/pdf', [\App\Http\Controllers\StudentDueReportController::class, 'pdf'])->name('fees.student-due-report.pdf');
+    Route::get('/fees/discount-list', [\App\Http\Controllers\DiscountListController::class, 'index'])->name('fees.discount-list');
+    Route::get('/fees/discount-list/pdf', [\App\Http\Controllers\DiscountListController::class, 'pdf'])->name('fees.discount-list.pdf');
     Route::get('/fees/collect', [FeeCollectionController::class, 'index'])->name('fees.collect');
     Route::get('/fees/collect_payment/{student_id}', [FeeCollectionController::class, 'collect_payment'])->name('fees.collect_payment');
     Route::get('/fees/search-student', [FeeCollectionController::class, 'search'])->name('fees.search');
@@ -404,6 +414,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::prefix('scholarships')->group(function () {
         Route::get('/', [ScholarshipController::class, 'index'])->name('scholarships.index');
+        Route::get('/pdf', [ScholarshipController::class, 'pdf'])->name('scholarships.pdf');
         Route::get('/create', [ScholarshipController::class, 'create'])->name('scholarships.create');
         Route::get('/students', [ScholarshipController::class, 'getStudents'])->name('scholarships.students');
         Route::post('/bulk', [ScholarshipController::class, 'storeBulk'])->name('scholarships.storeBulk');
@@ -480,6 +491,111 @@ Route::group(['middleware' => ['auth']], function () {
     // ------------------- Ledger -------------------
     Route::get('/ledger', [\App\Http\Controllers\LedgerController::class, 'index'])->name('ledger.index');
 
+    // ------------------- Accounts Module -------------------
+    Route::resource('account-groups', \App\Http\Controllers\AccountGroupController::class)->except(['create','edit','show']);
+    Route::resource('accounts-list',  \App\Http\Controllers\AccountsController::class)->except(['show']);
+
+    // ------------------- Reports -------------------
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/trial-balance',         [\App\Http\Controllers\ReportsController::class, 'trialBalance'])->name('trial-balance');
+        Route::get('/balance-sheet',           [\App\Http\Controllers\ReportsController::class, 'balanceSheet'])->name('balance-sheet');
+        Route::get('/cash-book',               [\App\Http\Controllers\ReportsController::class, 'cashBook'])->name('cash-book');
+        Route::get('/day-book',                [\App\Http\Controllers\ReportsController::class, 'dayBook'])->name('day-book');
+        Route::get('/income-expenditure',      [\App\Http\Controllers\ReportsController::class, 'incomeExpenditure'])->name('income-expenditure');
+        Route::get('/cash-summary',            [\App\Http\Controllers\ReportsController::class, 'cashSummary'])->name('cash-summary');
+        Route::get('/receipt-payment',         [\App\Http\Controllers\ReportsController::class, 'receiptPayment'])->name('receipt-payment');
+        Route::get('/cash-flow',               [\App\Http\Controllers\ReportsController::class, 'cashFlow'])->name('cash-flow');
+        Route::get('/chart-of-accounts',       [\App\Http\Controllers\ReportsController::class, 'chartOfAccounts'])->name('chart-of-accounts');
+        Route::get('/headwise-transactions',   [\App\Http\Controllers\ReportsController::class, 'headwiseTransactions'])->name('headwise-transactions');
+        // PDF exports
+        Route::get('/trial-balance/pdf',       [\App\Http\Controllers\ReportsController::class, 'trialBalancePdf'])->name('trial-balance.pdf');
+        Route::get('/balance-sheet/pdf',       [\App\Http\Controllers\ReportsController::class, 'balanceSheetPdf'])->name('balance-sheet.pdf');
+        Route::get('/cash-book/pdf',           [\App\Http\Controllers\ReportsController::class, 'cashBookPdf'])->name('cash-book.pdf');
+        Route::get('/day-book/pdf',            [\App\Http\Controllers\ReportsController::class, 'dayBookPdf'])->name('day-book.pdf');
+        Route::get('/income-expenditure/pdf',  [\App\Http\Controllers\ReportsController::class, 'incomeExpenditurePdf'])->name('income-expenditure.pdf');
+        Route::get('/cash-summary/pdf',        [\App\Http\Controllers\ReportsController::class, 'cashSummaryPdf'])->name('cash-summary.pdf');
+        Route::get('/receipt-payment/pdf',     [\App\Http\Controllers\ReportsController::class, 'receiptPaymentPdf'])->name('receipt-payment.pdf');
+        Route::get('/cash-flow/pdf',           [\App\Http\Controllers\ReportsController::class, 'cashFlowPdf'])->name('cash-flow.pdf');
+        Route::get('/chart-of-accounts/pdf',   [\App\Http\Controllers\ReportsController::class, 'chartOfAccountsPdf'])->name('chart-of-accounts.pdf');
+        Route::get('/headwise-transactions/pdf',[\App\Http\Controllers\ReportsController::class, 'headwiseTransactionsPdf'])->name('headwise-transactions.pdf');
+    });
+
+    // ------------------- Asset Tracking -------------------
+    Route::resource('asset-issues', \App\Http\Controllers\AssetIssueController::class)->except(['show','edit','update']);
+    Route::patch('/asset-issues/{assetIssue}/return', [\App\Http\Controllers\AssetIssueController::class, 'returnAsset'])->name('asset-issues.return');
+    Route::get('/asset-stock', [\App\Http\Controllers\AssetIssueController::class, 'stock'])->name('asset-issues.stock');
+
+    // ------------------- Budget Control -------------------
+    Route::resource('budget-heads',       \App\Http\Controllers\BudgetHeadController::class)->except(['create','edit','show']);
+    Route::resource('budget-allocations', \App\Http\Controllers\BudgetAllocationController::class)->except(['create','edit','show']);
+    Route::get('/budget-allocations/report', [\App\Http\Controllers\BudgetAllocationController::class, 'report'])->name('budget-allocations.report');
+
+    // ------------------- HR & Payroll -------------------
+    Route::prefix('hr')->name('hr.')->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\HR\DashboardController::class, 'index'])->name('dashboard');
+
+        // Designations
+        Route::resource('designations', \App\Http\Controllers\HR\DesignationController::class);
+        Route::patch('designations/{designation}/toggle-status', [\App\Http\Controllers\HR\DesignationController::class, 'toggleStatus'])->name('designations.toggle-status');
+
+        // Departments
+        Route::resource('departments', \App\Http\Controllers\HR\DepartmentController::class)->except(['show']);
+
+        // Employees
+        Route::resource('employees', \App\Http\Controllers\HR\EmployeeController::class);
+        Route::get('employees/{id}/payment', [\App\Http\Controllers\HR\PaymentInformationController::class, 'createOrEdit'])->name('employees.payment.edit');
+        Route::post('employees/{id}/payment', [\App\Http\Controllers\HR\PaymentInformationController::class, 'store'])->name('employees.payment.store');
+        Route::get('employees/{id}/documents', [\App\Http\Controllers\HR\EmployeeDocumentController::class, 'index'])->name('employees.documents');
+        Route::post('employees/{id}/documents', [\App\Http\Controllers\HR\EmployeeDocumentController::class, 'store'])->name('employees.documents.store');
+        Route::delete('documents/{document}', [\App\Http\Controllers\HR\EmployeeDocumentController::class, 'destroy'])->name('documents.destroy');
+
+        // Salary
+        Route::resource('salary-structures', \App\Http\Controllers\HR\SalaryStructureController::class)->except(['show']);
+        Route::get('salary/load-defaults/{designation}', [\App\Http\Controllers\HR\SalaryStructureController::class, 'loadDefaults'])->name('salary.load-defaults');
+        Route::get('salary/defaults', [\App\Http\Controllers\HR\DesignationSalaryDefaultController::class, 'index'])->name('salary.defaults.index');
+        Route::post('salary/defaults', [\App\Http\Controllers\HR\DesignationSalaryDefaultController::class, 'store'])->name('salary.defaults.store');
+        Route::get('salary/defaults/{id}', [\App\Http\Controllers\HR\DesignationSalaryDefaultController::class, 'show'])->name('salary.defaults.show');
+
+        // Payroll
+        Route::get('payroll', [\App\Http\Controllers\HR\PayrollController::class, 'index'])->name('payroll.index');
+        Route::post('payroll/preview', [\App\Http\Controllers\HR\PayrollController::class, 'preview'])->name('payroll.preview');
+        Route::post('payroll/generate', [\App\Http\Controllers\HR\PayrollController::class, 'generate'])->name('payroll.generate');
+        Route::get('payroll/{month}/{year}', [\App\Http\Controllers\HR\PayrollController::class, 'show'])->name('payroll.show');
+        Route::patch('payroll/{id}/paid', [\App\Http\Controllers\HR\PayrollController::class, 'markPaid'])->name('payroll.paid');
+        Route::post('payroll/lock', [\App\Http\Controllers\HR\PayrollController::class, 'lock'])->name('payroll.lock');
+        Route::get('payroll/{id}/slip', [\App\Http\Controllers\HR\PayrollController::class, 'slip'])->name('payroll.slip');
+
+        // Leave
+        Route::get('leave', [\App\Http\Controllers\HR\LeaveController::class, 'index'])->name('leave.index');
+        Route::get('leave/create', [\App\Http\Controllers\HR\LeaveController::class, 'create'])->name('leave.create');
+        Route::post('leave', [\App\Http\Controllers\HR\LeaveController::class, 'store'])->name('leave.store');
+        Route::patch('leave/{id}/approve', [\App\Http\Controllers\HR\LeaveController::class, 'approve'])->name('leave.approve');
+        Route::patch('leave/{id}/reject', [\App\Http\Controllers\HR\LeaveController::class, 'reject'])->name('leave.reject');
+        Route::get('leave/balances', [\App\Http\Controllers\HR\LeaveController::class, 'balances'])->name('leave.balances');
+        Route::post('leave/balances/set', [\App\Http\Controllers\HR\LeaveController::class, 'setBalance'])->name('leave.balances.set');
+
+        // Reports
+        Route::get('reports/salary-sheet',   [\App\Http\Controllers\HR\ReportController::class, 'salarySheet'])->name('reports.salary-sheet');
+        Route::get('reports/payroll-summary',[\App\Http\Controllers\HR\ReportController::class, 'payrollSummary'])->name('reports.payroll-summary');
+        Route::get('reports/leave',          [\App\Http\Controllers\HR\ReportController::class, 'leaveReport'])->name('reports.leave');
+        Route::get('reports/hierarchy',      [\App\Http\Controllers\HR\ReportController::class, 'hierarchyReport'])->name('reports.hierarchy');
+    });
+
+    Route::get('/school-settings', [\App\Http\Controllers\SchoolSettingController::class, 'index'])->name('school-settings.index');
+    Route::put('/school-settings', [\App\Http\Controllers\SchoolSettingController::class, 'update'])->name('school-settings.update');
+    Route::resource('id-card-templates', \App\Http\Controllers\IdCardTemplateController::class)->except(['show']);
+
+    // ------------------- Journal Entries (read-only — auto-posted by system) -------------------
+    Route::get('journal-entries', [\App\Http\Controllers\JournalEntryController::class, 'index'])->name('journal-entries.index');
+    Route::get('journal-entries/{journalEntry}', [\App\Http\Controllers\JournalEntryController::class, 'show'])->name('journal-entries.show');
+    Route::delete('journal-entries/{journalEntry}', [\App\Http\Controllers\JournalEntryController::class, 'destroy'])->name('journal-entries.destroy');
+
+    // ------------------- Accounting Periods -------------------
+    Route::resource('accounting-periods', \App\Http\Controllers\AccountingPeriodController::class)->except(['create','edit','show']);
+    Route::post('/accounting-periods/{accountingPeriod}/close', [\App\Http\Controllers\AccountingPeriodController::class, 'close'])->name('accounting-periods.close');
+
+
+
     // unified transaction routes for all transaction types
     Route::get('/transactions', [\App\Http\Controllers\ShareholderTransactionController::class, 'index'])->name('transactions.index');
     Route::get('/transactions/create', [\App\Http\Controllers\ShareholderTransactionController::class, 'create'])->name('transactions.create');
@@ -551,13 +667,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/attendance', [StaffController::class, 'attendance'])->name('attendance.staff');
         Route::post('/attendance/store', [StaffController::class, 'attendanceStore'])->name('attendance.staff.store');
 
-        Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
-        Route::get('/payroll/create', [PayrollController::class, 'create'])->name('payroll.create');
-        Route::post('/payroll/store', [PayrollController::class, 'store'])->name('payroll.store');
-        Route::get('/payroll/{id}/edit', [PayrollController::class, 'edit'])->name('payroll.edit');
-        Route::post('/payroll/{id}/update', [PayrollController::class, 'update'])->name('payroll.update');
-        Route::delete('/payroll/{id}', [PayrollController::class, 'destroy'])->name('payroll.destroy');
-        Route::get('/payroll/reports', [PayrollController::class, 'reports'])->name('payroll.reports');
+
     });
 
     // ------------------- Communication -------------------

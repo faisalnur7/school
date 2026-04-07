@@ -1,12 +1,23 @@
 <?php
 
 if (! function_exists('menuOpen')) {
-    function menuOpen(array $routes): bool {
+    function menuOpen(array $routes): string {
         foreach ($routes as $route) {
             if (request()->routeIs($route)) {
-                return true;
+                return 'menu-is-opening menu-open';
             }
         }
-        return false;
+        return '';
+    }
+}
+
+if (! function_exists('menuActive')) {
+    function menuActive(array $routes): string {
+        foreach ($routes as $route) {
+            if (request()->routeIs($route)) {
+                return 'active';
+            }
+        }
+        return '';
     }
 }

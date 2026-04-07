@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
-        <h3 class="card-title mb-0">Hand Cash</h3>
+        <h3 class="card-title mb-0 text-white text-lg">Hand Cash</h3>
         <a href="{{ route('hand-cash.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
             + Add Hand Cash
         </a>
@@ -35,7 +35,7 @@
                                 </span>
                             </td>
                             <td class="text-muted" style="font-size:13px">{{ Str::limit($cash->notes, 40) ?? '—' }}</td>
-                            <td style="display:flex;gap:5px;align-items:center;">
+                            <td style="display:flex;gap:5px; justify-content: center; align-items: center;;align-items:center;">
                                 <a href="{{ route('hand-cash.edit', $cash->id) }}" class="btn btn-sm btn-dark">
                                     <i class="fas fa-edit"></i>
                                 </a>

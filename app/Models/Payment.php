@@ -10,6 +10,10 @@ class Payment extends Model
     protected $fillable = [
         'student_id',
         'amount',
+        'gross_amount',
+        'scholarship_amount',
+        'discount_type',
+        'discount_amount',
         'payment_date',
         'payment_method',
         'transaction_id',

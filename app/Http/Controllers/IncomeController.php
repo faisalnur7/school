@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Models\Income;
 use App\Models\IncomeCategory;
 use App\Models\Transaction;
 use App\Models\AccountTransaction;
+use App\Services\JournalService;
 use Illuminate\Http\Request;
 
 class IncomeController extends Controller
@@ -97,6 +99,18 @@ class IncomeController extends Controller
                 auth()->id()
             );
         }
+
+        JournalService::postSafe(
+            $income->income_date->toDateString(),
+            $income->title,
+            [
+                ['account_id' => Account::resolveForSource($income->account_type ?? '', $income->account_id ?? 0), 'debit' => (float) $income->amount, 'credit' => 0],
+                ['account_id' => Account::resolveForSource(IncomeCategory::class, $income->income_category_id), 'debit' => 0, 'credit' => (float) $income->amount],
+            ],
+            Income::class,
+            $income->id,
+            auth()->id()
+        );
 
         return redirect()->route('incomes.index')->with('success', 'Income recorded successfully.');
     }

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Models\Shareholder;
 use App\Models\Transaction;
 use App\Models\AccountTransaction;
+use App\Services\JournalService;
 use Illuminate\Http\Request;
 
 class ShareholderTransactionController extends Controller
@@ -75,16 +77,18 @@ class ShareholderTransactionController extends Controller
         ]);
 
         $txn = Transaction::create([
-            'reference_no'       => Transaction::generateReference(),
-            'type'               => $request->type,
-            'shareholder_id'     => $request->shareholder_id,
+            'reference_no'         => Transaction::generateReference(),
+            'type'                 => $request->type,
+            'shareholder_id'       => $request->shareholder_id,
             'transactionable_type' => Shareholder::class,
             'transactionable_id'   => $request->shareholder_id,
-            'amount'             => $request->amount,
-            'transaction_date'   => \Carbon\Carbon::createFromFormat('d/m/Y', $request->transaction_date)->format('Y-m-d'),
-            'payment_method'     => $request->payment_method,
-            'description'        => $request->description,
-            'recorded_by'        => auth()->id(),
+            'amount'               => $request->amount,
+            'transaction_date'     => \Carbon\Carbon::createFromFormat('d/m/Y', $request->transaction_date)->format('Y-m-d'),
+            'payment_method'       => $request->payment_method,
+            'description'          => $request->filled('description')
+                                        ? $request->description
+                                        : ($request->type === 'capital' ? 'Capital investment' : 'Withdrawal / Drawing'),
+            'recorded_by'          => auth()->id(),
         ]);
 
         if ($request->filled('account_type') && $request->filled('account_id')) {
@@ -101,6 +105,24 @@ class ShareholderTransactionController extends Controller
                 $txn->id,
                 auth()->id()
             );
+        }
+
+        $cashAccountId       = Account::resolveForSource($request->account_type ?? '', (int) $request->account_id);
+        $shareholderAccountId = Account::resolveForSource(Shareholder::class, (int) $request->shareholder_id);
+        $date                = \Carbon\Carbon::createFromFormat('d/m/Y', $request->transaction_date)->toDateString();
+
+        if ($request->type === 'capital') {
+            // Dr Cash/Bank, Cr Capital (Shareholder)
+            JournalService::postSafe($date, 'Capital — ' . optional($txn->shareholder)->name, [
+                ['account_id' => $cashAccountId,        'debit' => (float) $request->amount, 'credit' => 0],
+                ['account_id' => $shareholderAccountId, 'debit' => 0, 'credit' => (float) $request->amount],
+            ], Transaction::class, $txn->id, auth()->id());
+        } else {
+            // Dr Drawings (Shareholder), Cr Cash/Bank
+            JournalService::postSafe($date, 'Withdrawal — ' . optional($txn->shareholder)->name, [
+                ['account_id' => $shareholderAccountId, 'debit' => (float) $request->amount, 'credit' => 0],
+                ['account_id' => $cashAccountId,        'debit' => 0, 'credit' => (float) $request->amount],
+            ], Transaction::class, $txn->id, auth()->id());
         }
 
         return redirect()->route('shareholder-transactions.index')->with('success', 'Transaction recorded successfully.');
@@ -129,14 +151,16 @@ class ShareholderTransactionController extends Controller
         ]);
 
         $shareholderTransaction->update([
-            'type'               => $request->type,
-            'shareholder_id'     => $request->shareholder_id,
+            'type'                 => $request->type,
+            'shareholder_id'       => $request->shareholder_id,
             'transactionable_type' => Shareholder::class,
             'transactionable_id'   => $request->shareholder_id,
-            'amount'             => $request->amount,
-            'transaction_date'   => \Carbon\Carbon::createFromFormat('d/m/Y', $request->transaction_date)->format('Y-m-d'),
-            'payment_method'     => $request->payment_method,
-            'description'        => $request->description,
+            'amount'               => $request->amount,
+            'transaction_date'     => \Carbon\Carbon::createFromFormat('d/m/Y', $request->transaction_date)->format('Y-m-d'),
+            'payment_method'       => $request->payment_method,
+            'description'          => $request->filled('description')
+                                        ? $request->description
+                                        : ($request->type === 'capital' ? 'Capital investment' : 'Withdrawal / Drawing'),
         ]);
 
         if ($request->filled('account_type') && $request->filled('account_id')) {

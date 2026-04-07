@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
-        <h3 class="card-title mb-0">Incomes</h3>
+        <h3 class="card-title mb-0 text-white text-lg">Incomes</h3>
         <a href="{{ route('incomes.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
             + Add Income
         </a>
@@ -55,6 +55,7 @@
                         <th>#</th>
                         <th>Category</th>
                         <th>Title</th>
+                        <th>Description</th>
                         <th>Date</th>
                         <th>Method</th>
                         <th>Amount</th>
@@ -72,6 +73,7 @@
                                 </span>
                             </td>
                             <td>{{ $income->title }}</td>
+                            <td style="color:#64748b;font-size:12px">{{ $income->description ?? '—' }}</td>
                             <td class="mono" style="font-size:13px">{{ $income->income_date->format('d/m/Y') }}</td>
                             <td>
                                 <span class="badge" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-size:11px">
@@ -91,7 +93,7 @@
                                     <span class="text-muted">—</span>
                                 @endif
                             </td>
-                            <td style="display:flex;gap:5px;align-items:start;">
+                            <td style="display:flex;gap:5px; justify-content: center; align-items: center;;align-items:start;">
                                 <a href="{{ route('incomes.edit', $income->id) }}" class="btn btn-sm btn-dark">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -110,7 +112,7 @@
 
                     @if ($incomes->isEmpty())
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-4">No income records found</td>
+                            <td colspan="9" class="text-center text-muted py-4">No income records found</td>
                         </tr>
                     @endif
                 </tbody>

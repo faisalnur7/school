@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
-        <h3 class="card-title mb-0">Bank Accounts</h3>
+        <h3 class="card-title mb-0 text-white text-lg">Bank Accounts</h3>
         <a href="{{ route('bank-accounts.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
             + Add Bank Account
         </a>
@@ -37,7 +37,7 @@
                                     {{ $account->is_active ? 'Active' : 'Inactive' }}
                                 </span>
                             </td>
-                            <td style="display:flex;gap:5px;align-items:center">
+                            <td style="display:flex;gap:5px; justify-content: center; align-items: center;;align-items:center">
                                 <a href="{{ route('bank-accounts.edit', $account->id) }}" class="btn btn-sm btn-dark">
                                     <i class="fas fa-edit"></i>
                                 </a>

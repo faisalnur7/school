@@ -1,12 +1,23 @@
 {{-- Header --}}
 <div class="school-logo-row">
     <div class="school-logo-and-name">
-        <div class="school-logo-box">
-            GCSC
-        </div>
+        @if($setting?->logo)
+            <img src="{{ asset($setting->logo) }}" style="width:50px;height:50px;object-fit:contain;flex-shrink:0">
+        @else
+            <div class="school-logo-box">{{ strtoupper(substr($setting?->name ?? 'S', 0, 1)) }}</div>
+        @endif
         <div class="school-info">
-            <div class="school-name">Green Chartered School & College</div>
-            <div class="school-sub">FEE PAYMENT RECEIPT</div>
+            <div class="school-name">{{ $setting?->name ?? 'School Name' }}</div>
+            @if($setting?->address)<div class="school-sub">{{ $setting->address }}</div>@endif
+            @if($setting?->email || $setting?->contact_number_1)
+                <div class="school-sub">
+                    @if($setting?->email){{ $setting->email }}@endif
+                    @if($setting?->email && $setting?->contact_number_1) &nbsp;|&nbsp; @endif
+                    @if($setting?->contact_number_1){{ $setting->contact_number_1 }}@endif
+                    @if($setting?->contact_number_2) / {{ $setting->contact_number_2 }}@endif
+                </div>
+            @endif
+            <div class="school-sub" style="margin-top:3px;font-weight:700;letter-spacing:.1em">FEE PAYMENT RECEIPT</div>
         </div>
     </div>
     <div class="receipt-tag">
@@ -52,34 +63,74 @@
     <thead>
         <tr>
             <th>Description</th>
-            <th>Amount (BDT)</th>
+            <th style="text-align:right">Amount (BDT)</th>
         </tr>
     </thead>
     <tbody>
-        @foreach ($payment->items as $i => $item)
-            @foreach ($item?->fee?->feeSet?->items as $feeSetItem)
-                @php 
-                    if($item?->fee?->feeSet->frequency == 'monthly'){
-                        $monthName = Carbon\Carbon::parse($item?->fee->due_date)->format('F');
-                    }else{
-                        $monthName = '';
-                    }
-                @endphp
+        @foreach ($payment->items as $item)
+            @php
+                $monthName   = '';
+                $feeSetItems = $item->fee?->feeSet?->items ?? collect();
+                if ($item->fee?->feeSet?->frequency === 'monthly') {
+                    $monthName = ' - ' . \Carbon\Carbon::parse($item->fee->due_date)->format('F');
+                }
+            @endphp
+            @if($feeSetItems->count())
+                @foreach ($feeSetItems as $fsi)
+                    <tr>
+                        <td>{{ $fsi->category->name ?? '—' }}{{ $monthName }}</td>
+                        <td style="text-align:right">{{ number_format($fsi->amount, 2) }}</td>
+                    </tr>
+                @endforeach
+            @else
                 <tr>
-                    <td>{{ $feeSetItem->category->name ?? '—' }} @if($monthName){{' - '.$monthName}}@endif</td>
-                    <td>{{ number_format($item->amount, 2) }}</td>
+                    <td>{{ $item->fee?->feeSet?->name ?? '—' }}{{ $monthName }}</td>
+                    <td style="text-align:right">{{ number_format($item->amount, 2) }}</td>
                 </tr>
-            @endforeach
+            @endif
         @endforeach
     </tbody>
 </table>
 
-{{-- Total --}}
-<div class="total-row">
-    <span class="total-lbl">Total Paid</span>
-    <div>
-        <span class="total-currency">BDT</span>
-        <span class="total-val">{{ number_format($payment->amount, 2) }}</span>
+{{-- Subtotal / Scholarship / Discount / Total --}}
+@php
+    $hasScholarship = $payment->scholarship_amount > 0;
+    $hasDiscount    = $payment->discount_amount > 0;
+@endphp
+<div style="margin-top:10px; border-top:1.5px dashed #bbb; padding-top:8px">
+
+    @if($hasScholarship || $hasDiscount)
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#555;margin-bottom:4px">
+            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Subtotal</span>
+            <span>BDT {{ number_format($payment->gross_amount, 2) }}</span>
+        </div>
+    @endif
+
+    @if($hasScholarship)
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#059669;margin-bottom:4px">
+            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">🎓 Scholarship</span>
+            <span>- BDT {{ number_format($payment->scholarship_amount, 2) }}</span>
+        </div>
+    @endif
+
+    @if($hasDiscount)
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#b45309;margin-bottom:4px">
+            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">
+                Discount
+                @if($payment->discount_type === 'percent')
+                    ({{ number_format($payment->discount_amount / max($payment->gross_amount, 0.01) * 100, 1) }}%)
+                @endif
+            </span>
+            <span>- BDT {{ number_format($payment->discount_amount, 2) }}</span>
+        </div>
+    @endif
+
+    <div class="total-row">
+        <span class="total-lbl">Total Paid</span>
+        <div>
+            <span class="total-currency">BDT</span>
+            <span class="total-val">{{ number_format($payment->amount, 2) }}</span>
+        </div>
     </div>
 </div>
 

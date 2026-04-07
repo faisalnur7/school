@@ -105,7 +105,7 @@ class TransportController extends Controller
 
         $transports = $query->paginate(20)->withQueryString();
         $sessions = AcademicSession::all();
-        $feeCategories = FeeCategory::all();
+        $feeCategories = FeeCategory::where('status', 1)->where('is_transport',1)->get();
         $classes = SchoolClass::all();
 
         return view('transports.index', compact('transports', 'sessions', 'feeCategories', 'classes'));
@@ -114,7 +114,7 @@ class TransportController extends Controller
     public function create()
     {
         $sessions = AcademicSession::all();
-        $feeCategories = FeeCategory::all();
+        $feeCategories = FeeCategory::where('status', 1)->where('is_transport',1)->get();
         $classes = SchoolClass::all();
 
         return view('transports.create', compact('sessions', 'feeCategories', 'classes'));

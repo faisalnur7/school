@@ -131,6 +131,8 @@
                                             @endphp
                                             <div class="fee-card bg-white rounded-4 p-3" data-cat="{{ $fee->fee_set_id }}"
                                                 data-id="{{ $fee->id }}" data-amount="{{ $fee->calculated_net_amount ?? $fee->net_amount }}"
+                                                data-gross="{{ $fee->amount }}"
+                                                data-discount="{{ $fee->total_scholarship_discount ?? 0 }}"
                                                 data-name="{{ $feeSetName }}" style="display:none!important">
                                                 <div class="d-flex justify-content-between align-items-start">
                                                     <div>
@@ -277,6 +279,14 @@
                                 <strong class="text-white">
                                     BDT {{ number_format($payments->sum('amount'), 2) }}
                                 </strong>
+                                &nbsp;|&nbsp; Scholarship:
+                                <strong class="text-white">
+                                    BDT {{ number_format($payments->sum('scholarship_amount'), 2) }}
+                                </strong>
+                                &nbsp;|&nbsp; Discount:
+                                <strong class="text-white">
+                                    BDT {{ number_format($payments->sum('discount_amount'), 2) }}
+                                </strong>
                             </span>
                         </div>
                     </div>
@@ -290,7 +300,10 @@
                                         <th class="mono px-4 py-3 text-muted">DATE</th>
                                         <th class="mono px-4 py-3 text-muted">ITEMS</th>
                                         <th class="mono px-4 py-3 text-muted">METHOD</th>
-                                        <th class="mono px-4 py-3 text-muted">AMOUNT</th>
+                                        <th class="mono px-4 py-3 text-muted">GROSS</th>
+                                        <th class="mono px-4 py-3 text-muted">SCHOLARSHIP</th>
+                                        <th class="mono px-4 py-3 text-muted">DISCOUNT</th>
+                                        <th class="mono px-4 py-3 text-muted">PAID</th>
                                         <th class="mono px-4 py-3 text-muted">COLLECTED BY</th>
                                         <th class="mono px-4 py-3 text-muted text-center">ACTION</th>
                                     </tr>
@@ -325,6 +338,34 @@
                                                 </span>
                                             </td>
                                             <td class="px-4 py-3">
+                                                <span class="mono fw-bold" style="font-size:15px;color:#64748b">
+                                                    {{ $payment->gross_amount > 0 ? number_format($payment->gross_amount, 2) : number_format($payment->amount, 2) }}
+                                                </span>
+                                                <span class="text-muted mono" style="font-size:11px"> BDT</span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                @if($payment->scholarship_amount > 0)
+                                                    <span class="mono fw-bold" style="font-size:13px;color:#059669">
+                                                        -{{ number_format($payment->scholarship_amount, 2) }}
+                                                    </span>
+                                                    <span class="text-muted mono" style="font-size:10px"> BDT</span>
+                                                @else
+                                                    <span class="text-muted mono" style="font-size:12px">—</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                @if($payment->discount_amount > 0)
+                                                    <span class="mono fw-bold" style="font-size:13px;color:#b45309">
+                                                        -{{ number_format($payment->discount_amount, 2) }}
+                                                    </span>
+                                                    <span class="text-muted mono" style="font-size:10px">
+                                                        {{ $payment->discount_type === 'percent' ? '%' : 'BDT' }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-muted mono" style="font-size:12px">—</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-3">
                                                 <span class="mono fw-bold" style="font-size:15px;color:#4338ca">
                                                     {{ number_format($payment->amount, 2) }}
                                                 </span>
@@ -351,7 +392,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="8" class="text-center text-muted py-5">
+                                            <td colspan="11" class="text-center text-muted py-5">
                                                 <div style="font-size:36px;opacity:.2">🧾</div>
                                                 <p class="mt-2 mb-0" style="font-size:14px">No payments recorded yet</p>
                                             </td>
@@ -427,24 +468,34 @@
             $feeCards.on('click', function() {
                 let id = $(this).data('id');
                 let amount = parseFloat($(this).data('amount'));
+                let gross  = parseFloat($(this).data('gross') || $(this).data('amount'));
+                let discount = parseFloat($(this).data('discount') || 0);
                 let name = $(this).data('name');
                 if (cartIds.has(id)) return;
                 cartIds.add(id);
                 subtotal += amount;
-                cartData.push({
-                    id,
-                    name,
-                    amount
-                });
+                cartData.push({ id, name, amount });
                 $(this).addClass('in-cart');
                 $cartEmpty.hide();
+                let discountHtml = discount > 0
+                    ? `<span class="mono" style="font-size:11px;color:#059669">Scholarship: -${discount.toFixed(2)}</span><br>`
+                    : '';
+                let grossHtml = discount > 0
+                    ? `<span class="mono text-muted" style="font-size:11px;text-decoration:line-through">${gross.toFixed(2)}</span><br>`
+                    : '';
                 let html = `
                     <div class="cart-row d-flex align-items-center gap-2 rounded-3 px-3 py-2"
                          id="cart-${id}"
                          style="background:#f8fafc;border:1.5px solid #e2e8f0">
                         <input type="hidden" name="fees[]" value="${id}">
-                        <span class="fw-semibold text-dark flex-grow-1" style="font-size:13px;line-height:1.3">${name}</span>
-                        <span class="mono fw-bold me-1" style="font-size:13px;color:#4338ca;white-space:nowrap">${amount.toFixed(2)}</span>
+                        <div class="flex-grow-1" style="line-height:1.4">
+                            <span class="fw-semibold text-dark" style="font-size:13px">${name}</span><br>
+                            ${discountHtml}
+                        </div>
+                        <div class="text-end">
+                            ${grossHtml}
+                            <span class="mono fw-bold" style="font-size:13px;color:#4338ca;white-space:nowrap">${amount.toFixed(2)}</span>
+                        </div>
                         <button type="button"
                                 class="remove-btn btn btn-light btn-sm border rounded-2 px-2 py-1"
                                 data-id="${id}" data-amount="${amount}"

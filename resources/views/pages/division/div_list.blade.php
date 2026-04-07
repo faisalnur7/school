@@ -8,7 +8,7 @@
         <div class="card">
             <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3"
                >
-                <h3 class="card-title mb-0">Divisions</h3>
+                <h3 class="card-title mb-0 text-white text-lg">Divisions</h3>
                 <a href="{{ route('division.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
                     <i class="fas fa-plus"></i> Add Division
                 </a>

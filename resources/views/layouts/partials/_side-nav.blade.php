@@ -103,7 +103,8 @@
                     <ul class="nav nav-treeview">
                         <li><a href="{{ route('students.index') }}" class="nav-link {{ request()->routeIs('students.index') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Student List</a></li>
                         <li><a href="{{ route('students.create') }}" class="nav-link {{ request()->routeIs('students.create') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Add Student</a></li>
-                        <li><a href="{{ route('attendance.index') }}" class="nav-link {{ request()->routeIs('attendance.index') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Attendance</a></li>
+                        {{-- <li><a href="{{ route('attendance.index') }}" class="nav-link {{ request()->routeIs('attendance.index') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Attendance</a></li> --}}
+                        <li><a href="{{ route('students.id-cards') }}" class="nav-link {{ request()->routeIs('students.id-cards') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Generate ID Cards</a></li>
                         {{-- <li><a href="{{ route('students.progress') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Progress Tracking</a></li> --}}
                         {{-- <li><a href="{{ route('reports.student') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Reports</a></li> --}}
                     </ul>
@@ -126,49 +127,79 @@
                 </li> --}}
 
                 <!-- Fees & Accounts -->
-                <li class="nav-item has-treeview {{ menuOpen(['fee-categories.*','fees.*','fee-sets.*','fees.collect','payments.*','accounts.*','scholarships.*','transports.*','financial_aid.*','bank-accounts.*','mobile-banking-accounts.*','hand-cash.*']) ? 'menu-is-opening menu-open' : '' }}">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-money-bill"></i>
-                        <p>Fees & Accounts<i class="right fas fa-angle-left"></i></p>
-                    </a>
-                    <ul class="nav nav-treeview">
+                @php
+    $feeSettings = ['fee-categories.*','fee-sets.*','scholarships.*','transports.*'];
+    $feeOperations = ['fees.collect','payments.*'];
+    $reports = ['fees.due-report','fees.student-due-report','fees.discount-list'];
+    $accounts = ['bank-accounts.*','mobile-banking-accounts.*','hand-cash.*'];
+@endphp
 
-                        {{-- Fee Management --}}
-                        <li><a href="{{ route('fee-categories.index') }}" class="nav-link {{ request()->routeIs('fee-categories.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Fee Category</a></li>
-                        <li><a href="{{ route('fee-sets.index') }}" class="nav-link {{ request()->routeIs('fee-sets.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Fee Set</a></li>
-                        <li><a href="{{ route('fees.collect') }}" class="nav-link {{ request()->routeIs('fees.collect') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Collect Payments</a></li>
-                        <li><a href="{{ route('payments.index') }}" class="nav-link {{ request()->routeIs('payments.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Student Payments</a></li>
-                        <li><a href="{{ route('scholarships.index') }}" class="nav-link {{ request()->routeIs('scholarships.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Scholarships</a></li>
-                        <li><a href="{{ route('transports.index') }}" class="nav-link {{ request()->routeIs('transports.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Transport Fees</a></li>
-                        <li><a href="{{ route('financial_aid.index') }}" class="nav-link {{ request()->routeIs('financial_aid.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Financial Aid</a></li>
+<li class="nav-item has-treeview {{ menuOpen(array_merge($feeSettings, $feeOperations, $reports, $accounts)) }}">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-money-bill"></i>
+        <p>Fees & Accounts <i class="right fas fa-angle-left"></i></p>
+    </a>
 
-                        {{-- Accounts --}}
-                        <li class="nav-item has-treeview {{ menuOpen(['bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*']) ? 'menu-is-opening menu-open' : '' }}">
-                            <a href="#" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Account Management<i class="right fas fa-angle-left"></i></p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li>
-                                    <a href="{{ route('bank-accounts.index') }}" class="nav-link {{ request()->routeIs('bank-accounts.*') ? 'active' : '' }}">
-                                        <i class="far fa-dot-circle nav-icon"></i>Bank Accounts
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('mobile-banking-accounts.index') }}" class="nav-link {{ request()->routeIs('mobile-banking-accounts.*') ? 'active' : '' }}">
-                                        <i class="far fa-dot-circle nav-icon"></i>Mobile Banking
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('hand-cash.index') }}" class="nav-link {{ request()->routeIs('hand-cash.*') ? 'active' : '' }}">
-                                        <i class="far fa-dot-circle nav-icon"></i>Hand Cash
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+    <ul class="nav nav-treeview">
 
-                    </ul>
-                </li>
+        {{-- Fee Settings --}}
+        <li class="nav-item has-treeview {{ menuOpen($feeSettings) }}">
+            <a href="#" class="nav-link {{ menuActive($feeSettings) }}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Fee Settings <i class="right fas fa-angle-left"></i></p>
+            </a>
+
+            <ul class="nav nav-treeview">
+                <li><a href="{{ route('fee-categories.index') }}" class="nav-link {{ request()->routeIs('fee-categories.*') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Fee Category</a></li>
+                <li><a href="{{ route('fee-sets.index') }}" class="nav-link {{ request()->routeIs('fee-sets.*') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Fee Set</a></li>
+                <li><a href="{{ route('scholarships.index') }}" class="nav-link {{ request()->routeIs('scholarships.*') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Scholarships</a></li>
+                <li><a href="{{ route('transports.index') }}" class="nav-link {{ request()->routeIs('transports.*') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Transport Fees</a></li>
+            </ul>
+        </li>
+
+        {{-- Fee Operations --}}
+        <li>
+            <a href="{{ route('fees.collect') }}" class="nav-link {{ request()->routeIs('fees.collect') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon"></i>Collect Payments
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ route('payments.index') }}" class="nav-link {{ request()->routeIs('payments.*') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon"></i>Student Payments
+            </a>
+        </li>
+
+        {{-- Reports --}}
+        <li class="nav-item has-treeview {{ menuOpen($reports) }}">
+            <a href="#" class="nav-link {{ menuActive($reports) }}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Reports <i class="right fas fa-angle-left"></i></p>
+            </a>
+
+            <ul class="nav nav-treeview">
+                <li><a href="{{ route('fees.due-report') }}" class="nav-link {{ request()->routeIs('fees.due-report') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Classwise Due Report</a></li>
+                <li><a href="{{ route('fees.student-due-report') }}" class="nav-link {{ request()->routeIs('fees.student-due-report') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Students Due Report</a></li>
+                <li><a href="{{ route('fees.discount-list') }}" class="nav-link {{ request()->routeIs('fees.discount-list') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Discount List</a></li>
+            </ul>
+        </li>
+
+        {{-- Account Management --}}
+        <li class="nav-item has-treeview {{ menuOpen($accounts) }}">
+            <a href="#" class="nav-link {{ menuActive($accounts) }}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Account Management <i class="right fas fa-angle-left"></i></p>
+            </a>
+
+            <ul class="nav nav-treeview">
+                <li><a href="{{ route('bank-accounts.index') }}" class="nav-link {{ request()->routeIs('bank-accounts.*') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Bank Accounts</a></li>
+                <li><a href="{{ route('mobile-banking-accounts.index') }}" class="nav-link {{ request()->routeIs('mobile-banking-accounts.*') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Mobile Banking</a></li>
+                <li><a href="{{ route('hand-cash.index') }}" class="nav-link {{ request()->routeIs('hand-cash.*') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Hand Cash</a></li>
+            </ul>
+        </li>
+
+    </ul>
+</li>
                 {{-- Incomes & Expenses --}}
                 <li class="nav-item has-treeview {{ menuOpen(['incomes.*', 'expenses.*', 'transactions.*', 'income-categories.*', 'expense-categories.*']) ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
@@ -334,29 +365,63 @@
                     </a>
                 </li> --}}
 
-                <!-- Teachers -->
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-chalkboard-teacher"></i>
-                        <p>Teachers<i class="right fas fa-angle-left"></i></p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li><a href="{{ route('teachers.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Teacher List</a></li>
-                        <li><a href="{{ route('teachers.create') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Add Teacher</a></li>
-                    </ul>
-                </li>
-
                 <!-- HR & Payroll -->
-                <li class="nav-item has-treeview">
+                <li class="nav-item has-treeview {{ menuOpen(['hr.*']) ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-user-tie"></i>
                         <p>HR & Payroll<i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li><a href="{{ route('staff.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Staff Directory</a></li>
-                        <li><a href="{{ route('attendance.staff') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Staff Attendance</a></li>
-                        <li><a href="{{ route('payroll.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Payroll</a></li>
-                        <li><a href="{{ route('payroll.reports') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Payroll Reports</a></li>
+                        <li><a href="{{ route('hr.dashboard') }}" class="nav-link {{ request()->routeIs('hr.dashboard') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Dashboard</a></li>
+
+                        {{-- Employees --}}
+                        <li class="nav-item has-treeview {{ menuOpen(['hr.employees.*','hr.designations.*','hr.departments.*']) ? 'menu-is-opening menu-open' : '' }}">
+                            <a href="#" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Employees<i class="right fas fa-angle-left"></i></p></a>
+                            <ul class="nav nav-treeview">
+                                <li><a href="{{ route('hr.employees.index') }}" class="nav-link {{ request()->routeIs('hr.employees.index') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>All Employees</a></li>
+                                <li><a href="{{ route('hr.employees.create') }}" class="nav-link {{ request()->routeIs('hr.employees.create') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Add Employee</a></li>
+                                <li><a href="{{ route('hr.departments.index') }}" class="nav-link {{ request()->routeIs('hr.departments.*') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Departments</a></li>
+                                <li><a href="{{ route('hr.designations.index') }}" class="nav-link {{ request()->routeIs('hr.designations.*') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Designations</a></li>
+                            </ul>
+                        </li>
+
+                        {{-- Salary --}}
+                        <li class="nav-item has-treeview {{ menuOpen(['hr.salary-structures.*','hr.salary.*']) ? 'menu-is-opening menu-open' : '' }}">
+                            <a href="#" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Salary<i class="right fas fa-angle-left"></i></p></a>
+                            <ul class="nav nav-treeview">
+                                <li><a href="{{ route('hr.salary-structures.index') }}" class="nav-link {{ request()->routeIs('hr.salary-structures.*') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Salary Structures</a></li>
+                                <li><a href="{{ route('hr.salary.defaults.index') }}" class="nav-link {{ request()->routeIs('hr.salary.defaults.*') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Designation Defaults</a></li>
+                            </ul>
+                        </li>
+
+                        {{-- Payroll --}}
+                        <li class="nav-item has-treeview {{ menuOpen(['hr.payroll.*']) ? 'menu-is-opening menu-open' : '' }}">
+                            <a href="#" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Payroll<i class="right fas fa-angle-left"></i></p></a>
+                            <ul class="nav nav-treeview">
+                                <li><a href="{{ route('hr.payroll.index') }}" class="nav-link {{ request()->routeIs('hr.payroll.index') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Generate Payroll</a></li>
+                            </ul>
+                        </li>
+
+                        {{-- Leave --}}
+                        <li class="nav-item has-treeview {{ menuOpen(['hr.leave.*']) ? 'menu-is-opening menu-open' : '' }}">
+                            <a href="#" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Leave<i class="right fas fa-angle-left"></i></p></a>
+                            <ul class="nav nav-treeview">
+                                <li><a href="{{ route('hr.leave.index') }}" class="nav-link {{ request()->routeIs('hr.leave.index') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Leave Requests</a></li>
+                                <li><a href="{{ route('hr.leave.create') }}" class="nav-link {{ request()->routeIs('hr.leave.create') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>New Request</a></li>
+                                <li><a href="{{ route('hr.leave.balances') }}" class="nav-link {{ request()->routeIs('hr.leave.balances') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Leave Balances</a></li>
+                            </ul>
+                        </li>
+
+                        {{-- Reports --}}
+                        <li class="nav-item has-treeview {{ menuOpen(['hr.reports.*']) ? 'menu-is-opening menu-open' : '' }}">
+                            <a href="#" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Reports<i class="right fas fa-angle-left"></i></p></a>
+                            <ul class="nav nav-treeview">
+                                <li><a href="{{ route('hr.reports.salary-sheet') }}" class="nav-link {{ request()->routeIs('hr.reports.salary-sheet') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Salary Sheet</a></li>
+                                <li><a href="{{ route('hr.reports.payroll-summary') }}" class="nav-link {{ request()->routeIs('hr.reports.payroll-summary') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Payroll Summary</a></li>
+                                <li><a href="{{ route('hr.reports.leave') }}" class="nav-link {{ request()->routeIs('hr.reports.leave') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Leave Report</a></li>
+                                <li><a href="{{ route('hr.reports.hierarchy') }}" class="nav-link {{ request()->routeIs('hr.reports.hierarchy') ? 'active' : '' }}"><i class="far fa-dot-circle nav-icon"></i>Hierarchy Report</a></li>
+                            </ul>
+                        </li>
                     </ul>
                 </li>
 
@@ -417,20 +482,15 @@
                 </li> --}}
 
                 <!-- Shareholders -->
-                <li class="nav-item has-treeview {{ menuOpen(['shareholders.*', 'shareholder-transactions.*', 'ledger.*']) ? 'menu-is-opening menu-open' : '' }}">
+                <li class="nav-item has-treeview {{ menuOpen(['shareholders.index','shareholders.create', 'shareholder-transactions.*']) ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-user-tie"></i>
                         <p>Shareholders<i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li>
-                            <a href="{{ route('shareholders.index') }}" class="nav-link {{ request()->routeIs('shareholders.*') ? 'active' : '' }}">
+                            <a href="{{ route('shareholders.index') }}" class="nav-link {{ request()->routeIs('shareholders.index') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>All Shareholders
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('shareholder-transactions.index') }}" class="nav-link {{ request()->routeIs('shareholder-transactions.*') ? 'active' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>Capital & Withdrawals
                             </a>
                         </li>
                         <li>
@@ -438,16 +498,37 @@
                                 <i class="far fa-circle nav-icon"></i>Add Shareholder
                             </a>
                         </li>
-                        <li>
-                            <a href="{{ route('ledger.index') }}" class="nav-link {{ request()->routeIs('ledger.*') ? 'active' : '' }}">
-                                <i class="far fa-circle nav-icon"></i>Ledger View
-                            </a>
-                        </li>
                     </ul>
                 </li>
 
+                <!-- Accounts Module -->
+                <li class="nav-item has-treeview {{ menuOpen(['account-groups.*','accounts-list.*','ledger.*','reports.*','journal-entries.*','accounting-periods.*']) ? 'menu-is-opening menu-open' : '' }}">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-book"></i>
+                        <p>Accounts<i class="right fas fa-angle-left"></i></p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li><a href="{{ route('account-groups.index') }}" class="nav-link {{ request()->routeIs('account-groups.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Account Groups</a></li>
+                        <li><a href="{{ route('accounts-list.index') }}" class="nav-link {{ request()->routeIs('accounts-list.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Chart of Accounts</a></li>
+                        <li><a href="{{ route('accounting-periods.index') }}" class="nav-link {{ request()->routeIs('accounting-periods.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Accounting Periods</a></li>
+                        {{-- <li><a href="{{ route('journal-entries.index') }}" class="nav-link {{ request()->routeIs('journal-entries.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Journal Entries</a></li> --}}
+                        <li><a href="{{ route('ledger.index') }}" class="nav-link {{ request()->routeIs('ledger.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Ledger</a></li>
+                        <li><a href="{{ route('reports.trial-balance') }}" class="nav-link {{ request()->routeIs('reports.trial-balance') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Trial Balance</a></li>
+                        <li><a href="{{ route('reports.balance-sheet') }}" class="nav-link {{ request()->routeIs('reports.balance-sheet') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Balance Sheet</a></li>
+                        <li><a href="{{ route('reports.cash-book') }}" class="nav-link {{ request()->routeIs('reports.cash-book') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Cash Book</a></li>
+                        <li><a href="{{ route('reports.day-book') }}" class="nav-link {{ request()->routeIs('reports.day-book') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Day Book</a></li>
+                        <li><a href="{{ route('reports.income-expenditure') }}" class="nav-link {{ request()->routeIs('reports.income-expenditure') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Income & Expenditure</a></li>
+                        <li><a href="{{ route('reports.cash-summary') }}" class="nav-link {{ request()->routeIs('reports.cash-summary') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Cash Summary</a></li>
+                        <li><a href="{{ route('reports.receipt-payment') }}" class="nav-link {{ request()->routeIs('reports.receipt-payment') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Receipt & Payment</a></li>
+                        <li><a href="{{ route('reports.cash-flow') }}" class="nav-link {{ request()->routeIs('reports.cash-flow') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Cash Flow</a></li>
+                        <li><a href="{{ route('reports.chart-of-accounts') }}" class="nav-link {{ request()->routeIs('reports.chart-of-accounts') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Chart of Accounts</a></li>
+                        <li><a href="{{ route('reports.headwise-transactions') }}" class="nav-link {{ request()->routeIs('reports.headwise-transactions') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Headwise Transactions</a></li>
+                    </ul>
+                </li>
+
+
                 <!-- Asset Management -->
-                <li class="nav-item has-treeview {{ menuOpen(['assets.*', 'asset-categories.*', 'asset-purchases.*']) ? 'menu-is-opening menu-open' : '' }}">
+                <li class="nav-item has-treeview {{ menuOpen(['assets.*', 'asset-categories.*', 'asset-purchases.*', 'asset-issues.*']) ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-building"></i>
                         <p>Assets<i class="right fas fa-angle-left"></i>
@@ -473,6 +554,29 @@
                                 <i class="far fa-circle nav-icon"></i>Purchases
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route('asset-issues.index') }}" class="nav-link {{ request()->routeIs('asset-issues.index') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Issue Register
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('asset-issues.stock') }}" class="nav-link {{ request()->routeIs('asset-issues.stock') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Asset Stock
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Budget Control -->
+                <li class="nav-item has-treeview {{ menuOpen(['budget-heads.*','budget-allocations.*']) ? 'menu-is-opening menu-open' : '' }}">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-chart-pie"></i>
+                        <p>Budget Control<i class="right fas fa-angle-left"></i></p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li><a href="{{ route('budget-heads.index') }}" class="nav-link {{ request()->routeIs('budget-heads.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Budget Heads</a></li>
+                        <li><a href="{{ route('budget-allocations.index') }}" class="nav-link {{ request()->routeIs('budget-allocations.index') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Budget Allocation</a></li>
+                        <li><a href="{{ route('budget-allocations.report') }}" class="nav-link {{ request()->routeIs('budget-allocations.report') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Budget vs Actual</a></li>
                     </ul>
                 </li>
 
@@ -523,6 +627,26 @@
                         <li><a href="{{ route('security.audit') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Audit Trails</a></li>
                     </ul>
                 </li> --}}
+
+                <!-- Institute Settings -->
+                <li class="nav-item has-treeview {{ menuOpen(['school-settings.*','id-card-templates.*']) ? 'menu-is-opening menu-open' : '' }}">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-school"></i>
+                        <p>Institute Settings<i class="right fas fa-angle-left"></i></p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li>
+                            <a href="{{ route('school-settings.index') }}" class="nav-link {{ request()->routeIs('school-settings.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>School Settings
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('id-card-templates.index') }}" class="nav-link {{ request()->routeIs('id-card-templates.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>ID Card Templates
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
                 <!-- Users & Roles -->
                 <li class="nav-item has-treeview">

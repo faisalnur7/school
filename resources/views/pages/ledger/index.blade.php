@@ -6,7 +6,7 @@
 
         {{-- Header --}}
         <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
-            <h3 class="card-title mb-0">
+            <h3 class="card-title mb-0 text-white text-lg">
                 <i class="fas fa-book-open mr-2"></i> Debit / Credit Ledger
             </h3>
         </div>

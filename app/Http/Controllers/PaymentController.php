@@ -32,6 +32,7 @@ class PaymentController extends Controller
     
     public function receipt(Payment $payment){
         $payment->load(['items.fee.feeSet', 'student', 'collector']);
-        return view('pages.payments.receipt', compact('payment'));
+        $setting = \App\Models\SchoolSetting::first();
+        return view('pages.payments.receipt', compact('payment', 'setting'));
     }
 }
