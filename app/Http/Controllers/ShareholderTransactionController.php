@@ -6,6 +6,8 @@ use App\Models\Account;
 use App\Models\Shareholder;
 use App\Models\Transaction;
 use App\Models\AccountTransaction;
+use App\Models\IncomeCategory;
+use App\Models\ExpenseCategory;
 use App\Services\JournalService;
 use Illuminate\Http\Request;
 
@@ -14,8 +16,7 @@ class ShareholderTransactionController extends Controller
     public function index(Request $request)
     {
         $query = Transaction::with(['shareholder', 'incomeCategory', 'expenseCategory', 'recorder'])
-            ->whereIn('type', ['income', 'expense', 'capital', 'withdrawal'])
-            ->orderBy('transaction_date', 'desc');
+            ->whereIn('type', ['income', 'expense', 'capital', 'withdrawal']);
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);
@@ -40,11 +41,11 @@ class ShareholderTransactionController extends Controller
             $query->whereDate('transaction_date', '<=', \Carbon\Carbon::createFromFormat('d/m/Y', $request->to));
         }
 
-        $transactions = $query->paginate(15)->withQueryString();
-
+        $transactions = $query->latest('transaction_date')->paginate(15)->withQueryString();
+        
         $shareholders     = Shareholder::orderBy('name')->get();
-        $incomeCategories = \App\Models\IncomeCategory::orderBy('name')->get();
-        $expenseCategories = \App\Models\ExpenseCategory::orderBy('name')->get();
+        $incomeCategories = IncomeCategory::orderBy('name')->get();
+        $expenseCategories = ExpenseCategory::orderBy('name')->get();
 
         $totalIncome = (clone $query)->where('type', 'income')->sum('amount');
         $totalExpense = (clone $query)->where('type', 'expense')->sum('amount');

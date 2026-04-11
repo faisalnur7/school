@@ -16,6 +16,7 @@ use App\Models\FeeCategory;
 use App\Models\FeeSet;
 use App\Models\FeeSetItem;
 use App\Models\Fee;
+use App\Models\Profession;
 use App\Models\StudentAcademicInformation;
 use App\Models\Transport;
 use Illuminate\Support\Facades\DB;
@@ -195,6 +196,7 @@ class StudentController extends Controller
         $data['policeStations'] = PoliceStation::all();
         $data['postOffices'] = PostOffice::all();
         $data['feeSets'] = FeeSet::all();
+        $data['professions'] = Profession::orderBy('name')->get();
         return view('pages.students.create', $data);
     }
 
@@ -377,6 +379,25 @@ class StudentController extends Controller
         );
     }
 
+    public function pdf($id)
+    {
+        $student = Student::with([
+            'academicInformations.academicSession',
+            'academicInformations.schoolClass',
+            'academicInformations.section',
+            'academicInformations.group',
+            'fathersProfession',
+            'mothersProfession',
+            'guardianProfession',
+        ])->findOrFail($id);
+
+        $html = view('pages.students.pdf', compact('student'))->render();
+
+        $mpdf = new \Mpdf\Mpdf(['margin_top' => 8, 'margin_bottom' => 8, 'margin_left' => 10, 'margin_right' => 10]);
+        $mpdf->WriteHTML($html);
+        $mpdf->Output('student-' . $student->student_cid . '.pdf', 'D');
+    }
+
     public function edit($id)
     {
         $student = Student::with('academicInformations')->findOrFail($id);
@@ -393,7 +414,8 @@ class StudentController extends Controller
         $data['districts']        = District::all();
         $data['policeStations']   = PoliceStation::all();
         $data['postOffices']      = PostOffice::all();
-        $data['feeSets']          = FeeSet::all();
+        $data['feeSets']      = FeeSet::all();
+        $data['professions']  = Profession::orderBy('name')->get();
 
         return view('pages.students.edit', $data);
     }
@@ -440,18 +462,18 @@ class StudentController extends Controller
             'disable' => 'nullable|boolean',
 
             // ================= FATHER =================
-            'father_name' => 'nullable|string|max:255',
-            'father_nid_number' => 'nullable|string|max:255',
-            'father_occupation' => 'nullable|string|max:255',
-            'father_phone' => 'nullable|string|max:50',
-            'father_email' => 'nullable|email|max:255',
+            'father_name'            => 'nullable|string|max:255',
+            'father_nid_number'      => 'nullable|string|max:255',
+            'fathers_profession_id'  => 'nullable|integer|exists:professions,id',
+            'father_phone'           => 'nullable|string|max:50',
+            'father_email'           => 'nullable|email|max:255',
 
             // ================= MOTHER =================
-            'mother_name' => 'nullable|string|max:255',
-            'mother_nid_number' => 'nullable|string|max:255',
-            'mother_occupation' => 'nullable|string|max:255',
-            'mother_phone' => 'nullable|string|max:50',
-            'mother_email' => 'nullable|email|max:255',
+            'mother_name'            => 'nullable|string|max:255',
+            'mother_nid_number'      => 'nullable|string|max:255',
+            'mothers_profession_id'  => 'nullable|integer|exists:professions,id',
+            'mother_phone'           => 'nullable|string|max:50',
+            'mother_email'           => 'nullable|email|max:255',
 
             // ================= INCOME =================
             'annual_income' => 'nullable|string|max:255',
@@ -471,10 +493,11 @@ class StudentController extends Controller
             'permanent_post_office_id' => 'nullable|integer|exists:post_offices,id',
 
             // ================= GUARDIAN =================
-            'guardian_type' => 'nullable|integer|in:1,2,3',
-            'guardian_name' => 'nullable|string|max:255',
-            'guardian_relation' => 'nullable|string|max:255',
-            'guardian_address' => 'nullable|string',
+            'guardian_type'          => 'nullable|integer|in:1,2,3',
+            'guardian_name'          => 'nullable|string|max:255',
+            'guardian_relation'      => 'nullable|string|max:255',
+            'guardian_profession_id' => 'nullable|integer|exists:professions,id',
+            'guardian_address'       => 'nullable|string',
             'guardian_phone' => 'nullable|string|max:50',
             'guardian_email' => 'nullable|email|max:255',
 

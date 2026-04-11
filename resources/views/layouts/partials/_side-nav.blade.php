@@ -201,7 +201,7 @@
     </ul>
 </li>
                 {{-- Incomes & Expenses --}}
-                <li class="nav-item has-treeview {{ menuOpen(['incomes.*', 'expenses.*', 'transactions.*', 'income-categories.*', 'expense-categories.*']) ? 'menu-is-opening menu-open' : '' }}">
+                <li class="nav-item has-treeview {{ menuOpen(['incomes.*', 'expenses.*', 'transactions.*', 'income-categories.*', 'expense-categories.*','shareholder-transactions.create']) ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-chart-line"></i>
                         <p>Financials<i class="right fas fa-angle-left"></i></p>
@@ -217,6 +217,12 @@
                         <li>
                             <a href="{{ route('expenses.index') }}" class="nav-link {{ request()->routeIs('expenses.*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>Expenses
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{{ route('shareholder-transactions.create') }}" class="nav-link {{ request()->routeIs('shareholder-transactions.create') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Capital
                             </a>
                         </li>
 
@@ -482,7 +488,7 @@
                 </li> --}}
 
                 <!-- Shareholders -->
-                <li class="nav-item has-treeview {{ menuOpen(['shareholders.index','shareholders.create', 'shareholder-transactions.*']) ? 'menu-is-opening menu-open' : '' }}">
+                <li class="nav-item has-treeview {{ menuOpen(['shareholders.index','shareholders.create']) ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-user-tie"></i>
                         <p>Shareholders<i class="right fas fa-angle-left"></i></p>
@@ -568,13 +574,12 @@
                 </li>
 
                 <!-- Budget Control -->
-                <li class="nav-item has-treeview {{ menuOpen(['budget-heads.*','budget-allocations.*']) ? 'menu-is-opening menu-open' : '' }}">
+                <li class="nav-item has-treeview {{ menuOpen(['budget-allocations.*']) ? 'menu-is-opening menu-open' : '' }}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-chart-pie"></i>
                         <p>Budget Control<i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li><a href="{{ route('budget-heads.index') }}" class="nav-link {{ request()->routeIs('budget-heads.*') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Budget Heads</a></li>
                         <li><a href="{{ route('budget-allocations.index') }}" class="nav-link {{ request()->routeIs('budget-allocations.index') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Budget Allocation</a></li>
                         <li><a href="{{ route('budget-allocations.report') }}" class="nav-link {{ request()->routeIs('budget-allocations.report') ? 'active' : '' }}"><i class="far fa-circle nav-icon"></i>Budget vs Actual</a></li>
                     </ul>

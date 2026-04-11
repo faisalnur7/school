@@ -4,7 +4,12 @@
     <div class="container-fluid py-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="font-bold text-lg">👤 Student Profile</h4>
-            <a href="{{ route('students.index') }}" class="btn btn-secondary">← Back to Students</a>
+            <div class="d-flex gap-2">
+                <a href="{{ route('students.pdf', $student->id) }}" class="btn btn-danger btn-sm" title="Download PDF">
+                    <i class="fas fa-file-pdf"></i>
+                </a>
+                <a href="{{ route('students.index') }}" class="btn btn-secondary">← Back to Students</a>
+            </div>
         </div>
 
         <div class="row g-4">
@@ -44,12 +49,12 @@
                     <div class="card-header bg-secondary text-white">Parents Information</div>
                     <div class="card-body">
                         <p><strong>Father Name:</strong> {{ $student->father_name ?? '—' }}</p>
-                        <p><strong>Father Occupation:</strong> {{ $student->father_occupation ?? '—' }}</p>
+                        <p><strong>Father Profession:</strong> {{ $student->fathersProfession?->name ?? '—' }}</p>
                         <p><strong>Father Phone:</strong> {{ $student->father_phone ?? '—' }}</p>
                         <p><strong>Father Email:</strong> {{ $student->father_email ?? '—' }}</p>
                         <hr>
                         <p><strong>Mother Name:</strong> {{ $student->mother_name ?? '—' }}</p>
-                        <p><strong>Mother Occupation:</strong> {{ $student->mother_occupation ?? '—' }}</p>
+                        <p><strong>Mother Profession:</strong> {{ $student->mothersProfession?->name ?? '—' }}</p>
                         <p><strong>Mother Phone:</strong> {{ $student->mother_phone ?? '—' }}</p>
                         <p><strong>Mother Email:</strong> {{ $student->mother_email ?? '—' }}</p>
                     </div>
@@ -62,6 +67,7 @@
                         <p><strong>Present Address:</strong> {{ $student->present_address ?? '—' }}</p>
                         <p><strong>Guardian Phone:</strong> {{ $student->guardian_phone ?? '—' }}</p>
                         <p><strong>Guardian Email:</strong> {{ $student->guardian_email ?? '—' }}</p>
+                        <p><strong>Guardian Profession:</strong> {{ $student->guardianProfession?->name ?? '—' }}</p>
                     </div>
                 </div>
             </div>

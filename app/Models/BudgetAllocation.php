@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class BudgetAllocation extends Model
 {
     protected $fillable = [
-        'budget_head_id', 'expense_category_id',
+        'account_id', 'expense_category_id',
         'amount', 'period', 'fiscal_year', 'fiscal_month',
         'notes', 'recorded_by',
     ];
 
-    public function budgetHead()
+    public function account()
     {
-        return $this->belongsTo(BudgetHead::class);
+        return $this->belongsTo(Account::class);
     }
 
     public function expenseCategory()
@@ -27,13 +27,23 @@ class BudgetAllocation extends Model
         return $this->belongsTo(User::class, 'recorded_by');
     }
 
-    /** Actual expenses for this allocation's category in the fiscal period */
+    /**
+     * Actual expenses for this allocation's linked expense category in the fiscal period.
+     * If no expense_category_id, falls back to the category linked to the account via reference.
+     */
     public function getActualSpentAttribute(): float
     {
+        $categoryId = $this->expense_category_id;
+
+        // If no direct category, try resolving from the account's reference
+        if (!$categoryId && $this->account?->reference_type === ExpenseCategory::class) {
+            $categoryId = $this->account->reference_id;
+        }
+
         $query = Expense::query();
 
-        if ($this->expense_category_id) {
-            $query->where('expense_category_id', $this->expense_category_id);
+        if ($categoryId) {
+            $query->where('expense_category_id', $categoryId);
         }
 
         $query->whereYear('expense_date', $this->fiscal_year);
@@ -47,7 +57,7 @@ class BudgetAllocation extends Model
 
     public function getRemainingAttribute(): float
     {
-        return max(0, $this->amount - $this->actual_spent);
+        return $this->amount - $this->actual_spent;
     }
 
     public function getUtilizationAttribute(): float

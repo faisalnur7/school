@@ -227,6 +227,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/students/create', [StudentController::class, 'create'])->name('students.create');
     Route::post('/students/store', [StudentController::class, 'store'])->name('students.store');
     Route::get('/students/{id}', [StudentController::class, 'show'])->name('students.show');
+    Route::get('/students/{id}/pdf', [StudentController::class, 'pdf'])->name('students.pdf');
     Route::get('/students/{id}/edit', [StudentController::class, 'edit'])->name('students.edit');
     Route::post('/students/{id}/update', [StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/{id}/delete', [StudentController::class, 'destroy'])->name('students.delete');
@@ -484,6 +485,9 @@ Route::group(['middleware' => ['auth']], function () {
     // ------------------- Dormitory -------------------
     Route::get('/dormitory', [DormitoryController::class, 'index'])->name('dormitory.index');
 
+    // ------------------- Professions -------------------
+    Route::resource('professions', \App\Http\Controllers\ProfessionController::class)->except(['create', 'edit', 'show']);
+
     // ------------------- Shareholders -------------------
     Route::resource('shareholders', \App\Http\Controllers\ShareholderController::class);
     Route::resource('shareholder-transactions', \App\Http\Controllers\ShareholderTransactionController::class);
@@ -526,9 +530,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/asset-stock', [\App\Http\Controllers\AssetIssueController::class, 'stock'])->name('asset-issues.stock');
 
     // ------------------- Budget Control -------------------
-    Route::resource('budget-heads',       \App\Http\Controllers\BudgetHeadController::class)->except(['create','edit','show']);
     Route::resource('budget-allocations', \App\Http\Controllers\BudgetAllocationController::class)->except(['create','edit','show']);
-    Route::get('/budget-allocations/report', [\App\Http\Controllers\BudgetAllocationController::class, 'report'])->name('budget-allocations.report');
+    Route::get('/budget-allocations/report',     [\App\Http\Controllers\BudgetAllocationController::class, 'report'])->name('budget-allocations.report');
+    Route::get('/budget-allocations/report/pdf', [\App\Http\Controllers\BudgetAllocationController::class, 'reportPdf'])->name('budget-allocations.report.pdf');
 
     // ------------------- HR & Payroll -------------------
     Route::prefix('hr')->name('hr.')->group(function () {
@@ -597,7 +601,8 @@ Route::group(['middleware' => ['auth']], function () {
 
 
     // unified transaction routes for all transaction types
-    Route::get('/transactions', [\App\Http\Controllers\ShareholderTransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions',     [\App\Http\Controllers\TransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/pdf',  [\App\Http\Controllers\TransactionController::class, 'pdf'])->name('transactions.pdf');
     Route::get('/transactions/create', [\App\Http\Controllers\ShareholderTransactionController::class, 'create'])->name('transactions.create');
     Route::post('/transactions', [\App\Http\Controllers\ShareholderTransactionController::class, 'store'])->name('transactions.store');
     Route::get('/transactions/{shareholderTransaction}/edit', [\App\Http\Controllers\ShareholderTransactionController::class, 'edit'])->name('transactions.edit');

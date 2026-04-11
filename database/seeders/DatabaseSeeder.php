@@ -36,6 +36,10 @@ class DatabaseSeeder extends Seeder
             AccountingSeeder::class,
             DesignationSeeder::class,
             HrSeeder::class,
+            BudgetAllocationSeeder::class,
+            ProfessionSeeder::class,
+            BudgetAllocationSeeder::class,
+            ProfessionSeeder::class,
         ]);
     }
 }

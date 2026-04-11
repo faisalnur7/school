@@ -25,14 +25,14 @@ class Student extends Model
             // ================= FATHER =================
             'father_name',
             'father_nid_number',
-            'father_occupation',
+            'fathers_profession_id',
             'father_phone',
             'father_email',
 
             // ================= MOTHER =================
             'mother_name',
             'mother_nid_number',
-            'mother_occupation',
+            'mothers_profession_id',
             'mother_phone',
             'mother_email',
 
@@ -57,7 +57,7 @@ class Student extends Model
             'guardian_type',
             'guardian_name',
             'guardian_relation',
-            'guardian_occupation',
+            'guardian_profession_id',
             'guardian_address',
             'guardian_phone',
             'guardian_email',
@@ -135,6 +135,21 @@ class Student extends Model
         return self::BLOOD_GROUPS[$this->blood_group] ?? 'N/A';
     }
 
+
+    public function fathersProfession()
+    {
+        return $this->belongsTo(Profession::class, 'fathers_profession_id');
+    }
+
+    public function mothersProfession()
+    {
+        return $this->belongsTo(Profession::class, 'mothers_profession_id');
+    }
+
+    public function guardianProfession()
+    {
+        return $this->belongsTo(Profession::class, 'guardian_profession_id');
+    }
 
     public function division()
     {

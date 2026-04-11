@@ -4,29 +4,29 @@
 
 The Accounts module provides a complete double-entry bookkeeping system. The recommended setup order is:
 
-```
-Account Groups → Chart of Accounts → Accounting Periods → Journal Entries → Reports
-```
+1. Account Groups → 2. Chart of Accounts → 3. Accounting Periods → 4. Journal Entries → 5. Reports
 
 ---
 
 ## 1. Account Groups
 
-**Location:** Accounts → Account Groups
+**Navigate to:** Accounts → Account Groups
 
-Account Groups are categories that organise your Chart of Accounts (e.g. Assets, Liabilities, Income, Expenses).
+Account Groups are categories that organize your accounts (e.g. Assets, Liabilities, Income, Expenses).
 
-### Create a Group
-1. On the Account Groups page, fill in the **Name** field.
-2. Optionally select a **Parent Group** to create a sub-group (e.g. "Bank Accounts" under "Assets").
+### Add a Group
+1. Fill in the **Name** field (e.g. `Assets`, `Liabilities`, `Income`, `Expenses`).
+2. Optionally select a **Parent Group** to create a sub-group (e.g. `Current Assets` under `Assets`).
 3. Click **Save**.
 
 ### Edit a Group
-1. Click the **Edit** icon next to the group.
-2. Update the name or parent, then click **Update**.
+1. Click the **edit (pencil)** icon on the group row.
+2. Update the name or parent in the modal.
+3. Click **Update**.
 
 ### Delete a Group
-1. Click the **Delete** icon next to the group and confirm.
+1. Click the **trash** icon on the group row.
+2. Confirm the deletion prompt.
 
 > **Note:** Do not delete a group that has accounts assigned to it.
 
@@ -34,220 +34,217 @@ Account Groups are categories that organise your Chart of Accounts (e.g. Assets,
 
 ## 2. Chart of Accounts
 
-**Location:** Accounts → Chart of Accounts
+**Navigate to:** Accounts → Chart of Accounts
 
-Individual ledger accounts live here. Every financial transaction is posted to an account.
+Individual ledger accounts belong here. Each account must be assigned to an Account Group.
 
-### Create an Account
-1. Click **New Account**.
-2. Fill in:
-   - **Name** — descriptive label (e.g. "Cash in Hand")
-   - **Account Group** — select the parent group
-   - **Type** — asset / liability / income / expense / equity
-   - **Opening Balance** — starting balance if migrating from another system
-   - **Notes** — optional description
-3. Click **Save**.
+### Add an Account
+1. Click **+ Add Account**.
+2. Enter the **Name** (e.g. `Cash in Hand`, `School Fee Income`).
+3. Select an **Account Group**.
+4. Optionally link to a physical account:
+   - **Bank Account** — links to a registered bank account.
+   - **Hand Cash** — links to a cash register.
+   - **Mobile Banking** — links to a mobile banking account.
+5. Add optional **Notes**.
+6. Click **Save**.
 
 ### Edit an Account
-1. Click **Edit** next to the account, modify the fields, and click **Update**.
+1. Click the **edit** icon on the account row.
+2. Modify fields and click **Update**.
 
 ### Delete an Account
-1. Click **Delete** next to the account and confirm.
+1. Click the **trash** icon and confirm.
 
-> Accounts with posted journal lines cannot be deleted.
+> **Note:** An account's running balance is calculated as:
+> `Opening Balance + Total Debits − Total Credits` from all journal entry lines.
 
 ---
 
 ## 3. Accounting Periods
 
-**Location:** Accounts → Accounting Periods
+**Navigate to:** Accounts → Accounting Periods
 
-Accounting Periods define fiscal date ranges (e.g. "FY 2024-25"). Journal entries **cannot** be posted to a closed period.
+Accounting periods define fiscal date ranges (e.g. `FY-2025`). Journal entries cannot be posted into a **closed** period.
 
 ### Create a Period
-1. Enter a unique **Name** (e.g. `FY 2024-25`).
-2. Set **Start Date** and **End Date** (end must be after start).
-3. Click **Save**.
+1. Click **+ New Period**.
+2. Enter a unique **Name** (e.g. `FY-2025`).
+3. Set the **Start Date** and **End Date**.
+4. Click **Create**.
 
-### Edit a Period
-1. Click **Edit** next to an open period, update the fields, and click **Update**.
+### Lock (Close) a Period
+1. Click **Lock Period** on an open period row.
+2. Confirm the prompt — **this cannot be undone**.
+3. The period status changes to **Closed** and records who closed it.
 
-> Closed periods cannot be edited.
-
-### Close a Period
-1. Click **Close** next to an open period and confirm.
-
-> This action is **irreversible**. Once closed, no journal entries can be posted for dates within that period.
+> Once closed, no journal entries can be posted or edited for dates within that period.
 
 ### Delete a Period
-1. Click **Delete** next to an open period and confirm.
-
-> Closed periods cannot be deleted.
+- Only **open** (unlocked) periods can be deleted.
+- Click **Del** and confirm.
 
 ---
 
 ## 4. Journal Entries
 
-Journal entries are the core of double-entry accounting. Every transaction must have equal debits and credits. They are auto-posted when income/expense transactions are recorded, and can also be created manually.
+**Navigate to:** Accounts → (accessed via Journal Entries route)
 
-### View All Entries
-- Navigate to `/journal-entries`.
-- Filter by **Date From / To** or search by **Reference No** or **Description**.
+Journal entries are the core of double-entry bookkeeping. Every entry must be **balanced** — total debits must equal total credits.
 
-### Create a Manual Entry
-1. Go to `/journal-entries/create`.
-2. Set the **Date** and optional **Description**.
-3. Add at least **2 lines**, selecting an **Account** and entering either a **Debit** or **Credit** amount per line.
-4. Ensure total Debits = total Credits (the form will warn you if unbalanced).
-5. Click **Post Entry**.
+### Create a Journal Entry
+1. Click **+ New Entry**.
+2. Set the **Date**.
+3. Enter a **Description / Narration**.
+4. For each line:
+   - Select an **Account** from the Chart of Accounts.
+   - Enter either a **Debit** or **Credit** amount (not both).
+5. The footer shows running **Total Debit** and **Total Credit**.
+   - A green **✓ Balanced** badge appears when they match.
+   - The **Post Journal Entry** button is disabled until the entry is balanced.
+6. Click **+ Add Line** to add more lines (minimum 2 lines required).
+7. Click **Post Journal Entry** to save.
 
-A reference number is auto-generated in the format `JE-YYYYMMDD-XXXX`.
+> A unique reference number (e.g. `JE-20250501-0001`) is auto-generated.
 
-### View an Entry
-- Click the **View** icon on any entry to see all lines, accounts, and the posting user.
+### View a Journal Entry
+- Click the **reference number** link in the list to see all lines, accounts, and amounts.
 
-### Delete an Entry
-- Click **Delete** on the entry. Soft-deleted entries are removed from all reports.
+### Filter Journal Entries
+- Filter by **Date From / To** or search by **reference number** or **description**.
 
-**Rules enforced:**
-- Entry must have ≥ 2 lines.
-- Total debit must equal total credit (within 0.001 tolerance).
-- Date must not fall within a closed accounting period.
+### Delete a Journal Entry
+- Click **Del** on the entry row and confirm.
+
+> **Note:** You cannot post a journal entry if the date falls within a **closed accounting period**.
 
 ---
 
 ## 5. Ledger
 
-**Location:** Accounts → Ledger
+**Navigate to:** Accounts → Ledger
 
-The Ledger shows all financial transactions in chronological order with running totals.
+The Ledger shows all financial transactions with debit/credit account mapping, amounts, and payment methods.
 
 ### Filter the Ledger
-Use the filter bar to narrow results by:
-- **Type** — Income / Expense / Capital / Withdrawal
-- **Payment Method** — Cash, Bank, Mobile Banking, etc.
-- **Shareholder** — filter by a specific shareholder
-- **From / To Date** — date range (format: `DD/MM/YYYY`)
+| Filter | Description |
+|---|---|
+| Type | Income, Expense, Capital, Withdrawal |
+| Payment Method | Cash, Bank Transfer, Cheque, Mobile Banking, Other |
+| Shareholder | Filter by a specific shareholder |
+| From / To | Date range (format: dd/mm/yyyy) |
 
-The page displays:
-- **Total Debit** — sum of expenses and withdrawals
-- **Total Credit** — sum of income and capital contributions
+- Click **Filter** to apply.
+- Click **Reset** to clear all filters.
 
----
-
-## 6. Trial Balance
-
-**Location:** Accounts → Trial Balance
-
-Summarises all account balances for a selected year to verify that debits equal credits.
-
-### Generate
-1. Select the **Year** from the dropdown (defaults to current year).
-2. The report auto-loads showing:
-
-| Account | Debit | Credit |
-|---|---|---|
-| Income | — | Total income |
-| Expenses | Total expenses | — |
-| Capital Contributions | — | Total capital |
-| Drawings / Withdrawals | Total withdrawals | — |
-
-A balanced set of books will show **Total Debit = Total Credit**.
+### Summary Badges
+- **Total Debit** — sum of expenses and withdrawals.
+- **Total Credit** — sum of income and capital.
+- **Net** — Credit minus Debit.
 
 ---
 
-## 7. Balance Sheet
+## 6. Reports
 
-**Location:** Accounts → Balance Sheet
-
-Shows the financial position (equity) for a selected year.
-
-### Generate
-1. Select the **Year** and click **Filter**.
-
-The report shows:
-- **Net Income** = Total Income − Total Expenses
-- **Capital** = Total capital contributions
-- **Withdrawals** = Total drawings
-- **Equity** = Capital − Withdrawals + Net Income
+All reports support year or date-range filtering.
 
 ---
 
-## 8. Cash Book
+### 6.1 Trial Balance
 
-**Location:** Accounts → Cash Book
+**Navigate to:** Accounts → Trial Balance
 
-Shows all **cash** transactions (payment method = Cash) within a date range.
+Shows a summary of all account types for a selected year.
 
-### Generate
-1. Set **From** and **To** dates (format: `DD/MM/YYYY`). Defaults to the current month.
-2. Click **Filter**.
+| Column | Description |
+|---|---|
+| Account | Account category (Income, Expenses, Capital, Withdrawals) |
+| Debit | Total debit-side amounts |
+| Credit | Total credit-side amounts |
 
-The report shows each cash transaction with date, description, type, and amount, plus:
-- **Total In** — cash receipts (income + capital)
-- **Total Out** — cash payments (expenses + withdrawals)
-
----
-
-## 9. Day Book
-
-**Location:** Accounts → Day Book
-
-Shows **all transactions for a single day** across all payment methods.
-
-### Generate
-1. Select a **Date** (format: `DD/MM/YYYY`). Defaults to today.
-2. Click **Filter**.
-
-The report shows every transaction on that date with:
-- **Total Debit** — expenses + withdrawals
-- **Total Credit** — income + capital
+- Select a **year** and click **Go**.
+- Totals are shown in the footer row.
 
 ---
 
-## 10. Income & Expenditure
+### 6.2 Balance Sheet
 
-**Location:** Accounts → Income & Expenditure
+**Navigate to:** Accounts → Balance Sheet
 
-Shows income and expenses broken down by category for a selected year.
+Shows the financial position for a selected year.
 
-### Generate
-1. Select the **Year** and click **Filter**.
+| Row | Description |
+|---|---|
+| Capital Contributions | Total shareholder capital invested |
+| Less: Withdrawals | Total shareholder withdrawals |
+| Net Income / (Loss) | Income minus Expenses |
+| **Total Equity** | Capital − Withdrawals + Net Income |
 
-The report shows:
-- **Income by Category** — each income category with its total
-- **Expenses by Category** — each expense category with its total
-- **Surplus / Deficit** = Total Income − Total Expenses
+- Select a **year** and click **Go**.
+- Negative values are shown in red with parentheses.
 
-> A negative surplus indicates a deficit.
+---
+
+### 6.3 Cash Book
+
+**Navigate to:** Accounts → Cash Book
+
+Shows only **Cash** payment method transactions within a date range.
+
+| Column | Description |
+|---|---|
+| Cash In | Income and Capital transactions |
+| Cash Out | Expense and Withdrawal transactions |
+| Balance | Cash In minus Cash Out |
+
+- Set **From** and **To** dates (dd/mm/yyyy) and click **Filter**.
+- Defaults to the current month.
+
+---
+
+### 6.4 Day Book
+
+**Navigate to:** Accounts → Day Book
+
+Shows all transactions for a **single day**, ordered by time.
+
+- Select a **date** (dd/mm/yyyy) and click **Go**.
+- Defaults to today.
+- Shows debit account, credit account, and amount for each transaction.
+- Summary badges show **Total Debit** and **Total Credit** for the day.
+
+---
+
+### 6.5 Income & Expenditure
+
+**Navigate to:** Accounts → Income & Expenditure
+
+Shows income and expenses broken down by **category** for a selected year.
+
+- Select a **year** and click **Go**.
+- Left panel: Income by category with total.
+- Right panel: Expenditure by category with total.
+- Bottom: **Surplus** (green) or **Deficit** (red) = Total Income − Total Expenditure.
 
 ---
 
 ## Typical Workflow
 
 ```
-1. Create Account Groups       (Assets, Liabilities, Income, Expenses, Equity)
-2. Create Accounts             (Cash, Bank, Tuition Fee Income, Salaries, etc.)
-3. Create an Accounting Period (e.g. FY 2024-25: 01/07/2024 – 30/06/2025)
-4. Record transactions         (income/expenses auto-post journal entries)
-5. Post manual Journal Entries for adjustments if needed
-6. Review the Ledger           for a full transaction history
-7. Run Trial Balance           to verify books are balanced
-8. Run Balance Sheet           for financial position
-9. Run Cash Book / Day Book    for operational review
-10. Run Income & Expenditure   for performance summary
-11. Close the Accounting Period at year-end
+1. Create Account Groups       (e.g. Assets, Liabilities, Income, Expenses)
+2. Create Accounts             (e.g. Cash, Bank, Fee Income, Salary Expense)
+3. Create Accounting Period    (e.g. FY-2025: 01 Jan 2025 – 31 Dec 2025)
+4. Post Journal Entries        (day-to-day transactions)
+5. View Ledger                 (monitor all transactions)
+6. Run Reports                 (Trial Balance, Balance Sheet, Cash Book, etc.)
+7. Close Accounting Period     (at year-end to lock the books)
 ```
 
 ---
 
-## Important Rules & Constraints
+## Important Rules
 
-| Rule | Detail |
-|---|---|
-| Balanced entries | Every journal entry must have equal debits and credits |
-| Minimum lines | A journal entry requires at least 2 lines |
-| Closed period lock | No entries can be posted to a closed accounting period |
-| Period close is final | A closed period cannot be reopened or deleted |
-| Account deletion | Accounts with journal lines cannot be deleted |
-| Date format | Date filters use `DD/MM/YYYY` format |
+- A journal entry requires **at least 2 lines** and must be **balanced** (Debit = Credit).
+- Journal entries **cannot** be posted to a **closed** accounting period.
+- A closed accounting period **cannot** be edited or deleted.
+- Deleting an account group that has accounts assigned may cause data issues — reassign accounts first.

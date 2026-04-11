@@ -278,10 +278,16 @@
                 </div>
 
                 <div class="relative w-full">
-                    <input type="text" name="father_occupation"
-                        value="{{ old('father_occupation', $student->father_occupation ?? '') }}"
-                        class="{{ $inputClasses }}" id="father_occupation">
-                    <label for="father_occupation" class="{{ $labelClasses }}">Father Occupation</label>
+                    <select name="fathers_profession_id" id="fathers_profession_id" class="{{ $inputClasses }}">
+                        <option value="">— Select Profession —</option>
+                        @foreach($professions as $p)
+                            <option value="{{ $p->id }}"
+                                {{ old('fathers_profession_id', $student->fathers_profession_id ?? '') == $p->id ? 'selected' : '' }}>
+                                {{ $p->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <label for="fathers_profession_id" class="{{ $labelClasses }}">Father Profession</label>
                 </div>
 
                 <div class="relative w-full">
@@ -313,10 +319,16 @@
                 </div>
 
                 <div class="relative w-full">
-                    <input type="text" name="mother_occupation"
-                        value="{{ old('mother_occupation', $student->mother_occupation ?? '') }}"
-                        class="{{ $inputClasses }}" id="mother_occupation">
-                    <label for="mother_occupation" class="{{ $labelClasses }}">Mother Occupation</label>
+                    <select name="mothers_profession_id" id="mothers_profession_id" class="{{ $inputClasses }}">
+                        <option value="">— Select Profession —</option>
+                        @foreach($professions as $p)
+                            <option value="{{ $p->id }}"
+                                {{ old('mothers_profession_id', $student->mothers_profession_id ?? '') == $p->id ? 'selected' : '' }}>
+                                {{ $p->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <label for="mothers_profession_id" class="{{ $labelClasses }}">Mother Profession</label>
                 </div>
 
                 <div class="relative w-full">
@@ -374,6 +386,19 @@
                         value="{{ old('guardian_relation', $student->guardian_relation ?? '') }}"
                         class="{{ $inputClasses }}" id="guardian_relation">
                     <label for="guardian_relation" class="{{ $labelClasses }}">Relation</label>
+                </div>
+
+                <div class="relative w-full">
+                    <select name="guardian_profession_id" id="guardian_profession_id" class="{{ $inputClasses }}">
+                        <option value="">— Select Profession —</option>
+                        @foreach($professions as $p)
+                            <option value="{{ $p->id }}"
+                                {{ old('guardian_profession_id', $student->guardian_profession_id ?? '') == $p->id ? 'selected' : '' }}>
+                                {{ $p->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <label for="guardian_profession_id" class="{{ $labelClasses }}">Guardian Profession</label>
                 </div>
 
                 <div class="relative w-full">
