@@ -11,6 +11,9 @@
             <a href="{{ route('students.export', request()->all()) }}" class="btn btn-success btn-sm mr-2">
                 <i class="fas fa-file-excel"></i> Export
             </a>
+            <a href="{{ route('students.list-pdf', request()->all()) }}" class="btn btn-danger btn-sm mr-2" target="_blank">
+                <i class="fas fa-file-pdf"></i> Export PDF
+            </a>
             <a href="{{ route('students.create') }}" class="btn btn-primary btn-sm text-bold">
                 <i class="fas fa-plus"></i> Add Student
             </a>

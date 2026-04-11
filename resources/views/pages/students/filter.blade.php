@@ -174,6 +174,46 @@
                             <i class="fas fa-redo"></i> Reset
                         </a>
                     </div>
+
+                    <div class="col-12 mt-2">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label d-block mb-0">PDF Columns</label>
+                            <div class="form-check mb-0">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="pdf-columns-toggle-all"
+                                    checked
+                                >
+                                <label class="form-check-label" for="pdf-columns-toggle-all">
+                                    Select/Deselect All
+                                </label>
+                            </div>
+                        </div>
+                        @php
+                            $selectedPdfColumns = request()->input('pdf_columns', array_keys($pdfColumnOptions ?? []));
+                        @endphp
+                        <div class="d-flex flex-wrap" style="gap: 12px 18px;">
+                            @foreach ($pdfColumnOptions as $columnKey => $columnLabel)
+                                <div class="form-check mr-2">
+                                    <input
+                                        class="form-check-input pdf-column-checkbox"
+                                        type="checkbox"
+                                        name="pdf_columns[]"
+                                        value="{{ $columnKey }}"
+                                        id="pdf-column-{{ $columnKey }}"
+                                        {{ in_array($columnKey, $selectedPdfColumns, true) ? 'checked' : '' }}
+                                    >
+                                    <label class="form-check-label" for="pdf-column-{{ $columnKey }}">
+                                        {{ $columnLabel }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                            The selected columns will be used when you click <strong>Export PDF</strong>. If none are selected, the PDF will include all columns.
+                        </small>
+                    </div>
                 </div>
             </form>
         </div>

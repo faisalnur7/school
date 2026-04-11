@@ -17,6 +17,7 @@ use App\Models\FeeSet;
 use App\Models\FeeSetItem;
 use App\Models\Fee;
 use App\Models\Profession;
+use App\Models\SchoolSetting;
 use App\Models\StudentAcademicInformation;
 use App\Models\Transport;
 use Illuminate\Support\Facades\DB;
@@ -24,12 +25,31 @@ use Carbon\Carbon;
 
 class StudentController extends Controller
 {
-    /**
-     * Display a listing of students with filters
-     */
-    public function index(Request $request)
+    private function pdfColumnOptions(): array
     {
-        // Base query with relationships
+        return [
+            'student_cid' => 'Student ID',
+            'roll' => 'Roll',
+            'full_name_en' => 'Student Name',
+            'full_name_bn' => 'Student Name (Bangla)',
+            'class' => 'Class',
+            'section' => 'Section',
+            'group' => 'Group',
+            'gender' => 'Gender',
+            'religion' => 'Religion',
+            'date_of_birth' => 'Date of Birth',
+            'blood_group' => 'Blood Group',
+            'father_name' => 'Father Name',
+            'mother_name' => 'Mother Name',
+            'father_phone' => 'Father Phone',
+            'mother_phone' => 'Mother Phone',
+            'guardian_phone' => 'Guardian Phone',
+            'status' => 'Status',
+        ];
+    }
+
+    private function filteredStudentsQuery(Request $request)
+    {
         $query = Student::with([
             'academicInformations.academicSession',
             'academicInformations.schoolClass',
@@ -37,7 +57,6 @@ class StudentController extends Controller
             'academicInformations.group'
         ]);
 
-        // Academic filters
         if ($request->filled('academic_session_id')) {
             $query->whereHas('academicInformations', function($q) use ($request) {
                 $q->where('academic_session_id', $request->academic_session_id);
@@ -62,7 +81,6 @@ class StudentController extends Controller
             });
         }
 
-        // Location filters (Permanent Address)
         if ($request->filled('permanent_division_id')) {
             $query->where('permanent_division_id', $request->permanent_division_id);
         }
@@ -79,7 +97,6 @@ class StudentController extends Controller
             $query->where('permanent_post_office_id', $request->permanent_post_office_id);
         }
 
-        // Phone number filter (Father, Mother, or Guardian)
         if ($request->filled('phone')) {
             $phone = $request->phone;
             $query->where(function($q) use ($phone) {
@@ -89,32 +106,24 @@ class StudentController extends Controller
             });
         }
 
-        // Age filter
         if ($request->filled('age_from') || $request->filled('age_to')) {
             $today = Carbon::today();
-            
+
             if ($request->filled('age_from')) {
                 $dateFrom = $today->copy()->subYears($request->age_from)->endOfYear();
                 $query->where('date_of_birth', '<=', $dateFrom);
             }
-            
+
             if ($request->filled('age_to')) {
                 $dateTo = $today->copy()->subYears($request->age_to)->startOfYear();
                 $query->where('date_of_birth', '>=', $dateTo);
             }
         }
 
-        // Gender filter
         if ($request->filled('gender')) {
             $query->where('gender', $request->gender);
         }
 
-        // Status filter
-        // if ($request->has('status') && $request->status !== '') {
-        //     $query->where('status', $request->status);
-        // }
-
-        // Search filter
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -127,19 +136,50 @@ class StudentController extends Controller
             });
         }
 
-        // Sort by numeric roll extracted from latest academic info, fallback to created_at
-        $students = $query
-            ->with(['academicInformations' => function ($q) {
-                $q->orderByRaw('CAST(roll AS UNSIGNED) ASC');
-            }])
-            ->orderByRaw("(SELECT CAST(roll AS UNSIGNED) FROM student_academic_information WHERE student_id = students.id ORDER BY id DESC LIMIT 1) ASC")
-            ->paginate(15);
+        return $query;
+    }
+
+    private function applyStudentOrdering($query, Request $request)
+    {
+        $query->with(['academicInformations' => function ($q) {
+            $q->orderByRaw('CAST(roll AS UNSIGNED) ASC');
+        }]);
+
+        $hasSession = $request->filled('academic_session_id');
+        $hasClass = $request->filled('school_class_id');
+        $hasSection = $request->filled('section_id');
+        $hasGroup = $request->filled('group_id');
+
+        if ($hasSession && ! $hasClass && ! $hasSection && ! $hasGroup) {
+            return $query
+                ->orderByRaw("(SELECT school_class_id FROM student_academic_information WHERE student_id = students.id AND academic_session_id = ? ORDER BY id DESC LIMIT 1) ASC", [$request->academic_session_id])
+                ->orderByRaw("(SELECT CAST(roll AS UNSIGNED) FROM student_academic_information WHERE student_id = students.id AND academic_session_id = ? ORDER BY id DESC LIMIT 1) ASC", [$request->academic_session_id]);
+        }
+
+        if ($hasSession || $hasClass || $hasSection) {
+            return $query
+                ->orderByRaw("(SELECT CAST(roll AS UNSIGNED) FROM student_academic_information WHERE student_id = students.id ORDER BY id DESC LIMIT 1) ASC");
+        }
+
+        return $query
+            ->orderByRaw("(SELECT CAST(roll AS UNSIGNED) FROM student_academic_information WHERE student_id = students.id ORDER BY id DESC LIMIT 1) ASC");
+    }
+
+    /**
+     * Display a listing of students with filters
+     */
+    public function index(Request $request)
+    {
+        $query = $this->filteredStudentsQuery($request);
+
+        $students = $this->applyStudentOrdering($query, $request)->paginate(15);
 
         // Get filter data
         $academicSessions = AcademicSession::where('status', 1)->get();
         $classes = SchoolClass::where('status', 1)->get();
         $sections = Section::where('status', 1)->get();
         $groups = Group::where('status', 1)->get();
+        $pdfColumnOptions = $this->pdfColumnOptions();
         $divisions = Division::where('status', 1)->get();
         
         // Get districts based on selected division or all
@@ -178,7 +218,8 @@ class StudentController extends Controller
             'divisions',
             'districts',
             'policeStations',
-            'postOffices'
+            'postOffices',
+            'pdfColumnOptions'
         ));
     }
 
@@ -396,6 +437,52 @@ class StudentController extends Controller
         $mpdf = new \Mpdf\Mpdf(['margin_top' => 8, 'margin_bottom' => 8, 'margin_left' => 10, 'margin_right' => 10]);
         $mpdf->WriteHTML($html);
         $mpdf->Output('student-' . $student->student_cid . '.pdf', 'D');
+    }
+
+    public function listPdf(Request $request)
+    {
+        $pdfColumnOptions = $this->pdfColumnOptions();
+        $selectedColumns = collect($request->input('pdf_columns', array_keys($pdfColumnOptions)))
+            ->filter(fn ($column) => array_key_exists($column, $pdfColumnOptions))
+            ->values()
+            ->all();
+
+        if (empty($selectedColumns)) {
+            $selectedColumns = array_keys($pdfColumnOptions);
+        }
+
+        $students = $this->filteredStudentsQuery($request)
+            ;
+
+        $students = $this->applyStudentOrdering($students, $request)->get();
+
+        $setting = SchoolSetting::first();
+        $filterHeading = [
+            'session' => $request->filled('academic_session_id')
+                ? optional(AcademicSession::find($request->academic_session_id))->name_en
+                : null,
+            'class' => $request->filled('school_class_id')
+                ? optional(SchoolClass::find($request->school_class_id))->name_en
+                : null,
+            'section' => $request->filled('section_id')
+                ? optional(Section::find($request->section_id))->name_en
+                : null,
+            'group' => $request->filled('group_id')
+                ? optional(Group::find($request->group_id))->name_en
+                : null,
+        ];
+
+        $html = view('pages.students.list-pdf', compact('students', 'setting', 'selectedColumns', 'pdfColumnOptions', 'filterHeading'))->render();
+
+        $mpdf = new \Mpdf\Mpdf([
+            'orientation' => 'L',
+            'margin_top' => 10,
+            'margin_bottom' => 10,
+            'margin_left' => 10,
+            'margin_right' => 10,
+        ]);
+        $mpdf->WriteHTML($html);
+        $mpdf->Output('student-list.pdf', 'D');
     }
 
     public function edit($id)

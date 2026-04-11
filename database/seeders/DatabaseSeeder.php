@@ -27,7 +27,6 @@ class DatabaseSeeder extends Seeder
             AcademicSessionSeeder::class,
             SchoolClassSeeder::class,
             FeeCategorySeeder::class,
-            StudentSeeder::class,
             IncomeCategorySeeder::class,
             ExpenseCategorySeeder::class,
             HandCashSeeder::class,
@@ -38,8 +37,11 @@ class DatabaseSeeder extends Seeder
             HrSeeder::class,
             BudgetAllocationSeeder::class,
             ProfessionSeeder::class,
+            AssetCategorySeeder::class,
+            AssetSeeder::class,
             BudgetAllocationSeeder::class,
             ProfessionSeeder::class,
+            StudentSeeder::class,
         ]);
     }
 }

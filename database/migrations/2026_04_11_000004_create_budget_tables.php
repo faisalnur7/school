@@ -11,7 +11,7 @@ return new class extends Migration
         // budget_heads already exists with correct structure
         // budget_allocations exists but needs columns added
         Schema::table('budget_allocations', function (Blueprint $table) {
-            $table->foreignId('budget_head_id')->constrained('budget_heads')->cascadeOnDelete();
+            $table->foreignId('account_id')->constrained('accounts')->cascadeOnDelete();
             $table->foreignId('expense_category_id')->nullable()->constrained('expense_categories')->nullOnDelete();
             $table->decimal('amount', 12, 2);
             $table->enum('period', ['monthly', 'yearly'])->default('yearly');
@@ -25,10 +25,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('budget_allocations', function (Blueprint $table) {
-            $table->dropForeign(['budget_head_id']);
+            $table->dropForeign(['account_id']);
             $table->dropForeign(['expense_category_id']);
             $table->dropForeign(['recorded_by']);
-            $table->dropColumn(['budget_head_id','expense_category_id','amount','period','fiscal_year','fiscal_month','notes','recorded_by']);
+            $table->dropColumn(['account_id','expense_category_id','amount','period','fiscal_year','fiscal_month','notes','recorded_by']);
         });
     }
 };

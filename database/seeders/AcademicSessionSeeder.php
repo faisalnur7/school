@@ -9,7 +9,7 @@ class AcademicSessionSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach (['2026', '2027'] as $year) {
+        foreach (['2026'] as $year) {
             AcademicSession::firstOrCreate(['name_en' => $year], [
                 'name_bn' => $year,
                 'status'  => 1,

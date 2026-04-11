@@ -586,7 +586,7 @@
                 </li>
 
                 <!-- ID Cards & Certificates -->
-                <li class="nav-item has-treeview">
+                {{-- <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-id-card"></i>
                         <p>ID Cards & Certificates<i class="right fas fa-angle-left"></i></p>
@@ -595,7 +595,7 @@
                         <li><a href="{{ route('idcards.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>ID Cards</a></li>
                         <li><a href="{{ route('certificates.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Certificates</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 {{-- <!-- Timetable Generator -->
                 <li class="nav-item">

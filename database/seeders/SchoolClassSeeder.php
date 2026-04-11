@@ -12,8 +12,7 @@ class SchoolClassSeeder extends Seeder
     public function run(): void
     {
         $classes = [
-            'Nursery', 'KG', 'One', 'Two', 'Three',
-            'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+            'Play','Nursery', 'KG', 'One', 'Two', 'Three','Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten','Nazera','Hifz',
         ];
 
         $groupClasses = ['Nine', 'Ten'];
@@ -24,7 +23,7 @@ class SchoolClassSeeder extends Seeder
                 'name_bn' => $className
             ]);
 
-            foreach (['A', 'B', 'C', 'D'] as $section) {
+            foreach (['A'] as $section) {
                 Section::firstOrCreate([
                     'school_class_id' => $class->id,
                     'name_en'         => $section,
