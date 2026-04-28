@@ -28,6 +28,9 @@ class StudentSeeder extends Seeder
         $studentRows = [];
         $academicRows = [];
 
+        // Build a map of school_class_id => section_id
+        $sectionMap = DB::table('sections')->pluck('id', 'school_class_id')->toArray();
+
         foreach ($payload['students'] as $student) {
             $academicInfo = $student['student_academic_information'] ?? null;
 
@@ -90,11 +93,13 @@ class StudentSeeder extends Seeder
                 'updated_at' => $now,
             ];
 
+            $classId = $academicInfo['school_class_id'] ?? null;
+
             $academicRows[] = [
                 'student_id' => $studentId,
                 'academic_session_id' => $academicInfo['academic_session_id'] ?? null,
-                'school_class_id' => $academicInfo['school_class_id'] ?? null,
-                'section_id' => $academicInfo['section_id'] ?? null,
+                'school_class_id' => $classId,
+                'section_id' => $classId ? ($sectionMap[$classId] ?? null) : null,
                 'group_id' => $academicInfo['group_id'] ?? null,
                 'roll' => $academicInfo['roll'] ?? null,
                 'created_at' => $now,

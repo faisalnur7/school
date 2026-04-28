@@ -1,6 +1,5 @@
 <div class="card">
-    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3"
-       >
+    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
         <h3 class="card-title">Groups</h3>
         <a href="{{ route('groups.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
             + Add Group
@@ -12,7 +11,6 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Class</th>
                         <th>Name (EN)</th>
                         <th>Name (BN)</th>
                         <th>Status</th>
@@ -24,7 +22,6 @@
                     @foreach ($groups as $group)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td>{{ $group->schoolClass->name_en }}</td>
                             <td>{{ $group->name_en }}</td>
                             <td>{{ $group->name_bn }}</td>
                             <td>
@@ -57,7 +54,7 @@
 
                     @if ($groups->isEmpty())
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
+                            <td colspan="5" class="text-center text-muted py-4">
                                 No Group found
                             </td>
                         </tr>

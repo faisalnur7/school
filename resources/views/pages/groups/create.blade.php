@@ -17,18 +17,6 @@
                         <div class="card-body">
 
                             <div class="form-group">
-                                <label>Class</label>
-                                <select name="school_class_id" class="form-control" required>
-                                    <option value="">Select Class</option>
-                                    @foreach ($classes as $class)
-                                        <option value="{{ $class->id }}">
-                                            {{ $class->name_en }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="form-group">
                                 <label>Name (English)</label>
                                 <input type="text" name="name_en" class="form-control" required>
                             </div>

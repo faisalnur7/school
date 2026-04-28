@@ -20,17 +20,17 @@ class HrSeeder extends Seeder
     {
         // ── 1. Designations ───────────────────────────────────────────────
         $designations = [
-            ['name' => 'Principal',          'employee_type' => 'teacher', 'hierarchy_level' => 1],
-            ['name' => 'Asst. Principal',    'employee_type' => 'teacher', 'hierarchy_level' => 2],
-            ['name' => 'Senior Teacher',     'employee_type' => 'teacher', 'hierarchy_level' => 3],
-            ['name' => 'Assistant Teacher',  'employee_type' => 'teacher', 'hierarchy_level' => 4],
-            ['name' => 'Junior Teacher',     'employee_type' => 'teacher', 'hierarchy_level' => 5],
-            ['name' => 'Office Manager',     'employee_type' => 'staff',   'hierarchy_level' => 1],
-            ['name' => 'Accountant',         'employee_type' => 'staff',   'hierarchy_level' => 2],
-            ['name' => 'Lab Assistant',      'employee_type' => 'staff',   'hierarchy_level' => 3],
-            ['name' => 'Office Assistant',   'employee_type' => 'staff',   'hierarchy_level' => 4],
-            ['name' => 'Peon',               'employee_type' => 'staff',   'hierarchy_level' => 5],
-        ];
+                            ['name' => 'Principal',          'employee_type' => 'teacher', 'hierarchy_level' => 1],
+                            ['name' => 'Assistant Teacher',  'employee_type' => 'teacher', 'hierarchy_level' => 2],
+                            ['name' => 'Admin Officer',      'employee_type' => 'staff',   'hierarchy_level' => 1],
+                            ['name' => 'Account Officer',    'employee_type' => 'staff',   'hierarchy_level' => 2],
+                            ['name' => 'SRO',                'employee_type' => 'staff',   'hierarchy_level' => 3],
+                            ['name' => 'Computer Operator',  'employee_type' => 'staff',   'hierarchy_level' => 4],
+                            ['name' => 'Office Assistant',   'employee_type' => 'staff',   'hierarchy_level' => 5],
+                            ['name' => 'Aya',                'employee_type' => 'staff',   'hierarchy_level' => 6],
+                            ['name' => 'Security Guard',     'employee_type' => 'staff',   'hierarchy_level' => 7],
+                            ['name' => 'Driver',             'employee_type' => 'staff',   'hierarchy_level' => 8],
+                        ];
 
         $desigMap = [];
         foreach ($designations as $d) {
@@ -73,20 +73,40 @@ class HrSeeder extends Seeder
 
         // ── 3. Employees ──────────────────────────────────────────────────
         $employees = [
-            ['id' => 'EMP-001', 'name' => 'Dr. Rafiqul Islam',    'desig' => 'Principal',         'type' => 'teacher', 'dept' => 'Administration', 'gender' => 'male',   'dob' => '1970-05-15', 'joining' => '2010-01-01'],
-            ['id' => 'EMP-002', 'name' => 'Nasrin Akter',         'desig' => 'Asst. Principal',   'type' => 'teacher', 'dept' => 'Administration', 'gender' => 'female', 'dob' => '1975-08-20', 'joining' => '2012-03-01'],
-            ['id' => 'EMP-003', 'name' => 'Md. Kamal Hossain',    'desig' => 'Senior Teacher',    'type' => 'teacher', 'dept' => 'Science',        'gender' => 'male',   'dob' => '1978-11-10', 'joining' => '2013-06-01'],
-            ['id' => 'EMP-004', 'name' => 'Fatema Begum',         'desig' => 'Senior Teacher',    'type' => 'teacher', 'dept' => 'Mathematics',    'gender' => 'female', 'dob' => '1980-03-25', 'joining' => '2014-01-01'],
-            ['id' => 'EMP-005', 'name' => 'Md. Jahangir Alam',    'desig' => 'Assistant Teacher', 'type' => 'teacher', 'dept' => 'English',        'gender' => 'male',   'dob' => '1985-07-12', 'joining' => '2015-07-01'],
-            ['id' => 'EMP-006', 'name' => 'Roksana Khanam',       'desig' => 'Assistant Teacher', 'type' => 'teacher', 'dept' => 'Bengali',        'gender' => 'female', 'dob' => '1987-09-18', 'joining' => '2016-01-01'],
-            ['id' => 'EMP-007', 'name' => 'Md. Shahinur Rahman',  'desig' => 'Junior Teacher',    'type' => 'teacher', 'dept' => 'Social Science', 'gender' => 'male',   'dob' => '1990-02-28', 'joining' => '2018-01-01'],
-            ['id' => 'EMP-008', 'name' => 'Sumaiya Islam',        'desig' => 'Junior Teacher',    'type' => 'teacher', 'dept' => 'Religion',       'gender' => 'female', 'dob' => '1992-06-14', 'joining' => '2019-06-01'],
-            ['id' => 'EMP-009', 'name' => 'Md. Rezaul Karim',     'desig' => 'Office Manager',    'type' => 'staff',   'dept' => 'Administration', 'gender' => 'male',   'dob' => '1975-12-05', 'joining' => '2011-01-01'],
-            ['id' => 'EMP-010', 'name' => 'Taslima Akter',        'desig' => 'Accountant',        'type' => 'staff',   'dept' => 'Finance',        'gender' => 'female', 'dob' => '1983-04-22', 'joining' => '2014-07-01'],
-            ['id' => 'EMP-011', 'name' => 'Md. Abul Kalam',       'desig' => 'Lab Assistant',     'type' => 'staff',   'dept' => 'Science',        'gender' => 'male',   'dob' => '1988-10-30', 'joining' => '2016-06-01'],
-            ['id' => 'EMP-012', 'name' => 'Shirin Akter',         'desig' => 'Office Assistant',  'type' => 'staff',   'dept' => 'Administration', 'gender' => 'female', 'dob' => '1993-01-17', 'joining' => '2020-01-01'],
-            ['id' => 'EMP-013', 'name' => 'Md. Rahim Mia',        'desig' => 'Peon',              'type' => 'staff',   'dept' => 'General',        'gender' => 'male',   'dob' => '1985-08-08', 'joining' => '2015-01-01'],
-        ];
+                        ['id'=>'EMP-001','name'=>'Md. Raqib Hossain','desig'=>'Principal','type'=>'teacher','dept'=>'Administration','gender'=>'male','phone'=>'01630100775','dob'=>null,'joining'=>'2024-12-01'],
+                        ['id'=>'EMP-002','name'=>'Towhidul Islam','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'male','phone'=>'01839078370','dob'=>null,'joining'=>'2024-09-10'],
+                        ['id'=>'EMP-003','name'=>'Yeasmin Akter','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'female','phone'=>'01829433094','dob'=>null,'joining'=>'2024-09-10'],
+                        ['id'=>'EMP-004','name'=>'Azma Rashid Ema','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'female','phone'=>'01890495520','dob'=>null,'joining'=>'2024-09-10'],
+                        ['id'=>'EMP-005','name'=>'Resmi Chakraborty','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'female','phone'=>'01612393997','dob'=>null,'joining'=>'2024-11-10'],
+                        ['id'=>'EMP-006','name'=>'Helal Uddin','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'male','phone'=>'01629565777','dob'=>null,'joining'=>'2024-12-01'],
+                        ['id'=>'EMP-007','name'=>'Sanjida Lipi','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'female','phone'=>'01815184142','dob'=>null,'joining'=>'2024-12-01'],
+                        ['id'=>'EMP-008','name'=>'Akhi Sultana','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'female','phone'=>'01865221422','dob'=>null,'joining'=>'2024-12-01'],
+                        ['id'=>'EMP-009','name'=>'Tinni Das','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'female','phone'=>'01621942382','dob'=>null,'joining'=>'2025-01-01'],
+                        ['id'=>'EMP-010','name'=>'Tonnita Chakraborty','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'female','phone'=>'01882371856','dob'=>null,'joining'=>'2025-01-06'],
+                        ['id'=>'EMP-011','name'=>'Hafz Md Ismail','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'male','phone'=>'01856859140','dob'=>null,'joining'=>'2025-01-04'],
+                        ['id'=>'EMP-012','name'=>'Hafz Nujrul Islam Sayem','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'male','phone'=>'01605774240','dob'=>null,'joining'=>'2025-01-09'],
+                        ['id'=>'EMP-013','name'=>'Ayesha Jahan Papri','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'female','phone'=>'01791230698','dob'=>null,'joining'=>'2025-01-15'],
+                        ['id'=>'EMP-014','name'=>'Asak Alahe Forhed','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'male','phone'=>'01882053885','dob'=>null,'joining'=>'2025-01-19'],
+                        ['id'=>'EMP-015','name'=>'Any Paul','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'female','phone'=>'01840272917','dob'=>null,'joining'=>'2026-01-01'],
+                        ['id'=>'EMP-016','name'=>'Md. Atahur Rahman','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'male','phone'=>'01831328579','dob'=>null,'joining'=>'2025-08-17'],
+                        ['id'=>'EMP-017','name'=>'Md. Elias','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'male','phone'=>'01858578118','dob'=>null,'joining'=>'2026-01-20'],
+                        ['id'=>'EMP-018','name'=>'Orni Chodhury','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'female','phone'=>'01643516814','dob'=>null,'joining'=>'2026-04-01'],
+                        ['id'=>'EMP-019','name'=>'Showkatul Islam','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'male','phone'=>'01850314709','dob'=>null,'joining'=>'2026-04-22'],
+                        ['id'=>'EMP-020','name'=>'Reba Chodhury','desig'=>'Assistant Teacher','type'=>'teacher','dept'=>'General','gender'=>'female','phone'=>'01897046304','dob'=>null,'joining'=>'2026-04-22'],
+                        ['id'=>'EMP-021','name'=>'Md. Hasanul Akbar','desig'=>'Admin Officer','type'=>'staff','dept'=>'Administration','gender'=>'male','phone'=>'01838584458','dob'=>null,'joining'=>'2025-06-01'],
+                        ['id'=>'EMP-022','name'=>'Mehedi Hasan','desig'=>'Account Officer','type'=>'staff','dept'=>'Finance','gender'=>'male','phone'=>'01604900109','dob'=>null,'joining'=>'2025-01-19'],
+                        ['id'=>'EMP-023','name'=>'Tofaituj Jannat (Shammi)','desig'=>'SRO','type'=>'staff','dept'=>'Administration','gender'=>'female','phone'=>'01846002583','dob'=>null,'joining'=>'2025-01-19'],
+                        ['id'=>'EMP-024','name'=>'Md. Arif','desig'=>'Computer Operator','type'=>'staff','dept'=>'IT','gender'=>'male','phone'=>'01893397845','dob'=>null,'joining'=>'2025-08-17'],
+                        ['id'=>'EMP-025','name'=>'Khadija Akter','desig'=>'Aya','type'=>'staff','dept'=>'General','gender'=>'female','phone'=>'01585815972','dob'=>null,'joining'=>'2024-12-01'],
+                        ['id'=>'EMP-026','name'=>'Sarmin Akter','desig'=>'Aya','type'=>'staff','dept'=>'General','gender'=>'female','phone'=>'01888372864','dob'=>null,'joining'=>'2024-12-15'],
+                        ['id'=>'EMP-027','name'=>'Shilpi Acharjee','desig'=>'Office Assistant','type'=>'staff','dept'=>'Administration','gender'=>'female','phone'=>'01621942382','dob'=>null,'joining'=>'2025-01-04'],
+                        ['id'=>'EMP-028','name'=>'Baby Das','desig'=>'Office Assistant','type'=>'staff','dept'=>'Administration','gender'=>'female','phone'=>'01864693491','dob'=>null,'joining'=>'2025-01-06'],
+                        ['id'=>'EMP-029','name'=>'Jakir Hossain','desig'=>'Security Guard','type'=>'staff','dept'=>'Security','gender'=>'male','phone'=>'01856642027','dob'=>null,'joining'=>'2024-12-10'],
+                        ['id'=>'EMP-030','name'=>'Mohammed Hosain','desig'=>'Security Guard','type'=>'staff','dept'=>'Security','gender'=>'male','phone'=>'01831836658','dob'=>null,'joining'=>'2024-12-22'],
+                        ['id'=>'EMP-031','name'=>'Md. Rasel','desig'=>'Driver','type'=>'staff','dept'=>'Transport','gender'=>'male','phone'=>'01319258233','dob'=>null,'joining'=>'2025-01-05'],
+                        ['id'=>'EMP-032','name'=>'Md. Unas','desig'=>'Driver','type'=>'staff','dept'=>'Transport','gender'=>'male','phone'=>'01848363213','dob'=>null,'joining'=>'2025-01-05'],
+                        ['id'=>'EMP-033','name'=>'Md. Abdullah','desig'=>'Driver','type'=>'staff','dept'=>'Transport','gender'=>'male','phone'=>null,'dob'=>null,'joining'=>null],
+                    ];
 
         $empMap = [];
         foreach ($employees as $e) {
@@ -107,7 +127,7 @@ class HrSeeder extends Seeder
                     'dob'            => $e['dob'],
                     'joining_date'   => $e['joining'],
                     'status'         => 'active',
-                    'phone'          => '017' . rand(10000000, 99999999),
+                    'phone'          => $e['phone'] ?? null,
                 ]
             );
             $empMap[$e['id']] = ['model' => $emp, 'desig' => $e['desig']];

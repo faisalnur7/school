@@ -17,7 +17,7 @@ class CommonController extends Controller
     public function load_section_groups(Request $request)
     {
         $data['sections'] = Section::query()->where('school_class_id',$request->school_class_id)->get();
-        $data['groups'] = Group::query()->where('school_class_id',$request->school_class_id)->get();
+        $data['groups'] = Group::all();
 
         return $data;
     }

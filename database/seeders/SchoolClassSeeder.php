@@ -32,12 +32,10 @@ class SchoolClassSeeder extends Seeder
 
             if (in_array($className, $groupClasses)) {
                 foreach ($groups as $group) {
-                    Group::firstOrCreate([
-                        'school_class_id' => $class->id,
-                        'name_en'         => $group,
-                    ], [
-                        'name_bn' => $group
-                    ]);
+                    Group::firstOrCreate(
+                        ['name_en' => $group],
+                        ['name_bn' => $group]
+                    );
                 }
             }
         }
