@@ -14,8 +14,14 @@ class IncomeCategorySeeder extends Seeder
             ['name' => 'Admission Fee',   'slug' => 'admission-fee'],
             ['name' => 'Exam Fee',        'slug' => 'exam-fee'],
             ['name' => 'Transport Fee',   'slug' => 'transport-fee'],
-            ['name' => 'Donation',        'slug' => 'donation'],
+            ['name' => 'Gift & Donation', 'slug' => 'donation'],
             ['name' => 'Canteen Income',  'slug' => 'canteen-income'],
+            ['name' => 'Stationery',      'slug' => 'stationery'],
+            ['name' => 'Books',           'slug' => 'books'],
+            ['name' => 'School Bag',      'slug' => 'school-bag'],
+            ['name' => 'Student Uniform', 'slug' => 'student-uniform'],
+            ['name' => 'Admission Form',  'slug' => 'admission-form'],
+            ['name' => 'Sports Dress',    'slug' => 'sports-dress'],
         ];
 
         foreach ($categories as $category) {

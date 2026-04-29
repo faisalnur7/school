@@ -17,15 +17,22 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         $employees = Employee::with(['designation', 'department'])
-            ->when($request->search, fn($q) =>
-                $q->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('employee_id', 'like', "%{$request->search}%")
-            )
-            ->when($request->employee_type, fn($q) => $q->where('employee_type', $request->employee_type))
-            ->when($request->designation_id, fn($q) => $q->where('designation_id', $request->designation_id))
-            ->when($request->status, fn($q) => $q->where('status', $request->status))
-            ->when($request->missing_salary, fn($q) => $q->doesntHave('salaryStructure'))
-            ->latest()->paginate(20)->withQueryString();
+                        ->leftJoin('designations', 'employees.designation_id', '=', 'designations.id')
+                        ->when($request->search, fn($q) =>
+                            $q->where(function ($query) use ($request) {
+                                $query->where('employees.name', 'like', "%{$request->search}%")
+                                    ->orWhere('employees.employee_id', 'like', "%{$request->search}%");
+                            })
+                        )
+                        ->when($request->employee_type, fn($q) => $q->where('employees.employee_type', $request->employee_type))
+                        ->when($request->designation_id, fn($q) => $q->where('employees.designation_id', $request->designation_id))
+                        ->when($request->status, fn($q) => $q->where('employees.status', $request->status))
+                        ->when($request->missing_salary, fn($q) => $q->doesntHave('salaryStructure'))
+                        ->orderBy('designations.hierarchy_level', 'asc')
+                        ->orderBy('id', 'asc')
+                        ->select('employees.*')
+                        ->paginate(20)
+                        ->withQueryString();
 
         $designations = Designation::active()->orderBy('name')->get();
         return view('hr.employees.index', compact('employees', 'designations'));

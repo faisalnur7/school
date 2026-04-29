@@ -22,7 +22,7 @@ class StoreEmployeeRequest extends FormRequest
             'gender'               => 'required|in:male,female,other',
             'phone'                => 'nullable|string|max:20',
             'address'              => 'nullable|string',
-            'joining_date'         => 'required|date',
+            'joining_date'         => 'nullable|date',
             'photo'                => 'nullable|image|max:2048',
         ];
     }

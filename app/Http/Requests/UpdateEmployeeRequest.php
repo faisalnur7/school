@@ -23,7 +23,7 @@ class UpdateEmployeeRequest extends FormRequest
             'gender'               => 'required|in:male,female,other',
             'phone'                => 'nullable|string|max:20',
             'address'              => 'nullable|string',
-            'joining_date'         => 'required|date',
+            'joining_date'         => 'nullable|date',
             'status'               => 'required|in:active,inactive',
             'photo'                => 'nullable|image|max:2048',
         ];
