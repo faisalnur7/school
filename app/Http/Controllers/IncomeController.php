@@ -84,22 +84,6 @@ class IncomeController extends Controller
             'recorded_by'          => auth()->id(),
         ]);
 
-        if ($income->account_type && $income->account_id) {
-            AccountTransaction::record(
-                $income->account_type,
-                $income->account_id,
-                'credit',
-                $income->amount,
-                'income',
-                $income->reference_no,
-                $income->description,
-                $income->income_date,
-                Income::class,
-                $income->id,
-                auth()->id()
-            );
-        }
-
         JournalService::postSafe(
             $income->income_date->toDateString(),
             $income->title,

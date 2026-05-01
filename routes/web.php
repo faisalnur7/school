@@ -565,10 +565,13 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('payroll', [\App\Http\Controllers\HR\PayrollController::class, 'index'])->name('payroll.index');
         Route::post('payroll/preview', [\App\Http\Controllers\HR\PayrollController::class, 'preview'])->name('payroll.preview');
         Route::post('payroll/generate', [\App\Http\Controllers\HR\PayrollController::class, 'generate'])->name('payroll.generate');
-        Route::get('payroll/{month}/{year}', [\App\Http\Controllers\HR\PayrollController::class, 'show'])->name('payroll.show');
+        Route::get('payroll/{id}/slip', [\App\Http\Controllers\HR\PayrollController::class, 'slip'])->name('payroll.slip');
+        Route::get('payroll/{month}/{year}', [\App\Http\Controllers\HR\PayrollController::class, 'show'])
+            ->whereNumber('month')
+            ->whereNumber('year')
+            ->name('payroll.show');
         Route::patch('payroll/{id}/paid', [\App\Http\Controllers\HR\PayrollController::class, 'markPaid'])->name('payroll.paid');
         Route::post('payroll/lock', [\App\Http\Controllers\HR\PayrollController::class, 'lock'])->name('payroll.lock');
-        Route::get('payroll/{id}/slip', [\App\Http\Controllers\HR\PayrollController::class, 'slip'])->name('payroll.slip');
 
         // Leave
         Route::get('leave', [\App\Http\Controllers\HR\LeaveController::class, 'index'])->name('leave.index');

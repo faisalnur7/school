@@ -9,7 +9,6 @@ use App\Models\BankAccount;
 use App\Models\MobileBankingAccount;
 use App\Models\HandCash;
 use App\Models\ExpenseCategory;
-use App\Models\AccountTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -101,20 +100,6 @@ class AssetPurchaseController extends Controller
                 'account_type'   => $accountType,
                 'account_id'     => $request->account_id,
             ]);
-
-            AccountTransaction::record(
-                $accountType,
-                $request->account_id,
-                'debit',
-                $totalAmount,
-                'expense',
-                $reference,
-                'Asset purchase ref: ' . $reference,
-                now(),
-                AssetPurchase::class,
-                $purchase->id,
-                auth()->id()
-            );
 
             DB::commit();
 

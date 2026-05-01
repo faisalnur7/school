@@ -36,8 +36,14 @@ class PayrollController extends Controller
             ->with('success', "Generated {$result['created']} payrolls. Skipped: {$result['skipped']}.");
     }
 
-    public function show(int $month, int $year)
+    public function show($month, $year)
     {
+        $month = max(1, min(12, (int) $month));
+        $year  = (int) $year;
+        if ($year < 2000) {
+            $year = (int) now()->year;
+        }
+
         $payrolls = HrPayroll::forMonth($month, $year)->with('employee.designation')->get();
         $summary  = $this->service->getSummary($month, $year);
         return view('hr.payroll.show', compact('payrolls', 'month', 'year', 'summary'));

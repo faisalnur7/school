@@ -137,7 +137,7 @@ class TransportController extends Controller
             $query->where('group_id', $request->group_id);
         }
 
-        $students = $query->get();
+        $students = $query->orderBy('roll', 'asc')->get();
         $feeCategory = FeeCategory::where('is_transport',1)->first();
         $existingTransports = Transport::where('academic_session_id', $request->academic_session_id)
             ->where('fee_category_id', $feeCategory->id)
@@ -154,6 +154,7 @@ class TransportController extends Controller
                 'class' => $info->schoolClass->name_en,
                 'section' => $info->section->name_en ?? 'N/A',
                 'group' => $info->group->name_en ?? 'N/A',
+                'roll' => $info->roll,
                 'existing_transport' => $existing ? [
                     'amount' => $existing->amount,
                     'status' => $existing->status,

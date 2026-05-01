@@ -19,11 +19,20 @@ use App\Models\PaymentItem;
 use App\Models\IncomeCategory;
 use App\Models\Transport;
 use App\Models\Scholarship;
-use App\Models\AccountTransaction;
-use App\Traits\HasTransactions;
 
 class FeeCollectionController extends Controller
 {
+    private function normalizePaymentMethod(?string $method): string
+    {
+        return match (strtolower((string) $method)) {
+            'cash' => 'Cash',
+            'bank', 'bank transfer', 'bank_transfer' => 'Bank Transfer',
+            'mobile', 'mobile banking', 'mobile_banking', 'mobile wallet', 'mobile_wallet' => 'Mobile Banking',
+            'cheque', 'check' => 'Cheque',
+            default => 'Other',
+        };
+    }
+
     public function index(Request $request)
     {
         $classes = SchoolClass::all();
@@ -181,7 +190,9 @@ class FeeCollectionController extends Controller
         $request->validate([
             'fees'           => 'required|array',
             'fees.*'         => 'exists:fees,id',
-            'payment_method' => 'nullable|string',
+            'payment_method' => 'nullable|string|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other,cash,bank,mobile_wallet',
+            'account_type'   => 'nullable|in:App\\Models\\HandCash,App\\Models\\BankAccount,App\\Models\\MobileBankingAccount',
+            'account_id'     => 'nullable|integer',
         ]);
 
         DB::beginTransaction();
@@ -243,6 +254,8 @@ class FeeCollectionController extends Controller
                 return response()->json(['message' => 'Selected fees are already paid'], 422);
             }
 
+            $paymentMethod = $this->normalizePaymentMethod($request->payment_method);
+
             $payment = Payment::create([
                 'student_id'         => $studentId,
                 'amount'             => $finalAmount,
@@ -251,7 +264,7 @@ class FeeCollectionController extends Controller
                 'discount_type'      => $cartDiscount > 0 ? ($request->discount_type ?? 'flat') : null,
                 'discount_amount'    => $cartDiscount,
                 'payment_date'    => now(),
-                'payment_method'  => $request->payment_method ?? 'Cash',
+                'payment_method'  => $paymentMethod,
                 'account_type'    => $request->account_type ?? null,
                 'account_id'      => $request->account_id ?? null,
                 'receipt_no'      => 'R-' . now()->format('Ymd') . '-' . str_pad(
@@ -262,6 +275,9 @@ class FeeCollectionController extends Controller
             ]);
 
             // ── Pass 2: create PaymentItems distributing cart discount proportionally ──
+            $studentPaymentAmount  = 0.0;
+            $transportPaymentAmount = 0.0;
+
             foreach ($fees as $fee) {
                 $netAfterScholarship = $feeNetAmounts[$fee->id] ?? 0;
                 if ($netAfterScholarship <= 0) continue;
@@ -280,6 +296,32 @@ class FeeCollectionController extends Controller
                     'amount'     => $netAmount,
                 ]);
 
+                // Split this fee payment by fee-set category type so accounting can post:
+                // - student-payment (regular heads)
+                // - transport-fee (transport heads)
+                $transportBase = 0.0;
+                $regularBase   = 0.0;
+                foreach ($fee->feeSet->items as $item) {
+                    if (($item->category->is_transport ?? 0) == 1) {
+                        $transportBase += (float) $item->amount;
+                    } else {
+                        $regularBase += (float) $item->amount;
+                    }
+                }
+
+                $totalBase = $transportBase + $regularBase;
+                if ($totalBase > 0) {
+                    $transportShare = round($netAmount * ($transportBase / $totalBase), 2);
+                    $regularShare   = round($netAmount - $transportShare, 2);
+                } else {
+                    // Fallback: treat unknown composition as regular student payment.
+                    $transportShare = 0.0;
+                    $regularShare   = (float) $netAmount;
+                }
+
+                $transportPaymentAmount += $transportShare;
+                $studentPaymentAmount   += $regularShare;
+
                 $feeScholarship = ($fee->amount - $fee->paid_amount) - $netAfterScholarship;
                 $netDue = max(0, $fee->amount - $feeScholarship - $feeCartDiscount);
                 $fee->paid_amount += $netAmount;
@@ -287,29 +329,28 @@ class FeeCollectionController extends Controller
                 $fee->save();
             }
 
-            $category = IncomeCategory::where('slug', 'student-payment')->firstOrFail();
-            $title = 'Student Payment';
+            // Post regular student fees
+            if ($studentPaymentAmount > 0) {
+                $category = IncomeCategory::where('slug', 'student-payment')->firstOrFail();
+                $payment->recordIncome($category->id, 'Student Payment', [
+                    'amount'         => $studentPaymentAmount,
+                    'payment_method' => $paymentMethod,
+                    'account_type'   => $payment->account_type,
+                    'account_id'     => $payment->account_id,
+                    'description'    => "Student fee payment for student ID {$studentId}",
+                ]);
+            }
 
-            $payment->recordIncome($category->id, $title, [
-                'amount'         => $finalAmount,
-                'payment_method' => $payment->payment_method,
-                'description'    => "Fee payment for student ID {$studentId}",
-            ]);
-
-            if ($payment->account_type && $payment->account_id) {
-                AccountTransaction::record(
-                    $payment->account_type,
-                    $payment->account_id,
-                    'credit',
-                    $finalAmount,
-                    'student_payment',
-                    $payment->receipt_no,
-                    "Fee payment for student ID {$studentId}",
-                    now(),
-                    Payment::class,
-                    $payment->id,
-                    auth()->id()
-                );
+            // Post transport fees separately
+            if ($transportPaymentAmount > 0) {
+                $category = IncomeCategory::where('slug', 'transport-fee')->firstOrFail();
+                $payment->recordIncome($category->id, 'Transport Fee', [
+                    'amount'         => $transportPaymentAmount,
+                    'payment_method' => $paymentMethod,
+                    'account_type'   => $payment->account_type,
+                    'account_id'     => $payment->account_id,
+                    'description'    => "Transport fee payment for student ID {$studentId}",
+                ]);
             }
 
             DB::commit();

@@ -13,7 +13,7 @@ class SalaryStructureController extends Controller
     public function index()
     {
         $structures = SalaryStructure::with(['employee.designation'])
-            ->orderByDesc('effective_from')->paginate(20);
+            ->orderBy('designation_id')->paginate(20);
         return view('hr.salary.index', compact('structures'));
     }
 

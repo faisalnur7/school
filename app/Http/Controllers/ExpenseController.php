@@ -84,22 +84,6 @@ class ExpenseController extends Controller
             'recorded_by'          => auth()->id(),
         ]);
 
-        if ($expense->account_type && $expense->account_id) {
-            AccountTransaction::record(
-                $expense->account_type,
-                $expense->account_id,
-                'debit',
-                $expense->amount,
-                'expense',
-                $expense->reference_no,
-                $expense->description,
-                $expense->expense_date,
-                Expense::class,
-                $expense->id,
-                auth()->id()
-            );
-        }
-
         JournalService::postSafe(
             $expense->expense_date->toDateString(),
             $expense->title,

@@ -28,6 +28,7 @@
                             <thead style="background:#f8fafc">
                                 <tr>
                                     <th width="10%">Student ID</th>
+                                    <th width="10%">Roll</th>
                                     <th width="25%">Student Name</th>
                                     <th width="15%">Amount (৳)</th>
                                     <th width="15%">Status</th>
@@ -92,6 +93,7 @@
                     html += `
                         <tr data-student-id="${student.student_id}">
                             <td>${student.student_cid}</td>
+                            <td>${student.roll}</td>
                             <td>${student.name}</td>
                             <td>
                                 <input type="number" class="form-control transport-amount" 

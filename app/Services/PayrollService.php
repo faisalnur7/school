@@ -8,12 +8,34 @@ use App\Models\HrPayroll;
 use App\Models\HrTransaction;
 use App\Models\Expense;
 use App\Models\Transaction;
+use App\Models\BankAccount;
+use App\Models\HandCash;
+use App\Models\MobileBankingAccount;
 use App\Services\JournalService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class PayrollService
 {
+    private function toExpensePaymentMethod(string $method): string
+    {
+        return match ($method) {
+            'bank'          => 'Bank Transfer',
+            'mobile_wallet' => 'Mobile Banking',
+            'cash'          => 'Cash',
+            default         => 'Other',
+        };
+    }
+
+    private function resolvePayoutSource(string $method): array
+    {
+        return match ($method) {
+            'bank' => [BankAccount::class, (int) BankAccount::where('is_active', true)->value('id')],
+            'mobile_wallet' => [MobileBankingAccount::class, (int) MobileBankingAccount::where('is_active', true)->value('id')],
+            default => [HandCash::class, (int) HandCash::where('is_active', true)->value('id')],
+        };
+    }
+
     public function preview(int $month, int $year): array
     {
         $employees = Employee::active()->with(['salaryStructure', 'designation', 'paymentInformation'])->get();
@@ -52,6 +74,8 @@ class PayrollService
                 if ($exists) { $skipped++; continue; }
 
                 $method = $emp->paymentInformation?->payment_method ?? 'cash';
+                $expenseMethod = $this->toExpensePaymentMethod($method);
+                [$payoutAccountType, $payoutAccountId] = $this->resolvePayoutSource($method);
 
                 $payroll = HrPayroll::create([
                     'employee_id'     => $emp->id,
@@ -83,7 +107,9 @@ class PayrollService
                     'title'               => 'Salary — ' . $emp->name,
                     'reference_no'        => $reference,
                     'amount'              => $salary->net_salary,
-                    'payment_method'      => $method,
+                    'payment_method'      => $expenseMethod,
+                    'account_type'        => $payoutAccountId ? $payoutAccountType : null,
+                    'account_id'          => $payoutAccountId ?: null,
                     'description'         => 'Payroll ' . date('F', mktime(0,0,0,$month,1)) . ' ' . $year . ' | ' . $emp->employee_id,
                     'expense_date'        => $lastDay,
                     'recorded_by'         => auth()->id() ?? 1,
@@ -94,7 +120,7 @@ class PayrollService
                     'type'                => 'expense',
                     'expense_category_id' => $salaryCategoryId,
                     'amount'              => $salary->net_salary,
-                    'payment_method'      => $method,
+                    'payment_method'      => $expenseMethod,
                     'description'         => 'Salary — ' . $emp->name . ' (' . $emp->employee_id . ') ' . date('F', mktime(0,0,0,$month,1)) . ' ' . $year,
                     'transaction_date'    => $lastDay,
                     'transactionable_type'=> HrPayroll::class,
@@ -107,7 +133,7 @@ class PayrollService
                     'Salary — ' . $emp->name,
                     [
                         ['account_id' => Account::resolveForSource(ExpenseCategory::class, $salaryCategoryId), 'debit' => (float) $salary->net_salary, 'credit' => 0],
-                        ['account_id' => Account::resolveForSource(Employee::class, $emp->id),                 'debit' => 0, 'credit' => (float) $salary->net_salary],
+                        ['account_id' => Account::resolveForSource($payoutAccountType, $payoutAccountId),      'debit' => 0, 'credit' => (float) $salary->net_salary],
                     ],
                     HrPayroll::class,
                     $payroll->id,

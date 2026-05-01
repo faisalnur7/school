@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
             // AccountingSeeder::class,
             DesignationSeeder::class,
             HrSeeder::class,
+            SalaryStructureForAllEmployeesSeeder::class,
             ShareHolderSeeder::class,
             BudgetAllocationSeeder::class,
             ProfessionSeeder::class,
@@ -44,5 +45,11 @@ class DatabaseSeeder extends Seeder
             ProfessionSeeder::class,
             StudentSeeder::class,
         ]);
+
+        if (app()->environment(['local', 'development'])) {
+            $this->call([
+                DemoAccountingSeeder::class,
+            ]);
+        }
     }
 }
