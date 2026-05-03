@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AssetIssue extends Model
 {
     protected $fillable = [
-        'asset_id', 'issued_to', 'issued_to_type',
+        'asset_id', 'issued_to','department_id', 'issued_to_type',
         'quantity', 'issue_date', 'return_date',
         'status', 'notes', 'recorded_by',
     ];

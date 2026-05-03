@@ -4,7 +4,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header shadow p-3"><h3 class="card-title">Issue Asset</h3></div>
+                <div class="card-header shadow p-3"><h3 class="card-title text-white font-bold text-lg">Issue Asset</h3></div>
                 <form method="POST" action="{{ route('asset-issues.store') }}">
                     @csrf
                     <div class="card-body">
@@ -24,9 +24,22 @@
                         </div>
 
                         <div class="form-group">
+                            <label>Department <span class="text-danger">*</span></label>
+                            <select name="department_id" class="form-control @error('department_id') is-invalid @enderror" required>
+                                <option value="">Select Department</option>
+                                @foreach($departments as $d)
+                                    <option value="{{ $d->id }}" {{ old('department_id') == $d->id ? 'selected' : '' }}>
+                                        {{ $d->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('department_id')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                        </div>
+
+                        <div class="form-group">
                             <label>Issued To <span class="text-danger">*</span></label>
                             <input type="text" name="issued_to" class="form-control @error('issued_to') is-invalid @enderror"
-                                   value="{{ old('issued_to') }}" placeholder="Name / Department" required>
+                                   value="{{ old('issued_to') }}" placeholder="Name of the person" required>
                             @error('issued_to')<span class="invalid-feedback">{{ $message }}</span>@enderror
                         </div>
 

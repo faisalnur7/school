@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class SchoolClass extends Model
 {
@@ -11,4 +12,11 @@ class SchoolClass extends Model
         'name_bn',
         'status',
     ];
+
+    public function subjects(): BelongsToMany
+    {
+        return $this->belongsToMany(Subject::class, 'subject_class_assignments', 'school_class_id', 'subject_id')
+            ->withPivot(['group_id', 'gender', 'religion', 'is_optional', 'is_compulsory', 'exclusive_group_key'])
+            ->withTimestamps();
+    }
 }

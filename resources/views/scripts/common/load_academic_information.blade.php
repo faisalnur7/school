@@ -1,10 +1,9 @@
 <script>
 $(document).ready(function() {
 
-    function loadSectionsAndGroups(classId, selectedSection = null, selectedGroup = null) {
+    function loadSectionsAndGroups(classId, selectedSection = null) {
 
         $('#sectionSelect').html('<option value="">Loading...</option>');
-        $('#groupSelect').html('<option value="">Loading...</option>');
 
         if(classId) {
             $.ajax({
@@ -25,24 +24,10 @@ $(document).ready(function() {
                     });
 
                     $('#sectionSelect').html(sectionOptions);
-
-
-                    /* Groups */
-                    let groupOptions = '<option value="">All Groups</option>';
-
-                    $.each(response.groups, function(index, group) {
-                        let selected = (selectedGroup == group.id) ? 'selected' : '';
-                        groupOptions += `<option value="${group.id}" ${selected}>
-                                                ${group.name_en}
-                                         </option>`;
-                    });
-
-                    $('#groupSelect').html(groupOptions);
                 }
             });
         } else {
             $('#sectionSelect').html('<option value="">All Sections</option>');
-            $('#groupSelect').html('<option value="">All Groups</option>');
         }
     }
 
@@ -57,10 +42,9 @@ $(document).ready(function() {
     /* Load from URL parameters */
     let classId        = "{{ request('school_class_id') }}";
     let sectionId      = "{{ request('section_id') }}";
-    let groupId        = "{{ request('group_id') }}";
 
     if(classId) {
-        loadSectionsAndGroups(classId, sectionId, groupId);
+        loadSectionsAndGroups(classId, sectionId);
     }
 
 });

@@ -12,7 +12,7 @@ use App\Http\Controllers\{
     ExpenseController,
     BankAccountController,
     MobileBankingAccountController,
-    HandCashController,    
+    HandCashController,
     DashboardController,
     SchoolClassController,
     SectionController,
@@ -84,7 +84,9 @@ use App\Http\Controllers\{
     PoliceStationController,
     PostOfficeController,
     ProfileController,
-    StudentDueReportController
+    StudentDueReportController,
+    BuildingController,
+    RoomController
 };
 
 
@@ -155,9 +157,16 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/subjects', [SubjectController::class, 'index'])->name('subjects.index');
     Route::get('/subjects/create', [SubjectController::class, 'create'])->name('subjects.create');
     Route::post('/subjects/store', [SubjectController::class, 'store'])->name('subjects.store');
-    Route::get('/subjects/{id}/edit', [SubjectController::class, 'edit'])->name('subjects.edit');
-    Route::post('/subjects/{id}/update', [SubjectController::class, 'update'])->name('subjects.update');
-    Route::delete('/subjects/{id}/delete', [SubjectController::class, 'destroy'])->name('subjects.delete');
+    Route::get('/subjects/{subject}', [SubjectController::class, 'show'])->name('subjects.show');
+    Route::get('/subjects/{subject}/edit', [SubjectController::class, 'edit'])->name('subjects.edit');
+    Route::put('/subjects/{subject}', [SubjectController::class, 'update'])->name('subjects.update');
+    Route::delete('/subjects/{subject}', [SubjectController::class, 'destroy'])->name('subjects.delete');
+    Route::post('/subjects/{subject}/toggle-status', [SubjectController::class, 'toggleStatus'])->name('subjects.toggle-status');
+    Route::delete('/subjects/assignment/{id}', [SubjectController::class, 'removeAssignment'])->name('subjects.removeAssignment');
+
+    // Subject Assignment routes
+    Route::post('/subjects/assign-to-class', [SubjectController::class, 'assignToClass'])->name('subjects.assign');
+    Route::get('/subjects/by-class', [SubjectController::class, 'getSubjectsByClass'])->name('subjects.by-class');
 
     Route::get('/routines', [RoutineController::class, 'index'])->name('routines.index');
     Route::get('/routines/create', [RoutineController::class, 'create'])->name('routines.create');
@@ -591,7 +600,9 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/school-settings', [\App\Http\Controllers\SchoolSettingController::class, 'index'])->name('school-settings.index');
     Route::put('/school-settings', [\App\Http\Controllers\SchoolSettingController::class, 'update'])->name('school-settings.update');
-    Route::resource('id-card-templates', \App\Http\Controllers\IdCardTemplateController::class)->except(['show']);
+     Route::resource('id-card-templates', \App\Http\Controllers\IdCardTemplateController::class)->except(['show']);
+     Route::resource('buildings', BuildingController::class)->except(['show']);
+     Route::resource('rooms', RoomController::class)->except(['show']);
 
     // ------------------- Journal Entries (read-only — auto-posted by system) -------------------
     Route::get('journal-entries', [\App\Http\Controllers\JournalEntryController::class, 'index'])->name('journal-entries.index');

@@ -159,6 +159,10 @@
                             @case('guardian_phone')
                                 {{ $student->guardian_phone ?? '—' }}
                                 @break
+                            
+                            @case('present_address')
+                                {{ $student->present_address ?? '—' }}
+                                @break
 
                             @case('status')
                                 {{ $student->status ? 'Active' : 'Inactive' }}

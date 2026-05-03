@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        $this->call([
+         $this->call([
             AcademicSessionSeeder::class,
             SchoolClassSeeder::class,
             FeeCategorySeeder::class,
@@ -31,25 +31,19 @@ class DatabaseSeeder extends Seeder
             ExpenseCategorySeeder::class,
             HandCashSeeder::class,
             BankAccountSeeder::class,
-            // MobileBankingAccountSeeder::class,
-            // AccountingSeeder::class,
+            MobileBankingAccountSeeder::class,
+            AccountingSeeder::class,
             DesignationSeeder::class,
             HrSeeder::class,
-            SalaryStructureForAllEmployeesSeeder::class,
-            ShareHolderSeeder::class,
+            DepartmentSeeder::class,
+            BuildingSeeder::class,
+            RoomSeeder::class,
             BudgetAllocationSeeder::class,
             ProfessionSeeder::class,
             AssetCategorySeeder::class,
             AssetSeeder::class,
-            BudgetAllocationSeeder::class,
-            ProfessionSeeder::class,
+            SubjectSeeder::class,
             StudentSeeder::class,
         ]);
-
-        if (app()->environment(['local', 'development'])) {
-            $this->call([
-                DemoAccountingSeeder::class,
-            ]);
-        }
     }
 }

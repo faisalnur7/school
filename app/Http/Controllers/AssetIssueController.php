@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Asset;
 use App\Models\AssetIssue;
+use App\Models\AssetCategory;
+use App\Models\Department;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -11,7 +13,7 @@ class AssetIssueController extends Controller
 {
     public function index(Request $request)
     {
-        $query = AssetIssue::with(['asset.category', 'recorder'])->latest('issue_date');
+        $query = AssetIssue::with(['asset.category', 'recorder','department'])->latest('issue_date');
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -21,16 +23,22 @@ class AssetIssueController extends Controller
             $query->where('asset_id', $request->asset_id);
         }
 
+        if ($request->filled('department_id')) {
+            $query->where('department_id', $request->department_id);
+        }
+
         $issues = $query->paginate(20)->withQueryString();
         $assets = Asset::where('status', 'active')->orderBy('name')->get();
+        $departments = Department::all();
 
-        return view('pages.asset-issues.index', compact('issues', 'assets'));
+        return view('pages.asset-issues.index', compact('issues', 'assets','departments'));
     }
 
     public function create()
     {
+        $departments = Department::all();
         $assets = Asset::where('status', 'active')->orderBy('name')->get();
-        return view('pages.asset-issues.create', compact('assets'));
+        return view('pages.asset-issues.create', compact('assets','departments'));
     }
 
     public function store(Request $request)
@@ -39,6 +47,7 @@ class AssetIssueController extends Controller
             'asset_id'       => 'required|exists:assets,id',
             'issued_to'      => 'required|string|max:255',
             'issued_to_type' => 'nullable|string|max:100',
+            'department_id'  => 'nullable|integer|max:100',
             'quantity'       => 'required|integer|min:1',
             'issue_date'     => 'required|date_format:d/m/Y',
             'notes'          => 'nullable|string',
@@ -53,6 +62,7 @@ class AssetIssueController extends Controller
         AssetIssue::create([
             'asset_id'       => $request->asset_id,
             'issued_to'      => $request->issued_to,
+            'department_id'  => $request->department_id,
             'issued_to_type' => $request->issued_to_type,
             'quantity'       => $request->quantity,
             'issue_date'     => Carbon::createFromFormat('d/m/Y', $request->issue_date)->format('Y-m-d'),
@@ -87,6 +97,8 @@ class AssetIssueController extends Controller
     public function stock()
     {
         $assets = Asset::with(['category', 'issues'])->where('status', 'active')->get();
-        return view('pages.asset-issues.stock', compact('assets'));
+        $assetCategories = AssetCategory::all();
+        $departments = Department::all();
+        return view('pages.asset-issues.stock', compact('assets','assetCategories','departments'));
     }
 }

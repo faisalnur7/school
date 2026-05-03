@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Asset extends Model
 {
-    protected $fillable = ['asset_category_id', 'name', 'description', 'quantity', 'purchase_price', 'current_value', 'status'];
+    protected $fillable = ['asset_category_id', 'room_id', 'name', 'description', 'quantity', 'purchase_price', 'current_value', 'status'];
 
     protected $casts = [
         'purchase_price' => 'decimal:2',
@@ -16,6 +16,11 @@ class Asset extends Model
     public function category()
     {
         return $this->belongsTo(AssetCategory::class, 'asset_category_id');
+    }
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class);
     }
 
     public function purchaseItems()

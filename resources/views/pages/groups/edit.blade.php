@@ -15,12 +15,14 @@
                         <div class="card-body">
                             <div class="form-group">
                                 <label>Name (English)</label>
-                                <input type="text" name="name_en" class="form-control" value="{{ $group->name_en }}" required>
+                                <input type="text" name="name_en" class="form-control" value="{{ $group->name_en }}"
+                                    required>
                             </div>
 
                             <div class="form-group">
                                 <label>Name (Bangla)</label>
-                                <input type="text" name="name_bn" class="form-control" value="{{ $group->name_bn }}" required>
+                                <input type="text" name="name_bn" class="form-control" value="{{ $group->name_bn }}"
+                                    required>
                             </div>
                         </div>
 

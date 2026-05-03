@@ -1,5 +1,6 @@
 <div class="card">
-    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
+    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3"
+       >
         <h3 class="card-title">Groups</h3>
         <a href="{{ route('groups.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
             + Add Group

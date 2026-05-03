@@ -16,16 +16,14 @@ class CommonController extends Controller
 {
     public function load_section_groups(Request $request)
     {
-        $data['sections'] = Section::query()->where('school_class_id',$request->school_class_id)->get();
-        $data['groups'] = Group::all();
-
-        return $data;
+        return [
+            'sections' => Section::where('school_class_id', $request->school_class_id)->get(),
+        ];
     }
 
     public function load_groups(Request $request)
     {
-        $data['groups'] = Group::query()->where('school_class_id',$request->school_class_id)->get();
-        return $data;
+        return ['groups' => Group::all()];
     }
 
     public function loadSections(Request $request)

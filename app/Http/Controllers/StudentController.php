@@ -44,6 +44,7 @@ class StudentController extends Controller
             'father_phone' => 'Father Phone',
             'mother_phone' => 'Mother Phone',
             'guardian_phone' => 'Guardian Phone',
+            'present_address' => 'Present Address',
             'status' => 'Status',
         ];
     }
@@ -81,20 +82,20 @@ class StudentController extends Controller
             });
         }
 
-        if ($request->filled('permanent_division_id')) {
-            $query->where('permanent_division_id', $request->permanent_division_id);
+        if ($request->filled('present_division_id')) {
+            $query->where('present_division_id', $request->present_division_id);
         }
 
-        if ($request->filled('permanent_district_id')) {
-            $query->where('permanent_district_id', $request->permanent_district_id);
+        if ($request->filled('present_district_id')) {
+            $query->where('present_district_id', $request->present_district_id);
         }
 
-        if ($request->filled('permanent_police_station_id')) {
-            $query->where('permanent_police_station_id', $request->permanent_police_station_id);
+        if ($request->filled('present_police_station_id')) {
+            $query->where('present_police_station_id', $request->present_police_station_id);
         }
 
-        if ($request->filled('permanent_post_office_id')) {
-            $query->where('permanent_post_office_id', $request->permanent_post_office_id);
+        if ($request->filled('present_post_office_id')) {
+            $query->where('present_post_office_id', $request->present_post_office_id);
         }
 
         if ($request->filled('phone')) {
@@ -180,34 +181,34 @@ class StudentController extends Controller
         $sections = Section::where('status', 1)->get();
         $groups = Group::where('status', 1)->get();
         $pdfColumnOptions = $this->pdfColumnOptions();
-        $divisions = Division::where('status', 1)->get();
-        
-        // Get districts based on selected division or all
-        if ($request->filled('permanent_division_id')) {
-            $districts = District::where('division_id', $request->permanent_division_id)
-                                ->where('status', 1)
-                                ->get();
-        } else {
-            $districts = District::where('status', 1)->get();
-        }
-        
-        // Get police stations based on selected district or all
-        if ($request->filled('permanent_district_id')) {
-            $policeStations = PoliceStation::where('district_id', $request->permanent_district_id)
-                                          ->where('status', 1)
-                                          ->get();
-        } else {
-            $policeStations = PoliceStation::where('status', 1)->get();
-        }
-        
-        // Get post offices based on selected police station or all
-        if ($request->filled('permanent_police_station_id')) {
-            $postOffices = PostOffice::where('police_station_id', $request->permanent_police_station_id)
-                                    ->where('status', 1)
-                                    ->get();
-        } else {
-            $postOffices = PostOffice::where('status', 1)->get();
-        }
+         $divisions = Division::where('status', 1)->get();
+         
+         // Get districts based on selected division or all
+         if ($request->filled('present_division_id')) {
+             $districts = District::where('division_id', $request->present_division_id)
+                                 ->where('status', 1)
+                                 ->get();
+         } else {
+             $districts = District::where('status', 1)->get();
+         }
+         
+         // Get police stations based on selected district or all
+         if ($request->filled('present_district_id')) {
+             $policeStations = PoliceStation::where('district_id', $request->present_district_id)
+                                           ->where('status', 1)
+                                           ->get();
+         } else {
+             $policeStations = PoliceStation::where('status', 1)->get();
+         }
+         
+         // Get post offices based on selected police station or all
+         if ($request->filled('present_police_station_id')) {
+             $postOffices = PostOffice::where('police_station_id', $request->present_police_station_id)
+                                     ->where('status', 1)
+                                     ->get();
+         } else {
+             $postOffices = PostOffice::where('status', 1)->get();
+         }
 
         return view('pages.students.index', compact(
             'students',
@@ -475,12 +476,25 @@ class StudentController extends Controller
         $html = view('pages.students.list-pdf', compact('students', 'setting', 'selectedColumns', 'pdfColumnOptions', 'filterHeading'))->render();
 
         $mpdf = new \Mpdf\Mpdf([
-            'orientation' => 'L',
-            'margin_top' => 10,
-            'margin_bottom' => 10,
-            'margin_left' => 10,
-            'margin_right' => 10,
+            'orientation'   => 'L',
+            'margin_top'    => 10,
+            'margin_bottom' => 15,
+            'margin_left'   => 10,
+            'margin_right'  => 10,
+            'margin_footer' => 8,
         ]);
+
+        $mpdf->SetHTMLFooter('
+            <table width="100%">
+                <tr>
+                    <td style="font-size: 9px; color: #555;">Student List</td>
+                    <td style="font-size: 9px; color: #555; text-align: right;">
+                        Page {PAGENO} of {nbpg}
+                    </td>
+                </tr>
+            </table>
+        ');
+
         $mpdf->WriteHTML($html);
         $mpdf->Output('student-list.pdf', 'D');
     }

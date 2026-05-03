@@ -1,6 +1,17 @@
 @extends('layouts.master')
 @section('contents')
 <div class="container-fluid">
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <h6 class="mb-0 font-bold text-white text-lg">Filter Students</h6>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ route('transports.index') }}">
+                @include('pages.asset-issues.filter', ['isIndex' => true])
+            </form>
+        </div>
+    </div>
     <div class="card">
         <div class="card-header shadow p-3"><h3 class="card-title mb-0 text-white text-lg">Current Asset Stock</h3></div>
         <div class="card-body p-0">

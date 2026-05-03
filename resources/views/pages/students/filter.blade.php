@@ -68,11 +68,11 @@
                     <!-- Location Filters -->
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Division</label>
-                        <select name="permanent_division_id" class="form-control form-control-sm">
+                        <select name="present_division_id" class="form-control form-control-sm">
                             <option value="">All Divisions</option>
                             @foreach ($divisions as $division)
                                 <option value="{{ $division->id }}"
-                                    {{ request('permanent_division_id') == $division->id ? 'selected' : '' }}>
+                                    {{ request('present_division_id') == $division->id ? 'selected' : '' }}>
                                     {{ $division->name }}
                                 </option>
                             @endforeach
@@ -81,11 +81,11 @@
 
                     <div class="col-md-3 mb-3">
                         <label class="form-label">District</label>
-                        <select name="permanent_district_id" class="form-control form-control-sm">
+                        <select name="present_district_id" class="form-control form-control-sm">
                             <option value="">All Districts</option>
                             @foreach ($districts as $district)
                                 <option value="{{ $district->id }}"
-                                    {{ request('permanent_district_id') == $district->id ? 'selected' : '' }}>
+                                    {{ request('present_district_id') == $district->id ? 'selected' : '' }}>
                                     {{ $district->name }}
                                 </option>
                             @endforeach
@@ -94,11 +94,11 @@
 
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Police Station</label>
-                        <select name="permanent_police_station_id" class="form-control form-control-sm">
+                        <select name="present_police_station_id" class="form-control form-control-sm">
                             <option value="">All Police Stations</option>
                             @foreach ($policeStations as $ps)
                                 <option value="{{ $ps->id }}"
-                                    {{ request('permanent_police_station_id') == $ps->id ? 'selected' : '' }}>
+                                    {{ request('present_police_station_id') == $ps->id ? 'selected' : '' }}>
                                     {{ $ps->name }}
                                 </option>
                             @endforeach
@@ -107,11 +107,11 @@
 
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Post Office</label>
-                        <select name="permanent_post_office_id" class="form-control form-control-sm">
+                        <select name="present_post_office_id" class="form-control form-control-sm">
                             <option value="">All Post Offices</option>
                             @foreach ($postOffices as $po)
                                 <option value="{{ $po->id }}"
-                                    {{ request('permanent_post_office_id') == $po->id ? 'selected' : '' }}>
+                                    {{ request('present_post_office_id') == $po->id ? 'selected' : '' }}>
                                     {{ $po->name }}
                                 </option>
                             @endforeach

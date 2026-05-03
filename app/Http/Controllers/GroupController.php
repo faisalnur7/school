@@ -37,9 +37,9 @@ class GroupController extends Controller
 
     public function edit($id)
     {
-        $groups = Group::latest()->get();
         $group = Group::findOrFail($id);
-        return view('pages.groups.edit', compact('group', 'groups'));
+
+        return view('pages.groups.edit', compact('group'));
     }
 
     public function update(Request $request, $id)
