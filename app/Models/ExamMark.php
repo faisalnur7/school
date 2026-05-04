@@ -16,14 +16,19 @@ class ExamMark extends Model
         'practical_marks',
         'viva_marks',
         'total',
+        'is_absent',
+        'letter_grade',
+        'gpa',
     ];
 
     protected $casts = [
-        'cq_marks' => 'decimal:2',
-        'mcq_marks' => 'decimal:2',
+        'cq_marks'        => 'decimal:2',
+        'mcq_marks'       => 'decimal:2',
         'practical_marks' => 'decimal:2',
-        'viva_marks' => 'decimal:2',
-        'total' => 'decimal:2',
+        'viva_marks'      => 'decimal:2',
+        'total'           => 'decimal:2',
+        'gpa'             => 'decimal:2',
+        'is_absent'       => 'boolean',
     ];
 
     public function exam(): BelongsTo

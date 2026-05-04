@@ -13,22 +13,12 @@ class HandCashSeeder extends Seeder
     public function run(): void
     {
         HandCash::updateOrCreate(
-            ['label' => 'Main Cash'],
+            ['label' => 'Petty Cash'],
             [
                 'opening_amount' => 10000.00,
                 'opening_date' => now()->toDateString(),
                 'is_active' => true,
                 'notes' => 'Default hand cash account created by seeder.',
-            ]
-        );
-
-        HandCash::updateOrCreate(
-            ['label' => 'Petty Cash'],
-            [
-                'opening_amount' => 5000.00,
-                'opening_date' => now()->toDateString(),
-                'is_active' => true,
-                'notes' => 'Additional petty cash account created by seeder.',
             ]
         );
     }

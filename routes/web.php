@@ -451,10 +451,33 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // ------------------- Exams -------------------
-    Route::get('/exams', [ExamController::class, 'index'])->name('exams.index');
+    Route::prefix('exams')->name('exams.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ExamController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\ExamController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\ExamController::class, 'store'])->name('store');
+        Route::get('/{exam}', [\App\Http\Controllers\ExamController::class, 'show'])->name('show');
+        Route::get('/{exam}/edit', [\App\Http\Controllers\ExamController::class, 'edit'])->name('edit');
+        Route::put('/{exam}', [\App\Http\Controllers\ExamController::class, 'update'])->name('update');
+        Route::delete('/{exam}', [\App\Http\Controllers\ExamController::class, 'destroy'])->name('destroy');
+        Route::get('/{exam}/marks-entry', [\App\Http\Controllers\ExamController::class, 'marksEntry'])->name('marks-entry');
+        Route::post('/{exam}/marks-entry', [\App\Http\Controllers\ExamController::class, 'saveMarks'])->name('save-marks');
+        Route::get('/{exam}/preview', [\App\Http\Controllers\ExamController::class, 'preview'])->name('preview');
+        Route::get('/{exam}/preview/pdf', [\App\Http\Controllers\ExamController::class, 'previewPdf'])->name('preview-pdf');
+        Route::get('/{exam}/terminal-result', [\App\Http\Controllers\ExamController::class, 'terminalResult'])->name('terminal-result');
+        Route::get('/{exam}/terminal-result/pdf', [\App\Http\Controllers\ExamController::class, 'terminalResultPdf'])->name('terminal-result-pdf');
+    });
+    Route::get('/ajax/sections-by-class', [\App\Http\Controllers\ExamController::class, 'getSectionsByClass'])->name('ajax.sections-by-class');
     Route::get('/marks', [MarkController::class, 'index'])->name('marks.index');
     Route::post('/marks/store', [MarkController::class, 'store'])->name('marks.store');
     Route::get('/onlineexams', [OnlineExamController::class, 'index'])->name('onlineexams.index');
+
+    // ------------------- Student Subject Assignment -------------------
+    Route::prefix('student-subjects')->name('student-subjects.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\StudentSubjectController::class, 'index'])->name('index');
+        Route::get('/{student}/assign', [\App\Http\Controllers\StudentSubjectController::class, 'assign'])->name('assign');
+        Route::post('/{student}/save', [\App\Http\Controllers\StudentSubjectController::class, 'saveAssignment'])->name('save');
+        Route::post('/bulk-assign', [\App\Http\Controllers\StudentSubjectController::class, 'bulkAssign'])->name('bulk-assign');
+    });
 
     // ------------------- Result Management -------------------
     Route::prefix('results')->group(function () {

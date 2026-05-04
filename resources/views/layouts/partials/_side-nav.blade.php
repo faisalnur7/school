@@ -269,31 +269,67 @@
                     </ul>
                 </li> --}}
 
-                <!-- Exams -->
-                {{-- <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-clipboard-check"></i>
-                        <p>Exams<i class="right fas fa-angle-left"></i></p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li><a href="{{ route('exams.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Exam List</a></li>
-                        <li><a href="{{ route('marks.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Marks</a></li>
-                        <li><a href="{{ route('onlineexams.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Online Exam</a></li>
-                    </ul>
-                </li> --}}
-
                 <!-- Result Management -->
-                {{-- <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-poll"></i>
+                @php
+                    $resultRoutes = ['exams.*', 'student-subjects.*'];
+                @endphp
+                <li class="nav-item has-treeview {{ menuOpen($resultRoutes) ? 'menu-is-opening menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ menuActive($resultRoutes) }}">
+                        <i class="nav-icon fas fa-poll-h"></i>
                         <p>Result Management<i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li><a href="{{ route('results.index') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>All Results</a></li>
-                        <li><a href="{{ route('results.create') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Add Result</a></li>
-                        <li><a href="{{ route('results.reports') }}" class="nav-link"><i class="far fa-circle nav-icon"></i>Result Reports</a></li>
+
+                        {{-- Exams --}}
+                        <li class="nav-item has-treeview {{ menuOpen(['exams.*']) ? 'menu-is-opening menu-open' : '' }}">
+                            <a href="#" class="nav-link {{ menuActive(['exams.*']) }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Exams<i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li>
+                                    <a href="{{ route('exams.index') }}" class="nav-link {{ request()->routeIs('exams.index') ? 'active' : '' }}">
+                                        <i class="far fa-dot-circle nav-icon"></i>All Exams
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('exams.create') }}" class="nav-link {{ request()->routeIs('exams.create') ? 'active' : '' }}">
+                                        <i class="far fa-dot-circle nav-icon"></i>Create Exam
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {{-- Subject Assignment to Students --}}
+                        <li>
+                            <a href="{{ route('student-subjects.index') }}" class="nav-link {{ request()->routeIs('student-subjects.*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Subject Assignment
+                            </a>
+                        </li>
+
+                        {{-- Quick links: only show when inside an exam context --}}
+                        @if(request()->routeIs('exams.*') && isset($exam))
+                        <li>
+                            <a href="{{ route('exams.marks-entry', $exam) }}" class="nav-link {{ request()->routeIs('exams.marks-entry') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Enter Marks
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('exams.preview', $exam) }}" class="nav-link {{ request()->routeIs('exams.preview') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Marks Preview
+                            </a>
+                        </li>
+                        @if($exam->type === 'term')
+                        <li>
+                            <a href="{{ route('exams.terminal-result', $exam) }}" class="nav-link {{ request()->routeIs('exams.terminal-result') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>Terminal Result
+                            </a>
+                        </li>
+                        @endif
+                        @endif
+
                     </ul>
-                </li> --}}
+                </li>
 
                 <!-- Assessment & Analytics -->
                 {{-- <li class="nav-item has-treeview">

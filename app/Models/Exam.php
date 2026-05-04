@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\ExamStatus;
-use App\Enums\ExamType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,7 +11,7 @@ class Exam extends Model
     protected $fillable = [
         'name',
         'type',
-        'class_id',
+        'academic_session_id',
         'year',
         'start_date',
         'end_date',
@@ -21,15 +19,24 @@ class Exam extends Model
     ];
 
     protected $casts = [
-        'type' => ExamType::class,
-        'status' => ExamStatus::class,
         'start_date' => 'date',
-        'end_date' => 'date',
+        'end_date'   => 'date',
     ];
 
-    public function schoolClass(): BelongsTo
+    const TYPE_TERMINAL = 'term';
+    const TYPE_TUTORIAL = 'tutorial';
+
+    const TYPES = [
+        self::TYPE_TERMINAL => 'Terminal Exam',
+        self::TYPE_TUTORIAL => 'Tutorial Exam',
+    ];
+
+    const STATUS_DRAFT     = 'draft';
+    const STATUS_PUBLISHED = 'published';
+
+    public function academicSession(): BelongsTo
     {
-        return $this->belongsTo(SchoolClass::class, 'class_id');
+        return $this->belongsTo(AcademicSession::class);
     }
 
     public function examSubjects(): HasMany
@@ -37,13 +44,18 @@ class Exam extends Model
         return $this->hasMany(ExamSubject::class);
     }
 
-    public function seatPlans(): HasMany
+    public function marks(): HasMany
     {
-        return $this->hasMany(SeatPlan::class);
+        return $this->hasMany(ExamMark::class);
     }
 
-    public function admitCards(): HasMany
+    public function getTypeLabelAttribute(): string
     {
-        return $this->hasMany(AdmitCard::class);
+        return self::TYPES[$this->type] ?? ucfirst($this->type);
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->status === self::STATUS_PUBLISHED;
     }
 }
