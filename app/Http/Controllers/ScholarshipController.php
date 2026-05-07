@@ -23,9 +23,7 @@ class ScholarshipController extends Controller
         $sections = $request->filled('class_id')
             ? Section::where('school_class_id', $request->class_id)->orderBy('name_en')->get()
             : collect();
-        $groups = $request->filled('class_id')
-            ? Group::where('school_class_id', $request->class_id)->orderBy('name_en')->get()
-            : collect();
+        $groups = Group::orderBy('name_en')->get();
 
         $scholarships = Scholarship::with(['student', 'academicSession', 'feeCategory', 'studentAcademicInformation.schoolClass', 'studentAcademicInformation.section', 'studentAcademicInformation.group'])
             ->when($request->filled('session_id'), fn($q) =>

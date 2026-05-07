@@ -89,6 +89,18 @@ use App\Http\Controllers\{
     RoomController
 };
 
+Route::get('/reboot', function () {
+    Artisan::call('cache:clear');
+    Artisan::call('route:clear');
+    Artisan::call('config:clear');
+    Artisan::call('view:clear');
+    Artisan::call('clear-compiled');
+    Artisan::call('config:cache');
+    Artisan::call('route:cache');
+    Artisan::call('view:cache');
+    return 'rebooted & caches cleared!';
+});
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');

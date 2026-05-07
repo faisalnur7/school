@@ -74,21 +74,21 @@
                             </span>
                         </td>
                         <td>
-                            <div class="btn-group btn-group-sm">
-                                <a href="{{ route('exams.show', $exam) }}"            class="btn btn-outline-primary"   title="View"><i class="fas fa-eye"></i></a>
-                                <a href="{{ route('exams.marks-entry', $exam) }}"     class="btn btn-outline-success"   title="Enter Marks"><i class="fas fa-keyboard"></i></a>
+                            <div class="btn-group btn-group-md">
+                                <a href="{{ route('exams.show', $exam) }}"            class="btn btn-outline-primary  flex justify-center items-center"   title="View"><i class="fas fa-eye"></i></a>
+                                <a href="{{ route('exams.marks-entry', $exam) }}"     class="btn btn-outline-success  flex justify-center items-center"   title="Enter Marks"><i class="fas fa-keyboard"></i></a>
                                 @if($exam->type === 'term')
-                                <a href="{{ route('exams.terminal-result', $exam) }}" class="btn btn-outline-warning"   title="Terminal Result"><i class="fas fa-trophy"></i></a>
+                                <a href="{{ route('exams.terminal-result', $exam) }}" class="btn btn-outline-warning  flex justify-center items-center"   title="Terminal Result"><i class="fas fa-trophy"></i></a>
                                 @else
-                                <a href="{{ route('exams.preview', $exam) }}"         class="btn btn-outline-info"      title="Preview"><i class="fas fa-chart-bar"></i></a>
+                                <a href="{{ route('exams.preview', $exam) }}"         class="btn btn-outline-info  flex justify-center items-center"      title="Preview"><i class="fas fa-chart-bar"></i></a>
                                 @endif
-                                <a href="{{ route('exams.edit', $exam) }}"            class="btn btn-outline-secondary" title="Edit"><i class="fas fa-edit"></i></a>
-                                <form method="POST" action="{{ route('exams.destroy', $exam) }}" class="d-inline"
-                                    onsubmit="return confirm('Delete this exam?')">
-                                    @csrf @method('DELETE')
-                                    <button class="btn btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
-                                </form>
+                                <a href="{{ route('exams.edit', $exam) }}"            class="btn btn-outline-secondary  flex justify-center items-center" title="Edit"><i class="fas fa-edit"></i></a>
+                                <button class="btn btn-outline-danger flex justify-center items-center" title="Delete"
+                                    onclick="if(confirm('Delete this exam?')){this.closest('form').requestSubmit()}" form="delete-exam-{{ $exam->id }}"><i class="fas fa-trash"></i></button>
                             </div>
+                            <form id="delete-exam-{{ $exam->id }}" method="POST" action="{{ route('exams.destroy', $exam) }}" class="d-none">
+                                @csrf @method('DELETE')
+                            </form>
                         </td>
                     </tr>
                     @empty
