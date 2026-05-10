@@ -1,171 +1,351 @@
 @extends('layouts.master')
 
 @section('contents')
-<div class="col-md-10">
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Create Product</h3>
-            <div class="card-tools">
-                <a href="{{ route('inventory.products.index') }}" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-list"></i> Back to List
+<div class="container-fluid px-3 py-3">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="card-title mb-0 font-weight-bold">
+                        <i class="fas fa-plus-circle mr-2"></i>Create Product
+                    </h4>
+                </div>
+                <a href="{{ route('inventory.products.index') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back
                 </a>
             </div>
         </div>
-        <form method="POST" action="{{ route('inventory.products.store') }}">
+
+        <form method="POST" action="{{ route('inventory.products.store') }}" id="productForm">
             @csrf
-            <div class="card-body">
+            <div class="card-body p-3">
                 @if($errors->any())
-                    <div class="alert alert-danger">Please fix the errors below.</div>
+                    <div class="alert alert-danger alert-dismissible fade show border-0 mb-3" role="alert">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Errors:</strong>
+                        <ul class="mb-0 mt-1 ml-4">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
                 @endif
 
-                <div class="row">
+                <!-- Row 1: Category & Item Type -->
+                <div class="row g-2 mb-3">
                     <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Category <span class="text-danger">*</span></label>
-                            <select name="category_id" id="category_id" class="form-control" required>
+                        <label class="form-label small font-weight-600 mb-1">Category <span class="text-danger">*</span></label>
+                        <select name="category_id" id="category_id" class="form-control form-control-sm @error('category_id') is-invalid @enderror" required>
+                            <option value="">Select</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>
+                                    {{ $cat->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('category_id')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small font-weight-600 mb-1">Item Type <span class="text-danger">*</span></label>
+                        <div class="btn-group btn-group-sm w-100" data-toggle="buttons" role="group">
+                            <label class="btn btn-outline-primary active" style="flex: 1;">
+                                <input type="radio" name="item_type" value="common" {{ old('item_type', 'common') == 'common' ? 'checked' : '' }} autocomplete="off">
+                                <i class="fas fa-cube mr-1"></i>Common
+                            </label>
+                            <label class="btn btn-outline-primary" style="flex: 1;">
+                                <input type="radio" name="item_type" value="classwise" {{ old('item_type') == 'classwise' ? 'checked' : '' }} autocomplete="off">
+                                <i class="fas fa-book mr-1"></i>Classwise
+                            </label>
+                        </div>
+                        @error('item_type')<small class="text-danger d-block mt-1">{{ $message }}</small>@enderror
+                    </div>
+                </div>
+
+                <!-- Row 2: Product Name -->
+                <div class="row g-2 mb-3">
+                    <div class="col-12">
+                        <label class="form-label small font-weight-600 mb-1">Product Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" value="{{ old('name') }}" class="form-control form-control-sm @error('name') is-invalid @enderror" placeholder="Enter product name" required>
+                        @error('name')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
+                </div>
+
+                <!-- Row 3: SKU, Barcode, Unit -->
+                <div class="row g-2 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label small font-weight-600 mb-1">SKU / Code</label>
+                        <input type="text" name="sku" value="{{ old('sku') }}" class="form-control form-control-sm @error('sku') is-invalid @enderror" placeholder="SKU-001">
+                        @error('sku')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label small font-weight-600 mb-1">Barcode</label>
+                        <input type="text" name="barcode" value="{{ old('barcode') }}" class="form-control form-control-sm @error('barcode') is-invalid @enderror" placeholder="1234567890">
+                        @error('barcode')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label small font-weight-600 mb-1">Unit</label>
+                        <input type="text" name="unit" value="{{ old('unit') }}" class="form-control form-control-sm @error('unit') is-invalid @enderror" placeholder="pcs, box, kg">
+                        @error('unit')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
+                </div>
+
+                <!-- Row 4: Price, Stock Alert, Status -->
+                <div class="row g-2 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label small font-weight-600 mb-1">Purchase Price</label>
+                        <div class="input-group input-group-sm">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            <input type="number" step="0.01" min="0" name="purchase_price" value="{{ old('purchase_price', 0) }}" class="form-control form-control-sm @error('purchase_price') is-invalid @enderror" placeholder="0.00">
+                        </div>
+                        @error('purchase_price')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label small font-weight-600 mb-1">Min Stock Alert</label>
+                        <div class="input-group input-group-sm">
+                            <input type="number" min="0" name="minimum_stock_alert" value="{{ old('minimum_stock_alert', 0) }}" class="form-control form-control-sm @error('minimum_stock_alert') is-invalid @enderror" placeholder="0">
+                            <div class="input-group-append">
+                                <span class="input-group-text">units</span>
+                            </div>
+                        </div>
+                        @error('minimum_stock_alert')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label small font-weight-600 mb-1">Status</label>
+                        <select name="is_active" class="form-control form-control-sm @error('is_active') is-invalid @enderror">
+                            <option value="1" {{ old('is_active', '1') == '1' ? 'selected' : '' }}>Active</option>
+                            <option value="0" {{ old('is_active') == '0' ? 'selected' : '' }}>Inactive</option>
+                        </select>
+                        @error('is_active')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
+                </div>
+
+                <!-- Row 5: Description -->
+                <div class="row g-2 mb-3">
+                    <div class="col-12">
+                        <label class="form-label small font-weight-600 mb-1">Description</label>
+                        <textarea name="description" class="form-control form-control-sm @error('description') is-invalid @enderror" rows="2" placeholder="Enter product description...">{{ old('description') }}</textarea>
+                        @error('description')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
+                </div>
+
+                <!-- Classwise Section -->
+                <div id="classwise_section" style="display:none;">
+                    <hr class="my-3">
+                    <div class="alert alert-info alert-sm border-0 mb-3 py-2 px-3">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <small><strong>Classwise Configuration</strong> - Specify class, section, and group</small>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small font-weight-600 mb-1">Class</label>
+                            <select name="school_class_id" class="form-control form-control-sm @error('school_class_id') is-invalid @enderror">
                                 <option value="">Select</option>
-                                @foreach($categories as $cat)
-                                    <option value="{{ $cat->id }}" data-name="{{ strtolower($cat->name) }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>
-                                        {{ $cat->name }}
+                                @foreach($classes as $c)
+                                    <option value="{{ $c->id }}" {{ old('school_class_id') == $c->id ? 'selected' : '' }}>
+                                        {{ $c->name_en }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('category_id')<small class="text-danger">{{ $message }}</small>@enderror
+                            @error('school_class_id')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Name <span class="text-danger">*</span></label>
-                            <input name="name" value="{{ old('name') }}" class="form-control" required>
-                            @error('name')<small class="text-danger">{{ $message }}</small>@enderror
-                        </div>
-                    </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>SKU / Code</label>
-                            <input name="sku" value="{{ old('sku') }}" class="form-control">
-                            @error('sku')<small class="text-danger">{{ $message }}</small>@enderror
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Barcode</label>
-                            <input name="barcode" value="{{ old('barcode') }}" class="form-control">
-                            @error('barcode')<small class="text-danger">{{ $message }}</small>@enderror
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Unit</label>
-                            <input name="unit" value="{{ old('unit') }}" class="form-control" placeholder="pcs, box, kg...">
-                            @error('unit')<small class="text-danger">{{ $message }}</small>@enderror
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Purchase Price</label>
-                            <input type="number" step="0.01" min="0" name="purchase_price" value="{{ old('purchase_price', 0) }}" class="form-control">
-                            @error('purchase_price')<small class="text-danger">{{ $message }}</small>@enderror
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Minimum Stock Alert</label>
-                            <input type="number" min="0" name="minimum_stock_alert" value="{{ old('minimum_stock_alert', 0) }}" class="form-control">
-                            @error('minimum_stock_alert')<small class="text-danger">{{ $message }}</small>@enderror
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Status</label>
-                            <select name="is_active" class="form-control">
-                                <option value="1" {{ old('is_active', '1') == '1' ? 'selected' : '' }}>Active</option>
-                                <option value="0" {{ old('is_active') == '0' ? 'selected' : '' }}>Inactive</option>
+                        <div class="col-md-4">
+                            <label class="form-label small font-weight-600 mb-1">Section</label>
+                            <select name="section_id" class="form-control form-control-sm @error('section_id') is-invalid @enderror">
+                                <option value="">Select</option>
+                                @foreach($sections as $s)
+                                    <option value="{{ $s->id }}" {{ old('section_id') == $s->id ? 'selected' : '' }}>
+                                        {{ $s->name_en }}
+                                    </option>
+                                @endforeach
                             </select>
-                            @error('is_active')<small class="text-danger">{{ $message }}</small>@enderror
+                            @error('section_id')<small class="text-danger">{{ $message }}</small>@enderror
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small font-weight-600 mb-1">Group</label>
+                            <select name="group_id" class="form-control form-control-sm @error('group_id') is-invalid @enderror">
+                                <option value="">Select</option>
+                                @foreach($groups as $g)
+                                    <option value="{{ $g->id }}" {{ old('group_id') == $g->id ? 'selected' : '' }}>
+                                        {{ $g->name_en }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('group_id')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea name="description" class="form-control" rows="3">{{ old('description') }}</textarea>
-                    @error('description')<small class="text-danger">{{ $message }}</small>@enderror
-                </div>
-
-                <div id="books_fields" style="display:none;">
-                    <hr>
-                    <h5>Books Fields</h5>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Class</label>
-                                <select name="school_class_id" class="form-control">
-                                    <option value="">Select</option>
-                                    @foreach($classes as $c)
-                                        <option value="{{ $c->id }}" {{ old('school_class_id') == $c->id ? 'selected' : '' }}>{{ $c->name_en }}</option>
-                                    @endforeach
-                                </select>
-                                @error('school_class_id')<small class="text-danger">{{ $message }}</small>@enderror
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Section</label>
-                                <select name="section_id" class="form-control">
-                                    <option value="">Select</option>
-                                    @foreach($sections as $s)
-                                        <option value="{{ $s->id }}" {{ old('section_id') == $s->id ? 'selected' : '' }}>{{ $s->name_en }}</option>
-                                    @endforeach
-                                </select>
-                                @error('section_id')<small class="text-danger">{{ $message }}</small>@enderror
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Group</label>
-                                <select name="group_id" class="form-control">
-                                    <option value="">Select</option>
-                                    @foreach($groups as $g)
-                                        <option value="{{ $g->id }}" {{ old('group_id') == $g->id ? 'selected' : '' }}>{{ $g->name_en }}</option>
-                                    @endforeach
-                                </select>
-                                @error('group_id')<small class="text-danger">{{ $message }}</small>@enderror
-                            </div>
-                        </div>
-                    </div>
-                    <small class="text-muted">For category “Books”, uniqueness is validated by Name + Class + Section + Group.</small>
                 </div>
             </div>
-            <div class="card-footer">
-                <button class="btn btn-primary">Save</button>
+
+            <div class="card-footer bg-light border-top py-2 px-3">
+                <div class="d-flex justify-content-between gap-2">
+                    <a href="{{ route('inventory.products.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-times mr-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-save mr-1"></i>Create Product
+                    </button>
+                </div>
             </div>
         </form>
     </div>
 </div>
 @endsection
 
-@section('scripts')
-<script>
-    function toggleBooksFields() {
-        const selected = $('#category_id option:selected').data('name') || '';
-        if (String(selected).toLowerCase() === 'books') {
-            $('#books_fields').show();
-        } else {
-            $('#books_fields').hide();
-            $('#books_fields').find('select').val('');
+@section('styles')
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .form-control-sm {
+        border-radius: 0.375rem;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+
+    .form-control-sm:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.15rem rgba(102, 126, 234, 0.15);
+    }
+
+    .form-label {
+        color: #2e3338;
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+
+    .btn-group-sm .btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .btn-group-sm .btn.active {
+        background-color: #667eea;
+        border-color: #667eea;
+        color: white;
+    }
+
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 0.375rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        transform: translateY(-1px);
+    }
+
+    .card {
+        transition: all 0.2s ease;
+    }
+
+    .alert-sm {
+        font-size: 0.875rem;
+    }
+
+    .input-group-text {
+        border: 1px solid #dee2e6;
+        background-color: #f8f9fa;
+        color: #6c757d;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.75rem;
+        margin-top: 0.15rem;
+    }
+
+    .gap-2 {
+        gap: 0.5rem;
+    }
+
+    @media (max-width: 576px) {
+        .container-fluid {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+
+        .card-body {
+            padding: 0.75rem !important;
+        }
+
+        .row.g-2 {
+            margin-right: -0.5rem;
+            margin-left: -0.5rem;
+        }
+
+        .row.g-2 > [class*="col-"] {
+            padding-right: 0.5rem;
+            padding-left: 0.5rem;
         }
     }
+</style>
+@endsection
+
+@section('scripts')
+<script>
     $(function () {
-        toggleBooksFields();
-        $('#category_id').on('change', toggleBooksFields);
+        function toggleClasswiseFields() {
+            const itemType = $('input[name="item_type"]:checked').val();
+            const section = $('#classwise_section');
+
+            if (itemType === 'classwise') {
+                section.slideDown(200);
+            } else {
+                section.slideUp(200, function() {
+                    section.find('select').val('');
+                });
+            }
+        }
+
+        toggleClasswiseFields();
+        $('input[name="item_type"]').on('change', toggleClasswiseFields);
+
+        if ($('.is-invalid').length > 0) {
+            $('html, body').animate({
+                scrollTop: $('.is-invalid').first().offset().top - 50
+            }, 300);
+        }
     });
 </script>
 @endsection
-

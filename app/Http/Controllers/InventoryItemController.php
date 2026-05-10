@@ -60,6 +60,7 @@ class InventoryItemController extends Controller
 
         $validated = $request->validate([
             'category_id' => ['required', 'exists:inventory_categories,id'],
+            'item_type' => ['required', 'in:common,classwise'],
             'name' => ['required', 'string', 'max:200'],
             'sku' => ['nullable', 'string', 'max:100'],
             'barcode' => ['nullable', 'string', 'max:120'],
@@ -73,22 +74,19 @@ class InventoryItemController extends Controller
             'group_id' => ['nullable', 'exists:groups,id'],
         ]);
 
-        $category = InventoryCategory::findOrFail($validated['category_id']);
-        $isBooks = strcasecmp($category->name, 'Books') === 0;
-
-        $nameUniqueRule = Rule::unique('inventory_items', 'name')->where(function ($query) use ($validated) {
-            return $query
-                ->where('category_id', $validated['category_id'])
-                ->where('school_class_id', $validated['school_class_id'] ?? null)
-                ->where('section_id', $validated['section_id'] ?? null)
-                ->where('group_id', $validated['group_id'] ?? null);
-        });
-
-        if (!$isBooks) {
+        if ($validated['item_type'] === 'common') {
             $validated['school_class_id'] = null;
             $validated['section_id'] = null;
             $validated['group_id'] = null;
             $nameUniqueRule = Rule::unique('inventory_items', 'name')->where(fn ($q) => $q->where('category_id', $validated['category_id']));
+        } else {
+            $nameUniqueRule = Rule::unique('inventory_items', 'name')->where(function ($query) use ($validated) {
+                return $query
+                    ->where('category_id', $validated['category_id'])
+                    ->where('school_class_id', $validated['school_class_id'] ?? null)
+                    ->where('section_id', $validated['section_id'] ?? null)
+                    ->where('group_id', $validated['group_id'] ?? null);
+            });
         }
 
         $skuUniqueRule = Rule::unique('inventory_items', 'sku')->where(fn ($q) => $q->where('category_id', $validated['category_id']));
@@ -129,6 +127,7 @@ class InventoryItemController extends Controller
 
         $validated = $request->validate([
             'category_id' => ['required', 'exists:inventory_categories,id'],
+            'item_type' => ['required', 'in:common,classwise'],
             'name' => ['required', 'string', 'max:200'],
             'sku' => ['nullable', 'string', 'max:100'],
             'barcode' => ['nullable', 'string', 'max:120'],
@@ -142,22 +141,19 @@ class InventoryItemController extends Controller
             'group_id' => ['nullable', 'exists:groups,id'],
         ]);
 
-        $category = InventoryCategory::findOrFail($validated['category_id']);
-        $isBooks = strcasecmp($category->name, 'Books') === 0;
-
-        $nameUniqueRule = Rule::unique('inventory_items', 'name')->ignore($item->id)->where(function ($query) use ($validated) {
-            return $query
-                ->where('category_id', $validated['category_id'])
-                ->where('school_class_id', $validated['school_class_id'] ?? null)
-                ->where('section_id', $validated['section_id'] ?? null)
-                ->where('group_id', $validated['group_id'] ?? null);
-        });
-
-        if (!$isBooks) {
+        if ($validated['item_type'] === 'common') {
             $validated['school_class_id'] = null;
             $validated['section_id'] = null;
             $validated['group_id'] = null;
             $nameUniqueRule = Rule::unique('inventory_items', 'name')->ignore($item->id)->where(fn ($q) => $q->where('category_id', $validated['category_id']));
+        } else {
+            $nameUniqueRule = Rule::unique('inventory_items', 'name')->ignore($item->id)->where(function ($query) use ($validated) {
+                return $query
+                    ->where('category_id', $validated['category_id'])
+                    ->where('school_class_id', $validated['school_class_id'] ?? null)
+                    ->where('section_id', $validated['section_id'] ?? null)
+                    ->where('group_id', $validated['group_id'] ?? null);
+            });
         }
 
         $skuUniqueRule = Rule::unique('inventory_items', 'sku')->ignore($item->id)->where(fn ($q) => $q->where('category_id', $validated['category_id']));

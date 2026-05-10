@@ -1,43 +1,155 @@
 @extends('layouts.master')
 
 @section('contents')
-<div class="col-md-8">
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Create Category</h3>
-            <div class="card-tools">
-                <a href="{{ route('inventory.categories.index') }}" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-list"></i> Back to List
+<div class="container-fluid px-3 py-3">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold">
+                    <i class="fas fa-plus-circle mr-2"></i>Create Category
+                </h4>
+                <a href="{{ route('inventory.categories.index') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back
                 </a>
             </div>
         </div>
-        <form method="POST" action="{{ route('inventory.categories.store') }}">
+
+        <form method="POST" action="{{ route('inventory.categories.store') }}" id="categoryForm">
             @csrf
-            <div class="card-body">
+            <div class="card-body p-3">
                 @if($errors->any())
-                    <div class="alert alert-danger">Please fix the errors below.</div>
+                    <div class="alert alert-danger alert-dismissible fade show border-0 mb-3" role="alert">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Errors:</strong>
+                        <ul class="mb-0 mt-1 ml-4">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
                 @endif
 
-                <div class="form-group">
-                    <label>Name <span class="text-danger">*</span></label>
-                    <input type="text" name="name" value="{{ old('name') }}" class="form-control" required>
-                    @error('name')<small class="text-danger">{{ $message }}</small>@enderror
-                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-8">
+                        <label class="form-label small font-weight-600 mb-1">Category Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" value="{{ old('name') }}" class="form-control form-control-sm @error('name') is-invalid @enderror" placeholder="Enter category name" required>
+                        @error('name')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
 
-                <div class="form-group">
-                    <label>Status</label>
-                    <select name="is_active" class="form-control">
-                        <option value="1" {{ old('is_active', '1') == '1' ? 'selected' : '' }}>Active</option>
-                        <option value="0" {{ old('is_active') == '0' ? 'selected' : '' }}>Inactive</option>
-                    </select>
-                    @error('is_active')<small class="text-danger">{{ $message }}</small>@enderror
+                    <div class="col-md-4">
+                        <label class="form-label small font-weight-600 mb-1">Status</label>
+                        <select name="is_active" class="form-control form-control-sm @error('is_active') is-invalid @enderror">
+                            <option value="1" {{ old('is_active', '1') == '1' ? 'selected' : '' }}>Active</option>
+                            <option value="0" {{ old('is_active') == '0' ? 'selected' : '' }}>Inactive</option>
+                        </select>
+                        @error('is_active')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
                 </div>
             </div>
-            <div class="card-footer">
-                <button class="btn btn-primary">Save</button>
+
+            <div class="card-footer bg-light border-top py-2 px-3">
+                <div class="d-flex justify-content-between gap-2">
+                    <a href="{{ route('inventory.categories.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-times mr-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-save mr-1"></i>Create Category
+                    </button>
+                </div>
             </div>
         </form>
     </div>
 </div>
 @endsection
 
+@section('styles')
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .form-control-sm {
+        border-radius: 0.375rem;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+
+    .form-control-sm:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.15rem rgba(102, 126, 234, 0.15);
+    }
+
+    .form-label {
+        color: #2e3338;
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 0.375rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        transform: translateY(-1px);
+    }
+
+    .gap-2 {
+        gap: 0.5rem;
+    }
+
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.75rem;
+        margin-top: 0.15rem;
+    }
+
+    @media (max-width: 576px) {
+        .container-fluid {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+
+        .card-body {
+            padding: 0.75rem !important;
+        }
+
+        .row.g-2 {
+            margin-right: -0.5rem;
+            margin-left: -0.5rem;
+        }
+
+        .row.g-2 > [class*="col-"] {
+            padding-right: 0.5rem;
+            padding-left: 0.5rem;
+        }
+    }
+</style>
+@endsection

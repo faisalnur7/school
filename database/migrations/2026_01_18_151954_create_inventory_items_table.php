@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('inventory_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->constrained('inventory_categories');
+            $table->enum('item_type', ['common', 'classwise'])->default('common');
 
             $table->string('name');
             $table->string('sku')->nullable();
@@ -26,13 +27,14 @@ return new class extends Migration
             $table->string('unit')->nullable();
             $table->boolean('is_active')->default(true);
 
-            // Books-only fields (nullable for non-books)
+            // Classwise fields (nullable for common items)
             $table->foreignId('school_class_id')->nullable()->constrained('school_classes');
             $table->foreignId('section_id')->nullable()->constrained('sections');
             $table->foreignId('group_id')->nullable()->constrained('groups');
 
             $table->index(['category_id']);
             $table->index(['is_active']);
+            $table->index(['item_type']);
             $table->unique(['category_id', 'sku']);
             $table->unique(['category_id', 'name', 'school_class_id', 'section_id', 'group_id'], 'inv_items_books_unique');
             $table->timestamps();
