@@ -29,6 +29,28 @@
                         <span class="chip-label">ID</span>
                         <span class="chip-value">{{ $student->student_cid }}</span>
                     </div>
+                    <div class="chip" style="min-width:220px">
+                        <span class="chip-label">STUDENT ID</span>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <input
+                                type="text"
+                                id="studentCidSwitch"
+                                class="form-control form-control-sm"
+                                value="{{ $student->student_cid }}"
+                                placeholder="Enter Student ID"
+                                autocomplete="off"
+                                style="border-radius:12px;border:1px solid #c7d2fe"
+                            />
+                            <button
+                                type="button"
+                                id="studentCidSwitchBtn"
+                                class="btn btn-sm"
+                                style="border-radius:12px;background:#4338ca;color:#fff"
+                            >
+                                Switch
+                            </button>
+                        </div>
+                    </div>
                     <div class="chip">
                         <span class="chip-label">CLASS</span>
                         <span class="chip-value">{{ $info->schoolClass->name_en ?? '—' }}</span>
@@ -411,6 +433,7 @@
 
 
 @section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(function() {
             let subtotal = 0;
@@ -430,6 +453,100 @@
             const $collectBtn = $('#collectBtn');
             const $discountInput = $('#discountInput');
             const $discountLine = $('#discountLine');
+
+            const currentCid = @json($student->student_cid);
+            const $studentCidInput = $('#studentCidSwitch');
+            const $studentCidBtn = $('#studentCidSwitchBtn');
+
+            function showSwitchError(title, message, icon) {
+                Swal.fire({
+                    icon: icon || 'error',
+                    title: title,
+                    text: message,
+                    confirmButtonColor: '#4338ca',
+                });
+            }
+
+            function attemptStudentSwitch() {
+                const cid = ($studentCidInput.val() || '').trim();
+
+                if (cid === '' || cid.length < 1) {
+                    showSwitchError('Invalid CID', 'Please enter a valid student CID.', 'warning');
+                    return;
+                }
+
+                if (cid === String(currentCid)) {
+                    return;
+                }
+
+                $studentCidBtn.prop('disabled', true).text('...');
+
+                Swal.fire({
+                    title: 'Searching...',
+                    text: 'Looking up student by CID',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => Swal.showLoading(),
+                });
+
+                $.ajax({
+                    url: '{{ route('fees.switch_student') }}',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        _token: $('input[name="_token"]').first().val(),
+                        student_cid: cid,
+                    },
+                    success: function(res) {
+                        if (!res?.success || !res?.redirect_url) {
+                            Swal.close();
+                            showSwitchError('Student Not Found', 'No student found with CID: ' + cid + '. Please check and try again.', 'error');
+                            return;
+                        }
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Student Found',
+                            text: 'Switching to student ' + (res.student_name || '') + '...',
+                            timer: 900,
+                            showConfirmButton: false,
+                        }).then(() => {
+                            window.location.href = res.redirect_url;
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.close();
+
+                        const msg = xhr.responseJSON?.message;
+
+                        if (xhr.status === 422) {
+                            showSwitchError('Invalid CID', msg || 'Please enter a valid student CID.', 'warning');
+                            return;
+                        }
+
+                        if (xhr.status === 404) {
+                            showSwitchError('Student Not Found', msg || ('No student found with CID: ' + cid + '. Please check and try again.'), 'error');
+                            return;
+                        }
+
+                        showSwitchError('Error', msg || 'Something went wrong. Please try again.', 'error');
+                    },
+                    complete: function() {
+                        $studentCidBtn.prop('disabled', false).text('Switch');
+                    }
+                });
+            }
+
+            $studentCidBtn.on('click', attemptStudentSwitch);
+            $studentCidInput.on('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    attemptStudentSwitch();
+                }
+            });
+            $studentCidInput.on('blur', function() {
+                attemptStudentSwitch();
+            });
 
             /* ── Category click ── */
             $catItems.on('click', function() {

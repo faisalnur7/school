@@ -3,17 +3,16 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call([
+            PermissionSeeder::class,
+            RoleSeeder::class,
+        ]);
 
         $isUserExists = User::where('email', 'test@example.com')->exists();
         if(!$isUserExists){
@@ -23,7 +22,13 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-         $this->call([
+        // Make admin user super admin
+        $adminUser = User::where('email', 'admin@abc.com')->first();
+        if ($adminUser) {
+            $adminUser->update(['is_super_admin' => true]);
+        }
+
+        $this->call([
             AcademicSessionSeeder::class,
             SchoolClassSeeder::class,
             FeeCategorySeeder::class,
@@ -44,6 +49,7 @@ class DatabaseSeeder extends Seeder
             AssetSeeder::class,
             SubjectSeeder::class,
             StudentSeeder::class,
+            TeacherSectionAssignmentSeeder::class,
         ]);
     }
 }

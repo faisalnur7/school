@@ -61,6 +61,28 @@ In order to ensure that the Laravel community is welcoming to all, please review
 
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
+## Local Development (Docker / Laravel Sail)
+
+This project uses [Laravel Sail](https://laravel.com/docs/sail) to run in Docker. Use `sail artisan` instead of `php artisan` for all commands:
+
+```bash
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan make:model Example
+```
+
+Tip: Add a shell alias to simplify usage:
+
+```bash
+alias sail='./vendor/bin/sail'
+```
+
+Then you can run:
+
+```bash
+sail artisan migrate
+sail up -d
+```
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

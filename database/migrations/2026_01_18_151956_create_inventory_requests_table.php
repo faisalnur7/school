@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('inventory_requests', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('inventory_item_id')->constrained('inventory_items');
+            $table->foreignId('requested_by')->constrained('users');
+            $table->unsignedInteger('quantity');
+            $table->string('status')->default('pending');
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

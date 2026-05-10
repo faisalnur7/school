@@ -113,6 +113,36 @@ class FeeCollectionController extends Controller
         ));
     }
 
+    public function switchStudent(Request $request)
+    {
+        $studentCid = trim((string) $request->input('student_cid', ''));
+
+        if ($studentCid === '') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please enter a valid student CID.',
+            ], 422);
+        }
+
+        $student = Student::where('student_cid', $studentCid)
+            ->where('status', 1)
+            ->first();
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No student found with CID: ' . $studentCid . '. Please check and try again.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'student_id' => $student->id,
+            'student_name' => $student->full_name_en,
+            'redirect_url' => route('fees.collect_payment', $student->id)
+        ]);
+    }
+
     public function collect_payment($student_id){
         $student = Student::with([
             'academicInformations.schoolClass',

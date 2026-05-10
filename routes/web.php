@@ -26,6 +26,7 @@ use App\Http\Controllers\{
     LessonPlanController,
     StudentController,
     AttendanceController,
+    TeacherSectionAssignmentController,
     ReportController,
     FeeController,
     PaymentController,
@@ -42,6 +43,7 @@ use App\Http\Controllers\{
     UserController,
     RoleController,
     PermissionController,
+    PermissionCategoryController,
     SettingController,
     TeacherController,
     StaffController,
@@ -72,8 +74,8 @@ use App\Http\Controllers\{
     InventoryItemController,
     InventoryCategoryController,
     SupplierController,
-    InventoryRequestController,
     StockController,
+    PurchaseOrderController,
     EventController,
     IdCardController,
     CertificateController,
@@ -86,7 +88,21 @@ use App\Http\Controllers\{
     ProfileController,
     StudentDueReportController,
     BuildingController,
-    RoomController
+    RoomController,
+    AcademicsHubController,
+    AttendanceHubController,
+    StudentsHubController,
+    FeesHubController,
+    FinancialsHubController,
+    ResultsHubController,
+    HrHubController,
+    AccountsHubController,
+    AssetsHubController,
+    InstituteHubController,
+    LocationHubController,
+    ShareholdersHubController,
+    BudgetHubController,
+    UsersHubController
 };
 
 Route::get('/reboot', function () {
@@ -129,6 +145,23 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/interviews', [AdmissionController::class, 'interviewScheduling'])->name('admissions.interviews');
         Route::get('/portal', [AdmissionController::class, 'onlinePortal'])->name('admissions.portal');
     });
+
+    // ------------------- Hub Pages -------------------
+    Route::get('/academics',         [AcademicsHubController::class,  'index'])->name('academics.hub');
+    Route::get('/attendance/hub',    [AttendanceHubController::class, 'index'])->name('attendance.hub');
+    Route::get('/students/hub',      [StudentsHubController::class,   'index'])->name('students.hub');
+    Route::get('/fees/hub',          [FeesHubController::class,       'index'])->name('fees.hub');
+    Route::get('/financials/hub',    [FinancialsHubController::class, 'index'])->name('financials.hub');
+    Route::get('/results/hub',       [ResultsHubController::class,    'index'])->name('results.hub');
+    Route::get('/hr/hub',            [HrHubController::class,         'index'])->name('hr.hub');
+    Route::get('/accounts/hub',      [AccountsHubController::class,   'index'])->name('accounts.hub');
+    Route::get('/assets/hub',        [AssetsHubController::class,     'index'])->name('assets.hub');
+    Route::get('/institute/hub',     [InstituteHubController::class,  'index'])->name('institute.hub');
+    Route::get('/location/hub',      [LocationHubController::class,   'index'])->name('location.hub');
+    Route::get('/shareholders/hub',  [ShareholdersHubController::class, 'index'])->name('shareholders.hub');
+    Route::get('/budget/hub',        [BudgetHubController::class,       'index'])->name('budget.hub');
+    Route::get('/users/hub',         [UsersHubController::class,        'index'])->name('users.hub');
+    Route::get('/inventory/hub',     [InventoryController::class,       'hub'])->name('inventory.hub');
 
     // ------------------- Academics -------------------
     Route::get('/classes', [SchoolClassController::class, 'index'])->name('classes.index');
@@ -259,8 +292,27 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('students/{id}/toggle-status', [StudentController::class, 'toggleStatus'])->name('students.toggle-status');
     Route::get('students/export', [StudentController::class, 'export'])->name('students.export');
 
+    Route::prefix('teacher')->group(function () {
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
-    Route::post('/attendance/store', [AttendanceController::class, 'store'])->name('attendance.store');
+    Route::get('/attendance/load', [AttendanceController::class, 'load'])->name('attendance.load');
+    Route::post('/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
+    Route::match(['put', 'patch'], '/attendance/{attendance}', [AttendanceController::class, 'update'])->name('attendance.update');
+    Route::get('/attendance/report/monthly', [\App\Http\Controllers\MonthlyAttendanceReportController::class, 'index'])->name('attendance.report.monthly');
+    Route::get('/attendance/report/monthly/load', [\App\Http\Controllers\MonthlyAttendanceReportController::class, 'load'])->name('attendance.report.monthly.load');
+    Route::get('/attendance/report/monthly/pdf', [\App\Http\Controllers\MonthlyAttendanceReportController::class, 'pdf'])->name('attendance.report.monthly.pdf');
+    });
+
+    // Attendance Settings (admin only)
+    Route::prefix('attendance/settings')->name('attendance.settings.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\AttendanceSettingsController::class, 'index'])->name('index');
+        Route::post('/weekends', [\App\Http\Controllers\AttendanceSettingsController::class, 'saveWeekends'])->name('weekends');
+        Route::post('/holidays', [\App\Http\Controllers\AttendanceSettingsController::class, 'storeHoliday'])->name('holidays.store');
+        Route::delete('/holidays/{holiday}', [\App\Http\Controllers\AttendanceSettingsController::class, 'destroyHoliday'])->name('holidays.destroy');
+    });
+
+    Route::get('/teacher-section-assignments', [TeacherSectionAssignmentController::class, 'index'])->name('teacher-section-assignments.index');
+    Route::post('/teacher-section-assignments', [TeacherSectionAssignmentController::class, 'store'])->name('teacher-section-assignments.store');
+    Route::delete('/teacher-section-assignments/{teacherSectionAssignment}', [TeacherSectionAssignmentController::class, 'destroy'])->name('teacher-section-assignments.destroy');
 
     // ------------------- Student Services -------------------
     Route::prefix('health')->group(function () {
@@ -422,6 +474,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/fees/discount-list/pdf', [\App\Http\Controllers\DiscountListController::class, 'pdf'])->name('fees.discount-list.pdf');
     Route::get('/fees/collect', [FeeCollectionController::class, 'index'])->name('fees.collect');
     Route::get('/fees/collect_payment/{student_id}', [FeeCollectionController::class, 'collect_payment'])->name('fees.collect_payment');
+    Route::post('/fees/switch-student', [FeeCollectionController::class, 'switchStudent'])->name('fees.switch_student');
     Route::get('/fees/search-student', [FeeCollectionController::class, 'search'])->name('fees.search');
     Route::post('/fees/pay', [FeeCollectionController::class, 'pay'])->name('fees.pay');
     Route::get('/fees/category-pay', [FeeCollectionController::class,'categoryPay'])->name('fees.category.pay');
@@ -753,35 +806,39 @@ Route::group(['middleware' => ['auth']], function () {
 
     // ------------------- Inventory -------------------
     Route::prefix('inventory')->group(function () {
-        Route::get('/items', [InventoryItemController::class, 'index'])->name('inventory.items');
-        Route::get('/items/create', [InventoryItemController::class, 'create'])->name('inventory.items.create');
-        Route::post('/items', [InventoryItemController::class, 'store'])->name('inventory.items.store');
-        Route::get('/items/{id}/edit', [InventoryItemController::class, 'edit'])->name('inventory.items.edit');
-        Route::put('/items/{id}', [InventoryItemController::class, 'update'])->name('inventory.items.update');
-        Route::delete('/items/{id}', [InventoryItemController::class, 'destroy'])->name('inventory.items.destroy');
-
-        Route::get('/categories', [InventoryCategoryController::class, 'index'])->name('inventory.categories');
+        // Categories
+        Route::get('/categories', [InventoryCategoryController::class, 'index'])->name('inventory.categories.index');
         Route::get('/categories/create', [InventoryCategoryController::class, 'create'])->name('inventory.categories.create');
         Route::post('/categories', [InventoryCategoryController::class, 'store'])->name('inventory.categories.store');
         Route::get('/categories/{id}/edit', [InventoryCategoryController::class, 'edit'])->name('inventory.categories.edit');
         Route::put('/categories/{id}', [InventoryCategoryController::class, 'update'])->name('inventory.categories.update');
         Route::delete('/categories/{id}', [InventoryCategoryController::class, 'destroy'])->name('inventory.categories.destroy');
 
-        Route::get('/suppliers', [SupplierController::class, 'index'])->name('inventory.suppliers');
+        // Products
+        Route::get('/products', [InventoryItemController::class, 'index'])->name('inventory.products.index');
+        Route::get('/products/create', [InventoryItemController::class, 'create'])->name('inventory.products.create');
+        Route::post('/products', [InventoryItemController::class, 'store'])->name('inventory.products.store');
+        Route::get('/products/{id}/edit', [InventoryItemController::class, 'edit'])->name('inventory.products.edit');
+        Route::put('/products/{id}', [InventoryItemController::class, 'update'])->name('inventory.products.update');
+        Route::delete('/products/{id}', [InventoryItemController::class, 'destroy'])->name('inventory.products.destroy');
+
+        // Suppliers
+        Route::get('/suppliers', [SupplierController::class, 'index'])->name('inventory.suppliers.index');
         Route::get('/suppliers/create', [SupplierController::class, 'create'])->name('inventory.suppliers.create');
         Route::post('/suppliers', [SupplierController::class, 'store'])->name('inventory.suppliers.store');
         Route::get('/suppliers/{id}/edit', [SupplierController::class, 'edit'])->name('inventory.suppliers.edit');
         Route::put('/suppliers/{id}', [SupplierController::class, 'update'])->name('inventory.suppliers.update');
         Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy'])->name('inventory.suppliers.destroy');
 
-        Route::get('/requests', [InventoryRequestController::class, 'index'])->name('inventory.requests');
-        Route::get('/requests/create', [InventoryRequestController::class, 'create'])->name('inventory.requests.create');
-        Route::post('/requests', [InventoryRequestController::class, 'store'])->name('inventory.requests.store');
-        Route::get('/requests/{id}/edit', [InventoryRequestController::class, 'edit'])->name('inventory.requests.edit');
-        Route::put('/requests/{id}', [InventoryRequestController::class, 'update'])->name('inventory.requests.update');
-        Route::delete('/requests/{id}', [InventoryRequestController::class, 'destroy'])->name('inventory.requests.destroy');
+        // Purchases
+        Route::get('/purchases', [PurchaseOrderController::class, 'index'])->name('inventory.purchases.index');
+        Route::get('/purchases/create', [PurchaseOrderController::class, 'create'])->name('inventory.purchases.create');
+        Route::post('/purchases', [PurchaseOrderController::class, 'store'])->name('inventory.purchases.store');
+        Route::get('/purchases/{id}', [PurchaseOrderController::class, 'show'])->name('inventory.purchases.show');
 
-        Route::get('/stock', [StockController::class, 'index'])->name('inventory.stock');
+        // Reports
+        Route::get('/reports/stock', [StockController::class, 'stockReport'])->name('inventory.reports.stock');
+        Route::get('/reports/low-stock', [StockController::class, 'lowStock'])->name('inventory.reports.lowStock');
     });
 
     // ------------------- Event Management -------------------
@@ -871,7 +928,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/permissions/{id}/update', [PermissionController::class, 'update'])->name('permissions.update');
     Route::delete('/permissions/{id}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
 
-    // ------------------- Settings -------------------
+    Route::get('/permission-categories', [PermissionCategoryController::class, 'index'])->name('permission-categories.index');
+    Route::get('/permission-categories/create', [PermissionCategoryController::class, 'create'])->name('permission-categories.create');
+    Route::post('/permission-categories/store', [PermissionCategoryController::class, 'store'])->name('permission-categories.store');
+    Route::get('/permission-categories/{permissionCategory}/edit', [PermissionCategoryController::class, 'edit'])->name('permission-categories.edit');
+    Route::post('/permission-categories/{permissionCategory}/update', [PermissionCategoryController::class, 'update'])->name('permission-categories.update');
+    Route::delete('/permission-categories/{permissionCategory}', [PermissionCategoryController::class, 'destroy'])->name('permission-categories.destroy');
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::get('/settings/general', [SettingController::class, 'general'])->name('general.settings');
     Route::post('/settings/general/update', [SettingController::class, 'updateGeneral'])->name('general.settings.update');

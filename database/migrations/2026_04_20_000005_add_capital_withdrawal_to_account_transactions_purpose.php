@@ -7,6 +7,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         DB::statement("ALTER TABLE account_transactions MODIFY COLUMN purpose ENUM(
             'income',
             'expense',
@@ -23,6 +27,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         DB::statement("ALTER TABLE account_transactions MODIFY COLUMN purpose ENUM(
             'income',
             'expense',

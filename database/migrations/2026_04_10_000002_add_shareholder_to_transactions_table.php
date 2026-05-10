@@ -2,14 +2,17 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        // MySQL does not support modifying enum directly; use a raw ALTER
-        DB::statement("ALTER TABLE transactions MODIFY COLUMN type ENUM('income','expense','capital','withdrawal') NOT NULL");
+        // Keep test sqlite migrations runnable
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE transactions MODIFY COLUMN type ENUM('income','expense','capital','withdrawal') NOT NULL");
+        }
 
         Schema::table('transactions', function (Blueprint $table) {
             $table->foreignId('shareholder_id')
@@ -30,6 +33,8 @@ return new class extends Migration
             $table->dropColumn('shareholder_id');
         });
 
-        DB::statement("ALTER TABLE transactions MODIFY COLUMN type ENUM('income','expense') NOT NULL");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE transactions MODIFY COLUMN type ENUM('income','expense') NOT NULL");
+        }
     }
 };
