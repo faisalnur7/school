@@ -13,6 +13,7 @@ class InventoryItem extends Model
         'name',
         'description',
         'purchase_price',
+        'selling_price',
         'current_stock',
         'minimum_stock_alert',
         'unit',
@@ -23,6 +24,7 @@ class InventoryItem extends Model
 
     protected $casts = [
         'purchase_price' => 'decimal:2',
+        'selling_price' => 'decimal:2',
         'is_active' => 'boolean',
     ];
 

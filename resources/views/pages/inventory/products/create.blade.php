@@ -83,20 +83,34 @@
                     </div>
                 </div>
 
-                <!-- Row 4: Price, Stock Alert, Status -->
+                <!-- Row 4: Prices -->
                 <div class="row g-2 mb-3">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label class="form-label small font-weight-600 mb-1">Purchase Price</label>
                         <div class="input-group input-group-sm">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">৳</span>
                             </div>
                             <input type="number" step="0.01" min="0" name="purchase_price" value="{{ old('purchase_price', 0) }}" class="form-control form-control-sm @error('purchase_price') is-invalid @enderror" placeholder="0.00">
                         </div>
                         @error('purchase_price')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-6">
+                        <label class="form-label small font-weight-600 mb-1">Selling Price</label>
+                        <div class="input-group input-group-sm">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">৳</span>
+                            </div>
+                            <input type="number" step="0.01" min="0" name="selling_price" value="{{ old('selling_price', 0) }}" class="form-control form-control-sm @error('selling_price') is-invalid @enderror" placeholder="0.00">
+                        </div>
+                        @error('selling_price')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
+                </div>
+
+                <!-- Row 5: Stock Alert & Status -->
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
                         <label class="form-label small font-weight-600 mb-1">Min Stock Alert</label>
                         <div class="input-group input-group-sm">
                             <input type="number" min="0" name="minimum_stock_alert" value="{{ old('minimum_stock_alert', 0) }}" class="form-control form-control-sm @error('minimum_stock_alert') is-invalid @enderror" placeholder="0">
@@ -107,7 +121,7 @@
                         @error('minimum_stock_alert')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label class="form-label small font-weight-600 mb-1">Status</label>
                         <select name="is_active" class="form-control form-control-sm @error('is_active') is-invalid @enderror">
                             <option value="1" {{ old('is_active', '1') == '1' ? 'selected' : '' }}>Active</option>

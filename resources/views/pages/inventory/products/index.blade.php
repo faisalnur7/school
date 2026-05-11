@@ -44,6 +44,7 @@
                              <th>Name</th>
                              <th>Unit</th>
                              <th>Purchase Price</th>
+                             <th>Selling Price</th>
                              <th>Stock</th>
                              <th>Min Alert</th>
                              <th>Status</th>
@@ -53,11 +54,12 @@
                      <tbody>
                          @forelse($items as $item)
                              <tr>
-                                 <td>{{ $item->id }}</td>
+                                 <td>{{ $loop->iteration }}</td>
                                  <td>{{ $item->category?->name }}</td>
                                  <td>{{ $item->name }}</td>
                                  <td>{{ $item->unit }}</td>
                                  <td>{{ number_format((float)$item->purchase_price, 2) }}</td>
+                                 <td>{{ number_format((float)$item->selling_price, 2) }}</td>
                                  <td>
                                      @if($item->minimum_stock_alert > 0 && $item->current_stock < $item->minimum_stock_alert)
                                          <span class="badge badge-danger">{{ $item->current_stock }}</span>

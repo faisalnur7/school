@@ -60,6 +60,7 @@ class InventoryItemController extends Controller
             'name' => ['required', 'string', 'max:200'],
             'description' => ['nullable', 'string'],
             'purchase_price' => ['nullable', 'numeric', 'min:0'],
+            'selling_price' => ['nullable', 'numeric', 'min:0'],
             'minimum_stock_alert' => ['nullable', 'integer', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
             'is_active' => ['nullable', 'boolean'],
@@ -85,6 +86,7 @@ class InventoryItemController extends Controller
         ]);
 
         $validated['purchase_price'] = $validated['purchase_price'] ?? 0;
+        $validated['selling_price'] = $validated['selling_price'] ?? 0;
         $validated['minimum_stock_alert'] = $validated['minimum_stock_alert'] ?? 0;
         $validated['is_active'] = (bool)($validated['is_active'] ?? true);
         $validated['current_stock'] = 0;
@@ -118,6 +120,7 @@ class InventoryItemController extends Controller
             'name' => ['required', 'string', 'max:200'],
             'description' => ['nullable', 'string'],
             'purchase_price' => ['nullable', 'numeric', 'min:0'],
+            'selling_price' => ['nullable', 'numeric', 'min:0'],
             'minimum_stock_alert' => ['nullable', 'integer', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
             'is_active' => ['nullable', 'boolean'],
@@ -143,6 +146,7 @@ class InventoryItemController extends Controller
         ]);
 
         $validated['purchase_price'] = $validated['purchase_price'] ?? $item->purchase_price;
+        $validated['selling_price'] = $validated['selling_price'] ?? $item->selling_price;
         $validated['minimum_stock_alert'] = $validated['minimum_stock_alert'] ?? $item->minimum_stock_alert;
         $validated['is_active'] = (bool)($validated['is_active'] ?? false);
 
