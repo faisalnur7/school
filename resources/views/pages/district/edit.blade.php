@@ -1,73 +1,68 @@
 @extends('layouts.master')
 
-@section('title', 'Edit District')
-@section('page_title', 'Edit District')
-
 @section('contents')
-<div class="container-fluid">
-    <div class="card">
-        <div class="card-header bg-gradient-dark text-white rounded-top">
-            <h3 class="card-title">Edit District</h3>
+<div class="container-fluid px-3 py-3">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold">
+                    <i class="fas fa-edit mr-2"></i>Edit District
+                </h4>
+                <a href="{{ route('district.index') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back
+                </a>
+            </div>
         </div>
-        <div class="card-body">
-            <form action="{{ route('district.update', $district->id) }}" method="POST">
-                @csrf
 
-                <div class="form-group">
-                    <label for="division_id">Division</label>
-                    <select name="division_id" class="form-control @error('division_id') is-invalid @enderror" required>
-                        @foreach ($divisions as $division)
-                            <option value="{{ $division->id }}" {{ $district->division_id == $division->id ? 'selected' : '' }}>
-                                {{ $division->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('division_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        <form method="POST" action="{{ route('district.update', $district->id) }}" id="modernForm">
+            @csrf
+
+            <div class="card-body p-3">
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show border-0 mb-3" role="alert">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Errors:</strong>
+                        <ul class="mb-0 mt-1 ml-4">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
+
+
+            </div>
+
+            <div class="card-footer bg-light border-top py-2 px-3">
+                <div class="d-flex justify-content-between gap-2">
+                    <a href="{{ route('district.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-times mr-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-save mr-1"></i>Update
+                    </button>
                 </div>
-
-                <div class="form-group">
-                    <label for="name">District Name (English)</label>
-                    <input type="text" name="name" value="{{ old('name', $district->name) }}" class="form-control @error('name') is-invalid @enderror" required>
-                    @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="bn_name">District Name (Bangla)</label>
-                    <input type="text" name="bn_name" value="{{ old('bn_name', $district->bn_name) }}" class="form-control @error('bn_name') is-invalid @enderror">
-                    @error('bn_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="lat">Latitude</label>
-                    <input type="text" name="lat" value="{{ old('lat', $district->lat) }}" class="form-control @error('lat') is-invalid @enderror">
-                    @error('lat') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="lon">Longitude</label>
-                    <input type="text" name="lon" value="{{ old('lon', $district->lon) }}" class="form-control @error('lon') is-invalid @enderror">
-                    @error('lon') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="url">URL</label>
-                    <input type="text" name="url" value="{{ old('url', $district->url) }}" class="form-control @error('url') is-invalid @enderror">
-                    @error('url') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="status">Status</label>
-                    <select name="status" class="form-control @error('status') is-invalid @enderror">
-                        <option value="1" {{ $district->status == 1 ? 'selected' : '' }}>Active</option>
-                        <option value="0" {{ $district->status == 0 ? 'selected' : '' }}>Inactive</option>
-                    </select>
-                    @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-
-                <button type="submit" class="btn btn-success">Update</button>
-                <a href="{{ route('district.index') }}" class="btn btn-secondary">Cancel</a>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </div>
+@endsection
+
+@section('styles')
+@include('components.form-styles')
+@endsection
+
+@section('scripts')
+<script>
+    $(function () {
+        if ($('.is-invalid').length > 0) {
+            $('html, body').animate({
+                scrollTop: $('.is-invalid').first().offset().top - 50
+            }, 300);
+        }
+    });
+</script>
 @endsection

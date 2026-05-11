@@ -10,6 +10,7 @@ class FeesHubController extends Controller
             ['icon' => 'fa-tags',           'title' => 'Fee Categories',     'subtitle' => 'Manage fee categories',       'route' => 'fee-categories.index',       'from' => '#4f46e5', 'to' => '#7c3aed'],
             ['icon' => 'fa-layer-group',    'title' => 'Fee Sets',           'subtitle' => 'Manage fee sets',             'route' => 'fee-sets.index',             'from' => '#0891b2', 'to' => '#0e7490'],
             ['icon' => 'fa-award',          'title' => 'Scholarships',       'subtitle' => 'Manage scholarships',         'route' => 'scholarships.index',         'from' => '#059669', 'to' => '#047857'],
+            ['icon' => 'fa-graduation-cap', 'title' => 'Free Studentship',   'subtitle' => 'Manage free studentships',    'route' => 'free-studentships.index',    'from' => '#7c3aed', 'to' => '#6d28d9'],
             ['icon' => 'fa-bus',            'title' => 'Transport Fees',     'subtitle' => 'Manage transport fees',       'route' => 'transports.index',           'from' => '#d97706', 'to' => '#b45309'],
             ['icon' => 'fa-hand-holding-usd', 'title' => 'Collect Payments', 'subtitle' => 'Collect student payments',   'route' => 'fees.collect',               'from' => '#dc2626', 'to' => '#b91c1c'],
             ['icon' => 'fa-receipt',        'title' => 'Student Payments',   'subtitle' => 'View payment history',        'route' => 'payments.index',             'from' => '#7c3aed', 'to' => '#6d28d9'],

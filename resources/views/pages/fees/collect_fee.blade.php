@@ -32,21 +32,11 @@
                     <div class="chip" style="min-width:220px">
                         <span class="chip-label">STUDENT ID</span>
                         <div class="d-flex align-items-center gap-2 mt-1">
-                            <input
-                                type="text"
-                                id="studentCidSwitch"
-                                class="form-control form-control-sm"
-                                value="{{ $student->student_cid }}"
-                                placeholder="Enter Student ID"
-                                autocomplete="off"
-                                style="border-radius:12px;border:1px solid #c7d2fe"
-                            />
-                            <button
-                                type="button"
-                                id="studentCidSwitchBtn"
-                                class="btn btn-sm"
-                                style="border-radius:12px;background:#4338ca;color:#fff"
-                            >
+                            <input type="text" id="studentCidSwitch" class="form-control form-control-sm"
+                                value="{{ $student->student_cid }}" placeholder="Enter Student ID" autocomplete="off"
+                                style="border-radius:12px;border:1px solid #c7d2fe" />
+                            <button type="button" id="studentCidSwitchBtn" class="btn btn-sm"
+                                style="border-radius:12px;background:#4338ca;color:#fff">
                                 Switch
                             </button>
                         </div>
@@ -147,15 +137,18 @@
                                     <div class="d-flex flex-column gap-3" id="feeList">
                                         @foreach ($pendingFees as $fee)
                                             @php
-                                                $feeSetName = $fee->feeSet->frequency == 'monthly'
-                                                    ? Carbon\Carbon::parse($fee->due_date)->format('F - Y')
-                                                    : $fee->feeSet->name;
+                                                $feeSetName =
+                                                    $fee->feeSet->frequency == 'monthly'
+                                                        ? Carbon\Carbon::parse($fee->due_date)->format('F - Y')
+                                                        : $fee->feeSet->name;
                                             @endphp
                                             <div class="fee-card bg-white rounded-4 p-3" data-cat="{{ $fee->fee_set_id }}"
-                                                data-id="{{ $fee->id }}" data-amount="{{ $fee->calculated_net_amount ?? $fee->net_amount }}"
+                                                data-id="{{ $fee->id }}"
+                                                data-amount="{{ $fee->calculated_net_amount ?? $fee->net_amount }}"
                                                 data-gross="{{ $fee->amount }}"
                                                 data-discount="{{ $fee->total_scholarship_discount ?? 0 }}"
-                                                data-name="{{ $feeSetName }}" style="display:none!important">
+                                                data-name="{{ $feeSetName }}" data-items='@json($fee->feeSet->items->map(fn($i) => ['category' => $i->category->name, 'amount' => $i->amount]))'
+                                                style="display:none!important">
                                                 <div class="d-flex justify-content-between align-items-start">
                                                     <div>
                                                         <p class="fw-semibold text-dark mb-1" style="font-size:15px">
@@ -164,28 +157,35 @@
                                                         <p class="mono text-muted mb-0" style="font-size:12px">
                                                             Due: {{ $fee->due_date }}
                                                         </p>
-                                                        @if(!empty($fee->category_discounts))
-                                                            @foreach($fee->category_discounts as $catDiscount)
-                                                                <p class="mono mb-0 mt-1" style="font-size:11px;color:#059669">
-                                                                    <span class="badge rounded-pill" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-size:10px">
-                                                                        🎓 {{ $catDiscount['category'] }}: -৳{{ number_format($catDiscount['discount'], 2) }}
+                                                        @if (!empty($fee->category_discounts))
+                                                            @foreach ($fee->category_discounts as $catDiscount)
+                                                                <p class="mono mb-0 mt-1"
+                                                                    style="font-size:11px;color:#059669">
+                                                                    <span class="badge rounded-pill"
+                                                                        style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-size:10px">
+                                                                        🎓 {{ $catDiscount['category'] }}:
+                                                                        -৳{{ number_format($catDiscount['discount'], 2) }}
                                                                     </span>
                                                                 </p>
                                                             @endforeach
                                                         @endif
-                                                        @if(!empty($fee->category_transports))
-                                                            @foreach($fee->category_transports as $catTransport)
-                                                                <p class="mono mb-0 mt-1" style="font-size:11px;color:#4338ca">
-                                                                    <span class="badge rounded-pill" style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:10px">
-                                                                        🚌 {{ $catTransport['category'] }}: +৳{{ number_format($catTransport['amount'], 2) }}
+                                                        @if (!empty($fee->category_transports))
+                                                            @foreach ($fee->category_transports as $catTransport)
+                                                                <p class="mono mb-0 mt-1"
+                                                                    style="font-size:11px;color:#4338ca">
+                                                                    <span class="badge rounded-pill"
+                                                                        style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:10px">
+                                                                        🚌 {{ $catTransport['category'] }}:
+                                                                        +৳{{ number_format($catTransport['amount'], 2) }}
                                                                     </span>
                                                                 </p>
                                                             @endforeach
                                                         @endif
                                                     </div>
                                                     <div class="text-end ms-3">
-                                                        @if(!empty($fee->category_discounts) || !empty($fee->category_transports))
-                                                            <p class="mono text-muted mb-0" style="font-size:12px;text-decoration:line-through">
+                                                        @if (!empty($fee->category_discounts) || !empty($fee->category_transports))
+                                                            <p class="mono text-muted mb-0"
+                                                                style="font-size:12px;text-decoration:line-through">
                                                                 {{ number_format($fee->amount, 2) }}
                                                             </p>
                                                         @endif
@@ -272,6 +272,12 @@
                                                 style="font-size:28px;color:#4338ca">0.00</span>
                                         </div>
                                     </div>
+
+                                    <div class="mb-3">
+                                        <textarea name="description" id="descriptionInput" class="form-control" rows="2"
+                                            placeholder="Add payment note or description" style="font-size:13px;border-radius:8px;border:1px solid #e2e8f0">{{ old('description') }}</textarea>
+                                    </div>
+
                                     <button type="button" class="collect-btn btn w-100 fw-bold text-white rounded-3 py-3"
                                         id="collectBtn" disabled
                                         style="background:linear-gradient(135deg,#6366f1,#4338ca);font-size:14px">
@@ -366,7 +372,7 @@
                                                 <span class="text-muted mono" style="font-size:11px"> BDT</span>
                                             </td>
                                             <td class="px-4 py-3">
-                                                @if($payment->scholarship_amount > 0)
+                                                @if ($payment->scholarship_amount > 0)
                                                     <span class="mono fw-bold" style="font-size:13px;color:#059669">
                                                         -{{ number_format($payment->scholarship_amount, 2) }}
                                                     </span>
@@ -376,7 +382,7 @@
                                                 @endif
                                             </td>
                                             <td class="px-4 py-3">
-                                                @if($payment->discount_amount > 0)
+                                                @if ($payment->discount_amount > 0)
                                                     <span class="mono fw-bold" style="font-size:13px;color:#b45309">
                                                         -{{ number_format($payment->discount_amount, 2) }}
                                                     </span>
@@ -500,7 +506,8 @@
                     success: function(res) {
                         if (!res?.success || !res?.redirect_url) {
                             Swal.close();
-                            showSwitchError('Student Not Found', 'No student found with CID: ' + cid + '. Please check and try again.', 'error');
+                            showSwitchError('Student Not Found', 'No student found with CID: ' + cid +
+                                '. Please check and try again.', 'error');
                             return;
                         }
 
@@ -520,16 +527,19 @@
                         const msg = xhr.responseJSON?.message;
 
                         if (xhr.status === 422) {
-                            showSwitchError('Invalid CID', msg || 'Please enter a valid student CID.', 'warning');
+                            showSwitchError('Invalid CID', msg || 'Please enter a valid student CID.',
+                                'warning');
                             return;
                         }
 
                         if (xhr.status === 404) {
-                            showSwitchError('Student Not Found', msg || ('No student found with CID: ' + cid + '. Please check and try again.'), 'error');
+                            showSwitchError('Student Not Found', msg || ('No student found with CID: ' +
+                                cid + '. Please check and try again.'), 'error');
                             return;
                         }
 
-                        showSwitchError('Error', msg || 'Something went wrong. Please try again.', 'error');
+                        showSwitchError('Error', msg || 'Something went wrong. Please try again.',
+                            'error');
                     },
                     complete: function() {
                         $studentCidBtn.prop('disabled', false).text('Switch');
@@ -585,39 +595,61 @@
             $feeCards.on('click', function() {
                 let id = $(this).data('id');
                 let amount = parseFloat($(this).data('amount'));
-                let gross  = parseFloat($(this).data('gross') || $(this).data('amount'));
+                let gross = parseFloat($(this).data('gross') || $(this).data('amount'));
                 let discount = parseFloat($(this).data('discount') || 0);
                 let name = $(this).data('name');
+                let items = $(this).data('items') || [];
                 if (cartIds.has(id)) return;
                 cartIds.add(id);
                 subtotal += amount;
-                cartData.push({ id, name, amount });
+                cartData.push({
+                    id,
+                    name,
+                    amount,
+                    gross,
+                    discount,
+                    items
+                });
                 $(this).addClass('in-cart');
                 $cartEmpty.hide();
-                let discountHtml = discount > 0
-                    ? `<span class="mono" style="font-size:11px;color:#059669">Scholarship: -${discount.toFixed(2)}</span><br>`
-                    : '';
-                let grossHtml = discount > 0
-                    ? `<span class="mono text-muted" style="font-size:11px;text-decoration:line-through">${gross.toFixed(2)}</span><br>`
-                    : '';
+
+                let discountHtml = discount > 0 ?
+                    `<span class="mono" style="font-size:11px;color:#059669">Scholarship: -${discount.toFixed(2)}</span><br>` :
+                    '';
+                let grossHtml = discount > 0 ?
+                    `<span class="mono text-muted" style="font-size:11px;text-decoration:line-through">${gross.toFixed(2)}</span><br>` :
+                    '';
+
+                let itemsBreakdown = '';
+                if (items.length > 0) {
+                    itemsBreakdown = '<div class="mt-1 ps-2" style="font-size:11px;color:#64748b;">';
+                    items.forEach(function(item) {
+                        itemsBreakdown += '<div class="d-flex justify-content-between"><span>• ' +
+                            item.category + '</span><span>' + parseFloat(item.amount).toFixed(2) +
+                            '</span></div>';
+                    });
+                    itemsBreakdown += '</div>';
+                }
+
                 let html = `
-                    <div class="cart-row d-flex align-items-center gap-2 rounded-3 px-3 py-2"
-                         id="cart-${id}"
-                         style="background:#f8fafc;border:1.5px solid #e2e8f0">
-                        <input type="hidden" name="fees[]" value="${id}">
-                        <div class="flex-grow-1" style="line-height:1.4">
-                            <span class="fw-semibold text-dark" style="font-size:13px">${name}</span><br>
-                            ${discountHtml}
-                        </div>
-                        <div class="text-end">
-                            ${grossHtml}
-                            <span class="mono fw-bold" style="font-size:13px;color:#4338ca;white-space:nowrap">${amount.toFixed(2)}</span>
-                        </div>
-                        <button type="button"
-                                class="remove-btn btn btn-light btn-sm border rounded-2 px-2 py-1"
-                                data-id="${id}" data-amount="${amount}"
-                                style="font-size:13px;line-height:1">✕</button>
-                    </div>`;
+                     <div class="cart-row d-flex align-items-start gap-2 rounded-3 px-3 py-2"
+                          id="cart-${id}"
+                          style="background:#f8fafc;border:1.5px solid #e2e8f0">
+                         <input type="hidden" name="fees[]" value="${id}">
+                         <div class="flex-grow-1" style="line-height:1.4">
+                             <span class="fw-semibold text-dark" style="font-size:13px">${name}</span><br>
+                             ${discountHtml}
+                             ${itemsBreakdown}
+                         </div>
+                         <div class="text-end">
+                             ${grossHtml}
+                             <span class="mono fw-bold" style="font-size:13px;color:#4338ca;white-space:nowrap">${amount.toFixed(2)}</span>
+                         </div>
+                         <button type="button"
+                                 class="remove-btn btn btn-light btn-sm border rounded-2 px-2 py-1"
+                                 data-id="${id}" data-amount="${amount}"
+                                 style="font-size:13px;line-height:1">✕</button>
+                     </div>`;
                 $cartItemsEl.append(html);
                 updateUI();
             });
@@ -658,7 +690,7 @@
 
 
             /* ── AJAX Collect ── */
-            $('#collectBtn').on('click', function () {
+            $('#collectBtn').on('click', function() {
 
                 if (cartIds.size === 0) return;
 
@@ -667,26 +699,29 @@
 
                 // Build payload
                 const payload = {
-                    _token:          $('input[name="_token"]').first().val(),
-                    fees:            [...cartIds],
-                    discount:        $('#discountInput').val() || 0,
-                    discount_type:   $('#discountTypeHidden').val(),
+                    _token: $('input[name="_token"]').first().val(),
+                    fees: [...cartIds],
+                    discount: $('#discountInput').val() || 0,
+                    discount_type: $('#discountTypeHidden').val(),
                     discount_amount: $('#discountAmountHidden').val(),
+                    description: $('#descriptionInput').val() || '',
                 };
 
                 $.ajax({
-                    url:         '{{ route('fees.pay') }}',
-                    method:      'POST',
-                    data:        payload,
-                    dataType:    'json',
+                    url: '{{ route('fees.pay') }}',
+                    method: 'POST',
+                    data: payload,
+                    dataType: 'json',
 
-                    success: function (res) {
+                    success: function(res) {
 
                         // ── Show toast ──
                         $('#toastReceiptNo').text('Receipt: ' + res.receipt_no);
                         const $toast = $('#paymentToast');
                         $toast.css('display', 'flex').hide().fadeIn(250);
-                        setTimeout(function () { $toast.fadeOut(400); }, 3500);
+                        setTimeout(function() {
+                            $toast.fadeOut(400);
+                        }, 3500);
 
                         // ── Reset cart ──
                         cartIds.clear();
@@ -695,17 +730,19 @@
                         $('#cartItems').empty();
                         $('#cartEmpty').show();
                         $('#discountInput').val(0);
+                        $('#descriptionInput').val('');
                         $btn.prop('disabled', true).html('✓ &nbsp;COLLECT PAYMENT');
                         updateUI();
 
                         // ── Open receipt in new tab & auto-print ──
-                        const receiptUrl = '{{ url('payments') }}/' + res.payment_id + '/receipt';
+                        const receiptUrl = '{{ url('payments') }}/' + res.payment_id +
+                            '/receipt';
                         const win = window.open(receiptUrl, '_blank');
 
                         // Fire print once the new tab has loaded
                         if (win) {
-                            win.addEventListener('load', function () {
-                                setTimeout(function () {
+                            win.addEventListener('load', function() {
+                                setTimeout(function() {
                                     win.focus();
                                     win.print();
                                 }, 600); // small delay for fonts/styles to settle
@@ -713,22 +750,25 @@
                         }
                     },
 
-                    error: function (xhr) {
-                        const msg = xhr.responseJSON?.message ?? 'Something went wrong. Please try again.';
+                    error: function(xhr) {
+                        const msg = xhr.responseJSON?.message ??
+                            'Something went wrong. Please try again.';
 
                         // ── Error toast ──
                         const $toast = $('#paymentToast');
                         $toast.css('background', '#dc2626');
                         $('#paymentToast span:first').text('✕');
-                        $toast.find('.fw-800, [style*="font-weight:800"]').text('PAYMENT FAILED');
+                        $toast.find('.fw-800, [style*="font-weight:800"]').text(
+                            'PAYMENT FAILED');
                         $('#toastReceiptNo').text(msg);
                         $toast.css('display', 'flex').hide().fadeIn(250);
-                        setTimeout(function () {
-                            $toast.fadeOut(400, function () {
+                        setTimeout(function() {
+                            $toast.fadeOut(400, function() {
                                 // Reset toast to success style for next time
                                 $toast.css('background', '#111');
                                 $('#paymentToast span:first').text('✓');
-                                $toast.find('[style*="font-weight:800"]').text('PAYMENT COLLECTED');
+                                $toast.find('[style*="font-weight:800"]').text(
+                                    'PAYMENT COLLECTED');
                             });
                         }, 4000);
 

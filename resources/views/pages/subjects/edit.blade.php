@@ -1,23 +1,39 @@
 @extends('layouts.master')
 
 @section('contents')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Edit Subject</h3>
-                    <div class="card-tools">
-                        <a href="{{ route('subjects.index') }}" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-list"></i> Back to List
-                        </a>
+<div class="container-fluid px-3 py-3">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold">
+                    <i class="fas fa-edit mr-2"></i>Edit Subject
+                </h4>
+                <a href="{{ route('subjects.index.index') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back
+                </a>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ route('subjects.update', $subject->id) }}" id="modernForm">
+            @csrf
+
+            <div class="card-body p-3">
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show border-0 mb-3" role="alert">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Errors:</strong>
+                        <ul class="mb-0 mt-1 ml-4">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-                </div>
-                <form method="POST" action="{{ route('subjects.update', $subject->id) }}">
-                    @csrf
-                    @method('PUT')
-                    <div class="card-body">
-                        <div class="row">
+                @endif
+
+<div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="name">Subject Name <span class="text-danger">*</span></label>
@@ -357,255 +373,35 @@
                                 </div>
                             </div>
                         </div>
-
-                    </div>
-                    <div class="card-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Update Subject
-                        </button>
-                        <a href="{{ route('subjects.index') }}" class="btn btn-secondary">Cancel</a>
-                    </div>
-                </form>
             </div>
-        </div>
+
+            <div class="card-footer bg-light border-top py-2 px-3">
+                <div class="d-flex justify-content-between gap-2">
+                    <a href="{{ route('subjects.index.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-times mr-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-save mr-1"></i>Update
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 @endsection
 
+@section('styles')
+@include('components.form-styles')
+@endsection
+
 @section('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Calculate total marks
-        const marksInputs = document.querySelectorAll('.marks-input');
-        const totalMarksInput = document.getElementById('total_marks');
-
-        function calculateTotal() {
-            let total = 0;
-            marksInputs.forEach(input => {
-                total += parseFloat(input.value) || 0;
-            });
-            totalMarksInput.value = total.toFixed(2);
+    $(function () {
+        if ($('.is-invalid').length > 0) {
+            $('html, body').animate({
+                scrollTop: $('.is-invalid').first().offset().top - 50
+            }, 300);
         }
-
-        marksInputs.forEach(input => {
-            input.addEventListener('input', calculateTotal);
-        });
-
-        calculateTotal();
-
-        // Toggle class assignment fields
-        const assignCheckbox = document.getElementById('assign_to_class');
-        const classFields = document.getElementById('class_assignment_fields');
-
-        if (assignCheckbox) {
-            assignCheckbox.addEventListener('change', function() {
-                classFields.style.display = this.checked ? 'block' : 'none';
-            });
-        }
-        
-        // Pre-select existing assignment values
-        @if($subject->classAssignments->count() > 0)
-        assignCheckbox.checked = true;
-        classFields.style.display = 'block';
-        
-        // Get all assigned class IDs
-        var assignedClassIds = [
-            @foreach($subject->classAssignments as $assignment)
-                "{{ $assignment->school_class_id }}",
-            @endforeach
-        ];
-        
-        var schoolClassSelect = document.getElementById('school_class_ids');
-        if (schoolClassSelect) {
-            Array.from(schoolClassSelect.options).forEach(function(option) {
-                if (assignedClassIds.includes(option.value)) {
-                    option.selected = true;
-                }
-            });
-        }
-        
-        document.getElementById('group_id').value = '{{ $subject->classAssignments->first()->group_id ?? '' }}';
-        document.getElementById('gender').value = '{{ $subject->classAssignments->first()->gender }}';
-        document.getElementById('religion').value = '{{ $subject->classAssignments->first()->religion }}';
-        document.getElementById('is_optional').checked = {{ $subject->classAssignments->first()->is_optional ? 'true' : 'false' }};
-        @endif
-
-        // Toggle papers section
-        const hasMultiplePapersCheckbox = document.getElementById('has_multiple_papers');
-        const papersSection = document.getElementById('papers_section');
-        const papersContainer = document.getElementById('papers_container');
-        const addPaperBtn = document.getElementById('add_paper_btn');
-
-        hasMultiplePapersCheckbox.addEventListener('change', function() {
-            papersSection.style.display = this.checked ? 'block' : 'none';
-        });
-
-        // Show papers section if has_multiple_papers is checked
-        if (hasMultiplePapersCheckbox.checked) {
-            papersSection.style.display = 'block';
-        }
-
-        // Add paper dynamically
-        addPaperBtn.addEventListener('click', function() {
-            const index = papersContainer.children.length;
-            const paperHtml = `
-                <div class="paper-item card card-body mb-2" style="border-left: 4px solid #007bff;">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Paper Name *</label>
-                                <input type="text" name="papers[${index}][name]" class="form-control" required 
-                                    placeholder="e.g., Bangla 1st Paper">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Paper Code</label>
-                                <input type="text" name="papers[${index}][code]" class="form-control" 
-                                    placeholder="Optional">
-                            </div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="form-group">
-                                <label>&nbsp;</label>
-                                <button type="button" class="btn btn-danger btn-sm remove-paper-btn">
-                                    <i class="fas fa-trash"></i> Remove
-                                </button>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Creative Marks</label>
-                                <input type="number" name="papers[${index}][creative_marks]" class="form-control paper-marks" 
-                                    value="0" min="0" step="0.01">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>MCQ Marks</label>
-                                <input type="number" name="papers[${index}][mcq_marks]" class="form-control paper-marks" 
-                                    value="0" min="0" step="0.01">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Practical Marks</label>
-                                <input type="number" name="papers[${index}][practical_marks]" class="form-control paper-marks" 
-                                    value="0" min="0" step="0.01">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Viva Marks</label>
-                                <input type="number" name="papers[${index}][viva_marks]" class="form-control paper-marks" 
-                                    value="0" min="0" step="0.01">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Pass Mark</label>
-                                <input type="number" name="papers[${index}][pass_mark]" class="form-control" 
-                                    value="0" min="0" step="0.01">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            papersContainer.insertAdjacentHTML('beforeend', paperHtml);
-            
-            // Add event listener to remove button
-            const removeBtn = papersContainer.querySelector(`.paper-item:last-child .remove-paper-btn`);
-            removeBtn.addEventListener('click', function() {
-                this.closest('.paper-item').remove();
-            });
-        });
-
-        // Add remove listeners to existing papers
-        document.querySelectorAll('.paper-item .remove-paper-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                this.closest('.paper-item').remove();
-            });
-        });
-
-        // Class config management
-        const classConfigsContainer = document.getElementById('class_configs_container');
-        const addClassConfigBtn = document.getElementById('add_class_config_btn');
-
-        addClassConfigBtn.addEventListener('click', function() {
-            const index = classConfigsContainer.children.length;
-            const existingConfigs = @json($subject->classConfigs);
-            
-            const configHtml = `
-                <div class="class-config-item card card-body mb-2" style="border-left: 4px solid #17a2b8;">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Class *</label>
-                                <select name="class_configs[${index}][class_id]" class="form-control" required>
-                                    <option value="">Select Class</option>
-                                    @foreach($classes as $id => $name)
-                                        <option value="{{ $id }}">{{ $name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Creative Marks</label>
-                                <input type="number" name="class_configs[${index}][creative_marks]" class="form-control" 
-                                    value="0" min="0" step="0.01" placeholder="Default: {{ $subject->creative_marks ?? 0 }}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>MCQ Marks</label>
-                                <input type="number" name="class_configs[${index}][mcq_marks]" class="form-control" 
-                                    value="0" min="0" step="0.01" placeholder="Default: {{ $subject->mcq_marks ?? 0 }}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Practical Marks</label>
-                                <input type="number" name="class_configs[${index}][practical_marks]" class="form-control" 
-                                    value="0" min="0" step="0.01" placeholder="Default: {{ $subject->practical_marks ?? 0 }}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Viva Marks</label>
-                                <input type="number" name="class_configs[${index}][viva_marks]" class="form-control" 
-                                    value="0" min="0" step="0.01" placeholder="Default: {{ $subject->viva_marks ?? 0 }}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Pass Mark</label>
-                                <input type="number" name="class_configs[${index}][pass_mark]" class="form-control" 
-                                    value="0" min="0" step="0.01" placeholder="Default: {{ $subject->pass_mark ?? 0 }}">
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>&nbsp;</label>
-                                <button type="button" class="btn btn-danger btn-sm remove-class-config-btn">
-                                    <i class="fas fa-trash"></i> Remove
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            classConfigsContainer.insertAdjacentHTML('beforeend', configHtml);
-            
-            // Add event listener to remove button
-            const removeBtn = classConfigsContainer.querySelector(`.class-config-item:last-child .remove-class-config-btn`);
-            removeBtn.addEventListener('click', function() {
-                this.closest('.class-config-item').remove();
-            });
-        });
-
-        // Add pre-existing class configs as hidden display (already shown in table above)
-        // The ADD button is for adding NEW configs
     });
 </script>
 @endsection

@@ -14,4 +14,8 @@
     @include('scripts.common.load_location')
     @include('scripts.common.load_academic_information')
     @include('scripts.student.main_script')
+@section('styles')
+@include('components.form-styles')
+@endsection
+
 @endsection

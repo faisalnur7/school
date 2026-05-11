@@ -1,21 +1,39 @@
 @extends('layouts.master')
 
 @section('contents')
-    <div class="container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-md-4">
-                <div class="card card-primary">
-                    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
-                        <h3 class="card-title">Edit Income</h3>
+<div class="container-fluid px-3 py-3">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold">
+                    <i class="fas fa-edit mr-2"></i>Edit Income
+                </h4>
+                <a href="{{ route('incomes.index') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back
+                </a>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ route('incomes.update', $income->id) }}" id="modernForm">
+            @csrf
+
+            <div class="card-body p-3">
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show border-0 mb-3" role="alert">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Errors:</strong>
+                        <ul class="mb-0 mt-1 ml-4">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
+                @endif
 
-                    <form method="POST" action="{{ route('incomes.update', $income->id) }}" enctype="multipart/form-data">
-                        @csrf
-                        @method('PUT')
-
-                        <div class="card-body">
-
-                            <div class="form-group">
+<div class="form-group">
                                 <label>Category</label>
                                 <select name="income_category_id" class="form-control" required>
                                     <option value="">Select Category</option>
@@ -99,94 +117,35 @@
                                 <small class="text-muted">Leave empty to keep existing attachment</small>
                                 @error('attachment') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
+            </div>
 
-                        </div>
-
-                        <div class="card-footer">
-                            <button class="btn btn-success">Update</button>
-                            <a href="{{ route('incomes.index') }}" class="btn btn-secondary">Back</a>
-                        </div>
-                    </form>
+            <div class="card-footer bg-light border-top py-2 px-3">
+                <div class="d-flex justify-content-between gap-2">
+                    <a href="{{ route('incomes.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-times mr-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-save mr-1"></i>Update
+                    </button>
                 </div>
             </div>
-
-            <div class="col-md-8">
-                @include('pages.incomes.table')
-            </div>
-        </div>
+        </form>
     </div>
+</div>
+@endsection
+
+@section('styles')
+@include('components.form-styles')
 @endsection
 
 @section('scripts')
 <script>
-    const incomeAccountsUrl = '{{ route('accounts.index') }}';
-    const savedIncomeMethod = '{{ old('payment_method', $income->payment_method) }}';
-    const savedIncomeAccount = '{{ old('account_id', $income->account_id ?? '') }}';
-
-    const incomeMethodTypeMap = {
-        'Cash': 'hand_cash',
-        'Bank Transfer': 'bank',
-        'Mobile Banking': 'mobile',
-    };
-
-    const incomeAccountTypeMap = {
-        'Cash': '\\App\\Models\\HandCash',
-        'Bank Transfer': '\\App\\Models\\BankAccount',
-        'Mobile Banking': '\\App\\Models\\MobileBankingAccount',
-    };
-
-    function incomeLoadAccounts(method, selectedId = null) {
-        const type = incomeMethodTypeMap[method];
-        const accountType = incomeAccountTypeMap[method];
-        const wrapper = $('#incomeAccountWrapper');
-        const select  = $('#incomeAccountSelect');
-
-        if (!type) {
-            wrapper.hide();
-            $('#incomeAccountType').val('');
-            select.html('<option value="">Select Account</option>');
-            return;
+    $(function () {
+        if ($('.is-invalid').length > 0) {
+            $('html, body').animate({
+                scrollTop: $('.is-invalid').first().offset().top - 50
+            }, 300);
         }
-
-        $('#incomeAccountType').val(accountType);
-
-        $.ajax({
-            url: incomeAccountsUrl,
-            method: 'GET',
-            dataType: 'json',
-            data: { type: type },
-            success: function (accounts) {
-                select.html('<option value="">Select Account</option>');
-                accounts.forEach(a => {
-                    const selected = selectedId && String(a.id) === String(selectedId) ? 'selected' : '';
-                    select.append(`<option value="${a.id}" ${selected}>${a.label}</option>`);
-                });
-                if (accounts.length > 0) {
-                    wrapper.show();
-                } else {
-                    wrapper.hide();
-                }
-            },
-            error: function () {
-                wrapper.hide();
-            }
-        });
-    }
-
-    $(document).ready(function () {
-        const savedAccountType = '{{ old('account_type', $income->account_type ?? '') }}';
-
-        if (savedAccountType) {
-            $('#incomeAccountType').val(savedAccountType);
-        }
-
-        if (incomeMethodTypeMap[savedIncomeMethod]) {
-            incomeLoadAccounts(savedIncomeMethod, savedIncomeAccount);
-        }
-
-        $('#paymentMethod').on('change', function () {
-            incomeLoadAccounts($(this).val());
-        });
     });
 </script>
 @endsection

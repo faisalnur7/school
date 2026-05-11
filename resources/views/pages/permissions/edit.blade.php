@@ -1,61 +1,68 @@
 @extends('layouts.master')
 
 @section('contents')
-<div class="container-fluid">
-    <div class="card">
-        <div class="card-header text-white rounded-top shadow p-3">
-            <h3 class="card-title mb-0 text-white">Edit Permission</h3>
+<div class="container-fluid px-3 py-3">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold">
+                    <i class="fas fa-edit mr-2"></i>Form
+                </h4>
+                <a href="{{ route('permissions.index') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back
+                </a>
+            </div>
         </div>
 
-        <div class="card-body">
-            <form action="{{ route('permissions.update', $permission->id) }}" method="POST">
-                @csrf
+        <form method="POST" action="{{ route('permissions.update', $permission->id) }}" id="modernForm">
+            @csrf
 
-                <div class="form-group mb-3">
-                    <label for="name">Permission Name (slug) <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $permission->name) }}" required maxlength="100">
-                    @error('name')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                    @enderror
-                </div>
+            <div class="card-body p-3">
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show border-0 mb-3" role="alert">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Errors:</strong>
+                        <ul class="mb-0 mt-1 ml-4">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
 
-                <div class="form-group mb-3">
-                    <label for="display_name">Display Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control @error('display_name') is-invalid @enderror" id="display_name" name="display_name" value="{{ old('display_name', $permission->display_name) }}" required maxlength="100">
-                    @error('display_name')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                    @enderror
-                </div>
 
-                <div class="form-group mb-3">
-                    <label for="category_id">Category</label>
-                    <select class="form-control @error('category_id') is-invalid @enderror" id="category_id" name="category_id">
-                        <option value="">Select Category</option>
-                        @foreach ($categories as $category)
-                            <option value="{{ $category->id }}" {{ old('category_id', $permission->category_id) == $category->id ? 'selected' : '' }}>
-                                {{ $category->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('category_id')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                    @enderror
-                </div>
+            </div>
 
-                <div class="form-group mb-3">
-                    <label for="description">Description</label>
-                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="3">{{ old('description', $permission->description) }}</textarea>
-                    @error('description')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                    @enderror
+            <div class="card-footer bg-light border-top py-2 px-3">
+                <div class="d-flex justify-content-between gap-2">
+                    <a href="{{ route('permissions.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-times mr-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-save mr-1"></i>Update
+                    </button>
                 </div>
-
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Update Permission</button>
-                    <a href="{{ route('permissions.index') }}" class="btn btn-secondary">Cancel</a>
-                </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </div>
+@endsection
+
+@section('styles')
+@include('components.form-styles')
+@endsection
+
+@section('scripts')
+<script>
+    $(function () {
+        if ($('.is-invalid').length > 0) {
+            $('html, body').animate({
+                scrollTop: $('.is-invalid').first().offset().top - 50
+            }, 300);
+        }
+    });
+</script>
 @endsection

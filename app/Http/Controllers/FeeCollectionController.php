@@ -19,6 +19,7 @@ use App\Models\PaymentItem;
 use App\Models\IncomeCategory;
 use App\Models\Transport;
 use App\Models\Scholarship;
+use App\Models\FreeStudentship;
 
 class FeeCollectionController extends Controller
 {
@@ -172,8 +173,35 @@ class FeeCollectionController extends Controller
         $scholarships = Scholarship::where('student_id', $student->id)
             ->where('status', 'active')
             ->when($sessionId, fn($q) => $q->where('academic_session_id', $sessionId))
-            ->get()
-            ->keyBy('fee_category_id');
+            ->get();
+
+        // Index scholarships by fee_category_id (null = applies to all)
+        $scholarshipsByCategory = [];
+        $scholarshipsForAll = [];
+        foreach ($scholarships as $s) {
+            if ($s->fee_category_id === null) {
+                $scholarshipsForAll[] = $s;
+            } else {
+                $scholarshipsByCategory[$s->fee_category_id] = $s;
+            }
+        }
+
+        // Get active free studentships for this student
+        $freeStudentships = FreeStudentship::where('student_id', $student->id)
+            ->where('status', 'active')
+            ->when($sessionId, fn($q) => $q->where('academic_session_id', $sessionId))
+            ->get();
+
+        // Index free studentships by fee_category_id (null = applies to all)
+        $freeStudentshipsByCategory = [];
+        $freeStudentshipsForAll = [];
+        foreach ($freeStudentships as $fs) {
+            if ($fs->fee_category_id === null) {
+                $freeStudentshipsForAll[] = $fs;
+            } else {
+                $freeStudentshipsByCategory[$fs->fee_category_id] = $fs;
+            }
+        }
 
         // Get active transports for this student
         $transports = Transport::where('student_id', $student->id)
@@ -190,9 +218,9 @@ class FeeCollectionController extends Controller
             $totalTransport = 0;
 
             foreach ($fee->feeSet->items as $item) {
-                // Scholarships
-                if (isset($scholarships[$item->fee_category_id])) {
-                    $scholarship = $scholarships[$item->fee_category_id];
+                // Scholarships - specific category
+                if (isset($scholarshipsByCategory[$item->fee_category_id])) {
+                    $scholarship = $scholarshipsByCategory[$item->fee_category_id];
                     $discount = $scholarship->calculateDiscount($item->amount);
                     $categoryDiscounts[] = [
                         'category' => $item->category->name_en,
@@ -202,10 +230,54 @@ class FeeCollectionController extends Controller
                     ];
                     $totalDiscount += $discount;
                 }
+
+                // Free Studentships - specific category
+                if (isset($freeStudentshipsByCategory[$item->fee_category_id])) {
+                    $freeStudentship = $freeStudentshipsByCategory[$item->fee_category_id];
+                    $discount = $freeStudentship->calculateDiscount($item->amount);
+                    $categoryDiscounts[] = [
+                        'category' => $item->category->name_en . ' (Free)',
+                        'amount' => $item->amount,
+                        'discount' => $discount,
+                        'net' => $item->amount - $discount,
+                    ];
+                    $totalDiscount += $discount;
+                }
+            }
+
+            // Scholarships - applies to all categories (once per fee)
+            if (!empty($scholarshipsForAll)) {
+                foreach ($scholarshipsForAll as $scholarship) {
+                    $discount = $scholarship->calculateDiscount($fee->amount - $totalDiscount);
+                    if ($discount > 0) {
+                        $categoryDiscounts[] = [
+                            'category' => 'Scholarship (All Categories)',
+                            'amount' => $fee->amount - $totalDiscount,
+                            'discount' => $discount,
+                            'net' => ($fee->amount - $totalDiscount) - $discount,
+                        ];
+                        $totalDiscount += $discount;
+                    }
+                }
+            }
+
+            // Free Studentships - applies to all categories (once per fee)
+            if (!empty($freeStudentshipsForAll)) {
+                foreach ($freeStudentshipsForAll as $freeStudentship) {
+                    $discount = $freeStudentship->calculateDiscount($fee->amount - $totalDiscount);
+                    if ($discount > 0) {
+                        $categoryDiscounts[] = [
+                            'category' => 'Free All Categories',
+                            'amount' => $fee->amount - $totalDiscount,
+                            'discount' => $discount,
+                            'net' => ($fee->amount - $totalDiscount) - $discount,
+                        ];
+                        $totalDiscount += $discount;
+                    }
+                }
             }
 
             $fee->category_discounts = $categoryDiscounts;
-            // $fee->category_transports = $categoryTransports;
             $fee->total_scholarship_discount = $totalDiscount;
             $fee->total_transport_fee = $totalTransport;
             $fee->calculated_net_amount = $fee->amount - $totalDiscount + $totalTransport;
@@ -223,6 +295,7 @@ class FeeCollectionController extends Controller
             'payment_method' => 'nullable|string|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other,cash,bank,mobile_wallet',
             'account_type'   => 'nullable|in:App\\Models\\HandCash,App\\Models\\BankAccount,App\\Models\\MobileBankingAccount',
             'account_id'     => 'nullable|integer',
+            'description'    => 'nullable|string|max:1000',
         ]);
 
         DB::beginTransaction();
@@ -246,8 +319,34 @@ class FeeCollectionController extends Controller
             $scholarships = Scholarship::where('student_id', $studentId)
                 ->where('status', 'active')
                 ->when($sessionId, fn($q) => $q->where('academic_session_id', $sessionId))
-                ->get()
-                ->keyBy('fee_category_id');
+                ->get();
+
+            // Index scholarships by fee_category_id
+            $scholarshipsByCategory = [];
+            $scholarshipsForAll = [];
+            foreach ($scholarships as $s) {
+                if ($s->fee_category_id === null) {
+                    $scholarshipsForAll[] = $s;
+                } else {
+                    $scholarshipsByCategory[$s->fee_category_id] = $s;
+                }
+            }
+
+            $freeStudentships = FreeStudentship::where('student_id', $studentId)
+                ->where('status', 'active')
+                ->when($sessionId, fn($q) => $q->where('academic_session_id', $sessionId))
+                ->get();
+
+            // Index free studentships by fee_category_id
+            $freeStudentshipsByCategory = [];
+            $freeStudentshipsForAll = [];
+            foreach ($freeStudentships as $fs) {
+                if ($fs->fee_category_id === null) {
+                    $freeStudentshipsForAll[] = $fs;
+                } else {
+                    $freeStudentshipsByCategory[$fs->fee_category_id] = $fs;
+                }
+            }
 
             $transports = Transport::where('student_id', $studentId)
                 ->where('status', 'active')
@@ -265,8 +364,27 @@ class FeeCollectionController extends Controller
                 $feeScholarship = 0;
 
                 foreach ($fee->feeSet->items as $item) {
-                    if (isset($scholarships[$item->fee_category_id])) {
-                        $feeScholarship += $scholarships[$item->fee_category_id]->calculateDiscount($item->amount);
+                    // Scholarships - specific category
+                    if (isset($scholarshipsByCategory[$item->fee_category_id])) {
+                        $feeScholarship += $scholarshipsByCategory[$item->fee_category_id]->calculateDiscount($item->amount);
+                    }
+                    // Free Studentships - specific category
+                    if (isset($freeStudentshipsByCategory[$item->fee_category_id])) {
+                        $feeScholarship += $freeStudentshipsByCategory[$item->fee_category_id]->calculateDiscount($item->amount);
+                    }
+                }
+
+                // Scholarships - applies to all categories
+                if (!empty($scholarshipsForAll)) {
+                    foreach ($scholarshipsForAll as $scholarship) {
+                        $feeScholarship += $scholarship->calculateDiscount($feeGross - $feeScholarship);
+                    }
+                }
+
+                // Free Studentships - applies to all categories
+                if (!empty($freeStudentshipsForAll)) {
+                    foreach ($freeStudentshipsForAll as $freeStudentship) {
+                        $feeScholarship += $freeStudentship->calculateDiscount($feeGross - $feeScholarship);
                     }
                 }
 
@@ -297,6 +415,7 @@ class FeeCollectionController extends Controller
                 'payment_method'  => $paymentMethod,
                 'account_type'    => $request->account_type ?? null,
                 'account_id'      => $request->account_id ?? null,
+                'description'     => $request->description,
                 'receipt_no'      => 'R-' . now()->format('Ymd') . '-' . str_pad(
                                         Payment::whereDate('created_at', today())->count() + 1,
                                         4, '0', STR_PAD_LEFT

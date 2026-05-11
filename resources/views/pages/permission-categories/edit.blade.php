@@ -1,46 +1,68 @@
 @extends('layouts.master')
 
 @section('contents')
-<div class="container-fluid">
-    <div class="card">
-        <div class="card-header text-white rounded-top shadow p-3">
-            <h3 class="card-title mb-0 text-white">Edit Category</h3>
+<div class="container-fluid px-3 py-3">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold">
+                    <i class="fas fa-edit mr-2"></i>Form
+                </h4>
+                <a href="{{ route('permission-categories.index') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back
+                </a>
+            </div>
         </div>
 
-        <div class="card-body">
-            <form action="{{ route('permission-categories.update', $permissionCategory->id) }}" method="POST">
-                @csrf
+        <form method="POST" action="{{ route('permission-categories.update', $permissionCategory->id) }}" id="modernForm">
+            @csrf
 
-                <div class="form-group mb-3">
-                    <label for="name">Category Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $permissionCategory->name) }}" required maxlength="50">
-                    @error('name')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                    @enderror
-                </div>
+            <div class="card-body p-3">
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show border-0 mb-3" role="alert">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Errors:</strong>
+                        <ul class="mb-0 mt-1 ml-4">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
 
-                <div class="form-group mb-3">
-                    <label for="description">Description</label>
-                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="3">{{ old('description', $permissionCategory->description) }}</textarea>
-                    @error('description')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                    @enderror
-                </div>
 
-                <div class="form-group mb-3">
-                    <label for="sort_order">Sort Order</label>
-                    <input type="number" class="form-control @error('sort_order') is-invalid @enderror" id="sort_order" name="sort_order" value="{{ old('sort_order', $permissionCategory->sort_order) }}">
-                    @error('sort_order')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                    @enderror
-                </div>
+            </div>
 
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Update Category</button>
-                    <a href="{{ route('permission-categories.index') }}" class="btn btn-secondary">Cancel</a>
+            <div class="card-footer bg-light border-top py-2 px-3">
+                <div class="d-flex justify-content-between gap-2">
+                    <a href="{{ route('permission-categories.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-times mr-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-save mr-1"></i>Update
+                    </button>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </div>
+@endsection
+
+@section('styles')
+@include('components.form-styles')
+@endsection
+
+@section('scripts')
+<script>
+    $(function () {
+        if ($('.is-invalid').length > 0) {
+            $('html, body').animate({
+                scrollTop: $('.is-invalid').first().offset().top - 50
+            }, 300);
+        }
+    });
+</script>
 @endsection

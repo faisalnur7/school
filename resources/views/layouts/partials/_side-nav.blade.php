@@ -62,8 +62,8 @@
 
                 <!-- Fees & Accounts -->
                 <li class="nav-item">
-                    <a href="{{ route('fees.hub') }}"
-                       class="nav-link {{ request()->routeIs('fees.hub', 'fee-categories.*', 'fee-sets.*', 'scholarships.*', 'transports.*', 'fees.*', 'payments.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*') ? 'active' : '' }}">
+<a href="{{ route('fees.hub') }}"
+                        class="nav-link {{ request()->routeIs('fees.hub', 'fee-categories.*', 'fee-sets.*', 'scholarships.*', 'free-studentships.*', 'transports.*', 'fees.*', 'payments.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-money-bill"></i>
                         <p>Fees & Accounts</p>
                     </a>

@@ -18,6 +18,7 @@ class Payment extends Model
         'payment_method',
         'transaction_id',
         'remarks',
+        'description',
         'receipt_no',
         'collected_by',
         'account_type',

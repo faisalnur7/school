@@ -1,28 +1,39 @@
 @extends('layouts.master')
 
 @section('contents')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="card card-primary card-outline">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-plus-circle mr-2"></i>Create New Exam</h3>
-                    <div class="card-tools">
-                        <a href="{{ route('exams.index') }}" class="btn btn-sm btn-secondary">
-                            <i class="fas fa-arrow-left mr-1"></i>Back
-                        </a>
-                    </div>
-                </div>
-                <form method="POST" action="{{ route('exams.store') }}">
-                    @csrf
-                    <div class="card-body">
-                        @if($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
-                        </div>
-                        @endif
+<div class="container-fluid px-3 py-3">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold">
+                    <i class="fas fa-plus-circle mr-2"></i>Form
+                </h4>
+                <a href="{{ route('exams.index.index') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back
+                </a>
+            </div>
+        </div>
 
-                        <div class="form-group">
+        <form method="POST" action="{{ route('exams.store') }}" id="modernForm">
+            @csrf
+
+            <div class="card-body p-3">
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show border-0 mb-3" role="alert">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Errors:</strong>
+                        <ul class="mb-0 mt-1 ml-4">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
+
+<div class="form-group">
                             <label>Exam Name <span class="text-danger">*</span></label>
                             <input type="text" name="name" class="form-control" value="{{ old('name') }}"
                                 placeholder="e.g. First Terminal Exam 2025" required>
@@ -82,16 +93,35 @@
                                 <option value="published" {{ old('status')           == 'published' ? 'selected' : '' }}>Published</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="card-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save mr-1"></i>Create Exam
-                        </button>
-                        <a href="{{ route('exams.index') }}" class="btn btn-secondary ml-2">Cancel</a>
-                    </div>
-                </form>
             </div>
-        </div>
+
+            <div class="card-footer bg-light border-top py-2 px-3">
+                <div class="d-flex justify-content-between gap-2">
+                    <a href="{{ route('exams.index.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-times mr-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-save mr-1"></i>Create
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
+@endsection
+
+@section('styles')
+@include('components.form-styles')
+@endsection
+
+@section('scripts')
+<script>
+    $(function () {
+        if ($('.is-invalid').length > 0) {
+            $('html, body').animate({
+                scrollTop: $('.is-invalid').first().offset().top - 50
+            }, 300);
+        }
+    });
+</script>
 @endsection

@@ -1,66 +1,68 @@
 @extends('layouts.master')
 
 @section('contents')
-<div class="container-fluid">
-    <div class="card">
-        <div class="card-header text-white rounded-top shadow p-3">
-            <h3 class="card-title mb-0 text-white">Add New User</h3>
+<div class="container-fluid px-3 py-3">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold">
+                    <i class="fas fa-plus-circle mr-2"></i>Form
+                </h4>
+                <a href="{{ route('users.index') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back
+                </a>
+            </div>
         </div>
 
-        <div class="card-body">
-            <form action="{{ route('users.store') }}" method="POST">
-                @csrf
+        <form method="POST" action="{{ route('users.store') }}" id="modernForm">
+            @csrf
 
-                <div class="form-group mb-3">
-                    <label for="name">Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required>
-                    @error('name')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                    @enderror
-                </div>
+            <div class="card-body p-3">
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show border-0 mb-3" role="alert">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Errors:</strong>
+                        <ul class="mb-0 mt-1 ml-4">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
 
-                <div class="form-group mb-3">
-                    <label for="email">Email <span class="text-danger">*</span></label>
-                    <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required>
-                    @error('email')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                    @enderror
-                </div>
 
-                <div class="form-group mb-3">
-                    <label for="password">Password <span class="text-danger">*</span></label>
-                    <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required>
-                    @error('password')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                    @enderror
-                </div>
+            </div>
 
-                <div class="form-group mb-3">
-                    <label for="password_confirmation">Confirm Password <span class="text-danger">*</span></label>
-                    <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+            <div class="card-footer bg-light border-top py-2 px-3">
+                <div class="d-flex justify-content-between gap-2">
+                    <a href="{{ route('users.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-times mr-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-save mr-1"></i>Create
+                    </button>
                 </div>
-
-                <div class="form-group mb-3">
-                    <label for="role_id">Role</label>
-                    <select class="form-control @error('role_id') is-invalid @enderror" id="role_id" name="role_id">
-                        <option value="">Select Role</option>
-                        @foreach ($roles as $role)
-                            <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
-                                {{ $role->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('role_id')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Create User</button>
-                    <a href="{{ route('users.index') }}" class="btn btn-secondary">Cancel</a>
-                </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </div>
+@endsection
+
+@section('styles')
+@include('components.form-styles')
+@endsection
+
+@section('scripts')
+<script>
+    $(function () {
+        if ($('.is-invalid').length > 0) {
+            $('html, body').animate({
+                scrollTop: $('.is-invalid').first().offset().top - 50
+            }, 300);
+        }
+    });
+</script>
 @endsection

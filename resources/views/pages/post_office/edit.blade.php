@@ -1,71 +1,68 @@
 @extends('layouts.master')
 
-@section('title', 'Edit Post Office')
-@section('page_title', 'Edit Post Office')
-
 @section('contents')
-<div class="container-fluid">
-    <div class="card">
-        <div class="card-header bg-gradient-dark text-white rounded-top">
-            <h3 class="card-title">Edit Post Office</h3>
+<div class="container-fluid px-3 py-3">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold">
+                    <i class="fas fa-edit mr-2"></i>Edit Post Office
+                </h4>
+                <a href="{{ route('post-office.index') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back
+                </a>
+            </div>
         </div>
-        <div class="card-body">
-            <form action="{{ route('post-office.update', $postOffice->id) }}" method="POST">
-                @csrf
 
-                <div class="form-group">
-                    <label for="police_station_id">Police Station</label>
-                    <select name="police_station_id" class="form-control @error('police_station_id') is-invalid @enderror" required>
-                        @foreach ($policeStations as $station)
-                            <option value="{{ $station->id }}" {{ $station->id == $postOffice->police_station_id ? 'selected' : '' }}>
-                                {{ $station->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('police_station_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        <form method="POST" action="{{ route('post-office.update', $postOffice->id) }}" id="modernForm">
+            @csrf
+
+            <div class="card-body p-3">
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show border-0 mb-3" role="alert">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Errors:</strong>
+                        <ul class="mb-0 mt-1 ml-4">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
+
+
+            </div>
+
+            <div class="card-footer bg-light border-top py-2 px-3">
+                <div class="d-flex justify-content-between gap-2">
+                    <a href="{{ route('post-office.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-times mr-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-save mr-1"></i>Update
+                    </button>
                 </div>
-
-                <div class="form-group">
-                    <label for="name">Post Office Name (English)</label>
-                    <input type="text" name="name" value="{{ old('name', $postOffice->name) }}"
-                           class="form-control @error('name') is-invalid @enderror" required>
-                    @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="bn_name">Post Office Name (Bangla)</label>
-                    <input type="text" name="bn_name" value="{{ old('bn_name', $postOffice->bn_name) }}"
-                           class="form-control @error('bn_name') is-invalid @enderror">
-                    @error('bn_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="postcode">Post Code</label>
-                    <input type="text" name="postcode" value="{{ old('postcode', $postOffice->postcode) }}"
-                           class="form-control @error('postcode') is-invalid @enderror">
-                    @error('postcode') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="url">URL</label>
-                    <input type="text" name="url" value="{{ old('url', $postOffice->url) }}"
-                           class="form-control @error('url') is-invalid @enderror">
-                    @error('url') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="status">Status</label>
-                    <select name="status" class="form-control @error('status') is-invalid @enderror">
-                        <option value="1" {{ $postOffice->status == 1 ? 'selected' : '' }}>Active</option>
-                        <option value="0" {{ $postOffice->status == 0 ? 'selected' : '' }}>Inactive</option>
-                    </select>
-                    @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-
-                <button type="submit" class="btn btn-success">Update</button>
-                <a href="{{ route('post-office.index') }}" class="btn btn-secondary">Cancel</a>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </div>
+@endsection
+
+@section('styles')
+@include('components.form-styles')
+@endsection
+
+@section('scripts')
+<script>
+    $(function () {
+        if ($('.is-invalid').length > 0) {
+            $('html, body').animate({
+                scrollTop: $('.is-invalid').first().offset().top - 50
+            }, 300);
+        }
+    });
+</script>
 @endsection

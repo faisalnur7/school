@@ -1,19 +1,39 @@
 @extends('layouts.master')
 
 @section('contents')
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
-                    <h3 class="card-title">Add Capital Transaction</h3>
-                </div>
+<div class="container-fluid px-3 py-3">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold">
+                    <i class="fas fa-plus-circle mr-2"></i>Add Capital Transaction
+                </h4>
+                <a href="{{ route('shareholder-transactions.index') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back
+                </a>
+            </div>
+        </div>
 
-                <form method="POST" action="{{ route('shareholder-transactions.store') }}">
-                    @csrf
-                    <div class="card-body">
+        <form method="POST" action="{{ route('shareholder-transactions.store') }}" id="modernForm">
+            @csrf
 
-                        <div class="form-group">
+            <div class="card-body p-3">
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show border-0 mb-3" role="alert">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <strong>Errors:</strong>
+                        <ul class="mb-0 mt-1 ml-4">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
+
+<div class="form-group">
                             <label>Shareholder <span class="text-danger">*</span></label>
                             <select name="shareholder_id" class="form-control @error('shareholder_id') is-invalid @enderror" required>
                                 <option value="">Select Shareholder</option>
@@ -77,82 +97,35 @@
                             <label>Description <small class="text-muted">(optional — defaults to type name if blank)</small></label>
                             <textarea name="description" class="form-control" rows="2" placeholder="e.g. Initial investment, Monthly drawing...">{{ old('description') }}</textarea>
                         </div>
-
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-success">Save</button>
-                        <a href="{{ route('shareholder-transactions.index') }}" class="btn btn-secondary">Back</a>
-                    </div>
-                </form>
             </div>
-        </div>
+
+            <div class="card-footer bg-light border-top py-2 px-3">
+                <div class="d-flex justify-content-between gap-2">
+                    <a href="{{ route('shareholder-transactions.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-times mr-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-save mr-1"></i>Create
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
+@endsection
+
+@section('styles')
+@include('components.form-styles')
+@endsection
 
 @section('scripts')
 <script>
-    const accountsUrl = '{{ route('accounts.index') }}';
-
-    const methodTypeMap = {
-        'Cash':           'hand_cash',
-        'Bank Transfer':  'bank',
-        'Mobile Banking': 'mobile',
-    };
-
-    const accountTypeMap = {
-        'Cash':           'App\\Models\\HandCash',
-        'Bank Transfer':  'App\\Models\\BankAccount',
-        'Mobile Banking': 'App\\Models\\MobileBankingAccount',
-    };
-
-    function loadAccountsForMethod(method) {
-        const type = methodTypeMap[method];
-        const accountType = accountTypeMap[method];
-        const $wrapper = $('#transactionAccountWrapper');
-        const $select = $('#transactionAccountSelect');
-
-        if (!type) {
-            $wrapper.hide();
-            $('#transactionAccountType').val('');
-            $select.html('<option value="">Select Account</option>');
-            return;
+    $(function () {
+        if ($('.is-invalid').length > 0) {
+            $('html, body').animate({
+                scrollTop: $('.is-invalid').first().offset().top - 50
+            }, 300);
         }
-
-        $('#transactionAccountType').val(accountType);
-
-        $.ajax({
-            url: accountsUrl,
-            method: 'GET',
-            dataType: 'json',
-            data: { type: type },
-            success: function (accounts) {
-                const selectedAccount = '{{ old('account_id') ?? '' }}';
-
-                $select.html('<option value="">Select Account</option>');
-                accounts.forEach(a => {
-                    const selected = a.id == selectedAccount ? 'selected' : '';
-                    $select.append(`<option value="${a.id}" ${selected}>${a.label}</option>`);
-                });
-
-                if (accounts.length > 0) {
-                    $wrapper.show();
-                } else {
-                    $wrapper.hide();
-                }
-            },
-            error: function () {
-                $wrapper.hide();
-            }
-        });
-    }
-
-    $('#paymentMethod').on('change', function () {
-        loadAccountsForMethod($(this).val());
-    });
-
-    $(document).ready(function () {
-        loadAccountsForMethod($('#paymentMethod').val());
     });
 </script>
-@endsection
 @endsection

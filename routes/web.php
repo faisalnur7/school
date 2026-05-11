@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     CommonController,
+    FreeStudentshipController,
     FeeCategoryController,
     FeeSetController,
     FeeCollectionController,
@@ -495,6 +496,15 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/students', [ScholarshipController::class, 'getStudents'])->name('scholarships.students');
         Route::post('/bulk', [ScholarshipController::class, 'storeBulk'])->name('scholarships.storeBulk');
         Route::delete('/{scholarship}', [ScholarshipController::class, 'destroy'])->name('scholarships.destroy');
+    });
+
+    Route::prefix('free-studentships')->group(function () {
+        Route::get('/', [FreeStudentshipController::class, 'index'])->name('free-studentships.index');
+        Route::get('/pdf', [FreeStudentshipController::class, 'pdf'])->name('free-studentships.pdf');
+        Route::get('/create', [FreeStudentshipController::class, 'create'])->name('free-studentships.create');
+        Route::get('/students', [FreeStudentshipController::class, 'getStudents'])->name('free-studentships.students');
+        Route::post('/bulk', [FreeStudentshipController::class, 'storeBulk'])->name('free-studentships.storeBulk');
+        Route::delete('/{freeStudentship}', [FreeStudentshipController::class, 'destroy'])->name('free-studentships.destroy');
     });
 
     Route::prefix('financial-aid')->group(function () {
