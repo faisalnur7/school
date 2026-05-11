@@ -274,6 +274,14 @@
                                     </div>
 
                                     <div class="mb-3">
+                                        <label for="paymentAmount" class="form-label mono text-muted fw-semibold"
+                                            style="font-size:11px;letter-spacing:.08em">PAYMENT AMOUNT</label>
+                                        <input type="number" id="paymentAmount" name="payment_amount" min="0" step="0.01"
+                                            placeholder="Enter payment amount" class="form-control" style="font-size:16px;border-radius:8px;border:1px solid #e2e8f0">
+                                        <small class="text-muted" style="font-size:11px">Leave empty to pay full amount, or enter partial amount</small>
+                                    </div>
+
+                                    <div class="mb-3">
                                         <textarea name="description" id="descriptionInput" class="form-control" rows="2"
                                             placeholder="Add payment note or description" style="font-size:13px;border-radius:8px;border:1px solid #e2e8f0">{{ old('description') }}</textarea>
                                     </div>
@@ -403,19 +411,32 @@
                                                 {{ $payment->collector->name ?? '—' }}
                                             </td>
                                             <td class="px-4 py-3 text-center">
-                                                <a href="{{ route('payments.receipt', $payment->id) }}" target="_blank"
-                                                    class="btn btn-sm fw-semibold rounded-3 d-inline-flex align-items-center gap-1"
-                                                    style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:12px">
-                                                    <svg width="13" height="13" viewBox="0 0 24 24"
-                                                        fill="none" stroke="currentColor" stroke-width="2.2"
-                                                        stroke-linecap="round" stroke-linejoin="round">
-                                                        <polyline points="6 9 6 2 18 2 18 9" />
-                                                        <path
-                                                            d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-                                                        <rect x="6" y="14" width="12" height="8" />
-                                                    </svg>
-                                                    Print Receipt
-                                                </a>
+                                                <div class="d-flex gap-2 justify-content-center">
+                                                    <a href="{{ route('payments.edit', $payment->id) }}"
+                                                        class="btn btn-sm fw-semibold rounded-3 d-inline-flex align-items-center gap-1"
+                                                        style="background:#fef3c7;color:#d97706;border:1px solid #fcd34d;font-size:12px">
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                                            stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                                                            stroke-linejoin="round">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                                        </svg>
+                                                        Edit
+                                                    </a>
+                                                    <a href="{{ route('payments.receipt', $payment->id) }}" target="_blank"
+                                                        class="btn btn-sm fw-semibold rounded-3 d-inline-flex align-items-center gap-1"
+                                                        style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:12px">
+                                                        <svg width="13" height="13" viewBox="0 0 24 24"
+                                                            fill="none" stroke="currentColor" stroke-width="2.2"
+                                                            stroke-linecap="round" stroke-linejoin="round">
+                                                            <polyline points="6 9 6 2 18 2 18 9" />
+                                                            <path
+                                                                d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                                                            <rect x="6" y="14" width="12" height="8" />
+                                                        </svg>
+                                                        Print Receipt
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     @empty
@@ -685,6 +706,9 @@
                 $('#discountAmountHidden').val(discountAmt.toFixed(2));
                 $badgeEl.text(cartIds.size + (cartIds.size === 1 ? ' item' : ' items'));
                 $collectBtn.prop('disabled', cartIds.size === 0);
+
+                // Keep payment amount in sync with selected fees
+                $('#paymentAmount').val(finalTotal.toFixed(2));
             }
 
 
@@ -701,6 +725,7 @@
                 const payload = {
                     _token: $('input[name="_token"]').first().val(),
                     fees: [...cartIds],
+                    payment_amount: $('#paymentAmount').val() || $totalEl.text(),
                     discount: $('#discountInput').val() || 0,
                     discount_type: $('#discountTypeHidden').val(),
                     discount_amount: $('#discountAmountHidden').val(),

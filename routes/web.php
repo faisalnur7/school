@@ -486,6 +486,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::post('/payments/store', [PaymentController::class, 'store'])->name('payments.store');
     Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
+    Route::get('/payments/{payment}/edit', [PaymentController::class, 'edit'])->name('payments.edit');
+    Route::put('/payments/{payment}', [PaymentController::class, 'update'])->name('payments.update');
+    Route::delete('/payment-items/{paymentItem}', [PaymentController::class, 'removeItem'])->name('payment-items.remove');
     
     Route::get('/accounts', [AccountController::class, 'getAccounts'])->name('accounts.index');
 

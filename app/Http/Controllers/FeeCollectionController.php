@@ -292,6 +292,7 @@ class FeeCollectionController extends Controller
         $request->validate([
             'fees'           => 'required|array',
             'fees.*'         => 'exists:fees,id',
+            'payment_amount' => 'nullable|numeric|min:0',
             'payment_method' => 'nullable|string|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other,cash,bank,mobile_wallet',
             'account_type'   => 'nullable|in:App\\Models\\HandCash,App\\Models\\BankAccount,App\\Models\\MobileBankingAccount',
             'account_id'     => 'nullable|integer',
@@ -398,15 +399,18 @@ class FeeCollectionController extends Controller
             $cartDiscount          = (float)($request->discount_amount ?? 0);
             $finalAmount           = max(0, $totalAfterScholarship - $cartDiscount);
 
-            if ($finalAmount <= 0 && $totalAfterScholarship <= 0) {
-                return response()->json(['message' => 'Selected fees are already paid'], 422);
+            // Handle partial payment
+            $paymentAmount = $request->payment_amount ? min($finalAmount, (float)$request->payment_amount) : $finalAmount;
+
+            if ($paymentAmount <= 0) {
+                return response()->json(['message' => 'Payment amount must be greater than 0'], 422);
             }
 
             $paymentMethod = $this->normalizePaymentMethod($request->payment_method);
 
             $payment = Payment::create([
                 'student_id'         => $studentId,
-                'amount'             => $finalAmount,
+                'amount'             => $paymentAmount,
                 'gross_amount'       => $grossAmount,
                 'scholarship_amount' => $totalScholarshipDiscount,
                 'discount_type'      => $cartDiscount > 0 ? ($request->discount_type ?? 'flat') : null,
@@ -423,10 +427,12 @@ class FeeCollectionController extends Controller
                 'collected_by'    => auth()->id(),
             ]);
 
-            // ── Pass 2: create PaymentItems distributing cart discount proportionally ──
+            // ── Pass 2: create PaymentItems distributing payment proportionally ──
             $studentPaymentAmount  = 0.0;
             $transportPaymentAmount = 0.0;
+            $totalNetAmount = 0.0;
 
+            // First pass: calculate total net amount
             foreach ($fees as $fee) {
                 $netAfterScholarship = $feeNetAmounts[$fee->id] ?? 0;
                 if ($netAfterScholarship <= 0) continue;
@@ -439,10 +445,28 @@ class FeeCollectionController extends Controller
                 $netAmount = max(0, $netAfterScholarship - $feeCartDiscount);
                 if ($netAmount <= 0) continue;
 
+                $totalNetAmount += $netAmount;
+            }
+
+            // Second pass: distribute payment amount proportionally
+            foreach ($fees as $fee) {
+                $netAfterScholarship = $feeNetAmounts[$fee->id] ?? 0;
+                if ($netAfterScholarship <= 0) continue;
+
+                $feeCartDiscount = $totalAfterScholarship > 0
+                    ? round($cartDiscount * ($netAfterScholarship / $totalAfterScholarship), 2)
+                    : 0;
+
+                $netAmount = max(0, $netAfterScholarship - $feeCartDiscount);
+                if ($netAmount <= 0) continue;
+
+                // Distribute payment amount proportionally
+                $paidAmount = $totalNetAmount > 0 ? round($paymentAmount * ($netAmount / $totalNetAmount), 2) : 0;
+
                 PaymentItem::create([
                     'payment_id' => $payment->id,
                     'fee_id'     => $fee->id,
-                    'amount'     => $netAmount,
+                    'amount'     => $paidAmount,
                 ]);
 
                 // Split this fee payment by fee-set category type so accounting can post:
@@ -460,12 +484,12 @@ class FeeCollectionController extends Controller
 
                 $totalBase = $transportBase + $regularBase;
                 if ($totalBase > 0) {
-                    $transportShare = round($netAmount * ($transportBase / $totalBase), 2);
-                    $regularShare   = round($netAmount - $transportShare, 2);
+                    $transportShare = round($paidAmount * ($transportBase / $totalBase), 2);
+                    $regularShare   = round($paidAmount - $transportShare, 2);
                 } else {
                     // Fallback: treat unknown composition as regular student payment.
                     $transportShare = 0.0;
-                    $regularShare   = (float) $netAmount;
+                    $regularShare   = (float) $paidAmount;
                 }
 
                 $transportPaymentAmount += $transportShare;
@@ -473,7 +497,7 @@ class FeeCollectionController extends Controller
 
                 $feeScholarship = ($fee->amount - $fee->paid_amount) - $netAfterScholarship;
                 $netDue = max(0, $fee->amount - $feeScholarship - $feeCartDiscount);
-                $fee->paid_amount += $netAmount;
+                $fee->paid_amount += $paidAmount;
                 $fee->status = $fee->paid_amount >= $netDue ? 'paid' : 'partial';
                 $fee->save();
             }
