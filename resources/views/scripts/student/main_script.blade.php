@@ -60,6 +60,52 @@
             loadPreset();
         @endif
 
+        // ============= DYNAMIC ROLL & STUDENT CID FETCH =============
+
+        function fetchNextRollAndCid() {
+            let sessionId = $('#academicSessionSelect').val();
+            let classId = $('#classSelect').val();
+            let sectionId = $('#sectionSelect').val();
+            let groupId = $('#groupSelect').val();
+
+            if (!sessionId || !classId || !sectionId) return;
+
+            $.ajax({
+                url: "{{ route('get_next_roll_cid') }}",
+                type: "GET",
+                data: {
+                    academic_session_id: sessionId,
+                    school_class_id: classId,
+                    section_id: sectionId,
+                    group_id: groupId || ''
+                },
+                success: function(response) {
+                    $('#roll').val(response.roll);
+                    $('#student_cid').val(response.student_cid);
+                }
+            });
+        }
+
+        @if (!isset($student))
+            $(document).on('change', '#groupSelect', function() {
+                fetchNextRollAndCid();
+            });
+
+            $(document).on('change', '#sectionSelect', function() {
+                // Reset group select, then fetch roll after group list updates
+                $('#groupSelect').html('<option value="">Group</option>');
+                setTimeout(function() {
+                    fetchNextRollAndCid();
+                }, 300);
+            });
+
+            $(document).on('change', '#classSelect', function() {
+                setTimeout(function() {
+                    fetchNextRollAndCid();
+                }, 300);
+            });
+        @endif
+
  
 
         // ============= GUARDIAN INFO TOGGLE =============

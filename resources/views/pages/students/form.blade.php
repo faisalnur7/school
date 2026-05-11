@@ -4,10 +4,14 @@
     $labelClasses =
         'absolute left-3 -top-2 !text-gray-700 transition-all text-sm bg-white px-2 pointer-events-none !font-medium';
 
-    $date_of_birth = ''; 
+    $date_of_birth = '';
     if(!empty($student)){
         $date_of_birth = Carbon\Carbon::parse($student->date_of_birth)->format('Y-m-d');
     }
+
+    // Auto-generated values for create
+    $autoRoll = old('roll', (isset($academicInfo) ? $academicInfo->roll : ''));
+    $autoStudentCid = old('student_cid', $nextStudentCid ?? (isset($student) ? $student->student_cid : ''));
 @endphp
 <div class="bg-white shadow rounded-lg overflow-hidden">
     <div class="card-header bg-blue-600 text-white p-3 flex justify-between items-center shadow">
@@ -35,10 +39,23 @@
                 Academic Information
             </h5>
 
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+
+                {{-- Student ID (CID) --}}
+                <div class="relative w-full">
+                    <input type="text"
+                        name="student_cid"
+                        id="student_cid"
+                        value="{{ $autoStudentCid }}"
+                        class="{{ $inputClasses }}"
+                        @if(!isset($student)) readonly @endif>
+                    <label for="student_cid" class="{{ $labelClasses }}">
+                        Student ID
+                    </label>
+                </div>
 
                 {{-- Academic Session --}}
-                <select name="academic_session_id" class="border-gray-300 rounded-lg p-2 w-full">
+                <select name="academic_session_id" class="border-gray-300 rounded-lg p-2 w-full" id="academicSessionSelect">
                     <option value="">Academic Session</option>
                     @foreach ($academicSessions as $session)
                         <option value="{{ $session->id }}"
@@ -86,8 +103,9 @@
                     <input type="text"
                         name="roll"
                         id="roll"
-                        value="{{ old('roll', optional($academic)->roll) }}"
-                        class="{{ $inputClasses }}">
+                        value="{{ $autoRoll }}"
+                        class="{{ $inputClasses }}"
+                        @if(!isset($student)) readonly @endif>
                     <label for="roll" class="{{ $labelClasses }}">
                         Roll Number
                     </label>

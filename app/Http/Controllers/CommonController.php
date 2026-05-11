@@ -11,6 +11,8 @@ use App\Models\Division;
 use App\Models\District;
 use App\Models\PoliceStation;
 use App\Models\PostOffice;
+use App\Models\StudentAcademicInformation;
+use App\Models\Student;
 
 class CommonController extends Controller
 {
@@ -41,6 +43,26 @@ class CommonController extends Controller
 
         return response()->json([
             'groups' => $groups
+        ]);
+    }
+
+    /**
+     * Get the next roll number and student CID for a given academic class/section/group.
+     */
+    public function getNextRollAndCid(Request $request)
+    {
+        $roll = StudentAcademicInformation::getNextRoll(
+            $request->academic_session_id,
+            $request->school_class_id,
+            $request->section_id,
+            $request->group_id
+        );
+
+        $studentCid = Student::generateNextCid();
+
+        return response()->json([
+            'roll' => $roll,
+            'student_cid' => $studentCid,
         ]);
     }
 

@@ -1012,5 +1012,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('load_post_offices',[CommonController::class,'load_post_offices'])->name('load_post_offices');
     Route::get('load_section_groups',[CommonController::class,'load_section_groups'])->name('load_section_groups');
     Route::get('load_groups',[CommonController::class,'load_groups'])->name('load_groups');
+    Route::get('get_next_roll_cid',[CommonController::class,'getNextRollAndCid'])->name('get_next_roll_cid');
 
 });

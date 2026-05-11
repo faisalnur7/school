@@ -211,4 +211,20 @@ class Student extends Model
     {
         return $this->hasMany(StudentSubject::class);
     }
+
+    /**
+     * Generate the next 6-digit student CID based on the latest ID in the database.
+     */
+    public static function generateNextCid()
+    {
+        $latest = self::orderBy('id', 'desc')->first();
+
+        if ($latest && $latest->student_cid) {
+            $nextNumber = (int) $latest->student_cid + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        return str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+    }
 }

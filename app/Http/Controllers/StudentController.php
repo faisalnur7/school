@@ -239,6 +239,11 @@ class StudentController extends Controller
         $data['postOffices'] = PostOffice::all();
         $data['feeSets'] = FeeSet::all();
         $data['professions'] = Profession::orderBy('name')->get();
+
+        // Auto-generate next student CID (6-digit)
+        $data['nextStudentCid'] = Student::generateNextCid();
+        // We don't set nextRoll here; it will be computed via AJAX when group is selected
+        // For initial load without AJAX, the form field will be empty and readonly
         return view('pages.students.create', $data);
     }
 
@@ -261,7 +266,19 @@ class StudentController extends Controller
             }
 
             // ====== Create Student ======
+            $validated['student']['student_cid'] = Student::generateNextCid();
             $student = Student::create($validated['student']);
+
+            // ====== Auto-generate roll number if not provided ======
+            $roll = $request->roll;
+            if (empty($roll)) {
+                $roll = StudentAcademicInformation::getNextRoll(
+                    $request->academic_session_id,
+                    $request->school_class_id,
+                    $request->section_id,
+                    $request->group_id
+                );
+            }
 
             // ====== Create Academic Info ======
             StudentAcademicInformation::create([
@@ -270,7 +287,7 @@ class StudentController extends Controller
                 'school_class_id'     => $request->school_class_id,
                 'section_id'          => $request->section_id,
                 'group_id'            => $request->group_id,
-                'roll'                => $request->roll,
+                'roll'                => $roll,
             ]);
 
             // ====== Apply Fee Sets with Due Dates ======
@@ -517,6 +534,8 @@ class StudentController extends Controller
         $data['postOffices']      = PostOffice::all();
         $data['feeSets']      = FeeSet::all();
         $data['professions']  = Profession::orderBy('name')->get();
+        // For form consistency; edit keeps existing student_cid
+        $data['nextStudentCid'] = $student->student_cid;
 
         return view('pages.students.edit', $data);
     }
@@ -612,6 +631,7 @@ class StudentController extends Controller
             'school_class_id' => 'nullable|integer|exists:school_classes,id',
             'section_id' => 'nullable|integer|exists:sections,id',
             'group_id' => 'nullable|integer|exists:groups,id',
+            'student_cid' => 'nullable|string|max:50',
             'roll' => 'nullable|string|max:50',
         ]);
 
@@ -621,6 +641,7 @@ class StudentController extends Controller
             'school_class_id',
             'section_id',
             'group_id',
+            'student_cid',
             'roll',
             'image', // Exclude image as it's handled separately
         ])->toArray();

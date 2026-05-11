@@ -54,4 +54,23 @@ class StudentAcademicInformation extends Model
     {
         return $this->belongsTo(Group::class);
     }
+
+    /**
+     * Get the next available roll number for a given academic session, class, section, and group.
+     * Roll is calculated as: count of existing records + 1.
+     */
+    public static function getNextRoll($academicSessionId, $schoolClassId, $sectionId, $groupId = null)
+    {
+        $query = self::where('academic_session_id', $academicSessionId)
+                      ->where('school_class_id', $schoolClassId)
+                      ->where('section_id', $sectionId);
+
+        if ($groupId) {
+            $query->where('group_id', $groupId);
+        }
+
+        $count = $query->count();
+
+        return $count + 1;
+    }
 }

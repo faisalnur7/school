@@ -24,6 +24,9 @@ $(document).ready(function() {
                     });
 
                     $('#sectionSelect').html(sectionOptions);
+
+                    // Trigger section change to reload groups and update roll/cid
+                    $('#sectionSelect').trigger('change');
                 }
             });
         } else {
