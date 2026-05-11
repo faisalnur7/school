@@ -26,30 +26,28 @@
 
             <div class="table-responsive">
                 <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Category</th>
-                            <th>Product</th>
-                            <th>SKU</th>
-                            <th class="text-right">Stock</th>
-                            <th class="text-right">Min Alert</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($items as $item)
-                            <tr>
-                                <td>{{ $item->id }}</td>
-                                <td>{{ $item->category?->name }}</td>
-                                <td>{{ $item->name }}</td>
-                                <td>{{ $item->sku }}</td>
-                                <td class="text-right"><span class="badge badge-danger">{{ $item->current_stock }}</span></td>
-                                <td class="text-right">{{ $item->minimum_stock_alert }}</td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="6" class="text-center text-muted">No low stock items.</td></tr>
-                        @endforelse
-                    </tbody>
+<thead>
+                         <tr>
+                             <th>#</th>
+                             <th>Category</th>
+                             <th>Product</th>
+                             <th class="text-right">Stock</th>
+                             <th class="text-right">Min Alert</th>
+                         </tr>
+                     </thead>
+                     <tbody>
+                         @forelse($items as $item)
+                             <tr>
+                                 <td>{{ $item->id }}</td>
+                                 <td>{{ $item->category?->name }}</td>
+                                 <td>{{ $item->name }}</td>
+                                 <td class="text-right"><span class="badge badge-danger">{{ $item->current_stock }}</span></td>
+                                 <td class="text-right">{{ $item->minimum_stock_alert }}</td>
+                             </tr>
+                         @empty
+                             <tr><td colspan="5" class="text-center text-muted">No low stock items.</td></tr>
+                         @endforelse
+                     </tbody>
                 </table>
             </div>
 

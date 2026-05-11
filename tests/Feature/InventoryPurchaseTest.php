@@ -21,7 +21,6 @@ class InventoryPurchaseTest extends TestCase
         $product = InventoryItem::create([
             'category_id' => $category->id,
             'name' => 'Pen',
-            'sku' => 'PEN-001',
             'purchase_price' => 10,
             'current_stock' => 0,
             'minimum_stock_alert' => 5,

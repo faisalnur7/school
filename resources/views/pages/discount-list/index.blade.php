@@ -65,7 +65,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-2 d-flex align-items-end">
+                    <div class="col-md-2 d-flex align-items-center">
                         <div class="form-group mb-0">
                             <button type="submit" class="btn btn-primary btn-sm" title="Search"><i class="fas fa-search"></i></button>
                             <a href="{{ route('fees.discount-list') }}" class="btn btn-secondary btn-sm ml-1" title="Reset"><i class="fas fa-times"></i></a>

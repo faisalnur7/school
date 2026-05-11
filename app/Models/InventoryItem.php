@@ -11,8 +11,6 @@ class InventoryItem extends Model
     protected $fillable = [
         'category_id',
         'name',
-        'sku',
-        'barcode',
         'description',
         'purchase_price',
         'current_stock',
@@ -20,7 +18,6 @@ class InventoryItem extends Model
         'unit',
         'is_active',
         'school_class_id',
-        'section_id',
         'group_id',
     ];
 
@@ -37,11 +34,6 @@ class InventoryItem extends Model
     public function schoolClass(): BelongsTo
     {
         return $this->belongsTo(SchoolClass::class, 'school_class_id');
-    }
-
-    public function section(): BelongsTo
-    {
-        return $this->belongsTo(Section::class, 'section_id');
     }
 
     public function group(): BelongsTo

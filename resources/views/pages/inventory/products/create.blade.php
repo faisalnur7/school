@@ -74,20 +74,8 @@
                     </div>
                 </div>
 
-                <!-- Row 3: SKU, Barcode, Unit -->
+                <!-- Row 3: Unit -->
                 <div class="row g-2 mb-3">
-                    <div class="col-md-4">
-                        <label class="form-label small font-weight-600 mb-1">SKU / Code</label>
-                        <input type="text" name="sku" value="{{ old('sku') }}" class="form-control form-control-sm @error('sku') is-invalid @enderror" placeholder="SKU-001">
-                        @error('sku')<small class="text-danger">{{ $message }}</small>@enderror
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label small font-weight-600 mb-1">Barcode</label>
-                        <input type="text" name="barcode" value="{{ old('barcode') }}" class="form-control form-control-sm @error('barcode') is-invalid @enderror" placeholder="1234567890">
-                        @error('barcode')<small class="text-danger">{{ $message }}</small>@enderror
-                    </div>
-
                     <div class="col-md-4">
                         <label class="form-label small font-weight-600 mb-1">Unit</label>
                         <input type="text" name="unit" value="{{ old('unit') }}" class="form-control form-control-sm @error('unit') is-invalid @enderror" placeholder="pcs, box, kg">
@@ -143,11 +131,11 @@
                     <hr class="my-3">
                     <div class="alert alert-info alert-sm border-0 mb-3 py-2 px-3">
                         <i class="fas fa-info-circle mr-2"></i>
-                        <small><strong>Classwise Configuration</strong> - Specify class, section, and group</small>
+                        <small><strong>Classwise Configuration</strong> - Specify class and group</small>
                     </div>
 
                     <div class="row g-2 mb-3">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label small font-weight-600 mb-1">Class</label>
                             <select name="school_class_id" class="form-control form-control-sm @error('school_class_id') is-invalid @enderror">
                                 <option value="">Select</option>
@@ -160,20 +148,7 @@
                             @error('school_class_id')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
 
-                        <div class="col-md-4">
-                            <label class="form-label small font-weight-600 mb-1">Section</label>
-                            <select name="section_id" class="form-control form-control-sm @error('section_id') is-invalid @enderror">
-                                <option value="">Select</option>
-                                @foreach($sections as $s)
-                                    <option value="{{ $s->id }}" {{ old('section_id') == $s->id ? 'selected' : '' }}>
-                                        {{ $s->name_en }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('section_id')<small class="text-danger">{{ $message }}</small>@enderror
-                        </div>
-
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label small font-weight-600 mb-1">Group</label>
                             <select name="group_id" class="form-control form-control-sm @error('group_id') is-invalid @enderror">
                                 <option value="">Select</option>

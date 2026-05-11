@@ -22,8 +22,7 @@ class StockController extends Controller
         if ($request->filled('q')) {
             $q = trim((string)$request->get('q'));
             $query->where(function ($sub) use ($q) {
-                $sub->where('name', 'like', "%{$q}%")
-                    ->orWhere('sku', 'like', "%{$q}%");
+                $sub->where('name', 'like', "%{$q}%");
             });
         }
 
@@ -43,8 +42,7 @@ class StockController extends Controller
         if ($request->filled('q')) {
             $q = trim((string)$request->get('q'));
             $query->where(function ($sub) use ($q) {
-                $sub->where('name', 'like', "%{$q}%")
-                    ->orWhere('sku', 'like', "%{$q}%");
+                $sub->where('name', 'like', "%{$q}%");
             });
         }
 

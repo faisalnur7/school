@@ -100,7 +100,7 @@
                                             <option value="{{ $p->id }}"
                                                 data-last-price="{{ (float)$p->purchase_price }}"
                                                 {{ old('items.0.inventory_item_id') == $p->id ? 'selected' : '' }}>
-                                                {{ $p->name }} ({{ $p->category?->name }}) {{ $p->sku ? '- '.$p->sku : '' }}
+                                                {{ $p->name }} ({{ $p->category?->name }})
                                             </option>
                                         @endforeach
                                     </select>

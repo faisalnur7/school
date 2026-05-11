@@ -26,43 +26,41 @@
 
             <div class="table-responsive">
                 <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Category</th>
-                            <th>Product</th>
-                            <th>SKU</th>
-                            <th class="text-right">Stock</th>
-                            <th class="text-right">Min Alert</th>
-                            <th class="text-right">Purchase Price</th>
-                            <th>Low Stock</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($items as $item)
-                            @php
-                                $isLow = $item->minimum_stock_alert > 0 && $item->current_stock < $item->minimum_stock_alert;
-                            @endphp
-                            <tr>
-                                <td>{{ $item->id }}</td>
-                                <td>{{ $item->category?->name }}</td>
-                                <td>{{ $item->name }}</td>
-                                <td>{{ $item->sku }}</td>
-                                <td class="text-right">{{ $item->current_stock }}</td>
-                                <td class="text-right">{{ $item->minimum_stock_alert }}</td>
-                                <td class="text-right">{{ number_format((float)$item->purchase_price, 2) }}</td>
-                                <td>
-                                    @if($isLow)
-                                        <span class="badge badge-danger">Yes</span>
-                                    @else
-                                        <span class="badge badge-success">No</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="8" class="text-center text-muted">No data.</td></tr>
-                        @endforelse
-                    </tbody>
+<thead>
+                         <tr>
+                             <th>#</th>
+                             <th>Category</th>
+                             <th>Product</th>
+                             <th class="text-right">Stock</th>
+                             <th class="text-right">Min Alert</th>
+                             <th class="text-right">Purchase Price</th>
+                             <th>Low Stock</th>
+                         </tr>
+                     </thead>
+                     <tbody>
+                         @forelse($items as $item)
+                             @php
+                                 $isLow = $item->minimum_stock_alert > 0 && $item->current_stock < $item->minimum_stock_alert;
+                             @endphp
+                             <tr>
+                                 <td>{{ $item->id }}</td>
+                                 <td>{{ $item->category?->name }}</td>
+                                 <td>{{ $item->name }}</td>
+                                 <td class="text-right">{{ $item->current_stock }}</td>
+                                 <td class="text-right">{{ $item->minimum_stock_alert }}</td>
+                                 <td class="text-right">{{ number_format((float)$item->purchase_price, 2) }}</td>
+                                 <td>
+                                     @if($isLow)
+                                         <span class="badge badge-danger">Yes</span>
+                                     @else
+                                         <span class="badge badge-success">No</span>
+                                     @endif
+                                 </td>
+                             </tr>
+                         @empty
+                             <tr><td colspan="7" class="text-center text-muted">No data.</td></tr>
+                         @endforelse
+                     </tbody>
                 </table>
             </div>
 

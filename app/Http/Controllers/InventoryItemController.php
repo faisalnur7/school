@@ -6,7 +6,6 @@ use App\Models\Group;
 use App\Models\InventoryCategory;
 use App\Models\InventoryItem;
 use App\Models\SchoolClass;
-use App\Models\Section;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -30,9 +29,7 @@ class InventoryItemController extends Controller
         if ($request->filled('q')) {
             $q = trim((string)$request->get('q'));
             $query->where(function ($sub) use ($q) {
-                $sub->where('name', 'like', "%{$q}%")
-                    ->orWhere('sku', 'like', "%{$q}%")
-                    ->orWhere('barcode', 'like', "%{$q}%");
+                $sub->where('name', 'like', "%{$q}%");
             });
         }
 
@@ -48,10 +45,9 @@ class InventoryItemController extends Controller
 
         $categories = InventoryCategory::orderBy('name')->get();
         $classes = SchoolClass::orderBy('name_en')->get();
-        $sections = Section::orderBy('name_en')->get();
         $groups = Group::orderBy('name_en')->get();
 
-        return view('pages.inventory.products.create', compact('categories', 'classes', 'sections', 'groups'));
+        return view('pages.inventory.products.create', compact('categories', 'classes', 'groups'));
     }
 
     public function store(Request $request)
@@ -62,21 +58,17 @@ class InventoryItemController extends Controller
             'category_id' => ['required', 'exists:inventory_categories,id'],
             'item_type' => ['required', 'in:common,classwise'],
             'name' => ['required', 'string', 'max:200'],
-            'sku' => ['nullable', 'string', 'max:100'],
-            'barcode' => ['nullable', 'string', 'max:120'],
             'description' => ['nullable', 'string'],
             'purchase_price' => ['nullable', 'numeric', 'min:0'],
             'minimum_stock_alert' => ['nullable', 'integer', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
             'is_active' => ['nullable', 'boolean'],
             'school_class_id' => ['nullable', 'exists:school_classes,id'],
-            'section_id' => ['nullable', 'exists:sections,id'],
             'group_id' => ['nullable', 'exists:groups,id'],
         ]);
 
         if ($validated['item_type'] === 'common') {
             $validated['school_class_id'] = null;
-            $validated['section_id'] = null;
             $validated['group_id'] = null;
             $nameUniqueRule = Rule::unique('inventory_items', 'name')->where(fn ($q) => $q->where('category_id', $validated['category_id']));
         } else {
@@ -84,16 +76,12 @@ class InventoryItemController extends Controller
                 return $query
                     ->where('category_id', $validated['category_id'])
                     ->where('school_class_id', $validated['school_class_id'] ?? null)
-                    ->where('section_id', $validated['section_id'] ?? null)
                     ->where('group_id', $validated['group_id'] ?? null);
             });
         }
 
-        $skuUniqueRule = Rule::unique('inventory_items', 'sku')->where(fn ($q) => $q->where('category_id', $validated['category_id']));
-
         $request->validate([
             'name' => ['required', $nameUniqueRule],
-            'sku' => ['nullable', $skuUniqueRule],
         ]);
 
         $validated['purchase_price'] = $validated['purchase_price'] ?? 0;
@@ -113,10 +101,9 @@ class InventoryItemController extends Controller
         $item = InventoryItem::findOrFail($id);
         $categories = InventoryCategory::orderBy('name')->get();
         $classes = SchoolClass::orderBy('name_en')->get();
-        $sections = Section::orderBy('name_en')->get();
         $groups = Group::orderBy('name_en')->get();
 
-        return view('pages.inventory.products.edit', compact('item', 'categories', 'classes', 'sections', 'groups'));
+        return view('pages.inventory.products.edit', compact('item', 'categories', 'classes', 'groups'));
     }
 
     public function update(Request $request, $id)
@@ -129,21 +116,17 @@ class InventoryItemController extends Controller
             'category_id' => ['required', 'exists:inventory_categories,id'],
             'item_type' => ['required', 'in:common,classwise'],
             'name' => ['required', 'string', 'max:200'],
-            'sku' => ['nullable', 'string', 'max:100'],
-            'barcode' => ['nullable', 'string', 'max:120'],
             'description' => ['nullable', 'string'],
             'purchase_price' => ['nullable', 'numeric', 'min:0'],
             'minimum_stock_alert' => ['nullable', 'integer', 'min:0'],
             'unit' => ['nullable', 'string', 'max:50'],
             'is_active' => ['nullable', 'boolean'],
             'school_class_id' => ['nullable', 'exists:school_classes,id'],
-            'section_id' => ['nullable', 'exists:sections,id'],
             'group_id' => ['nullable', 'exists:groups,id'],
         ]);
 
         if ($validated['item_type'] === 'common') {
             $validated['school_class_id'] = null;
-            $validated['section_id'] = null;
             $validated['group_id'] = null;
             $nameUniqueRule = Rule::unique('inventory_items', 'name')->ignore($item->id)->where(fn ($q) => $q->where('category_id', $validated['category_id']));
         } else {
@@ -151,16 +134,12 @@ class InventoryItemController extends Controller
                 return $query
                     ->where('category_id', $validated['category_id'])
                     ->where('school_class_id', $validated['school_class_id'] ?? null)
-                    ->where('section_id', $validated['section_id'] ?? null)
                     ->where('group_id', $validated['group_id'] ?? null);
             });
         }
 
-        $skuUniqueRule = Rule::unique('inventory_items', 'sku')->ignore($item->id)->where(fn ($q) => $q->where('category_id', $validated['category_id']));
-
         $request->validate([
             'name' => ['required', $nameUniqueRule],
-            'sku' => ['nullable', $skuUniqueRule],
         ]);
 
         $validated['purchase_price'] = $validated['purchase_price'] ?? $item->purchase_price;

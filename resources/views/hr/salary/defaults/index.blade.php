@@ -23,7 +23,7 @@
                                 <input type="number" name="{{ $field }}" step="0.01" min="0" class="form-control form-control-sm" value="{{ $def?->$field ?? 0 }}">
                             </div>
                             @endforeach
-                            <div class="col-md-2 d-flex align-items-end form-group mb-1">
+                            <div class="col-md-2 d-flex align-items-center form-group mb-1">
                                 <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-save"></i> Save</button>
                             </div>
                         </div>
