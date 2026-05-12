@@ -275,6 +275,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('/lessonplans/{id}/delete', [LessonPlanController::class, 'destroy'])->name('lessonplans.delete');
 
     // ------------------- Students -------------------
+    Route::get('/students/birthdays', [\App\Http\Controllers\StudentBirthdayController::class, 'index'])->name('students.birthdays');
     Route::get('/students/id-cards', [\App\Http\Controllers\GenerateIdCardController::class, 'index'])->name('students.id-cards');
     Route::get('/students/id-cards/pdf', [\App\Http\Controllers\GenerateIdCardController::class, 'pdf'])->name('students.id-cards.pdf');
 

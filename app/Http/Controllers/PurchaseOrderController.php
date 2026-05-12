@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Group;
 use App\Models\InventoryItem;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
+use App\Models\SchoolClass;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
@@ -37,12 +39,16 @@ class PurchaseOrderController extends Controller
         $this->authorizePermission('manage_inventory_purchases');
 
         $suppliers = Supplier::where('status', true)->orderBy('name')->get();
-        $products = InventoryItem::with('category')
+        $products = InventoryItem::with(['category', 'schoolClass', 'group'])
             ->where('is_active', true)
             ->orderBy('name')
             ->get();
 
-        return view('pages.inventory.purchases.create', compact('suppliers', 'products'));
+        $categories = $products->pluck('category')->filter()->unique('id')->sortBy('name')->values();
+        $classes    = SchoolClass::where('status', true)->get();
+        $groups     = Group::get();
+
+        return view('pages.inventory.purchases.create', compact('suppliers', 'products', 'categories', 'classes', 'groups'));
     }
 
     public function store(Request $request)

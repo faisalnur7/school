@@ -9,10 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('inventory_items', function (Blueprint $table) {
-            $table->dropUnique('inventory_items_category_id_sku_unique');
             $table->dropUnique('inv_items_books_unique');
-            $table->dropForeign(['section_id']);
-            $table->dropColumn(['section_id', 'sku', 'barcode']);
             $table->unique(['category_id', 'name', 'school_class_id', 'group_id'], 'inv_items_books_unique');
         });
     }
@@ -20,10 +17,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('inventory_items', function (Blueprint $table) {
-            $table->dropUnique('inv_items_books_unique');
-            $table->string('sku')->nullable()->after('name');
-            $table->string('barcode')->nullable()->after('sku');
-            $table->foreignId('section_id')->nullable()->constrained('sections')->after('school_class_id');
             $table->unique(['category_id', 'sku'], 'inventory_items_category_id_sku_unique');
             $table->unique(['category_id', 'name', 'school_class_id', 'section_id', 'group_id'], 'inv_items_books_unique');
         });

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('group_id')->nullable()->comment('Optional group/stream within the class');
             $table->unsignedBigInteger('academic_session_id')->nullable()->comment('Academic session to isolate the fee sets');
             $table->enum('frequency', ['monthly', 'yearly', 'others'])->default('monthly')->comment('Billing frequency');
+            $table->unsignedSmallInteger('year')->nullable()->comment('Year for others frequency');
             $table->text('description')->nullable()->comment('Optional notes about this fee set');
             $table->timestamps();
 

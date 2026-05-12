@@ -38,7 +38,7 @@ class DiscountListController extends Controller
     private function buildData(Request $request): array
     {
         $sessions = AcademicSession::orderByDesc('id')->get();
-        $classes  = SchoolClass::orderBy('name_en')->get();
+        $classes  = SchoolClass::get();
         $sections = $request->filled('class_id')
             ? Section::where('school_class_id', $request->class_id)->orderBy('name_en')->get()
             : collect();

@@ -11,7 +11,7 @@ class SchoolSettingController extends Controller
     public function index()
     {
         $setting = SchoolSetting::current();
-        $classes = SchoolClass::orderBy('name_en')->get();
+        $classes = SchoolClass::get();
         return view('pages.school-settings.index', compact('setting', 'classes'));
     }
 

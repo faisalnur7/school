@@ -86,13 +86,14 @@
 
                     {{-- LEFT: Categories --}}
                     <div class="col-md-3 col-xl-2">
-                        <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                        {{-- Fee Categories --}}
+                        <div class="card border-0 shadow-sm rounded-4 mb-3">
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="fs-5">🗂️</span>
-                                    <span class="fw-bold text-white" style="font-size:12px;letter-spacing:.06em">FEE
-                                        CATEGORIES</span>
+                                    <span class="fw-bold" style="font-size:12px;letter-spacing:.06em;color:#fff;">FEE CATEGORIES</span>
                                 </div>
                             </div>
                             <div class="card-body p-3">
@@ -100,8 +101,8 @@
                                     @php $feeSets = $pendingFees->groupBy('fee_set_id'); @endphp
                                     @foreach ($feeSets as $feeSetId => $fees)
                                         <div class="cat-item d-flex justify-content-between align-items-center rounded-3 px-3 py-2"
-                                            style="background:#f8fafc" data-cat="{{ $feeSetId }}">
-                                            <span class="cat-name text-secondary fw-medium" style="font-size:14px">
+                                            style="background:#f8fafc;cursor:pointer" data-cat="{{ $feeSetId }}">
+                                            <span class="cat-name text-secondary fw-medium" style="font-size:13px">
                                                 {{ $fees->first()->feeSet->name }}
                                             </span>
                                             <span class="cat-badge badge rounded-pill mono"
@@ -113,98 +114,171 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    {{-- MIDDLE: Pending Fees --}}
+                        {{-- Inventory Categories --}}
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-header bg-white border-bottom py-3 px-4"
+                                style="border-color:#f1f5f9!important">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fs-5">📦</span>
+                                    <span class="fw-bold" style="font-size:12px;letter-spacing:.06em;color:#fff;">INVENTORY</span>
+                                </div>
+                            </div>
+                            <div class="card-body p-3">
+                                @if($inventoryCategories->isNotEmpty())
+                                    <div class="d-flex flex-column gap-2" id="invCategoryList">
+                                        @foreach($inventoryCategories as $cat)
+                                            <div class="inv-cat-item d-flex justify-content-between align-items-center rounded-3 px-3 py-2"
+                                                style="background:#f8fafc;cursor:pointer" data-inv-cat="{{ $cat->id }}">
+                                                <span class="text-secondary fw-medium" style="font-size:13px">
+                                                    {{ $cat->name }}
+                                                </span>
+                                                <span class="badge rounded-pill mono"
+                                                    style="font-size:11px;background:#e2e8f0;color:#64748b">
+                                                    {{ $cat->items->count() }}
+                                                </span>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <p class="text-muted mb-0" style="font-size:12px">No inventory items available.</p>
+                                @endif
+                            </div>
+                        </div>
+
+                    </div>{{-- /col LEFT --}}
+
+                    {{-- MIDDLE: Pending Fees / Items --}}
                     <div class="col-md-5 col-xl-6">
                         <div class="card border-0 shadow-sm rounded-4 h-100">
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="fs-5">📋</span>
-                                    <span class="fw-bold text-white" style="font-size:12px;letter-spacing:.06em">PENDING
-                                        FEES</span>
+                                    <span class="fs-5" id="middlePanelIcon">📋</span>
+                                    <span class="fw-bold" id="middlePanelTitle"
+                                        style="font-size:12px;letter-spacing:.06em;color:#fff;">PENDING FEES</span>
                                 </div>
                             </div>
                             <div class="card-body p-3">
+
                                 <div id="emptySelect" class="text-center py-5 text-muted">
                                     <div style="font-size:44px;opacity:.2">👈</div>
                                     <p class="mt-3 mb-0 fw-medium" style="font-size:14px">
-                                        Select a category on the left<br>to view pending fees
+                                        Select a category on the left<br>to view pending fees or items
                                     </p>
                                 </div>
+
                                 <div class="scroll-area d-none" id="feesContainer">
-                                    <div class="d-flex flex-column gap-3" id="feeList">
-                                        @foreach ($pendingFees as $fee)
-                                            @php
-                                                $feeSetName =
-                                                    $fee->feeSet->frequency == 'monthly'
-                                                        ? Carbon\Carbon::parse($fee->due_date)->format('F - Y')
-                                                        : $fee->feeSet->name;
-                                            @endphp
-                                            <div class="fee-card bg-white rounded-4 p-3" data-cat="{{ $fee->fee_set_id }}"
-                                                data-id="{{ $fee->id }}"
-                                                data-amount="{{ $fee->calculated_net_amount ?? $fee->net_amount }}"
-                                                data-gross="{{ $fee->amount }}"
-                                                data-discount="{{ $fee->total_scholarship_discount ?? 0 }}"
-                                                data-name="{{ $feeSetName }}" data-items='@json($fee->feeSet->items->map(fn($i) => ['category' => $i->category->name, 'amount' => $i->amount]))'
-                                                style="display:none!important">
-                                                <div class="d-flex justify-content-between align-items-start">
-                                                    <div>
-                                                        <p class="fw-semibold text-dark mb-1" style="font-size:15px">
-                                                            {{ $feeSetName }}
-                                                        </p>
-                                                        <p class="mono text-muted mb-0" style="font-size:12px">
-                                                            Due: {{ $fee->due_date }}
-                                                        </p>
-                                                        @if (!empty($fee->category_discounts))
-                                                            @foreach ($fee->category_discounts as $catDiscount)
-                                                                <p class="mono mb-0 mt-1"
-                                                                    style="font-size:11px;color:#059669">
-                                                                    <span class="badge rounded-pill"
-                                                                        style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-size:10px">
-                                                                        🎓 {{ $catDiscount['category'] }}:
-                                                                        -৳{{ number_format($catDiscount['discount'], 2) }}
-                                                                    </span>
-                                                                </p>
-                                                            @endforeach
-                                                        @endif
-                                                        @if (!empty($fee->category_transports))
-                                                            @foreach ($fee->category_transports as $catTransport)
-                                                                <p class="mono mb-0 mt-1"
-                                                                    style="font-size:11px;color:#4338ca">
-                                                                    <span class="badge rounded-pill"
-                                                                        style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:10px">
-                                                                        🚌 {{ $catTransport['category'] }}:
-                                                                        +৳{{ number_format($catTransport['amount'], 2) }}
-                                                                    </span>
-                                                                </p>
-                                                            @endforeach
-                                                        @endif
-                                                    </div>
-                                                    <div class="text-end ms-3">
-                                                        @if (!empty($fee->category_discounts) || !empty($fee->category_transports))
-                                                            <p class="mono text-muted mb-0"
-                                                                style="font-size:12px;text-decoration:line-through">
-                                                                {{ number_format($fee->amount, 2) }}
+
+                                    {{-- Fee Cards --}}
+                                    @foreach ($pendingFees as $fee)
+                                        @php
+                                            $feeSetName = $fee->feeSet->frequency == 'monthly'
+                                                ? Carbon\Carbon::parse($fee->due_date)->format('F - Y')
+                                                : $fee->feeSet->name;
+                                        @endphp
+                                        <div class="fee-card bg-white rounded-4 p-3 mb-3"
+                                            data-cat="{{ $fee->fee_set_id }}"
+                                            data-id="{{ $fee->id }}"
+                                            data-amount="{{ $fee->calculated_net_amount ?? $fee->net_amount }}"
+                                            data-gross="{{ $fee->amount }}"
+                                            data-discount="{{ $fee->total_scholarship_discount ?? 0 }}"
+                                            data-name="{{ $feeSetName }}"
+                                            data-items='@json($fee->feeSet->items->map(fn($i) => ['category' => $i->category->name, 'amount' => $i->amount]))'
+                                            style="display:none;border:1.5px solid #e2e8f0;cursor:pointer">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <p class="fw-semibold text-dark mb-1" style="font-size:15px">{{ $feeSetName }}</p>
+                                                    <p class="mono text-muted mb-0" style="font-size:12px">Due: {{ $fee->due_date }}</p>
+                                                    @if (!empty($fee->category_discounts))
+                                                        @foreach ($fee->category_discounts as $catDiscount)
+                                                            <p class="mono mb-0 mt-1" style="font-size:11px;color:#059669">
+                                                                <span class="badge rounded-pill"
+                                                                    style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-size:10px">
+                                                                    🎓 {{ $catDiscount['category'] }}: -৳{{ number_format($catDiscount['discount'], 2) }}
+                                                                </span>
                                                             </p>
-                                                        @endif
-                                                        <p class="mono fw-bold mb-1" style="font-size:19px;color:#4338ca">
-                                                            {{ number_format($fee->calculated_net_amount ?? $fee->net_amount, 2) }}
+                                                        @endforeach
+                                                    @endif
+                                                    @if (!empty($fee->category_transports))
+                                                        @foreach ($fee->category_transports as $catTransport)
+                                                            <p class="mono mb-0 mt-1" style="font-size:11px;color:#4338ca">
+                                                                <span class="badge rounded-pill"
+                                                                    style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:10px">
+                                                                    🚌 {{ $catTransport['category'] }}: +৳{{ number_format($catTransport['amount'], 2) }}
+                                                                </span>
+                                                            </p>
+                                                        @endforeach
+                                                    @endif
+                                                </div>
+                                                <div class="text-end ms-3">
+                                                    @if (!empty($fee->category_discounts) || !empty($fee->category_transports))
+                                                        <p class="mono text-muted mb-0" style="font-size:12px;text-decoration:line-through">
+                                                            {{ number_format($fee->amount, 2) }}
                                                         </p>
-                                                        <span class="badge rounded-pill"
-                                                            style="font-size:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
-                                                            + Add
-                                                        </span>
+                                                    @endif
+                                                    <p class="mono fw-bold mb-1" style="font-size:19px;color:#4338ca">
+                                                        {{ number_format($fee->calculated_net_amount ?? $fee->net_amount, 2) }}
+                                                    </p>
+                                                    <span class="badge rounded-pill"
+                                                        style="font-size:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
+                                                        + Add
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+
+                                    {{-- Inventory Item Cards --}}
+                                    @foreach($inventoryCategories as $cat)
+                                        @foreach($cat->items as $invItem)
+                                            <div class="inv-item-card align-items-center gap-2 rounded-3 px-3 py-2 mb-2"
+                                                data-inv-cat="{{ $cat->id }}"
+                                                data-inv-id="{{ $invItem->id }}"
+                                                data-name="{{ $invItem->name }}"
+                                                data-price="{{ $invItem->selling_price }}"
+                                                data-stock="{{ $invItem->current_stock }}"
+                                                data-unit="{{ $invItem->unit }}"
+                                                style="display:none;border:1.5px solid #d1fae5;cursor:pointer;background:#f0fdf4">
+                                                {{-- Icon --}}
+                                                <div class="d-flex align-items-center justify-content-center flex-shrink-0 rounded-3"
+                                                    style="width:34px;height:34px;background:#dcfce7">
+                                                    <i class="fas fa-box" style="font-size:13px;color:#16a34a"></i>
+                                                </div>
+                                                {{-- Name + meta --}}
+                                                <div class="flex-grow-1 overflow-hidden">
+                                                    <p class="fw-semibold text-dark mb-0 text-truncate" style="font-size:13px">{{ $invItem->name }}</p>
+                                                    <div class="d-flex align-items-center gap-2 mt-1">
+                                                        @if($invItem->current_stock > 0)
+                                                            <span class="badge rounded-pill" style="font-size:10px;background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0">{{ $invItem->current_stock }} left</span>
+                                                        @else
+                                                            <span class="badge rounded-pill" style="font-size:10px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca">Out of stock</span>
+                                                        @endif
+                                                        @if($invItem->unit)
+                                                            <span class="mono text-muted" style="font-size:10px">{{ $invItem->unit }}</span>
+                                                        @endif
                                                     </div>
+                                                </div>
+                                                {{-- Price + qty --}}
+                                                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                                    <span class="mono fw-bold" style="font-size:14px;color:#059669">{{ number_format($invItem->selling_price, 2) }}</span>
+                                                    @if($invItem->current_stock > 0)
+                                                        <input type="number" class="inv-qty-input form-control form-control-sm"
+                                                            value="1" min="1" max="{{ $invItem->current_stock }}"
+                                                            style="width:52px;border-radius:8px;font-size:12px;text-align:center;border:1px solid #bbf7d0"
+                                                            onclick="event.stopPropagation()">
+                                                        <span class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                                                            style="width:26px;height:26px;background:#16a34a;color:#fff;font-size:14px;font-weight:700">+</span>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endforeach
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                    @endforeach
+
+                                </div>{{-- /#feesContainer --}}
+                            </div>{{-- /card-body --}}
+                        </div>{{-- /card --}}
+                    </div>{{-- /col MIDDLE --}}
 
                     {{-- RIGHT: Cart --}}
                     <div class="col-md-4 col-xl-4">
@@ -464,9 +538,11 @@
     <script>
         $(function() {
             let subtotal = 0;
-            let cartIds = new Set();
+            let cartIds = new Set();       // fee IDs
+            let cartInvIds = new Set();    // inventory item IDs (for dedup)
             let discountType = 'flat';
             let cartData = [];
+            let invItemIndex = 0;          // running index for items[] hidden inputs
 
             const $feeCards = $('.fee-card');
             const $catItems = $('.cat-item');
@@ -579,15 +655,35 @@
                 attemptStudentSwitch();
             });
 
-            /* ── Category click ── */
+            /* ── Category click (fees) ── */
             $catItems.on('click', function() {
                 $catItems.removeClass('active');
+                $('.inv-cat-item').removeClass('active');
                 $(this).addClass('active');
-                let sel = $(this).data('cat');
+                const sel = $(this).data('cat');
                 $emptySelect.hide();
                 $feesContainer.removeClass('d-none');
+                $('#middlePanelIcon').text('📋');
+                $('#middlePanelTitle').text('PENDING FEES').css('color', '#4338ca');
+                $('.inv-item-card').hide();
                 $feeCards.each(function() {
-                    $(this).toggle($(this).data('cat') == sel);
+                    $(this).data('cat') == sel ? $(this).show() : $(this).hide();
+                });
+            });
+
+            /* ── Inventory category click ── */
+            $(document).on('click', '.inv-cat-item', function() {
+                $('.inv-cat-item').removeClass('active');
+                $catItems.removeClass('active');
+                $(this).addClass('active');
+                const sel = $(this).data('inv-cat');
+                $emptySelect.hide();
+                $feesContainer.removeClass('d-none');
+                $('#middlePanelIcon').text('📦');
+                $('#middlePanelTitle').text('INVENTORY ITEMS').css('color', '#059669');
+                $feeCards.hide();
+                $('.inv-item-card').each(function() {
+                    $(this).data('inv-cat') == sel ? $(this).css('display','flex') : $(this).hide();
                 });
             });
 
@@ -623,14 +719,7 @@
                 if (cartIds.has(id)) return;
                 cartIds.add(id);
                 subtotal += amount;
-                cartData.push({
-                    id,
-                    name,
-                    amount,
-                    gross,
-                    discount,
-                    items
-                });
+                cartData.push({ id, cartKey: id, name, amount, gross, discount, items });
                 $(this).addClass('in-cart');
                 $cartEmpty.hide();
 
@@ -668,9 +757,60 @@
                          </div>
                          <button type="button"
                                  class="remove-btn btn btn-light btn-sm border rounded-2 px-2 py-1"
-                                 data-id="${id}" data-amount="${amount}"
+                                 data-id="${id}" data-amount="${amount}" data-type="fee"
                                  style="font-size:13px;line-height:1">✕</button>
                      </div>`;
+                $cartItemsEl.append(html);
+                updateUI();
+            });
+
+            /* ── Add inventory item on card click ── */
+            $(document).on('click', '.inv-item-card', function(e) {
+                if ($(e.target).is('input')) return; // don’t trigger on qty input click
+                let invId = $(this).data('inv-id');
+                if (cartInvIds.has(invId)) return;
+                let name      = $(this).data('name');
+                let unitPrice = parseFloat($(this).data('price'));
+                let stock     = parseInt($(this).data('stock'));
+                let unit      = $(this).data('unit') || '';
+                let qty       = Math.max(1, parseInt($(this).find('.inv-qty-input').val()) || 1);
+                let itemSubtotal = unitPrice * qty;
+                let cartKey   = 'inv_' + invId;
+
+                cartInvIds.add(invId);
+                subtotal += itemSubtotal;
+                cartData.push({ cartKey, invId, name, qty, unitPrice, itemSubtotal, type: 'item' });
+                $(this).addClass('in-cart');
+                $cartEmpty.hide();
+
+                let idx = invItemIndex++;
+                let html = `
+                    <div class="cart-row d-flex align-items-start gap-2 rounded-3 px-3 py-2"
+                         id="cart-${cartKey}"
+                         data-unit-price="${unitPrice}"
+                         data-subtotal="${itemSubtotal}"
+                         style="background:#f0fdf4;border:1.5px solid #bbf7d0">
+                        <input type="hidden" name="items[${idx}][inventory_item_id]" value="${invId}">
+                        <input type="hidden" name="items[${idx}][quantity]" value="${qty}" class="inv-qty-hidden">
+                        <div class="flex-grow-1" style="line-height:1.4">
+                            <span class="fw-semibold text-dark" style="font-size:13px">${name}</span>
+                            ${unit ? '<br><span class="mono text-muted" style="font-size:11px">' + unit + '</span>' : ''}
+                        </div>
+                        <div class="text-end">
+                            <div class="d-flex align-items-center gap-1 justify-content-end mb-1">
+                                <label class="mono text-muted" style="font-size:11px">Qty:</label>
+                                <input type="number" class="cart-inv-qty form-control form-control-sm"
+                                    value="${qty}" min="1" max="${stock}"
+                                    data-max-stock="${stock}"
+                                    style="width:55px;border-radius:8px;font-size:12px;text-align:center">
+                            </div>
+                            <span class="mono fw-bold inv-subtotal-display" style="font-size:13px;color:#16a34a;white-space:nowrap">${itemSubtotal.toFixed(2)}</span>
+                        </div>
+                        <button type="button"
+                                class="remove-btn btn btn-light btn-sm border rounded-2 px-2 py-1"
+                                data-id="${cartKey}" data-inv-id="${invId}" data-amount="${itemSubtotal}" data-type="item"
+                                style="font-size:13px;line-height:1">✕</button>
+                    </div>`;
                 $cartItemsEl.append(html);
                 updateUI();
             });
@@ -679,12 +819,36 @@
             $cartItemsEl.on('click', '.remove-btn', function() {
                 let id = $(this).data('id');
                 let amount = parseFloat($(this).data('amount'));
-                cartIds.delete(id);
+                let type = $(this).data('type') || 'fee';
+                if (type === 'item') {
+                    let invId = $(this).data('inv-id');
+                    cartInvIds.delete(invId);
+                    $(`.inv-item-card[data-inv-id="${invId}"]`).removeClass('in-cart');
+                } else {
+                    cartIds.delete(id);
+                    $(`.fee-card[data-id="${id}"]`).removeClass('in-cart');
+                }
                 subtotal -= amount;
-                cartData = cartData.filter(x => x.id != id);
+                cartData = cartData.filter(x => x.cartKey != id);
                 $('#cart-' + id).remove();
-                $(`.fee-card[data-id="${id}"]`).removeClass('in-cart');
-                if (cartIds.size === 0) $cartEmpty.show();
+                if (cartIds.size === 0 && cartInvIds.size === 0) $cartEmpty.show();
+                updateUI();
+            });
+
+            /* ── Inventory item quantity change in cart ── */
+            $cartItemsEl.on('input', '.cart-inv-qty', function() {
+                let $row = $(this).closest('.cart-row');
+                let cartKey = $row.attr('id').replace('cart-', '');
+                let unitPrice = parseFloat($row.data('unit-price'));
+                let newQty = Math.max(1, parseInt($(this).val()) || 1);
+                let maxStock = parseInt($(this).data('max-stock'));
+                if (newQty > maxStock) { newQty = maxStock; $(this).val(newQty); }
+                let oldSubtotal = parseFloat($row.data('subtotal'));
+                let newSubtotal = unitPrice * newQty;
+                subtotal = subtotal - oldSubtotal + newSubtotal;
+                $row.data('subtotal', newSubtotal);
+                $row.find('.inv-subtotal-display').text(newSubtotal.toFixed(2));
+                $row.find('input[name^="items"][name$="[quantity]"]').val(newQty);
                 updateUI();
             });
 
@@ -704,10 +868,9 @@
                 $totalEl.text(finalTotal.toFixed(2));
                 $discountLine.text('- ' + discountAmt.toFixed(2) + ' BDT');
                 $('#discountAmountHidden').val(discountAmt.toFixed(2));
-                $badgeEl.text(cartIds.size + (cartIds.size === 1 ? ' item' : ' items'));
-                $collectBtn.prop('disabled', cartIds.size === 0);
-
-                // Keep payment amount in sync with selected fees
+                let totalCount = cartIds.size + cartInvIds.size;
+                $badgeEl.text(totalCount + (totalCount === 1 ? ' item' : ' items'));
+                $collectBtn.prop('disabled', totalCount === 0);
                 $('#paymentAmount').val(finalTotal.toFixed(2));
             }
 
@@ -716,15 +879,30 @@
             /* ── AJAX Collect ── */
             $('#collectBtn').on('click', function() {
 
-                if (cartIds.size === 0) return;
+                if (cartIds.size === 0 && cartInvIds.size === 0) return;
 
                 const $btn = $(this);
                 $btn.prop('disabled', true).html('⏳ &nbsp;Processing...');
+
+                // Collect items[] from hidden inputs
+                let itemsPayload = [];
+                $('#cartItems input[name^="items["]').each(function() {
+                    let name = $(this).attr('name'); // items[N][inventory_item_id] or items[N][quantity]
+                    let match = name.match(/items\[(\d+)\]\[(.+)\]/);
+                    if (!match) return;
+                    let idx = match[1], field = match[2];
+                    if (!itemsPayload[idx]) itemsPayload[idx] = {};
+                    itemsPayload[idx][field] = $(this).val();
+                });
+                // Filter out empty slots
+                itemsPayload = itemsPayload.filter(Boolean);
 
                 // Build payload
                 const payload = {
                     _token: $('input[name="_token"]').first().val(),
                     fees: [...cartIds],
+                    items: itemsPayload,
+                    student_id: @json($student->id),
                     payment_amount: $('#paymentAmount').val() || $totalEl.text(),
                     discount: $('#discountInput').val() || 0,
                     discount_type: $('#discountTypeHidden').val(),
@@ -750,6 +928,8 @@
 
                         // ── Reset cart ──
                         cartIds.clear();
+                        cartInvIds.clear();
+                        invItemIndex = 0;
                         subtotal = 0;
                         cartData = [];
                         $('#cartItems').empty();

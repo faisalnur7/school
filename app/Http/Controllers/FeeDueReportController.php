@@ -34,7 +34,7 @@ class FeeDueReportController extends Controller
     private function buildData(Request $request): array
     {
         $sessions = AcademicSession::orderByDesc('id')->get();
-        $classes  = SchoolClass::orderBy('name_en')->get();
+        $classes  = SchoolClass::get();
         $rows     = collect();
         $mode     = null;
 

@@ -37,6 +37,10 @@
         rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- Select2 CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css">
+    <!-- Moment.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -50,49 +54,61 @@
         }
 
         /* Match the box of Bootstrap's select */
+        .select2-container { width: 100% !important; }
         .select2-container--default .select2-selection--single {
-            background-color: #fff;
-            border: 1px solid #ced4da;
-            border-radius: 0.375rem;
-            height: calc(2.25rem + 2px);
-            padding: 0.375rem 0.75rem;
+            background-color: #f9fafb;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            height: 34px;
             display: flex;
             align-items: center;
+            padding: 0 10px;
+            transition: border-color .15s, box-shadow .15s;
         }
-
-        /* Match the text style */
         .select2-container--default .select2-selection--single .select2-selection__rendered {
-            color: #212529;
-            line-height: 1.5;
+            color: #1f2937;
+            font-size: .82rem;
+            line-height: 34px;
+            padding: 0;
         }
-
-        /* Remove border radius when dropdown is open (optional, like Bootstrap) */
-        .select2-container--default.select2-container--open .select2-selection--single {
-            border-color: #86b7fe;
-            outline: 0;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 34px;
+            right: 8px;
         }
-
-        /* Dropdown match Bootstrap shadow */
+        .select2-container--default.select2-container--open .select2-selection--single,
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,.12);
+            background: #fff;
+        }
         .select2-container--default .select2-dropdown {
-            border: 1px solid rgba(0, 0, 0, .15);
-            border-radius: 0.375rem;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .175);
-            z-index: 1056;
-            /* Above modal if needed */
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.1);
+            z-index: 9999;
         }
-
-        /* Match Bootstrap option padding */
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 1.5px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 5px 8px;
+            font-size: .82rem;
+            outline: none;
+        }
+        .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+            border-color: #667eea;
+        }
         .select2-container--default .select2-results__option {
-            padding: 0.375rem 0.75rem;
-            font-size: 1rem;
-            color: #212529;
+            padding: 7px 12px;
+            font-size: .82rem;
+            color: #374151;
         }
-
-        /* Highlight active option like Bootstrap hover */
         .select2-container--default .select2-results__option--highlighted {
-            background-color: #0d6efd;
-            color: white;
+            background: #667eea;
+            color: #fff;
+        }
+        .select2-container--default .select2-results__option--selected {
+            background: #ede9fe;
+            color: #5b21b6;
         }
 
         .btn-shine {

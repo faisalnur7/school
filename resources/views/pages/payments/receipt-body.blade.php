@@ -71,21 +71,28 @@
             @php
                 $monthName   = '';
                 $feeSetItems = $item->fee?->feeSet?->items ?? collect();
+                $itemPaid    = (float) $item->amount;
+                $feeSetTotal = (float) $feeSetItems->sum('amount');
                 if ($item->fee?->feeSet?->frequency === 'monthly') {
                     $monthName = ' - ' . \Carbon\Carbon::parse($item->fee->due_date)->format('F');
                 }
             @endphp
             @if($feeSetItems->count())
                 @foreach ($feeSetItems as $fsi)
+                    @php
+                        // Distribute paid amount proportionally across fee set categories
+                        $proportion = $feeSetTotal > 0 ? ((float)$fsi->amount / $feeSetTotal) : 0;
+                        $lineAmount = round($itemPaid * $proportion, 2);
+                    @endphp
                     <tr>
                         <td>{{ $fsi->category->name ?? '—' }}{{ $monthName }}</td>
-                        <td style="text-align:right">{{ number_format($fsi->amount, 2) }}</td>
+                        <td style="text-align:right">{{ number_format($lineAmount, 2) }}</td>
                     </tr>
                 @endforeach
             @else
                 <tr>
                     <td>{{ $item->fee?->feeSet?->name ?? '—' }}{{ $monthName }}</td>
-                    <td style="text-align:right">{{ number_format($item->amount, 2) }}</td>
+                    <td style="text-align:right">{{ number_format($itemPaid, 2) }}</td>
                 </tr>
             @endif
         @endforeach
@@ -96,13 +103,41 @@
 @php
     $hasScholarship = $payment->scholarship_amount > 0;
     $hasDiscount    = $payment->discount_amount > 0;
+    $saleItems      = $payment->inventorySale?->items ?? collect();
+    $inventoryTotal = (float)($payment->inventorySale?->total_amount ?? 0);
+    $feeTotal       = (float)$payment->items->sum('amount');
 @endphp
+
+{{-- Items Sold (Inventory) --}}
+@if($saleItems->isNotEmpty())
+<div style="margin-top:10px">
+    <div style="font-size:8.5px;letter-spacing:.12em;font-weight:900;text-transform:uppercase;color:#333;border-bottom:1.5px solid #111;padding-bottom:4px;margin-bottom:4px">Items Sold</div>
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th style="text-align:center">Qty</th>
+                <th style="text-align:right">Amount (BDT)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($saleItems as $si)
+            <tr>
+                <td>{{ $si->inventoryItem->name ?? '—' }}</td>
+                <td style="text-align:center">{{ $si->quantity }}</td>
+                <td style="text-align:right">{{ number_format($si->subtotal, 2) }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endif
 <div style="margin-top:10px; border-top:1.5px dashed #bbb; padding-top:8px">
 
-    @if($hasScholarship || $hasDiscount)
+    @if($hasScholarship || $hasDiscount || $inventoryTotal > 0)
         <div style="display:flex;justify-content:space-between;font-size:11px;color:#555;margin-bottom:4px">
-            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Subtotal</span>
-            <span>BDT {{ number_format($payment->gross_amount, 2) }}</span>
+            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Fee Subtotal</span>
+            <span>BDT {{ number_format($feeTotal + $payment->scholarship_amount + $payment->discount_amount, 2) }}</span>
         </div>
     @endif
 
@@ -115,13 +150,15 @@
 
     @if($hasDiscount)
         <div style="display:flex;justify-content:space-between;font-size:11px;color:#b45309;margin-bottom:4px">
-            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">
-                Discount
-                @if($payment->discount_type === 'percent')
-                    ({{ number_format($payment->discount_amount / max($payment->gross_amount, 0.01) * 100, 1) }}%)
-                @endif
-            </span>
+            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Discount</span>
             <span>- BDT {{ number_format($payment->discount_amount, 2) }}</span>
+        </div>
+    @endif
+
+    @if($inventoryTotal > 0)
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#555;margin-bottom:4px">
+            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Items Sold</span>
+            <span>BDT {{ number_format($inventoryTotal, 2) }}</span>
         </div>
     @endif
 

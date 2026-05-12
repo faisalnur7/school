@@ -32,7 +32,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-3 d-flex align-items-end">
+                    <div class="col-md-6 d-flex align-items-center">
                         <div class="form-group mb-0">
                             <button type="submit" class="btn btn-primary btn-sm ml-auto"><i class="fas fa-search"></i> Generate</button>
                             <a href="{{ route('fees.due-report') }}" class="btn btn-secondary btn-sm ml-1"><i class="fas fa-times"></i> Reset</a>

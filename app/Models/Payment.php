@@ -23,11 +23,17 @@ class Payment extends Model
         'collected_by',
         'account_type',
         'account_id',
+        'inventory_sale_id',
     ];
 
     public function items()
     {
         return $this->hasMany(PaymentItem::class);
+    }
+
+    public function inventorySale()
+    {
+        return $this->belongsTo(InventorySale::class);
     }
 
     public function student()

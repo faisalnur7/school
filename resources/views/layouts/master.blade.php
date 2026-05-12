@@ -45,6 +45,8 @@
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
 
 
     <script>
@@ -53,6 +55,15 @@
                 format: 'yyyy-mm-dd',
                 autoclose: true,
                 todayHighlight: true
+            });
+
+            // Init Select2 on all selects except those opted out
+            $('select:not(.no-select2)').select2({
+                width: '100%',
+                allowClear: true,
+                placeholder: function() {
+                    return $(this).find('option[value=""]').text() || 'Select...';
+                }
             });
         });
     </script>
@@ -75,33 +86,53 @@
                 '#filterCollapse').addClass('hidden');
         })
 
-        // Force dd/mm/yyyy display format
+        // Replace all date inputs with DD/MM/YYYY text inputs backed by hidden YYYY-MM-DD fields
         document.querySelectorAll('input[type="date"]').forEach(function(input) {
-            input.addEventListener('change', function() {
-                // The value stays Y-m-d internally (required by HTML spec)
-                // but we show dd/mm/yyyy via a sibling display span
-                updateDisplay(this);
-            });
-            updateDisplay(input);
-        });
+            var val = input.value;
+            var name = input.name;
+            var required = input.required;
+            var cls = input.className;
+            var id = input.id;
 
-        function updateDisplay(input) {
-          console.log(input);
-            let existing = input.nextElementSibling;
-            if (!existing || !existing.classList.contains('date-display')) {
-                let span = document.createElement('span');
-                span.className = 'date-display';
-                span.style.cssText = 'font-size:11px;color:#94a3b8;margin-top:3px;display:block;font-family:monospace';
-                input.insertAdjacentElement('afterend', span);
-                existing = span;
-            }
-            if (input.value) {
-                let [y, m, d] = input.value.split('-');
-                existing.textContent = d + '/' + m + '/' + y;
-            } else {
-                existing.textContent = '';
-            }
-        }
+            // Hidden field holds the real YYYY-MM-DD value for form submission
+            var hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = name;
+            hidden.value = val;
+
+            // Visible text input shows DD/MM/YYYY
+            var visible = document.createElement('input');
+            visible.type = 'text';
+            visible.className = cls;
+            visible.placeholder = 'DD/MM/YYYY';
+            visible.autocomplete = 'off';
+            if (id) visible.id = id;
+            if (required) visible.required = true;
+            visible.value = val ? moment(val, 'YYYY-MM-DD').format('DD/MM/YYYY') : '';
+
+            // Remove name from original so it doesn't submit
+            input.removeAttribute('name');
+            input.removeAttribute('required');
+            input.style.display = 'none';
+
+            input.parentNode.insertBefore(hidden, input);
+            input.parentNode.insertBefore(visible, input);
+
+            // Init bootstrap datepicker on visible input
+            $(visible).datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                todayHighlight: true
+            }).on('changeDate', function(e) {
+                hidden.value = moment(e.date).format('YYYY-MM-DD');
+            });
+
+            // Allow manual typing: sync to hidden on blur
+            visible.addEventListener('blur', function() {
+                var m = moment(this.value, 'DD/MM/YYYY', true);
+                hidden.value = m.isValid() ? m.format('YYYY-MM-DD') : '';
+            });
+        });
     </script>
 </body>
 

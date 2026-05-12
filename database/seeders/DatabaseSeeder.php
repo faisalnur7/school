@@ -50,6 +50,8 @@ class DatabaseSeeder extends Seeder
             SubjectSeeder::class,
             StudentSeeder::class,
             TeacherSectionAssignmentSeeder::class,
+            InventoryCategorySeeder::class,
+            InventoryBooksSeeder::class
         ]);
     }
 }

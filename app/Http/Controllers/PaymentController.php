@@ -32,7 +32,7 @@ class PaymentController extends Controller
     }
     
     public function receipt(Payment $payment){
-        $payment->load(['items.fee.feeSet', 'student', 'collector']);
+        $payment->load(['items.fee.feeSet.items.category', 'student', 'collector', 'inventorySale.items.inventoryItem']);
         $setting = \App\Models\SchoolSetting::first();
         return view('pages.payments.receipt', compact('payment', 'setting'));
     }

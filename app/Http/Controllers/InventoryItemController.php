@@ -26,6 +26,14 @@ class InventoryItemController extends Controller
             $query->where('category_id', $request->get('category_id'));
         }
 
+        if ($request->filled('school_class_id')) {
+            $query->where('school_class_id', $request->get('school_class_id'));
+        }
+
+        if ($request->filled('group_id')) {
+            $query->where('group_id', $request->get('group_id'));
+        }
+
         if ($request->filled('q')) {
             $q = trim((string)$request->get('q'));
             $query->where(function ($sub) use ($q) {
@@ -35,8 +43,10 @@ class InventoryItemController extends Controller
 
         $items = $query->paginate(20)->withQueryString();
         $categories = InventoryCategory::orderBy('name')->get();
+        $classes = SchoolClass::get();
+        $groups = Group::orderBy('name_en')->get();
 
-        return view('pages.inventory.products.index', compact('items', 'categories'));
+        return view('pages.inventory.products.index', compact('items', 'categories', 'classes', 'groups'));
     }
 
     public function create()
@@ -44,7 +54,7 @@ class InventoryItemController extends Controller
         $this->authorizePermission('manage_inventory_products');
 
         $categories = InventoryCategory::orderBy('name')->get();
-        $classes = SchoolClass::orderBy('name_en')->get();
+        $classes = SchoolClass::get();
         $groups = Group::orderBy('name_en')->get();
 
         return view('pages.inventory.products.create', compact('categories', 'classes', 'groups'));
@@ -102,7 +112,7 @@ class InventoryItemController extends Controller
 
         $item = InventoryItem::findOrFail($id);
         $categories = InventoryCategory::orderBy('name')->get();
-        $classes = SchoolClass::orderBy('name_en')->get();
+        $classes = SchoolClass::get();
         $groups = Group::orderBy('name_en')->get();
 
         return view('pages.inventory.products.edit', compact('item', 'categories', 'classes', 'groups'));

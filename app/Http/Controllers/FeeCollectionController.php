@@ -20,6 +20,11 @@ use App\Models\IncomeCategory;
 use App\Models\Transport;
 use App\Models\Scholarship;
 use App\Models\FreeStudentship;
+use App\Models\InventoryCategory;
+use App\Models\InventoryItem;
+use App\Models\InventorySale;
+use App\Models\InventorySaleItem;
+use App\Models\StockMovement;
 
 class FeeCollectionController extends Controller
 {
@@ -283,15 +288,34 @@ class FeeCollectionController extends Controller
             $fee->calculated_net_amount = $fee->amount - $totalDiscount + $totalTransport;
         }
 
-        return view('pages.fees.collect_fee', compact('pendingFees','student','payments'));
+        $studentClassId = optional($student->academicInformations->last())->school_class_id;
+
+        $inventoryCategories = InventoryCategory::with(['items' => function ($q) use ($studentClassId) {
+            $q->where('is_active', true)
+              ->where(function ($sub) use ($studentClassId) {
+                  $sub->where('item_type', 'common')
+                      ->orWhere(function ($cls) use ($studentClassId) {
+                          $cls->where('item_type', 'classwise')
+                              ->where('school_class_id', $studentClassId);
+                      });
+              });
+        }])->where('is_active', true)->get()
+          ->filter(fn($cat) => $cat->items->isNotEmpty())
+          ->values();
+
+        return view('pages.fees.collect_fee', compact('pendingFees', 'student', 'payments', 'inventoryCategories'));
 
     }
 
     public function pay(Request $request)
     {
         $request->validate([
-            'fees'           => 'required|array',
+            'fees'           => 'nullable|array',
             'fees.*'         => 'exists:fees,id',
+            'items'          => 'nullable|array',
+            'items.*.inventory_item_id' => 'required_with:items|exists:inventory_items,id',
+            'items.*.quantity'          => 'required_with:items|integer|min:1',
+            'student_id'     => 'nullable|exists:students,id',
             'payment_amount' => 'nullable|numeric|min:0',
             'payment_method' => 'nullable|string|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other,cash,bank,mobile_wallet',
             'account_type'   => 'nullable|in:App\\Models\\HandCash,App\\Models\\BankAccount,App\\Models\\MobileBankingAccount',
@@ -299,19 +323,48 @@ class FeeCollectionController extends Controller
             'description'    => 'nullable|string|max:1000',
         ]);
 
+        if (empty($request->fees) && empty($request->items)) {
+            return response()->json(['message' => 'Please select at least one fee or item'], 422);
+        }
+
         DB::beginTransaction();
 
         try {
-            $fees = Fee::with(['feeSet.items.category'])->whereIn('id', $request->fees)->lockForUpdate()->get();
+            $fees = Fee::with(['feeSet.items.category'])->whereIn('id', $request->fees ?? [])->lockForUpdate()->get();
 
-            if ($fees->isEmpty()) {
-                return response()->json(['message' => 'No fees selected'], 422);
+            $requestedItems = collect($request->items ?? []);
+            $inventoryItems = $requestedItems->isNotEmpty()
+                ? InventoryItem::whereIn('id', $requestedItems->pluck('inventory_item_id'))->lockForUpdate()->get()->keyBy('id')
+                : collect();
+
+            // Validate stock before any writes
+            foreach ($requestedItems as $ri) {
+                $invItem = $inventoryItems->get($ri['inventory_item_id']);
+                if (!$invItem || $invItem->current_stock < $ri['quantity']) {
+                    DB::rollBack();
+                    return response()->json(['message' => 'Insufficient stock for: ' . ($invItem->name ?? 'item')], 422);
+                }
             }
 
-            $studentId = $fees->first()->student_id;
+            if ($fees->isEmpty() && $requestedItems->isEmpty()) {
+                return response()->json(['message' => 'No fees or items selected'], 422);
+            }
+
+            $studentId = $fees->isNotEmpty() ? $fees->first()->student_id : null;
+            if (!$studentId) {
+                // items-only sale — student_id must be passed in payload
+                $studentId = (int) $request->student_id;
+            }
 
             if ($fees->where('student_id', '!=', $studentId)->count()) {
                 return response()->json(['message' => 'Fees must belong to the same student'], 422);
+            }
+
+            // Inventory sale subtotal
+            $inventorySaleTotal = 0.0;
+            foreach ($requestedItems as $ri) {
+                $invItem = $inventoryItems->get($ri['inventory_item_id']);
+                $inventorySaleTotal += round((float)$invItem->selling_price * (int)$ri['quantity'], 2);
             }
 
             $student = Student::with('academicInformations')->find($studentId);
@@ -397,12 +450,15 @@ class FeeCollectionController extends Controller
 
             $totalAfterScholarship = $grossAmount - $totalScholarshipDiscount;
             $cartDiscount          = (float)($request->discount_amount ?? 0);
-            $finalAmount           = max(0, $totalAfterScholarship - $cartDiscount);
+            $feePaymentAmount      = max(0, $totalAfterScholarship - $cartDiscount);
+            $finalAmount           = $feePaymentAmount + $inventorySaleTotal;
 
             // Handle partial payment
             $paymentAmount = $request->payment_amount ? min($finalAmount, (float)$request->payment_amount) : $finalAmount;
+            // Fee-only portion of the payment (exclude inventory)
+            $feeOnlyPayment = max(0, $paymentAmount - $inventorySaleTotal);
 
-            if ($paymentAmount <= 0) {
+            if ($paymentAmount <= 0 && $inventorySaleTotal <= 0) {
                 return response()->json(['message' => 'Payment amount must be greater than 0'], 422);
             }
 
@@ -427,7 +483,7 @@ class FeeCollectionController extends Controller
                 'collected_by'    => auth()->id(),
             ]);
 
-            // ── Pass 2: create PaymentItems distributing payment proportionally ──
+            // ── Pass 2: create PaymentItems distributing fee payment proportionally ──
             $studentPaymentAmount  = 0.0;
             $transportPaymentAmount = 0.0;
             $totalNetAmount = 0.0;
@@ -448,7 +504,7 @@ class FeeCollectionController extends Controller
                 $totalNetAmount += $netAmount;
             }
 
-            // Second pass: distribute payment amount proportionally
+            // Second pass: distribute fee-only payment amount proportionally
             foreach ($fees as $fee) {
                 $netAfterScholarship = $feeNetAmounts[$fee->id] ?? 0;
                 if ($netAfterScholarship <= 0) continue;
@@ -460,8 +516,8 @@ class FeeCollectionController extends Controller
                 $netAmount = max(0, $netAfterScholarship - $feeCartDiscount);
                 if ($netAmount <= 0) continue;
 
-                // Distribute payment amount proportionally
-                $paidAmount = $totalNetAmount > 0 ? round($paymentAmount * ($netAmount / $totalNetAmount), 2) : 0;
+                // Distribute fee-only payment proportionally
+                $paidAmount = $totalNetAmount > 0 ? round($feeOnlyPayment * ($netAmount / $totalNetAmount), 2) : 0;
 
                 PaymentItem::create([
                     'payment_id' => $payment->id,
@@ -524,6 +580,44 @@ class FeeCollectionController extends Controller
                     'account_id'     => $payment->account_id,
                     'description'    => "Transport fee payment for student ID {$studentId}",
                 ]);
+            }
+
+            // ── Inventory sale ──
+            if ($requestedItems->isNotEmpty()) {
+                $sale = InventorySale::create([
+                    'payment_id'   => $payment->id,
+                    'student_id'   => $studentId,
+                    'total_amount' => $inventorySaleTotal,
+                    'created_by'   => auth()->id(),
+                ]);
+
+                foreach ($requestedItems as $ri) {
+                    $invItem = $inventoryItems->get($ri['inventory_item_id']);
+                    $qty     = (int) $ri['quantity'];
+                    $price   = (float) $invItem->selling_price;
+
+                    InventorySaleItem::create([
+                        'inventory_sale_id'  => $sale->id,
+                        'inventory_item_id'  => $invItem->id,
+                        'quantity'           => $qty,
+                        'unit_price'         => $price,
+                        'subtotal'           => round($price * $qty, 2),
+                    ]);
+
+                    $invItem->decrement('current_stock', $qty);
+
+                    StockMovement::create([
+                        'inventory_item_id' => $invItem->id,
+                        'type'              => 'sale',
+                        'quantity_change'   => -$qty,
+                        'unit_price'        => $price,
+                        'created_by'        => auth()->id(),
+                        'note'              => 'Sale via payment ' . $payment->receipt_no,
+                    ]);
+                }
+
+                $payment->inventory_sale_id = $sale->id;
+                $payment->save();
             }
 
             DB::commit();

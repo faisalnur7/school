@@ -16,11 +16,11 @@
             @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
             <form method="GET" class="mb-3">
-                <div class="row">
-                    <div class="col-md-4">
-                        <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Search name / sku / barcode...">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Search name...">
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <select name="category_id" class="form-control">
                             <option value="">All Categories</option>
                             @foreach($categories as $cat)
@@ -28,7 +28,23 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
+                        <select name="school_class_id" class="form-control">
+                            <option value="">All Classes</option>
+                            @foreach($classes as $class)
+                                <option value="{{ $class->id }}" {{ request('school_class_id') == $class->id ? 'selected' : '' }}>{{ $class->name_en }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="group_id" class="form-control">
+                            <option value="">All Groups</option>
+                            @foreach($groups as $group)
+                                <option value="{{ $group->id }}" {{ request('group_id') == $group->id ? 'selected' : '' }}>{{ $group->name_en }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <button class="btn btn-secondary">Filter</button>
                         <a href="{{ route('inventory.products.index') }}" class="btn btn-light">Reset</a>
                     </div>
