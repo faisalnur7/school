@@ -112,24 +112,27 @@
 @if($saleItems->isNotEmpty())
 <div style="margin-top:10px">
     <div style="font-size:8.5px;letter-spacing:.12em;font-weight:900;text-transform:uppercase;color:#333;border-bottom:1.5px solid #111;padding-bottom:4px;margin-bottom:4px">Items Sold</div>
-    <table class="items-table">
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th style="text-align:center">Qty</th>
-                <th style="text-align:right">Amount (BDT)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($saleItems as $si)
-            <tr>
-                <td>{{ $si->inventoryItem->name ?? '—' }}</td>
-                <td style="text-align:center">{{ $si->quantity }}</td>
-                <td style="text-align:right">{{ number_format($si->subtotal, 2) }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+    @php
+        // Group inventory items by category
+        $groupedItems = $saleItems->groupBy(function($si) {
+            return $si->inventoryItem->category_id ?? 0;
+        });
+    @endphp
+    @foreach($groupedItems as $categoryId => $items)
+        @php
+            $category = $items->first()->inventoryItem->category ?? null;
+            $categoryName = $category ? $category->name : 'Unknown Category';
+            $categoryTotal = $items->sum('subtotal');
+        @endphp
+        <div style="margin-bottom:8px; display:flex; justify-content: space-between;">
+            <div style="font-size:9px;letter-spacing:.08em;font-weight:700;text-transform:uppercase;color:#333">
+                {{ $categoryName }}
+            </div>
+            <div style="font-size:11px;font-weight:700;text-align:right;color:#111">
+                BDT {{ number_format($categoryTotal, 2) }}
+            </div>
+        </div>
+    @endforeach
 </div>
 @endif
 <div style="margin-top:10px; border-top:1.5px dashed #bbb; padding-top:8px">

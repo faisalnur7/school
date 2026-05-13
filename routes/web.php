@@ -364,6 +364,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // ------------------- Reports -------------------
+    Route::get('/reports/hub', [ReportController::class, 'hub'])->name('reports.hub');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/student', [ReportController::class, 'student'])->name('reports.student');
 
@@ -470,6 +471,8 @@ Route::group(['middleware' => ['auth']], function () {
     // Fee collection
     Route::get('/fees/due-report', [\App\Http\Controllers\FeeDueReportController::class, 'index'])->name('fees.due-report');
     Route::get('/fees/due-report/pdf', [\App\Http\Controllers\FeeDueReportController::class, 'pdf'])->name('fees.due-report.pdf');
+    Route::get('/fees/payment-report', [\App\Http\Controllers\StudentPaymentReportController::class, 'index'])->name('fees.payment-report');
+    Route::get('/fees/payment-report/pdf', [\App\Http\Controllers\StudentPaymentReportController::class, 'pdf'])->name('fees.payment-report.pdf');
     Route::get('/fees/student-due-report', [\App\Http\Controllers\StudentDueReportController::class, 'index'])->name('fees.student-due-report');
     Route::get('/fees/student-due-report/pdf', [\App\Http\Controllers\StudentDueReportController::class, 'pdf'])->name('fees.student-due-report.pdf');
     Route::get('/fees/discount-list', [\App\Http\Controllers\DiscountListController::class, 'index'])->name('fees.discount-list');
