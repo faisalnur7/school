@@ -63,7 +63,7 @@
                 <!-- Fees & Accounts -->
                 <li class="nav-item">
                     <a href="{{ route('fees.hub') }}"
-                        class="nav-link {{ request()->routeIs('fees.hub', 'fee-categories.*', 'fee-sets.*', 'scholarships.*', 'free-studentships.*', 'transports.*', 'fees.*', 'payments.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*', 'fees.payment-report', 'fees.payment-report.pdf') ? 'active' : '' }}">
+                        class="nav-link {{ request()->routeIs('fees.hub', 'fee-categories.*', 'fee-sets.*', 'scholarships.*', 'free-studentships.*', 'transports.*', 'fees.*', 'payments.*', 'fees.payment-report', 'fees.payment-report.pdf') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-money-bill"></i>
                         <p>Fee Collection</p>
                     </a>
@@ -108,7 +108,7 @@
                 <!-- Accounts -->
                 <li class="nav-item">
                     <a href="{{ route('accounts.hub') }}"
-                       class="nav-link {{ request()->routeIs('accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*') ? 'active' : '' }}">
+                       class="nav-link {{ request()->routeIs('accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-book"></i>
                         <p>Accounts</p>
                     </a>
