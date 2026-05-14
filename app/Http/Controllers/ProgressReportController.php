@@ -122,7 +122,7 @@ class ProgressReportController extends Controller
             if (!$subject) continue;
 
             $examSubject = $examSubjects[$subject->id] ?? null;
-            $fullMarks   = $examSubject ? (float) $examSubject->full_marks : 0;
+            $fullMarks   = $subject ? (float) $subject->total_marks : 0;
             $highest     = (float) ($highestMarks[$subject->id] ?? 0);
 
             $row = [
@@ -140,6 +140,7 @@ class ProgressReportController extends Controller
             ];
 
             if ($subject->is_paper && $subject->parent_id) {
+                // dd($row, $subject);
                 $parentGroups[$subject->parent_id]['papers'][] = $row;
             } else {
                 $subjectRows[$subject->id] = $row;
@@ -148,14 +149,15 @@ class ProgressReportController extends Controller
 
         // Merge paper groups into parent rows
         foreach ($parentGroups as $parentId => $group) {
-            $papers    = $group['papers'];
-            $anyFail   = collect($papers)->contains(fn($p) => $p['paper_fail'] || $p['is_absent']);
-            $totalFull = collect($papers)->sum('full_marks');
-            $totalObt  = $anyFail ? null : collect($papers)->sum('obtained');
-            $highest   = collect($papers)->max('highest');
-            $gpas      = collect($papers)->filter(fn($p) => !$p['is_absent'])->pluck('gpa')->toArray();
-            $gpa       = $anyFail ? 0 : GradingService::calculateGpa($gpas);
-            $grade     = $anyFail ? 'F' : GradingService::getGpaLabel($gpa);
+            $papers     = $group['papers'];
+            $anyFail    = collect($papers)->contains(fn($p) => $p['paper_fail']);
+            $anyAbsent  = collect($papers)->contains(fn($p) => $p['is_absent']);
+            $totalFull  = collect($papers)->sum('full_marks');
+            $totalObt   = collect($papers)->sum(fn($p) => $p['obtained'] ?? 0);
+            $highest    = collect($papers)->max('highest');
+            $combined   = GradingService::getGrade($totalObt, $totalFull);
+            $grade      = $anyAbsent ? 'AB' : ($anyFail ? 'F' : $combined['letter']);
+            $gpa        = $anyAbsent ? 0 : ($anyFail ? 0 : $combined['gpa']);
 
             // Get parent subject name
             $parentSubject = \App\Models\Subject::find($parentId);
@@ -171,7 +173,7 @@ class ProgressReportController extends Controller
                 'grade'        => $grade,
                 'gpa'          => $gpa,
                 'is_absent'    => false,
-                'paper_fail'   => $anyFail,
+                'paper_fail'   => $anyFail || $anyAbsent,
                 'papers'       => $papers,
             ];
         }
@@ -200,7 +202,12 @@ class ProgressReportController extends Controller
         return [
             'student'           => $student,
             'academicInfo'      => $academicInfo,
-            'subjectRows'       => array_values($subjectRows),
+            'subjectRows' => array_values(
+                                array_merge(
+                                    array_filter($subjectRows, fn($r) => !empty($r['papers'])),
+                                    array_filter($subjectRows, fn($r) =>  empty($r['papers'])),
+                                )
+                            ),
             'summary'           => compact('fullMarks', 'obtained', 'percentage', 'gpa', 'grade'),
             'attendancePresent' => $attendancePresent,
             'attendanceTotal'   => $attendanceTotal,

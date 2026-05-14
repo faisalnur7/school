@@ -8,7 +8,7 @@
                 <h4 class="card-title mb-0 font-weight-bold">
                     <i class="fas fa-edit mr-2"></i>Edit Subject
                 </h4>
-                <a href="{{ route('subjects.index.index') }}" class="btn btn-light btn-sm">
+                <a href="{{ route('subjects.index') }}" class="btn btn-light btn-sm">
                     <i class="fas fa-arrow-left mr-1"></i> Back
                 </a>
             </div>
@@ -377,7 +377,7 @@
 
             <div class="card-footer bg-light border-top py-2 px-3">
                 <div class="d-flex justify-content-between gap-2">
-                    <a href="{{ route('subjects.index.index') }}" class="btn btn-secondary btn-sm">
+                    <a href="{{ route('subjects.index') }}" class="btn btn-secondary btn-sm">
                         <i class="fas fa-times mr-1"></i>Cancel
                     </a>
                     <button type="submit" class="btn btn-primary btn-sm">
