@@ -174,6 +174,16 @@ class FeeCollectionController extends Controller
             ->orderBy('due_date')
             ->get();
 
+        // Filter fees by student type
+        $studentType = $student->academicInformations()->count() > 1 ? 'old' : 'new';
+        $pendingFees = $pendingFees->filter(function ($fee) use ($studentType) {
+            $items = $fee->feeSet->items;
+            if ($items->isEmpty()) return true;
+            return $items->contains(fn($item) =>
+                in_array($item->category->student_type ?? 'both', ['both', $studentType])
+            );
+        })->values();
+
         // Get active scholarships for this student
         $scholarships = Scholarship::where('student_id', $student->id)
             ->where('status', 'active')

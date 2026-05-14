@@ -28,16 +28,18 @@ class FeeCategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'bn_name'     => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'name'         => 'required|string|max:255',
+            'bn_name'      => 'required|string|max:255',
+            'description'  => 'nullable|string',
+            'student_type' => 'required|in:new,old,both',
         ]);
 
         FeeCategory::create([
-            'name'        => $request->name,
-            'bn_name'     => $request->bn_name,
-            'description' => $request->description,
-            'status'      => 1,
+            'name'         => $request->name,
+            'bn_name'      => $request->bn_name,
+            'description'  => $request->description,
+            'student_type' => $request->student_type,
+            'status'       => 1,
         ]);
 
         return redirect()->back()->with('success', 'Fee category created successfully.');
@@ -60,17 +62,19 @@ class FeeCategoryController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'bn_name'     => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'name'         => 'required|string|max:255',
+            'bn_name'      => 'required|string|max:255',
+            'description'  => 'nullable|string',
+            'student_type' => 'required|in:new,old,both',
         ]);
 
         $feeCategory = FeeCategory::findOrFail($id);
 
         $feeCategory->update([
-            'name'        => $request->name,
-            'bn_name'     => $request->bn_name,
-            'description' => $request->description,
+            'name'         => $request->name,
+            'bn_name'      => $request->bn_name,
+            'description'  => $request->description,
+            'student_type' => $request->student_type,
         ]);
 
         return redirect()->route('fee-categories.index')

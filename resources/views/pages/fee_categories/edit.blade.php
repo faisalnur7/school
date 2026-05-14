@@ -16,6 +16,7 @@
 
         <form method="POST" action="{{ route('fee-categories.update', $feeCategory->id) }}" id="modernForm">
             @csrf
+            @method('PUT')
 
             <div class="card-body p-3">
                 @if($errors->any())
@@ -48,6 +49,15 @@
                         <div class="form-group">
                             <label>Description</label>
                             <textarea name="description" class="form-control" rows="3">{{ $feeCategory->description }}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Applicable For</label>
+                            <select name="student_type" class="form-control" required>
+                                <option value="both" {{ $feeCategory->student_type === 'both' ? 'selected' : '' }}>All Students</option>
+                                <option value="new" {{ $feeCategory->student_type === 'new' ? 'selected' : '' }}>New Students Only</option>
+                                <option value="old" {{ $feeCategory->student_type === 'old' ? 'selected' : '' }}>Returning Students Only</option>
+                            </select>
                         </div>
             </div>
 

@@ -105,11 +105,23 @@ class FeeSetController extends Controller
                                     })
                                     ->get();
 
-                $totalAmount = $feeSet->items()->sum('amount');
+                $items      = $feeSet->items()->with('category')->get();
+                $dueDates   = $this->generateDueDates($feeSet->frequency, $feeSet->month);
 
-                $dueDates = $this->generateDueDates($feeSet->frequency, $feeSet->month);
+                // Count academic infos per student to determine new/old
+                $entryCounts = StudentAcademicInformation::whereIn('student_id', $academicInfos->pluck('student_id'))
+                                    ->selectRaw('student_id, COUNT(*) as cnt')
+                                    ->groupBy('student_id')
+                                    ->pluck('cnt', 'student_id');
 
                 foreach ($academicInfos as $info) {
+
+                    $studentType  = ($entryCounts[$info->student_id] ?? 1) > 1 ? 'old' : 'new';
+                    $applicableAmount = $items->filter(fn($item) =>
+                        in_array($item->category->student_type ?? 'both', ['both', $studentType])
+                    )->sum('amount');
+
+                    if ($applicableAmount <= 0) continue;
 
                     foreach ($dueDates as $dueDate) {
 
@@ -120,7 +132,7 @@ class FeeSetController extends Controller
                                 'due_date'   => $dueDate,
                             ],
                             [
-                                'amount' => $totalAmount,
+                                'amount' => $applicableAmount,
                                 'status' => 'pending',
                             ]
                         );
@@ -222,14 +234,26 @@ class FeeSetController extends Controller
                                     })
                                     ->get();
 
-                $totalAmount = $feeSet->items()->sum('amount');
-
+                $items    = $feeSet->items()->with('category')->get();
                 $dueDates = $this->generateDueDates($feeSet->frequency, $feeSet->month);
+
+                // Count academic infos per student to determine new/old
+                $entryCounts = StudentAcademicInformation::whereIn('student_id', $academicInfos->pluck('student_id'))
+                                    ->selectRaw('student_id, COUNT(*) as cnt')
+                                    ->groupBy('student_id')
+                                    ->pluck('cnt', 'student_id');
 
                 // Delete old fees for this fee set
                 Fee::where('fee_set_id', $feeSet->id)->delete();
 
                 foreach ($academicInfos as $info) {
+
+                    $studentType      = ($entryCounts[$info->student_id] ?? 1) > 1 ? 'old' : 'new';
+                    $applicableAmount = $items->filter(fn($item) =>
+                        in_array($item->category->student_type ?? 'both', ['both', $studentType])
+                    )->sum('amount');
+
+                    if ($applicableAmount <= 0) continue;
 
                     foreach ($dueDates as $dueDate) {
 
@@ -237,7 +261,7 @@ class FeeSetController extends Controller
                             'student_id' => $info->student_id,
                             'fee_set_id' => $feeSet->id,
                             'due_date'   => $dueDate,
-                            'amount'     => $totalAmount,
+                            'amount'     => $applicableAmount,
                             'status'     => 'pending',
                         ]);
                     }

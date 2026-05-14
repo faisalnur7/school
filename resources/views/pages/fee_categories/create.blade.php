@@ -47,6 +47,15 @@
                             <label>Description</label>
                             <textarea name="description" class="form-control" rows="3"></textarea>
                         </div>
+
+                        <div class="form-group">
+                            <label>Applicable For</label>
+                            <select name="student_type" class="form-control" required>
+                                <option value="both">All Students</option>
+                                <option value="new">New Students Only</option>
+                                <option value="old">Returning Students Only</option>
+                            </select>
+                        </div>
             </div>
 
             <div class="card-footer bg-light border-top py-2 px-3">

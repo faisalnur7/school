@@ -15,6 +15,7 @@
                         <th>Name (EN)</th>
                         <th>Name (BN)</th>
                         <th>Description</th>
+                        <th>Applicable For</th>
                         <th>Status</th>
                         <th width="180">Action</th>
                     </tr>
@@ -28,6 +29,22 @@
                             <td>{{ $feeCategory->bn_name }}</td>
                             <td>
                                 {{ Str::limit($feeCategory->description, 40) }}
+                            </td>
+
+                            <td>
+                                @php
+                                    $badgeClass = match($feeCategory->student_type) {
+                                        'new'  => 'badge-success',
+                                        'old'  => 'badge-warning',
+                                        default => 'badge-secondary',
+                                    };
+                                    $badgeLabel = match($feeCategory->student_type) {
+                                        'new'  => 'New Only',
+                                        'old'  => 'Returning Only',
+                                        default => 'All Students',
+                                    };
+                                @endphp
+                                <span class="badge {{ $badgeClass }}">{{ $badgeLabel }}</span>
                             </td>
 
                             <td>
@@ -63,7 +80,7 @@
 
                     @if ($feeCategories->isEmpty())
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
+                            <td colspan="7" class="text-center text-muted py-4">
                                 No fee categories found
                             </td>
                         </tr>

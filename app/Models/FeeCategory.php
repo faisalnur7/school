@@ -11,7 +11,8 @@ class FeeCategory extends Model
         'bn_name',
         'description',
         'status',
-        'is_transport'
+        'is_transport',
+        'student_type',
     ];
 
 }

@@ -367,14 +367,20 @@ class StudentController extends Controller
      */
     protected function applyFeeSetsToStudentWithDueDates($student, $classId, $sessionId, $groupId = null)
     {
-        $feeSets = FeeSet::with('items')
+        $feeSets = FeeSet::with('items.category')
             ->where('school_class_id', $classId)
             ->where('academic_session_id', $sessionId)
             ->get();
 
+        $studentType = $student->academicInformations()->count() > 1 ? 'old' : 'new';
+
         foreach ($feeSets as $feeSet) {
 
-            $totalAmount = $feeSet->items->sum('amount');
+            $applicableAmount = $feeSet->items->filter(fn($item) =>
+                in_array($item->category->student_type ?? 'both', ['both', $studentType])
+            )->sum('amount');
+
+            if ($applicableAmount <= 0) continue;
 
             // Generate due dates
             $dueDates = $this->generateDueDates($feeSet->frequency);
@@ -383,7 +389,7 @@ class StudentController extends Controller
                 Fee::create([
                     'student_id' => $student->id,
                     'fee_set_id' => $feeSet->id,
-                    'amount'     => $totalAmount,
+                    'amount'     => $applicableAmount,
                     'due_date'   => $dueDate,
                     'status'     => 'pending',
                 ]);

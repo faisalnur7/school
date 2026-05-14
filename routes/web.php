@@ -473,8 +473,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/fees/due-report/pdf', [\App\Http\Controllers\FeeDueReportController::class, 'pdf'])->name('fees.due-report.pdf');
     Route::get('/fees/payment-report', [\App\Http\Controllers\StudentPaymentReportController::class, 'index'])->name('fees.payment-report');
     Route::get('/fees/payment-report/pdf', [\App\Http\Controllers\StudentPaymentReportController::class, 'pdf'])->name('fees.payment-report.pdf');
+    Route::get('/fees/student-receive-report', [\App\Http\Controllers\StudentPaymentReportController::class, 'receiveIndex'])->name('fees.student-receive-report');
+    Route::get('/fees/student-receive-report/pdf', [\App\Http\Controllers\StudentPaymentReportController::class, 'receivePdf'])->name('fees.student-receive-report.pdf');
+    Route::get('/fees/student-receivable-report', [\App\Http\Controllers\StudentReceivableReportController::class, 'index'])->name('fees.student-receivable-report');
+    Route::get('/fees/student-receivable-report/pdf', [\App\Http\Controllers\StudentReceivableReportController::class, 'pdf'])->name('fees.student-receivable-report.pdf');
     Route::get('/fees/student-due-report', [\App\Http\Controllers\StudentDueReportController::class, 'index'])->name('fees.student-due-report');
     Route::get('/fees/student-due-report/pdf', [\App\Http\Controllers\StudentDueReportController::class, 'pdf'])->name('fees.student-due-report.pdf');
+    Route::get('/fees/student-ledger/{student}', [\App\Http\Controllers\StudentLedgerReportController::class, 'show'])->name('fees.student-ledger.show');
+    Route::get('/fees/student-ledger/{student}/pdf', [\App\Http\Controllers\StudentLedgerReportController::class, 'pdf'])->name('fees.student-ledger.pdf');
     Route::get('/fees/discount-list', [\App\Http\Controllers\DiscountListController::class, 'index'])->name('fees.discount-list');
     Route::get('/fees/discount-list/pdf', [\App\Http\Controllers\DiscountListController::class, 'pdf'])->name('fees.discount-list.pdf');
     Route::get('/fees/collect', [FeeCollectionController::class, 'index'])->name('fees.collect');
