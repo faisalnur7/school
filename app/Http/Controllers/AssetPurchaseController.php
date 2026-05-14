@@ -82,8 +82,8 @@ class AssetPurchaseController extends Controller
             }
 
             // Record as expense transaction
-            $expenseCategory = ExpenseCategory::where('slug', 'maintenance')->first()
-                ?? ExpenseCategory::first();
+            $expenseCategory = ExpenseCategory::where('slug', 'asset-purchase')->first()
+                ?? ExpenseCategory::where('slug', 'maintenance')->first();
 
             $paymentMethodMap = [
                 'hand_cash' => 'Cash',

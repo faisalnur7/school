@@ -18,45 +18,47 @@
     {{-- Filter --}}
     <div class="card card-outline card-primary mb-3">
         <div class="card-body py-2">
-            <form method="GET" class="form-inline flex-wrap">
-                <select name="class_id" id="filter_class_id" class="form-control form-control-sm mr-2 mb-1" required>
-                    <option value="">Select Class</option>
-                    @foreach($classes as $class)
-                    <option value="{{ $class->id }}" {{ request('class_id') == $class->id ? 'selected' : '' }}>
-                        {{ $class->name_en }}
-                    </option>
-                    @endforeach
-                </select>
-                <select name="section_id" id="filter_section_id" class="form-control form-control-sm mr-2 mb-1">
-                    <option value="">All Sections</option>
-                    @foreach($sections as $section)
-                    <option value="{{ $section->id }}" {{ request('section_id') == $section->id ? 'selected' : '' }}>
-                        {{ $section->name_en }}
-                    </option>
-                    @endforeach
-                </select>
-                <select name="session_id" class="form-control form-control-sm mr-2 mb-1">
-                    <option value="">All Sessions</option>
-                    @foreach($sessions as $session)
-                    <option value="{{ $session->id }}" {{ request('session_id') == $session->id ? 'selected' : '' }}>
-                        {{ $session->name_en ?? $session->name_bn }}
-                    </option>
-                    @endforeach
-                </select>
-                <button class="btn btn-sm btn-primary mb-1"><i class="fas fa-search mr-1"></i>Search</button>
-                <a href="{{ route('student-subjects.index') }}" class="btn btn-sm btn-light mb-1 ml-1">Reset</a>
+            <div class="d-flex align-items-center flex-wrap" style="gap:6px;">
+                <form method="GET" class="d-flex align-items-center flex-wrap" style="gap:6px;">
+                    <select name="class_id" id="filter_class_id" class="form-control form-control-sm" style="width:160px;" required>
+                        <option value="">Select Class</option>
+                        @foreach($classes as $class)
+                        <option value="{{ $class->id }}" {{ request('class_id') == $class->id ? 'selected' : '' }}>
+                            {{ $class->name_en }}
+                        </option>
+                        @endforeach
+                    </select>
+                    <select name="section_id" id="filter_section_id" class="form-control form-control-sm" style="width:140px;">
+                        <option value="">All Sections</option>
+                        @foreach($sections as $section)
+                        <option value="{{ $section->id }}" {{ request('section_id') == $section->id ? 'selected' : '' }}>
+                            {{ $section->name_en }}
+                        </option>
+                        @endforeach
+                    </select>
+                    <select name="session_id" class="form-control form-control-sm" style="width:150px;">
+                        <option value="">All Sessions</option>
+                        @foreach($sessions as $session)
+                        <option value="{{ $session->id }}" {{ request('session_id') == $session->id ? 'selected' : '' }}>
+                            {{ $session->name_en ?? $session->name_bn }}
+                        </option>
+                        @endforeach
+                    </select>
+                    <button class="btn btn-sm btn-primary"><i class="fas fa-search mr-1"></i>Search</button>
+                    <a href="{{ route('student-subjects.index') }}" class="btn btn-sm btn-light">Reset</a>
+                </form>
 
                 @if(request('class_id'))
-                <form method="POST" action="{{ route('student-subjects.bulk-assign') }}" class="d-inline ml-3">
+                <form method="POST" action="{{ route('student-subjects.bulk-assign') }}">
                     @csrf
                     <input type="hidden" name="class_id" value="{{ request('class_id') }}">
                     <input type="hidden" name="session_id" value="{{ request('session_id') ?? \App\Models\AcademicSession::where('status',1)->value('id') }}">
-                    <button class="btn btn-sm btn-warning mb-1" onclick="return confirm('Bulk assign all compulsory subjects to all students in this class?')">
+                    <button class="btn btn-sm btn-warning" onclick="return confirm('Bulk assign all compulsory subjects to all students in this class?')">
                         <i class="fas fa-magic mr-1"></i>Bulk Assign Compulsory
                     </button>
                 </form>
                 @endif
-            </form>
+            </div>
         </div>
     </div>
 

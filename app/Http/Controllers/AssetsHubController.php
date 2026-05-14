@@ -12,6 +12,7 @@ class AssetsHubController extends Controller
             ['icon' => 'fa-shopping-cart',  'title' => 'Purchases',       'subtitle' => 'Manage asset purchases',    'route' => 'asset-purchases.index',  'from' => '#059669', 'to' => '#047857'],
             ['icon' => 'fa-clipboard-list', 'title' => 'Issue Register',  'subtitle' => 'Track asset issues',        'route' => 'asset-issues.index',     'from' => '#d97706', 'to' => '#b45309'],
             ['icon' => 'fa-warehouse',      'title' => 'Asset Stock',     'subtitle' => 'View asset stock levels',   'route' => 'asset-issues.stock',     'from' => '#dc2626', 'to' => '#b91c1c'],
+            ['icon' => 'fa-calendar-check',  'title' => 'Facility Bookings','subtitle' => 'Manage facility rentals',  'route' => 'facilities.bookings.index', 'from' => '#0d9488', 'to' => '#0f766e'],
         ];
 
         return view('pages.assets.hub', compact('cards'));

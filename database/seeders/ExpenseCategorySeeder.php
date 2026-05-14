@@ -108,7 +108,8 @@ class ExpenseCategorySeeder extends Seeder
             ['name' => 'School Decoration & Others', 'slug' => 'school-decoration-others'],
             ['name' => 'Office Decoration', 'slug' => 'office-decoration'],
             ['name' => 'School Dress (Clothes)', 'slug' => 'school-dress-clothes'],
-            ['name' => 'Sanitary Goods', 'slug' => 'sanitary-goods'],
+            ['name' => 'Sanitary Goods',  'slug' => 'sanitary-goods'],
+            ['name' => 'Asset Purchase',   'slug' => 'asset-purchase'],
         ];
         foreach ($categories as $category) {
             ExpenseCategory::firstOrCreate(['slug' => $category['slug']], [

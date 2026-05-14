@@ -567,6 +567,13 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/bulk-assign', [\App\Http\Controllers\StudentSubjectController::class, 'bulkAssign'])->name('bulk-assign');
     });
 
+    // ------------------- Progress Report -------------------
+    Route::prefix('result/progress-report')->name('result.progress-report.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ProgressReportController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\ProgressReportController::class, 'show'])->name('show');
+        Route::get('/pdf', [\App\Http\Controllers\ProgressReportController::class, 'pdf'])->name('pdf');
+    });
+
     // ------------------- Result Management -------------------
     Route::prefix('results')->group(function () {
         Route::get('/', [ResultController::class, 'index'])->name('results.index');
@@ -765,6 +772,18 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/booking/create', [AssetController::class, 'createBooking'])->name('facilities.booking.create');
         Route::post('/booking/store', [AssetController::class, 'storeBooking'])->name('facilities.booking.store');
     });
+
+    // ------------------- Facility Bookings -------------------
+    Route::get('/facility-bookings/hub', [\App\Http\Controllers\FacilityBookingController::class, 'hub'])->name('facilities.bookings.hub');
+    Route::resource('facility-bookings', \App\Http\Controllers\FacilityBookingController::class)->names([
+        'index'   => 'facilities.bookings.index',
+        'create'  => 'facilities.bookings.create',
+        'store'   => 'facilities.bookings.store',
+        'show'    => 'facilities.bookings.show',
+        'edit'    => 'facilities.bookings.edit',
+        'update'  => 'facilities.bookings.update',
+        'destroy' => 'facilities.bookings.destroy',
+    ]);
 
     // ------------------- Visitor Management -------------------
     Route::prefix('visitors')->group(function () {

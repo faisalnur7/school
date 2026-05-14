@@ -22,6 +22,8 @@ class IncomeCategorySeeder extends Seeder
             ['name' => 'Student Uniform', 'slug' => 'student-uniform'],
             ['name' => 'Admission Form',  'slug' => 'admission-form'],
             ['name' => 'Sports Dress',    'slug' => 'sports-dress'],
+            ['name' => 'Inventory Sale',   'slug' => 'inventory-sale'],
+            ['name' => 'Facility Booking', 'slug' => 'facility-booking'],
         ];
 
         foreach ($categories as $category) {
