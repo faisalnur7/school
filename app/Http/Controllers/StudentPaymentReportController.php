@@ -60,7 +60,7 @@ class StudentPaymentReportController extends Controller
     private function buildReceiveData(Request $request): array
     {
         $sessions = AcademicSession::orderByDesc('id')->get();
-        $classes = SchoolClass::orderBy('name_en')->get();
+        $classes = SchoolClass::orderBy('id')->get();
         $sections = $request->filled('class_id')
             ? Section::where('school_class_id', $request->class_id)->orderBy('name_en')->get()
             : collect();

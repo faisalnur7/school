@@ -506,7 +506,6 @@ class SubjectService
     public function getGroupOptions(): array
     {
         return Group::where('status', 1)
-            ->orderBy('name_en')
             ->pluck('name_en', 'id')
             ->toArray();
     }
