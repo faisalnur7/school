@@ -51,20 +51,25 @@
 
     <script>
         $(function() {
+
+            // Datepicker init
             $('.datepicker').datepicker({
                 format: 'yyyy-mm-dd',
                 autoclose: true,
                 todayHighlight: true
             });
 
-            // Init Select2 on all selects except those opted out
-            $('select:not(.no-select2)').select2({
-                width: '100%',
-                allowClear: true,
-                placeholder: function() {
-                    return $(this).find('option[value=""]').text() || 'Select...';
-                }
+            // Select2 init (exclude opt-out)
+            $('select:not(.no-select2)').each(function() {
+                const $select = $(this);
+                $select.select2({
+                    width: '100%',
+                    allowClear: true,
+                    dropdownParent: $select.closest('.modal').length ? $select.closest('.modal') : $select.parent(),
+                    placeholder: $select.find('option[value=""]').text() || 'Select...'
+                });
             });
+
         });
     </script>
 
