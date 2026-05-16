@@ -57,27 +57,53 @@
                                         {{ number_format($net, 2) }}
                                     </span>
                                 </td>
-                                <td style="display:flex;gap:5px;align-items:center">
-                                    <button type="button" class="btn btn-sm btn-success"
-                                        onclick="openTxnModal({{ $sh->id }}, '{{ addslashes($sh->name) }}', 'capital')">
-                                        + Capital
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-warning"
-                                        onclick="openTxnModal({{ $sh->id }}, '{{ addslashes($sh->name) }}', 'withdrawal')">
-                                        − Withdraw
-                                    </button>
-                                    <a href="{{ route('shareholders.edit', $sh->id) }}" class="btn btn-sm btn-dark">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form action="{{ route('shareholders.destroy', $sh->id) }}" method="POST"
-                                          class="d-inline m-0 p-0"
-                                          onsubmit="return confirm('Delete this shareholder?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </td>
+<td>
+    <div class="d-flex align-items-center flex-nowrap" style="gap:8px; white-space: nowrap;">
+
+        {{-- Add Capital --}}
+        <button type="button"
+            onclick="openTxnModal({{ $sh->id }}, '{{ addslashes($sh->name) }}', 'capital')"
+            class="px-3 py-2 text-xs font-semibold text-white bg-green-600 border border-green-600 rounded-lg shadow-sm hover:bg-green-700 transition">
+
+            + Capital
+        </button>
+
+        {{-- Withdraw --}}
+        <button type="button"
+            onclick="openTxnModal({{ $sh->id }}, '{{ addslashes($sh->name) }}', 'withdrawal')"
+            class="px-3 py-2 text-xs font-semibold text-white bg-amber-500 border border-amber-500 rounded-lg shadow-sm hover:bg-amber-600 transition">
+
+            − Withdraw
+        </button>
+
+        {{-- Edit --}}
+        <a href="{{ route('shareholders.edit', $sh->id) }}"
+            class="d-flex align-items-center justify-content-center text-gray-700 bg-gray-100 border border-gray-200 rounded-lg shadow-sm hover:bg-gray-200 transition"
+            style="width:36px; height:36px;">
+
+            <i class="fas fa-edit text-sm"></i>
+        </a>
+
+        {{-- Delete --}}
+        <form action="{{ route('shareholders.destroy', $sh->id) }}"
+            method="POST"
+            class="m-0 p-0 d-inline"
+            onsubmit="return confirm('Delete this shareholder?')">
+
+            @csrf
+            @method('DELETE')
+
+            <button type="submit"
+                class="d-flex align-items-center justify-content-center text-white bg-red-500 border border-red-500 rounded-lg shadow-sm hover:bg-red-600 transition"
+                style="width:36px; height:36px;">
+
+                <i class="fas fa-trash text-sm"></i>
+            </button>
+
+        </form>
+
+    </div>
+</td>
                             </tr>
                         @endforeach
 
@@ -101,9 +127,9 @@
 <div class="modal fade" id="txnModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header" id="txnModalHeader">
+            <div class="modal-header card-header" id="txnModalHeader">
                 <h5 class="modal-title" id="txnModalTitle">Add Transaction</h5>
-                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form method="POST" action="{{ route('shareholder-transactions.store') }}">
                 @csrf
@@ -155,9 +181,9 @@
                     </div>
 
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success" id="modalSubmitBtn">Save</button>
+                <div class="modal-footer card-footer bg-light border-top py-2 px-3">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="modalSubmitBtn">Save</button>
                 </div>
             </form>
         </div>

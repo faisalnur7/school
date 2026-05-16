@@ -14,7 +14,7 @@
     <div class="mb-10">
         <div class="flex items-center gap-3 mb-5">
             <i class="fas fa-folder-open text-slate-700 text-xl"></i>
-            <h4 class="text-slate-800 text-xl font-bold m-0">{{ $sectionName }}</h4>
+            <h4 class="text-slate-800 text-lg font-bold m-0">{{ $sectionName }}</h4>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
             @foreach($cards as $card)

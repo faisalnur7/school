@@ -650,6 +650,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/cash-flow/pdf',           [\App\Http\Controllers\ReportsController::class, 'cashFlowPdf'])->name('cash-flow.pdf');
         Route::get('/chart-of-accounts/pdf',   [\App\Http\Controllers\ReportsController::class, 'chartOfAccountsPdf'])->name('chart-of-accounts.pdf');
         Route::get('/headwise-transactions/pdf',[\App\Http\Controllers\ReportsController::class, 'headwiseTransactionsPdf'])->name('headwise-transactions.pdf');
+        Route::get('/details-trial-balance',     [\App\Http\Controllers\ReportsController::class, 'detailedTrialBalance'])->name('details-trial-balance');
+        Route::get('/details-trial-balance/pdf', [\App\Http\Controllers\ReportsController::class, 'detailedTrialBalancePdf'])->name('details-trial-balance.pdf');
     });
 
     // ------------------- Asset Tracking -------------------

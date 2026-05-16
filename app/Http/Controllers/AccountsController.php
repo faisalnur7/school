@@ -11,9 +11,23 @@ use Illuminate\Http\Request;
 
 class AccountsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $accounts = Account::with('group')->latest()->paginate(20);
+        $query = Account::with('group')->latest();
+
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->filled('group')) {
+            $query->where('account_group_id', $request->group);
+        }
+
+        if ($request->filled('linked')) {
+            $query->where('reference_type', $request->linked);
+        }
+
+        $accounts = $query->paginate(20)->withQueryString();
         $groups   = AccountGroup::orderBy('name')->get();
         return view('pages.accounts-list.index', compact('accounts', 'groups'));
     }

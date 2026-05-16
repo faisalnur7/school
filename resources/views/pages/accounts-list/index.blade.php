@@ -8,6 +8,39 @@
         </div>
         <div class="card-body p-0">
             @if(session('success'))<div class="alert alert-success m-3">{{ session('success') }}</div>@endif
+
+            {{-- Filters --}}
+            <form method="GET" action="{{ route('accounts-list.index') }}" class="px-3 pt-3 pb-2">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label mb-1" style="font-size:12px">Name</label>
+                        <input type="text" name="name" class="form-control form-control-sm" value="{{ request('name') }}" placeholder="Search by name">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label mb-1" style="font-size:12px">Group</label>
+                        <select name="group" class="form-control form-control-sm">
+                            <option value="">All Groups</option>
+                            @foreach ($groups as $group)
+                                <option value="{{ $group->id }}" {{ request('group') == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label mb-1" style="font-size:12px">Linked Account</label>
+                        <select name="linked" class="form-control form-control-sm">
+                            <option value="">All</option>
+                            <option value="App\Models\BankAccount" {{ request('linked') == 'App\Models\BankAccount' ? 'selected' : '' }}>Bank Account</option>
+                            <option value="App\Models\HandCash" {{ request('linked') == 'App\Models\HandCash' ? 'selected' : '' }}>Hand Cash</option>
+                            <option value="App\Models\MobileBankingAccount" {{ request('linked') == 'App\Models\MobileBankingAccount' ? 'selected' : '' }}>Mobile Banking</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-sm btn-dark">Filter</button>
+                        <a href="{{ route('accounts-list.index') }}" class="btn btn-sm btn-secondary">Reset</a>
+                    </div>
+                </div>
+            </form>
+
             <table class="table table-hover mb-0">
                 <thead><tr><th>#</th><th>Name</th><th>Group</th><th>Linked Account</th><th>Notes</th><th width="100">Actions</th></tr></thead>
                 <tbody>

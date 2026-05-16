@@ -313,6 +313,49 @@ class ReportsController extends Controller
     }
 
     // ── PDF exports ───────────────────────────────────────────────────────
+    // ── Detailed Trial Balance ─────────────────────────────────
+    private function buildDetailedTrialBalanceRows(int $year): array
+    {
+        $transactions = Transaction::with(['incomeCategory', 'expenseCategory', 'shareholder'])
+            ->whereYear('transaction_date', $year)
+            ->get();
+
+        $rows = [];
+
+        foreach ($transactions->where('type', 'income')->groupBy('income_category_id') as $catId => $group) {
+            $rows[] = ['account' => 'Income — ' . ($group->first()->incomeCategory?->name ?? 'Uncategorised'), 'debit' => 0, 'credit' => $group->sum('amount')];
+        }
+        foreach ($transactions->where('type', 'expense')->groupBy('expense_category_id') as $catId => $group) {
+            $rows[] = ['account' => 'Expense — ' . ($group->first()->expenseCategory?->name ?? 'Uncategorised'), 'debit' => $group->sum('amount'), 'credit' => 0];
+        }
+        foreach ($transactions->where('type', 'capital')->groupBy('shareholder_id') as $shId => $group) {
+            $rows[] = ['account' => 'Capital — ' . ($group->first()->shareholder?->name ?? 'Shareholder'), 'debit' => 0, 'credit' => $group->sum('amount')];
+        }
+        foreach ($transactions->where('type', 'withdrawal')->groupBy('shareholder_id') as $shId => $group) {
+            $rows[] = ['account' => 'Withdrawal — ' . ($group->first()->shareholder?->name ?? 'Shareholder'), 'debit' => $group->sum('amount'), 'credit' => 0];
+        }
+
+        return $rows;
+    }
+
+    public function detailedTrialBalance(Request $request)
+    {
+        $year = $request->get('year', now()->year);
+        $rows = $this->buildDetailedTrialBalanceRows($year);
+        $totalDebit  = collect($rows)->sum('debit');
+        $totalCredit = collect($rows)->sum('credit');
+        return view('pages.reports.details-trial-balance', compact('rows', 'totalDebit', 'totalCredit', 'year'));
+    }
+
+    public function detailedTrialBalancePdf(Request $request)
+    {
+        $year = $request->get('year', now()->year);
+        $rows = $this->buildDetailedTrialBalanceRows($year);
+        $totalDebit  = collect($rows)->sum('debit');
+        $totalCredit = collect($rows)->sum('credit');
+        $this->makePdf('pages.reports.pdf.details-trial-balance', compact('rows', 'totalDebit', 'totalCredit', 'year'), 'details-trial-balance-' . $year);
+    }
+
     public function trialBalancePdf(Request $request)
     {
         $year            = $request->get('year', now()->year);

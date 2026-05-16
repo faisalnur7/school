@@ -10,6 +10,7 @@ class AccountsHubController extends Controller
             'Reports' => [
                 ['icon' => 'fa-book',           'title' => 'Ledger',               'subtitle' => 'View account ledger',          'route' => 'ledger.index',                   'from' => '#d97706', 'to' => '#b45309'],
                 ['icon' => 'fa-balance-scale',  'title' => 'Trial Balance',        'subtitle' => 'View trial balance',           'route' => 'reports.trial-balance',          'from' => '#dc2626', 'to' => '#b91c1c'],
+                ['icon' => 'fa-list-alt',        'title' => 'Detailed Trial Balance','subtitle' => 'Category-wise breakdown of all transactions', 'route' => 'reports.details-trial-balance', 'from' => '#7c3aed', 'to' => '#6d28d9'],
                 ['icon' => 'fa-file-alt',       'title' => 'Balance Sheet',        'subtitle' => 'View balance sheet',           'route' => 'reports.balance-sheet',          'from' => '#7c3aed', 'to' => '#6d28d9'],
                 ['icon' => 'fa-money-bill',     'title' => 'Cash Book',            'subtitle' => 'View cash book',               'route' => 'reports.cash-book',              'from' => '#0f766e', 'to' => '#0d9488'],
                 ['icon' => 'fa-calendar-day',   'title' => 'Day Book',             'subtitle' => 'View day book',                'route' => 'reports.day-book',               'from' => '#b45309', 'to' => '#92400e'],

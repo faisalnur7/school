@@ -47,6 +47,7 @@ class DatabaseSeeder extends Seeder
             ProfessionSeeder::class,
             AssetCategorySeeder::class,
             AssetSeeder::class,
+            ShareHolderSeeder::class,
             SubjectSeeder::class,
             StudentSeeder::class,
             TeacherSectionAssignmentSeeder::class,
