@@ -9,7 +9,7 @@
                 <i class="fas fa-file-invoice text-white fa-lg"></i>
             </div>
             <div>
-                <h4 class="mb-0 font-weight-bold">Terminal Exam Report</h4>
+                <h4 class="mb-0 font-weight-bold text-white">Terminal Exam Report</h4>
                 <small class="text-muted">{{ $exam->name }} &mdash; {{ $exam->academicSession->name_en ?? $exam->academicSession->name_bn ?? '' }}</small>
             </div>
         </div>

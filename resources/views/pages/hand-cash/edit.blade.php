@@ -5,7 +5,7 @@
     <div class="card shadow-sm border-0">
         <div class="card-header bg-gradient-primary text-white py-3">
             <div class="d-flex justify-content-between align-items-center">
-                <h4 class="card-title mb-0 font-weight-bold">
+                <h4 class="card-title mb-0 font-weight-bold text-white">
                     <i class="fas fa-edit mr-2"></i>Edit Hand Cash
                 </h4>
                 <a href="{{ route('hand-cash.index') }}" class="btn btn-light btn-sm">
@@ -15,6 +15,7 @@
         </div>
 
         <form method="POST" action="{{ route('hand-cash.update', $handCash->id) }}" id="modernForm">
+            @method('PUT')
             @csrf
 
             <div class="card-body p-3">

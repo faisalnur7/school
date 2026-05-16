@@ -1,22 +1,24 @@
 <!-- Students Table -->
 <div class="card">
-    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
-        <h3 class="card-title">
-            Students
-            @if ($students->total() > 0)
-                <span class="badge badge-light">{{ $students->total() }}</span>
-            @endif
-        </h3>
-        <div class="ml-auto d-flex gap-2">
-            <a href="{{ route('students.export', request()->all()) }}" class="btn btn-success btn-sm mr-2">
-                <i class="fas fa-file-excel"></i> Export
-            </a>
-            <a href="{{ route('students.list-pdf', request()->all()) }}" class="btn btn-danger btn-sm mr-2" target="_blank">
-                <i class="fas fa-file-pdf"></i> Export PDF
-            </a>
-            <a href="{{ route('students.create') }}" class="btn btn-primary btn-sm text-bold">
-                <i class="fas fa-plus"></i> Add Student
-            </a>
+    <div class="card-header bg-gradient-primary text-white py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0 font-weight-bold">
+                Students
+                @if ($students->total() > 0)
+                    <span class="badge badge-light ml-1">{{ $students->total() }}</span>
+                @endif
+            </h4>
+            <div class="d-flex">
+                <a href="{{ route('students.export', request()->all()) }}" class="btn btn-light btn-sm mr-1">
+                    <i class="fas fa-file-excel"></i> Export
+                </a>
+                <a href="{{ route('students.list-pdf', request()->all()) }}" class="btn btn-light btn-sm mr-1" target="_blank">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </a>
+                <a href="{{ route('students.create') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-plus"></i> Add Student
+                </a>
+            </div>
         </div>
     </div>
 

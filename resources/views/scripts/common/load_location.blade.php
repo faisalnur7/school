@@ -23,10 +23,12 @@
                                 `<option value="${district.id}">${district.name} - ${district.bn_name}</option>`
                             );
                         });
+                        if (window.refreshSelect2) refreshSelect2(targetDropdown);
                         if (callback) callback();
                     },
                     error: function() {
                         targetDropdown.html('<option value="">District</option>');
+                        if (window.refreshSelect2) refreshSelect2(targetDropdown);
                     }
                 });
             } else {
@@ -54,10 +56,12 @@
                                 `<option value="${policeStation.id}">${policeStation.name} - ${policeStation.bn_name}</option>`
                             );
                         });
+                        if (window.refreshSelect2) refreshSelect2(targetDropdown);
                         if (callback) callback();
                     },
                     error: function() {
                         targetDropdown.html('<option value="">Police Station</option>');
+                        if (window.refreshSelect2) refreshSelect2(targetDropdown);
                     }
                 });
             } else {
@@ -85,10 +89,12 @@
                                 `<option value="${postOffice.id}">${postOffice.name} - ${postOffice.bn_name}</option>`
                             );
                         });
+                        if (window.refreshSelect2) refreshSelect2(targetDropdown);
                         if (callback) callback();
                     },
                     error: function() {
                         targetDropdown.html('<option value="">Post Office</option>');
+                        if (window.refreshSelect2) refreshSelect2(targetDropdown);
                     }
                 });
             } else {

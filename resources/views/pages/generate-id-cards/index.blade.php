@@ -24,19 +24,6 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
-                            <label class="font-weight-bold">Template <span class="text-danger">*</span></label>
-                            <select name="template_id" class="form-control form-control-sm" required>
-                                <option value="">— Select Template —</option>
-                                @foreach($templates as $t)
-                                    <option value="{{ $t->id }}" {{ request('template_id') == $t->id ? 'selected' : '' }}>
-                                        {{ $t->name }} ({{ ucfirst($t->orientation) }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
                             <label>Class</label>
                             <select name="class_id" class="form-control form-control-sm" id="classSelect">
                                 <option value="">All Classes</option>
@@ -82,15 +69,10 @@
         </div>
     </div>
 
-    @if(!request('session_id') || !request('template_id'))
+    @if(!request('session_id'))
         <div class="text-center py-5 text-muted no-print">
             <i class="fas fa-id-card fa-3x mb-3 d-block" style="opacity:.3"></i>
-            <p class="mb-1">Select Academic Year and Template to generate ID cards.</p>
-            @if($templates->isEmpty())
-                <a href="{{ route('id-card-templates.create') }}" class="btn btn-sm btn-outline-primary mt-2">
-                    <i class="fas fa-plus"></i> Create a Template first
-                </a>
-            @endif
+            <p class="mb-1">Select Academic Year to generate ID cards.</p>
         </div>
     @elseif($students->isEmpty())
         <div class="text-center py-5 text-muted no-print">
@@ -99,18 +81,12 @@
         </div>
     @else
         @php
-            $isLandscape = $template->orientation === 'landscape';
-            $cardW       = $isLandscape ? '360px' : '220px';
-            $cardH       = $isLandscape ? '220px' : '360px';
-            $primary     = $setting?->primary_color   ?? '#1e3a5f';
-            $secondary   = $setting?->secondary_color ?? '#2563eb';
-            $idColor     = $setting?->id_card_color   ?? '#1e3a5f';
+            $secondary = $setting?->secondary_color ?? '#2563eb';
+            $idColor   = $setting?->id_card_color   ?? '#1e3a5f';
         @endphp
 
         <div class="no-print mb-3 d-flex align-items-center" style="gap:8px">
             <span class="badge badge-primary px-3 py-2" style="font-size:13px">{{ $students->count() }} Students</span>
-            <span class="badge badge-secondary px-3 py-2" style="font-size:13px">{{ ucfirst($template->orientation) }}</span>
-            <span class="badge badge-info px-3 py-2" style="font-size:13px">{{ $template->name }}</span>
             <span class="badge badge-light border px-3 py-2" style="font-size:12px">Front + Back per student</span>
         </div>
 
@@ -123,15 +99,10 @@
                 <div class="id-card-pair">
 
                     {{-- ── FRONT CARD ── --}}
-                    <div class="id-card {{ $isLandscape ? 'id-card--landscape' : 'id-card--portrait' }}">
-                        @if($template->front_bg_image)
-                            <img src="{{ asset($template->front_bg_image) }}" class="id-card__bg">
-                        @elseif($template->background_image)
-                            <img src="{{ asset($template->background_image) }}" class="id-card__bg">
-                        @endif
+                    <div class="id-card id-card--portrait">
 
                         {{-- Header --}}
-                        <div class="id-card__header {{ $isLandscape ? 'id-card__header--landscape' : 'id-card__header--portrait' }}"
+                        <div class="id-card__header id-card__header--portrait"
                              style="background: linear-gradient(135deg, {{ $idColor }}, {{ $secondary }})">
                             @if($setting?->logo)
                                 <img src="{{ asset($setting->logo) }}" class="id-card__logo">
@@ -143,27 +114,6 @@
                             <div class="id-card__label-badge">STUDENT ID</div>
                         </div>
 
-                        @if($isLandscape)
-                            <div class="id-card__body id-card__body--landscape">
-                                <div class="id-card__photo-wrap">
-                                    <img src="{{ $student->photo_url }}" class="id-card__photo">
-                                </div>
-                                <div class="id-card__info">
-                                    <div class="id-card__name">{{ $student->full_name_en }}</div>
-                                    @if($student->full_name_bn)<div class="id-card__name-bn">{{ $student->full_name_bn }}</div>@endif
-                                    <div class="id-card__divider" style="background:linear-gradient(90deg,{{ $idColor }},transparent)"></div>
-                                    <div class="id-card__info-row">
-                                        @include('pages.generate-id-cards._rows', compact('student','ai'))
-                                        @if($setting?->whatsapp_qr)
-                                            <div class="id-card__qr-wrap">
-                                                <img src="{{ asset($setting->whatsapp_qr) }}" class="id-card__qr">
-                                                <span style="font-size:6.5px;color:#94a3b8;margin-top:2px">Scan</span>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        @else
                             <div class="id-card__photo-center">
                                 <img src="{{ $student->photo_url }}" class="id-card__photo id-card__photo--portrait">
                             </div>
@@ -173,7 +123,6 @@
                                 <div class="id-card__divider" style="background:linear-gradient(90deg,{{ $idColor }},transparent)"></div>
                                 @include('pages.generate-id-cards._rows', compact('student','ai'))
                             </div>
-                        @endif
 
                         <div class="id-card__footer" style="background:linear-gradient(135deg,{{ $idColor }},{{ $secondary }})">
                             @if($setting?->contact_number_1)<span>📞 {{ $setting->contact_number_1 }}</span>@endif
@@ -183,13 +132,10 @@
                     </div>
 
                     {{-- ── BACK CARD ── --}}
-                    <div class="id-card id-card--back {{ $isLandscape ? 'id-card--landscape' : 'id-card--portrait' }}" style="background:#fff;border:1.5px solid #333">
-                        @if($template->back_bg_image)
-                            <img src="{{ asset($template->back_bg_image) }}" class="id-card__bg" style="opacity:.04">
-                        @endif
+                    <div class="id-card id-card--back id-card--portrait" style="background:#fff;border:1.5px solid #333">
 
                         {{-- Back header - B&W no logo --}}
-                        <div class="id-card__header {{ $isLandscape ? 'id-card__header--landscape' : 'id-card__header--portrait' }}"
+                        <div class="id-card__header id-card__header--portrait"
                              style="background:#222;color:#fff">
                             <div>
                                 <div class="id-card__school-name" style="font-size:10px">{{ $setting?->name ?? 'School Name' }}</div>
@@ -200,36 +146,6 @@
                         {{-- Back body --}}
                         <div class="id-card__back-body">
 
-                            @if($isLandscape)
-                                {{-- Landscape: two columns side by side --}}
-                                <div class="id-card__back-cols">
-                                    <div class="id-card__back-section">
-                                        <div class="id-card__back-title">Parent / Guardian</div>
-                                        @if($student->father_name)
-                                            <div class="id-card__back-row"><span class="id-card__lbl">Father</span><span class="id-card__val">{{ $student->father_name }}</span></div>
-                                        @endif
-                                        @if($student->mother_name)
-                                            <div class="id-card__back-row"><span class="id-card__lbl">Mother</span><span class="id-card__val">{{ $student->mother_name }}</span></div>
-                                        @endif
-                                        @if($student->father_phone || $student->mother_phone)
-                                            <div class="id-card__back-row"><span class="id-card__lbl">Contact</span><span class="id-card__val">{{ implode(', ', array_filter([$student->father_phone, $student->mother_phone])) }}</span></div>
-                                        @endif
-                                        @if($student->present_address)
-                                            <div class="id-card__back-row"><span class="id-card__lbl">Address</span><span class="id-card__val">{{ Str::limit($student->present_address, 35) }}</span></div>
-                                        @endif
-                                    </div>
-                                    <div class="id-card__back-section">
-                                        <div class="id-card__back-title">School Contact</div>
-                                        @if($setting?->address)<div class="id-card__back-row"><span class="id-card__lbl">Address</span><span class="id-card__val">{{ Str::limit($setting->address, 40) }}</span></div>@endif
-                                        @if($setting?->contact_number_1 || $setting?->contact_number_2)
-                                            <div class="id-card__back-row"><span class="id-card__lbl">Contact</span><span class="id-card__val">{{ implode(', ', array_filter([$setting?->contact_number_1, $setting?->contact_number_2])) }}</span></div>
-                                        @endif
-                                        @if($setting?->whatsapp_number)<div class="id-card__back-row"><span class="id-card__lbl">WhatsApp</span><span class="id-card__val">{{ $setting->whatsapp_number }}</span></div>@endif
-                                        @if($setting?->email)<div class="id-card__back-row"><span class="id-card__lbl">Email</span><span class="id-card__val">{{ $setting->email }}</span></div>@endif
-                                        @if($setting?->website)<div class="id-card__back-row"><span class="id-card__lbl">Web</span><span class="id-card__val">{{ $setting->website }}</span></div>@endif
-                                    </div>
-                                </div>
-                            @else
                                 <div class="id-card__back-section">
                                     <div class="id-card__back-title">Parent / Guardian</div>
                                     @if($student->father_name)
@@ -263,7 +179,6 @@
                                         <img src="{{ asset($setting->whatsapp_qr) }}" style="width:80px;height:80px;object-fit:contain;border:1px solid #ddd;border-radius:4px;padding:2px">
                                     </div>
                                 @endif
-                            @endif
 
                             <div class="id-card__back-notice">If found, please return to the school.</div>
                         </div>
@@ -287,10 +202,8 @@ document.getElementById('classSelect')?.addEventListener('change', function () {
     url.searchParams.set('class_id', this.value);
     url.searchParams.delete('section_id');
     url.searchParams.delete('group_id');
-    ['session_id','template_id'].forEach(k => {
-        const v = document.querySelector(`[name="${k}"]`)?.value;
-        if (v) url.searchParams.set(k, v);
-    });
+    const v = document.querySelector('[name="session_id"]')?.value;
+    if (v) url.searchParams.set('session_id', v);
     window.location.href = url.toString();
 });
 </script>

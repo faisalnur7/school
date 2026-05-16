@@ -6,7 +6,7 @@
         <div class="card-header bg-gradient-primary text-white py-3">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h4 class="card-title mb-0 font-weight-bold">
+                    <h4 class="card-title mb-0 font-weight-bold text-white">
                         <i class="fas fa-plus-circle mr-2"></i>Create Product
                     </h4>
                 </div>
@@ -35,21 +35,23 @@
                 @endif
 
                 <!-- Row 1: Category & Item Type -->
-                <div class="row g-2 mb-3">
-                    <div class="col-md-6">
+                <div class="row mb-2">
+                    <div class="col-md-4">
                         <label class="form-label small font-weight-600 mb-1">Category <span class="text-danger">*</span></label>
                         <select name="category_id" id="category_id" class="form-control form-control-sm @error('category_id') is-invalid @enderror" required>
                             <option value="">Select</option>
                             @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>
-                                    {{ $cat->name }}
-                                </option>
+                                <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                             @endforeach
                         </select>
                         @error('category_id')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
-
-                    <div class="col-md-6">
+                    <div class="col-md-4">
+                        <label class="form-label small font-weight-600 mb-1">Product Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" value="{{ old('name') }}" class="form-control form-control-sm @error('name') is-invalid @enderror" placeholder="Enter product name" required>
+                        @error('name')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
+                    <div class="col-md-4">
                         <label class="form-label small font-weight-600 mb-1">Item Type <span class="text-danger">*</span></label>
                         <div class="btn-group btn-group-sm w-100" data-toggle="buttons" role="group">
                             <label class="btn btn-outline-primary active" style="flex: 1;">
@@ -65,63 +67,42 @@
                     </div>
                 </div>
 
-                <!-- Row 2: Product Name -->
-                <div class="row g-2 mb-3">
-                    <div class="col-12">
-                        <label class="form-label small font-weight-600 mb-1">Product Name <span class="text-danger">*</span></label>
-                        <input type="text" name="name" value="{{ old('name') }}" class="form-control form-control-sm @error('name') is-invalid @enderror" placeholder="Enter product name" required>
-                        @error('name')<small class="text-danger">{{ $message }}</small>@enderror
-                    </div>
-                </div>
-
-                <!-- Row 3: Unit -->
-                <div class="row g-2 mb-3">
+                <!-- Row 2: Unit | Purchase Price | Selling Price -->
+                <div class="row mb-2">
                     <div class="col-md-4">
                         <label class="form-label small font-weight-600 mb-1">Unit</label>
                         <input type="text" name="unit" value="{{ old('unit') }}" class="form-control form-control-sm @error('unit') is-invalid @enderror" placeholder="pcs, box, kg">
                         @error('unit')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
-                </div>
-
-                <!-- Row 4: Prices -->
-                <div class="row g-2 mb-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label small font-weight-600 mb-1">Purchase Price</label>
                         <div class="input-group input-group-sm">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">৳</span>
-                            </div>
+                            <div class="input-group-prepend"><span class="input-group-text">৳</span></div>
                             <input type="number" step="0.01" min="0" name="purchase_price" value="{{ old('purchase_price', 0) }}" class="form-control form-control-sm @error('purchase_price') is-invalid @enderror" placeholder="0.00">
                         </div>
                         @error('purchase_price')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
-
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label small font-weight-600 mb-1">Selling Price</label>
                         <div class="input-group input-group-sm">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">৳</span>
-                            </div>
+                            <div class="input-group-prepend"><span class="input-group-text">৳</span></div>
                             <input type="number" step="0.01" min="0" name="selling_price" value="{{ old('selling_price', 0) }}" class="form-control form-control-sm @error('selling_price') is-invalid @enderror" placeholder="0.00">
                         </div>
                         @error('selling_price')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
                 </div>
 
-                <!-- Row 5: Stock Alert & Status -->
-                <div class="row g-2 mb-3">
-                    <div class="col-md-6">
+                <!-- Row 3: Min Stock Alert | Status | Description -->
+                <div class="row mb-2">
+                    <div class="col-md-4">
                         <label class="form-label small font-weight-600 mb-1">Min Stock Alert</label>
                         <div class="input-group input-group-sm">
                             <input type="number" min="0" name="minimum_stock_alert" value="{{ old('minimum_stock_alert', 0) }}" class="form-control form-control-sm @error('minimum_stock_alert') is-invalid @enderror" placeholder="0">
-                            <div class="input-group-append">
-                                <span class="input-group-text">units</span>
-                            </div>
+                            <div class="input-group-append"><span class="input-group-text">units</span></div>
                         </div>
                         @error('minimum_stock_alert')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
-
-                    <div class="col-md-6">
+                    <div class="col-md-2">
                         <label class="form-label small font-weight-600 mb-1">Status</label>
                         <select name="is_active" class="form-control form-control-sm @error('is_active') is-invalid @enderror">
                             <option value="1" {{ old('is_active', '1') == '1' ? 'selected' : '' }}>Active</option>
@@ -129,11 +110,7 @@
                         </select>
                         @error('is_active')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
-                </div>
-
-                <!-- Row 5: Description -->
-                <div class="row g-2 mb-3">
-                    <div class="col-12">
+                    <div class="col-md-6">
                         <label class="form-label small font-weight-600 mb-1">Description</label>
                         <textarea name="description" class="form-control form-control-sm @error('description') is-invalid @enderror" rows="2" placeholder="Enter product description...">{{ old('description') }}</textarea>
                         @error('description')<small class="text-danger">{{ $message }}</small>@enderror

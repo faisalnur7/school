@@ -9,9 +9,16 @@
         </div>
 
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom py-3">
-                <h6 class="mb-0 fw-bold text-white">Filter Students</h6>
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold text-white">
+                    <i class="fas fa-filter mr-2"></i>Filter Students
+                </h4>
+                <a href="{{ route('transports.index') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back
+                </a>
             </div>
+        </div>
             <div class="card-body">
                 @include('transports.filter')
 

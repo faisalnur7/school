@@ -2,9 +2,15 @@
 @section('contents')
 <div class="container-fluid">
     <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title mb-0 text-white text-lg">Leave Requests</h3>
-            <a href="{{ route('hr.leave.create') }}" class="btn btn-primary btn-sm ml-auto"><i class="fas fa-plus"></i> New Request</a>
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold text-white">
+                    <i class="fas fa-calendar-alt mr-2"></i>Leave Requests
+                </h4>
+                <a href="{{ route('hr.leave.create') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-plus mr-1"></i> New Request
+                </a>
+            </div>
         </div>
         <div class="card-body">
             @include('hr._alerts')

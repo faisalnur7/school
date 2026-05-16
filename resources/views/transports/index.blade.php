@@ -17,8 +17,12 @@
         @endif
 
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white border-bottom py-3">
-                <h6 class="mb-0 font-bold text-white text-lg">Filter Students</h6>
+            <div class="card-header bg-gradient-primary text-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0 font-weight-bold text-white">
+                        <i class="fas fa-filter mr-2"></i>Filter Students
+                    </h4>
+                </div>
             </div>
             <div class="card-body">
                 <form method="GET" action="{{ route('transports.index') }}">

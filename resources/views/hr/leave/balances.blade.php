@@ -2,7 +2,13 @@
 @section('contents')
 <div class="container-fluid">
     <div class="card">
-        <div class="card-header"><h3 class="card-title mb-0 text-white text-lg">Leave Balances</h3></div>
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold text-white">
+                    <i class="fas fa-balance-scale mr-2"></i>Leave Balances
+                </h4>
+            </div>
+        </div>
         <div class="card-body">
             @include('hr._alerts')
             <div class="table-responsive">

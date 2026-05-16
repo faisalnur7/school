@@ -5,7 +5,7 @@
     <div class="card shadow-sm border-0">
         <div class="card-header bg-gradient-primary text-white py-3">
             <div class="d-flex justify-content-between align-items-center">
-                <h4 class="card-title mb-0 font-weight-bold">
+                <h4 class="card-title mb-0 font-weight-bold text-white">
                     <i class="fas fa-plus-circle mr-2"></i>Create Class
                 </h4>
                 <a href="{{ route('classes.index') }}" class="btn btn-light btn-sm">

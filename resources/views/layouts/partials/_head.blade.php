@@ -53,13 +53,25 @@
             background: linear-gradient(90deg, #252f51, #212529) !important;
         }
 
-        /* Match the box of Bootstrap's select */
+        /* ── Select2 base ── */
         .select2-container { width: 100% !important; }
+
+        /* Prevent Select2 from shifting body when dropdown opens */
+        body { padding-right: 0 !important; overflow-x: hidden !important; }
+        .content-wrapper { overflow-x: hidden; }
+
+        /* Dropdown must not affect document flow */
+        .select2-container--open .select2-dropdown {
+            position: absolute;
+            z-index: 99999;
+        }
+
+        /* Normal size (matches form-control ~38px) */
         .select2-container--default .select2-selection--single {
             background-color: #f9fafb;
             border: 1.5px solid #e5e7eb;
-            border-radius: 8px;
-            height: 34px;
+            border-radius: 6px;
+            height: 38px;
             display: flex;
             align-items: center;
             padding: 0 10px;
@@ -67,30 +79,52 @@
         }
         .select2-container--default .select2-selection--single .select2-selection__rendered {
             color: #1f2937;
-            font-size: .82rem;
-            line-height: 34px;
+            font-size: .875rem;
+            line-height: 38px;
             padding: 0;
         }
         .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 34px;
+            height: 38px;
             right: 8px;
         }
+
+        /* Small size — matches form-control-sm (~28px) */
+        .select2-container--default.select2-sm .select2-selection--single {
+            height: 28px;
+            border-radius: 4px;
+            padding: 0 8px;
+        }
+        .select2-container--default.select2-sm .select2-selection--single .select2-selection__rendered {
+            font-size: .8rem;
+            line-height: 28px;
+        }
+        .select2-container--default.select2-sm .select2-selection--single .select2-selection__arrow {
+            height: 28px;
+            right: 6px;
+        }
+        .select2-container--default.select2-sm .select2-selection--single .select2-selection__arrow b {
+            margin-top: -3px;
+        }
+
+        /* Focus / open state */
         .select2-container--default.select2-container--open .select2-selection--single,
         .select2-container--default.select2-container--focus .select2-selection--single {
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102,126,234,.12);
             background: #fff;
         }
+
+        /* Dropdown */
         .select2-container--default .select2-dropdown {
             border: 1.5px solid #e5e7eb;
-            border-radius: 8px;
+            border-radius: 6px;
             box-shadow: 0 8px 24px rgba(0,0,0,.1);
-            z-index: 9999;
+            z-index: 99999;
         }
         .select2-container--default .select2-search--dropdown .select2-search__field {
             border: 1.5px solid #e5e7eb;
-            border-radius: 6px;
-            padding: 5px 8px;
+            border-radius: 4px;
+            padding: 4px 8px;
             font-size: .82rem;
             outline: none;
         }
@@ -98,7 +132,7 @@
             border-color: #667eea;
         }
         .select2-container--default .select2-results__option {
-            padding: 7px 12px;
+            padding: 6px 12px;
             font-size: .82rem;
             color: #374151;
         }
@@ -109,6 +143,13 @@
         .select2-container--default .select2-results__option--selected {
             background: #ede9fe;
             color: #5b21b6;
+        }
+        /* Clear button */
+        .select2-container--default .select2-selection--single .select2-selection__clear {
+            margin-right: 16px;
+            color: #9ca3af;
+            font-size: 1rem;
+            line-height: 1;
         }
 
         .btn-shine {

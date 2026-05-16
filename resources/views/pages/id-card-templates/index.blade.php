@@ -3,11 +3,15 @@
 @section('contents')
 <div class="container-fluid">
     <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title mb-0 text-white text-lg">ID Card Templates</h3>
-            <a href="{{ route('id-card-templates.create') }}" class="btn btn-primary btn-sm ml-auto">
-                <i class="fas fa-plus"></i> Add Template
-            </a>
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold text-white">
+                    <i class="fas fa-id-card mr-2"></i>ID Card Templates
+                </h4>
+                <a href="{{ route('id-card-templates.create') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-plus mr-1"></i> Add Template
+                </a>
+            </div>
         </div>
         <div class="card-body p-0">
 

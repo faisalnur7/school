@@ -3,11 +3,15 @@
 @section('contents')
     <div class="container-fluid">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="card-title mb-0 text-white">Free Studentships</h4>
-                <a href="{{ route('free-studentships.create') }}" class="btn btn-primary btn-sm ml-auto">
-                    <i class="fas fa-plus"></i> Assign Free Studentships
-                </a>
+            <div class="card-header bg-gradient-primary text-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0 font-weight-bold text-white">
+                        <i class="fas fa-user-graduate mr-2"></i>Free Studentships
+                    </h4>
+                    <a href="{{ route('free-studentships.create') }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus mr-1"></i> Assign Free Studentships
+                    </a>
+                </div>
             </div>
             <div class="card-body">
 

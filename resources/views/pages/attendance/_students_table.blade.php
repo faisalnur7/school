@@ -11,7 +11,7 @@
 @else
 <div class="card card-outline card-info">
     <div class="card-header">
-        <h6 class="mb-0 font-weight-bold">
+        <h6 class="mb-0 font-weight-bold text-white">
             <i class="fas fa-list mr-2"></i>Students ({{ $students->count() }})
         </h6>
     </div>

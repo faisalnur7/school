@@ -5,7 +5,7 @@
     <div class="card shadow-sm border-0">
         <div class="card-header bg-gradient-primary text-white py-3">
             <div class="d-flex justify-content-between align-items-center">
-                <h4 class="card-title mb-0 font-weight-bold">
+                <h4 class="card-title mb-0 font-weight-bold text-white">
                     <i class="fas fa-plus-circle mr-2"></i>Record Expense
                 </h4>
                 <a href="{{ route('expenses.index') }}" class="btn btn-light btn-sm">
@@ -19,92 +19,94 @@
 
             <div class="card-body p-3">
                 @if($errors->any())
-                    <div class="alert alert-danger alert-dismissible fade show border-0 mb-3" role="alert">
-                        <i class="fas fa-exclamation-circle mr-2"></i>
-                        <strong>Errors:</strong>
-                        <ul class="mb-0 mt-1 ml-4">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
+                    <div class="alert alert-danger alert-dismissible fade show border-0 mb-2 py-2" role="alert">
+                        <i class="fas fa-exclamation-circle mr-1"></i><strong>Errors:</strong>
+                        <ul class="mb-0 mt-1 ml-4 small">
+                            @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
                         </ul>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
                     </div>
                 @endif
 
-<div class="form-group">
-                                <label>Category</label>
-                                <select name="expense_category_id" class="form-control" required>
-                                    <option value="">Select Category</option>
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}" {{ old('expense_category_id') == $category->id ? 'selected' : '' }}>
-                                            {{ $category->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                <div class="row">
+                    {{-- Row 1: Category | Title | Amount --}}
+                    <div class="col-md-4">
+                        <div class="form-group mb-2">
+                            <label class="small mb-1">Category</label>
+                            <select name="expense_category_id" class="form-control form-control-sm" required>
+                                <option value="">Select Category</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}" {{ old('expense_category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-2">
+                            <label class="small mb-1">Title</label>
+                            <input type="text" name="title" class="form-control form-control-sm @error('title') is-invalid @enderror" value="{{ old('title') }}" required>
+                            @error('title')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-2">
+                            <label class="small mb-1">Amount (BDT)</label>
+                            <input type="number" name="amount" step="0.01" min="0" class="form-control form-control-sm @error('amount') is-invalid @enderror" value="{{ old('amount') }}" required>
+                            @error('amount')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
 
-                            <div class="form-group">
-                                <label>Title</label>
-                                <input type="text" name="title" class="form-control @error('title') is-invalid @enderror"
-                                       value="{{ old('title') }}" required>
-                                @error('title') <span class="invalid-feedback">{{ $message }}</span> @enderror
-                            </div>
+                    {{-- Row 2: Date | Payment Method | Reference No --}}
+                    <div class="col-md-4">
+                        <div class="form-group mb-2">
+                            <label class="small mb-1">Expense Date</label>
+                            <input type="text" name="expense_date" datepicker datepicker-format="dd/mm/yyyy" class="form-control form-control-sm @error('expense_date') is-invalid @enderror" value="{{ old('expense_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
+                            @error('expense_date')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-2">
+                            <label class="small mb-1">Payment Method</label>
+                            <select id="expensePaymentMethod" name="payment_method" class="form-control form-control-sm" required>
+                                @foreach (['Cash', 'Bank Transfer', 'Cheque', 'Mobile Banking', 'Other'] as $method)
+                                    <option value="{{ $method }}" {{ old('payment_method') == $method ? 'selected' : '' }}>{{ $method }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-2">
+                            <label class="small mb-1">Reference No <span class="text-muted">(optional)</span></label>
+                            <input type="text" name="reference_no" class="form-control form-control-sm" value="{{ old('reference_no') }}">
+                        </div>
+                    </div>
 
-                            <div class="form-group">
-                                <label>Amount (BDT)</label>
-                                <input type="number" name="amount" step="0.01" min="0"
-                                       class="form-control @error('amount') is-invalid @enderror"
-                                       value="{{ old('amount') }}" required>
-                                @error('amount') <span class="invalid-feedback">{{ $message }}</span> @enderror
-                            </div>
+                    {{-- Row 3: Description | Attachment --}}
+                    <input type="hidden" name="account_type" id="expenseAccountType" value="{{ old('account_type') }}">
 
-                            <div class="form-group">
-                                <label>Expense Date</label>
-                                <input type="text" name="expense_date" datepicker datepicker-format="dd/mm/yyyy"
-                                       class="form-control @error('expense_date') is-invalid @enderror"
-                                       value="{{ old('expense_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
-                                @error('expense_date') <span class="invalid-feedback">{{ $message }}</span> @enderror
-                            </div>
+                    <div class="col-md-4" id="expenseAccountWrapper" style="display: none;">
+                        <div class="form-group mb-2">
+                            <label class="small mb-1">Account <span class="text-muted">(optional)</span></label>
+                            <select name="account_id" id="expenseAccountSelect" class="form-control form-control-sm">
+                                <option value="">Select Account</option>
+                            </select>
+                        </div>
+                    </div>
 
-                            <div class="form-group">
-                                <label>Payment Method</label>
-                                <select id="expensePaymentMethod" name="payment_method" class="form-control" required>
-                                    @foreach (['Cash', 'Bank Transfer', 'Cheque', 'Mobile Banking', 'Other'] as $method)
-                                        <option value="{{ $method }}" {{ old('payment_method') == $method ? 'selected' : '' }}>
-                                            {{ $method }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <input type="hidden" name="account_type" id="expenseAccountType" value="{{ old('account_type') }}">
-
-                            <div class="form-group" id="expenseAccountWrapper" style="display: none;">
-                                <label>Account <small class="text-muted">(optional for Cash/Bank/Mobile)</small></label>
-                                <select name="account_id" id="expenseAccountSelect" class="form-control">
-                                    <option value="">Select Account</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Reference No <small class="text-muted">(optional)</small></label>
-                                <input type="text" name="reference_no" class="form-control"
-                                       value="{{ old('reference_no') }}">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Description <small class="text-muted">(optional)</small></label>
-                                <textarea name="description" class="form-control" rows="3">{{ old('description') }}</textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Attachment <small class="text-muted">(jpg, png, pdf — max 2MB)</small></label>
-                                <input type="file" name="attachment" class="form-control @error('attachment') is-invalid @enderror"
-                                       accept=".jpg,.jpeg,.png,.pdf">
-                                @error('attachment') <span class="invalid-feedback">{{ $message }}</span> @enderror
-                            </div>
+                    <div class="col-md-8">
+                        <div class="form-group mb-2">
+                            <label class="small mb-1">Description <span class="text-muted">(optional)</span></label>
+                            <textarea name="description" class="form-control form-control-sm" rows="2">{{ old('description') }}</textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-2">
+                            <label class="small mb-1">Attachment <span class="text-muted">(jpg, png, pdf — max 2MB)</span></label>
+                            <input type="file" name="attachment" class="form-control form-control-sm @error('attachment') is-invalid @enderror" accept=".jpg,.jpeg,.png,.pdf">
+                            @error('attachment')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="card-footer bg-light border-top py-2 px-3">

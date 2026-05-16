@@ -24,6 +24,7 @@ $(document).ready(function() {
                     });
 
                     $('#sectionSelect').html(sectionOptions);
+                    if (window.refreshSelect2) refreshSelect2($('#sectionSelect'));
 
                     // Trigger section change to reload groups and update roll/cid
                     $('#sectionSelect').trigger('change');
@@ -31,6 +32,7 @@ $(document).ready(function() {
             });
         } else {
             $('#sectionSelect').html('<option value="">All Sections</option>');
+            if (window.refreshSelect2) refreshSelect2($('#sectionSelect'));
         }
     }
 

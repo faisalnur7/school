@@ -3,16 +3,22 @@
 <div class="container-fluid">
     @include('hr._alerts')
     <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title mb-0 text-white text-lg">Payroll — {{ date('F', mktime(0,0,0,$month,1)) }} {{ $year }}</h3>
-            <div>
-                <form action="{{ route('hr.payroll.lock') }}" method="POST" class="d-inline" onsubmit="return confirm('Lock all payrolls for this period?')">
-                    @csrf
-                    <input type="hidden" name="month" value="{{ $month }}">
-                    <input type="hidden" name="year"  value="{{ $year }}">
-                    <button class="btn btn-warning btn-sm"><i class="fas fa-lock"></i> Lock Period</button>
-                </form>
-                <a href="{{ route('hr.payroll.index') }}" class="btn btn-secondary btn-sm ml-1"><i class="fas fa-arrow-left"></i> Back</a>
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold text-white">
+                    <i class="fas fa-money-bill-wave mr-2"></i>Payroll — {{ date('F', mktime(0,0,0,$month,1)) }} {{ $year }}
+                </h4>
+                <div>
+                    <form action="{{ route('hr.payroll.lock') }}" method="POST" class="d-inline" onsubmit="return confirm('Lock all payrolls for this period?')">
+                        @csrf
+                        <input type="hidden" name="month" value="{{ $month }}">
+                        <input type="hidden" name="year"  value="{{ $year }}">
+                        <button class="btn btn-warning btn-sm"><i class="fas fa-lock mr-1"></i> Lock Period</button>
+                    </form>
+                    <a href="{{ route('hr.payroll.index') }}" class="btn btn-light btn-sm ml-1">
+                        <i class="fas fa-arrow-left mr-1"></i> Back
+                    </a>
+                </div>
             </div>
         </div>
         <div class="card-body">

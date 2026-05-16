@@ -2,15 +2,23 @@
 @section('contents')
 <div class="container-fluid">
     <div class="card">
-        <div class="card-header"><h3 class="card-title mb-0 text-white text-lg">Designation Salary Defaults</h3></div>
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold text-white">
+                    <i class="fas fa-sliders-h mr-2"></i>Designation Salary Defaults
+                </h4>
+            </div>
+        </div>
         <div class="card-body">
             @include('hr._alerts')
             @foreach($designations as $d)
             @php $def = $d->salaryDefault; @endphp
             <div class="card mb-3 border">
-                <div class="card-header py-2 d-flex justify-content-between align-items-center">
-                    <strong class="text-white">{{ $d->name }}</strong>
-                    <span class=" ml-auto badge badge-{{ $d->employee_type === 'teacher' ? 'primary' : 'info' }}">{{ ucfirst($d->employee_type) }} — Level {{ $d->hierarchy_level }}</span>
+                <div class="card-header bg-gradient-primary text-white py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>{{ $d->name }}</strong>
+                        <span class="badge badge-light ml-auto">{{ ucfirst($d->employee_type) }} — Level {{ $d->hierarchy_level }}</span>
+                    </div>
                 </div>
                 <div class="card-body py-2">
                     <form action="{{ route('hr.salary.defaults.store') }}" method="POST">

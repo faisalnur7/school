@@ -3,9 +3,15 @@
 @section('contents')
 <div class="container-fluid">
     <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title mb-0 text-white text-lg">Accounting Periods</h3>
-            <button class="btn btn-primary btn-sm ml-auto" data-toggle="modal" data-target="#createModal">+ New Period</button>
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold text-white">
+                    <i class="fas fa-calendar-check mr-2"></i>Accounting Periods
+                </h4>
+                <button class="btn btn-light btn-sm" data-toggle="modal" data-target="#createModal">
+                    <i class="fas fa-plus mr-1"></i> New Period
+                </button>
+            </div>
         </div>
         <div class="card-body">
 

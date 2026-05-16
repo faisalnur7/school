@@ -278,7 +278,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/students/birthdays', [\App\Http\Controllers\StudentBirthdayController::class, 'index'])->name('students.birthdays');
     Route::get('/students/id-cards', [\App\Http\Controllers\GenerateIdCardController::class, 'index'])->name('students.id-cards');
     Route::get('/students/id-cards/pdf', [\App\Http\Controllers\GenerateIdCardController::class, 'pdf'])->name('students.id-cards.pdf');
-
     Route::get('/students', [StudentController::class, 'index'])->name('students.index');
     Route::get('/students/create', [StudentController::class, 'create'])->name('students.create');
     Route::post('/students/store', [StudentController::class, 'store'])->name('students.store');
@@ -366,6 +365,7 @@ Route::group(['middleware' => ['auth']], function () {
     // ------------------- Reports -------------------
     Route::get('/reports/hub', [ReportController::class, 'hub'])->name('reports.hub');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/student-payment', [ReportController::class, 'student'])->name('reports.student-payment');
     Route::get('/reports/student', [ReportController::class, 'student'])->name('reports.student');
 
     // ------------------- Fees & Accounts -------------------
@@ -959,9 +959,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
     Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
     Route::post('/roles/store', [RoleController::class, 'store'])->name('roles.store');
-    Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
-    Route::post('/roles/{id}/update', [RoleController::class, 'update'])->name('roles.update');
-    Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
+    Route::get('/roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+    Route::post('/roles/{role}/update', [RoleController::class, 'update'])->name('roles.update');
+    Route::delete('/roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
 
     Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
     Route::get('/permissions/create', [PermissionController::class, 'create'])->name('permissions.create');

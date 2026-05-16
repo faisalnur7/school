@@ -8,7 +8,7 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-gradient-primary text-white py-3">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="card-title mb-0 font-weight-bold">
+                        <h4 class="card-title mb-0 font-weight-bold text-white">
                             <i class="fas fa-plus-circle mr-2"></i>Create Fee Set
                         </h4>
                         <a href="{{ route('fee-sets.index') }}" class="btn btn-light btn-sm">
@@ -75,11 +75,15 @@
                                 </select>
                                 @error('school_class_id')<small class="text-danger">{{ $message }}</small>@enderror
                             </div>
-
                             <div class="col-md-6">
                                 <label class="form-label small font-weight-600 mb-1">Group</label>
-                                <select name="group_id" id="groupSelect" class="form-control form-control-sm @error('group_id') is-invalid @enderror" disabled>
+                                <select name="group_id" id="groupSelect" class="form-control form-control-sm @error('group_id') is-invalid @enderror">
                                     <option value="">Select Group</option>
+                                    @foreach ($groups as $group)
+                                        <option value="{{ $group->id }}" {{ old('group_id') == $group->id ? 'selected' : '' }}>
+                                            {{ $group->name_en }}
+                                        </option>
+                                    @endforeach
                                 </select>
                                 @error('group_id')<small class="text-danger">{{ $message }}</small>@enderror
                             </div>

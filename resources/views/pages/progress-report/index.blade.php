@@ -8,7 +8,7 @@
             <i class="fas fa-file-invoice text-white fa-lg"></i>
         </div>
         <div>
-            <h4 class="mb-0 font-weight-bold">Terminal Exam Report</h4>
+            <h4 class="mb-0 font-weight-bold text-white">Terminal Exam Report</h4>
             <small class="text-muted">Generate student progress reports by exam, class &amp; section</small>
         </div>
     </div>
@@ -87,7 +87,7 @@ $('#classSelect').on('change', function () {
         var opts = '<option value="">— Select Section —</option>';
         $.each(data, function (i, s) { opts += '<option value="' + s.id + '">' + (s.name_en || s.name_bn) + '</option>'; });
         $section.html(opts);
-        $section.trigger('change.select2');
+        if (window.refreshSelect2) refreshSelect2($section);
     });
 });
 

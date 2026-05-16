@@ -2,9 +2,15 @@
 @section('contents')
 <div class="container-fluid">
     <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title mb-0 text-white text-lg">Payroll Summary — {{ date('F', mktime(0,0,0,$month,1)) }} {{ $year }}</h3>
-            <button onclick="window.print()" class="btn btn-success btn-sm no-print ml-auto"><i class="fas fa-print"></i></button>
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold text-white">
+                    <i class="fas fa-chart-bar mr-2"></i>Payroll Summary — {{ date('F', mktime(0,0,0,$month,1)) }} {{ $year }}
+                </h4>
+                <button onclick="window.print()" class="btn btn-light btn-sm no-print">
+                    <i class="fas fa-print mr-1"></i> Print
+                </button>
+            </div>
         </div>
         <div class="card-body">
             <form method="GET" class="mb-3 no-print">

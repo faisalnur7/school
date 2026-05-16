@@ -21,7 +21,7 @@
 
     {{-- Weekend Settings --}}
     <div class="card card-outline card-primary mb-4">
-        <div class="card-header"><h6 class="mb-0 font-weight-bold">Weekend Days</h6></div>
+        <div class="card-header"><h6 class="mb-0 font-weight-bold text-white">Weekend Days</h6></div>
         <div class="card-body">
             <form method="POST" action="{{ route('attendance.settings.weekends') }}">
                 @csrf
@@ -48,7 +48,7 @@
 
     {{-- Holiday Management --}}
     <div class="card card-outline card-warning mb-4">
-        <div class="card-header"><h6 class="mb-0 font-weight-bold">Holidays</h6></div>
+        <div class="card-header"><h6 class="mb-0 font-weight-bold text-white">Holidays</h6></div>
         <div class="card-body">
 
             {{-- Add Holiday Form --}}

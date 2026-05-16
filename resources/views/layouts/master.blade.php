@@ -59,16 +59,46 @@
                 todayHighlight: true
             });
 
-            // Select2 init (exclude opt-out)
-            $('select:not(.no-select2)').each(function() {
-                const $select = $(this);
-                $select.select2({
-                    width: '100%',
-                    allowClear: true,
-                    dropdownParent: $select.closest('.modal').length ? $select.closest('.modal') : $select.parent(),
-                    placeholder: $select.find('option[value=""]').text() || 'Select...'
+            // Select2 init
+            function initSelect2(context) {
+                $('select:not(.no-select2)', context).each(function() {
+                    const $select = $(this);
+                    if ($select.hasClass('select2-hidden-accessible')) return;
+                    const isSm = $select.hasClass('form-control-sm') || $select.hasClass('select2-sm');
+                    const $modal = $select.closest('.modal');
+                    $select.select2({
+                        width: '100%',
+                        allowClear: true,
+                        dropdownParent: $modal.length ? $modal : $(document.body),
+                        placeholder: $select.find('option[value=""]').first().text() || 'Select...'
+                    });
+                    if (isSm) $select.data('select2').$container.addClass('select2-sm');
                 });
+            }
+
+            // Refresh a Select2 select after its options have been replaced
+            function refreshSelect2($select) {
+                if (!($select instanceof $)) $select = $($select);
+                if ($select.hasClass('select2-hidden-accessible')) {
+                    $select.trigger('change.select2');
+                } else {
+                    initSelect2($select.parent());
+                }
+            }
+            window.refreshSelect2 = refreshSelect2;
+
+            // Init on page load
+            initSelect2(document);
+
+            // Re-init when modals open
+            $(document).on('shown.bs.modal', '.modal', function() {
+                initSelect2(this);
             });
+
+            // Re-init after AJAX-loaded HTML is injected into the DOM
+            window.reinitSelect2 = function(context) {
+                initSelect2(context || document);
+            };
 
         });
     </script>

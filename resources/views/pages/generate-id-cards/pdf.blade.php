@@ -124,30 +124,11 @@ body { font-family: Arial, sans-serif; background:#fff; }
 </head>
 <body>
 @php
-    $isLandscape = $template->orientation === 'landscape';
-    $cardClass   = $isLandscape ? 'card-landscape' : 'card-portrait';
-    $idColor     = $setting?->id_card_color   ?? '#1e3a5f';
-    $secondary   = $setting?->secondary_color ?? '#2563eb';
+    $idColor   = $setting?->id_card_color   ?? '#1e3a5f';
 
-    // Resolve all paths for mPDF (must be absolute local paths)
     $logoPath = null;
     if ($setting?->logo && file_exists(public_path($setting->logo))) {
         $logoPath = public_path($setting->logo);
-    }
-
-    $frontBgPath = null;
-    foreach (['front_bg_image', 'background_image'] as $f) {
-        if (!empty($template->$f) && file_exists(public_path($template->$f))) {
-            $frontBgPath = public_path($template->$f);
-            break;
-        }
-    }
-
-    $backBgPath = null;
-    if (!empty($template->back_bg_image) && file_exists(public_path($template->back_bg_image))) {
-        $backBgPath = public_path($template->back_bg_image);
-    } elseif ($frontBgPath) {
-        $backBgPath = $frontBgPath;
     }
 @endphp
 
@@ -170,57 +151,11 @@ body { font-family: Arial, sans-serif; background:#fff; }
 
 {{-- ══════════ FRONT CARD ══════════ --}}
 <td style="vertical-align:top">
-<div class="card {{ $cardClass }}">
+<div class="card card-portrait">
 
     {{-- Background --}}
-    @if($frontBgPath)
-    <div class="card-bg-wrap">
-        <img src="{{ $frontBgPath }}" class="card-bg-img">
-    </div>
-    @endif
-
     <div class="card-inner">
 
-        {{-- Header --}}
-        @if($isLandscape)
-        <div class="card-header" style="background:{{ $idColor }}">
-            <table class="lh-table">
-                <tr>
-                    <td class="lh-left">
-                        @if($logoPath)<img src="{{ $logoPath }}" class="card-header-logo">@endif
-                        <span class="card-header-name">{{ $setting?->name ?? 'School Name' }}</span>
-                        @if($setting?->slogan)<div class="card-header-slogan">{{ $setting->slogan }}</div>@endif
-                    </td>
-                    <td class="lh-right">
-                        <span class="card-header-badge">STUDENT ID</span>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        {{-- Landscape body --}}
-        <table style="width:100%;border-collapse:collapse;padding:10px">
-            <tr>
-                <td style="width:88px;vertical-align:top;padding:10px 0 8px 10px">
-                    <img src="{{ $photoPath }}" class="photo-landscape">
-                </td>
-                <td style="vertical-align:top;padding:10px 10px 8px 10px">
-                    <div class="info-name" style="color:{{ $idColor }}">{{ $student->full_name_en }}</div>
-                    @if($student->full_name_bn)<div class="info-name-bn">{{ $student->full_name_bn }}</div>@endif
-                    <div class="info-divider" style="background:{{ $idColor }}"></div>
-                    <div class="info-row"><span class="info-lbl">ID</span><span class="info-val">{{ $student->student_cid }}</span></div>
-                    @if($ai)
-                        <div class="info-row"><span class="info-lbl">Class</span><span class="info-val">{{ $ai->schoolClass?->name_en ?? '—' }}@if($ai->section) / {{ $ai->section->name_en }}@endif</span></div>
-                        @if($ai->roll)<div class="info-row"><span class="info-lbl">Roll</span><span class="info-val">{{ $ai->roll }}</span></div>@endif
-                        @if($ai->group)<div class="info-row"><span class="info-lbl">Group</span><span class="info-val">{{ $ai->group->name_en }}</span></div>@endif
-                        <div class="info-row"><span class="info-lbl">Session</span><span class="info-val">{{ $ai->academicSession?->name_en ?? '—' }}</span></div>
-                    @endif
-                    @if($student->date_of_birth)<div class="info-row"><span class="info-lbl">DOB</span><span class="info-val">{{ $student->date_of_birth->format('d M Y') }}</span></div>@endif
-                    @if($student->blood_group)<div class="info-row"><span class="info-lbl">Blood</span><span class="info-val info-blood">{{ $student->blood_group_text }}</span></div>@endif
-                </td>
-            </tr>
-        </table>
-
-        @else
         {{-- Portrait header --}}
         <div class="card-header" style="background:{{ $idColor }}">
             @if($logoPath)<img src="{{ $logoPath }}" class="card-header-logo"><br>@endif
@@ -265,30 +200,11 @@ body { font-family: Arial, sans-serif; background:#fff; }
 
 {{-- ══════════ BACK CARD (B&W) ══════════ --}}
 <td style="vertical-align:top">
-<div class="card {{ $cardClass }}" style="border:1.5px solid #333">
-
-    @if($backBgPath)
-    <div class="card-bg-wrap">
-        <img src="{{ $backBgPath }}" class="card-bg-img" style="opacity:0.04">
-    </div>
-    @endif
+<div class="card card-portrait" style="border:1.5px solid #333">
 
     <div class="card-inner">
 
         {{-- Back header B&W --}}
-        @if($isLandscape)
-        <div class="card-header" style="background:#222">
-            <table class="lh-table">
-                <tr>
-                    <td class="lh-left">
-                        <span class="card-header-name">{{ $setting?->name ?? 'School Name' }}</span>
-                        @if($setting?->slogan)<div class="card-header-slogan">{{ $setting->slogan }}</div>@endif
-                    </td>
-                    <td class="lh-right"><span class="card-header-badge">BACK</span></td>
-                </tr>
-            </table>
-        </div>
-        @else
         <div class="card-header" style="background:#222">
             <div class="card-header-name">{{ $setting?->name ?? 'School Name' }}</div>
             @if($setting?->slogan)<div class="card-header-slogan">{{ $setting->slogan }}</div>@endif

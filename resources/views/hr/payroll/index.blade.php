@@ -5,7 +5,13 @@
 
     {{-- Generate Form --}}
     <div class="card mb-3">
-        <div class="card-header"><h3 class="card-title mb-0 text-white text-lg">Generate Payroll</h3></div>
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold text-white">
+                    <i class="fas fa-cog mr-2"></i>Generate Payroll
+                </h4>
+            </div>
+        </div>
         <div class="card-body">
             <form action="{{ route('hr.payroll.preview') }}" method="POST" class="row align-items-end">
                 @csrf
@@ -30,7 +36,13 @@
 
     {{-- Processed Months --}}
     <div class="card">
-        <div class="card-header"><h3 class="card-title mb-0 text-white text-lg">Payroll History</h3></div>
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 font-weight-bold text-white">
+                    <i class="fas fa-history mr-2"></i>Payroll History
+                </h4>
+            </div>
+        </div>
         <div class="card-body p-0">
             <table class="table table-bordered table-hover table-sm mb-0">
                 <thead class="thead-dark">
