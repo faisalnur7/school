@@ -4,15 +4,15 @@
     <div class="card">
         <div class="card-header shadow p-0 flex justify-between items-center">
             <h3 class="card-title flex text-white pl-3 text-medium">Balance Sheet — {{ $year }}</h3>
-            <div class="flex gap-2 pr-3 py-2 items-end justify-center ml-auto">
+            <div class="flex gap-2 pr-3 py-2 items-center justify-center ml-auto">
                 <form method="GET" class="flex gap-2 items-end">
                     <div>
                         <label style="font-size:12px;color:#FFF">Year</label>
                         <input type="number" name="year" class="form-control form-control-sm" value="{{ $year }}" style="width:120px">
                     </div>
-                    <button class="btn btn-sm btn-dark" style="margin-top:18px">Go</button>
+                    <button class="btn btn-sm btn-dark" style="margin-top:10px">Go</button>
                 </form>
-                <a href="{{ route('reports.balance-sheet.pdf', ['year' => $year]) }}" class="btn btn-sm btn-danger" style="margin-top:18px"><i class="fas fa-file-pdf"></i> PDF</a>
+                <a href="{{ route('reports.balance-sheet.pdf', ['year' => $year]) }}" class="btn btn-sm btn-danger" style="margin-top:10px"><i class="fas fa-file-pdf"></i> PDF</a>
             </div>
         </div>
         <div class="card-body">

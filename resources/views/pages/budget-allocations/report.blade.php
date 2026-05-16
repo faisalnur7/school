@@ -10,10 +10,10 @@
                         <label style="font-size:12px;color:#FFF">Year</label>
                         <input type="number" name="year" class="form-control form-control-sm" value="{{ $year }}" style="width:100px">
                     </div>
-                    <button class="btn btn-sm btn-dark" style="margin-top:18px">Go</button>
+                    <button class="btn btn-sm btn-dark" style="margin-top:10px">Go</button>
                 </form>
                 <a href="{{ route('budget-allocations.report.pdf', ['year' => $year]) }}"
-                   class="btn btn-sm btn-danger" style="margin-top:18px">
+                   class="btn btn-sm btn-danger" style="margin-top:10px">
                     <i class="fas fa-file-pdf"></i> PDF
                 </a>
             </div>

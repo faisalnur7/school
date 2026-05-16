@@ -7,7 +7,7 @@
         <div class="card-header shadow p-0 flex justify-between items-center">
             <h3 class="card-title flex text-white pl-3 text-medium">Transaction Report</h3>
             <div class="flex gap-2 pr-3 py-2 items-end ml-auto">
-                <a href="{{ route('transactions.pdf', request()->query()) }}" class="btn btn-sm btn-danger" style="margin-top:18px">
+                <a href="{{ route('transactions.pdf', request()->query()) }}" class="btn btn-sm btn-danger" style="margin-top:10px">
                     <i class="fas fa-file-pdf"></i> PDF
                 </a>
             </div>

@@ -4,7 +4,7 @@
     <div class="card">
         <div class="card-header shadow p-0 flex justify-between items-center">
             <h3 class="card-title flex text-white pl-3 text-medium">Headwise Transaction List</h3>
-            <div class="flex gap-2 pr-3 py-2 items-end justify-center ml-auto">
+            <div class="flex gap-2 pr-3 py-2 items-center justify-center ml-auto">
                 <form method="GET" class="flex gap-2 items-end">
                     <div>
                         <label style="font-size:12px;color:#FFF">From</label>
@@ -16,9 +16,9 @@
                         <input type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
                                class="form-control form-control-sm" value="{{ request('to', $to->format('d/m/Y')) }}" autocomplete="off">
                     </div>
-                    <button class="btn btn-sm btn-dark" style="margin-top:18px">Filter</button>
+                    <button class="btn btn-sm btn-dark" style="margin-top:10px">Filter</button>
                 </form>
-                <a href="{{ route('reports.headwise-transactions.pdf', request()->query()) }}" class="btn btn-sm btn-danger" style="margin-top:18px"><i class="fas fa-file-pdf"></i> PDF</a>
+                <a href="{{ route('reports.headwise-transactions.pdf', request()->query()) }}" class="btn btn-sm btn-danger" style="margin-top:10px"><i class="fas fa-file-pdf"></i> PDF</a>
             </div>
         </div>
         <div class="card-body p-0">

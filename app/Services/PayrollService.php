@@ -108,8 +108,8 @@ class PayrollService
                     'reference_no'        => $reference,
                     'amount'              => $salary->net_salary,
                     'payment_method'      => $expenseMethod,
-                    'account_type'        => $payoutAccountId ? $payoutAccountType : null,
-                    'account_id'          => $payoutAccountId ?: null,
+                    'account_type'        => null,
+                    'account_id'          => null,
                     'description'         => 'Payroll ' . date('F', mktime(0,0,0,$month,1)) . ' ' . $year . ' | ' . $emp->employee_id,
                     'expense_date'        => $lastDay,
                     'recorded_by'         => auth()->id() ?? 1,
@@ -151,6 +151,26 @@ class PayrollService
     {
         $payroll = HrPayroll::findOrFail($payrollId);
         if ($payroll->isLocked()) throw new \Exception('Payroll is locked.');
+
+        $method = $payroll->payment_method ?? 'cash';
+        [$payoutAccountType, $payoutAccountId] = $this->resolvePayoutSource($method);
+
+        // Debit the payout account (HandCash for cash payments) at actual payment time
+        if ($payoutAccountId) {
+            $tx = Transaction::where('transactionable_type', HrPayroll::class)
+                ->where('transactionable_id', $payrollId)
+                ->first();
+
+            if ($tx) {
+                $expense = Expense::where('reference_no', $tx->reference_no)->first();
+                if ($expense && !$expense->account_id) {
+                    $expense->account_type = $payoutAccountType;
+                    $expense->account_id   = $payoutAccountId;
+                    $expense->save(); // triggers AccountTransaction debit on HandCash
+                }
+            }
+        }
+
         $payroll->update(['status' => 'paid', 'processed_at' => now()]);
     }
 
