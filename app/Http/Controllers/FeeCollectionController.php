@@ -35,7 +35,7 @@ class FeeCollectionController extends Controller
             'bank', 'bank transfer', 'bank_transfer' => 'Bank Transfer',
             'mobile', 'mobile banking', 'mobile_banking', 'mobile wallet', 'mobile_wallet' => 'Mobile Banking',
             'cheque', 'check' => 'Cheque',
-            default => 'Other',
+            default => 'Cash',
         };
     }
 

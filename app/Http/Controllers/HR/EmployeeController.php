@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Department;
 use App\Models\Designation;
 use App\Models\Employee;
+use App\Models\PaymentInformation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -67,7 +68,15 @@ class EmployeeController extends Controller
                 $data['photo'] = 'uploads/employees/' . $filename;
             }
 
-            Employee::create($data);
+            $employee = Employee::create($data);
+
+            $employee->paymentInformation()->create([
+                'payment_method'         => $request->payment_method ?? 'cash',
+                'bank_name'              => $request->bank_name,
+                'account_number'         => $request->account_number,
+                'mobile_wallet_provider' => $request->mobile_wallet_provider,
+                'mobile_wallet_number'   => $request->mobile_wallet_number,
+            ]);
         });
 
         return redirect()->route('hr.employees.index')->with('success', 'Employee created successfully.');
@@ -108,6 +117,17 @@ class EmployeeController extends Controller
             }
 
             $employee->update($data);
+
+            $employee->paymentInformation()->updateOrCreate(
+                ['employee_id' => $employee->id],
+                [
+                    'payment_method'         => $request->payment_method ?? 'cash',
+                    'bank_name'              => $request->bank_name,
+                    'account_number'         => $request->account_number,
+                    'mobile_wallet_provider' => $request->mobile_wallet_provider,
+                    'mobile_wallet_number'   => $request->mobile_wallet_number,
+                ]
+            );
         });
 
         return redirect()->route('hr.employees.show', $employee)->with('success', 'Employee updated.');

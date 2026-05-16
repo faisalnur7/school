@@ -24,6 +24,11 @@ class StoreEmployeeRequest extends FormRequest
             'address'              => 'nullable|string',
             'joining_date'         => 'nullable|date',
             'photo'                => 'nullable|image|max:2048',
+            'payment_method'       => 'nullable|in:cash,bank_transfer,mobile_wallet',
+            'bank_name'            => 'nullable|string|max:100',
+            'account_number'       => 'nullable|string|max:50',
+            'mobile_wallet_provider' => 'nullable|string|max:50',
+            'mobile_wallet_number'   => 'nullable|string|max:20',
         ];
     }
 

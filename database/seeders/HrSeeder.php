@@ -156,7 +156,7 @@ class HrSeeder extends Seeder
         }
 
         // ── 5. Payment Information ────────────────────────────────────────
-        $methods = ['bank', 'cash', 'mobile_wallet'];
+        $methods = ['cash'];
         foreach ($empMap as $data) {
             $emp    = $data['model'];
             $method = $methods[array_rand($methods)];

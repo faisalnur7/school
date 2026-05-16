@@ -25,13 +25,13 @@
                 <div class="col-md-3">
                     <label class="form-label mb-1" style="font-size:12px">From Date</label>
                     <input type="text" name="from" datepicker datepicker-format="dd/mm/yyyy"
-                           class="form-control form-control-sm"
+                           class="form-control form-control-sm datepicker"
                            value="{{ request('from') }}" placeholder="dd/mm/yyyy" autocomplete="off">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label mb-1" style="font-size:12px">To Date</label>
                     <input type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
-                           class="form-control form-control-sm"
+                           class="form-control form-control-sm datepicker"
                            value="{{ request('to') }}" placeholder="dd/mm/yyyy" autocomplete="off">
                 </div>
                 <div class="col-md-3 d-flex gap-2">

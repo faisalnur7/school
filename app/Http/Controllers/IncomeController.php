@@ -138,10 +138,14 @@ class IncomeController extends Controller
 
         $income->update($data);
 
+        $existingRef = Transaction::where('transactionable_type', Income::class)
+            ->where('transactionable_id', $income->id)
+            ->value('reference_no');
+
         Transaction::updateOrCreate(
             ['transactionable_type' => Income::class, 'transactionable_id' => $income->id],
             [
-                'reference_no'         => $income->reference_no ?: Transaction::generateReference(),
+                'reference_no'         => $existingRef ?: Transaction::generateReference(),
                 'type'                 => 'income',
                 'income_category_id'   => $income->income_category_id,
                 'amount'               => $income->amount,

@@ -7,7 +7,7 @@
                 <h4 class="card-title mb-0 font-weight-bold text-white">
                     <i class="fas fa-edit mr-2"></i>Edit Employee — {{ $employee->name }}
                 </h4>
-                <a href="{{ route('hr.employees.show', $employee) }}" class="btn btn-light btn-sm">
+                <a href="{{ route('hr.employees.index') }}" class="btn btn-light btn-sm">
                     <i class="fas fa-arrow-left mr-1"></i> Back
                 </a>
             </div>

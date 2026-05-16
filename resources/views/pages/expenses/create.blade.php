@@ -60,7 +60,7 @@
                     <div class="col-md-4">
                         <div class="form-group mb-2">
                             <label class="small mb-1">Expense Date</label>
-                            <input type="text" name="expense_date" datepicker datepicker-format="dd/mm/yyyy" class="form-control form-control-sm @error('expense_date') is-invalid @enderror" value="{{ old('expense_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
+                            <input type="text" name="expense_date" class="form-control form-control-sm datepicker @error('expense_date') is-invalid @enderror" value="{{ old('expense_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
                             @error('expense_date')<span class="invalid-feedback">{{ $message }}</span>@enderror
                         </div>
                     </div>

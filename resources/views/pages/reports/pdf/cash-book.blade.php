@@ -1,9 +1,9 @@
 @php $content = ''; ob_start(); @endphp
-<table style="margin-bottom:8px;width:auto">
+<table style="margin-bottom:8px;width:100%">
     <tr>
-        <td style="padding:4px 10px;background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;font-weight:700">Cash In: {{ number_format($totalIn, 2) }}</td>
-        <td style="padding:4px 10px;background:#fff1f2;border:1px solid #fecdd3;color:#e11d48;font-weight:700">Cash Out: {{ number_format($totalOut, 2) }}</td>
-        <td style="padding:4px 10px;background:#f1f5f9;border:1px solid #e2e8f0;font-weight:700">Balance: {{ number_format($totalIn - $totalOut, 2) }}</td>
+        <td style="padding:4px 10px;background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;font-weight:700; display:flex;">Cash In: {{ number_format($totalIn, 2) }}</td>
+        <td style="padding:4px 10px;background:#fff1f2;border:1px solid #fecdd3;color:#e11d48;font-weight:700; display:flex;">Cash Out: {{ number_format($totalOut, 2) }}</td>
+        <td style="padding:4px 10px;background:#f1f5f9;border:1px solid #e2e8f0;font-weight:700; display:flex;">Balance: {{ number_format($totalIn - $totalOut, 2) }}</td>
     </tr>
 </table>
 <table>

@@ -1,5 +1,5 @@
 @php $content = ''; ob_start(); @endphp
-<table style="margin-bottom:8px;width:auto">
+<table style="margin-bottom:8px;width:100%">
     <tr>
         <td style="padding:4px 10px;background:#fff1f2;border:1px solid #fecdd3;color:#e11d48;font-weight:700">Total Debit: {{ number_format($totalDebit, 2) }}</td>
         <td style="padding:4px 10px;background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;font-weight:700">Total Credit: {{ number_format($totalCredit, 2) }}</td>

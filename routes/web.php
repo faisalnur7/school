@@ -275,6 +275,23 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('/lessonplans/{id}/delete', [LessonPlanController::class, 'destroy'])->name('lessonplans.delete');
 
     // ------------------- Students -------------------
+    // ------------------- Student Lifecycle -------------------
+    Route::get('/students/admission',        [\App\Http\Controllers\StudentLifecycleController::class, 'admissionForm'])->name('students.admission');
+    Route::post('/students/admission',       [\App\Http\Controllers\StudentLifecycleController::class, 'admissionStore'])->name('students.admission.store');
+    Route::get('/students/promote',          [\App\Http\Controllers\StudentLifecycleController::class, 'promoteIndex'])->name('students.promote');
+    Route::post('/students/promote',         [\App\Http\Controllers\StudentLifecycleController::class, 'promoteStore'])->name('students.promote.store');
+    Route::get('/students/correction',       [\App\Http\Controllers\StudentLifecycleController::class, 'correctionIndex'])->name('students.correction');
+    Route::post('/students/correction/{id}', [\App\Http\Controllers\StudentLifecycleController::class, 'correctionUpdate'])->name('students.correction.update');
+    Route::get('/students/checkout',         [\App\Http\Controllers\StudentLifecycleController::class, 'checkoutIndex'])->name('students.checkout');
+    Route::post('/students/checkout/{id}',   [\App\Http\Controllers\StudentLifecycleController::class, 'checkoutStore'])->name('students.checkout.store');
+    Route::get('/students/history',          [\App\Http\Controllers\StudentLifecycleController::class, 'historyIndex'])->name('students.history');
+    Route::get('/students/history/{student}',[\App\Http\Controllers\StudentLifecycleController::class, 'historyShow'])->name('students.history.show');
+    Route::get('/students/certificates',                    [\App\Http\Controllers\StudentLifecycleController::class, 'certificateIndex'])->name('students.certificates');
+    Route::get('/students/certificates/{student}/tc',       [\App\Http\Controllers\StudentLifecycleController::class, 'transferCertificate'])->name('students.tc');
+    Route::get('/students/certificates/{student}/tc/pdf',   [\App\Http\Controllers\StudentLifecycleController::class, 'transferCertificatePdf'])->name('students.tc.pdf');
+    Route::get('/students/certificates/{student}/testimonial',      [\App\Http\Controllers\StudentLifecycleController::class, 'testimonial'])->name('students.testimonial');
+    Route::get('/students/certificates/{student}/testimonial/pdf',  [\App\Http\Controllers\StudentLifecycleController::class, 'testimonialPdf'])->name('students.testimonial.pdf');
+
     Route::get('/students/birthdays', [\App\Http\Controllers\StudentBirthdayController::class, 'index'])->name('students.birthdays');
     Route::get('/students/id-cards', [\App\Http\Controllers\GenerateIdCardController::class, 'index'])->name('students.id-cards');
     Route::get('/students/id-cards/pdf', [\App\Http\Controllers\GenerateIdCardController::class, 'pdf'])->name('students.id-cards.pdf');

@@ -16,6 +16,12 @@ class StudentAcademicInformation extends Model
         'section_id',
         'group_id',
         'roll',
+        'academic_status',
+        'promotion_status',
+        'is_current',
+        'previous_academic_information_id',
+        'checkout_date',
+        'notes',
     ];
 
     protected $casts = [
@@ -24,7 +30,12 @@ class StudentAcademicInformation extends Model
         'school_class_id'     => 'integer',
         'section_id'          => 'integer',
         'group_id'            => 'integer',
+        'is_current'          => 'boolean',
+        'checkout_date'       => 'date',
     ];
+
+    const ACADEMIC_STATUSES = ['active', 'graduated', 'withdrawn', 'transferred', 'expelled'];
+    const PROMOTION_STATUSES = ['promoted', 'retained', 'new_admission'];
 
     /* =========================
      | Relationships
@@ -53,6 +64,16 @@ class StudentAcademicInformation extends Model
     public function group()
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function previousRecord()
+    {
+        return $this->belongsTo(StudentAcademicInformation::class, 'previous_academic_information_id');
+    }
+
+    public function nextRecords()
+    {
+        return $this->hasMany(StudentAcademicInformation::class, 'previous_academic_information_id');
     }
 
     /**
