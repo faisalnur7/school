@@ -44,11 +44,15 @@ class User extends Authenticatable
             return true;
         }
 
-        if (!$this->role) {
+        if (!$this->role_id) {
             return false;
         }
 
-        return $this->role->permissions()->where('name', $permission)->exists();
+        return $this->role()
+            ->whereHas('permissions', function ($query) use ($permission) {
+                $query->where('name', trim((string) $permission));
+            })
+            ->exists();
     }
 
     public function hasAnyPermission($permissions)
@@ -57,10 +61,24 @@ class User extends Authenticatable
             return true;
         }
 
-        if (!$this->role) {
+        if (!$this->role_id) {
             return false;
         }
 
-        return $this->role->permissions()->whereIn('name', (array)$permissions)->exists();
+        $names = collect((array) $permissions)
+            ->map(fn ($permission) => trim((string) $permission))
+            ->filter()
+            ->values()
+            ->all();
+
+        if (empty($names)) {
+            return false;
+        }
+
+        return $this->role()
+            ->whereHas('permissions', function ($query) use ($names) {
+                $query->whereIn('name', $names);
+            })
+            ->exists();
     }
 }

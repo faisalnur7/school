@@ -26,14 +26,17 @@
                 data-accordion="false">
 
                 <!-- Dashboard -->
+                @if(auth()->user()?->hasPermission('view_dashboard'))
                 <li class="nav-item">
                     <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Academics -->
+                @if(auth()->user()?->hasPermission('view_academics'))
                 <li class="nav-item">
                     <a href="{{ route('academics.hub') }}"
                        class="nav-link {{ request()->routeIs('academics.hub', 'classes.*', 'sections.*', 'groups.*', 'sessions.*', 'subjects.*', 'classrooms.*', 'routines.*') ? 'active' : '' }}">
@@ -41,8 +44,10 @@
                         <p>Academics</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Attendance -->
+                @if(auth()->user()?->hasPermission('view_attendance'))
                 <li class="nav-item">
                     <a href="{{ route('attendance.hub') }}"
                        class="nav-link {{ request()->routeIs('attendance.hub', 'attendance.*') ? 'active' : '' }}">
@@ -50,8 +55,10 @@
                         <p>Attendance</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Students -->
+                @if(auth()->user()?->hasPermission('view_students'))
                 <li class="nav-item">
                     <a href="{{ route('students.hub') }}"
                        class="nav-link {{ request()->routeIs('students.hub', 'students.*', 'teacher-section-assignments.*') ? 'active' : '' }}">
@@ -59,8 +66,10 @@
                         <p>Students</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Fees & Accounts -->
+                @if(auth()->user()?->hasPermission('view_fees'))
                 <li class="nav-item">
                     <a href="{{ route('fees.hub') }}"
                         class="nav-link {{ request()->routeIs('fees.hub', 'fee-categories.*', 'fee-sets.*', 'scholarships.*', 'free-studentships.*', 'transports.*', 'fees.*', 'payments.*', 'fees.payment-report', 'fees.payment-report.pdf') ? 'active' : '' }}">
@@ -68,8 +77,10 @@
                         <p>Fee Collection</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Financials -->
+                @if(auth()->user()?->hasPermission('view_financials'))
                 <li class="nav-item">
                     <a href="{{ route('financials.hub') }}"
                        class="nav-link {{ request()->routeIs('financials.hub', 'incomes.*', 'expenses.*', 'transactions.*', 'income-categories.*', 'expense-categories.*', 'shareholder-transactions.*') ? 'active' : '' }}">
@@ -77,8 +88,10 @@
                         <p>Financials</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Result Management -->
+                @if(auth()->user()?->hasPermission('view_results'))
                 <li class="nav-item">
                     <a href="{{ route('results.hub') }}"
                        class="nav-link {{ request()->routeIs('results.hub', 'exams.*', 'student-subjects.*') ? 'active' : '' }}">
@@ -86,8 +99,10 @@
                         <p>Result Management</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Shareholders -->
+                @if(auth()->user()?->hasPermission('view_shareholders'))
                 <li class="nav-item">
                     <a href="{{ route('shareholders.hub') }}"
                        class="nav-link {{ request()->routeIs('shareholders.hub', 'shareholders.*') ? 'active' : '' }}">
@@ -95,8 +110,10 @@
                         <p>Shareholders</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- HR & Payroll -->
+                @if(auth()->user()?->hasPermission('view_hr'))
                 <li class="nav-item">
                     <a href="{{ route('hr.hub') }}"
                        class="nav-link {{ request()->routeIs('hr.hub', 'hr.*') ? 'active' : '' }}">
@@ -104,8 +121,10 @@
                         <p>HR & Payroll</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Accounts -->
+                @if(auth()->user()?->hasPermission('view_accounts'))
                 <li class="nav-item">
                     <a href="{{ route('accounts.hub') }}"
                        class="nav-link {{ request()->routeIs('accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*') ? 'active' : '' }}">
@@ -113,8 +132,10 @@
                         <p>Accounts</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Assets -->
+                @if(auth()->user()?->hasPermission('view_assets'))
                 <li class="nav-item">
                     <a href="{{ route('assets.hub') }}"
                        class="nav-link {{ request()->routeIs('assets.hub', 'assets.*', 'asset-categories.*', 'asset-purchases.*', 'asset-issues.*') ? 'active' : '' }}">
@@ -122,8 +143,10 @@
                         <p>Assets</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Inventory -->
+                @if(auth()->user()?->hasPermission('view_inventory'))
                 <li class="nav-item">
                     <a href="{{ route('inventory.hub') }}"
                        class="nav-link {{ request()->routeIs('inventory.hub', 'inventory.*') ? 'active' : '' }}">
@@ -131,8 +154,10 @@
                         <p>Inventory</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Budget Control -->
+                @if(auth()->user()?->hasPermission('view_budget'))
                 <li class="nav-item">
                     <a href="{{ route('budget.hub') }}"
                        class="nav-link {{ request()->routeIs('budget.hub', 'budget-allocations.*') ? 'active' : '' }}">
@@ -140,8 +165,10 @@
                         <p>Budget Control</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Institute Settings -->
+                @if(auth()->user()?->hasPermission('view_institute_settings'))
                 <li class="nav-item">
                     <a href="{{ route('institute.hub') }}"
                        class="nav-link {{ request()->routeIs('institute.hub', 'school-settings.*', 'id-card-templates.*', 'buildings.*') ? 'active' : '' }}">
@@ -149,8 +176,10 @@
                         <p>Institute Settings</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Users & Roles -->
+                @if(auth()->user()?->hasPermission('view_users'))
                 <li class="nav-item">
                     <a href="{{ route('users.hub') }}"
                        class="nav-link {{ request()->routeIs('users.hub', 'users.*', 'roles.*', 'permissions.*') ? 'active' : '' }}">
@@ -158,8 +187,10 @@
                         <p>User & Roles</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Reports -->
+                @if(auth()->user()?->hasPermission('view_reports_hub'))
                 <li class="nav-item">
                     <a href="{{ route('reports.hub') }}"
                        class="nav-link {{ request()->routeIs('reports.hub', 'reports.student-payment', 'reports.student-payment.pdf') ? 'active' : '' }}">
@@ -167,8 +198,10 @@
                         <p>Reports</p>
                     </a>
                 </li>
+                @endif
 
                 <!-- Location Settings -->
+                @if(auth()->user()?->hasPermission('view_location_settings'))
                 <li class="nav-item">
                     <a href="{{ route('location.hub') }}"
                        class="nav-link {{ request()->routeIs('location.hub', 'division.*', 'district.*', 'police-station.*', 'post-office.*') ? 'active' : '' }}">
@@ -176,6 +209,7 @@
                         <p>Location Settings</p>
                     </a>
                 </li>
+                @endif
 
             </ul>
         </nav>

@@ -36,14 +36,16 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User created successfully');
     }
 
-    public function edit(User $user)
+    public function edit($id)
     {
+        $user = User::findOrFail($id);
         $roles = Role::all();
         return view('pages.users.edit', compact('user', 'roles'));
     }
 
-    public function update(Request $request, User $user)
+    public function update(Request $request, $id)
     {
+        $user = User::findOrFail($id);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
@@ -62,9 +64,9 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User updated successfully');
     }
 
-    public function destroy(User $user)
+    public function destroy($id)
     {
-        $user->delete();
+        User::findOrFail($id)->delete();
         return redirect()->route('users.index')->with('success', 'User deleted successfully');
     }
 }
