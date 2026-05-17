@@ -159,6 +159,17 @@
                     </div>
 
                     <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="tutorial_marks">Tutorial Marks</label>
+                                <input type="number" name="tutorial_marks" id="tutorial_marks" class="form-control"
+                                    value="{{ old('tutorial_marks', 0) }}" min="0" step="0.01"
+                                    placeholder="Used for tutorial exams">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="pass_mark">Pass Mark</label>
@@ -314,6 +325,77 @@
                     scrollTop: $('.is-invalid').first().offset().top - 50
                 }, 300);
             }
+
+            // Class config management (ported from gcsc_old)
+            const $classConfigsContainer = $('#class_configs_container');
+            $('#add_class_config_btn').on('click', function() {
+                const index = $classConfigsContainer.children('.class-config-item').length;
+                const configHtml = `
+                    <div class="class-config-item card card-body mb-2" style="border-left: 4px solid #17a2b8;">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Class *</label>
+                                    <select name="class_configs[${index}][class_id]" class="form-control" required>
+                                        <option value="">Select Class</option>
+                                        @foreach ($classes as $id => $name)
+                                            <option value="{{ $id }}">{{ $name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Creative Marks</label>
+                                    <input type="number" name="class_configs[${index}][creative_marks]" class="form-control"
+                                        value="0" min="0" step="0.01" placeholder="Override or leave empty for default">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>MCQ Marks</label>
+                                    <input type="number" name="class_configs[${index}][mcq_marks]" class="form-control"
+                                        value="0" min="0" step="0.01" placeholder="Override or leave empty for default">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Practical Marks</label>
+                                    <input type="number" name="class_configs[${index}][practical_marks]" class="form-control"
+                                        value="0" min="0" step="0.01" placeholder="Override or leave empty for default">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Viva Marks</label>
+                                    <input type="number" name="class_configs[${index}][viva_marks]" class="form-control"
+                                        value="0" min="0" step="0.01" placeholder="Override or leave empty for default">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Pass Mark</label>
+                                    <input type="number" name="class_configs[${index}][pass_mark]" class="form-control"
+                                        value="0" min="0" step="0.01" placeholder="Override or leave empty for default">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <button type="button" class="btn btn-danger btn-sm remove-class-config-btn">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $classConfigsContainer.append(configHtml);
+            });
+
+            $(document).on('click', '.remove-class-config-btn', function() {
+                $(this).closest('.class-config-item').remove();
+            });
         });
     </script>
 @endsection

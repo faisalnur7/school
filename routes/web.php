@@ -613,6 +613,12 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/pdf', [\App\Http\Controllers\ProgressReportController::class, 'pdf'])->name('pdf');
     });
 
+    Route::middleware('permission:view_results')->prefix('result/tutorial-report')->name('result.tutorial-report.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\TutorialReportController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\TutorialReportController::class, 'show'])->name('show');
+        Route::get('/pdf', [\App\Http\Controllers\TutorialReportController::class, 'pdf'])->name('pdf');
+    });
+
     Route::middleware('permission:view_results')->prefix('results')->group(function () {
         Route::get('/', [ResultController::class, 'index'])->name('results.index');
         Route::get('/create', [ResultController::class, 'create'])->name('results.create');

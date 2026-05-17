@@ -170,20 +170,35 @@ class ExamController extends Controller
         $subjectId = $request->subject_id;
         $subject   = Subject::findOrFail($subjectId);
         $config    = $subject->getEffectiveMarksForClass($classId);
+        $isTutorial = $exam->type === Exam::TYPE_TUTORIAL;
 
-        DB::transaction(function () use ($request, $exam, $subjectId, $classId, $config) {
+        DB::transaction(function () use ($request, $exam, $subject, $subjectId, $classId, $config, $isTutorial) {
             foreach ($request->marks as $row) {
                 $studentId = $row['student_id'];
                 $isAbsent  = ! empty($row['is_absent']);
 
-                $cq        = $isAbsent ? 0 : (float) ($row['cq_marks'] ?? 0);
-                $mcq       = $isAbsent ? 0 : (float) ($row['mcq_marks'] ?? 0);
-                $practical = $isAbsent ? 0 : (float) ($row['practical_marks'] ?? 0);
-                $viva      = $isAbsent ? 0 : (float) ($row['viva_marks'] ?? 0);
-                $total     = $cq + $mcq + $practical + $viva;
-                $fullMarks = (float) ($config['total_marks'] ?: 100);
+                $cq = null;
+                $mcq = null;
+                $practical = null;
+                $viva = null;
+                $tutorial = null;
 
-                $grade = GradingService::getGrade($total, $fullMarks);
+                if ($isTutorial) {
+                    $tutorial  = $isAbsent ? 0 : (float) ($row['tutorial_marks'] ?? 0);
+                    $total     = $tutorial;
+                    $fullMarks = (float) ($subject->tutorial_marks ?: 0);
+                } else {
+                    $cq        = $isAbsent ? 0 : (float) ($row['cq_marks'] ?? 0);
+                    $mcq       = $isAbsent ? 0 : (float) ($row['mcq_marks'] ?? 0);
+                    $practical = $isAbsent ? 0 : (float) ($row['practical_marks'] ?? 0);
+                    $viva      = $isAbsent ? 0 : (float) ($row['viva_marks'] ?? 0);
+                    $total     = $cq + $mcq + $practical + $viva;
+                    $fullMarks = (float) ($config['total_marks'] ?: 100);
+                }
+
+                $grade = (!$isTutorial && $fullMarks > 0)
+                    ? GradingService::getGrade($total, $fullMarks)
+                    : null;
 
                 ExamMark::updateOrCreate(
                     ['exam_id' => $exam->id, 'student_id' => $studentId, 'subject_id' => $subjectId],
@@ -192,10 +207,11 @@ class ExamController extends Controller
                         'mcq_marks'       => $mcq,
                         'practical_marks' => $practical,
                         'viva_marks'      => $viva,
+                        'tutorial_marks'  => $tutorial,
                         'total'           => $total,
                         'is_absent'       => $isAbsent,
-                        'letter_grade'    => $isAbsent ? 'AB' : $grade['letter'],
-                        'gpa'             => $isAbsent ? 0 : $grade['gpa'],
+                        'letter_grade'    => $isAbsent ? 'AB' : ($grade['letter'] ?? null),
+                        'gpa'             => $isAbsent ? 0 : ($grade['gpa'] ?? null),
                     ]
                 );
             }
@@ -247,12 +263,20 @@ class ExamController extends Controller
                     ->with('student')
                     ->get();
 
-                $marks = match ($filter) {
-                    'passed'  => $marks->filter(fn($m) => ! $m->is_absent && $m->total >= $passMark),
-                    'failed'  => $marks->filter(fn($m) => $m->is_absent || $m->total < $passMark),
-                    'highest' => $marks->sortByDesc('total'),
-                    default   => $marks->sortBy(fn($m) => $m->student->full_name_en),
-                };
+                if ($exam->type === Exam::TYPE_TUTORIAL) {
+                    $passMark = 0;
+                    $marks = match ($filter) {
+                        'highest' => $marks->sortByDesc('total'),
+                        default   => $marks->sortBy(fn($m) => $m->student->full_name_en),
+                    };
+                } else {
+                    $marks = match ($filter) {
+                        'passed'  => $marks->filter(fn($m) => ! $m->is_absent && $m->total >= $passMark),
+                        'failed'  => $marks->filter(fn($m) => $m->is_absent || $m->total < $passMark),
+                        'highest' => $marks->sortByDesc('total'),
+                        default   => $marks->sortBy(fn($m) => $m->student->full_name_en),
+                    };
+                }
             }
         }
 

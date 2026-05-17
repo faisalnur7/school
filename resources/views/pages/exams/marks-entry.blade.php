@@ -71,12 +71,13 @@
                 <div class="col-md-10">
                     @if ($subject)
                         @php
+                            $isTutorial = $exam->type === \App\Models\Exam::TYPE_TUTORIAL;
                             $hasCq = ($subjectConfig['creative_marks'] ?? 0) > 0;
                             $hasMcq = ($subjectConfig['mcq_marks'] ?? 0) > 0;
                             $hasPractical = ($subjectConfig['practical_marks'] ?? 0) > 0;
                             $hasViva = ($subjectConfig['viva_marks'] ?? 0) > 0;
-                            $fullMarks = $subjectConfig['total_marks'] ?? 100;
-                            $passMark = $subjectConfig['pass_mark'] ?? 33;
+                            $fullMarks = $isTutorial ? ($subject->tutorial_marks ?? 0) : ($subjectConfig['total_marks'] ?? 100);
+                            $passMark = $isTutorial ? 0 : ($subjectConfig['pass_mark'] ?? 33);
                         @endphp
 
                         <div class="card">
@@ -84,7 +85,9 @@
                                 <div>
                                     <strong>{{ $subject->name }}</strong>
                                     <span class="badge badge-light ml-2">Full: {{ $fullMarks }}</span>
-                                    <span class="badge badge-warning ml-1">Pass: {{ $passMark }}</span>
+                                    @if (! $isTutorial)
+                                        <span class="badge badge-warning ml-1">Pass: {{ $passMark }}</span>
+                                    @endif
                                 </div>
                                 <small class="text-muted">
                                     <kbd>Tab</kbd> / <kbd>Enter</kbd> to move between cells
@@ -105,28 +108,35 @@
                                                     <th>Student Name</th>
                                                     <th class="text-center" style="width:55px">Roll</th>
                                                     <th class="text-center" style="width:70px">Section</th>
-                                                    @if ($hasCq)
-                                                        <th class="text-center" style="width:85px">CQ<br><small
-                                                                class="text-warning">/{{ $subjectConfig['creative_marks'] }}</small>
-                                                        </th>
-                                                    @endif
-                                                    @if ($hasMcq)
-                                                        <th class="text-center" style="width:85px">MCQ<br><small
-                                                                class="text-warning">/{{ $subjectConfig['mcq_marks'] }}</small>
-                                                        </th>
-                                                    @endif
-                                                    @if ($hasPractical)
-                                                        <th class="text-center" style="width:85px">Practical<br><small
-                                                                class="text-warning">/{{ $subjectConfig['practical_marks'] }}</small>
-                                                        </th>
-                                                    @endif
-                                                    @if ($hasViva)
-                                                        <th class="text-center" style="width:85px">Viva<br><small
-                                                                class="text-warning">/{{ $subjectConfig['viva_marks'] }}</small>
-                                                        </th>
+                                                    @if ($isTutorial)
+                                                        <th class="text-center" style="width:110px">Tutorial<br><small
+                                                                class="text-warning">/{{ $fullMarks }}</small></th>
+                                                    @else
+                                                        @if ($hasCq)
+                                                            <th class="text-center" style="width:85px">CQ<br><small
+                                                                    class="text-warning">/{{ $subjectConfig['creative_marks'] }}</small>
+                                                            </th>
+                                                        @endif
+                                                        @if ($hasMcq)
+                                                            <th class="text-center" style="width:85px">MCQ<br><small
+                                                                    class="text-warning">/{{ $subjectConfig['mcq_marks'] }}</small>
+                                                            </th>
+                                                        @endif
+                                                        @if ($hasPractical)
+                                                            <th class="text-center" style="width:85px">Practical<br><small
+                                                                    class="text-warning">/{{ $subjectConfig['practical_marks'] }}</small>
+                                                            </th>
+                                                        @endif
+                                                        @if ($hasViva)
+                                                            <th class="text-center" style="width:85px">Viva<br><small
+                                                                    class="text-warning">/{{ $subjectConfig['viva_marks'] }}</small>
+                                                            </th>
+                                                        @endif
                                                     @endif
                                                     <th class="text-center" style="width:75px">Total</th>
-                                                    <th class="text-center" style="width:65px">Grade</th>
+                                                    @if (! $isTutorial)
+                                                        <th class="text-center" style="width:65px">Grade</th>
+                                                    @endif
                                                     <th class="text-center" style="width:65px">Absent</th>
                                                 </tr>
                                             </thead>
@@ -154,59 +164,72 @@
                                                         </td>
                                                         <td class="text-center">{{ $roll }}</td>
                                                         <td class="text-center"><small>{{ $section }}</small></td>
-                                                        @if ($hasCq)
+                                                        @if ($isTutorial)
                                                             <td class="p-1">
                                                                 <input type="number"
-                                                                    name="marks[{{ $i }}][cq_marks]"
+                                                                    name="marks[{{ $i }}][tutorial_marks]"
                                                                     class="form-control form-control-sm text-center mark-input"
-                                                                    value="{{ $mark?->cq_marks ?? '' }}" min="0"
-                                                                    max="{{ $subjectConfig['creative_marks'] }}"
+                                                                    value="{{ $mark?->tutorial_marks ?? '' }}" min="0"
+                                                                    max="{{ $fullMarks }}"
                                                                     step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
                                                             </td>
-                                                        @endif
-                                                        @if ($hasMcq)
-                                                            <td class="p-1">
-                                                                <input type="number"
-                                                                    name="marks[{{ $i }}][mcq_marks]"
-                                                                    class="form-control form-control-sm text-center mark-input"
-                                                                    value="{{ $mark?->mcq_marks ?? '' }}" min="0"
-                                                                    max="{{ $subjectConfig['mcq_marks'] }}"
-                                                                    step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
-                                                            </td>
-                                                        @endif
-                                                        @if ($hasPractical)
-                                                            <td class="p-1">
-                                                                <input type="number"
-                                                                    name="marks[{{ $i }}][practical_marks]"
-                                                                    class="form-control form-control-sm text-center mark-input"
-                                                                    value="{{ $mark?->practical_marks ?? '' }}"
-                                                                    min="0"
-                                                                    max="{{ $subjectConfig['practical_marks'] }}"
-                                                                    step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
-                                                            </td>
-                                                        @endif
-                                                        @if ($hasViva)
-                                                            <td class="p-1">
-                                                                <input type="number"
-                                                                    name="marks[{{ $i }}][viva_marks]"
-                                                                    class="form-control form-control-sm text-center mark-input"
-                                                                    value="{{ $mark?->viva_marks ?? '' }}" min="0"
-                                                                    max="{{ $subjectConfig['viva_marks'] }}"
-                                                                    step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
-                                                            </td>
+                                                        @else
+                                                            @if ($hasCq)
+                                                                <td class="p-1">
+                                                                    <input type="number"
+                                                                        name="marks[{{ $i }}][cq_marks]"
+                                                                        class="form-control form-control-sm text-center mark-input"
+                                                                        value="{{ $mark?->cq_marks ?? '' }}" min="0"
+                                                                        max="{{ $subjectConfig['creative_marks'] }}"
+                                                                        step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
+                                                                </td>
+                                                            @endif
+                                                            @if ($hasMcq)
+                                                                <td class="p-1">
+                                                                    <input type="number"
+                                                                        name="marks[{{ $i }}][mcq_marks]"
+                                                                        class="form-control form-control-sm text-center mark-input"
+                                                                        value="{{ $mark?->mcq_marks ?? '' }}" min="0"
+                                                                        max="{{ $subjectConfig['mcq_marks'] }}"
+                                                                        step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
+                                                                </td>
+                                                            @endif
+                                                            @if ($hasPractical)
+                                                                <td class="p-1">
+                                                                    <input type="number"
+                                                                        name="marks[{{ $i }}][practical_marks]"
+                                                                        class="form-control form-control-sm text-center mark-input"
+                                                                        value="{{ $mark?->practical_marks ?? '' }}"
+                                                                        min="0"
+                                                                        max="{{ $subjectConfig['practical_marks'] }}"
+                                                                        step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
+                                                                </td>
+                                                            @endif
+                                                            @if ($hasViva)
+                                                                <td class="p-1">
+                                                                    <input type="number"
+                                                                        name="marks[{{ $i }}][viva_marks]"
+                                                                        class="form-control form-control-sm text-center mark-input"
+                                                                        value="{{ $mark?->viva_marks ?? '' }}" min="0"
+                                                                        max="{{ $subjectConfig['viva_marks'] }}"
+                                                                        step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
+                                                                </td>
+                                                            @endif
                                                         @endif
                                                         <td class="text-center">
                                                             <strong
-                                                                class="total-display {{ $mark && !$isAbsent && $mark->total < $passMark ? 'text-danger' : 'text-success' }}">
+                                                                class="total-display {{ (! $isTutorial && $mark && !$isAbsent && $mark->total < $passMark) ? 'text-danger' : 'text-success' }}">
                                                                 {{ $mark && !$isAbsent ? number_format($mark->total, 1) : ($isAbsent ? 'AB' : '—') }}
                                                             </strong>
                                                         </td>
-                                                        <td class="text-center">
-                                                            <span
-                                                                class="grade-badge badge badge-{{ $mark && !$isAbsent ? ($mark->letter_grade === 'F' ? 'danger' : 'success') : 'secondary' }}">
-                                                                {{ $mark ? ($isAbsent ? 'AB' : $mark->letter_grade) : '—' }}
-                                                            </span>
-                                                        </td>
+                                                        @if (! $isTutorial)
+                                                            <td class="text-center">
+                                                                <span
+                                                                    class="grade-badge badge badge-{{ $mark && !$isAbsent ? ($mark->letter_grade === 'F' ? 'danger' : 'success') : 'secondary' }}">
+                                                                    {{ $mark ? ($isAbsent ? 'AB' : $mark->letter_grade) : '—' }}
+                                                                </span>
+                                                            </td>
+                                                        @endif
                                                         <td class="text-center">
                                                             <input type="checkbox"
                                                                 name="marks[{{ $i }}][is_absent]"
@@ -259,6 +282,7 @@
 
 @section('scripts')
     <script>
+        const IS_TUTORIAL = {{ ($exam->type === \App\Models\Exam::TYPE_TUTORIAL) ? 'true' : 'false' }};
         const FULL_MARKS = {{ $fullMarks ?? 100 }};
         const PASS_MARK = {{ $passMark ?? 33 }};
         const GRADES = [{
@@ -303,13 +327,17 @@
         function recalcRow(row) {
             let total = 0;
             row.querySelectorAll('.mark-input:not([disabled])').forEach(i => total += parseFloat(i.value) || 0);
-            const g = getGrade(total);
             const totalEl = row.querySelector('.total-display');
-            const gradeEl = row.querySelector('.grade-badge');
             totalEl.textContent = total > 0 ? total.toFixed(1) : '—';
-            totalEl.className = `total-display font-weight-bold ${total < PASS_MARK ? 'text-danger' : 'text-success'}`;
-            gradeEl.textContent = total > 0 ? g.letter : '—';
-            gradeEl.className = `grade-badge badge badge-${total > 0 ? g.cls : 'secondary'}`;
+            if (IS_TUTORIAL) {
+                totalEl.className = 'total-display font-weight-bold text-success';
+            } else {
+                const g = getGrade(total);
+                const gradeEl = row.querySelector('.grade-badge');
+                totalEl.className = `total-display font-weight-bold ${total < PASS_MARK ? 'text-danger' : 'text-success'}`;
+                gradeEl.textContent = total > 0 ? g.letter : '—';
+                gradeEl.className = `grade-badge badge badge-${total > 0 ? g.cls : 'secondary'}`;
+            }
         }
 
         document.querySelectorAll('.mark-input').forEach(inp => {
@@ -340,12 +368,14 @@
                 });
                 row.classList.toggle('table-secondary', this.checked);
                 const totalEl = row.querySelector('.total-display');
-                const gradeEl = row.querySelector('.grade-badge');
                 if (this.checked) {
                     totalEl.textContent = 'AB';
                     totalEl.className = 'total-display text-muted';
-                    gradeEl.textContent = 'AB';
-                    gradeEl.className = 'grade-badge badge badge-secondary';
+                    if (!IS_TUTORIAL) {
+                        const gradeEl = row.querySelector('.grade-badge');
+                        gradeEl.textContent = 'AB';
+                        gradeEl.className = 'grade-badge badge badge-secondary';
+                    }
                 } else {
                     recalcRow(row);
                 }

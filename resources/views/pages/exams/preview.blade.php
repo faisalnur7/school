@@ -59,11 +59,14 @@
 
                 <div class="col-md-10">
                     @if ($subject)
+                        @php
+                            $isTutorial = $exam->type === \App\Models\Exam::TYPE_TUTORIAL;
+                        @endphp
                         {{-- Filter Tabs --}}
                         <div class="card mb-3">
                             <div class="card-body py-2">
                                 <div class="btn-group btn-group-sm">
-                                    @foreach (['all' => ['All', 'primary'], 'highest' => ['Highest First', 'success'], 'passed' => ['Passed', 'info'], 'failed' => ['Failed', 'danger']] as $key => [$label, $color])
+                                    @foreach (($isTutorial ? ['all' => ['All', 'primary'], 'highest' => ['Highest First', 'success']] : ['all' => ['All', 'primary'], 'highest' => ['Highest First', 'success'], 'passed' => ['Passed', 'info'], 'failed' => ['Failed', 'danger']]) as $key => [$label, $color])
                                         <a href="{{ route('exams.preview', ['exam' => $exam->id, 'class_id' => $classId, 'subject_id' => $subject->id, 'filter' => $key]) }}"
                                             class="btn {{ $filter === $key ? "btn-$color" : "btn-outline-$color" }}">
                                             {{ $label }}
@@ -71,8 +74,10 @@
                                     @endforeach
                                 </div>
                                 <span class="ml-3 text-muted">
-                                    Showing <strong>{{ $marks->count() }}</strong> &mdash; Pass Mark:
-                                    <strong>{{ $passMark }}</strong>
+                                    Showing <strong>{{ $marks->count() }}</strong>
+                                    @if (! $isTutorial)
+                                        &mdash; Pass Mark: <strong>{{ $passMark }}</strong>
+                                    @endif
                                 </span>
                             </div>
                         </div>
@@ -124,7 +129,7 @@
                             <div class="card-header">
                                 <strong>{{ $subject->name }}</strong>
                                 <span class="badge badge-light ml-2">Full:
-                                    {{ $subject->getEffectiveMarksForClass($classId)['total_marks'] }}</span>
+                                    {{ $isTutorial ? ($subject->tutorial_marks ?? 0) : $subject->getEffectiveMarksForClass($classId)['total_marks'] }}</span>
                             </div>
                             <div class="card-body p-0">
                                 <table class="table table-sm table-hover mb-0">
@@ -133,15 +138,19 @@
                                             <th>#</th>
                                             <th>Student</th>
                                             <th class="text-center">Obtained</th>
-                                            <th class="text-center">Grade</th>
-                                            <th class="text-center">GPA</th>
-                                            <th class="text-center">Status</th>
+                                            @if (! $isTutorial)
+                                                <th class="text-center">Grade</th>
+                                                <th class="text-center">GPA</th>
+                                                <th class="text-center">Status</th>
+                                            @else
+                                                <th class="text-center">Absent</th>
+                                            @endif
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @forelse($marks as $i => $mark)
                                             <tr
-                                                class="{{ $mark->is_absent ? 'table-secondary' : ($mark->total < $passMark ? 'table-danger' : '') }}">
+                                                class="{{ $mark->is_absent ? 'table-secondary' : ((! $isTutorial && $mark->total < $passMark) ? 'table-danger' : '') }}">
                                                 <td>{{ $i + 1 }}</td>
                                                 <td>
                                                     <strong>{{ $mark->student->full_name_en }}</strong>
@@ -153,26 +162,32 @@
                                                 <td class="text-center">
                                                     {{ $mark->is_absent ? 'Absent' : number_format($mark->total, 1) }}
                                                 </td>
-                                                <td class="text-center">
-                                                    <span
-                                                        class="badge badge-{{ $mark->is_absent ? 'secondary' : ($mark->letter_grade === 'F' ? 'danger' : 'success') }} badge-pill">
-                                                        {{ $mark->is_absent ? 'AB' : $mark->letter_grade }}
-                                                    </span>
-                                                </td>
-                                                <td class="text-center">{{ $mark->is_absent ? '—' : $mark->gpa }}</td>
-                                                <td class="text-center">
-                                                    @if ($mark->is_absent)
-                                                        <span class="badge badge-secondary">Absent</span>
-                                                    @elseif($mark->total >= $passMark)
-                                                        <span class="badge badge-success">Passed</span>
-                                                    @else
-                                                        <span class="badge badge-danger">Failed</span>
-                                                    @endif
-                                                </td>
+                                                @if (! $isTutorial)
+                                                    <td class="text-center">
+                                                        <span
+                                                            class="badge badge-{{ $mark->is_absent ? 'secondary' : ($mark->letter_grade === 'F' ? 'danger' : 'success') }} badge-pill">
+                                                            {{ $mark->is_absent ? 'AB' : $mark->letter_grade }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center">{{ $mark->is_absent ? '—' : $mark->gpa }}</td>
+                                                    <td class="text-center">
+                                                        @if ($mark->is_absent)
+                                                            <span class="badge badge-secondary">Absent</span>
+                                                        @elseif($mark->total >= $passMark)
+                                                            <span class="badge badge-success">Passed</span>
+                                                        @else
+                                                            <span class="badge badge-danger">Failed</span>
+                                                        @endif
+                                                    </td>
+                                                @else
+                                                    <td class="text-center">
+                                                        {{ $mark->is_absent ? 'AB' : '—' }}
+                                                    </td>
+                                                @endif
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="6" class="text-center text-muted py-4">No marks entered yet.
+                                                <td colspan="{{ $isTutorial ? 4 : 6 }}" class="text-center text-muted py-4">No marks entered yet.
                                                 </td>
                                             </tr>
                                         @endforelse

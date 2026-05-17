@@ -26,6 +26,7 @@ class StoreSubjectRequest extends FormRequest
             'mcq_marks' => 'nullable|numeric|min:0',
             'practical_marks' => 'nullable|numeric|min:0',
             'viva_marks' => 'nullable|numeric|min:0',
+            'tutorial_marks' => 'nullable|numeric|min:0',
             'pass_mark' => 'nullable|numeric|min:0',
             'is_active' => 'nullable|boolean',
             'assign_to_class' => 'nullable|boolean',
@@ -52,6 +53,7 @@ class StoreSubjectRequest extends FormRequest
             'papers.*.mcq_marks' => 'nullable|numeric|min:0',
             'papers.*.practical_marks' => 'nullable|numeric|min:0',
             'papers.*.viva_marks' => 'nullable|numeric|min:0',
+            'papers.*.tutorial_marks' => 'nullable|numeric|min:0',
             'papers.*.pass_mark' => 'nullable|numeric|min:0',
         ];
     }

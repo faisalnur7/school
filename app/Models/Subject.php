@@ -23,6 +23,7 @@ class Subject extends Model
         'mcq_marks',
         'practical_marks',
         'viva_marks',
+        'tutorial_marks',
         'pass_mark',
         'is_active',
     ];
@@ -37,6 +38,7 @@ class Subject extends Model
         'mcq_marks' => 'decimal:2',
         'practical_marks' => 'decimal:2',
         'viva_marks' => 'decimal:2',
+        'tutorial_marks' => 'decimal:2',
         'pass_mark' => 'decimal:2',
     ];
 
@@ -130,7 +132,8 @@ class Subject extends Model
         return $this->creative_marks > 0
             || $this->mcq_marks > 0
             || $this->practical_marks > 0
-            || $this->viva_marks > 0;
+            || $this->viva_marks > 0
+            || $this->tutorial_marks > 0;
     }
 
     /**
