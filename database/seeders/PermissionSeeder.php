@@ -108,6 +108,7 @@ class PermissionSeeder extends Seeder
                 ['name' => 'view_card_create_exam',       'display_name' => 'View Create Exam Card'],
                 ['name' => 'view_card_subject_assignment','display_name' => 'View Subject Assignment Card'],
                 ['name' => 'view_card_terminal_report',   'display_name' => 'View Terminal Report Card'],
+                ['name' => 'view_card_tutorial_exam_report', 'display_name' => 'View Tutorial Exam Report Card'],
             ]],
             ['name' => 'Shareholders',        'sort' => 8,  'permissions' => [
                 ['name' => 'view_shareholders',           'display_name' => 'View Shareholders'],
