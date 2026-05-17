@@ -37,7 +37,9 @@
             <div class="card"><div class="card-body">
                 <div class="row">
                     @foreach([
-                        'Department' => $employee->department?->name,
+                        'Department' => is_string($employee->department)
+                            ? $employee->department
+                            : $employee->department?->name,
                         'Gender'     => ucfirst($employee->gender),
                         'DOB'        => $employee->dob?->format('d M Y'),
                         'Phone'      => $employee->phone,

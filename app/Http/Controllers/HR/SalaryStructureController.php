@@ -27,7 +27,7 @@ class SalaryStructureController extends Controller
     public function store(StoreSalaryStructureRequest $request)
     {
         SalaryStructure::create($request->validated());
-        return redirect()->route('hr.salary.index')->with('success', 'Salary structure saved.');
+        return redirect()->route('hr.salary-structures.index')->with('success', 'Salary structure saved.');
     }
 
     public function edit(SalaryStructure $salaryStructure)
@@ -41,7 +41,13 @@ class SalaryStructureController extends Controller
     public function update(StoreSalaryStructureRequest $request, SalaryStructure $salaryStructure)
     {
         $salaryStructure->update($request->validated());
-        return redirect()->route('hr.salary.index')->with('success', 'Salary structure updated.');
+        return redirect()->route('hr.salary-structures.index')->with('success', 'Salary structure updated.');
+    }
+
+    public function destroy(SalaryStructure $salaryStructure)
+    {
+        $salaryStructure->delete();
+        return redirect()->route('hr.salary-structures.index')->with('success', 'Salary structure deleted.');
     }
 
     public function loadDefaults(int $designationId)

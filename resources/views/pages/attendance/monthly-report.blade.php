@@ -52,13 +52,20 @@
             const classId = this.value;
             repSectionSelect.innerHTML = '<option value="">Select Section</option>';
             if (!classId) return;
-            fetch(`/ajax/sections-by-class?class_id=${classId}`)
-                .then(r => r.json())
+            fetch(`{{ route('load_section_groups') }}?school_class_id=${classId}`)
+                .then(async r => {
+                    if (!r.ok) throw new Error('Failed to load sections');
+                    return r.json();
+                })
                 .then(data => {
-                    data.forEach(s => {
+                    const sections = Array.isArray(data?.sections) ? data.sections : [];
+                    sections.forEach(s => {
                         repSectionSelect.insertAdjacentHTML('beforeend',
                             `<option value="${s.id}">${s.name_en}</option>`);
                     });
+                })
+                .catch(() => {
+                    repSectionSelect.innerHTML = '<option value="">Select Section</option>';
                 });
         });
 

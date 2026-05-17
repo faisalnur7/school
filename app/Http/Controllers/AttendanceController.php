@@ -8,6 +8,7 @@ use App\Models\AttendanceItem;
 use App\Models\SchoolClass;
 use App\Models\StudentAcademicInformation;
 use App\Models\TeacherSectionAssignment;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -26,7 +27,23 @@ class AttendanceController extends Controller
 
     public function load(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $rawDate = (string) $request->input('date', '');
+        $normalizedDate = null;
+        foreach (['Y-m-d', 'd/m/Y'] as $format) {
+            try {
+                $parsed = Carbon::createFromFormat($format, $rawDate);
+                if ($parsed && $parsed->format($format) === $rawDate) {
+                    $normalizedDate = $parsed->toDateString();
+                    break;
+                }
+            } catch (\Throwable $e) {
+                // Try next format.
+            }
+        }
+
+        $validator = Validator::make(array_merge($request->all(), [
+            'date' => $normalizedDate,
+        ]), [
             'session_id' => ['required', 'exists:academic_sessions,id'],
             'class_id' => ['required', 'exists:school_classes,id'],
             'section_id' => ['required', 'exists:sections,id'],
@@ -40,7 +57,7 @@ class AttendanceController extends Controller
         $sessionId = (int) $request->session_id;
         $classId = (int) $request->class_id;
         $sectionId = (int) $request->section_id;
-        $date = $request->date;
+        $date = $normalizedDate;
 
         $this->authorizeSection($sessionId, $classId, $sectionId);
 

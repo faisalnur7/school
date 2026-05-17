@@ -25,56 +25,51 @@
             </div>
             <div class="card-body py-2">
 
-    <div class="d-flex flex-wrap align-items-end">
+                <div class="d-flex flex-wrap align-items-end">
 
-        {{-- Session --}}
-        <div class="p-1" style="flex: 1; min-width: 180px;">
-            <select id="att_session_id" class="form-control form-control-sm" required>
-                <option value="">Select Session</option>
-                @foreach ($sessions as $session)
-                    <option value="{{ $session->id }}">{{ $session->name_en }}</option>
-                @endforeach
-            </select>
-        </div>
+                    {{-- Session --}}
+                    <div class="p-1" style="flex: 1; min-width: 180px;">
+                        <select id="att_session_id" class="form-control form-control-sm" required>
+                            <option value="">Select Session</option>
+                            @foreach ($sessions as $session)
+                                <option value="{{ $session->id }}">{{ $session->name_en }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-        {{-- Class --}}
-        <div class="p-1" style="flex: 1; min-width: 140px;">
-            <select id="att_class_id" class="form-control form-control-sm" required>
-                <option value="">Select Class</option>
-                @foreach ($classes as $class)
-                    <option value="{{ $class->id }}">{{ $class->name_en }}</option>
-                @endforeach
-            </select>
-        </div>
+                    {{-- Class --}}
+                    <div class="p-1" style="flex: 1; min-width: 140px;">
+                        <select id="classSelect" class="form-control form-control-sm" required>
+                            <option value="">Select Class</option>
+                            @foreach ($classes as $class)
+                                <option value="{{ $class->id }}">{{ $class->name_en }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-        {{-- Section --}}
-        <div class="p-1" style="flex: 1; min-width: 140px;">
-            <select id="att_section_id" class="form-control form-control-sm" required>
-                <option value="">Select Section</option>
-            </select>
-        </div>
+                    {{-- Section --}}
+                    <div class="p-1" style="flex: 1; min-width: 140px;">
+                        <select id="sectionSelect" class="form-control form-control-sm" required>
+                            <option value="">Select Section</option>
+                        </select>
+                    </div>
 
-        {{-- Date --}}
-        <div class="p-1" style="flex: 1; min-width: 160px;">
-            <input type="date"
-                id="att_date"
-                class="form-control form-control-sm"
-                value="{{ $defaultDate }}"
-                required />
-        </div>
+                    {{-- Date --}}
+                    <div class="p-1" style="flex: 1; min-width: 160px;">
+                        <input type="date" id="att_date" class="form-control form-control-sm"
+                            value="{{ $defaultDate }}" required />
+                    </div>
 
-        {{-- Button --}}
-        <div class="p-1" style="min-width: 140px;">
-            <button type="button"
-                id="btnLoadStudents"
-                class="btn btn-primary btn-sm btn-block w-100">
-                Load Students
-            </button>
-        </div>
+                    {{-- Button --}}
+                    <div class="p-1" style="min-width: 140px;">
+                        <button type="button" id="btnLoadStudents" class="btn btn-primary btn-sm btn-block w-100">
+                            Load Students
+                        </button>
+                    </div>
 
-    </div>
+                </div>
 
-</div>
+            </div>
         </div>
 
         <div id="attendanceStudentsWrap"></div>
@@ -82,26 +77,34 @@
 @endsection
 
 @section('scripts')
+    @include('scripts.common.load_academic_information')
     <script>
-        const sectionSelect = document.getElementById('att_section_id');
-        document.getElementById('att_class_id').addEventListener('change', function() {
+        const sectionSelect = document.getElementById('sectionSelect');
+        document.getElementById('classSelect').addEventListener('change', function() {
             const classId = this.value;
             sectionSelect.innerHTML = '<option value="">Select Section</option>';
             if (!classId) return;
-            fetch(`/ajax/sections-by-class?class_id=${classId}`)
-                .then(r => r.json())
+            fetch(`{{ route('load_section_groups') }}?school_class_id=${classId}`)
+                .then(async r => {
+                    if (!r.ok) throw new Error('Failed to load sections');
+                    return r.json();
+                })
                 .then(data => {
-                    data.forEach(s => {
+                    const sections = Array.isArray(data?.sections) ? data.sections : [];
+                    sections.forEach(s => {
                         sectionSelect.insertAdjacentHTML('beforeend',
                             `<option value="${s.id}">${s.name_en}</option>`);
                     });
+                })
+                .catch(() => {
+                    sectionSelect.innerHTML = '<option value="">Select Section</option>';
                 });
         });
 
         document.getElementById('btnLoadStudents').addEventListener('click', function() {
             const sessionId = document.getElementById('att_session_id').value;
-            const classId = document.getElementById('att_class_id').value;
-            const sectionId = document.getElementById('att_section_id').value;
+            const classId = document.getElementById('classSelect').value;
+            const sectionId = document.getElementById('sectionSelect').value;
             const date = document.getElementById('att_date').value;
 
             const wrap = document.getElementById('attendanceStudentsWrap');
