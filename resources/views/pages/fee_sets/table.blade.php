@@ -15,7 +15,6 @@
                         <th>Class</th>
                         <th>Categories & Amounts</th>
                         <th>Name (EN)</th>
-                        <th>Name (BN)</th>
                         <th>Frequency</th>
                         <th>Description</th>
                         <th width="180">Action</th>
@@ -45,7 +44,6 @@
                             </td>
 
                             <td>{{ $feeSet->name }}</td>
-                            <td>{{ $feeSet->bn_name }}</td>
 
                             <td>
                                 <span class="badge badge-info text-capitalize">

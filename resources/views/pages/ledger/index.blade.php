@@ -99,7 +99,7 @@
                             <th>Description</th>
                             <th style="width:80px">Type</th>
                             <th>Debit Account</th>
-                            <th>Credit Account</th>
+                            <th class="text-right">Credit Account</th>
                             <th style="width:110px;text-align:right">Amount</th>
                             <th style="width:110px">Method</th>
                         </tr>

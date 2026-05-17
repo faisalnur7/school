@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\Group;
 use App\Models\InventoryItem;
 use App\Models\PurchaseOrder;
@@ -9,6 +11,8 @@ use App\Models\PurchaseOrderItem;
 use App\Models\SchoolClass;
 use App\Models\StockMovement;
 use App\Models\Supplier;
+use App\Models\Transaction;
+use App\Services\PettyCashService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -123,9 +127,48 @@ class PurchaseOrderController extends Controller
             return $purchase;
         });
 
+        // Debit petty cash and record in transactions/expenses
+        $petty    = PettyCashService::account();
+        $category = ExpenseCategory::firstOrCreate(
+            ['slug' => 'inventory-purchase'],
+            ['name' => 'Inventory Purchase', 'is_active' => true]
+        );
+        $reference = $purchase->reference_no ?? Transaction::generateReference();
+
+        $expense = Expense::create([
+            'expense_category_id' => $category->id,
+            'title'               => 'Inventory Purchase — ' . $reference,
+            'reference_no'        => $reference,
+            'amount'              => $totalAmount,
+            'expense_date'        => $purchase->purchase_date,
+            'payment_method'      => 'Cash',
+            'account_type'        => $petty ? \App\Models\HandCash::class : null,
+            'account_id'          => $petty?->id,
+            'description'         => 'Inventory purchase ref: ' . $reference,
+            'recorded_by'         => $createdBy,
+        ]);
+
+        Transaction::create([
+            'reference_no'         => $reference,
+            'type'                 => 'expense',
+            'expense_category_id'  => $category->id,
+            'amount'               => $totalAmount,
+            'payment_method'       => 'Cash',
+            'description'          => 'Inventory Purchase — ' . $reference,
+            'transaction_date'     => $purchase->purchase_date,
+            'transactionable_type' => PurchaseOrder::class,
+            'transactionable_id'   => $purchase->id,
+            'recorded_by'          => $createdBy,
+        ]);
+
+        // AccountTransaction (petty cash debit) is handled by Expense model booted hook above.
+
         return redirect()->route('inventory.purchases.show', $purchase->id)->with('success', 'Purchase saved successfully');
     }
 
+    // Debit petty cash after the transaction commits
+    // (done outside DB::transaction to avoid nested issues)
+    // Note: moved below so $purchase is available
     public function show($id)
     {
         $this->authorizePermission('manage_inventory_purchases');

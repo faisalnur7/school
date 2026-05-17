@@ -19,7 +19,7 @@ class BankAccountSeeder extends Seeder
                 'account_name' => 'School Main Account',
                 'branch_name' => 'Head Office',
                 'routing_number' => '000111222',
-                'opening_balance' => 250000.00,
+                'opening_balance' => 0.00,
                 'opening_date' => now()->toDateString(),
                 'is_active' => true,
                 'notes' => 'Default bank account seeded for testing.',

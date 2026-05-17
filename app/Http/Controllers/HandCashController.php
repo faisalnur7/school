@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BankAccount;
 use App\Models\HandCash;
+use App\Services\PettyCashService;
 use Illuminate\Http\Request;
 
 class HandCashController extends Controller
 {
     public function index()
     {
-        $handCashes = HandCash::with('recorder')->latest()->paginate(15);
-        return view('pages.hand-cash.index', compact('handCashes'));
+        $handCashes   = HandCash::with('recorder')->latest()->paginate(15);
+        $bankAccounts = BankAccount::where('is_active', true)->orderBy('bank_name')->get();
+        $pettyCash    = PettyCashService::account();
+        return view('pages.hand-cash.index', compact('handCashes', 'bankAccounts', 'pettyCash'));
     }
 
     public function create()
@@ -70,5 +74,26 @@ class HandCashController extends Controller
     {
         $handCash->delete();
         return redirect()->route('hand-cash.index')->with('success', 'Hand cash entry deleted successfully.');
+    }
+
+    public function transferToBank(Request $request)
+    {
+        $request->validate([
+            'bank_account_id' => 'required|exists:bank_accounts,id',
+            'amount'          => 'required|numeric|min:0.01',
+            'description'     => 'nullable|string|max:255',
+        ]);
+
+        try {
+            PettyCashService::transferToBank(
+                (int) $request->bank_account_id,
+                (float) $request->amount,
+                $request->description
+            );
+        } catch (\InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Transfer completed successfully.');
     }
 }

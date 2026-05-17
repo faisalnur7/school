@@ -1,10 +1,26 @@
 <div class="card">
     <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
         <h3 class="card-title mb-0 text-white text-lg">Hand Cash</h3>
-        <a href="{{ route('hand-cash.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
-            + Add Hand Cash
-        </a>
+        <div class="d-flex gap-2 ml-auto">
+            @if($pettyCash)
+            <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#transferModal">
+                <i class="fas fa-exchange-alt"></i> Transfer to Bank
+            </button>
+            @endif
+            <a href="{{ route('hand-cash.create') }}" class="btn btn-primary btn-sm text-bold">
+                + Add Hand Cash
+            </a>
+        </div>
     </div>
+
+    @if($pettyCash)
+    <div class="px-3 pt-3">
+        <div class="alert alert-info mb-0 d-flex justify-content-between align-items-center">
+            <span><strong>Petty Cash Balance ({{ $pettyCash->label }}):</strong></span>
+            <span class="font-weight-bold" style="font-size:1.1rem">{{ number_format($pettyCash->balance, 2) }}</span>
+        </div>
+    </div>
+    @endif
 
     <div class="card-body px-0 pb-4 pt-0">
         <div class="table-responsive">
@@ -63,3 +79,42 @@
         <div class="px-3 pt-3">{{ $handCashes->links() }}</div>
     </div>
 </div>
+
+@if($pettyCash && $bankAccounts->isNotEmpty())
+<div class="modal fade" id="transferModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Transfer from Petty Cash to Bank</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <form action="{{ route('hand-cash.transfer-to-bank') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Bank Account</label>
+                        <select name="bank_account_id" class="form-control" required>
+                            <option value="">— Select Bank —</option>
+                            @foreach($bankAccounts as $bank)
+                            <option value="{{ $bank->id }}">{{ $bank->bank_name }} — {{ $bank->account_number }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount <small class="text-muted">(Available: {{ number_format($pettyCash->balance, 2) }})</small></label>
+                        <input type="number" name="amount" class="form-control" step="0.01" min="0.01" max="{{ $pettyCash->balance }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description <small class="text-muted">(optional)</small></label>
+                        <input type="text" name="description" class="form-control" maxlength="255">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Transfer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif

@@ -22,6 +22,7 @@ use App\Models\Scholarship;
 use App\Models\FreeStudentship;
 use App\Models\InventoryCategory;
 use App\Models\InventoryItem;
+use App\Services\PettyCashService;
 use App\Models\InventorySale;
 use App\Models\InventorySaleItem;
 use App\Models\StockMovement;
@@ -628,6 +629,15 @@ class FeeCollectionController extends Controller
 
                 $payment->inventory_sale_id = $sale->id;
                 $payment->save();
+
+                // Inventory sale increases petty cash (if payment account is not already set to an account)
+                if (!$payment->account_type || !$payment->account_id) {
+                    PettyCashService::credit(
+                        (float) $inventorySaleTotal, 'inventory_sale',
+                        $payment->receipt_no, 'Inventory sale — ' . $payment->receipt_no,
+                        now(), InventorySale::class, $sale->id
+                    );
+                }
             }
 
             DB::commit();

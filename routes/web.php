@@ -499,6 +499,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/', [HandCashController::class, 'index'])->name('hand-cash.index');
         Route::get('/create', [HandCashController::class, 'create'])->name('hand-cash.create');
         Route::post('/store', [HandCashController::class, 'store'])->name('hand-cash.store');
+        Route::post('/transfer-to-bank', [HandCashController::class, 'transferToBank'])->name('hand-cash.transfer-to-bank');
         Route::get('/{handCash}/edit', [HandCashController::class, 'edit'])->name('hand-cash.edit');
         Route::put('/{handCash}/update', [HandCashController::class, 'update'])->name('hand-cash.update');
         Route::delete('/{handCash}/destroy', [HandCashController::class, 'destroy'])->name('hand-cash.destroy');

@@ -73,7 +73,7 @@
                         <div class="form-group mb-2">
                             <label class="small mb-1">Payment Method <span class="text-danger">*</span></label>
                             <select name="payment_method" id="paymentMethod" class="form-control form-control-sm" required>
-                                @foreach (['Cash', 'Bank Transfer', 'Cheque', 'Mobile Banking', 'Other'] as $method)
+                                @foreach (['Cash', 'Bank Transfer'] as $method)
                                     <option value="{{ $method }}" {{ old('payment_method') === $method ? 'selected' : '' }}>{{ $method }}</option>
                                 @endforeach
                             </select>

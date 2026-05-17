@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\AccountTransaction;
+use App\Services\PettyCashService;
 
 class Income extends Model
 {
@@ -57,22 +58,24 @@ class Income extends Model
     protected static function booted(): void
     {
         static::saved(function (Income $income) {
-            if ($income->account_type && $income->account_id) {
+            $accountType = $income->account_type;
+            $accountId   = $income->account_id;
+
+            if (!$accountType || !$accountId) {
+                $petty = PettyCashService::account();
+                if ($petty) {
+                    $accountType = HandCash::class;
+                    $accountId   = $petty->id;
+                }
+            }
+
+            if ($accountType && $accountId) {
                 AccountTransaction::upsertForSource(
-                    $income->account_type,
-                    $income->account_id,
-                    'credit',
-                    $income->amount,
-                    'income',
-                    $income->reference_no,
-                    $income->description,
-                    $income->income_date,
-                    self::class,
-                    $income->id,
-                    $income->recorded_by
+                    $accountType, $accountId, 'credit',
+                    $income->amount, 'income',
+                    $income->reference_no, $income->description,
+                    $income->income_date, self::class, $income->id, $income->recorded_by
                 );
-            } else {
-                AccountTransaction::removeSource(self::class, $income->id);
             }
         });
 

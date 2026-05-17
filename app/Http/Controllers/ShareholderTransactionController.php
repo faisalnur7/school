@@ -9,6 +9,7 @@ use App\Models\AccountTransaction;
 use App\Models\IncomeCategory;
 use App\Models\ExpenseCategory;
 use App\Services\JournalService;
+use App\Services\PettyCashService;
 use Illuminate\Http\Request;
 
 class ShareholderTransactionController extends Controller
@@ -72,7 +73,7 @@ class ShareholderTransactionController extends Controller
             'amount'           => 'required|numeric|min:0.01',
             'transaction_date' => 'required|date_format:d/m/Y',
             'payment_method'   => 'required|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other',
-            'account_id'       => 'nullable|integer',
+            'account_id'       => 'required|integer',
             'account_type'     => 'nullable|in:App\\Models\\HandCash,App\\Models\\BankAccount,App\\Models\\MobileBankingAccount',
             'description'      => 'nullable|string|max:500',
         ]);
@@ -106,6 +107,21 @@ class ShareholderTransactionController extends Controller
                 $txn->id,
                 auth()->id()
             );
+        } else {
+            // No explicit account — route through petty cash
+            if ($request->type === 'capital') {
+                PettyCashService::credit(
+                    (float) $request->amount, 'capital', $txn->reference_no, $txn->description,
+                    \Carbon\Carbon::createFromFormat('d/m/Y', $request->transaction_date),
+                    Transaction::class, $txn->id
+                );
+            } else {
+                PettyCashService::debit(
+                    (float) $request->amount, 'withdrawal', $txn->reference_no, $txn->description,
+                    \Carbon\Carbon::createFromFormat('d/m/Y', $request->transaction_date),
+                    Transaction::class, $txn->id
+                );
+            }
         }
 
         $cashAccountId       = Account::resolveForSource($request->account_type ?? '', (int) $request->account_id);

@@ -15,7 +15,7 @@ class HandCashSeeder extends Seeder
         HandCash::updateOrCreate(
             ['label' => 'Petty Cash'],
             [
-                'opening_amount' => 10000.00,
+                'opening_amount' => 0.00,
                 'opening_date' => now()->toDateString(),
                 'is_active' => true,
                 'notes' => 'Default hand cash account created by seeder.',

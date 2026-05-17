@@ -14,7 +14,6 @@ use App\Models\IncomeCategory;
 use App\Models\MobileBankingAccount;
 use App\Models\InventorySale;
 use App\Models\Payroll;
-use App\Models\PurchaseOrder;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -367,34 +366,15 @@ class ReportsController extends Controller
             }
         }
 
-        // Inventory Purchases
-        $purchases = PurchaseOrder::with('items.inventoryItem.category')
-            ->whereYear('purchase_date', $year)
-            ->get();
-
-        if ($purchases->isNotEmpty()) {
-            $cashCredit += $purchases->sum('total_amount');
-            $categoryTotals = [];
-            foreach ($purchases as $purchase) {
-                foreach ($purchase->items as $item) {
-                    $name = $item->inventoryItem?->category?->name ?? 'Uncategorised';
-                    $categoryTotals[$name] = ($categoryTotals[$name] ?? 0) + $item->line_total;
-                }
-            }
-            foreach ($categoryTotals as $name => $total) {
-                $rows[] = ['account' => 'Inventory Purchase — ' . $name, 'debit' => $total, 'credit' => 0];
-            }
+        // Petty Cash — actual balance from hand_cashes table
+        foreach (HandCash::where('is_active', true)->orderBy('id')->get() as $hc) {
+            $rows[] = ['account' => 'Petty Cash — ' . $hc->label, 'debit' => (float) $hc->balance, 'credit' => 0];
         }
 
-        // Payroll
-        $payrollTotal = Payroll::where('payroll_year', $year)->where('status', 'paid')->sum('net_salary');
-        if ($payrollTotal > 0) {
-            $rows[] = ['account' => 'Salary Expense — Payroll', 'debit' => $payrollTotal, 'credit' => 0];
-            $cashCredit += $payrollTotal;
+        // Bank Accounts — actual balance from bank_accounts table
+        foreach (BankAccount::where('is_active', true)->orderBy('bank_name')->get() as $bank) {
+            $rows[] = ['account' => 'Bank — ' . $bank->bank_name . ' (' . $bank->account_number . ')', 'debit' => (float) $bank->balance, 'credit' => 0];
         }
-
-        // Single Cash row summarising all cash movements
-        $rows[] = ['account' => 'Cash', 'debit' => $cashDebit, 'credit' => $cashCredit];
 
         return $rows;
     }

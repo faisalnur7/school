@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\AccountTransaction;
+use App\Services\PettyCashService;
 
 class Expense extends Model
 {
@@ -63,22 +64,24 @@ class Expense extends Model
     protected static function booted(): void
     {
         static::saved(function (Expense $expense) {
-            if ($expense->account_type && $expense->account_id) {
+            $accountType = $expense->account_type;
+            $accountId   = $expense->account_id;
+
+            if (!$accountType || !$accountId) {
+                $petty = PettyCashService::account();
+                if ($petty) {
+                    $accountType = HandCash::class;
+                    $accountId   = $petty->id;
+                }
+            }
+
+            if ($accountType && $accountId) {
                 AccountTransaction::upsertForSource(
-                    $expense->account_type,
-                    $expense->account_id,
-                    'debit',
-                    $expense->amount,
-                    'expense',
-                    $expense->reference_no,
-                    $expense->description,
-                    $expense->expense_date,
-                    self::class,
-                    $expense->id,
-                    $expense->recorded_by
+                    $accountType, $accountId, 'debit',
+                    $expense->amount, 'expense',
+                    $expense->reference_no, $expense->description,
+                    $expense->expense_date, self::class, $expense->id, $expense->recorded_by
                 );
-            } else {
-                AccountTransaction::removeSource(self::class, $expense->id);
             }
         });
 
