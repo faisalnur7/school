@@ -108,7 +108,9 @@
     </div>
 
     <!-- Attendance Section -->
+    @if(auth()->user()?->hasAnyPermission(['view_todays_attendence', 'view_fee_collection']))
     <div class="row mb-4">
+        @if(auth()->user()?->hasPermission('view_todays_attendence'))
         <div class="col-12 col-lg-6 mb-3">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom">
@@ -147,8 +149,10 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Fee Statistics -->
+        @if(auth()->user()?->hasPermission('view_fee_collection'))
         <div class="col-12 col-lg-6 mb-3">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom">
@@ -187,9 +191,12 @@
                 </div>
             </div>
         </div>
+        @endif
     </div>
+    @endif
 
     <!-- Financial Overview -->
+    @if(auth()->user()?->hasPermission('view_income_expense'))
     <div class="row mb-4">
         <div class="col-12 col-sm-6 col-md-4 mb-3">
             <div class="card border-0 shadow-sm h-100">
@@ -218,8 +225,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Assets Card -->
+    @if(auth()->user()?->hasPermission('view_asset'))
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
@@ -230,8 +239,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Classwise Attendance Table -->
+    @if(auth()->user()?->hasPermission('view_classwise_attendance'))
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
@@ -273,10 +284,13 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Recent Data Section -->
+    @if(auth()->user()?->hasAnyPermission(['view_recent_exam', 'view_recent_notice']))
     <div class="row">
         <!-- Recent Exams -->
+        @if(auth()->user()?->hasPermission('view_recent_exam'))
         <div class="col-12 col-lg-6 mb-3">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom">
@@ -296,8 +310,10 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Recent Notices -->
+        @if(auth()->user()?->hasPermission('view_recent_notice'))
         <div class="col-12 col-lg-6 mb-3">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom">
@@ -317,7 +333,9 @@
                 </div>
             </div>
         </div>
+        @endif
     </div>
+    @endif
 </div>
 
 <style>

@@ -1,52 +1,118 @@
 @extends('layouts.master')
 @section('contents')
-<div class="container-fluid">
-    <div class="card">
-        <div class="card-header shadow p-0 flex justify-between items-center">
-            <h3 class="card-title flex text-white pl-3 text-medium">Detailed Trial Balance — {{ $year }}</h3>
-            <div class="flex gap-2 pr-3 pt-3 items-center justify-center ml-auto">
-                <form method="GET" class="flex gap-2 items-center">
-                    <input type="number" name="year" class="form-control form-control-sm" value="{{ $year }}" style="width:190px">
-                    <button class="btn btn-sm btn-dark">Go</button>
-                </form>
-                <a href="{{ route('reports.details-trial-balance.pdf', ['year' => $year]) }}" class="btn btn-sm btn-danger"><i class="fas fa-file-pdf"></i> PDF</a>
+    @php
+        $fmt = fn($v) => $v > 0 ? number_format($v, 2) : '—';
+        $begTotDr = collect($rows)->sum('beg_debit');
+        $begTotCr = collect($rows)->sum('beg_credit');
+        $perTotDr = collect($rows)->sum('per_debit');
+        $perTotCr = collect($rows)->sum('per_credit');
+        $endTotDr = collect($rows)->sum(
+            fn($r) => isset($r['balance_only']) ? $r['balance_only'] : $r['beg_debit'] + $r['per_debit'],
+        );
+        $endTotCr = collect($rows)->sum(fn($r) => isset($r['balance_only']) ? 0 : $r['beg_credit'] + $r['per_credit']);
+    @endphp
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header shadow p-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h3 class="card-title text-white pl-3 mb-0 text-lg" style="font-size:15px">
+                    Detailed Trial Balance &mdash; {{ \Carbon\Carbon::parse($from)->format('d M Y') }} to
+                    {{ \Carbon\Carbon::parse($to)->format('d M Y') }}
+                </h3>
+                <div class="d-flex align-items-center flex-wrap gap-2 pr-3 py-2 ml-auto">
+                    <form method="GET" class="flex flex-rows align-items-center gap-2 mb-0">
+                        <input type="date" name="from" class="form-control form-control-sm" value="{{ $from }}"
+                            style="width:160px">
+
+                        <span class="text-white small">to</span>
+
+                        <input type="date" name="to" class="form-control form-control-sm"
+                            value="{{ $to }}" style="width:160px">
+
+                        <button type="submit" class="btn btn-sm btn-dark">
+                            Go
+                        </button>
+
+                        <a href="{{ route('reports.details-trial-balance.pdf', ['from' => $from, 'to' => $to]) }}"
+                            class="btn btn-sm btn-danger flex gap-1 justify-center items-center">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </form>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0" style="font-size:12px;min-width:800px">
+                        <thead style="background:#1e293b;color:#fff">
+                            <tr>
+                                <th rowspan="2" style="vertical-align:middle;width:30%">Account</th>
+                                <th colspan="2" class="text-center" style="border-bottom:1px solid #334155">Beginning
+                                    Balance</th>
+                                <th colspan="2" class="text-center" style="border-bottom:1px solid #334155">Period
+                                    Activity</th>
+                                <th colspan="2" class="text-center" style="border-bottom:1px solid #334155">Ending
+                                    Balance</th>
+                            </tr>
+                            <tr style="background:#334155">
+                                <th class="text-right">Debit</th>
+                                <th class="text-right">Credit</th>
+                                <th class="text-right">Debit</th>
+                                <th class="text-right">Credit</th>
+                                <th class="text-right">Debit</th>
+                                <th class="text-right">Credit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($rows as $row)
+                                @php
+                                    $endDr = isset($row['balance_only'])
+                                        ? $row['balance_only']
+                                        : $row['beg_debit'] + $row['per_debit'];
+                                    $endCr = isset($row['balance_only']) ? 0 : $row['beg_credit'] + $row['per_credit'];
+                                @endphp
+                                <tr>
+                                    <td>{{ $row['account'] }}</td>
+                                    {{-- Beginning --}}
+                                    <td class="text-right"
+                                        style="color:{{ isset($row['balance_only']) ? '#94a3b8' : ($row['beg_debit'] > 0 ? '#e11d48' : '#94a3b8') }}">
+                                        {{ isset($row['balance_only']) ? '—' : $fmt($row['beg_debit']) }}
+                                    </td>
+                                    <td class="text-right"
+                                        style="color:{{ isset($row['balance_only']) ? '#94a3b8' : ($row['beg_credit'] > 0 ? '#16a34a' : '#94a3b8') }}">
+                                        {{ isset($row['balance_only']) ? '—' : $fmt($row['beg_credit']) }}
+                                    </td>
+                                    {{-- Period --}}
+                                    <td class="text-right"
+                                        style="color:{{ isset($row['balance_only']) ? '#94a3b8' : ($row['per_debit'] > 0 ? '#e11d48' : '#94a3b8') }}">
+                                        {{ isset($row['balance_only']) ? '—' : $fmt($row['per_debit']) }}
+                                    </td>
+                                    <td class="text-right"
+                                        style="color:{{ isset($row['balance_only']) ? '#94a3b8' : ($row['per_credit'] > 0 ? '#16a34a' : '#94a3b8') }}">
+                                        {{ isset($row['balance_only']) ? '—' : $fmt($row['per_credit']) }}
+                                    </td>
+                                    {{-- Ending --}}
+                                    <td class="text-right" style="color:{{ $endDr > 0 ? '#e11d48' : '#94a3b8' }}">
+                                        {{ $fmt($endDr) }}
+                                    </td>
+                                    <td class="text-right" style="color:{{ $endCr > 0 ? '#16a34a' : '#94a3b8' }}">
+                                        {{ $fmt($endCr) }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot style="background:#f8fafc;font-weight:700">
+                            <tr>
+                                <td>Total</td>
+                                <td class="text-right">{{ number_format($begTotDr, 2) }}</td>
+                                <td class="text-right">{{ number_format($begTotCr, 2) }}</td>
+                                <td class="text-right">{{ number_format($perTotDr, 2) }}</td>
+                                <td class="text-right">{{ number_format($perTotCr, 2) }}</td>
+                                <td class="text-right">{{ number_format($endTotDr, 2) }}</td>
+                                <td class="text-right">{{ number_format($endTotCr, 2) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>
-        <div class="card-body p-0">
-            <table class="table mb-0" style="font-size:13px">
-                <thead style="background:#f8fafc">
-                    <tr><th>Account</th><th class="text-right">Debit</th><th class="text-right">Credit</th></tr>
-                </thead>
-                <tbody>
-                    @foreach($rows as $row)
-                    <tr>
-                        <td>{{ $row['account'] }}</td>
-                        <td class="text-right" style="color:{{ $row['debit'] > 0 ? '#e11d48' : '#94a3b8' }}">
-                            {{ $row['debit'] > 0 ? number_format($row['debit'], 2) : '—' }}
-                        </td>
-                        <td class="text-right" style="color:{{ $row['credit'] > 0 ? '#16a34a' : '#94a3b8' }}">
-                            {{ $row['credit'] > 0 ? number_format($row['credit'], 2) : '—' }}
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-                <tfoot style="background:#f8fafc;font-weight:700">
-                    <tr>
-                        <td>Total</td>
-                        <td class="text-right">{{ number_format($totalDebit, 2) }}</td>
-                        <td class="text-right">{{ number_format($totalCredit, 2) }}</td>
-                    </tr>
-                    @if($totalDebit !== $totalCredit)
-                    <tr>
-                        <td colspan="3" class="text-center text-warning">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            Note: Debit/Credit totals differ — this is a simplified view, not full double-entry.
-                        </td>
-                    </tr>
-                    @endif
-                </tfoot>
-            </table>
-        </div>
     </div>
-</div>
 @endsection

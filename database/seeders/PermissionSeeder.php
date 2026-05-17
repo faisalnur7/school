@@ -12,7 +12,14 @@ class PermissionSeeder extends Seeder
     {
         $definitions = [
             ['name' => 'Dashboard',           'sort' => 1,  'permissions' => [
-                ['name' => 'view_dashboard',              'display_name' => 'View Dashboard'],
+                ['name' => 'view_dashboard', 'display_name' => 'View Dashboard'],
+                ['name' => 'view_todays_attendence', 'display_name' => 'View Attendace Card'],
+                ['name' => 'view_fee_collection', 'display_name' => 'View Fee Collection Card'],
+                ['name' => 'view_income_expense', 'display_name' => 'View Income Expense Card'],
+                ['name' => 'view_asset', 'display_name' => 'View Total Asset'],
+                ['name' => 'view_classwise_attendance', 'display_name' => 'View Classwise Attedance'],
+                ['name' => 'view_recent_exam', 'display_name' => 'View Recent Exam'],
+                ['name' => 'view_recent_notice', 'display_name' => 'View Recent Notices'],
             ]],
             ['name' => 'Academics',           'sort' => 2,  'permissions' => [
                 ['name' => 'view_academics',              'display_name' => 'View Academics'],

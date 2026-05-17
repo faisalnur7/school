@@ -47,15 +47,15 @@ class ReportsController extends Controller
     // ── Balance Sheet ──────────────────────────────────────────
     public function balanceSheet(Request $request)
     {
-        $year = $request->get('year', now()->year);
+        $year         = $request->get('year', now()->year);
+        $totalIncome  = Transaction::income()->whereYear('transaction_date', $year)->sum('amount');
+        $totalExpense = Transaction::expense()->whereYear('transaction_date', $year)->sum('amount');
+        $capital      = Transaction::capital()->whereYear('transaction_date', $year)->sum('amount');
+        $withdrawals  = Transaction::withdrawal()->whereYear('transaction_date', $year)->sum('amount');
+        $netIncome    = $totalIncome - $totalExpense;
+        $equity       = $capital + $netIncome - $withdrawals;
 
-        $netIncome   = Transaction::income()->whereYear('transaction_date', $year)->sum('amount')
-                     - Transaction::expense()->whereYear('transaction_date', $year)->sum('amount');
-        $capital     = Transaction::capital()->whereYear('transaction_date', $year)->sum('amount');
-        $withdrawals = Transaction::withdrawal()->whereYear('transaction_date', $year)->sum('amount');
-        $equity      = $capital - $withdrawals + $netIncome;
-
-        return view('pages.reports.balance-sheet', compact('netIncome', 'capital', 'withdrawals', 'equity', 'year'));
+        return view('pages.reports.balance-sheet', compact('totalIncome', 'totalExpense', 'netIncome', 'capital', 'withdrawals', 'equity', 'year'));
     }
 
     // ── Cash Book ──────────────────────────────────────────────
@@ -314,87 +314,134 @@ class ReportsController extends Controller
         $mpdf->Output($filename . '.pdf', 'D');
     }
 
-    // ── PDF exports ───────────────────────────────────────────────────────
     // ── Detailed Trial Balance ─────────────────────────────────
-    private function buildDetailedTrialBalanceRows(int $year): array
+    public function buildDetailedTrialBalanceRows(string $from, string $to): array
     {
-        $transactions = Transaction::with(['incomeCategory', 'expenseCategory', 'shareholder'])
-            ->whereYear('transaction_date', $year)
+        // Transactions before the period = beginning balances
+        $before = Transaction::with(['incomeCategory', 'expenseCategory', 'shareholder'])
+            ->where('transaction_date', '<', $from)
             ->get();
 
-        $rows = [];
-        $cashDebit = 0;
-        $cashCredit = 0;
+        // Transactions within the period
+        $period = Transaction::with(['incomeCategory', 'expenseCategory', 'shareholder'])
+            ->whereBetween('transaction_date', [$from, $to])
+            ->get();
 
-        foreach ($transactions->where('type', 'income')->groupBy('income_category_id') as $catId => $group) {
-            $amount = $group->sum('amount');
-            $rows[] = ['account' => 'Income — ' . ($group->first()->incomeCategory?->name ?? 'Uncategorised'), 'debit' => 0, 'credit' => $amount];
-            $cashDebit += $amount;
+        $accounts = [];
+
+        $add = function ($key, $label, $bDebit, $bCredit, $pDebit, $pCredit) use (&$accounts) {
+            if (!isset($accounts[$key])) {
+                $accounts[$key] = ['account' => $label, 'beg_debit' => 0, 'beg_credit' => 0, 'per_debit' => 0, 'per_credit' => 0];
+            }
+            $accounts[$key]['beg_debit']  += $bDebit;
+            $accounts[$key]['beg_credit'] += $bCredit;
+            $accounts[$key]['per_debit']  += $pDebit;
+            $accounts[$key]['per_credit'] += $pCredit;
+        };
+
+        // Income by category: always credit
+        $bIncome = $before->where('type', 'income');
+        $pIncome = $period->where('type', 'income');
+        $incomeKeys = $bIncome->pluck('income_category_id')->merge($pIncome->pluck('income_category_id'))->unique();
+        foreach ($incomeKeys as $key) {
+            $bGroup = $bIncome->where('income_category_id', $key);
+            $pGroup = $pIncome->where('income_category_id', $key);
+            $first  = $bGroup->first() ?? $pGroup->first();
+            $label  = 'Income — ' . ($first->incomeCategory?->name ?? 'Uncategorised');
+
+            $add(
+                'income_' . $key,
+                $label,
+                0,
+                (float) $bGroup->sum('amount'),
+                0,
+                (float) $pGroup->sum('amount'),
+            );
         }
-        foreach ($transactions->where('type', 'expense')->groupBy('expense_category_id') as $catId => $group) {
-            $amount = $group->sum('amount');
-            $rows[] = ['account' => 'Expense — ' . ($group->first()->expenseCategory?->name ?? 'Uncategorised'), 'debit' => $amount, 'credit' => 0];
-            $cashCredit += $amount;
+
+        // Expense by category: always debit
+        $bExpense = $before->where('type', 'expense');
+        $pExpense = $period->where('type', 'expense');
+        $expenseKeys = $bExpense->pluck('expense_category_id')->merge($pExpense->pluck('expense_category_id'))->unique();
+        foreach ($expenseKeys as $key) {
+            $bGroup = $bExpense->where('expense_category_id', $key);
+            $pGroup = $pExpense->where('expense_category_id', $key);
+            $first  = $bGroup->first() ?? $pGroup->first();
+            $label  = 'Expense — ' . ($first->expenseCategory?->name ?? 'Uncategorised');
+
+            $add(
+                'expense_' . $key,
+                $label,
+                (float) $bGroup->sum('amount'),
+                0,
+                (float) $pGroup->sum('amount'),
+                0,
+            );
         }
-        foreach ($transactions->where('type', 'capital')->groupBy('shareholder_id') as $shId => $group) {
-            $amount = $group->sum('amount');
-            $rows[] = ['account' => 'Capital — ' . ($group->first()->shareholder?->name ?? 'Shareholder'), 'debit' => 0, 'credit' => $amount];
-            $cashDebit += $amount;
-        }
-        foreach ($transactions->where('type', 'withdrawal')->groupBy('shareholder_id') as $shId => $group) {
-            $amount = $group->sum('amount');
-            $rows[] = ['account' => 'Withdrawal — ' . ($group->first()->shareholder?->name ?? 'Shareholder'), 'debit' => $amount, 'credit' => 0];
-            $cashCredit += $amount;
+
+        // Capital/withdrawal by shareholder (existing behavior)
+        foreach (['capital', 'withdrawal'] as $type) {
+            $bGroups = $before->where('type', $type);
+            $pGroups = $period->where('type', $type);
+            $allKeys = $bGroups->pluck('shareholder_id')->merge($pGroups->pluck('shareholder_id'))->unique();
+
+            foreach ($allKeys as $key) {
+                $bGroup = $bGroups->where('shareholder_id', $key);
+                $pGroup = $pGroups->where('shareholder_id', $key);
+                $first  = $bGroup->first() ?? $pGroup->first();
+
+                $label = $type === 'capital'
+                    ? 'Capital — ' . ($first->shareholder?->name ?? 'Shareholder')
+                    : 'Withdrawal — ' . ($first->shareholder?->name ?? 'Shareholder');
+
+                $isDebit = $type === 'withdrawal';
+                $add(
+                    $type . '_' . $key,
+                    $label,
+                    $isDebit ? (float) $bGroup->sum('amount') : 0,
+                    $isDebit ? 0 : (float) $bGroup->sum('amount'),
+                    $isDebit ? (float) $pGroup->sum('amount') : 0,
+                    $isDebit ? 0 : (float) $pGroup->sum('amount'),
+                );
+            }
         }
 
         // Inventory Sales
-        $sales = InventorySale::with('items.inventoryItem.category')
-            ->whereYear('created_at', $year)
-            ->get();
+        $bSales = InventorySale::with('items.inventoryItem.category')->where('created_at', '<', $from)->get();
+        $pSales = InventorySale::with('items.inventoryItem.category')->whereBetween('created_at', [$from, $to . ' 23:59:59'])->get();
 
-        if ($sales->isNotEmpty()) {
-            $cashDebit += $sales->sum('total_amount');
-            $categoryTotals = [];
-            foreach ($sales as $sale) {
-                foreach ($sale->items as $item) {
-                    $name = $item->inventoryItem?->category?->name ?? 'Uncategorised';
-                    $categoryTotals[$name] = ($categoryTotals[$name] ?? 0) + $item->subtotal;
-                }
-            }
-            foreach ($categoryTotals as $name => $total) {
-                $rows[] = ['account' => 'Inventory Sales — ' . $name, 'debit' => 0, 'credit' => $total];
-            }
+        $buildSaleTotals = fn($sales) => collect($sales)->flatMap->items->groupBy(fn($i) => $i->inventoryItem?->category?->name ?? 'Uncategorised')
+            ->map(fn($g) => $g->sum('subtotal'));
+
+        foreach ($buildSaleTotals($bSales)->keys()->merge($buildSaleTotals($pSales)->keys())->unique() as $cat) {
+            $add('inv_sale_' . $cat, 'Inventory Sales — ' . $cat, 0, (float)($buildSaleTotals($bSales)[$cat] ?? 0), 0, (float)($buildSaleTotals($pSales)[$cat] ?? 0));
         }
 
-        // Petty Cash — actual balance from hand_cashes table
+        // Petty Cash & Bank — current balance only (shown as ending)
         foreach (HandCash::where('is_active', true)->orderBy('id')->get() as $hc) {
-            $rows[] = ['account' => 'Petty Cash — ' . $hc->label, 'debit' => (float) $hc->balance, 'credit' => 0];
+            $accounts['hc_' . $hc->id] = ['account' => 'Petty Cash — ' . $hc->label, 'beg_debit' => 0, 'beg_credit' => 0, 'per_debit' => 0, 'per_credit' => 0, 'balance_only' => (float)$hc->balance];
         }
-
-        // Bank Accounts — actual balance from bank_accounts table
         foreach (BankAccount::where('is_active', true)->orderBy('bank_name')->get() as $bank) {
-            $rows[] = ['account' => 'Bank — ' . $bank->bank_name . ' (' . $bank->account_number . ')', 'debit' => (float) $bank->balance, 'credit' => 0];
+            $accounts['bank_' . $bank->id] = ['account' => 'Bank — ' . $bank->bank_name . ' (' . $bank->account_number . ')', 'beg_debit' => 0, 'beg_credit' => 0, 'per_debit' => 0, 'per_credit' => 0, 'balance_only' => (float)$bank->balance];
         }
 
-        return $rows;
+        return array_values($accounts);
     }
 
     public function detailedTrialBalance(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $rows = $this->buildDetailedTrialBalanceRows($year);
-        $totalDebit  = collect($rows)->sum('debit');
-        $totalCredit = collect($rows)->sum('credit');
-        return view('pages.reports.details-trial-balance', compact('rows', 'totalDebit', 'totalCredit', 'year'));
+        $from = $request->get('from', now()->startOfMonth()->toDateString());
+        $to   = $request->get('to',   now()->toDateString());
+        $rows = $this->buildDetailedTrialBalanceRows($from, $to);
+        return view('pages.reports.details-trial-balance', compact('rows', 'from', 'to'));
     }
 
     public function detailedTrialBalancePdf(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $rows = $this->buildDetailedTrialBalanceRows($year);
-        $totalDebit  = collect($rows)->sum('debit');
-        $totalCredit = collect($rows)->sum('credit');
-        $this->makePdf('pages.reports.pdf.details-trial-balance', compact('rows', 'totalDebit', 'totalCredit', 'year'), 'details-trial-balance-' . $year);
+        $from = $request->get('from', now()->startOfMonth()->toDateString());
+        $to   = $request->get('to',   now()->toDateString());
+        $rows = $this->buildDetailedTrialBalanceRows($from, $to);
+        $this->makePdf('pages.reports.pdf.details-trial-balance', compact('rows', 'from', 'to'), 'details-trial-balance-' . $from . '-' . $to);
     }
 
     public function trialBalancePdf(Request $request)
@@ -417,13 +464,14 @@ class ReportsController extends Controller
 
     public function balanceSheetPdf(Request $request)
     {
-        $year        = $request->get('year', now()->year);
-        $netIncome   = Transaction::income()->whereYear('transaction_date', $year)->sum('amount')
-                     - Transaction::expense()->whereYear('transaction_date', $year)->sum('amount');
-        $capital     = Transaction::capital()->whereYear('transaction_date', $year)->sum('amount');
-        $withdrawals = Transaction::withdrawal()->whereYear('transaction_date', $year)->sum('amount');
-        $equity      = $capital - $withdrawals + $netIncome;
-        $this->makePdf('pages.reports.pdf.balance-sheet', compact('netIncome', 'capital', 'withdrawals', 'equity', 'year'), 'balance-sheet-' . $year);
+        $year         = $request->get('year', now()->year);
+        $totalIncome  = Transaction::income()->whereYear('transaction_date', $year)->sum('amount');
+        $totalExpense = Transaction::expense()->whereYear('transaction_date', $year)->sum('amount');
+        $capital      = Transaction::capital()->whereYear('transaction_date', $year)->sum('amount');
+        $withdrawals  = Transaction::withdrawal()->whereYear('transaction_date', $year)->sum('amount');
+        $netIncome    = $totalIncome - $totalExpense;
+        $equity       = $capital + $netIncome - $withdrawals;
+        $this->makePdf('pages.reports.pdf.balance-sheet', compact('totalIncome', 'totalExpense', 'netIncome', 'capital', 'withdrawals', 'equity', 'year'), 'balance-sheet-' . $year);
     }
 
     public function cashBookPdf(Request $request)

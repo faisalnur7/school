@@ -5,12 +5,12 @@
         <table>
             <tbody>
                 <tr><td>Capital Contributions</td><td class="text-right green bold">{{ number_format($capital, 2) }}</td></tr>
-                <tr><td>Less: Withdrawals</td><td class="text-right red">({{ number_format($withdrawals, 2) }})</td></tr>
-                <tr><td>Net Income / (Loss)</td>
+                <tr><td>Add: Net Profit / Loss</td>
                     <td class="text-right {{ $netIncome >= 0 ? 'green' : 'red' }}">
                         {{ $netIncome >= 0 ? number_format($netIncome, 2) : '(' . number_format(abs($netIncome), 2) . ')' }}
                     </td>
                 </tr>
+                <tr><td>Less: Withdrawals</td><td class="text-right red">({{ number_format($withdrawals, 2) }})</td></tr>
             </tbody>
             <tfoot>
                 <tr>
@@ -24,11 +24,15 @@
         <div class="section-title">Summary</div>
         <div class="summary-box" style="margin-top:6px">
             <div class="label">Total Income</div>
-            <div class="value green">{{ number_format($capital + max(0, $netIncome), 2) }}</div>
+            <div class="value green">{{ number_format($totalIncome, 2) }}</div>
         </div>
         <div class="summary-box">
             <div class="label">Total Expenses</div>
-            <div class="value red">{{ number_format($withdrawals + abs(min(0, $netIncome)), 2) }}</div>
+            <div class="value red">{{ number_format($totalExpense, 2) }}</div>
+        </div>
+        <div class="summary-box">
+            <div class="label">Net Profit / Loss</div>
+            <div class="value {{ $netIncome >= 0 ? 'green' : 'red' }}">{{ $netIncome >= 0 ? number_format($netIncome, 2) : '(' . number_format(abs($netIncome), 2) . ')' }}</div>
         </div>
     </div>
 </div>
