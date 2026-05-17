@@ -96,7 +96,7 @@
 
                                                                 <label class="custom-control-label small"
                                                                     for="perm_{{ $permission->id }}">
-                                                                    {{ $permission->name }}
+                                                                    {{ $permission->display_name }}
                                                                 </label>
                                                             </div>
                                                         </div>

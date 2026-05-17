@@ -200,23 +200,23 @@ class HrSeeder extends Seeder
         $month = now()->month;
         $year  = now()->year;
 
-        foreach ($empMap as $data) {
-            $emp = $data['model'];
-            $sal = SalaryStructure::where('employee_id', $emp->id)->latest('effective_from')->first();
-            if (!$sal) continue;
+        // foreach ($empMap as $data) {
+        //     $emp = $data['model'];
+        //     $sal = SalaryStructure::where('employee_id', $emp->id)->latest('effective_from')->first();
+        //     if (!$sal) continue;
 
-            HrPayroll::firstOrCreate(
-                ['employee_id' => $emp->id, 'payroll_month' => $month, 'payroll_year' => $year],
-                [
-                    'gross_salary'    => $sal->gross_salary,
-                    'other_deductions'=> $sal->other_deductions,
-                    'net_salary'      => $sal->net_salary,
-                    'payment_method'  => $emp->paymentInformation?->payment_method ?? 'cash',
-                    'status'          => 'pending',
-                    'is_locked'       => false,
-                ]
-            );
-        }
+        //     HrPayroll::firstOrCreate(
+        //         ['employee_id' => $emp->id, 'payroll_month' => $month, 'payroll_year' => $year],
+        //         [
+        //             'gross_salary'    => $sal->gross_salary,
+        //             'other_deductions'=> $sal->other_deductions,
+        //             'net_salary'      => $sal->net_salary,
+        //             'payment_method'  => $emp->paymentInformation?->payment_method ?? 'cash',
+        //             'status'          => 'pending',
+        //             'is_locked'       => false,
+        //         ]
+        //     );
+        // }
 
         $this->command->info('✅ HR & Payroll seeded:');
         $this->command->info('   Designations      : ' . Designation::count());

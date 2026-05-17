@@ -84,8 +84,8 @@
                         <div class="col-lg-8 mb-3">
                             <div class="card h-100">
                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0">Purchase Cart</h5>
-                                    <button type="button" class="btn btn-sm btn-success" id="add_item_btn">
+                                    <h5 class="mb-0 text-white">Purchase Cart</h5>
+                                    <button type="button" class="btn btn-sm btn-success ml-auto" id="add_item_btn">
                                         <i class="fas fa-plus mr-1"></i>Add Manual Row
                                     </button>
                                 </div>
@@ -173,7 +173,7 @@
                         <div class="col-lg-4 mb-3">
                             <div class="card h-100">
                                 <div class="card-header">
-                                    <h5 class="mb-0">Assets</h5>
+                                    <h5 class="mb-0 text-white">Assets</h5>
                                 </div>
                                 <div class="card-body p-2">
                                     <div class="mb-2">

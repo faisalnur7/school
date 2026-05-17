@@ -12,6 +12,9 @@ use App\Models\HandCash;
 use App\Models\Income;
 use App\Models\IncomeCategory;
 use App\Models\MobileBankingAccount;
+use App\Models\InventorySale;
+use App\Models\Payroll;
+use App\Models\PurchaseOrder;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -321,19 +324,77 @@ class ReportsController extends Controller
             ->get();
 
         $rows = [];
+        $cashDebit = 0;
+        $cashCredit = 0;
 
         foreach ($transactions->where('type', 'income')->groupBy('income_category_id') as $catId => $group) {
-            $rows[] = ['account' => 'Income — ' . ($group->first()->incomeCategory?->name ?? 'Uncategorised'), 'debit' => 0, 'credit' => $group->sum('amount')];
+            $amount = $group->sum('amount');
+            $rows[] = ['account' => 'Income — ' . ($group->first()->incomeCategory?->name ?? 'Uncategorised'), 'debit' => 0, 'credit' => $amount];
+            $cashDebit += $amount;
         }
         foreach ($transactions->where('type', 'expense')->groupBy('expense_category_id') as $catId => $group) {
-            $rows[] = ['account' => 'Expense — ' . ($group->first()->expenseCategory?->name ?? 'Uncategorised'), 'debit' => $group->sum('amount'), 'credit' => 0];
+            $amount = $group->sum('amount');
+            $rows[] = ['account' => 'Expense — ' . ($group->first()->expenseCategory?->name ?? 'Uncategorised'), 'debit' => $amount, 'credit' => 0];
+            $cashCredit += $amount;
         }
         foreach ($transactions->where('type', 'capital')->groupBy('shareholder_id') as $shId => $group) {
-            $rows[] = ['account' => 'Capital — ' . ($group->first()->shareholder?->name ?? 'Shareholder'), 'debit' => 0, 'credit' => $group->sum('amount')];
+            $amount = $group->sum('amount');
+            $rows[] = ['account' => 'Capital — ' . ($group->first()->shareholder?->name ?? 'Shareholder'), 'debit' => 0, 'credit' => $amount];
+            $cashDebit += $amount;
         }
         foreach ($transactions->where('type', 'withdrawal')->groupBy('shareholder_id') as $shId => $group) {
-            $rows[] = ['account' => 'Withdrawal — ' . ($group->first()->shareholder?->name ?? 'Shareholder'), 'debit' => $group->sum('amount'), 'credit' => 0];
+            $amount = $group->sum('amount');
+            $rows[] = ['account' => 'Withdrawal — ' . ($group->first()->shareholder?->name ?? 'Shareholder'), 'debit' => $amount, 'credit' => 0];
+            $cashCredit += $amount;
         }
+
+        // Inventory Sales
+        $sales = InventorySale::with('items.inventoryItem.category')
+            ->whereYear('created_at', $year)
+            ->get();
+
+        if ($sales->isNotEmpty()) {
+            $cashDebit += $sales->sum('total_amount');
+            $categoryTotals = [];
+            foreach ($sales as $sale) {
+                foreach ($sale->items as $item) {
+                    $name = $item->inventoryItem?->category?->name ?? 'Uncategorised';
+                    $categoryTotals[$name] = ($categoryTotals[$name] ?? 0) + $item->subtotal;
+                }
+            }
+            foreach ($categoryTotals as $name => $total) {
+                $rows[] = ['account' => 'Inventory Sales — ' . $name, 'debit' => 0, 'credit' => $total];
+            }
+        }
+
+        // Inventory Purchases
+        $purchases = PurchaseOrder::with('items.inventoryItem.category')
+            ->whereYear('purchase_date', $year)
+            ->get();
+
+        if ($purchases->isNotEmpty()) {
+            $cashCredit += $purchases->sum('total_amount');
+            $categoryTotals = [];
+            foreach ($purchases as $purchase) {
+                foreach ($purchase->items as $item) {
+                    $name = $item->inventoryItem?->category?->name ?? 'Uncategorised';
+                    $categoryTotals[$name] = ($categoryTotals[$name] ?? 0) + $item->line_total;
+                }
+            }
+            foreach ($categoryTotals as $name => $total) {
+                $rows[] = ['account' => 'Inventory Purchase — ' . $name, 'debit' => $total, 'credit' => 0];
+            }
+        }
+
+        // Payroll
+        $payrollTotal = Payroll::where('payroll_year', $year)->where('status', 'paid')->sum('net_salary');
+        if ($payrollTotal > 0) {
+            $rows[] = ['account' => 'Salary Expense — Payroll', 'debit' => $payrollTotal, 'credit' => 0];
+            $cashCredit += $payrollTotal;
+        }
+
+        // Single Cash row summarising all cash movements
+        $rows[] = ['account' => 'Cash', 'debit' => $cashDebit, 'credit' => $cashCredit];
 
         return $rows;
     }
