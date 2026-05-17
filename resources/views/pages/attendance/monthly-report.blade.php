@@ -11,31 +11,41 @@
                 </h4>
             </div>
             <div class="card-body py-2">
-                <div class="form-inline flex-wrap flex">
-                    <select id="rep_session_id" class="form-control form-control-sm mr-2 mb-1" required>
-                        <option value="">Select Session</option>
-                        @foreach ($sessions as $session)
-                            <option value="{{ $session->id }}">{{ $session->name_en }}</option>
-                        @endforeach
-                    </select>
+                <div class="d-flex flex-wrap align-items-end">
+                    <div class="p-1" style="flex: 1; min-width: 180px;">
+                        <select id="rep_session_id" class="form-control form-control-sm mr-2 mb-1" required>
+                            <option value="">Select Session</option>
+                            @foreach ($sessions as $session)
+                                <option value="{{ $session->id }}">{{ $session->name_en }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                    <select id="rep_class_id" class="form-control form-control-sm mr-2 mb-1" required>
-                        <option value="">Select Class</option>
-                        @foreach ($classes as $class)
-                            <option value="{{ $class->id }}">{{ $class->name_en }}</option>
-                        @endforeach
-                    </select>
+                    <div class="p-1" style="flex: 1; min-width: 140px;">
+                        <select id="classSelect" class="form-control form-control-sm mr-2 mb-1" required>
+                            <option value="">Select Class</option>
+                            @foreach ($classes as $class)
+                                <option value="{{ $class->id }}">{{ $class->name_en }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                    <select id="rep_section_id" class="form-control form-control-sm mr-2 mb-1" required>
-                        <option value="">Select Section</option>
-                    </select>
+                    <div class="p-1" style="flex: 1; min-width: 140px;">
 
-                    <input type="month" id="rep_month" class="form-control form-control-sm mr-2 mb-1"
-                        value="{{ $defaultMonth }}" required />
+                        <select id="sectionSelect" class="form-control form-control-sm mr-2 mb-1" required>
+                            <option value="">Select Section</option>
+                        </select>
+                    </div>
 
-                    <button type="button" id="btnLoadReport" class="btn btn-sm btn-primary mb-1">
-                        <i class="fas fa-sync-alt mr-1"></i>Load Report
-                    </button>
+                    <div class="p-1" style="flex: 1; min-width: 160px;">
+                        <input type="month" id="rep_month" class="form-control form-control-sm mr-2 mb-1"
+                            value="{{ $defaultMonth }}" required />
+                    </div>
+                    <div class="p-1" style="min-width: 140px;">
+                        <button type="button" id="btnLoadReport" class="btn btn-sm btn-primary mb-1">
+                            <i class="fas fa-sync-alt mr-1"></i>Load Report
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -45,10 +55,16 @@
 @endsection
 
 @section('scripts')
+    @include('scripts.common.load_academic_information')
     <script>
-        const repSectionSelect = document.getElementById('rep_section_id');
+        const repClassSelect = document.getElementById('classSelect');
+        const repSectionSelect = document.getElementById('sectionSelect');
+        const repSessionSelect = document.getElementById('rep_session_id');
+        const repMonthInput = document.getElementById('rep_month');
+        const loadReportBtn = document.getElementById('btnLoadReport');
 
-        document.getElementById('rep_class_id').addEventListener('change', function() {
+        if (repClassSelect && repSectionSelect) {
+            repClassSelect.addEventListener('change', function() {
             const classId = this.value;
             repSectionSelect.innerHTML = '<option value="">Select Section</option>';
             if (!classId) return;
@@ -67,20 +83,23 @@
                 .catch(() => {
                     repSectionSelect.innerHTML = '<option value="">Select Section</option>';
                 });
-        });
+            });
+        }
 
         function currentParams() {
             return {
-                session_id: document.getElementById('rep_session_id').value,
-                class_id: document.getElementById('rep_class_id').value,
-                section_id: document.getElementById('rep_section_id').value,
-                month: document.getElementById('rep_month').value,
+                session_id: repSessionSelect?.value || '',
+                class_id: repClassSelect?.value || '',
+                section_id: repSectionSelect?.value || '',
+                month: repMonthInput?.value || '',
             };
         }
 
-        document.getElementById('btnLoadReport').addEventListener('click', function() {
+        if (loadReportBtn) {
+            loadReportBtn.addEventListener('click', function() {
             const p = currentParams();
             const wrap = document.getElementById('reportWrap');
+            if (!wrap) return;
             wrap.innerHTML = `<div class="card card-body text-center text-muted py-4">Loading...</div>`;
 
             const qs = new URLSearchParams(p);
@@ -106,7 +125,7 @@
                 })
                 .then(res => {
                     wrap.innerHTML = res.ok ? res.html :
-                    `<div class="alert alert-danger mb-0">${res.msg}</div>`;
+                        `<div class="alert alert-danger mb-0">${res.msg}</div>`;
 
                     // Wire PDF button rendered inside the partial
                     const pdfBtn = document.getElementById('btnDownloadPdf');
@@ -117,6 +136,7 @@
                         });
                     }
                 });
-        });
+            });
+        }
     </script>
 @endsection
