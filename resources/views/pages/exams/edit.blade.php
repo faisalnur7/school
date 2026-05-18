@@ -39,15 +39,35 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6">
+                            <input type="hidden" name="type" id="exam_type" value="{{ old('type', $exam->type) }}">
+                            <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Exam Type <span class="text-danger">*</span></label>
-                                    <select name="type" class="form-control" required>
-                                        <option value="tutorial" {{ old('type', $exam->type) == 'tutorial' ? 'selected' : '' }}>Tutorial Exam</option>
-                                        <option value="term"     {{ old('type', $exam->type) == 'term'     ? 'selected' : '' }}>Terminal Exam</option>
+                                    <label>Exam Category <span class="text-danger">*</span></label>
+                                    <select name="exam_category" class="form-control" required>
+                                        <option value="tutorial" {{ old('exam_category', $exam->exam_category ?? ($exam->type === 'term' ? 'terminal' : 'tutorial')) == 'tutorial' ? 'selected' : '' }}>Tutorial Exam</option>
+                                        <option value="terminal" {{ old('exam_category', $exam->exam_category ?? ($exam->type === 'term' ? 'terminal' : 'tutorial')) == 'terminal' ? 'selected' : '' }}>Terminal Exam</option>
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Pair Index <span class="text-danger">*</span></label>
+                                    <select name="pair_no" class="form-control" required>
+                                        <option value="1" {{ old('pair_no', $exam->pair_no) == 1 ? 'selected' : '' }}>Pair 1</option>
+                                        <option value="2" {{ old('pair_no', $exam->pair_no) == 2 ? 'selected' : '' }}>Pair 2</option>
+                                        <option value="3" {{ old('pair_no', $exam->pair_no) == 3 ? 'selected' : '' }}>Pair 3</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Pair Weight % <span class="text-danger">*</span></label>
+                                    <input type="number" name="pair_weight_percent" class="form-control" min="0" max="100"
+                                        value="{{ old('pair_weight_percent', $exam->pair_weight_percent ?? 20) }}" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Academic Session <span class="text-danger">*</span></label>
@@ -115,7 +135,15 @@
 
 @section('scripts')
 <script>
+    function syncExamType() {
+        var category = $('select[name="exam_category"]').val();
+        $('#exam_type').val(category === 'terminal' ? 'term' : 'tutorial');
+    }
+
     $(function () {
+        syncExamType();
+        $('select[name="exam_category"]').on('change', syncExamType);
+
         if ($('.is-invalid').length > 0) {
             $('html, body').animate({
                 scrollTop: $('.is-invalid').first().offset().top - 50

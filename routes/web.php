@@ -96,6 +96,7 @@ use App\Http\Controllers\{
     FeesHubController,
     FinancialsHubController,
     ResultsHubController,
+    YearlyFinalReportController,
     HrHubController,
     AccountsHubController,
     AssetsHubController,
@@ -611,6 +612,12 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/', [\App\Http\Controllers\ProgressReportController::class, 'index'])->name('index');
         Route::post('/', [\App\Http\Controllers\ProgressReportController::class, 'show'])->name('show');
         Route::get('/pdf', [\App\Http\Controllers\ProgressReportController::class, 'pdf'])->name('pdf');
+    });
+
+    Route::middleware('permission:view_card_yearly_final_report')->prefix('result/yearly-final-report')->name('result.yearly-final-report.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\YearlyFinalReportController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\YearlyFinalReportController::class, 'show'])->name('show');
+        Route::get('/pdf', [\App\Http\Controllers\YearlyFinalReportController::class, 'pdf'])->name('pdf');
     });
 
     Route::middleware('permission:view_results')->prefix('result/tutorial-report')->name('result.tutorial-report.')->group(function () {

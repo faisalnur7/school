@@ -44,13 +44,22 @@ class ExamController extends Controller
     {
         $data = $request->validate([
             'name'                => 'required|string|max:255',
-            'type'                => 'required|in:term,tutorial',
+            'exam_category'       => 'required|in:tutorial,terminal',
+            'type'                => 'nullable|in:term,tutorial',
+            'pair_no'             => 'required|integer|between:1,3',
+            'pair_weight_percent' => 'required|integer|min:0|max:100',
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'year'                => 'required|digits:4',
             'start_date'          => 'nullable|date',
             'end_date'            => 'nullable|date|after_or_equal:start_date',
             'status'              => 'in:draft,published',
         ]);
+
+        $data['type'] = $data['exam_category'] === 'terminal'
+            ? Exam::TYPE_TERMINAL
+            : Exam::TYPE_TUTORIAL;
+
+        $this->validateExamPairConfiguration($data);
 
         $exam = Exam::create($data);
 
@@ -84,13 +93,22 @@ class ExamController extends Controller
     {
         $data = $request->validate([
             'name'                => 'required|string|max:255',
-            'type'                => 'required|in:term,tutorial',
+            'exam_category'       => 'required|in:tutorial,terminal',
+            'type'                => 'nullable|in:term,tutorial',
+            'pair_no'             => 'required|integer|between:1,3',
+            'pair_weight_percent' => 'required|integer|min:0|max:100',
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'year'                => 'required|digits:4',
             'start_date'          => 'nullable|date',
             'end_date'            => 'nullable|date|after_or_equal:start_date',
             'status'              => 'in:draft,published',
         ]);
+
+        $data['type'] = $data['exam_category'] === 'terminal'
+            ? Exam::TYPE_TERMINAL
+            : Exam::TYPE_TUTORIAL;
+
+        $this->validateExamPairConfiguration($data, $exam);
 
         $exam->update($data);
 
@@ -104,6 +122,33 @@ class ExamController extends Controller
         $exam->delete();
 
         return redirect()->route('exams.index')->with('success', 'Exam deleted.');
+    }
+
+    private function validateExamPairConfiguration(array $data, ?Exam $exam = null): void
+    {
+        $pairQuery = Exam::where('academic_session_id', $data['academic_session_id'])
+            ->where('exam_category', $data['exam_category'])
+            ->where('pair_no', $data['pair_no']);
+
+        if ($exam) {
+            $pairQuery->where('id', '<>', $exam->id);
+        }
+
+        if ($pairQuery->exists()) {
+            abort(422, 'This pair index is already used for the selected session and exam category.');
+        }
+
+        $weights = Exam::where('academic_session_id', $data['academic_session_id'])
+            ->where('exam_category', $data['exam_category'])
+            ->whereNotNull('pair_no')
+            ->pluck('pair_weight_percent', 'pair_no')
+            ->toArray();
+
+        $weights[$data['pair_no']] = $data['pair_weight_percent'];
+
+        if (count(array_filter($weights, fn($weight) => $weight !== null)) === 3 && array_sum($weights) !== 100) {
+            abort(422, 'The configured pair weights for this session and category must sum to 100%.');
+        }
     }
 
     /**
