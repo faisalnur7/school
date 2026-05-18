@@ -94,7 +94,7 @@
                 @if(auth()->user()?->hasPermission('view_results'))
                 <li class="nav-item">
                     <a href="{{ route('results.hub') }}"
-                       class="nav-link {{ request()->routeIs('results.hub', 'exams.*', 'student-subjects.*') ? 'active' : '' }}">
+                       class="nav-link {{ request()->routeIs('results.hub', 'exams.*', 'student-subjects.*','result.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-poll-h"></i>
                         <p>Result Management</p>
                     </a>
@@ -158,13 +158,13 @@
 
                 <!-- Budget Control -->
                 @if(auth()->user()?->hasPermission('view_budget'))
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a href="{{ route('budget.hub') }}"
                        class="nav-link {{ request()->routeIs('budget.hub', 'budget-allocations.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-chart-pie"></i>
                         <p>Budget Control</p>
                     </a>
-                </li>
+                </li> --}}
                 @endif
 
                 <!-- Institute Settings -->
