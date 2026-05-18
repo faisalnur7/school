@@ -87,9 +87,10 @@
                     <div class="col-md-4" id="expenseAccountWrapper" style="display: none;">
                         <div class="form-group mb-2">
                             <label class="small mb-1">Account <span class="text-muted">(optional)</span></label>
-                            <select name="account_id" id="expenseAccountSelect" class="form-control form-control-sm">
+                            <select name="account_id" id="expenseAccountSelect" class="form-control form-control-sm @error('account_id') is-invalid @enderror" data-selected="{{ old('account_id') }}">
                                 <option value="">Select Account</option>
                             </select>
+                            @error('account_id')<span class="invalid-feedback">{{ $message }}</span>@enderror
                         </div>
                     </div>
 
@@ -131,6 +132,63 @@
 @section('scripts')
 <script>
     $(function () {
+        const accountsUrl = '{{ route('accounts.index') }}';
+        const methodTypeMap = {
+            'Cash': 'hand_cash',
+            'Bank Transfer': 'bank',
+            'Mobile Banking': 'mobile',
+        };
+        const accountTypeMap = {
+            'Cash': 'App\\Models\\HandCash',
+            'Bank Transfer': 'App\\Models\\BankAccount',
+            'Mobile Banking': 'App\\Models\\MobileBankingAccount',
+        };
+
+        function loadExpenseAccounts(method) {
+            const type = methodTypeMap[method];
+            const accountType = accountTypeMap[method];
+            const $wrapper = $('#expenseAccountWrapper');
+            const $select = $('#expenseAccountSelect');
+            const selectedId = $select.data('selected');
+
+            if (!type) {
+                $('#expenseAccountType').val('');
+                $select.html('<option value="">Select Account</option>');
+                $wrapper.hide();
+                return;
+            }
+
+            $('#expenseAccountType').val(accountType);
+
+            $.ajax({
+                url: accountsUrl,
+                method: 'GET',
+                dataType: 'json',
+                data: {
+                    type: type
+                },
+                success: function (accounts) {
+                    $select.html('<option value="">Select Account</option>');
+                    accounts.forEach(function (a) {
+                        const isSelected = selectedId && String(selectedId) === String(a.id);
+                        $select.append(`<option value="${a.id}" ${isSelected ? 'selected' : ''}>${a.label}</option>`);
+                    });
+                    $wrapper.toggle(accounts.length > 0);
+                    $select.data('selected', '');
+                },
+                error: function () {
+                    $wrapper.hide();
+                }
+            });
+        }
+
+        $('#expensePaymentMethod').on('change', function () {
+            $('#expenseAccountSelect').data('selected', '');
+            loadExpenseAccounts($(this).val());
+        });
+
+        loadExpenseAccounts($('#expensePaymentMethod').val());
+
         if ($('.is-invalid').length > 0) {
             $('html, body').animate({
                 scrollTop: $('.is-invalid').first().offset().top - 50

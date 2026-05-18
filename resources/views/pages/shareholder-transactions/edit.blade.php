@@ -131,5 +131,52 @@
             }, 300);
         }
     });
+
+    const accountsUrl = '{{ route('accounts.index') }}';
+
+    const methodTypeMap = {
+        'Cash':           'hand_cash',
+        'Bank Transfer':  'bank',
+        'Mobile Banking': 'mobile',
+    };
+    const accountTypeMap = {
+        'Cash':           'App\\Models\\HandCash',
+        'Bank Transfer':  'App\\Models\\BankAccount',
+        'Mobile Banking': 'App\\Models\\MobileBankingAccount',
+    };
+
+    function loadTransactionAccounts(method) {
+        const type        = methodTypeMap[method];
+        const accountType = accountTypeMap[method];
+        const $wrapper    = $('#transactionAccountWrapper');
+        const $select     = $('#transactionAccountSelect');
+
+        if (!type) {
+            $wrapper.hide();
+            $('#transactionAccountType').val('');
+            $select.html('<option value="">Select Account</option>');
+            return;
+        }
+
+        $('#transactionAccountType').val(accountType);
+
+        $.ajax({
+            url: accountsUrl, method: 'GET', dataType: 'json', data: { type: type },
+            success: function (accounts) {
+                $select.html('<option value="">Select Account</option>');
+                accounts.forEach(a => $select.append(`<option value="${a.id}">${a.label}</option>`));
+                $wrapper.toggle(accounts.length > 0);
+            },
+            error: function () { $wrapper.hide(); }
+        });
+    }
+
+    $('#paymentMethod').on('change', function () {
+        loadTransactionAccounts($(this).val());
+    });
+
+    $(function () {
+        loadTransactionAccounts($('#paymentMethod').val());
+    });
 </script>
 @endsection
