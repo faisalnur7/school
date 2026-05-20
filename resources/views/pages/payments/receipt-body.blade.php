@@ -1,21 +1,27 @@
 {{-- Header --}}
+@php
+    $schoolName = $setting?->name ?: 'School Name';
+    $schoolAddress = $setting?->address;
+    $contactParts = array_filter([
+        $setting?->contact_number_1,
+        $setting?->contact_number_2,
+        $setting?->whatsapp_number ? 'WhatsApp: '.$setting->whatsapp_number : null,
+        $setting?->email,
+        $setting?->website,
+    ]);
+@endphp
 <div class="school-logo-row">
     <div class="school-logo-and-name">
         @if($setting?->logo)
             <img src="{{ asset($setting->logo) }}" style="width:50px;height:50px;object-fit:contain;flex-shrink:0">
         @else
-            <div class="school-logo-box">{{ strtoupper(substr($setting?->name ?? 'S', 0, 1)) }}</div>
+            <div class="school-logo-box">{{ strtoupper(substr($schoolName, 0, 1)) }}</div>
         @endif
         <div class="school-info">
-            <div class="school-name">{{ $setting?->name ?? 'School Name' }}</div>
-            @if($setting?->address)<div class="school-sub">{{ $setting->address }}</div>@endif
-            @if($setting?->email || $setting?->contact_number_1)
-                <div class="school-sub">
-                    @if($setting?->email){{ $setting->email }}@endif
-                    @if($setting?->email && $setting?->contact_number_1) &nbsp;|&nbsp; @endif
-                    @if($setting?->contact_number_1){{ $setting->contact_number_1 }}@endif
-                    @if($setting?->contact_number_2) / {{ $setting->contact_number_2 }}@endif
-                </div>
+            <div class="school-name">{{ $schoolName }}</div>
+            @if($schoolAddress)<div class="school-sub">{{ $schoolAddress }}</div>@endif
+            @if(count($contactParts))
+                <div class="school-sub">{{ implode(' | ', $contactParts) }}</div>
             @endif
             <div class="school-sub" style="margin-top:3px;font-weight:700;letter-spacing:.1em">FEE PAYMENT RECEIPT</div>
         </div>

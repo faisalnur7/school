@@ -9,6 +9,7 @@ use App\Models\AcademicSession;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Group;
+use App\Models\SchoolSetting;
 
 class PaymentController extends Controller
 {
@@ -33,7 +34,7 @@ class PaymentController extends Controller
     
     public function receipt(Payment $payment){
         $payment->load(['items.fee.feeSet.items.category', 'student', 'collector', 'inventorySale.items.inventoryItem']);
-        $setting = \App\Models\SchoolSetting::first();
+        $setting = SchoolSetting::current();
         return view('pages.payments.receipt', compact('payment', 'setting'));
     }
 

@@ -49,6 +49,7 @@ class DatabaseSeeder extends Seeder
             AssetSeeder::class,
             ShareHolderSeeder::class,
             SubjectSeeder::class,
+            SchoolSettingSeeder::class,
             StudentSeeder::class,
             TeacherSectionAssignmentSeeder::class,
             InventoryCategorySeeder::class,
