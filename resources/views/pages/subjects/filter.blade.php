@@ -6,6 +6,38 @@
                     value="{{ request('search') }}">
             </div>
         </div>
+        <div class="col-md-3">
+            <select name="school_class_id" id="school_class_id" class="form-control">
+                <option value="">All Classes</option>
+                @foreach ($classes as $classId => $class)
+                    @php
+                        $optionValue = is_object($class) ? $class->id : $classId;
+                        $optionLabel = is_object($class)
+                            ? ($class->name ?? $class->name_en ?? $class->title ?? $class->class_name ?? 'Unnamed Class')
+                            : $class;
+                    @endphp
+                    <option value="{{ $optionValue }}" {{ (string) request('school_class_id') === (string) $optionValue ? 'selected' : '' }}>
+                        {{ $optionLabel }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="group_id" id="group_id" class="form-control">
+                <option value="">All Groups</option>
+                @foreach ($groups as $groupId => $group)
+                    @php
+                        $groupOptionValue = is_object($group) ? $group->id : $groupId;
+                        $groupOptionLabel = is_object($group)
+                            ? ($group->name ?? $group->name_en ?? $group->title ?? 'Unnamed Group')
+                            : $group;
+                    @endphp
+                    <option value="{{ $groupOptionValue }}" {{ (string) request('group_id') === (string) $groupOptionValue ? 'selected' : '' }}>
+                        {{ $groupOptionLabel }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
         <div class="col-md-2">
             <div class="form-group">
                 <select name="type" class="form-control">

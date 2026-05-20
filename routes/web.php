@@ -208,8 +208,11 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::middleware('permission:manage_subjects')->prefix('subjects')->group(function () {
         Route::get('/', [SubjectController::class, 'index'])->name('subjects.index');
+        Route::get('/classwise', [SubjectController::class, 'indexClasswise'])->name('subjects.classwise');
         Route::get('/create', [SubjectController::class, 'create'])->name('subjects.create');
         Route::post('/store', [SubjectController::class, 'store'])->name('subjects.store');
+        Route::get('/by-class', [SubjectController::class, 'getSubjectsByClass'])->name('subjects.by-class');
+
         Route::get('/{subject}', [SubjectController::class, 'show'])->name('subjects.show');
         Route::get('/{subject}/edit', [SubjectController::class, 'edit'])->name('subjects.edit');
         Route::put('/{subject}', [SubjectController::class, 'update'])->name('subjects.update');
@@ -217,7 +220,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/{subject}/toggle-status', [SubjectController::class, 'toggleStatus'])->name('subjects.toggle-status');
         Route::delete('/assignment/{id}', [SubjectController::class, 'removeAssignment'])->name('subjects.removeAssignment');
         Route::post('/assign-to-class', [SubjectController::class, 'assignToClass'])->name('subjects.assign');
-        Route::get('/by-class', [SubjectController::class, 'getSubjectsByClass'])->name('subjects.by-class');
     });
 
     Route::middleware('permission:manage_routines')->prefix('routines')->group(function () {
