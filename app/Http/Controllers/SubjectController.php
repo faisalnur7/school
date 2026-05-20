@@ -39,12 +39,97 @@ class SubjectController extends Controller
              $query->where('is_active', $request->is_active);
          }
 
-         $subjects = $query->orderBy('name')->paginate(15);
+        if ($request->filled('school_class_id')) {
+            $query->whereHas('classAssignments', function ($q) use ($request) {
+                $q->where('school_class_id', $request->school_class_id);
+            });
+        }
+        
+        if ($request->filled('group_id')) {
+            $query->whereHas('classAssignments', function ($q) use ($request) {
+                $q->where('group_id', $request->group_id);
+            });
+        }
+
+         $subjects = $query->orderBy('name')->paginate(100);
          $classes = $this->subjectService->getClassOptions();
          $groups = $this->subjectService->getGroupOptions();
 
          return view('pages.subjects.index', compact('subjects', 'classes', 'groups'));
      }
+
+    public function indexClasswise(Request $request)
+    {
+        $query = Subject::with(['classAssignments.schoolClass', 'classAssignments.group'])
+            ->withCount('papers');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('is_active')) {
+            $query->where('is_active', $request->is_active);
+        }
+
+        if ($request->filled('school_class_id')) {
+            $query->whereHas('classAssignments', function ($q) use ($request) {
+                $q->where('school_class_id', $request->school_class_id);
+            });
+        }
+        
+        if ($request->filled('group_id')) {
+            $query->whereHas('classAssignments', function ($q) use ($request) {
+                $q->where('group_id', $request->group_id);
+            });
+        }
+
+        $subjects = $query->orderBy('name')->get();
+
+        // Use plain array (not Collection) to avoid indirect modification error
+        $classwiseSubjects = [];
+
+        foreach ($subjects as $subject) {
+            foreach ($subject->classAssignments as $assignment) {
+                if (! $assignment->schoolClass) {
+                    continue;
+                }
+
+                $classKey = $assignment->schoolClass->id;
+                $groupKey = $assignment->group?->id ?? 'no_group';
+
+                if (! isset($classwiseSubjects[$classKey])) {
+                    $classwiseSubjects[$classKey] = [
+                        'class' => $assignment->schoolClass,
+                        'groups' => [],
+                    ];
+                }
+
+                if (! isset($classwiseSubjects[$classKey]['groups'][$groupKey])) {
+                    $classwiseSubjects[$classKey]['groups'][$groupKey] = [
+                        'group' => $assignment->group,
+                        'subjects' => collect(),
+                    ];
+                }
+
+                if (! $classwiseSubjects[$classKey]['groups'][$groupKey]['subjects']->contains('id', $subject->id)) {
+                    $classwiseSubjects[$classKey]['groups'][$groupKey]['subjects']->push($subject);
+                }
+            }
+        }
+
+        $classes = $this->subjectService->getClassOptions();
+        $groups = $this->subjectService->getGroupOptions();
+
+        return view('pages.subjects.index_classwise', compact('classwiseSubjects', 'classes', 'groups'));
+    }
 
     /**
      * Show the form for creating a new subject.

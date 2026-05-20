@@ -96,7 +96,7 @@
                                 <div>
                                     <label class="form-label text-xs font-medium">Group</label>
                                     <select name="group_id" class="form-control form-control-sm">
-                                        <option value="">No Group</option>
+                                        <option value="">Common</option>
                                         @foreach($groups as $g)
                                         <option value="{{ $g->id }}" @selected($g->id == $rec->group_id)>{{ $g->name_en }}</option>
                                         @endforeach
