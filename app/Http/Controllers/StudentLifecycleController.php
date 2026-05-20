@@ -26,7 +26,7 @@ class StudentLifecycleController extends Controller
     {
         return [
             'sessions' => AcademicSession::orderByDesc('id')->get(),
-            'classes'  => SchoolClass::orderBy('name_en')->get(),
+            'classes'  => SchoolClass::get(),
             'sections' => Section::orderBy('name_en')->get(),
             'groups'   => Group::orderBy('name_en')->get(),
         ];

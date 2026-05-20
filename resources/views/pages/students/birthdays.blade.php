@@ -131,20 +131,36 @@
 </div>
 @endsection
 
-@push('scripts')
+@section('scripts')
 <script>
-document.getElementById('classFilter').addEventListener('change', function () {
-    const classId = this.value;
-    const sectionSelect = document.getElementById('sectionFilter');
-    sectionSelect.innerHTML = '<option value="">All Sections</option>';
-    if (!classId) return;
-    fetch(`/ajax/sections-by-class?class_id=${classId}`)
-        .then(r => r.json())
-        .then(data => {
-            data.forEach(s => {
-                sectionSelect.innerHTML += `<option value="${s.id}">${s.name_en}</option>`;
-            });
+$(function () {
+    $('#classFilter').on('change', function () {
+        const classId = $(this).val();
+        const $sectionSelect = $('#sectionFilter');
+        $sectionSelect.html('<option value="">All Sections</option>');
+        if (window.refreshSelect2) window.refreshSelect2($sectionSelect);
+        if (!classId) return;
+
+        $.ajax({
+            url: `{{ route('load_section_groups') }}`,
+            type: 'GET',
+            data: {
+                school_class_id: classId
+            },
+            dataType: 'json',
+            success: function (data) {
+                const sections = (data && Array.isArray(data.sections)) ? data.sections : [];
+                sections.forEach(function (s) {
+                    $sectionSelect.append('<option value="' + s.id + '">' + s.name_en + '</option>');
+                });
+                if (window.refreshSelect2) window.refreshSelect2($sectionSelect);
+            },
+            error: function () {
+                $sectionSelect.html('<option value="">All Sections</option>');
+                if (window.refreshSelect2) window.refreshSelect2($sectionSelect);
+            }
         });
+    });
 });
 </script>
-@endpush
+@endsection

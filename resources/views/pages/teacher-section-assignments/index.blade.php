@@ -26,9 +26,9 @@
 
             <div class="card-body py-2">
                 <form method="POST" action="{{ route('teacher-section-assignments.store') }}"
-                    class="form-inline flex-wrap flex">
+                    class="form-inline d-flex align-items-center flex-wrap flex-md-nowrap tsa-assign-form">
                     @csrf
-                    <select name="user_id" class="form-control form-control-sm mr-2 mb-1" required>
+                    <select name="user_id" class="form-control form-control-sm mr-2 mb-1 tsa-teacher" required>
                         <option value="">Select Teacher</option>
                         @foreach ($teachers as $t)
                             <option value="{{ $t->id }}">
@@ -39,21 +39,23 @@
                         @endforeach
                     </select>
 
-                    <select name="session_id" class="form-control form-control-sm mr-2 mb-1" required>
+                    <select name="session_id" class="form-control form-control-sm mr-2 mb-1 tsa-session" required>
                         <option value="">Select Session</option>
                         @foreach ($sessions as $session)
                             <option value="{{ $session->id }}">{{ $session->name_en }}</option>
                         @endforeach
                     </select>
 
-                    <select name="class_id" id="tsa_class_id" class="form-control form-control-sm mr-2 mb-1" required>
+                    <select name="class_id" id="classSelect" class="form-control form-control-sm mr-2 mb-1 tsa-class"
+                        required>
                         <option value="">Select Class</option>
                         @foreach ($classes as $class)
                             <option value="{{ $class->id }}">{{ $class->name_en }}</option>
                         @endforeach
                     </select>
 
-                    <select name="section_id" id="tsa_section_id" class="form-control form-control-sm mr-2 mb-1" required>
+                    <select name="section_id" id="sectionSelect" class="form-control form-control-sm mr-2 mb-1 tsa-section"
+                        required>
                         <option value="">Select Section</option>
                     </select>
 
@@ -133,20 +135,69 @@
 @endsection
 
 @section('scripts')
+    <style>
+        @media (min-width: 768px) {
+            .tsa-assign-form {
+                flex-wrap: nowrap !important;
+                gap: 0.35rem;
+            }
+
+            .tsa-assign-form .form-control {
+                margin-right: 0 !important;
+                margin-bottom: 0 !important;
+            }
+
+            .tsa-assign-form .tsa-teacher {
+                width: 36%;
+            }
+
+            .tsa-assign-form .tsa-session {
+                width: 20%;
+            }
+
+            .tsa-assign-form .tsa-class {
+                width: 18%;
+            }
+
+            .tsa-assign-form .tsa-section {
+                width: 18%;
+            }
+
+            .tsa-assign-form .btn {
+                white-space: nowrap;
+                margin-bottom: 0 !important;
+            }
+        }
+    </style>
     <script>
-        document.getElementById('tsa_class_id').addEventListener('change', function() {
-            const classId = this.value;
-            const sectionSelect = document.getElementById('tsa_section_id');
-            sectionSelect.innerHTML = '<option value="">Select Section</option>';
-            if (!classId) return;
-            fetch(`/ajax/sections-by-class?class_id=${classId}`)
-                .then(r => r.json())
-                .then(data => {
-                    data.forEach(s => {
-                        sectionSelect.insertAdjacentHTML('beforeend',
-                            `<option value="${s.id}">${s.name_en}</option>`);
+        $(function() {
+            $('#classSelect').on('change', function() {
+                const classId = $(this).val();
+                const $sectionSelect = $('#sectionSelect');
+                $sectionSelect.html('<option value="">Select Section</option>');
+                if (window.refreshSelect2) window.refreshSelect2($sectionSelect);
+                if (!classId) return;
+
+                $.ajax({
+                    url: `{{ route('load_section_groups') }}`,
+                    type: 'GET',
+                    data: {
+                        school_class_id: classId
+                    },
+                dataType: 'json',
+                success: function(data) {
+                    const sections = (data && Array.isArray(data.sections)) ? data.sections : [];
+                    sections.forEach(function(s) {
+                        $sectionSelect.append('<option value="' + s.id + '">' + s.name_en + '</option>');
                     });
+                    if (window.refreshSelect2) window.refreshSelect2($sectionSelect);
+                },
+                    error: function() {
+                        $sectionSelect.html('<option value="">Select Section</option>');
+                        if (window.refreshSelect2) window.refreshSelect2($sectionSelect);
+                    }
                 });
+            });
         });
     </script>
 @endsection

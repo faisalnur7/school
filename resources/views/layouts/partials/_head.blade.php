@@ -49,6 +49,110 @@
             height: auto;
         }
 
+        /* Global unified form UI */
+        form .form-control,
+        form .form-select,
+        form .custom-select,
+        form textarea,
+        form input[type="text"],
+        form input[type="email"],
+        form input[type="number"],
+        form input[type="password"],
+        form input[type="date"],
+        form input[type="month"],
+        form input[type="time"],
+        form input[type="file"],
+        form select {
+            border-radius: 0.375rem;
+            border: 1px solid #d7dee8;
+            min-height: 38px;
+            font-size: 0.875rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+
+        form .form-control-sm,
+        form .form-select-sm,
+        form .custom-select-sm,
+        form select.form-control-sm,
+        form input.form-control-sm {
+            min-height: 31px;
+            font-size: 0.8rem;
+            border-radius: 0.3rem;
+        }
+
+        form textarea.form-control,
+        form textarea {
+            min-height: 90px;
+        }
+
+        form .form-control:focus,
+        form .form-select:focus,
+        form .custom-select:focus,
+        form textarea:focus,
+        form input:focus,
+        form select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.15rem rgba(102, 126, 234, 0.15);
+        }
+
+        form label,
+        form .form-label {
+            color: #2e3338;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        form .input-group-text {
+            border: 1px solid #d7dee8;
+            background-color: #f8fafc;
+            color: #5b6573;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        form .btn {
+            border-radius: 0.375rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        form .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+
+        form .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        form .btn-secondary {
+            border: none;
+        }
+
+        form .is-invalid,
+        form .form-control.is-invalid,
+        form .form-select.is-invalid {
+            border-color: #dc3545 !important;
+        }
+
+        form .invalid-feedback {
+            display: block;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 576px) {
+            form .form-control,
+            form .form-select,
+            form .custom-select,
+            form input,
+            form select,
+            form textarea {
+                font-size: 0.82rem;
+            }
+        }
+
         .card-header {
             background: linear-gradient(90deg, #252f51, #212529) !important;
         }
