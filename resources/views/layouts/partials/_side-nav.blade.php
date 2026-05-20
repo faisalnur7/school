@@ -189,17 +189,6 @@
                 </li>
                 @endif
 
-                <!-- Reports -->
-                @if(auth()->user()?->hasPermission('view_reports_hub'))
-                <li class="nav-item">
-                    <a href="{{ route('reports.hub') }}"
-                       class="nav-link {{ request()->routeIs('reports.hub', 'reports.student-payment', 'reports.student-payment.pdf') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-chart-bar"></i>
-                        <p>Reports</p>
-                    </a>
-                </li>
-                @endif
-
                 <!-- Location Settings -->
                 @if(auth()->user()?->hasPermission('view_location_settings'))
                 <li class="nav-item">

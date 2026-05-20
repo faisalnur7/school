@@ -4,15 +4,27 @@
     <meta charset="UTF-8">
     <title>Receipt {{ $payment->receipt_no }}</title>
     <style>
+        :root {
+            --bg: #eef2f7;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #475569;
+            --line: #dbe3ef;
+            --line-strong: #94a3b8;
+            --accent: #0f766e;
+            --accent-soft: #ecfeff;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Courier New', monospace;
-            background: #e5e5e5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top, #f8fbff 0%, var(--bg) 48%, #e2e8f0 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 40px 20px;
+            color: var(--text);
         }
 
         /* ── Print Controls ── */
@@ -23,28 +35,27 @@
         }
 
         .btn-print {
-            background: #111;
+            background: var(--accent);
             color: #fff;
             border: none;
             padding: 11px 28px;
-            border-radius: 6px;
+            border-radius: 10px;
             font-size: 13px;
             font-weight: 700;
             cursor: pointer;
             letter-spacing: .06em;
-            font-family: 'Courier New', monospace;
+            box-shadow: 0 8px 20px rgba(15, 118, 110, .25);
         }
 
         .btn-close-win {
             background: #fff;
-            color: #555;
-            border: 1.5px solid #ccc;
+            color: #334155;
+            border: 1px solid #cbd5e1;
             padding: 11px 20px;
-            border-radius: 6px;
+            border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            font-family: 'Courier New', monospace;
         }
 
         /* ── Side-by-side wrapper ── */
@@ -52,8 +63,11 @@
             display: flex;
             align-items: stretch;
             gap: 0;
-            background: #fff;
-            border: 1px solid #bbb;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 48px rgba(15, 23, 42, .12);
         }
 
         /* ── Single slip column ── */
@@ -61,19 +75,20 @@
             width: 380px;
             display: flex;
             flex-direction: column;
+            background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
         }
 
         /* ── Copy Label ── */
         .copy-label {
-            background: #fff;
-            color: #000;
+            background: #f8fafc;
+            color: #334155;
             text-align: center;
             font-size: 10px;
             font-weight: 700;
             letter-spacing: .2em;
-            padding: 6px 0;
+            padding: 8px 0;
             text-transform: uppercase;
-            border-bottom: 1.5px solid #000;
+            border-bottom: 1px solid var(--line);
         }
 
         /* ── Vertical Perforation ── */
@@ -85,7 +100,7 @@
             justify-content: center;
             position: relative;
             flex-shrink: 0;
-            background: #fff;
+            background: #f8fafc;
         }
 
         .v-perforation::before {
@@ -96,7 +111,7 @@
             left: 50%;
             transform: translateX(-50%);
             width: 0;
-            border-left: 2px dashed #aaa;
+            border-left: 2px dashed var(--line-strong);
         }
 
         .v-perf-label {
@@ -105,7 +120,7 @@
             transform: rotate(180deg);
             font-size: 9px;
             letter-spacing: .18em;
-            color: #999;
+            color: #64748b;
             font-weight: 700;
             background: #fff;
             padding: 8px 0;
@@ -115,7 +130,7 @@
 
         .v-scissors {
             font-size: 14px;
-            color: #888;
+            color: #64748b;
             background: #fff;
             padding: 4px 0;
             z-index: 1;
@@ -139,29 +154,31 @@
         .school-logo-box {
             width: 50px;
             height: 50px;
-            border: 2px solid #111;
+            border: 1px solid var(--line-strong);
+            border-radius: 10px;
+            background: var(--accent-soft);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 17px;
             font-weight: 900;
-            color: #111;
+            color: var(--accent);
             flex-shrink: 0;
         }
 
         .school-info { flex: 1; }
 
         .school-name {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 900;
-            letter-spacing: .06em;
+            letter-spacing: .04em;
             text-transform: uppercase;
-            color: #111;
+            color: var(--text);
         }
 
         .school-sub {
             font-size: 9.5px;
-            color: #666;
+            color: var(--muted);
             letter-spacing: .05em;
             margin-top: 2px;
         }
@@ -171,7 +188,7 @@
         .receipt-tag-label {
             font-size: 8.5px;
             letter-spacing: .14em;
-            color: #888;
+            color: #64748b;
             text-transform: uppercase;
             font-weight: 700;
         }
@@ -179,20 +196,20 @@
         .receipt-tag-no {
             font-size: 15px;
             font-weight: 900;
-            color: #111;
+            color: var(--accent);
             letter-spacing: .03em;
         }
 
         /* ── Dividers ── */
         .divider-solid {
             border: none;
-            border-top: 2px solid #111;
+            border-top: 2px solid var(--line-strong);
             margin: 10px 0;
         }
 
         .divider-dash {
             border: none;
-            border-top: 1.5px dashed #bbb;
+            border-top: 1.5px dashed var(--line);
             margin: 8px 0;
         }
 
@@ -207,7 +224,7 @@
         .info-cell .lbl {
             font-size: 8.5px;
             letter-spacing: .1em;
-            color: #888;
+            color: #64748b;
             text-transform: uppercase;
             font-weight: 700;
         }
@@ -215,7 +232,7 @@
         .info-cell .val {
             font-size: 11.5px;
             font-weight: 700;
-            color: #111;
+            color: var(--text);
             margin-top: 1px;
         }
 
@@ -227,14 +244,14 @@
         }
 
         .items-table thead tr {
-            border-top: 1.5px solid #111;
-            border-bottom: 1.5px solid #111;
+            border-top: 1px solid var(--line-strong);
+            border-bottom: 1px solid var(--line-strong);
         }
 
         .items-table th {
             font-size: 8.5px;
             letter-spacing: .1em;
-            color: #333;
+            color: #334155;
             text-transform: uppercase;
             font-weight: 900;
             padding: 5px 0;
@@ -244,9 +261,9 @@
 
         .items-table td {
             font-size: 11.5px;
-            color: #222;
+            color: #1e293b;
             padding: 5px 0;
-            border-bottom: 1px dashed #ddd;
+            border-bottom: 1px dashed var(--line);
         }
 
         .items-table td:last-child {
@@ -259,7 +276,7 @@
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            border-top: 2px solid #111;
+            border-top: 1px solid var(--line-strong);
             margin-top: 10px;
             padding-top: 10px;
         }
@@ -269,19 +286,19 @@
             font-weight: 900;
             letter-spacing: .1em;
             text-transform: uppercase;
-            color: #111;
+            color: #0f172a;
         }
 
         .total-val {
             font-size: 24px;
             font-weight: 900;
-            color: #111;
+            color: var(--accent);
         }
 
         .total-currency {
             font-size: 12px;
             font-weight: 700;
-            color: #555;
+            color: #475569;
             margin-right: 3px;
         }
 
@@ -297,18 +314,19 @@
             font-size: 10px;
             font-weight: 900;
             letter-spacing: .12em;
-            color: #111;
-            border: 2.5px solid #111;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            background: var(--accent-soft);
             padding: 3px 12px;
-            border-radius: 3px;
-            transform: rotate(-4deg);
+            border-radius: 999px;
+            transform: rotate(-3deg);
             display: inline-block;
         }
 
         .signature-line { text-align: right; }
 
         .sig-line {
-            border-top: 1px solid #aaa;
+            border-top: 1px solid #94a3b8;
             width: 100px;
             margin-left: auto;
             margin-bottom: 3px;
@@ -317,7 +335,7 @@
         .sig-label {
             font-size: 8.5px;
             letter-spacing: .08em;
-            color: #aaa;
+            color: #64748b;
             text-transform: uppercase;
         }
 
@@ -325,10 +343,10 @@
         .slip-footer {
             text-align: center;
             font-size: 9px;
-            color: #aaa;
+            color: #64748b;
             letter-spacing: .05em;
             margin-top: 14px;
-            border-top: 1px dashed #ddd;
+            border-top: 1px dashed var(--line);
             padding-top: 9px;
         }
 
@@ -336,6 +354,17 @@
             display: flex;
             flex-direction: row;
             gap: 12px;
+        }
+
+        .school-header-main{
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .school-header-meta{
+            margin-top: 6px;
         }
 
         /* ══════════════════
@@ -352,6 +381,8 @@
             .slips-row {
                 border: none;
                 width: 100%;
+                box-shadow: none;
+                border-radius: 0;
             }
 
             .slip-col {
@@ -373,7 +404,7 @@
 
     {{-- ── Print Controls ── --}}
     <div class="no-print">
-        <button class="btn-print" onclick="window.print()">🖨 &nbsp;PRINT RECEIPT</button>
+        <button class="btn-print" onclick="window.print()">Print Receipt</button>
         <button class="btn-close-win" onclick="window.close()">✕ Close</button>
     </div>
 

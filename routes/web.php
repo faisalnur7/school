@@ -410,8 +410,9 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::middleware('permission:view_student_payment_report')->group(function () {
-        Route::get('/reports/student-payment', [ReportController::class, 'student'])->name('reports.student-payment');
-        Route::get('/reports/student', [ReportController::class, 'student'])->name('reports.student');
+        Route::get('/reports/student-payment', [\App\Http\Controllers\StudentPaymentReportController::class, 'index'])->name('reports.student-payment');
+        Route::get('/reports/student-payment/pdf', [\App\Http\Controllers\StudentPaymentReportController::class, 'pdf'])->name('reports.student-payment.pdf');
+        Route::get('/reports/student', [\App\Http\Controllers\StudentPaymentReportController::class, 'index'])->name('reports.student');
     });
 
     // ------------------- Fees & Accounts -------------------

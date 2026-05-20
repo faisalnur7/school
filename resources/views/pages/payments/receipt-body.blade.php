@@ -11,24 +11,28 @@
     ]);
 @endphp
 <div class="school-logo-row">
-    <div class="school-logo-and-name">
-        @if($setting?->logo)
-            <img src="{{ asset($setting->logo) }}" style="width:50px;height:50px;object-fit:contain;flex-shrink:0">
-        @else
-            <div class="school-logo-box">{{ strtoupper(substr($schoolName, 0, 1)) }}</div>
-        @endif
-        <div class="school-info">
-            <div class="school-name">{{ $schoolName }}</div>
-            @if($schoolAddress)<div class="school-sub">{{ $schoolAddress }}</div>@endif
-            @if(count($contactParts))
-                <div class="school-sub">{{ implode(' | ', $contactParts) }}</div>
+    <div class="school-header-main">
+        <div class="school-logo-and-name">
+            @if($setting?->logo)
+                <img src="{{ asset($setting->logo) }}" style="width:50px;height:50px;object-fit:contain;flex-shrink:0">
+            @else
+                <div class="school-logo-box">{{ strtoupper(substr($schoolName, 0, 1)) }}</div>
             @endif
-            <div class="school-sub" style="margin-top:3px;font-weight:700;letter-spacing:.1em">FEE PAYMENT RECEIPT</div>
+            <div class="school-info">
+                <div class="school-name">{{ $schoolName }}</div>
+            </div>
         </div>
     </div>
-    <div class="receipt-tag">
-        <div class="receipt-tag-label">Receipt No.</div>
-        <div class="receipt-tag-no">{{ $payment->receipt_no }}</div>
+    <div class="school-header-meta">
+        @if($schoolAddress)<div class="school-sub">{{ $schoolAddress }}</div>@endif
+        @if(count($contactParts))
+            <div class="school-sub">{{ implode(' | ', $contactParts) }}</div>
+        @endif
+        <div class="receipt-tag" style="margin-top:5px;">
+            <div class="receipt-tag-label">Receipt No.</div>
+            <div class="receipt-tag-no">{{ $payment->receipt_no }}</div>
+        </div>
+        <div class="school-sub" style="margin-top:3px;font-weight:700;letter-spacing:.1em">FEE PAYMENT RECEIPT</div>
     </div>
 </div>
 
@@ -152,7 +156,7 @@
 
     @if($hasScholarship)
         <div style="display:flex;justify-content:space-between;font-size:11px;color:#059669;margin-bottom:4px">
-            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">🎓 Scholarship</span>
+            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Scholarship</span>
             <span>- BDT {{ number_format($payment->scholarship_amount, 2) }}</span>
         </div>
     @endif
