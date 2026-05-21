@@ -6,6 +6,17 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: sans-serif; font-size: 11px; color: #1e293b; }
 
+    .school-header-wrap { border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; }
+    .school-header-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .school-header-table td { border: 0 !important; padding: 0 !important; vertical-align: middle; }
+    .school-header-logo-cell { width: 62px; }
+    .school-header-info-cell { padding-left: 10px !important; }
+    .school-logo-box { width: 52px; height: 52px; border: 1px solid #cbd5e1; border-radius: 8px; text-align: center; vertical-align: middle; line-height: 50px; overflow: hidden; background: #fff; }
+    .school-logo-img { max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle; }
+    .school-logo-fallback { font-size: 20px; font-weight: 700; color: #334155; }
+    .school-title { font-size: 16px; font-weight: 700; color: #0f172a; margin-top: 1px; }
+    .school-line { font-size: 10px; color: #334155; margin-top: 2px; }
+
     .pdf-header { background: #1e293b; color: #fff; padding: 10px 14px; margin-bottom: 12px; }
     .pdf-header h1 { font-size: 15px; font-weight: 700; margin: 0; }
     .pdf-header .meta { font-size: 10px; color: #94a3b8; margin-top: 2px; }
@@ -42,6 +53,7 @@
 </style>
 </head>
 <body>
+@include('partials.report-pdf-header')
 <div class="pdf-header">
     <h1>{{ $title }}</h1>
     <div class="meta">{{ $subtitle ?? '' }} &nbsp;|&nbsp; Generated: {{ now()->format('d M Y, h:i A') }}</div>

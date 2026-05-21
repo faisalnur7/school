@@ -78,8 +78,8 @@
                     </span>
                     @endif
                     <button type="button"
-                        class="btn btn-sm {{ $hasDues ? 'btn-secondary' : 'btn-danger' }}"
-                        @if($hasDues) disabled title="Clear all dues before checkout" @else onclick="toggleCheckout({{ $rec->id }})" @endif>
+                        class="btn btn-sm btn-danger"
+                        onclick="toggleCheckout({{ $rec->id }})">
                         <i class="fas fa-sign-out-alt mr-1"></i> Checkout
                     </button>
                 </div>
@@ -123,8 +123,6 @@
             </div>
             @endif
 
-            {{-- Checkout Form (hidden until toggled) --}}
-            @if(!$hasDues)
             <div id="checkout-{{ $rec->id }}" class="hidden border-t border-slate-100 bg-slate-50 px-4 py-4">
                 <form method="POST" action="{{ route('students.checkout.store', $rec->id) }}">
                     @csrf
@@ -134,6 +132,11 @@
                     </div>
                     @endif
                     <input type="hidden" name="_rec_id" value="{{ $rec->id }}">
+                    @if($hasDues)
+                    <div class="bg-yellow-50 border border-yellow-300 text-yellow-800 px-3 py-2 rounded mb-3 text-sm">
+                        This student has pending dues (৳{{ number_format($rec->totalDue, 2) }}). To continue checkout now, enable Immediate Checkout below. Remaining unpaid fees will be unassigned.
+                    </div>
+                    @endif
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                         <div>
                             <label class="form-label text-xs font-semibold">Checkout Type <span class="text-red-500">*</span></label>
@@ -154,6 +157,14 @@
                             <input type="text" name="notes" class="form-control form-control-sm" placeholder="Optional notes">
                         </div>
                     </div>
+                    @if($hasDues)
+                    <div class="mt-3">
+                        <label class="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="immediate_checkout" value="1">
+                            <span>Immediate Checkout (unassign all remaining unpaid fees)</span>
+                        </label>
+                    </div>
+                    @endif
                     <div class="flex gap-2 mt-3">
                         <button type="submit" class="btn btn-sm btn-danger"
                             onclick="return confirm('Confirm checkout for {{ addslashes($rec->student->full_name_en) }}?')">
@@ -163,7 +174,6 @@
                     </div>
                 </form>
             </div>
-            @endif
         </div>
         @endforeach
     </div>

@@ -168,6 +168,7 @@ class StudentLifecycleController extends Controller
                 ->get()
                 ->map(function ($rec) {
                     $rec->pendingFees = Fee::where('student_id', $rec->student_id)
+                        ->where('is_active', 1)
                         ->where('status', '!=', 'paid')
                         ->whereRaw('(amount - COALESCE(scholarship_discount,0) - COALESCE(paid_amount,0)) > 0')
                         ->with('feeSet')
@@ -189,6 +190,7 @@ class StudentLifecycleController extends Controller
             'checkout_type' => 'required|in:transferred,graduated,withdrawn,expelled',
             'checkout_date' => 'required|date',
             'notes'         => 'nullable|string|max:1000',
+            'immediate_checkout' => 'nullable|boolean',
         ]);
 
         $record = StudentAcademicInformation::where('id', $id)
@@ -197,26 +199,62 @@ class StudentLifecycleController extends Controller
             ->firstOrFail();
 
         $totalDue = Fee::where('student_id', $record->student_id)
+            ->where('is_active', 1)
             ->where('status', '!=', 'paid')
             ->whereRaw('(amount - COALESCE(scholarship_discount,0) - COALESCE(paid_amount,0)) > 0')
             ->sum(DB::raw('amount - COALESCE(scholarship_discount,0) - COALESCE(paid_amount,0)'));
 
-        if ($totalDue > 0) {
+        $isImmediateCheckout = $request->boolean('immediate_checkout');
+
+        if ($totalDue > 0 && ! $isImmediateCheckout) {
             return back()->withErrors([
-                'checkout_type' => 'Cannot checkout: student has pending dues of ' . number_format($totalDue, 2) . '. Please clear all fees first.',
+                'checkout_type' => 'Cannot checkout: student has pending dues of ' . number_format($totalDue, 2) . '. Please clear all fees first or use Immediate Checkout.',
             ]);
         }
 
-        DB::transaction(function () use ($record, $request) {
+        DB::transaction(function () use ($record, $request, $isImmediateCheckout) {
+            if ($isImmediateCheckout) {
+                Fee::where('student_id', $record->student_id)
+                    ->where('is_active', 1)
+                    ->where('status', '!=', 'paid')
+                    ->whereRaw('(amount - COALESCE(scholarship_discount,0) - COALESCE(paid_amount,0)) > 0')
+                    ->update(['is_active' => 0]);
+            }
+
             $record->update([
                 'academic_status' => $request->checkout_type,
                 'is_current'      => false,
                 'checkout_date'   => $request->checkout_date,
                 'notes'           => $request->notes,
             ]);
+
+            Student::where('id', $record->student_id)->update([
+                'status' => 0,
+            ]);
         });
 
         return redirect()->route('students.checkout')->with('success', 'Student checked out. Record preserved for history.');
+    }
+
+    public function checkedOutIndex(Request $request)
+    {
+        $records = StudentAcademicInformation::with(['student', 'academicSession', 'schoolClass', 'section', 'group'])
+            ->where('is_current', false)
+            ->whereIn('academic_status', ['transferred', 'graduated', 'withdrawn', 'expelled'])
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $search = trim($request->search);
+                $q->whereHas('student', function ($sq) use ($search) {
+                    $sq->where('full_name_en', 'like', "%{$search}%")
+                        ->orWhere('full_name_bn', 'like', "%{$search}%")
+                        ->orWhere('student_cid', 'like', "%{$search}%");
+                });
+            })
+            ->orderByDesc('checkout_date')
+            ->orderByDesc('id')
+            ->paginate(25)
+            ->withQueryString();
+
+        return view('pages.students.lifecycle.checked-out', compact('records'));
     }
 
     // ─── E. Academic History ─────────────────────────────────────────────────

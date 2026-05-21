@@ -12,6 +12,8 @@
         $endTotCr = collect($rows)->sum(fn($r) => isset($r['balance_only']) ? 0 : $r['beg_credit'] + $r['per_credit']);
     @endphp
     <div class="container-fluid">
+    @include('partials.report-header')
+
         <div class="card">
             <div class="card-header shadow p-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h3 class="card-title text-white pl-3 mb-0 text-lg" style="font-size:15px">

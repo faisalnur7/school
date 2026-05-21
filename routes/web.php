@@ -300,6 +300,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/students/correction/{id}', [\App\Http\Controllers\StudentLifecycleController::class, 'correctionUpdate'])->name('students.correction.update');
         Route::get('/students/checkout', [\App\Http\Controllers\StudentLifecycleController::class, 'checkoutIndex'])->name('students.checkout');
         Route::post('/students/checkout/{id}', [\App\Http\Controllers\StudentLifecycleController::class, 'checkoutStore'])->name('students.checkout.store');
+        Route::get('/students/checked-out', [\App\Http\Controllers\StudentLifecycleController::class, 'checkedOutIndex'])->name('students.checked-out');
         Route::get('/students/history', [\App\Http\Controllers\StudentLifecycleController::class, 'historyIndex'])->name('students.history');
         Route::get('/students/history/{student}', [\App\Http\Controllers\StudentLifecycleController::class, 'historyShow'])->name('students.history.show');
         Route::get('/students/certificates', [\App\Http\Controllers\StudentLifecycleController::class, 'certificateIndex'])->name('students.certificates');

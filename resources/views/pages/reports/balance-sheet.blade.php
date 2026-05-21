@@ -1,6 +1,8 @@
 @extends('layouts.master')
 @section('contents')
     <div class="container-fluid">
+    @include('partials.report-header')
+
         <div class="card">
             <div class="card-header shadow p-0 flex justify-between items-center">
                 <h3 class="card-title flex text-white pl-3 text-medium">Balance Sheet — {{ $year }}</h3>

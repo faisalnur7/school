@@ -168,7 +168,7 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
 
-                                <form action="{{ route('students.destroy', $student->id) }}" method="POST"
+                                <form action="{{ route('students.delete', $student->id) }}" method="POST"
                                     style="display:inline;" onsubmit="return confirm('Delete this student?')">
                                     @csrf
                                     @method('DELETE')
