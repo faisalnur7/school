@@ -87,6 +87,7 @@ use App\Http\Controllers\{
     PoliceStationController,
     PostOfficeController,
     ProfileController,
+    AccountSettingsController,
     StudentDueReportController,
     BuildingController,
     RoomController,
@@ -108,6 +109,7 @@ use App\Http\Controllers\{
 };
 
 Route::get('/reboot', function () {
+    Artisan::call('optimize:clear');
     Artisan::call('cache:clear');
     Artisan::call('route:clear');
     Artisan::call('config:clear');
@@ -119,14 +121,21 @@ Route::get('/reboot', function () {
     return 'rebooted & caches cleared!';
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::prefix('account')->name('account.')->group(function () {
+        Route::get('/profile', [AccountSettingsController::class, 'editProfile'])->name('profile.edit');
+        Route::put('/profile', [AccountSettingsController::class, 'updateProfile'])->name('profile.update');
+        Route::get('/change-password', [AccountSettingsController::class, 'editPassword'])->name('password.edit');
+        Route::put('/change-password', [AccountSettingsController::class, 'updatePassword'])->name('password.update');
+        Route::get('/change-password/verify', [AccountSettingsController::class, 'showVerifyPasswordCode'])->name('password.verify.form');
+        Route::post('/change-password/verify', [AccountSettingsController::class, 'verifyPasswordCode'])->name('password.verify.submit');
+        Route::get('/leave/apply', [AccountSettingsController::class, 'createLeave'])->name('leave.create');
+        Route::post('/leave/apply', [AccountSettingsController::class, 'storeLeave'])->name('leave.store');
+    });
 });
 
 require __DIR__.'/auth.php';
@@ -346,6 +355,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::middleware('permission:manage_attendance')->prefix('attendance/settings')->name('attendance.settings.')->group(function () {
         Route::get('/', [\App\Http\Controllers\AttendanceSettingsController::class, 'index'])->name('index');
+        Route::post('/access', [\App\Http\Controllers\AttendanceSettingsController::class, 'saveAccess'])->name('access');
         Route::post('/weekends', [\App\Http\Controllers\AttendanceSettingsController::class, 'saveWeekends'])->name('weekends');
         Route::post('/holidays', [\App\Http\Controllers\AttendanceSettingsController::class, 'storeHoliday'])->name('holidays.store');
         Route::delete('/holidays/{holiday}', [\App\Http\Controllers\AttendanceSettingsController::class, 'destroyHoliday'])->name('holidays.destroy');
@@ -532,7 +542,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/fees/collect', [FeeCollectionController::class, 'index'])->name('fees.collect');
         Route::get('/fees/collect_payment/{student_id}', [FeeCollectionController::class, 'collect_payment'])->name('fees.collect_payment');
         Route::post('/fees/switch-student', [FeeCollectionController::class, 'switchStudent'])->name('fees.switch_student');
-        Route::get('/fees/search-student', [FeeCollectionController::class, 'search'])->name('fees.search');
+        Route::get('/fees/search-student', [FeeCollectionController::class, 'search'])->name('fees.search-student');
         Route::post('/fees/pay', [FeeCollectionController::class, 'pay'])->name('fees.pay');
         Route::get('/fees/category-pay', [FeeCollectionController::class, 'categoryPay'])->name('fees.category.pay');
         Route::get('/fees/load-category-fees', [FeeCollectionController::class, 'loadCategoryFees'])->name('fees.load.category');
@@ -616,18 +626,21 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/', [\App\Http\Controllers\ProgressReportController::class, 'index'])->name('index');
         Route::post('/', [\App\Http\Controllers\ProgressReportController::class, 'show'])->name('show');
         Route::get('/pdf', [\App\Http\Controllers\ProgressReportController::class, 'pdf'])->name('pdf');
+        Route::post('/send-email', [\App\Http\Controllers\ProgressReportController::class, 'sendEmail'])->name('email');
     });
 
     Route::middleware('permission:view_card_yearly_final_report')->prefix('result/yearly-final-report')->name('result.yearly-final-report.')->group(function () {
         Route::get('/', [\App\Http\Controllers\YearlyFinalReportController::class, 'index'])->name('index');
         Route::post('/', [\App\Http\Controllers\YearlyFinalReportController::class, 'show'])->name('show');
         Route::get('/pdf', [\App\Http\Controllers\YearlyFinalReportController::class, 'pdf'])->name('pdf');
+        Route::post('/send-email', [\App\Http\Controllers\YearlyFinalReportController::class, 'sendEmail'])->name('email');
     });
 
     Route::middleware('permission:view_results')->prefix('result/tutorial-report')->name('result.tutorial-report.')->group(function () {
         Route::get('/', [\App\Http\Controllers\TutorialReportController::class, 'index'])->name('index');
         Route::post('/', [\App\Http\Controllers\TutorialReportController::class, 'show'])->name('show');
         Route::get('/pdf', [\App\Http\Controllers\TutorialReportController::class, 'pdf'])->name('pdf');
+        Route::post('/send-email', [\App\Http\Controllers\TutorialReportController::class, 'sendEmail'])->name('email');
     });
 
     Route::middleware('permission:view_results')->prefix('results')->group(function () {

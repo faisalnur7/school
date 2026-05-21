@@ -46,10 +46,10 @@
                             <td>
                                 @if ($student->image)
                                     <img src="{{ asset($student->image) }}" alt="{{ $student->full_name_en }}"
-                                        class="rounded-circle" width="40" height="40" style="object-fit: cover;">
+                                        class="elevation-1" width="64" height="64" style="object-fit: cover; border-radius: 12px;">
                                 @else
-                                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
-                                        style="width: 40px; height: 40px; font-size: 16px;">
+                                    <div class="bg-secondary d-flex align-items-center justify-content-center text-white elevation-1"
+                                        style="width: 64px; height: 64px; font-size: 20px; border-radius: 12px;">
                                         {{ strtoupper(substr($student->full_name_en, 0, 1)) }}
                                     </div>
                                 @endif

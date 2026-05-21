@@ -575,11 +575,26 @@ class StudentController extends Controller
      */
     private function validateData(Request $request): array
     {
+        if ($request->filled('date_of_birth')) {
+            $dob = trim((string) $request->date_of_birth);
+
+            foreach (['d/m/Y', 'd-m-Y'] as $format) {
+                try {
+                    $request->merge([
+                        'date_of_birth' => Carbon::createFromFormat($format, $dob)->format('Y-m-d')
+                    ]);
+                    break;
+                } catch (\Throwable $e) {
+                    // Keep original value and continue trying other formats.
+                }
+            }
+        }
+
         $validated = $request->validate([
             // ================= BASIC INFO =================
             'full_name_bn' => 'nullable|string|max:255',
             'full_name_en' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:100',
             'date_of_birth' => 'nullable|date',
             'gender' => 'nullable|integer',
             'birth_certificate_number' => 'nullable|string|max:255',

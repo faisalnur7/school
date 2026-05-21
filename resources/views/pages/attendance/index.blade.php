@@ -14,6 +14,17 @@
                 <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
             </div>
         @endif
+        <div class="alert {{ $isOpenForAll ? 'alert-info' : 'alert-warning' }} d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Attendance Access:</strong>
+                {{ $isOpenForAll
+                    ? 'Open for all users with attendance permission.'
+                    : 'Restricted to assigned class/section only.' }}
+            </div>
+            <a href="{{ route('attendance.settings.index') }}" class="btn btn-sm btn-outline-dark">
+                <i class="fas fa-cog mr-1"></i>Settings
+            </a>
+        </div>
 
         <div class="card shadow-sm border-0 mb-3">
             <div class="card-header bg-gradient-primary text-white py-3">

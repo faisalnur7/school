@@ -19,7 +19,7 @@ class EmployeeDocumentController extends Controller
     {
         $request->validate([
             'document_type' => 'required|in:nid,passport,certificate,contract,photo_id,other',
-            'file'          => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+            'file'          => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:100',
         ]);
 
         $file         = $request->file('file');

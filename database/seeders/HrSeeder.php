@@ -110,7 +110,7 @@ class HrSeeder extends Seeder
 
         $empMap = [];
         foreach ($employees as $e) {
-            $email = strtolower(str_replace([' ', '.'], ['_', ''], $e['name'])) . '@school.edu';
+            $email = strtolower(str_replace([' ', '.'], ['_', ''], $e['name'])) . '@gmail.com';
             $user  = User::firstOrCreate(
                 ['email' => $email],
                 ['name' => $e['name'], 'password' => Hash::make('password')]

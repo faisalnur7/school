@@ -96,6 +96,7 @@
                             <th>Pair 3 Weighted ({{ $pairWeights[3] ?? 0 }}%)</th>
                             <th>Grand Total</th>
                             <th>Position</th>
+                            <th class="no-print">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -110,6 +111,22 @@
                             <td>{{ $row['totals'][3]['weighted'] ?? 0 }}</td>
                             <td>{{ $row['grand_total'] }}</td>
                             <td>{{ $row['position'] }}</td>
+                            <td class="no-print">
+                                <span class="badge mr-1 js-email-status {{ !empty($statusMap[$row['student']->id]) ? 'badge-success' : 'badge-secondary' }}"
+                                    id="yearly-email-status-{{ $row['student']->id }}">
+                                    {{ !empty($statusMap[$row['student']->id]) ? 'Sent' : 'Not Sent' }}
+                                </span>
+                                <button type="button"
+                                    class="btn btn-sm btn-success js-send-result-email"
+                                    data-url="{{ route('result.yearly-final-report.email') }}"
+                                    data-student-id="{{ $row['student']->id }}"
+                                    data-session-id="{{ $filters['session_id'] ?? '' }}"
+                                    data-class-id="{{ $filters['class_id'] ?? '' }}"
+                                    data-section-id="{{ $filters['section_id'] ?? '' }}"
+                                    data-status-id="yearly-email-status-{{ $row['student']->id }}">
+                                    <i class="fas fa-envelope mr-1"></i>Send
+                                </button>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -125,4 +142,53 @@
 @endsection
 @section('scripts')
     @include('scripts.common.load_academic_information')
+    <script>
+        document.querySelectorAll('.js-send-result-email').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                if (btn.dataset.sending === '1') return;
+                btn.dataset.sending = '1';
+                btn.disabled = true;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Sending...';
+
+                const payload = {
+                    session_id: btn.dataset.sessionId,
+                    class_id: btn.dataset.classId,
+                    section_id: btn.dataset.sectionId || null,
+                    student_id: btn.dataset.studentId,
+                };
+
+                try {
+                    const res = await fetch(btn.dataset.url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (!res.ok || !data.ok) {
+                        throw new Error(data.message || 'Failed to send email.');
+                    }
+
+                    const statusEl = document.getElementById(btn.dataset.statusId);
+                    if (statusEl) {
+                        statusEl.classList.remove('badge-secondary');
+                        statusEl.classList.add('badge-success');
+                        statusEl.textContent = 'Sent';
+                    }
+                    btn.innerHTML = '<i class="fas fa-check mr-1"></i>Sent';
+                } catch (e) {
+                    alert(e.message || 'Failed to send email.');
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                } finally {
+                    btn.dataset.sending = '0';
+                }
+            });
+        });
+    </script>
 @endsection

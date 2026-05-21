@@ -5,12 +5,6 @@
       <li class="nav-item">
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a href="index3.html" class="nav-link">Home</a>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a href="#" class="nav-link">Contact</a>
-      </li>
     </ul>
 
     <!-- Right navbar links -->
@@ -51,13 +45,13 @@
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
-          <i class="far fa-user"></i>
+          <img src="{{ auth()->user()->image_url }}" alt="User" class="img-circle" style="width:28px;height:28px;object-fit:cover;">
         </a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
           <a href="#" class="dropdown-item">
             <!-- Message Start -->
             <div class="media">
-              <img src="{{asset('assets/dist/img/user1-128x128.jpg')}}" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+              <img src="{{ auth()->user()->image_url }}" alt="User Avatar" class="img-size-50 mr-3 img-circle" style="object-fit:cover;">
               <div class="media-body">
                 <h3 class="dropdown-item-title">
                   {{auth()->user()->name ?? ''}}
@@ -69,8 +63,12 @@
           </a>
           <div class="dropdown-divider"></div>
 
-          <a href="#" class="dropdown-item">
+          <a href="{{ route('account.profile.edit') }}" class="dropdown-item">
             <i class="fas fa-cog mr-2"></i> Profile Setting
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="{{ route('account.password.edit') }}" class="dropdown-item">
+            <i class="fas fa-key mr-2"></i> Change Password
           </a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item cursor-pointer" id="customer-logout-btn">

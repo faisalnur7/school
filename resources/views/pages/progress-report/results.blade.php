@@ -66,6 +66,24 @@
                 $attendanceTotal = $data['attendanceTotal'];
             @endphp
 
+            <div class="d-flex justify-content-end mb-2 no-print">
+                <span class="badge mr-2 js-email-status {{ !empty($statusMap[$student->id]) ? 'badge-success' : 'badge-secondary' }}"
+                    id="progress-email-status-{{ $student->id }}">
+                    {{ !empty($statusMap[$student->id]) ? 'Email Sent' : 'Not Sent' }}
+                </span>
+                <button type="button"
+                    class="btn btn-sm btn-success js-send-result-email"
+                    data-url="{{ route('result.progress-report.email') }}"
+                    data-student-id="{{ $student->id }}"
+                    data-session-id="{{ $filters['session_id'] }}"
+                    data-class-id="{{ $filters['class_id'] }}"
+                    data-section-id="{{ $filters['section_id'] }}"
+                    data-exam-id="{{ $filters['exam_id'] }}"
+                    data-status-id="progress-email-status-{{ $student->id }}">
+                    <i class="fas fa-envelope mr-1"></i> Send to Parents
+                </button>
+            </div>
+
             {{-- ╔══════════════════════════════════════════════╗
          ║  CLASSIC DESIGN (design-a)                  ║
          ╚══════════════════════════════════════════════╝ --}}
@@ -1987,4 +2005,57 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             };
         })();
     </script>
+@endsection
+
+@section('scripts')
+<script>
+document.querySelectorAll('.js-send-result-email').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+        if (btn.dataset.sending === '1') return;
+        btn.dataset.sending = '1';
+        btn.disabled = true;
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Sending...';
+
+        const payload = {
+            session_id: btn.dataset.sessionId,
+            class_id: btn.dataset.classId,
+            section_id: btn.dataset.sectionId,
+            exam_id: btn.dataset.examId,
+            student_id: btn.dataset.studentId,
+        };
+
+        try {
+            const res = await fetch(btn.dataset.url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (!res.ok || !data.ok) {
+                throw new Error(data.message || 'Failed to send email.');
+            }
+
+            const statusEl = document.getElementById(btn.dataset.statusId);
+            if (statusEl) {
+                statusEl.classList.remove('badge-secondary');
+                statusEl.classList.add('badge-success');
+                statusEl.textContent = 'Email Sent';
+            }
+            btn.innerHTML = '<i class="fas fa-check mr-1"></i> Sent';
+        } catch (e) {
+            alert(e.message || 'Failed to send email.');
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        } finally {
+            btn.dataset.sending = '0';
+        }
+    });
+});
+</script>
 @endsection

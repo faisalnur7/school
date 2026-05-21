@@ -14,7 +14,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('users.update', $user->id) }}" id="modernForm">
+        <form method="POST" action="{{ route('users.update', $user->id) }}" id="modernForm" enctype="multipart/form-data">
             @csrf
 
             <div class="card-body p-3">
@@ -59,6 +59,13 @@
                         @error('role_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6 mb-3">
+                        <label class="form-label d-block">Current Image</label>
+                        <img id="edit_image_preview" src="{{ $user->image_url }}" alt="User Image" class="img-circle elevation-2 mb-2" style="width:70px; height:70px; object-fit:cover;">
+                        <input type="file" id="edit_image_input" name="image" accept="image/*" class="form-control @error('image') is-invalid @enderror">
+                        <small class="text-muted">Upload to replace current image.</small>
+                        @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">New Password <small class="text-muted">(leave blank to keep current)</small></label>
                         <input type="password" name="password" class="form-control @error('password') is-invalid @enderror">
                         @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -66,6 +73,21 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Confirm Password</label>
                         <input type="password" name="password_confirmation" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label d-block">Login Email Verification</label>
+                        <div class="custom-control custom-switch mt-2">
+                            <input type="hidden" name="login_verification_enabled" value="0">
+                            <input type="checkbox"
+                                   class="custom-control-input"
+                                   id="login_verification_enabled"
+                                   name="login_verification_enabled"
+                                   value="1"
+                                   {{ old('login_verification_enabled', $user->login_verification_enabled) ? 'checked' : '' }}>
+                            <label class="custom-control-label" for="login_verification_enabled">
+                                Require 6-digit email code after password login
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -97,6 +119,13 @@
                 scrollTop: $('.is-invalid').first().offset().top - 50
             }, 300);
         }
+    });
+
+    document.getElementById('edit_image_input')?.addEventListener('change', function (e) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const preview = document.getElementById('edit_image_preview');
+        preview.src = URL.createObjectURL(file);
     });
 </script>
 @endsection

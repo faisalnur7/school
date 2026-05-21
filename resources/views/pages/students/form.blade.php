@@ -28,6 +28,16 @@
         action="{{ isset($student) ? route('students.update', $student->id) : route('students.store') }}"
         enctype="multipart/form-data" class="p-6 space-y-2">
         @csrf
+        @if ($errors->any())
+            <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-red-700">
+                <p class="font-semibold">Please fix the following errors:</p>
+                <ul class="list-disc pl-5 mt-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         {{-- ================= ACADEMIC INFORMATION ================= --}}
         @php

@@ -2,8 +2,6 @@
 
 @section('contents')
 <div class="container-fluid">
-    @include('partials.report-header')
-
     <div class="bg-gradient-to-br from-slate-800 to-slate-600 rounded-2xl p-8 mb-8 flex items-center gap-5">
         <i class="fas fa-book text-white text-5xl opacity-80"></i>
         <div>

@@ -47,4 +47,3 @@ class Attendance extends Model
         return $this->hasMany(AttendanceItem::class);
     }
 }
-

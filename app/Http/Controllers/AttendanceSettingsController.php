@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AttendanceSetting;
 use App\Models\Holiday;
 use App\Models\WeekendSetting;
 use Illuminate\Http\Request;
@@ -11,9 +12,23 @@ class AttendanceSettingsController extends Controller
     public function index()
     {
         $weekendSetting = WeekendSetting::current();
+        $attendanceSetting = AttendanceSetting::current();
         $holidays = Holiday::orderBy('date')->get();
 
-        return view('pages.attendance.settings', compact('weekendSetting', 'holidays'));
+        return view('pages.attendance.settings', compact('weekendSetting', 'attendanceSetting', 'holidays'));
+    }
+
+    public function saveAccess(Request $request)
+    {
+        $data = $request->validate([
+            'is_open_for_all' => ['nullable', 'boolean'],
+        ]);
+
+        $setting = AttendanceSetting::current();
+        $setting->is_open_for_all = (bool) ($data['is_open_for_all'] ?? false);
+        $setting->save();
+
+        return back()->with('success', 'Attendance access settings saved.');
     }
 
     public function saveWeekends(Request $request)

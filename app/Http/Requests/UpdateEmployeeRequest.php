@@ -25,7 +25,7 @@ class UpdateEmployeeRequest extends FormRequest
             'address'              => 'nullable|string',
             'joining_date'         => 'nullable|date',
             'status'               => 'required|in:active,inactive',
-            'photo'                => 'nullable|image|max:2048',
+            'photo'                => 'nullable|image|max:100',
             'payment_method'       => 'nullable|in:cash,bank_transfer,mobile_wallet',
             'bank_name'            => 'nullable|string|max:100',
             'account_number'       => 'nullable|string|max:50',

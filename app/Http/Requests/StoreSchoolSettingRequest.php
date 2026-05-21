@@ -21,14 +21,14 @@ class StoreSchoolSettingRequest extends FormRequest
             'email'            => 'nullable|email|max:255',
             'facebook_page'    => 'nullable|url|max:255',
             'whatsapp_number'  => 'nullable|string|max:20',
-            'whatsapp_qr'      => 'nullable|image|max:2048',
+            'whatsapp_qr'      => 'nullable|image|max:100',
             'contact_number_1' => 'nullable|string|max:20',
             'contact_number_2' => 'nullable|string|max:20',
             'primary_color'    => 'nullable|string|max:20',
             'secondary_color'  => 'nullable|string|max:20',
             'id_card_color'    => 'nullable|string|max:20',
-            'logo'             => 'nullable|image|max:2048',
-            'letter_head'      => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
+            'logo'             => 'nullable|image|max:100',
+            'letter_head'      => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:100',
         ];
     }
 }

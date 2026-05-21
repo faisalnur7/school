@@ -1,8 +1,14 @@
 <head>
+    @php
+        $schoolSetting = \App\Models\SchoolSetting::current();
+        $favicon = !empty($schoolSetting->logo) ? asset($schoolSetting->logo) : asset('assets/dist/img/AdminLTELogo.png');
+    @endphp
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- <title>@yield('title')</title> -->
     <title>@yield('title')</title>
+    <link rel="icon" type="image/png" href="{{ $favicon }}">
+    <link rel="shortcut icon" href="{{ $favicon }}">
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"

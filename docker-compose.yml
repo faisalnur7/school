@@ -23,6 +23,7 @@ services:
             - sail
         depends_on:
             - mysql
+            - mailpit
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
@@ -58,6 +59,13 @@ services:
             PMA_PORT: '${FORWARD_DB_PORT:-3306}'
         depends_on:
             - mysql
+        networks:
+            - sail
+    mailpit:
+        image: 'axllent/mailpit:latest'
+        ports:
+            - '${FORWARD_MAILPIT_PORT:-8025}:8025'
+            - '${FORWARD_MAILPIT_SMTP_PORT:-1025}:1025'
         networks:
             - sail
 networks:

@@ -19,6 +19,29 @@
         <i class="fas fa-cog text-primary mr-2"></i>Attendance Settings
     </h4>
 
+    <div class="card card-outline card-info mb-4">
+        <div class="card-header"><h6 class="mb-0 font-weight-bold text-white">Attendance Access</h6></div>
+        <div class="card-body">
+            <form method="POST" action="{{ route('attendance.settings.access') }}">
+                @csrf
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="is_open_for_all" name="is_open_for_all" value="1"
+                        {{ $attendanceSetting->is_open_for_all ? 'checked' : '' }}>
+                    <label class="form-check-label" for="is_open_for_all">
+                        Open attendance for all users
+                    </label>
+                    <small class="form-text text-muted">
+                        If enabled, any user with attendance permission can take attendance for any class and section.
+                        If disabled, users can take attendance only for assigned classes/sections.
+                    </small>
+                </div>
+                <button type="submit" class="btn btn-sm btn-info">
+                    <i class="fas fa-save mr-1"></i>Save Attendance Access
+                </button>
+            </form>
+        </div>
+    </div>
+
     {{-- Weekend Settings --}}
     <div class="card card-outline card-primary mb-4">
         <div class="card-header"><h6 class="mb-0 font-weight-bold text-white">Weekend Days</h6></div>

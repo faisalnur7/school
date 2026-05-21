@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Mail\StudentResultReportMail;
 use App\Models\Student;
+use App\Models\ResultEmailStatus;
 use App\Models\Exam;
 use App\Models\ExamMark;
 use App\Models\ExamSubject;
@@ -15,6 +17,7 @@ use App\Models\AttendanceItem;
 use App\Models\SchoolSetting;
 use App\Models\StudentAcademicInformation;
 use App\Services\GradingService;
+use Illuminate\Support\Facades\Mail;
 
 class ProgressReportController extends Controller
 {
@@ -44,8 +47,9 @@ class ProgressReportController extends Controller
 
         $students = $this->getStudents($filters);
         $studentsData = $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters));
+        $statusMap = $this->buildStatusMap($studentsData->pluck('student.id')->all(), (int) $filters['exam_id']);
 
-        return view('pages.progress-report.results', compact('studentsData', 'exam', 'school', 'gradeScale', 'filters'));
+        return view('pages.progress-report.results', compact('studentsData', 'exam', 'school', 'gradeScale', 'filters', 'statusMap'));
     }
 
     public function pdf(Request $request)
@@ -72,6 +76,97 @@ class ProgressReportController extends Controller
         $mpdf->WriteHTML($html);
 
         return response($mpdf->Output('', 'S'))->header('Content-Type', 'application/pdf');
+    }
+
+    public function sendEmail(Request $request)
+    {
+        $filters = $request->validate([
+            'session_id' => ['required', 'exists:academic_sessions,id'],
+            'class_id'   => ['required', 'exists:school_classes,id'],
+            'section_id' => ['required', 'exists:sections,id'],
+            'exam_id'    => ['required', 'exists:exams,id'],
+            'student_id' => ['required', 'exists:students,id'],
+        ]);
+
+        $exam = Exam::with('academicSession')->findOrFail($filters['exam_id']);
+        $student = Student::findOrFail($filters['student_id']);
+        $emails = collect([$student->father_email, $student->mother_email])
+            ->filter(fn ($email) => is_string($email) && trim($email) !== '')
+            ->map(fn ($email) => trim($email))
+            ->unique()
+            ->values();
+
+        if ($emails->isEmpty()) {
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json(['ok' => false, 'message' => 'No parent email found for this student.'], 422);
+            }
+            return back()->with('error', 'No parent email found for this student.');
+        }
+
+        $studentData = $this->buildStudentData($student, $exam, $filters);
+        $rows = collect($studentData['subjectRows'])->map(function ($row) {
+            return [
+                'Subject' => $row['subject_name'],
+                'Obtained' => is_null($row['obtained']) ? 'AB' : number_format((float) $row['obtained'], 0),
+                'Grade' => $row['grade'],
+                'GPA' => number_format((float) $row['gpa'], 1),
+            ];
+        })->values()->all();
+
+        $summary = $studentData['summary'];
+        $meta = [
+            'Exam' => $exam->name,
+            'Session' => $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? ''),
+            'Total Marks' => number_format((float) $summary['obtained'], 0) . '/' . number_format((float) $summary['fullMarks'], 0),
+            'Percentage' => number_format((float) $summary['percentage'], 2) . '%',
+            'Final Grade' => (string) $summary['grade'],
+            'Final GPA' => number_format((float) $summary['gpa'], 2),
+        ];
+
+        foreach ($emails as $email) {
+            Mail::to($email)->send(new StudentResultReportMail($student, 'Terminal Exam Report', $meta, $rows));
+        }
+
+        $contextKey = $this->contextKey((int) $filters['exam_id'], (int) $student->id);
+        ResultEmailStatus::updateOrCreate(
+            ['context_key' => $contextKey],
+            [
+                'report_type' => 'progress',
+                'student_id' => $student->id,
+                'exam_id' => (int) $filters['exam_id'],
+                'session_id' => (int) $filters['session_id'],
+                'class_id' => (int) $filters['class_id'],
+                'section_id' => (int) $filters['section_id'],
+                'is_sent' => true,
+                'sent_at' => now(),
+            ]
+        );
+
+        if ($request->ajax() || $request->expectsJson()) {
+            return response()->json(['ok' => true, 'message' => 'Result email sent to parent(s).']);
+        }
+
+        return back()->with('success', 'Result email sent to parent(s).');
+    }
+
+    private function contextKey(int $examId, int $studentId): string
+    {
+        return "progress:exam:{$examId}:student:{$studentId}";
+    }
+
+    private function buildStatusMap(array $studentIds, int $examId): array
+    {
+        if (empty($studentIds)) {
+            return [];
+        }
+
+        return ResultEmailStatus::query()
+            ->where('report_type', 'progress')
+            ->where('exam_id', $examId)
+            ->whereIn('student_id', $studentIds)
+            ->pluck('is_sent', 'student_id')
+            ->map(fn ($v) => (bool) $v)
+            ->all();
     }
 
     private function getStudents(array $filters)

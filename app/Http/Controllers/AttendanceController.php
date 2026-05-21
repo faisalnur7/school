@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AcademicSession;
 use App\Models\Attendance;
 use App\Models\AttendanceItem;
+use App\Models\AttendanceSetting;
 use App\Models\SchoolClass;
 use App\Models\StudentAcademicInformation;
 use App\Models\TeacherSectionAssignment;
@@ -19,10 +20,11 @@ class AttendanceController extends Controller
     {
         $sessions = AcademicSession::orderByDesc('id')->get();
         $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
+        $isOpenForAll = AttendanceSetting::current()->is_open_for_all;
 
         $defaultDate = now()->toDateString();
 
-        return view('pages.attendance.index', compact('sessions', 'classes', 'defaultDate'));
+        return view('pages.attendance.index', compact('sessions', 'classes', 'defaultDate', 'isOpenForAll'));
     }
 
     public function load(Request $request)
@@ -222,6 +224,10 @@ class AttendanceController extends Controller
 
     private function authorizeSection(int $sessionId, int $classId, int $sectionId): void
     {
+        if ($this->isOpenForAll()) {
+            return;
+        }
+
         $ok = TeacherSectionAssignment::query()
             ->where('user_id', auth()->id())
             ->where('session_id', $sessionId)
@@ -230,6 +236,11 @@ class AttendanceController extends Controller
             ->exists();
 
         abort_unless($ok, 403, 'You are not assigned as class teacher for this section.');
+    }
+
+    private function isOpenForAll(): bool
+    {
+        return AttendanceSetting::current()->is_open_for_all;
     }
 
     private function allowedStudentIds(int $sessionId, int $classId, int $sectionId)

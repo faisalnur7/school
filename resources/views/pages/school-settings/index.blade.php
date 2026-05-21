@@ -193,7 +193,7 @@
                                 @error('logo')
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
-                                <small class="text-muted">Max 2MB. JPG, PNG, GIF.</small>
+                                <small class="text-muted">Max 100KB. JPG, PNG, GIF.</small>
                             </div>
 
                             <div class="form-group mt-3">
@@ -220,7 +220,7 @@
                                 @error('letter_head')
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
-                                <small class="text-muted">Max 4MB. JPG, PNG, PDF.</small>
+                                <small class="text-muted">Max 100KB. JPG, PNG, PDF.</small>
                             </div>
 
                             <div class="form-group mt-3">
@@ -239,7 +239,7 @@
                                 @error('whatsapp_qr')
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
-                                <small class="text-muted">Upload QR code image. Max 2MB.</small>
+                                <small class="text-muted">Upload QR code image. Max 100KB.</small>
                             </div>
 
                             <h5 class="mb-3 mt-3 text-muted border-bottom pb-2">Theme & ID Card Colors</h5>

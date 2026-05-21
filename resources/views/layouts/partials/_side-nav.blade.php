@@ -12,7 +12,7 @@
         <!-- Sidebar user panel -->
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-                <img src="{{ asset('assets/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2"
+                <img src="{{ auth()->user()->image_url }}" class="img-circle elevation-2" style="width:34px;height:34px;object-fit:cover;"
                     alt="User Image">
             </div>
             <div class="info">

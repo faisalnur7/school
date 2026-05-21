@@ -10,12 +10,14 @@ class AttendanceItem extends Model
         'attendance_id',
         'student_id',
         'status',
+        'is_absent_email_sent',
         'note',
     ];
 
     protected $casts = [
         'attendance_id' => 'integer',
         'student_id' => 'integer',
+        'is_absent_email_sent' => 'boolean',
     ];
 
     public function attendance()
@@ -28,4 +30,3 @@ class AttendanceItem extends Model
         return $this->belongsTo(Student::class);
     }
 }
-

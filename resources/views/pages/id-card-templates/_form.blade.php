@@ -31,7 +31,7 @@
             accept="image/*" onchange="previewBg(this)">
         <img id="bgPreview" src="#" alt="Preview" class="img-thumbnail mt-2 d-none" style="max-height:120px">
         @error('background_image')<div class="text-danger small">{{ $message }}</div>@enderror
-        <small class="text-muted">Max 4MB. JPG, PNG, GIF.</small>
+        <small class="text-muted">Max 100KB. JPG, PNG, GIF.</small>
     </div>
 </div>
 

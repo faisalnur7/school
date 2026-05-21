@@ -56,7 +56,7 @@
                         @forelse($employees as $emp)
                         <tr>
                             <td>{{ $employees->firstItem() + $loop->index }}</td>
-                            <td><img src="{{ $emp->photo_url }}" class="img-circle" style="width:36px;height:36px;object-fit:cover"></td>
+                            <td><img src="{{ $emp->photo_url }}" class="elevation-1" style="width:64px;height:64px;object-fit:cover;border-radius:12px;"></td>
                             <td><code>{{ $emp->employee_id }}</code></td>
                             <td class="font-weight-bold"><a href="{{ route('hr.employees.show', $emp) }}">{{ $emp->name }}</a></td>
                             <td><span class="badge badge-{{ $emp->employee_type === 'teacher' ? 'primary' : 'info' }}">{{ ucfirst($emp->employee_type) }}</span></td>

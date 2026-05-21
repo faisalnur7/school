@@ -54,7 +54,7 @@ class IncomeController extends Controller
             'account_id'         => 'nullable|integer',
             'reference_no'       => 'nullable|string|max:100',
             'description'        => 'nullable|string',
-            'attachment'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'attachment'         => 'nullable|mimes:jpg,jpeg,png,pdf|max:100',
         ]);
 
         $data = $request->only([
@@ -119,7 +119,7 @@ class IncomeController extends Controller
             'account_id'         => 'nullable|integer',
             'reference_no'       => 'nullable|string|max:100',
             'description'        => 'nullable|string',
-            'attachment'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'attachment'         => 'nullable|mimes:jpg,jpeg,png,pdf|max:100',
         ]);
 
         $data = $request->only([

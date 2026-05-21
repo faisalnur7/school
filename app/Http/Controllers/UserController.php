@@ -28,9 +28,24 @@ class UserController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'role_id' => 'nullable|exists:roles,id',
+            'login_verification_enabled' => 'nullable|boolean',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+        $validated['login_verification_enabled'] = $request->boolean('login_verification_enabled');
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $path = 'images/user_image';
+            if (! is_dir(public_path($path))) {
+                mkdir(public_path($path), 0775, true);
+            }
+            $filename = 'user_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+            $file->move(public_path($path), $filename);
+            $validated['image'] = $path.'/'.$filename;
+        }
+
         User::create($validated);
 
         return redirect()->route('users.index')->with('success', 'User created successfully');
@@ -46,21 +61,42 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        $validated = $request->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
             'role_id' => 'nullable|exists:roles,id',
+            'login_verification_enabled' => 'nullable|boolean',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        if ($validated['password']) {
-            $validated['password'] = Hash::make($validated['password']);
-        } else {
-            unset($validated['password']);
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->role_id = $data['role_id'] ?? null;
+        $user->login_verification_enabled = $request->boolean('login_verification_enabled');
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($data['password']);
         }
 
-        $user->update($validated);
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $path = 'images/user_image';
+            if (! is_dir(public_path($path))) {
+                mkdir(public_path($path), 0775, true);
+            }
+            $filename = 'user_'.$user->id.'_'.time().'.'.$file->getClientOriginalExtension();
+            $file->move(public_path($path), $filename);
+            $user->image = $path.'/'.$filename;
+        }
 
+        if (! $user->login_verification_enabled) {
+            $user->login_verification_code = null;
+            $user->login_verification_expires_at = null;
+        }
+
+        $user->save();
+        
         return redirect()->route('users.index')->with('success', 'User updated successfully');
     }
 

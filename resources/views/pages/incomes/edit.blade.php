@@ -150,7 +150,7 @@
                             <div class="form-group mb-2">
                                 <label class="small mb-1">
                                     Attachment
-                                    <span class="text-muted">(jpg, png, pdf — max 2MB)</span>
+                                    <span class="text-muted">(jpg, png, pdf — max 100KB)</span>
                                 </label>
 
                                 @if ($income->attachment)

@@ -33,13 +33,28 @@
             $rows = $data['rows'];
         @endphp
         <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between">
+            <div class="card-header flex justify-between">
                 <div>
-                    <strong>{{ $student->full_name_en }}</strong>
-                    <span class="text-muted ml-2">ID: {{ $student->student_cid ?? $student->id }}</span>
+                    <strong class="text-white">{{ $student->full_name_en }}</strong>
+                    <span class="text-white ml-2">ID: {{ $student->student_cid ?? $student->id }}</span>
                 </div>
-                <div>
+                <div class="ml-auto">
                     <span class="badge badge-info">Total Obtained: {{ number_format($data['total_obtained'], 1) }}</span>
+                    <span class="badge ml-2 js-email-status {{ !empty($statusMap[$student->id]) ? 'badge-success' : 'badge-secondary' }}"
+                        id="tutorial-email-status-{{ $student->id }}">
+                        {{ !empty($statusMap[$student->id]) ? 'Email Sent' : 'Not Sent' }}
+                    </span>
+                    <button type="button"
+                        class="btn btn-sm btn-success ml-2 js-send-result-email"
+                        data-url="{{ route('result.tutorial-report.email') }}"
+                        data-student-id="{{ $student->id }}"
+                        data-session-id="{{ $filters['session_id'] }}"
+                        data-class-id="{{ $filters['class_id'] }}"
+                        data-section-id="{{ $filters['section_id'] }}"
+                        data-exam-id="{{ $filters['exam_id'] }}"
+                        data-status-id="tutorial-email-status-{{ $student->id }}">
+                        <i class="fas fa-envelope mr-1"></i> Send to Parents
+                    </button>
                 </div>
             </div>
             <div class="card-body p-0">
@@ -69,3 +84,55 @@
 </div>
 @endsection
 
+@section('scripts')
+<script>
+document.querySelectorAll('.js-send-result-email').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+        if (btn.dataset.sending === '1') return;
+        btn.dataset.sending = '1';
+        btn.disabled = true;
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Sending...';
+
+        const payload = {
+            session_id: btn.dataset.sessionId,
+            class_id: btn.dataset.classId,
+            section_id: btn.dataset.sectionId,
+            exam_id: btn.dataset.examId,
+            student_id: btn.dataset.studentId,
+        };
+
+        try {
+            const res = await fetch(btn.dataset.url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (!res.ok || !data.ok) {
+                throw new Error(data.message || 'Failed to send email.');
+            }
+
+            const statusEl = document.getElementById(btn.dataset.statusId);
+            if (statusEl) {
+                statusEl.classList.remove('badge-secondary');
+                statusEl.classList.add('badge-success');
+                statusEl.textContent = 'Email Sent';
+            }
+            btn.innerHTML = '<i class="fas fa-check mr-1"></i> Sent';
+        } catch (e) {
+            alert(e.message || 'Failed to send email.');
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        } finally {
+            btn.dataset.sending = '0';
+        }
+    });
+});
+</script>
+@endsection

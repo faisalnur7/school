@@ -103,7 +103,7 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group mb-2">
-                                <label class="small mb-1">Attachment <span class="text-muted">(jpg, png, pdf — max 2MB)</span></label>
+                                <label class="small mb-1">Attachment <span class="text-muted">(jpg, png, pdf — max 100KB)</span></label>
                                 <input type="file" name="attachment" class="form-control form-control-sm @error('attachment') is-invalid @enderror" accept=".jpg,.jpeg,.png,.pdf">
                                 @error('attachment')<span class="invalid-feedback">{{ $message }}</span>@enderror
                             </div>
