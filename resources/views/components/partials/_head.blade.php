@@ -36,6 +36,7 @@
   <!-- jQuery UI 1.11.4 -->
   <script src="{{asset('assets/plugins/jquery-ui/jquery-ui.min.js')}}"></script>
   <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+  {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 
   @yield('styles')
 </head>

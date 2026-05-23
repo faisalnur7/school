@@ -5,6 +5,7 @@
 
 # Laravel
 /public/storage
+/public/build/
 /storage/*.key
 /storage/debugbar
 /storage/logs
