@@ -74,7 +74,7 @@ class DashboardController extends Controller
         $data['recent_exams'] = Exam::latest()->take(5)->get();
         
         // Recent Notices
-        $data['recent_notices'] = Notice::latest()->take(5)->get();
+        $data['recent_notices'] = Notice::published()->latest('published_at')->latest()->take(5)->get();
         
         // Monthly Fee Collection
         $data['monthly_fee_collection'] = $this->getMonthlyFeeCollection();

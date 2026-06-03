@@ -40,11 +40,11 @@
                 </div>
                 <div class="ml-auto">
                     <span class="badge badge-info">Total Obtained: {{ number_format($data['total_obtained'], 1) }}</span>
-                    <span class="badge ml-2 js-email-status {{ !empty($statusMap[$student->id]) ? 'badge-success' : 'badge-secondary' }}"
+                    {{-- <span class="badge ml-2 js-email-status {{ !empty($statusMap[$student->id]) ? 'badge-success' : 'badge-secondary' }}"
                         id="tutorial-email-status-{{ $student->id }}">
                         {{ !empty($statusMap[$student->id]) ? 'Email Sent' : 'Not Sent' }}
-                    </span>
-                    <button type="button"
+                    </span> --}}
+                    {{-- <button type="button"
                         class="btn btn-sm btn-success ml-2 js-send-result-email"
                         data-url="{{ route('result.tutorial-report.email') }}"
                         data-student-id="{{ $student->id }}"
@@ -54,7 +54,7 @@
                         data-exam-id="{{ $filters['exam_id'] }}"
                         data-status-id="tutorial-email-status-{{ $student->id }}">
                         <i class="fas fa-envelope mr-1"></i> Send to Parents
-                    </button>
+                    </button> --}}
                 </div>
             </div>
             <div class="card-body p-0">

@@ -1,6 +1,9 @@
+<!DOCTYPE html>
+<html lang="en">
+
 @include('layouts.partials._head')
 
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
     <div class="wrapper">
         @include('layouts.partials._top-nav')
         @include('layouts.partials._side-nav')
@@ -32,25 +35,73 @@
 
     @include('layouts.partials._scripts')
 
-    @yield('scripts')
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- jQuery (required for bootstrap-datepicker) -->
-    {{-- <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> --}}
-
     <!-- Bootstrap Datepicker JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js">
-    </script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <!-- Select2 JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
 
+    @yield('scripts')
 
-    <script>
+
+<script>
         $(function() {
+            // Ensure sidebar starts in correct state based on screen size
+            if ($(window).width() >= 992) {
+                $('#mainSidebar').removeClass('mobile-open');
+                $('#sidebarOverlay').removeClass('active');
+                $('body').removeClass('sidebar-open');
+            }
+            
+            // Mobile sidebar toggle
+            function toggleSidebar() {
+                var sidebar = $('#mainSidebar');
+                var overlay = $('#sidebarOverlay');
+                var isOpen = sidebar.hasClass('mobile-open');
+                
+                if (isOpen) {
+                    sidebar.removeClass('mobile-open');
+                    overlay.removeClass('active');
+                    $('body').removeClass('sidebar-open');
+                } else {
+                    sidebar.addClass('mobile-open');
+                    overlay.addClass('active');
+                    $('body').addClass('sidebar-open');
+                }
+            }
+            
+            // Toggle sidebar when button is clicked
+            $(document).on('click', '[data-widget="pushmenu"]', function(e) {
+                e.preventDefault();
+                toggleSidebar();
+            });
+            
+            // Close sidebar when overlay is clicked
+            $(document).on('click', '#sidebarOverlay', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('#mainSidebar').removeClass('mobile-open');
+                $(this).removeClass('active');
+                $('body').removeClass('sidebar-open');
+            });
+            
+            // Close sidebar when nav link is clicked (mobile)
+            $(document).on('click', '.nav-link-modern', function(e) {
+                if ($(window).width() < 992) {
+                    $('#mainSidebar').removeClass('mobile-open');
+                    $('#sidebarOverlay').removeClass('active');
+                    $('body').removeClass('sidebar-open');
+                }
+            });
+
+            // Handle window resize - reset mobile state on desktop
+            $(window).on('resize', function() {
+                if ($(window).width() >= 992) {
+                    $('#mainSidebar').removeClass('mobile-open');
+                    $('#sidebarOverlay').removeClass('active');
+                    $('body').removeClass('sidebar-open');
+                }
+            }).trigger('resize'); // Trigger on load to set initial state
 
             // Datepicker init
             $('.datepicker').datepicker({
@@ -170,5 +221,4 @@
         });
     </script>
 </body>
-
 </html>

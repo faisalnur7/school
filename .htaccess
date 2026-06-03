@@ -1,0 +1,27 @@
+<IfModule mod_rewrite.c>
+    Options -Indexes -MultiViews
+    RewriteEngine On
+
+    # Block hidden files (.env, .git, etc.)
+    RewriteRule "(^|/)\." - [F,L]
+
+    # Block direct access to sensitive files
+    RewriteRule ^(artisan|composer\.(json|lock)|package(-lock)?\.json|vite\.config\.(js|ts)|phpunit\.xml)$ - [F,L,NC]
+
+    # Block direct access to sensitive directories
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor)/ - [F,L,NC]
+
+    # Preserve Authorization header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect trailing slash if not a real directory
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send all non-file/non-dir requests to Laravel
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>

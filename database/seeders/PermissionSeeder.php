@@ -240,6 +240,12 @@ class PermissionSeeder extends Seeder
                 ['name' => 'view_card_police_stations',   'display_name' => 'View Police Stations Card'],
                 ['name' => 'view_card_post_offices',      'display_name' => 'View Post Offices Card'],
             ]],
+            ['name' => 'Website Management',  'sort' => 18, 'permissions' => [
+                ['name' => 'view_website_management',     'display_name' => 'View Website Management'],
+                ['name' => 'manage_website_content',      'display_name' => 'Manage Website Content'],
+                ['name' => 'manage_academic_calendar',    'display_name' => 'Manage Academic Calendar'],
+                ['name' => 'view_contact_messages',       'display_name' => 'View Contact Messages'],
+            ]],
         ];
 
         foreach ($definitions as $group) {

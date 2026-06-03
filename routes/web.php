@@ -2,6 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
+    Admin\Website\AcademicCalendarController,
+    Admin\Website\GalleryController,
+    Admin\Website\WebsiteCmsController,
+    Admin\Website\WebsitePageController,
+    Admin\Website\WebsiteSectionController,
+    Admin\Website\WebsiteSettingController,
     CommonController,
     FreeStudentshipController,
     FeeCategoryController,
@@ -107,6 +113,7 @@ use App\Http\Controllers\{
     BudgetHubController,
     UsersHubController
 };
+use App\Http\Controllers\Website\PublicWebsiteController;
 
 Route::get('/reboot', function () {
     Artisan::call('optimize:clear');
@@ -173,6 +180,62 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:view_budget')->get('/budget/hub', [BudgetHubController::class, 'index'])->name('budget.hub');
     Route::middleware('permission:view_users')->get('/users/hub', [UsersHubController::class, 'index'])->name('users.hub');
     Route::middleware('permission:view_inventory')->get('/inventory/hub', [InventoryController::class, 'hub'])->name('inventory.hub');
+
+    // ------------------- Website Management -------------------
+    Route::middleware('permission:view_website_management')->prefix('website-management')->name('website.')->group(function () {
+        // CMS Hub
+        Route::get('/', [WebsiteCmsController::class, 'hub'])->name('cms.hub');
+
+        // Per-page editor
+        Route::get('/cms/{type}', [WebsiteCmsController::class, 'editPage'])->name('cms.page.edit');
+        Route::post('/cms/{type}', [WebsiteCmsController::class, 'updatePage'])->middleware('permission:manage_website_content')->name('cms.page.update');
+
+        // Sections with photo
+        Route::post('/cms/{type}/sections', [WebsiteCmsController::class, 'storeSection'])->middleware('permission:manage_website_content')->name('cms.section.store');
+        Route::put('/cms/{type}/sections/{section}', [WebsiteCmsController::class, 'updateSection'])->middleware('permission:manage_website_content')->name('cms.section.update');
+        Route::delete('/cms/{type}/sections/{section}', [WebsiteCmsController::class, 'destroySection'])->middleware('permission:manage_website_content')->name('cms.section.destroy');
+
+        // Banners / Home Slider
+        Route::get('/banners', [WebsiteCmsController::class, 'banners'])->name('cms.banners');
+        Route::post('/banners', [WebsiteCmsController::class, 'storeBanner'])->middleware('permission:manage_website_content')->name('cms.banner.store');
+        Route::put('/banners/{banner}', [WebsiteCmsController::class, 'updateBanner'])->middleware('permission:manage_website_content')->name('cms.banner.update');
+        Route::delete('/banners/{banner}', [WebsiteCmsController::class, 'destroyBanner'])->middleware('permission:manage_website_content')->name('cms.banner.destroy');
+        Route::patch('/banners/{banner}/toggle', [WebsiteCmsController::class, 'toggleBanner'])->middleware('permission:manage_website_content')->name('cms.banner.toggle');
+
+        // Settings
+        Route::get('/settings', [WebsiteSettingController::class, 'edit'])->name('settings.edit');
+        Route::post('/settings', [WebsiteSettingController::class, 'update'])->middleware('permission:manage_website_content')->name('settings.update');
+
+        // Legacy pages (kept for backward compat)
+        Route::get('/pages', [WebsitePageController::class, 'index'])->name('pages.index');
+        Route::get('/pages/create', [WebsitePageController::class, 'create'])->middleware('permission:manage_website_content')->name('pages.create');
+        Route::post('/pages', [WebsitePageController::class, 'store'])->middleware('permission:manage_website_content')->name('pages.store');
+        Route::get('/pages/{page}/edit', [WebsitePageController::class, 'edit'])->middleware('permission:manage_website_content')->name('pages.edit');
+        Route::put('/pages/{page}', [WebsitePageController::class, 'update'])->middleware('permission:manage_website_content')->name('pages.update');
+        Route::delete('/pages/{page}', [WebsitePageController::class, 'destroy'])->middleware('permission:manage_website_content')->name('pages.destroy');
+        Route::get('/pages/{page}/sections', [WebsiteSectionController::class, 'index'])->name('pages.sections.index');
+        Route::get('/pages/{page}/sections/create', [WebsiteSectionController::class, 'create'])->middleware('permission:manage_website_content')->name('pages.sections.create');
+        Route::post('/pages/{page}/sections', [WebsiteSectionController::class, 'store'])->middleware('permission:manage_website_content')->name('pages.sections.store');
+        Route::get('/pages/{page}/sections/{section}/edit', [WebsiteSectionController::class, 'edit'])->middleware('permission:manage_website_content')->name('pages.sections.edit');
+        Route::put('/pages/{page}/sections/{section}', [WebsiteSectionController::class, 'update'])->middleware('permission:manage_website_content')->name('pages.sections.update');
+        Route::delete('/pages/{page}/sections/{section}', [WebsiteSectionController::class, 'destroy'])->middleware('permission:manage_website_content')->name('pages.sections.destroy');
+
+        // Academic Calendar
+        Route::get('/academic-calendar', [AcademicCalendarController::class, 'index'])->name('academic-calendar.index');
+        Route::get('/academic-calendar/create', [AcademicCalendarController::class, 'create'])->middleware('permission:manage_academic_calendar')->name('academic-calendar.create');
+        Route::post('/academic-calendar', [AcademicCalendarController::class, 'store'])->middleware('permission:manage_academic_calendar')->name('academic-calendar.store');
+        Route::get('/academic-calendar/{academicCalendar}/edit', [AcademicCalendarController::class, 'edit'])->middleware('permission:manage_academic_calendar')->name('academic-calendar.edit');
+        Route::put('/academic-calendar/{academicCalendar}', [AcademicCalendarController::class, 'update'])->middleware('permission:manage_academic_calendar')->name('academic-calendar.update');
+        Route::delete('/academic-calendar/{academicCalendar}', [AcademicCalendarController::class, 'destroy'])->middleware('permission:manage_academic_calendar')->name('academic-calendar.destroy');
+
+        // Gallery
+        Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery.index');
+        Route::get('/gallery/create', [GalleryController::class, 'create'])->middleware('permission:manage_website_content')->name('gallery.create');
+        Route::post('/gallery', [GalleryController::class, 'store'])->middleware('permission:manage_website_content')->name('gallery.store');
+        Route::get('/gallery/{galleryItem}/edit', [GalleryController::class, 'edit'])->middleware('permission:manage_website_content')->name('gallery.edit');
+        Route::put('/gallery/{galleryItem}', [GalleryController::class, 'update'])->middleware('permission:manage_website_content')->name('gallery.update');
+        Route::delete('/gallery/{galleryItem}', [GalleryController::class, 'destroy'])->middleware('permission:manage_website_content')->name('gallery.destroy');
+    });
 
     // ------------------- Academics -------------------
     Route::middleware('permission:manage_classes')->prefix('classes')->group(function () {
@@ -914,7 +977,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // ------------------- Events -------------------
-    Route::middleware('permission:view_students')->prefix('events')->group(function () {
+    Route::middleware('permission:view_students')->prefix('website-management/events')->group(function () {
         Route::get('/', [EventController::class, 'index'])->name('events.index');
         Route::get('/create', [EventController::class, 'create'])->name('events.create');
         Route::post('/store', [EventController::class, 'store'])->name('events.store');
@@ -977,6 +1040,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:view_students')->group(function () {
         Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
         Route::get('/notice', [NoticeController::class, 'index'])->name('notice.index');
+        Route::get('/notice/create', [NoticeController::class, 'create'])->name('notice.create');
+        Route::post('/notice', [NoticeController::class, 'store'])->name('notice.store');
+        Route::get('/notice/{notice}/edit', [NoticeController::class, 'edit'])->name('notice.edit');
+        Route::put('/notice/{notice}', [NoticeController::class, 'update'])->name('notice.update');
+        Route::delete('/notice/{notice}', [NoticeController::class, 'destroy'])->name('notice.destroy');
         Route::get('/emailsms', [EmailSmsController::class, 'index'])->name('emailsms.index');
 
         Route::prefix('communication')->group(function () {
@@ -1117,4 +1185,30 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('load_groups',[CommonController::class,'load_groups'])->name('load_groups');
     Route::get('get_next_roll_cid',[CommonController::class,'getNextRollAndCid'])->name('get_next_roll_cid');
 
+});
+
+// ------------------- Public Website -------------------
+Route::prefix('/website')->name('website.')->group(function () {
+    Route::get('/', [PublicWebsiteController::class, 'home'])->name('home');
+    Route::get('/about', [PublicWebsiteController::class, 'about'])->name('about');
+    Route::get('/teachers', [PublicWebsiteController::class, 'teachers'])->name('teachers');
+    Route::get('/teachers/{employee}', [PublicWebsiteController::class, 'teacherProfile'])->name('teacher.show');
+    Route::get('/staff', [PublicWebsiteController::class, 'staff'])->name('staff');
+    Route::get('/staff/{employee}', [PublicWebsiteController::class, 'staffProfile'])->name('staff.show');
+    Route::get('/notices', [PublicWebsiteController::class, 'notices'])->name('notices');
+    Route::get('/notices/{notice}', [PublicWebsiteController::class, 'noticeShow'])->name('notice.show');
+    Route::get('/events', [PublicWebsiteController::class, 'events'])->name('events');
+    Route::get('/events/{event}', [PublicWebsiteController::class, 'eventShow'])->name('event.show');
+    Route::get('/academic-calendar', [PublicWebsiteController::class, 'academicCalendar'])->name('academic-calendar');
+    Route::get('/gallery', [PublicWebsiteController::class, 'gallery'])->name('gallery');
+    Route::get('/holidays', [PublicWebsiteController::class, 'holidays'])->name('holidays');
+    Route::get('/exam-schedule', [PublicWebsiteController::class, 'examSchedule'])->name('exam-schedule');
+    Route::get('/contact', [PublicWebsiteController::class, 'contact'])->name('contact');
+    Route::post('/contact', [PublicWebsiteController::class, 'submitContact'])->middleware('throttle:5,1')->name('contact.submit');
+    Route::get('/page/{slug}', [PublicWebsiteController::class, 'page'])->where('slug', '[A-Za-z0-9\-]+')->name('page.show');
+
+    // Result checking
+    Route::get('/result', [PublicWebsiteController::class, 'resultCheck'])->name('result.check');
+    Route::post('/result', [PublicWebsiteController::class, 'resultShow'])->name('result.show');
+    Route::get('/result/final-report', [PublicWebsiteController::class, 'finalReport'])->name('result.final-report');
 });

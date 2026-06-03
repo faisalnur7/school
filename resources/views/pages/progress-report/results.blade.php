@@ -67,11 +67,11 @@
             @endphp
 
             <div class="d-flex justify-content-end mb-2 no-print">
-                <span class="badge mr-2 js-email-status {{ !empty($statusMap[$student->id]) ? 'badge-success' : 'badge-secondary' }}"
+                {{-- <span class="badge mr-2 js-email-status {{ !empty($statusMap[$student->id]) ? 'badge-success' : 'badge-secondary' }}"
                     id="progress-email-status-{{ $student->id }}">
                     {{ !empty($statusMap[$student->id]) ? 'Email Sent' : 'Not Sent' }}
-                </span>
-                <button type="button"
+                </span> --}}
+                {{-- <button type="button"
                     class="btn btn-sm btn-success js-send-result-email"
                     data-url="{{ route('result.progress-report.email') }}"
                     data-student-id="{{ $student->id }}"
@@ -81,7 +81,7 @@
                     data-exam-id="{{ $filters['exam_id'] }}"
                     data-status-id="progress-email-status-{{ $student->id }}">
                     <i class="fas fa-envelope mr-1"></i> Send to Parents
-                </button>
+                </button> --}}
             </div>
 
             {{-- ╔══════════════════════════════════════════════╗

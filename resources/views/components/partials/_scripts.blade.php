@@ -25,3 +25,4 @@
 <!-- AdminLTE App -->
 <script src="{{asset('assets/dist/js/adminlte.js')}}"></script>
 <!-- AdminLTE for demo purposes -->
+@vite(['resources/js/app.js'])

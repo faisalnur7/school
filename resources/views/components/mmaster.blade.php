@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <x-partials._head title={{$title}} />
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
 <div class="wrapper">
   <x-partials._top-nav />
   <x-partials._side-nav />
