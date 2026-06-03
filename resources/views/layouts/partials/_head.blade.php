@@ -53,6 +53,7 @@
     <style>
         .content-wrapper {
             height: auto;
+            margin-top: 0 !important;
         }
 
         /* Global unified form UI */
