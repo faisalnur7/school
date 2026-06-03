@@ -45,4 +45,5 @@ Thumbs.db
 *.log
 student-data.json
 application.zip
+*.zip
 /plans
