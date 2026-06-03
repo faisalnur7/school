@@ -1,11 +1,15 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar modern-sidebar" id="mainSidebar">
     <!-- Brand Logo -->
+    @php
+        $sidebarSetting = \App\Models\SchoolSetting::current();
+        $sidebarLogo = !empty($sidebarSetting->logo) ? asset($sidebarSetting->logo) : asset('assets/dist/img/AdminLTELogo.png');
+    @endphp
     <a href="{{ route('dashboard') }}" class="brand-link-modern">
         <div class="brand-icon-wrapper">
-            <img src="{{ asset('assets/dist/img/AdminLTELogo.png') }}" alt="Logo" class="brand-image-modern">
+            <img src="{{ $sidebarLogo }}" alt="Logo" class="brand-image-modern">
         </div>
-        <span class="brand-text-modern">SMS</span>
+        <span class="brand-text-modern">GCSC</span>
     </a>
 
     <!-- Sidebar -->
