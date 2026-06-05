@@ -9,7 +9,7 @@
                 <i class="fas fa-clipboard-list text-white fa-lg"></i>
             </div>
             <div>
-                <h4 class="mb-0 font-weight-bold text-white">Tutorial Exam Report</h4>
+                <h4 class="mb-0 font-weight-bold text-black">Tutorial Exam Report</h4>
                 <small class="text-muted">{{ $exam->name }} &mdash;
                     {{ $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? '') }}</small>
             </div>

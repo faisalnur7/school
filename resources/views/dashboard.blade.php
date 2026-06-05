@@ -226,7 +226,7 @@
     @if(auth()->user()?->hasAnyPermission(['view_recent_exam', 'view_recent_notice']))
     <div class="row g-3">
         @if(auth()->user()?->hasPermission('view_recent_exam'))
-        <div class="col-12 col-lg-6">
+        <div class="col-12 col-lg-12">
             <div class="card-modern h-100">
                 <div class="card-header-modern exam-header">
                     <span><i class="fas fa-file-alt me-2"></i>Recent Exams</span>
@@ -247,7 +247,7 @@
         </div>
         @endif
 
-        @if(auth()->user()?->hasPermission('view_recent_notice'))
+        {{-- @if(auth()->user()?->hasPermission('view_recent_notice'))
         <div class="col-12 col-lg-6">
             <div class="card-modern h-100">
                 <div class="card-header-modern notice-header">
@@ -267,7 +267,7 @@
                 </div>
             </div>
         </div>
-        @endif
+        @endif --}}
     </div>
     @endif
 </div>
@@ -320,6 +320,7 @@
 .quick-action-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    color: #fff;
 }
 
 .quick-action-card.attendance { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }

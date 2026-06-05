@@ -15,7 +15,7 @@
 
     <div class="card card-outline" style="border-top:3px solid #1a6b3c">
         <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-filter mr-2 text-success"></i>Filter Options</h3>
+            <h3 class="card-title text-white"><i class="fas fa-filter mr-2 text-success"></i>Filter Options</h3>
         </div>
         <div class="card-body">
             <form id="reportForm" method="POST" action="{{ route('result.progress-report.show') }}">

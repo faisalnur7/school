@@ -8,14 +8,14 @@
             <i class="fas fa-clipboard-list text-white fa-lg"></i>
         </div>
         <div>
-            <h4 class="mb-0 font-weight-bold text-white">Tutorial Exam Report</h4>
+            <h4 class="mb-0 font-weight-bold text-black">Tutorial Exam Report</h4>
             <small class="text-muted">Show obtained marks for tutorial exams</small>
         </div>
     </div>
 
     <div class="card card-outline" style="border-top:3px solid #0891b2">
         <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-filter mr-2 text-info"></i>Filter Options</h3>
+            <h3 class="card-title text-white"><i class="fas fa-filter mr-2 text-info"></i>Filter Options</h3>
         </div>
         <div class="card-body">
             <form id="reportForm" method="POST" action="{{ route('result.tutorial-report.show') }}">
