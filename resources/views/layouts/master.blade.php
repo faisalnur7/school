@@ -43,63 +43,115 @@
 
     @yield('scripts')
 
+    <style>
+        @media (max-width: 991.98px) {
+            #mainSidebar {
+                position: fixed !important;
+                inset: 0 auto 0 0;
+                width: 260px;
+                max-width: 85%;
+                transform: translateX(-100%);
+                transition: transform .25s ease-in-out;
+                z-index: 1070;
+                box-shadow: 2px 0 16px rgba(0, 0, 0, .18);
+                background-color: #ffffff;
+            }
+
+            #mainSidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                position: fixed;
+                inset: 0;
+                background-color: rgba(0, 0, 0, .45);
+                z-index: 1060;
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transition: opacity .25s ease-in-out, visibility .25s ease-in-out;
+            }
+
+            .sidebar-overlay.active {
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
+            }
+
+            body.sidebar-open {
+                overflow: hidden;
+            }
+        }
+    </style>
 
 <script>
         $(function() {
+            var sidebar = $('#mainSidebar');
+            var overlay = $('#sidebarOverlay');
+
+            function closeSidebar() {
+                sidebar.removeClass('mobile-open');
+                overlay.removeClass('active');
+                $('body').removeClass('sidebar-open sidebar-collapse');
+                $('#sidebar-overlay').remove();
+            }
+
+            function openSidebar() {
+                sidebar.addClass('mobile-open');
+                overlay.addClass('active');
+                $('body').addClass('sidebar-open');
+                $('#sidebar-overlay').remove();
+            }
+
             // Ensure sidebar starts in correct state based on screen size
             if ($(window).width() >= 992) {
-                $('#mainSidebar').removeClass('mobile-open');
-                $('#sidebarOverlay').removeClass('active');
-                $('body').removeClass('sidebar-open');
+                closeSidebar();
             }
             
             // Mobile sidebar toggle
             function toggleSidebar() {
-                var sidebar = $('#mainSidebar');
-                var overlay = $('#sidebarOverlay');
-                var isOpen = sidebar.hasClass('mobile-open');
-                
-                if (isOpen) {
-                    sidebar.removeClass('mobile-open');
-                    overlay.removeClass('active');
-                    $('body').removeClass('sidebar-open');
+                if ($(window).width() >= 992) {
+                    return;
+                }
+
+                if (sidebar.hasClass('mobile-open')) {
+                    closeSidebar();
                 } else {
-                    sidebar.addClass('mobile-open');
-                    overlay.addClass('active');
-                    $('body').addClass('sidebar-open');
+                    openSidebar();
                 }
             }
             
             // Toggle sidebar when button is clicked
             $(document).on('click', '[data-widget="pushmenu"]', function(e) {
-                e.preventDefault();
-                toggleSidebar();
+                if ($(window).width() < 992) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    toggleSidebar();
+                    return false;
+                }
             });
             
             // Close sidebar when overlay is clicked
             $(document).on('click', '#sidebarOverlay', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                $('#mainSidebar').removeClass('mobile-open');
-                $(this).removeClass('active');
-                $('body').removeClass('sidebar-open');
+                if ($(window).width() < 992) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    closeSidebar();
+                    return false;
+                }
             });
             
             // Close sidebar when nav link is clicked (mobile)
-            $(document).on('click', '.nav-link-modern', function(e) {
-                if ($(window).width() < 992) {
-                    $('#mainSidebar').removeClass('mobile-open');
-                    $('#sidebarOverlay').removeClass('active');
-                    $('body').removeClass('sidebar-open');
+            $(document).on('click', '.nav-link-modern', function() {
+                if ($(window).width() < 992 && sidebar.hasClass('mobile-open')) {
+                    closeSidebar();
                 }
             });
 
             // Handle window resize - reset mobile state on desktop
             $(window).on('resize', function() {
                 if ($(window).width() >= 992) {
-                    $('#mainSidebar').removeClass('mobile-open');
-                    $('#sidebarOverlay').removeClass('active');
-                    $('body').removeClass('sidebar-open');
+                    closeSidebar();
                 }
             }).trigger('resize'); // Trigger on load to set initial state
 
