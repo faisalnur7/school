@@ -9,6 +9,7 @@ use App\Models\BankAccount;
 use App\Models\MobileBankingAccount;
 use App\Models\HandCash;
 use App\Models\ExpenseCategory;
+use App\Models\SchoolSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -115,6 +116,33 @@ class AssetPurchaseController extends Controller
     {
         $assetPurchase->load(['items.asset.category', 'recorder']);
         return view('pages.assets.purchases.show', compact('assetPurchase'));
+    }
+
+    public function voucher(AssetPurchase $assetPurchase)
+    {
+        $setting = SchoolSetting::current();
+
+        $fromAccountName = $assetPurchase->payment_type ? ucfirst(str_replace('_', ' ', $assetPurchase->payment_type)) : 'Cash / Petty Cash';
+
+        $assetPurchase->loadMissing(['items.asset.category']);
+
+        $rows = $assetPurchase->items->map(function ($item) {
+            return [
+                'description' => $item->asset->name . ' (' . ($item->asset->category->name ?? 'Uncategorized') . ')',
+                'quantity' => $item->quantity,
+                'unit_price' => $item->unit_price,
+                'amount' => $item->total_price,
+            ];
+        })->toArray();
+
+        return view('pages.vouchers.print', [
+            'setting' => $setting,
+            'voucherType' => 'Credit Voucher',
+            'record' => $assetPurchase,
+            'fromAccountName' => $fromAccountName,
+            'rows' => $rows,
+            'total' => $assetPurchase->total_amount,
+        ]);
     }
 
     public function getAccounts(Request $request)

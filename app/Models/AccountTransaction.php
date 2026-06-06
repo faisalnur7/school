@@ -19,9 +19,11 @@ class AccountTransaction extends Model
         'transactionable_type',
         'transactionable_id',
         'recorded_by',
+        'is_reversal',
+        'reversed_id',
     ];
 
-    public static function record(string $accountType, int $accountId, string $type, float $amount, string $purpose, ?string $referenceNo, ?string $description, ?\DateTimeInterface $transactionDate = null, ?string $transactionableType = null, ?int $transactionableId = null, ?int $recordedBy = null): self
+    public static function record(string $accountType, int $accountId, string $type, float $amount, string $purpose, ?string $referenceNo, ?string $description, ?\DateTimeInterface $transactionDate = null, ?string $transactionableType = null, ?int $transactionableId = null, ?int $recordedBy = null, bool $isReversal = false, ?int $reversedId = null): self
     {
         $date = $transactionDate ? $transactionDate->format('Y-m-d') : now()->format('Y-m-d');
 
@@ -47,6 +49,8 @@ class AccountTransaction extends Model
             'transactionable_type' => $transactionableType,
             'transactionable_id'   => $transactionableId,
             'recorded_by'          => $recordedBy,
+            'is_reversal'          => $isReversal,
+            'reversed_id'          => $reversedId,
         ]);
     }
 
@@ -70,20 +74,38 @@ class AccountTransaction extends Model
         return self::record($accountType, $accountId, $direction, $amount, $purpose, $referenceNo, $description, $transactionDate, $transactionableType, $transactionableId, $recordedBy);
     }
 
+    public static function reverseEntry(self $entry, ?int $recordedBy = null, ?string $reason = null): self
+    {
+        $reverseType = $entry->type === 'credit' ? 'debit' : 'credit';
+        $referenceNo = $entry->reference_no ? $entry->reference_no . '-REV' : null;
+        $description = $reason ?? 'Reversal of ' . ($entry->description ?? $entry->purpose);
+
+        return self::record(
+            $entry->account_type,
+            $entry->account_id,
+            $reverseType,
+            $entry->amount,
+            $entry->purpose,
+            $referenceNo,
+            $description,
+            now(),
+            $entry->transactionable_type,
+            $entry->transactionable_id,
+            $recordedBy ?? $entry->recorded_by,
+            true,
+            $entry->id
+        );
+    }
+
     public static function removeSource(string $transactionableType, int $transactionableId): void
     {
         $entries = self::where('transactionable_type', $transactionableType)
             ->where('transactionable_id', $transactionableId)
+            ->where('is_reversal', false)
             ->get();
 
         foreach ($entries as $entry) {
-            $reverseType = $entry->type === 'credit' ? 'debit' : 'credit';
-            if ($reverseType === 'credit') {
-                $entry->account_type::where('id', $entry->account_id)->increment('balance', $entry->amount);
-            } else {
-                $entry->account_type::where('id', $entry->account_id)->decrement('balance', $entry->amount);
-            }
-            $entry->delete();
+            self::reverseEntry($entry, $entry->recorded_by, 'Reversal of account transaction');
         }
     }
 }

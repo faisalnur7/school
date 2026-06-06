@@ -44,12 +44,12 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
 
-                                <form action="{{ route('sessions.delete', $session->id) }}" method="POST"
+                                {{-- <form action="{{ route('sessions.delete', $session->id) }}" method="POST"
                                     class="btn btn-sm btn-danger" style="display:inline;"
                                     onsubmit="return confirm('Delete this session?')">
                                     @csrf @method('DELETE')
                                     <i class="fas fa-trash"></i>
-                                </form>
+                                </form> --}}
                             </td>
                         </tr>
                     @endforeach

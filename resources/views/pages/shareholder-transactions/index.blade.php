@@ -135,6 +135,9 @@
                                 <td>{{ $txn->description ?? '—' }}</td>
                                 <td>{{ $txn->recorder->name ?? '—' }}</td>
                                 <td style="display:flex;gap:5px; justify-content: center; align-items: center;;align-items:center">
+                                    <a href="{{ route('shareholder-transactions.voucher', $txn->id) }}" class="btn btn-sm btn-secondary" title="Print Voucher" target="_blank">
+                                        <i class="fas fa-print"></i>
+                                    </a>
                                     <a href="{{ route('shareholder-transactions.edit', $txn->id) }}" class="btn btn-sm btn-dark">
                                         <i class="fas fa-edit"></i>
                                     </a>

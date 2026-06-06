@@ -7,6 +7,7 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Transaction;
 use App\Models\AccountTransaction;
+use App\Models\SchoolSetting;
 use App\Services\JournalService;
 use Illuminate\Http\Request;
 
@@ -169,5 +170,28 @@ class ExpenseController extends Controller
         $expense->delete();
 
         return redirect()->route('expenses.index')->with('success', 'Expense deleted successfully.');
+    }
+
+    public function voucher(Expense $expense)
+    {
+        $setting = SchoolSetting::current();
+
+        $fromAccountName = $expense->account_type
+            ? class_basename($expense->account_type)
+            : 'Cash / Petty Cash';
+
+        $rows = [[
+            'description' => $expense->title ?: ($expense->description ?? 'Expense paid'),
+            'amount' => $expense->amount,
+        ]];
+
+        return view('pages.vouchers.print', [
+            'setting' => $setting,
+            'voucherType' => 'Credit Voucher',
+            'record' => $expense,
+            'fromAccountName' => $fromAccountName,
+            'rows' => $rows,
+            'total' => $expense->amount,
+        ]);
     }
 }

@@ -116,6 +116,20 @@ class JournalService
         );
     }
 
+    public static function reverseSource(string $sourceType, int $sourceId, ?int $userId = null): ?JournalEntry
+    {
+        $original = JournalEntry::where('source_type', $sourceType)
+            ->where('source_id', $sourceId)
+            ->latest('id')
+            ->first();
+
+        if (! $original) {
+            return null;
+        }
+
+        return self::reverse($original, $userId);
+    }
+
     /**
      * Shorthand: income transaction journal entry.
      * Dr Cash/Bank account, Cr Income account

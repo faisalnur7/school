@@ -46,13 +46,13 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
 
-                                <form action="{{ route('sections.delete', $section->id) }}" method="POST"
+                                {{-- <form action="{{ route('sections.delete', $section->id) }}" method="POST"
                                     class="btn btn-sm btn-danger d-inline m-0"
                                     onsubmit="return confirm('Delete this section?')">
                                     @csrf
                                     @method('DELETE')
                                     <i class="fas fa-trash"></i>
-                                </form>
+                                </form> --}}
                             </td>
                         </tr>
                     @endforeach

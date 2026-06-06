@@ -8,6 +8,7 @@ use App\Models\Transaction;
 use App\Models\AccountTransaction;
 use App\Models\IncomeCategory;
 use App\Models\ExpenseCategory;
+use App\Models\SchoolSetting;
 use App\Services\JournalService;
 use App\Services\PettyCashService;
 use Illuminate\Http\Request;
@@ -207,5 +208,27 @@ class ShareholderTransactionController extends Controller
         $shareholderTransaction->delete();
 
         return redirect()->route('shareholder-transactions.index')->with('success', 'Transaction deleted.');
+    }
+
+    public function voucher(Transaction $shareholderTransaction)
+    {
+        $setting = SchoolSetting::current();
+
+        $voucherType = in_array($shareholderTransaction->type, ['income', 'capital']) ? 'Debit Voucher' : 'Credit Voucher';
+        $fromAccountName = $shareholderTransaction->payment_method ? $shareholderTransaction->payment_method : 'Cash / Petty Cash';
+
+        $rows = [[
+            'description' => $shareholderTransaction->description ?: ucfirst($shareholderTransaction->type) . ' transaction',
+            'amount' => $shareholderTransaction->amount,
+        ]];
+
+        return view('pages.vouchers.print', [
+            'setting' => $setting,
+            'voucherType' => $voucherType,
+            'record' => $shareholderTransaction,
+            'fromAccountName' => $fromAccountName,
+            'rows' => $rows,
+            'total' => $shareholderTransaction->amount,
+        ]);
     }
 }

@@ -35,6 +35,9 @@
                         <td class="px-4 py-3">{{ ucfirst(str_replace('_', ' ', $purchase->payment_type)) }}</td>
                         <td class="px-4 py-3">{{ $purchase->recorder->name ?? '—' }}</td>
                         <td class="px-4 py-3 text-center">
+                            <a href="{{ route('asset-purchases.voucher', $purchase) }}" class="btn btn-sm btn-secondary" title="Print Voucher" target="_blank">
+                                <i class="fas fa-print"></i>
+                            </a>
                             <a href="{{ route('asset-purchases.show', $purchase) }}" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
                         </td>
                     </tr>

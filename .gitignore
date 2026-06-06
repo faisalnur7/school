@@ -5,6 +5,7 @@
 
 # Laravel
 /public/storage
+/public/uploads/students
 /storage/*.key
 /storage/debugbar
 /storage/logs

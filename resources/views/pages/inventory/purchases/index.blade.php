@@ -35,6 +35,7 @@
                             <th>Date</th>
                             <th>Supplier</th>
                             <th>Reference</th>
+                            <th>Notes</th>
                             <th>Total</th>
                             <th width="120">Actions</th>
                         </tr>
@@ -46,8 +47,12 @@
                                 <td>{{ $purchase->purchase_date?->format('Y-m-d') }}</td>
                                 <td>{{ $purchase->supplier?->name }}</td>
                                 <td>{{ $purchase->reference_no }}</td>
+                                <td>{{ $purchase->notes }}</td>
                                 <td>{{ number_format((float)$purchase->total_amount, 2) }}</td>
                                 <td>
+                                    <a href="{{ route('inventory.purchases.voucher', $purchase->id) }}" class="btn btn-sm btn-secondary" title="Print Voucher" target="_blank">
+                                        <i class="fas fa-print"></i>
+                                    </a>
                                     <a href="{{ route('inventory.purchases.show', $purchase->id) }}" class="btn btn-sm btn-info">
                                         <i class="fas fa-eye"></i>
                                     </a>

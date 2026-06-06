@@ -7,6 +7,7 @@ use App\Models\Income;
 use App\Models\IncomeCategory;
 use App\Models\Transaction;
 use App\Models\AccountTransaction;
+use App\Models\SchoolSetting;
 use App\Services\JournalService;
 use Illuminate\Http\Request;
 
@@ -175,5 +176,28 @@ class IncomeController extends Controller
             ->delete();
 
         return redirect()->route('incomes.index')->with('success', 'Income deleted successfully.');
+    }
+
+    public function voucher(Income $income)
+    {
+        $setting = SchoolSetting::current();
+
+        $fromAccountName = $income->account_type
+            ? class_basename($income->account_type)
+            : 'Cash / Petty Cash';
+
+        $rows = [[
+            'description' => $income->title ?: ($income->description ?? 'Income received'),
+            'amount' => $income->amount,
+        ]];
+
+        return view('pages.vouchers.print', [
+            'setting' => $setting,
+            'voucherType' => 'Debit Voucher',
+            'record' => $income,
+            'fromAccountName' => $fromAccountName,
+            'rows' => $rows,
+            'total' => $income->amount,
+        ]);
     }
 }

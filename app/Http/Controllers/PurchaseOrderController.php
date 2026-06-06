@@ -9,6 +9,7 @@ use App\Models\InventoryItem;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\SchoolClass;
+use App\Models\SchoolSetting;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Models\Transaction;
@@ -52,7 +53,9 @@ class PurchaseOrderController extends Controller
         $classes    = SchoolClass::where('status', true)->get();
         $groups     = Group::get();
 
-        return view('pages.inventory.purchases.create', compact('suppliers', 'products', 'categories', 'classes', 'groups'));
+        $reference = Transaction::generateReference();
+
+        return view('pages.inventory.purchases.create', compact('suppliers', 'products', 'categories', 'classes', 'groups', 'reference'));
     }
 
     public function store(Request $request)
@@ -71,6 +74,7 @@ class PurchaseOrderController extends Controller
         ]);
 
         $createdBy = auth()->id();
+        $reference = $validated['reference_no'] ?: Transaction::generateReference();
 
         $items = collect($validated['items'])
             ->groupBy('inventory_item_id')
@@ -88,11 +92,11 @@ class PurchaseOrderController extends Controller
 
         $totalAmount = (float)$items->sum('line_total');
 
-        $purchase = DB::transaction(function () use ($validated, $items, $totalAmount, $createdBy) {
+        $purchase = DB::transaction(function () use ($validated, $items, $totalAmount, $createdBy, $reference) {
             $purchase = PurchaseOrder::create([
                 'supplier_id' => $validated['supplier_id'],
                 'purchase_date' => $validated['purchase_date'],
-                'reference_no' => $validated['reference_no'] ?? null,
+                'reference_no' => $reference,
                 'notes' => $validated['notes'] ?? null,
                 'total_amount' => $totalAmount,
                 'created_by' => $createdBy,
@@ -177,5 +181,29 @@ class PurchaseOrderController extends Controller
             ->findOrFail($id);
 
         return view('pages.inventory.purchases.show', compact('purchase'));
+    }
+
+    public function voucher($id)
+    {
+        $purchase = PurchaseOrder::with(['supplier', 'items.inventoryItem.category', 'createdBy'])->findOrFail($id);
+        $setting = SchoolSetting::current();
+
+        $rows = $purchase->items->map(function ($item) {
+            return [
+                'description' => $item->inventoryItem?->name . ' (' . ($item->inventoryItem?->category?->name ?? 'Uncategorized') . ')',
+                'quantity' => $item->quantity,
+                'unit_price' => $item->unit_price,
+                'amount' => $item->line_total,
+            ];
+        })->toArray();
+
+        return view('pages.vouchers.print', [
+            'setting' => $setting,
+            'voucherType' => 'Credit Voucher',
+            'record' => $purchase,
+            'fromAccountName' => 'Cash / Petty Cash',
+            'rows' => $rows,
+            'total' => $purchase->total_amount,
+        ]);
     }
 }

@@ -18,6 +18,7 @@
 
     <form method="POST" action="{{ route('inventory.purchases.store') }}" id="purchaseForm">
         @csrf
+        @php $reference = $reference ?? ''; @endphp
         <div class="purchase-body">
 
             <!-- LEFT: Form -->
@@ -65,7 +66,7 @@
                                 <label class="order-label">Reference No</label>
                                 <div class="order-input-wrap">
                                     <i class="fas fa-hashtag order-input-icon"></i>
-                                    <input type="text" name="reference_no" value="{{ old('reference_no') }}" class="order-input @error('reference_no') is-invalid @enderror" placeholder="e.g. PO-2024-001">
+                                    <input type="text" name="reference_no" value="{{ old('reference_no', $reference ?? '') }}" class="order-input @error('reference_no') is-invalid @enderror" readonly>
                                 </div>
                                 @error('reference_no')<div class="order-error">{{ $message }}</div>@enderror
                             </div>

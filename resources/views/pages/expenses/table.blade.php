@@ -94,6 +94,9 @@
                                 @endif
                             </td>
                             <td style="display:flex;gap:5px; justify-content: center; align-items: center;;align-items:center">
+                                <a href="{{ route('expenses.voucher', $expense->id) }}" class="btn btn-sm btn-secondary" title="Print Voucher" target="_blank">
+                                    <i class="fas fa-print"></i>
+                                </a>
                                 <a href="{{ route('expenses.edit', $expense->id) }}" class="btn btn-sm btn-dark">
                                     <i class="fas fa-edit"></i>
                                 </a>

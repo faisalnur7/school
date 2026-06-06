@@ -544,6 +544,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/{income}/edit', [IncomeController::class, 'edit'])->name('incomes.edit');
         Route::put('/{income}/update', [IncomeController::class, 'update'])->name('incomes.update');
         Route::delete('/{income}/destroy', [IncomeController::class, 'destroy'])->name('incomes.destroy');
+        Route::get('/{income}/voucher', [IncomeController::class, 'voucher'])->name('incomes.voucher');
     });
 
     Route::middleware('permission:manage_expenses')->prefix('expenses')->group(function () {
@@ -553,6 +554,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/{expense}/edit', [ExpenseController::class, 'edit'])->name('expenses.edit');
         Route::put('/{expense}/update', [ExpenseController::class, 'update'])->name('expenses.update');
         Route::delete('/{expense}/destroy', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+        Route::get('/{expense}/voucher', [ExpenseController::class, 'voucher'])->name('expenses.voucher');
     });
 
     Route::middleware('permission:manage_bank_accounts')->prefix('bank-accounts')->group(function () {
@@ -748,6 +750,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:manage_shareholders')->group(function () {
         Route::resource('shareholders', \App\Http\Controllers\ShareholderController::class);
         Route::resource('shareholder-transactions', \App\Http\Controllers\ShareholderTransactionController::class);
+        Route::get('/shareholder-transactions/{shareholderTransaction}/voucher', [\App\Http\Controllers\ShareholderTransactionController::class, 'voucher'])->name('shareholder-transactions.voucher');
     });
 
     // ------------------- Financials -------------------
@@ -910,6 +913,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/create', [AssetPurchaseController::class, 'create'])->name('asset-purchases.create');
         Route::post('/', [AssetPurchaseController::class, 'store'])->name('asset-purchases.store');
         Route::get('/{assetPurchase}', [AssetPurchaseController::class, 'show'])->name('asset-purchases.show');
+        Route::get('/{assetPurchase}/voucher', [AssetPurchaseController::class, 'voucher'])->name('asset-purchases.voucher');
     });
 
     Route::middleware('permission:view_assets')->prefix('facilities')->group(function () {
@@ -967,6 +971,7 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::get('/purchases/create', [PurchaseOrderController::class, 'create'])->name('inventory.purchases.create');
                 Route::post('/purchases', [PurchaseOrderController::class, 'store'])->name('inventory.purchases.store');
                 Route::get('/purchases/{id}', [PurchaseOrderController::class, 'show'])->name('inventory.purchases.show');
+            Route::get('/purchases/{id}/voucher', [PurchaseOrderController::class, 'voucher'])->name('inventory.purchases.voucher');
             });
 
             Route::middleware('permission:view_inventory_reports')->group(function () {
