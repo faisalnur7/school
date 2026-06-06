@@ -38,7 +38,23 @@ class IncomeController extends Controller
 
     public function create()
     {
-        $categories = IncomeCategory::where('is_active', true)->get();
+        $excludedCategories = [
+            'Student Payment',
+            'Admission Fee',
+            'Exam Fee',
+            'Transport Fee',
+            'Stationery',
+            'Books',
+            'School Bag',
+            'Student Uniform',
+            'Sports Dress',
+            'Inventory Sales',
+        ];
+
+        $categories = IncomeCategory::where('is_active', true)
+            ->whereNotIn('name', $excludedCategories)
+            ->get();
+
         $incomes    = Income::with('category')->latest('income_date')->paginate(15);
         $total      = Income::sum('amount');
         return view('pages.incomes.create', compact('categories', 'incomes', 'total'));
