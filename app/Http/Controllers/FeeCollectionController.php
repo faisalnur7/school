@@ -522,17 +522,16 @@ class FeeCollectionController extends Controller
             // Second pass: distribute fee-only payment amount proportionally
             foreach ($fees as $fee) {
                 $netAfterScholarship = $feeNetAmounts[$fee->id] ?? 0;
-                if ($netAfterScholarship <= 0) continue;
 
                 $feeCartDiscount = $totalAfterScholarship > 0
                     ? round($cartDiscount * ($netAfterScholarship / $totalAfterScholarship), 2)
                     : 0;
 
                 $netAmount = max(0, $netAfterScholarship - $feeCartDiscount);
-                if ($netAmount <= 0) continue;
 
-                // Distribute fee-only payment proportionally
-                $paidAmount = $totalNetAmount > 0 ? round($feeOnlyPayment * ($netAmount / $totalNetAmount), 2) : 0;
+                $paidAmount = $netAmount > 0
+                    ? round($feeOnlyPayment * ($netAmount / $totalNetAmount), 2)
+                    : 0.0;
 
                 PaymentItem::create([
                     'payment_id' => $payment->id,
@@ -540,9 +539,13 @@ class FeeCollectionController extends Controller
                     'amount'     => $paidAmount,
                 ]);
 
-                // Split this fee payment by fee-set category type so accounting can post:
-                // - student-payment (regular heads)
-                // - transport-fee (transport heads)
+                if ($netAmount <= 0) {
+                    $fee->paid_amount += 0;
+                    $fee->status = 'paid';
+                    $fee->save();
+                    continue;
+                }
+
                 $transportBase = 0.0;
                 $regularBase   = 0.0;
                 foreach ($fee->feeSet->items as $item) {
@@ -558,7 +561,6 @@ class FeeCollectionController extends Controller
                     $transportShare = round($paidAmount * ($transportBase / $totalBase), 2);
                     $regularShare   = round($paidAmount - $transportShare, 2);
                 } else {
-                    // Fallback: treat unknown composition as regular student payment.
                     $transportShare = 0.0;
                     $regularShare   = (float) $paidAmount;
                 }
