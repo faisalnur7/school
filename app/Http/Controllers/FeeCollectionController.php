@@ -233,6 +233,8 @@ class FeeCollectionController extends Controller
             $totalDiscount = 0;
             $totalTransport = 0;
 
+            $feeGross = max(0, $fee->amount - $fee->paid_amount);
+
             foreach ($fee->feeSet->items as $item) {
                 // Scholarships - specific category
                 if (isset($scholarshipsByCategory[$item->fee_category_id])) {
@@ -264,13 +266,13 @@ class FeeCollectionController extends Controller
             // Scholarships - applies to all categories (once per fee)
             if (!empty($scholarshipsForAll)) {
                 foreach ($scholarshipsForAll as $scholarship) {
-                    $discount = $scholarship->calculateDiscount($fee->amount - $totalDiscount);
+                    $discount = $scholarship->calculateDiscount($feeGross - $totalDiscount);
                     if ($discount > 0) {
                         $categoryDiscounts[] = [
                             'category' => 'Scholarship (All Categories)',
-                            'amount' => $fee->amount - $totalDiscount,
+                            'amount' => $feeGross - $totalDiscount,
                             'discount' => $discount,
-                            'net' => ($fee->amount - $totalDiscount) - $discount,
+                            'net' => ($feeGross - $totalDiscount) - $discount,
                         ];
                         $totalDiscount += $discount;
                     }
@@ -280,13 +282,13 @@ class FeeCollectionController extends Controller
             // Free Studentships - applies to all categories (once per fee)
             if (!empty($freeStudentshipsForAll)) {
                 foreach ($freeStudentshipsForAll as $freeStudentship) {
-                    $discount = $freeStudentship->calculateDiscount($fee->amount - $totalDiscount);
+                    $discount = $freeStudentship->calculateDiscount($feeGross - $totalDiscount);
                     if ($discount > 0) {
                         $categoryDiscounts[] = [
                             'category' => 'Free All Categories',
-                            'amount' => $fee->amount - $totalDiscount,
+                            'amount' => $feeGross - $totalDiscount,
                             'discount' => $discount,
-                            'net' => ($fee->amount - $totalDiscount) - $discount,
+                            'net' => ($feeGross - $totalDiscount) - $discount,
                         ];
                         $totalDiscount += $discount;
                     }
@@ -296,7 +298,8 @@ class FeeCollectionController extends Controller
             $fee->category_discounts = $categoryDiscounts;
             $fee->total_scholarship_discount = $totalDiscount;
             $fee->total_transport_fee = $totalTransport;
-            $fee->calculated_net_amount = $fee->amount - $totalDiscount + $totalTransport;
+            $fee->remaining_gross = $feeGross;
+            $fee->calculated_net_amount = max(0, $feeGross - $totalDiscount + $totalTransport);
         }
 
         $studentClassId = optional($student->academicInformations->last())->school_class_id;
@@ -469,8 +472,9 @@ class FeeCollectionController extends Controller
             // Fee-only portion of the payment (exclude inventory)
             $feeOnlyPayment = max(0, $paymentAmount - $inventorySaleTotal);
 
-            if ($paymentAmount <= 0 && $inventorySaleTotal <= 0) {
-                return response()->json(['message' => 'Payment amount must be greater than 0'], 422);
+            // Guard only against a fully empty submission (no fees, no items, no amount).
+            if ($paymentAmount <= 0 && $feeOnlyPayment <= 0 && $inventorySaleTotal <= 0 && empty($request->fees) && empty($request->items)) {
+                return response()->json(['message' => 'Please select at least one fee or item'], 422);
             }
 
             $paymentMethod = $this->normalizePaymentMethod($request->payment_method);

@@ -61,12 +61,12 @@
         {{-- ── Tabs ── --}}
         <ul class="nav nav-tabs mb-4" id="mainTabs">
             <li class="nav-item">
-                <a class="nav-link active fw-semibold" data-bs-toggle="tab" href="#tabCollect">
+                <a class="nav-link active fw-semibold" href="#tabCollect">
                     💳 Collect Payment
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link fw-semibold" data-bs-toggle="tab" href="#tabHistory">
+                <a class="nav-link fw-semibold" href="#tabHistory">
                     🧾 Payment History
                     <span class="badge rounded-pill ms-1"
                         style="font-size:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
@@ -180,7 +180,7 @@
                                         <div class="fee-card bg-white rounded-4 p-3 mb-3"
                                             data-cat="{{ $fee->fee_set_id }}"
                                             data-id="{{ $fee->id }}"
-                                            data-amount="{{ $fee->calculated_net_amount ?? $fee->net_amount }}"
+                                            data-amount="{{ $fee->calculated_net_amount }}"
                                             data-gross="{{ $fee->amount }}"
                                             data-discount="{{ $fee->total_scholarship_discount ?? 0 }}"
                                             data-name="{{ $feeSetName }}"
@@ -218,7 +218,7 @@
                                                         </p>
                                                     @endif
                                                     <p class="mono fw-bold mb-1" style="font-size:19px;color:#4338ca">
-                                                        {{ number_format($fee->calculated_net_amount ?? $fee->net_amount, 2) }}
+                                                        {{ number_format($fee->calculated_net_amount, 2) }}
                                                     </p>
                                                     <span class="badge rounded-pill"
                                                         style="font-size:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
@@ -350,9 +350,9 @@
                                     <div class="mb-3">
                                         <label for="paymentAmount" class="form-label mono text-muted fw-semibold"
                                             style="font-size:11px;letter-spacing:.08em">PAYMENT AMOUNT</label>
-                                        <input type="number" id="paymentAmount" name="payment_amount" min="0" step="0.01"
-                                            placeholder="Enter payment amount" class="form-control" style="font-size:16px;border-radius:8px;border:1px solid #e2e8f0">
-                                        <small class="text-muted" style="font-size:11px">Leave empty to pay full amount, or enter partial amount</small>
+                                         <input type="number" id="paymentAmount" name="payment_amount" min="0" step="0.01"
+                                             placeholder="Enter payment amount" class="form-control" style="font-size:16px;border-radius:8px;border:1px solid #e2e8f0">
+                                         <small class="text-muted" style="font-size:11px">Leave empty to pay full amount, enter partial amount, or enter 0</small>
                                     </div>
 
                                     <div class="mb-3">
@@ -903,7 +903,7 @@
                     fees: [...cartIds],
                     items: itemsPayload,
                     student_id: @json($student->id),
-                    payment_amount: $('#paymentAmount').val() || $totalEl.text(),
+                    payment_amount: $('#paymentAmount').val() ?? $totalEl.text(),
                     discount: $('#discountInput').val() || 0,
                     discount_type: $('#discountTypeHidden').val(),
                     discount_amount: $('#discountAmountHidden').val(),
@@ -982,25 +982,24 @@
                 });
             });
 
+            // Tab switching without Bootstrap
+            $('#mainTabs a').on('click', function(e) {
+                e.preventDefault();
+                $('#mainTabs a').removeClass('active');
+                $('div.tab-pane').removeClass('active show');
+                $(this).addClass('active');
+                $($(this).attr('href')).addClass('active show');
+            });
+
             // Activate tab based on URL hash (e.g., /fees/collect_payment/1#tabHistory)
-            (function() {
+            $(function() {
                 const h = window.location.hash;
                 if (!h) return;
-                try {
-                    const selector = '#mainTabs a[href="' + h + '"]';
-                    const $link = $(selector);
-                    if ($link.length) {
-                        const el = $link.get(0);
-                        if (typeof bootstrap !== 'undefined' && bootstrap.Tab) {
-                            new bootstrap.Tab(el).show();
-                        } else if ($link.tab) {
-                            $link.tab('show');
-                        }
-                    }
-                } catch (e) {
-                    console.error('Tab activation from hash failed', e);
-                }
-            }());
+                setTimeout(function() {
+                    const $link = $('#mainTabs a[href="' + h + '"]');
+                    if ($link.length) $link.trigger('click');
+                }, 100);
+            });
         });
     </script>
 @endsection
