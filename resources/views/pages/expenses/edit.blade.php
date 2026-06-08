@@ -14,8 +14,9 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('expenses.update', $expense->id) }}" id="modernForm">
+        <form method="POST" action="{{ route('expenses.update', $expense->id) }}" id="modernForm" enctype="multipart/form-data">
             @csrf
+            @method('PUT')
 
             <div class="card-body p-3">
                 @if($errors->any())
