@@ -149,9 +149,20 @@ class ShareholderTransactionController extends Controller
     public function edit(Transaction $shareholderTransaction)
     {
         $shareholders = Shareholder::orderBy('name')->get();
+        // Find any linked account transaction for this transaction source
+        $acctEntry = AccountTransaction::where('transactionable_type', Transaction::class)
+            ->where('transactionable_id', $shareholderTransaction->id)
+            ->where('is_reversal', false)
+            ->first();
+
+        $accountType = $acctEntry?->account_type ?? null;
+        $accountId   = $acctEntry?->account_id ?? null;
+
         return view('pages.shareholder-transactions.edit', [
             'transaction'  => $shareholderTransaction,
             'shareholders' => $shareholders,
+            'accountType'  => $accountType,
+            'accountId'    => $accountId,
         ]);
     }
 

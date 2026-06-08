@@ -47,7 +47,7 @@ class AssetIssueController extends Controller
             'asset_id'       => 'required|exists:assets,id',
             'issued_to'      => 'required|string|max:255',
             'issued_to_type' => 'nullable|string|max:100',
-            'department_id'  => 'nullable|integer|max:100',
+            'department_id'  => 'required|exists:departments,id',
             'quantity'       => 'required|integer|min:1',
             'issue_date'     => 'required|date_format:d/m/Y',
             'notes'          => 'nullable|string',

@@ -26,4 +26,9 @@ class AssetIssue extends Model
     {
         return $this->belongsTo(User::class, 'recorded_by');
     }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
 }

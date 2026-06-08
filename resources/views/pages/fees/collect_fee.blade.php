@@ -981,6 +981,26 @@
                     }
                 });
             });
+
+            // Activate tab based on URL hash (e.g., /fees/collect_payment/1#tabHistory)
+            (function() {
+                const h = window.location.hash;
+                if (!h) return;
+                try {
+                    const selector = '#mainTabs a[href="' + h + '"]';
+                    const $link = $(selector);
+                    if ($link.length) {
+                        const el = $link.get(0);
+                        if (typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+                            new bootstrap.Tab(el).show();
+                        } else if ($link.tab) {
+                            $link.tab('show');
+                        }
+                    }
+                } catch (e) {
+                    console.error('Tab activation from hash failed', e);
+                }
+            }());
         });
     </script>
 @endsection

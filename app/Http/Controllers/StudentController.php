@@ -58,6 +58,11 @@ class StudentController extends Controller
             'academicInformations.group'
         ]);
 
+        // Exclude checked-out / inactive students from the main students listing.
+        // Checked-out students are preserved in academic history and shown under
+        // the `students.checked-out` route which queries StudentAcademicInformation.
+        $query->where('status', 1);
+
         if ($request->filled('academic_session_id')) {
             $query->whereHas('academicInformations', function($q) use ($request) {
                 $q->where('academic_session_id', $request->academic_session_id);

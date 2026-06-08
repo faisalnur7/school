@@ -26,12 +26,12 @@
             <div class="table-responsive">
                 <table class="table table-hover mb-0" style="font-size:13px">
                     <thead style="background:#f8fafc">
-                        <tr><th>Time</th><th>Reference</th><th>Description</th><th>Type</th><th>Debit Account</th><th>Credit Account</th><th class="text-right">Amount</th></tr>
+                        <tr><th>Date</th><th>Reference</th><th>Description</th><th>Type</th><th>Debit Account</th><th>Credit Account</th><th class="text-right">Amount</th></tr>
                     </thead>
                     <tbody>
                         @forelse($transactions as $txn)
                         <tr>
-                            <td style="font-size:11px;color:#64748b">{{ $txn->created_at->format('H:i') }}</td>
+                            <td style="font-size:11px;color:#64748b">{{ $txn->created_at->format('d/m/Y') }}</td>
                             <td style="font-family:monospace;font-size:11px">{{ $txn->reference_no }}</td>
                             <td>{{ $txn->description ?? '—' }}</td>
                             <td>
@@ -43,7 +43,7 @@
                             <td class="text-right fw-bold">{{ number_format($txn->amount, 2) }}</td>
                         </tr>
                         @empty
-                        <tr><td colspan="7" class="text-center text-muted py-4">No transactions on this date</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted py-4">No transactions on this date</td></tr>
                         @endforelse
                     </tbody>
                 </table>

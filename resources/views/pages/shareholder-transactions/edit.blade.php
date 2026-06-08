@@ -83,7 +83,7 @@
                             </select>
                         </div>
 
-                        <input type="hidden" name="account_type" id="transactionAccountType" value="{{ old('account_type', $transaction->account_type ?? '') }}">
+                        <input type="hidden" name="account_type" id="transactionAccountType" value="{{ old('account_type', $accountType ?? $transaction->account_type ?? '') }}">
 
                         <div class="form-group" id="transactionAccountWrapper" style="display:none">
                             <label>Account</label>
@@ -133,6 +133,7 @@
     });
 
     const accountsUrl = '{{ route('accounts.index') }}';
+    const initialAccountId = '{{ old('account_id', $accountId ?? '') }}';
 
     const methodTypeMap = {
         'Cash':           'hand_cash',
@@ -165,7 +166,11 @@
             success: function (accounts) {
                 $select.html('<option value="">Select Account</option>');
                 accounts.forEach(a => $select.append(`<option value="${a.id}">${a.label}</option>`));
-                $wrapper.toggle(accounts.length > 0);
+                    $wrapper.toggle(accounts.length > 0);
+                    // Auto-select previously saved account when editing
+                    if (initialAccountId) {
+                        $select.val(initialAccountId);
+                    }
             },
             error: function () { $wrapper.hide(); }
         });

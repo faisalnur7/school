@@ -4,9 +4,9 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
-            <h3 class="card-title mb-0 text-white text-lg">All Transactions</h3>
+            <h3 class="card-title mb-0 text-white text-lg">{{ request('type') === 'capital' ? 'Capital Transactions' : 'All Transactions' }}</h3>
             <a href="{{ route('shareholder-transactions.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
-                + Add Transaction
+                + Add Capital
             </a>
         </div>
 
@@ -21,13 +21,18 @@
                 <div class="row g-2 align-items-end">
                     <div class="col-md-3">
                         <label class="form-label mb-1" style="font-size:12px">Type</label>
-                        <select name="type" class="form-control form-control-sm">
-                            <option value="">All Types</option>
-                            <option value="income" {{ request('type') === 'income' ? 'selected' : '' }}>Income</option>
-                            <option value="expense" {{ request('type') === 'expense' ? 'selected' : '' }}>Expense</option>
-                            <option value="capital" {{ request('type') === 'capital' ? 'selected' : '' }}>Capital</option>
-                            <option value="withdrawal" {{ request('type') === 'withdrawal' ? 'selected' : '' }}>Withdrawal</option>
-                        </select>
+                        @if(request('type') === 'capital')
+                            <input type="hidden" name="type" value="capital">
+                            <input class="form-control form-control-sm" value="Capital" disabled>
+                        @else
+                            <select name="type" class="form-control form-control-sm">
+                                <option value="">All Types</option>
+                                <option value="income" {{ request('type') === 'income' ? 'selected' : '' }}>Income</option>
+                                <option value="expense" {{ request('type') === 'expense' ? 'selected' : '' }}>Expense</option>
+                                <option value="capital" {{ request('type') === 'capital' ? 'selected' : '' }}>Capital</option>
+                                <option value="withdrawal" {{ request('type') === 'withdrawal' ? 'selected' : '' }}>Withdrawal</option>
+                            </select>
+                        @endif
                     </div>
                     <div class="col-md-3">
                         <label class="form-label mb-1" style="font-size:12px">Shareholder</label>
@@ -40,22 +45,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label mb-1" style="font-size:12px">Category</label>
-                        <select name="category_id" class="form-control form-control-sm">
-                            <option value="">All Categories</option>
-                            <optgroup label="Income Categories">
-                            @foreach ($incomeCategories as $cat)
-                                <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
-                            @endforeach
-                            </optgroup>
-                            <optgroup label="Expense Categories">
-                            @foreach ($expenseCategories as $cat)
-                                <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
-                            @endforeach
-                            </optgroup>
-                        </select>
-                    </div>
+                    
                     <div class="col-md-3 d-flex gap-2">
                         <button type="submit" class="btn btn-sm btn-dark">Filter</button>
                         <a href="{{ route('shareholder-transactions.index') }}" class="btn btn-sm btn-secondary">Reset</a>
