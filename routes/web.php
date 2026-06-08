@@ -110,6 +110,7 @@ use App\Http\Controllers\{
     InstituteHubController,
     LocationHubController,
     ShareholdersHubController,
+    ShareholderContributionController,
     BudgetHubController,
     UsersHubController
 };
@@ -748,6 +749,8 @@ Route::group(['middleware' => ['auth']], function () {
 
     // ------------------- Shareholders -------------------
     Route::middleware('permission:manage_shareholders')->group(function () {
+        Route::get('/shareholders/contribution', [ShareholderContributionController::class, 'index'])->name('shareholders.contribution');
+        Route::get('/shareholders/contribution/pdf', [ShareholderContributionController::class, 'pdf'])->name('shareholders.contribution.pdf');
         Route::resource('shareholders', \App\Http\Controllers\ShareholderController::class);
         Route::resource('shareholder-transactions', \App\Http\Controllers\ShareholderTransactionController::class);
         Route::get('/shareholder-transactions/{shareholderTransaction}/voucher', [\App\Http\Controllers\ShareholderTransactionController::class, 'voucher'])->name('shareholder-transactions.voucher');
