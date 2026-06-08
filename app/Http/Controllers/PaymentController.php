@@ -40,7 +40,12 @@ class PaymentController extends Controller
 
     public function edit(Payment $payment)
     {
-        $payment->load(['items.fee.feeSet.items.category', 'student', 'collector']);
+        $payment->load([
+            'items.fee.feeSet.items.category',
+            'student',
+            'collector',
+            'inventorySale.items.inventoryItem.category',
+        ]);
         
         return view('pages.payments.edit', compact('payment'));
     }
@@ -54,12 +59,86 @@ class PaymentController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $newAmount = (float) $request->amount;
+        // Prefer per-item updates when provided; otherwise fall back to previous scaling logic.
+        $itemsInput = $request->input('items', []);
 
-        DB::transaction(function () use ($payment, $request, $newAmount) {
+        DB::transaction(function () use ($payment, $request, $itemsInput) {
+            // First: handle inventory sale item updates if provided
+            $saleItemsInput = $request->input('sale_items', []);
+            $inventoryTotal = 0.0;
+            if (is_array($saleItemsInput) && count($saleItemsInput) && $payment->inventorySale) {
+                foreach ($saleItemsInput as $id => $vals) {
+                    $si = \App\Models\InventorySaleItem::where('id', $id)->where('inventory_sale_id', $payment->inventory_sale_id)->first();
+                    if (!$si) continue;
+
+                    $qty = (int) ($vals['quantity'] ?? $si->quantity);
+                    $unit = round((float) ($vals['unit_price'] ?? $si->unit_price), 2);
+
+                    $si->quantity = $qty;
+                    $si->unit_price = $unit;
+                    $si->subtotal = round($qty * $unit, 2);
+                    $si->save();
+                }
+
+                // Recalculate inventory sale total
+                $inventoryTotal = (float) $payment->inventorySale->items()->sum('subtotal');
+                $payment->inventorySale->total_amount = $inventoryTotal;
+                $payment->inventorySale->save();
+            }
+
+            // Then: handle fee payment items if provided
+            if (is_array($itemsInput) && count($itemsInput)) {
+                $providedTotal = 0.0;
+                foreach ($itemsInput as $id => $vals) {
+                    $providedTotal += (float) ($vals['amount'] ?? 0);
+                }
+                $feesTotal = (float) $providedTotal;
+
+                // Update payment header fields (payment_date/method/description apply regardless)
+                $payment->update([
+                    'payment_date' => $request->payment_date,
+                    'payment_method' => $request->payment_method,
+                    'description' => $request->description,
+                ]);
+
+                // Apply per-item amounts and adjust linked fees
+                foreach ($itemsInput as $id => $vals) {
+                    $item = \App\Models\PaymentItem::where('id', $id)->where('payment_id', $payment->id)->with('fee')->first();
+                    if (!$item) continue;
+
+                    $oldItemAmount = (float) $item->amount;
+                    $newItemAmount = round((float) ($vals['amount'] ?? 0), 2);
+                    $diff = round($newItemAmount - $oldItemAmount, 2);
+
+                    $item->amount = $newItemAmount;
+                    $item->save();
+
+                    $fee = $item->fee;
+                    if ($fee) {
+                        $fee->paid_amount = max(0, min($fee->paid_amount + $diff, $fee->amount));
+                        $fee->status = $fee->paid_amount <= 0 ? 'pending' : ($fee->paid_amount >= $fee->amount ? 'paid' : 'partial');
+                        $fee->save();
+                    }
+                }
+
+                // recompute fees total from DB to be safe
+                $feesTotal = (float) $payment->items()->sum('amount');
+
+                // Compute final payment totals combining fees + inventory
+                $totalPayment = $feesTotal + $inventoryTotal;
+                $payment->amount = $totalPayment;
+                $payment->gross_amount = $totalPayment;
+                $payment->save();
+
+                return;
+            }
+
+            // ── Legacy behaviour: scale existing items when top-level amount changed ──
+            $newAmount = (float) $request->amount;
             $originalAmount = (float) $payment->amount;
             $payment->update([
                 'amount' => $newAmount,
+                'gross_amount' => $newAmount,
                 'payment_date' => $request->payment_date,
                 'payment_method' => $request->payment_method,
                 'description' => $request->description,

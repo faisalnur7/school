@@ -60,6 +60,46 @@
                 </div>
                 <div class="card-body p-0">
                     <div id="paymentItemsList">
+                        @if ($payment->inventorySale && $payment->inventorySale->items->isNotEmpty())
+                        @foreach ($payment->inventorySale->items as $saleItem)
+                        <div class="payment-item-row px-4 py-3 border-bottom" style="border-color:#f1f5f9">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="mb-2">
+                                        <h6 class="fw-bold mb-1" style="font-size:14px">
+                                            {{ $saleItem->inventoryItem->name ?? 'Inventory Item' }}
+                                        </h6>
+                                        <small class="text-muted">
+                                            {{ $saleItem->inventoryItem->category->name ?? 'Uncategorized' }}
+                                        </small>
+                                    </div>
+
+                                    <div class="ms-2" style="font-size:12px;max-width:220px">
+                                        <div class="d-flex justify-content-between text-muted mb-1 align-items-center">
+                                            <label class="mb-0" style="font-size:12px">Qty</label>
+                                            <input type="number" min="0" step="1" name="sale_items[{{ $saleItem->id }}][quantity]" 
+                                                value="{{ $saleItem->quantity }}" class="form-control form-control-sm" style="width:90px;border-color:#e2e8f0">
+                                        </div>
+                                        <div class="d-flex justify-content-between text-muted mb-1 align-items-center">
+                                            <label class="mb-0" style="font-size:12px">Unit Price</label>
+                                            <input type="number" min="0" step="0.01" name="sale_items[{{ $saleItem->id }}][unit_price]" 
+                                                value="{{ number_format($saleItem->unit_price, 2, '.', '') }}" class="form-control form-control-sm" style="width:90px;border-color:#e2e8f0">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-end ms-3">
+                                    <div class="mb-3">
+                                        <span class="mono fw-bold" style="font-size:16px;color:#4338ca">
+                                            {{ number_format($saleItem->subtotal, 2) }}
+                                        </span>
+                                        <span class="text-muted mono" style="font-size:11px">BDT</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                        @elseif ($payment->items->isNotEmpty())
                         @forelse ($payment->items as $item)
                         <div class="payment-item-row px-4 py-3 border-bottom" style="border-color:#f1f5f9" data-item-id="{{ $item->id }}">
                             <div class="d-flex justify-content-between align-items-start">
@@ -85,11 +125,12 @@
                                 </div>
 
                                 <div class="text-end ms-3">
-                                    <div class="mb-3">
-                                        <span class="mono fw-bold" style="font-size:16px;color:#4338ca">
-                                            {{ number_format($item->amount, 2) }}
-                                        </span>
-                                        <span class="text-muted mono" style="font-size:11px">BDT</span>
+                                    <div class="mb-3" style="max-width:160px">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text" style="background:#fff;border-color:#e2e8f0">BDT</span>
+                                            <input type="number" step="0.01" name="items[{{ $item->id }}][amount]" class="form-control form-control-sm" 
+                                                value="{{ number_format($item->amount, 2, '.', '') }}" required style="border-color:#e2e8f0">
+                                        </div>
                                     </div>
                                     <button type="button" class="btn btn-sm btn-outline-danger remove-item-btn rounded-2"
                                         data-item-id="{{ $item->id }}" style="font-size:12px">
@@ -117,6 +158,11 @@
                             <p>No payment items</p>
                         </div>
                         @endforelse
+                        @else
+                        <div class="text-center text-muted py-4">
+                            <p>No payment items</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>

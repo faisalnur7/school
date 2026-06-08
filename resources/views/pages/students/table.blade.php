@@ -196,10 +196,10 @@
                                         'age_to',
                                         'gender',
                                         'status',
-                                        'permanent_division_id',
-                                        'permanent_district_id',
-                                        'permanent_police_station_id',
-                                        'permanent_post_office_id',
+                                        'present_division_id',
+                                        'present_district_id',
+                                        'present_police_station_id',
+                                        'present_post_office_id',
                                     ]))
                                     <a href="{{ route('students.index') }}" class="btn btn-sm btn-primary">
                                         Clear Filters

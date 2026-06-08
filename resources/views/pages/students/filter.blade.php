@@ -65,7 +65,7 @@
                         </select>
                     </div>
 
-                    <!-- Location Filters -->
+                    {{-- <!-- Location Filters -->
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Division</label>
                         <select name="present_division_id" class="form-control form-control-sm">
@@ -116,7 +116,7 @@
                                 </option>
                             @endforeach
                         </select>
-                    </div>
+                    </div> --}}
 
                     <!-- Contact & Age Filters -->
                     <div class="col-md-3 mb-3">
@@ -125,7 +125,7 @@
                             placeholder="Father/Mother/Guardian" value="{{ request('phone') }}">
                     </div>
 
-                    <div class="col-md-3 mb-3">
+                    {{-- <div class="col-md-3 mb-3">
                         <label class="form-label">Age From</label>
                         <input type="number" name="age_from" class="form-control form-control-sm" placeholder="Min Age"
                             value="{{ request('age_from') }}" min="0" max="100">
@@ -135,7 +135,7 @@
                         <label class="form-label">Age To</label>
                         <input type="number" name="age_to" class="form-control form-control-sm" placeholder="Max Age"
                             value="{{ request('age_to') }}" min="0" max="100">
-                    </div>
+                    </div> --}}
 
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Gender</label>

@@ -132,11 +132,22 @@
         @php
             $category = $items->first()->inventoryItem->category ?? null;
             $categoryName = $category ? $category->name : 'Unknown Category';
+            $showProductNames = str_contains(strtolower($categoryName), 'stationary') || str_contains(strtolower($categoryName), 'utility');
+            $productNames = $showProductNames
+                ? $items->map(fn($si) => $si->inventoryItem?->name)
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->implode(', ')
+                : '';
+            $categoryLabel = $productNames
+                ? $categoryName . ' — ' . $productNames
+                : $categoryName;
             $categoryTotal = $items->sum('subtotal');
         @endphp
         <div style="margin-bottom:8px; display:flex; justify-content: space-between;">
             <div style="font-size:9px;letter-spacing:.08em;font-weight:700;text-transform:uppercase;color:#333">
-                {{ $categoryName }}
+                {{ $categoryLabel }}
             </div>
             <div style="font-size:11px;font-weight:700;text-align:right;color:#111">
                 BDT {{ number_format($categoryTotal, 2) }}

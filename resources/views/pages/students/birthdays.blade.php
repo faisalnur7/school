@@ -6,7 +6,7 @@
         <i class="fas fa-birthday-cake text-white text-5xl opacity-80"></i>
         <div>
             <h3 class="text-white text-3xl font-bold m-0">Student Birthdays</h3>
-            <p class="text-pink-200 text-sm mt-1 mb-0">Find students celebrating their birthday on a specific date</p>
+            <p class="text-pink-200 text-sm mt-1 mb-0">Find students celebrating birthdays within a date range</p>
         </div>
     </div>
 
@@ -15,8 +15,12 @@
             <form method="GET" action="{{ route('students.birthdays') }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-auto">
-                        <label class="form-label fw-semibold">Date</label>
-                        <input type="date" name="date" class="form-control" value="{{ $date ?? date('Y-m-d') }}" required>
+                        <label class="form-label fw-semibold">From Date</label>
+                        <input type="date" name="from_date" class="form-control" value="{{ $fromDate ?? '' }}" required>
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label fw-semibold">To Date</label>
+                        <input type="date" name="to_date" class="form-control" value="{{ $toDate ?? '' }}" required>
                     </div>
                     <div class="col-auto">
                         <label class="form-label fw-semibold">Session</label>
@@ -56,7 +60,7 @@
                     </div>
                     <div class="col-auto">
                         <button type="submit" class="btn btn-primary"><i class="fas fa-search me-1"></i> Search</button>
-                        @if($date)
+                        @if($date || $fromDate || $toDate)
                         <a href="{{ route('students.birthdays') }}" class="btn btn-outline-secondary ms-1">Clear</a>
                         @endif
                     </div>
@@ -65,12 +69,17 @@
         </div>
     </div>
 
-    @if($date)
     <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center text-white">
             <span class="fw-semibold">
                 <i class="fas fa-birthday-cake text-white me-2"></i>
-                Birthdays on {{ \Carbon\Carbon::parse($date)->format('F j') }}
+                @if($fromDate && $toDate)
+                    Birthdays from {{ \Carbon\Carbon::parse($fromDate)->format('F j') }} to {{ \Carbon\Carbon::parse($toDate)->format('F j') }}
+                @elseif($date)
+                    Birthdays on {{ \Carbon\Carbon::parse($date)->format('F j') }}
+                @else
+                    Student Birthday Search Results
+                @endif
             </span>
             <span class="badge bg-primary ml-auto">{{ $students->count() }} student(s)</span>
         </div>
@@ -78,7 +87,11 @@
             @if($students->isEmpty())
             <div class="text-center py-5 text-muted">
                 <i class="fas fa-birthday-cake fa-3x mb-3 opacity-25"></i>
-                <p>No students have a birthday on this date.</p>
+                @if($date || ($fromDate && $toDate))
+                <p>No students have a birthday in this selected range.</p>
+                @else
+                <p>Use the filter above to search student birthdays.</p>
+                @endif
             </div>
             @else
             <div class="table-responsive">
@@ -127,7 +140,6 @@
             @endif
         </div>
     </div>
-    @endif
 </div>
 @endsection
 

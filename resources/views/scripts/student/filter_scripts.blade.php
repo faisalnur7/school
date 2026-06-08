@@ -3,12 +3,12 @@ $(document).ready(function() {
     
     // ============= FILTER DEPENDENT DROPDOWNS =============
     
-    // Division -> District
-    $("select[name='permanent_division_id']").change(function() {
+    // Division -> District (present address filters)
+    $("select[name='present_division_id']").change(function() {
         const divisionId = $(this).val();
-        const districtDropdown = $("select[name='permanent_district_id']");
-        const policeStationDropdown = $("select[name='permanent_police_station_id']");
-        const postOfficeDropdown = $("select[name='permanent_post_office_id']");
+        const districtDropdown = $("select[name='present_district_id']");
+        const policeStationDropdown = $("select[name='present_police_station_id']");
+        const postOfficeDropdown = $("select[name='present_post_office_id']");
 
         // Reset dependent dropdowns
         policeStationDropdown.html('<option value="">All Police Stations</option>');
@@ -40,11 +40,11 @@ $(document).ready(function() {
         }
     });
 
-    // District -> Police Station
-    $("select[name='permanent_district_id']").change(function() {
+    // District -> Police Station (present address filters)
+    $("select[name='present_district_id']").change(function() {
         const districtId = $(this).val();
-        const policeStationDropdown = $("select[name='permanent_police_station_id']");
-        const postOfficeDropdown = $("select[name='permanent_post_office_id']");
+        const policeStationDropdown = $("select[name='present_police_station_id']");
+        const postOfficeDropdown = $("select[name='present_post_office_id']");
 
         // Reset dependent dropdown
         postOfficeDropdown.html('<option value="">All Post Offices</option>');
@@ -75,10 +75,10 @@ $(document).ready(function() {
         }
     });
 
-    // Police Station -> Post Office
-    $("select[name='permanent_police_station_id']").change(function() {
+    // Police Station -> Post Office (present address filters)
+    $("select[name='present_police_station_id']").change(function() {
         const policeStationId = $(this).val();
-        const postOfficeDropdown = $("select[name='permanent_post_office_id']");
+        const postOfficeDropdown = $("select[name='present_post_office_id']");
 
         postOfficeDropdown.html('<option value="">Loading...</option>');
 
