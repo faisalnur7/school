@@ -4,6 +4,7 @@
 !.env.example
 
 # Laravel
+/node_modules/
 /public/storage
 /public/uploads/students
 /storage/*.key
