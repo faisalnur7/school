@@ -17,7 +17,7 @@ class StudentsHubController extends Controller
             ['icon' => 'fa-sign-out-alt',       'title' => 'Student Checkout',  'subtitle' => 'Transfer, graduate, withdraw, or expel',   'route' => 'students.checkout', 'permission' => 'view_card_student_checkout', 'from' => '#dc2626', 'to' => '#b91c1c'],
             ['icon' => 'fa-user-times',         'title' => 'Checked Out List',  'subtitle' => 'View all checked out students',            'route' => 'students.checked-out', 'permission' => 'view_card_student_checkout', 'from' => '#7f1d1d', 'to' => '#991b1b'],
             ['icon' => 'fa-history',            'title' => 'Academic History',   'subtitle' => 'View full session history per student',    'route' => 'students.history', 'permission' => 'view_card_academic_history', 'from' => '#7c3aed', 'to' => '#6d28d9'],
-            ['icon' => 'fa-certificate',        'title' => 'Certificates',        'subtitle' => 'Transfer Certificate & Testimonial',       'route' => 'students.certificates', 'permission' => 'view_card_student_certificates', 'from' => '#0f766e', 'to' => '#0d9488'],
+            ['icon' => 'fa-certificate',        'title' => 'Certificate Hub',     'subtitle' => 'Transfer Certificate, Testimonial & templates', 'route' => 'students.certificates', 'permission' => 'view_card_student_certificates', 'from' => '#0f766e', 'to' => '#0d9488'],
         ];
         $cards = array_values(array_filter($cards, fn ($card) => auth()->user()?->hasPermission($card['permission'])));
 

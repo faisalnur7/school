@@ -45,17 +45,22 @@ class TeacherSectionAssignmentController extends Controller
             'section_id' => ['required', 'exists:sections,id'],
         ]);
 
-        TeacherSectionAssignment::query()->updateOrCreate(
+        $assignment = TeacherSectionAssignment::query()->updateOrCreate(
             [
                 'user_id' => (int) $data['user_id'],
                 'session_id' => (int) $data['session_id'],
+            ],
+            [
                 'class_id' => (int) $data['class_id'],
                 'section_id' => (int) $data['section_id'],
-            ],
-            []
+            ]
         );
 
-        return back()->with('success', 'Teacher assigned to section successfully.');
+        $message = $assignment->wasRecentlyCreated
+            ? 'Teacher assigned to section successfully.'
+            : 'Teacher assignment updated successfully.';
+
+        return back()->with('success', $message);
     }
 
     public function destroy(TeacherSectionAssignment $teacherSectionAssignment)

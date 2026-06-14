@@ -85,59 +85,57 @@ class DashboardController extends Controller
     private function getClasswiseAttendance()
     {
         $today = Carbon::today();
-        $classes = SchoolClass::all();
-        $result = [];
-        
-        foreach ($classes as $class) {
-            $attendance = Attendance::where('class_id', $class->id)
-                ->whereDate('date', $today)
-                ->first();
-            
-            if ($attendance) {
-                $present = AttendanceItem::where('attendance_id', $attendance->id)
-                    ->where('status', 'present')
-                    ->count();
-                $total = AttendanceItem::where('attendance_id', $attendance->id)->count();
-                $percentage = $total > 0 ? round(($present / $total) * 100, 2) : 0;
-            } else {
-                $percentage = 0;
-            }
-            
-            $result[] = [
+        $classes = SchoolClass::all(['id', 'name_en']);
+
+        $itemStats = AttendanceItem::query()
+            ->join('attendances', 'attendance_items.attendance_id', '=', 'attendances.id')
+            ->whereDate('attendances.date', $today)
+            ->selectRaw('attendances.class_id as class_id, attendance_items.status as status, COUNT(*) as total')
+            ->groupBy('attendances.class_id', 'attendance_items.status')
+            ->get()
+            ->groupBy('class_id')
+            ->map(fn ($rows) => $rows->pluck('total', 'status'));
+
+        return $classes->map(function ($class) use ($itemStats) {
+            $stats = $itemStats->get($class->id, collect());
+            $present = (int) ($stats->get('present') ?? 0);
+            $total = (int) ($stats->sum());
+            $percentage = $total > 0 ? round(($present / $total) * 100, 2) : 0;
+
+            return [
                 'class' => $class->name_en,
-                'percentage' => $percentage
+                'percentage' => $percentage,
             ];
-        }
-        
-        return $result;
+        })->values()->all();
     }
-    
+
     private function getMonthlyAttendanceTrend()
     {
+        $start = Carbon::today()->subDays(6)->startOfDay();
+        $end = Carbon::today()->endOfDay();
         $days = [];
         $percentages = [];
-        
+
+        $stats = AttendanceItem::query()
+            ->join('attendances', 'attendance_items.attendance_id', '=', 'attendances.id')
+            ->whereBetween('attendances.date', [$start, $end])
+            ->selectRaw('DATE(attendances.date) as day, attendance_items.status as status, COUNT(*) as total')
+            ->groupBy('day', 'attendance_items.status')
+            ->get()
+            ->groupBy('day')
+            ->map(fn ($rows) => $rows->pluck('total', 'status'));
+
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
             $days[] = $date->format('M d');
-            
-            $attendances = Attendance::whereDate('date', $date)->get();
-            $totalPresent = 0;
-            $totalStudents = 0;
-            
-            foreach ($attendances as $attendance) {
-                $present = AttendanceItem::where('attendance_id', $attendance->id)
-                    ->where('status', 'present')
-                    ->count();
-                $total = AttendanceItem::where('attendance_id', $attendance->id)->count();
-                $totalPresent += $present;
-                $totalStudents += $total;
-            }
-            
-            $percentage = $totalStudents > 0 ? round(($totalPresent / $totalStudents) * 100, 2) : 0;
-            $percentages[] = $percentage;
+
+            $dayStats = $stats->get($date->toDateString(), collect());
+            $present = (int) ($dayStats->get('present') ?? 0);
+            $total = (int) ($dayStats->sum());
+
+            $percentages[] = $total > 0 ? round(($present / $total) * 100, 2) : 0;
         }
-        
+
         return [
             'days' => $days,
             'percentages' => $percentages
@@ -146,19 +144,24 @@ class DashboardController extends Controller
     
     private function getFeeTrend()
     {
+        $start = Carbon::today()->subMonthsNoOverflow(5)->startOfMonth();
+        $end = Carbon::today()->endOfMonth();
         $months = [];
         $amounts = [];
-        
+
+        $payments = Payment::query()
+            ->whereBetween('created_at', [$start, $end])
+            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as ym, SUM(amount) as total')
+            ->groupBy('ym')
+            ->pluck('total', 'ym');
+
         for ($i = 5; $i >= 0; $i--) {
-            $date = Carbon::today()->subMonths($i);
+            $date = Carbon::today()->subMonthsNoOverflow($i);
+            $key = $date->format('Y-m');
             $months[] = $date->format('M Y');
-            
-            $amount = Payment::whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->sum('amount');
-            $amounts[] = $amount;
+            $amounts[] = (float) ($payments[$key] ?? 0);
         }
-        
+
         return [
             'months' => $months,
             'amounts' => $amounts
@@ -167,25 +170,32 @@ class DashboardController extends Controller
     
     private function getIncomeExpenseTrend()
     {
+        $start = Carbon::today()->subMonthsNoOverflow(5)->startOfMonth();
+        $end = Carbon::today()->endOfMonth();
         $months = [];
         $incomes = [];
         $expenses = [];
-        
+
+        $incomeByMonth = Income::query()
+            ->whereBetween('created_at', [$start, $end])
+            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as ym, SUM(amount) as total')
+            ->groupBy('ym')
+            ->pluck('total', 'ym');
+
+        $expenseByMonth = Expense::query()
+            ->whereBetween('created_at', [$start, $end])
+            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as ym, SUM(amount) as total')
+            ->groupBy('ym')
+            ->pluck('total', 'ym');
+
         for ($i = 5; $i >= 0; $i--) {
-            $date = Carbon::today()->subMonths($i);
+            $date = Carbon::today()->subMonthsNoOverflow($i);
+            $key = $date->format('Y-m');
             $months[] = $date->format('M');
-            
-            $income = Income::whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->sum('amount');
-            $expense = Expense::whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->sum('amount');
-            
-            $incomes[] = $income;
-            $expenses[] = $expense;
+            $incomes[] = (float) ($incomeByMonth[$key] ?? 0);
+            $expenses[] = (float) ($expenseByMonth[$key] ?? 0);
         }
-        
+
         return [
             'months' => $months,
             'incomes' => $incomes,
@@ -195,38 +205,41 @@ class DashboardController extends Controller
     
     private function getStudentDistribution()
     {
-        $classes = SchoolClass::all();
-        $result = [];
-        
-        foreach ($classes as $class) {
-            $count = Student::whereHas('academicInformations', function ($q) use ($class) {
-                $q->where('school_class_id', $class->id);
-            })->count();
-            
-            $result[] = [
+        $classes = SchoolClass::all(['id', 'name_en']);
+        $counts = Student::query()
+            ->join('student_academic_information', 'students.id', '=', 'student_academic_information.student_id')
+            ->selectRaw('student_academic_information.school_class_id as class_id, COUNT(DISTINCT students.id) as total')
+            ->groupBy('student_academic_information.school_class_id')
+            ->pluck('total', 'class_id');
+
+        return $classes->map(function ($class) use ($counts) {
+            return [
                 'name' => $class->name_en,
-                'count' => $count
+                'count' => (int) ($counts[$class->id] ?? 0),
             ];
-        }
-        
-        return $result;
+        })->values()->all();
     }
-    
+
     private function getMonthlyFeeCollection()
     {
+        $start = Carbon::today()->subMonthsNoOverflow(11)->startOfMonth();
+        $end = Carbon::today()->endOfMonth();
         $months = [];
         $collections = [];
-        
+
+        $payments = Payment::query()
+            ->whereBetween('created_at', [$start, $end])
+            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as ym, SUM(amount) as total')
+            ->groupBy('ym')
+            ->pluck('total', 'ym');
+
         for ($i = 11; $i >= 0; $i--) {
-            $date = Carbon::today()->subMonths($i);
+            $date = Carbon::today()->subMonthsNoOverflow($i);
+            $key = $date->format('Y-m');
             $months[] = $date->format('M');
-            
-            $amount = Payment::whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->sum('amount');
-            $collections[] = $amount;
+            $collections[] = (float) ($payments[$key] ?? 0);
         }
-        
+
         return [
             'months' => $months,
             'collections' => $collections

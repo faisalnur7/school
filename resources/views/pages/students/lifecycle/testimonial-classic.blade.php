@@ -39,13 +39,15 @@
 </style>
 </head>
 <body>
+@php($currentStyle = $style ?? 'classic')
 
+@unless($isPdf ?? false)
 <div class="print-bar">
     <a href="{{ route('students.testimonial', [$student, 'style' => 'modern']) }}"
         style="background:#4f46e5;color:#fff;padding:6px 14px;border-radius:6px;text-decoration:none;font-family:sans-serif;font-size:12px;">
         ⇄ Switch to Modern
     </a>
-    <a href="{{ route('students.testimonial.pdf', $student) }}"
+    <a href="{{ route('students.testimonial.pdf', ['student' => $student, 'style' => $currentStyle]) }}"
         style="background:#dc2626;color:#fff;padding:6px 14px;border-radius:6px;text-decoration:none;font-family:sans-serif;font-size:12px;">
         ⬇ Download PDF
     </a>
@@ -54,6 +56,7 @@
         🖨 Print
     </button>
 </div>
+@endunless
 
 <div class="page">
     <div class="school-header">
@@ -70,15 +73,6 @@
         <div class="serial">Ref No: TM-{{ str_pad($student->id, 5, '0', STR_PAD_LEFT) }} &nbsp;|&nbsp; Date: {{ $issueDate }}</div>
     </div>
 
-    <div class="cert-body">
-        <p>
-            This is to certify that <span class="field">{{ $student->full_name_en }}</span>
-            @if($student->full_name_bn), ({{ $student->full_name_bn }}),@endif
-            son/daughter of <span class="field">{{ $student->father_name ?? '_______________' }}</span>,
-            was a student of this institution.
-        </p>
-    </div>
-
     <table class="cert-table">
         <tr><td>Student ID (CID)</td><td>{{ $student->student_cid }}</td></tr>
         <tr><td>Date of Birth</td><td>{{ $student->date_of_birth ? $student->date_of_birth->format('d F Y') : '—' }}</td></tr>
@@ -91,15 +85,7 @@
     </table>
 
     <div class="cert-body">
-        <p>
-            During his/her stay at this institution, his/her conduct and behaviour were found to be
-            <strong>satisfactory</strong>. He/She was regular in attendance and participated actively in
-            academic and co-curricular activities.
-        </p>
-        <p>
-            We wish him/her every success in life and recommend him/her for any purpose for which this
-            testimonial may be required.
-        </p>
+        {!! $certificateTextHtml ?? '' !!}
     </div>
 
     <div class="signatures">

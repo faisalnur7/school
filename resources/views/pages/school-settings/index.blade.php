@@ -242,6 +242,56 @@
                                 <small class="text-muted">Upload QR code image. Max 100KB.</small>
                             </div>
 
+                            <div class="card border shadow-sm mb-3" id="principal-signature">
+                                <div class="card-header bg-light py-2">
+                                    <h5 class="mb-0 text-dark">
+                                        <i class="fas fa-signature mr-1"></i> Principal Signature
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label class="font-weight-bold">Designation</label>
+                                        <input type="text" name="principal_designation"
+                                            class="form-control @error('principal_designation') is-invalid @enderror"
+                                            value="{{ old('principal_designation', $setting->principal_designation ?? 'Principal') }}"
+                                            placeholder="Principal">
+                                        @error('principal_designation')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="font-weight-bold">Name</label>
+                                        <input type="text" name="principal_name"
+                                            class="form-control @error('principal_name') is-invalid @enderror"
+                                            value="{{ old('principal_name', $setting->principal_name) }}"
+                                            placeholder="Md. Raqib Hossain">
+                                        @error('principal_name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="font-weight-bold">School Name</label>
+                                        <input type="text" name="principal_school_name"
+                                            class="form-control @error('principal_school_name') is-invalid @enderror"
+                                            value="{{ old('principal_school_name', $setting->principal_school_name ?? $setting->name) }}"
+                                            placeholder="Green Chartered School & College">
+                                        @error('principal_school_name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="form-group mb-0">
+                                        <label class="font-weight-bold">Phone</label>
+                                        <input type="text" name="principal_phone"
+                                            class="form-control @error('principal_phone') is-invalid @enderror"
+                                            value="{{ old('principal_phone', $setting->principal_phone) }}"
+                                            placeholder="Phone-01886-780641, 01886-780642">
+                                        @error('principal_phone')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
                             <h5 class="mb-3 mt-3 text-muted border-bottom pb-2">Theme & ID Card Colors</h5>
                             <div class="row">
                                 <div class="col-md-12 form-group">
@@ -302,6 +352,7 @@
                                     @enderror
                                 </div>
                             </div>
+
                         </div>
                     </div>
 
@@ -369,5 +420,6 @@
                 if (previewId) document.getElementById(previewId).style.background = val;
             }
         }
+
     </script>
 @endsection

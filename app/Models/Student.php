@@ -154,6 +154,46 @@ class Student extends Model
         return $this->belongsTo(Division::class);
     }
 
+    public function presentDivision()
+    {
+        return $this->belongsTo(Division::class, 'present_division_id');
+    }
+
+    public function presentDistrict()
+    {
+        return $this->belongsTo(District::class, 'present_district_id');
+    }
+
+    public function presentPoliceStation()
+    {
+        return $this->belongsTo(PoliceStation::class, 'present_police_station_id');
+    }
+
+    public function presentPostOffice()
+    {
+        return $this->belongsTo(PostOffice::class, 'present_post_office_id');
+    }
+
+    public function permanentDivision()
+    {
+        return $this->belongsTo(Division::class, 'permanent_division_id');
+    }
+
+    public function permanentDistrict()
+    {
+        return $this->belongsTo(District::class, 'permanent_district_id');
+    }
+
+    public function permanentPoliceStation()
+    {
+        return $this->belongsTo(PoliceStation::class, 'permanent_police_station_id');
+    }
+
+    public function permanentPostOffice()
+    {
+        return $this->belongsTo(PostOffice::class, 'permanent_post_office_id');
+    }
+
     public function district()
     {
         return $this->belongsTo(District::class);

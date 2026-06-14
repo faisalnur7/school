@@ -12,7 +12,11 @@ class SchoolSettingController extends Controller
     {
         $setting = SchoolSetting::current();
         $classes = SchoolClass::get();
-        return view('pages.school-settings.index', compact('setting', 'classes'));
+
+        return view('pages.school-settings.index', [
+            'setting' => $setting,
+            'classes' => $classes,
+        ]);
     }
 
     public function update(StoreSchoolSettingRequest $request)

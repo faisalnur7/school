@@ -480,3 +480,57 @@
         order: 1;
     }
 }
+
+/* =====================================================
+   GLOBAL TABLE THEME
+   Match the app's Classes page across admin tables.
+   ===================================================== */
+
+.content-wrapper .table-responsive {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0 0 14px 14px;
+    overflow: hidden;
+}
+
+.content-wrapper .table-responsive > .table {
+    margin-bottom: 0;
+}
+
+.content-wrapper table.table {
+    color: #334155;
+    font-size: 13px;
+}
+
+.content-wrapper table.table > :not(caption) > * > * {
+    padding: 0.75rem 0.95rem;
+    vertical-align: middle;
+    border-color: #e5eaf1;
+}
+
+.content-wrapper table.table thead th {
+    background: linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%);
+    color: #0f172a;
+    font-weight: 700;
+    border-bottom: 1px solid #d8e0ea;
+    white-space: nowrap;
+}
+
+.content-wrapper table.table tbody tr:hover {
+    background: #f8fbff;
+}
+
+.content-wrapper table.table td code {
+    background: #f1f5f9;
+    border-radius: 5px;
+    color: #0f172a;
+    padding: 2px 7px;
+}
+
+.content-wrapper table.table .btn {
+    border-radius: 0.35rem;
+}
+
+.content-wrapper table.table .badge {
+    font-weight: 600;
+}

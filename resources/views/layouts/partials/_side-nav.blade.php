@@ -227,11 +227,11 @@
                 @if(auth()->user()?->hasPermission('view_institute_settings'))
                 <li class="nav-item-modern">
                     <a href="{{ route('institute.hub') }}"
-                       class="nav-link-modern {{ request()->routeIs('institute.hub', 'school-settings.*', 'id-card-templates.*', 'buildings.*') ? 'active' : '' }}">
+                       class="nav-link-modern {{ request()->routeIs('institute.hub', 'school-settings.*', 'certificates.*', 'id-card-templates.*', 'buildings.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-cogs"></i></span>
                         <span class="nav-text">Institute Settings</span>
                         
-                        @if(request()->routeIs('institute.hub', 'school-settings.*', 'id-card-templates.*', 'buildings.*'))
+                        @if(request()->routeIs('institute.hub', 'school-settings.*', 'certificates.*', 'id-card-templates.*', 'buildings.*'))
                         <span class="nav-indicator"></span>
                         @endif
                     </a>

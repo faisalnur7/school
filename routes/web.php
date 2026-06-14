@@ -377,6 +377,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/students/history', [\App\Http\Controllers\StudentLifecycleController::class, 'historyIndex'])->name('students.history');
         Route::get('/students/history/{student}', [\App\Http\Controllers\StudentLifecycleController::class, 'historyShow'])->name('students.history.show');
         Route::get('/students/certificates', [\App\Http\Controllers\StudentLifecycleController::class, 'certificateIndex'])->name('students.certificates');
+        Route::get('/students/certificates/{student}/types/{certificate}', [\App\Http\Controllers\StudentLifecycleController::class, 'certificatePreview'])->name('students.certificate.preview');
+        Route::get('/students/certificates/{student}/types/{certificate}/pdf', [\App\Http\Controllers\StudentLifecycleController::class, 'certificatePdf'])->name('students.certificate.pdf');
         Route::get('/students/certificates/{student}/tc', [\App\Http\Controllers\StudentLifecycleController::class, 'transferCertificate'])->name('students.tc');
         Route::get('/students/certificates/{student}/tc/pdf', [\App\Http\Controllers\StudentLifecycleController::class, 'transferCertificatePdf'])->name('students.tc.pdf');
         Route::get('/students/certificates/{student}/testimonial', [\App\Http\Controllers\StudentLifecycleController::class, 'testimonial'])->name('students.testimonial');
@@ -717,6 +719,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/{id}/update', [ResultController::class, 'update'])->name('results.update');
         Route::delete('/{id}', [ResultController::class, 'destroy'])->name('results.destroy');
         Route::get('/reports', [ResultController::class, 'reports'])->name('results.reports');
+        Route::get('/admit-seat-cards', [\App\Http\Controllers\AdmitSeatCardController::class, 'index'])->name('results.admit-seat-cards.index');
+        Route::get('/admit-seat-cards/pdf', [\App\Http\Controllers\AdmitSeatCardController::class, 'pdf'])->name('results.admit-seat-cards.pdf');
     });
 
     // ------------------- Analytics -------------------
@@ -1008,9 +1012,13 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/', [CertificateController::class, 'index'])->name('certificates.index');
         Route::get('/create', [CertificateController::class, 'create'])->name('certificates.create');
         Route::post('/store', [CertificateController::class, 'store'])->name('certificates.store');
-        Route::get('/{id}/edit', [CertificateController::class, 'edit'])->name('certificates.edit');
-        Route::post('/{id}/update', [CertificateController::class, 'update'])->name('certificates.update');
-        Route::delete('/{id}', [CertificateController::class, 'destroy'])->name('certificates.destroy');
+        Route::get('/{certificate}/edit', [CertificateController::class, 'edit'])->name('certificates.edit');
+        Route::post('/{certificate}/update', [CertificateController::class, 'update'])->name('certificates.update');
+        Route::delete('/{certificate}', [CertificateController::class, 'destroy'])->name('certificates.destroy');
+        Route::post('/{certificate}/templates', [CertificateController::class, 'templateStore'])->name('certificates.templates.store');
+        Route::post('/{certificate}/templates/{template}/update', [CertificateController::class, 'templateUpdate'])->name('certificates.templates.update');
+        Route::delete('/{certificate}/templates/{template}', [CertificateController::class, 'templateDestroy'])->name('certificates.templates.destroy');
+        Route::post('/{certificate}/templates/{template}/activate', [CertificateController::class, 'templateActivate'])->name('certificates.templates.activate');
     });
 
     // ------------------- Timetable Generator -------------------

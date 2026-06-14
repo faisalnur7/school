@@ -19,7 +19,7 @@
     
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
         @foreach($cards as $card)
-        <a href="{{ route($card['route']) }}" class="group no-underline">
+        <a href="{{ $card['url'] ?? route($card['route']) }}" class="group no-underline">
             <div class="relative overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-xl h-full">
                 <div class="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                      style="background: linear-gradient(135deg, {{ $card['from'] }}20, {{ $card['to'] }}20);"></div>

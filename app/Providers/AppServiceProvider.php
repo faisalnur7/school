@@ -28,26 +28,33 @@ class AppServiceProvider extends ServiceProvider
                 return;
             }
 
-            $canAccessRoute = function (?string $routeName) use ($user): bool {
+            $routePermissions = [];
+
+            $canAccessRoute = function (?string $routeName) use ($user, &$routePermissions): bool {
                 if (!$routeName) {
                     return false;
                 }
 
-                $route = Route::getRoutes()->getByName($routeName);
+                if (! array_key_exists($routeName, $routePermissions)) {
+                    $route = Route::getRoutes()->getByName($routeName);
 
-                if (!$route) {
-                    return false;
+                    if (!$route) {
+                        $routePermissions[$routeName] = [];
+                    } else {
+                        $routePermissions[$routeName] = collect($route->gatherMiddleware())
+                            ->filter(fn ($middleware) => str_starts_with($middleware, 'permission:'))
+                            ->flatMap(function ($middleware) {
+                                $raw = substr($middleware, strlen('permission:'));
+
+                                return array_map('trim', explode(',', $raw));
+                            })
+                            ->filter()
+                            ->values()
+                            ->all();
+                    }
                 }
 
-                $permissions = collect($route->gatherMiddleware())
-                    ->filter(fn ($middleware) => str_starts_with($middleware, 'permission:'))
-                    ->flatMap(function ($middleware) {
-                        $raw = substr($middleware, strlen('permission:'));
-                        return array_map('trim', explode(',', $raw));
-                    })
-                    ->filter()
-                    ->values()
-                    ->all();
+                $permissions = $routePermissions[$routeName];
 
                 if (empty($permissions)) {
                     return true;

@@ -43,13 +43,15 @@
 </style>
 </head>
 <body>
+@php($currentStyle = $style ?? 'classic')
 
+@unless($isPdf ?? false)
 <div class="print-bar">
     <a href="{{ route('students.tc', [$student, 'style' => 'modern']) }}"
         style="background:#4f46e5;color:#fff;padding:6px 14px;border-radius:6px;text-decoration:none;font-family:sans-serif;font-size:12px;">
         ⇄ Switch to Modern
     </a>
-    <a href="{{ route('students.tc.pdf', $student) }}"
+    <a href="{{ route('students.tc.pdf', ['student' => $student, 'style' => $currentStyle]) }}"
         style="background:#dc2626;color:#fff;padding:6px 14px;border-radius:6px;text-decoration:none;font-family:sans-serif;font-size:12px;">
         ⬇ Download PDF
     </a>
@@ -58,6 +60,7 @@
         🖨 Print
     </button>
 </div>
+@endunless
 
 <div class="page">
     {{-- Header --}}
@@ -78,13 +81,8 @@
         <div class="serial">Serial No: TC-{{ str_pad($student->id, 5, '0', STR_PAD_LEFT) }} &nbsp;|&nbsp; Date: {{ $issueDate }}</div>
     </div>
 
-    {{-- Body --}}
-    <div class="cert-body">
-        <p>This is to certify that <span class="field field-lg">{{ $student->full_name_en }}</span>
-        @if($student->full_name_bn), known in Bangla as <span class="field">{{ $student->full_name_bn }}</span>@endif,
-        son/daughter of <span class="field">{{ $student->father_name ?? '_______________' }}</span>
-        and <span class="field">{{ $student->mother_name ?? '_______________' }}</span>,
-        was a bonafide student of this institution.</p>
+    <div class="cert-body" style="margin-top:10px; margin-bottom:10px;">
+        {!! $certificateTextHtml ?? '' !!}
     </div>
 
     <table class="cert-table">
@@ -100,15 +98,6 @@
         <tr><td>Date of Leaving</td><td>{{ $academicInfo?->checkout_date ? $academicInfo->checkout_date->format('d F Y') : $issueDate }}</td></tr>
         <tr><td>Reason for Leaving</td><td>{{ $academicInfo?->academic_status ? ucfirst($academicInfo->academic_status) : 'Transfer' }}</td></tr>
     </table>
-
-    <div class="conduct-row">
-        <strong>Conduct:</strong> &nbsp; His/Her conduct and character during the period of study was
-        <span class="field field-sm">Good</span>.
-    </div>
-
-    <div class="cert-body" style="margin-top:10px;">
-        <p>He/She is hereby granted this Transfer Certificate to seek admission in another institution.</p>
-    </div>
 
     <div class="signatures">
         <div class="sig-block">

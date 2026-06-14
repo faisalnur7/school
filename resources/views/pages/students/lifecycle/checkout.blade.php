@@ -19,7 +19,7 @@
     {{-- Filter --}}
     <div class="bg-white rounded-2xl shadow p-5 mb-5">
         <form method="GET" action="{{ route('students.checkout') }}">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div>
                     <label class="form-label text-sm font-medium text-slate-600">Session</label>
                     <select name="academic_session_id" class="form-control form-control-sm">
@@ -37,6 +37,15 @@
                         <option value="{{ $c->id }}" @selected(request('school_class_id') == $c->id)>{{ $c->name_en }}</option>
                         @endforeach
                     </select>
+                </div>
+                <div>
+                    <label class="form-label text-sm font-medium text-slate-600">Student ID</label>
+                    <input
+                        type="text"
+                        name="student_cid"
+                        value="{{ request('student_cid') }}"
+                        class="form-control form-control-sm"
+                        placeholder="Enter Student ID">
                 </div>
                 <div>
                     <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg w-full font-medium">
@@ -178,7 +187,7 @@
         @endforeach
     </div>
 
-    @elseif(request()->hasAny(['academic_session_id', 'school_class_id']))
+    @elseif(request()->hasAny(['academic_session_id', 'school_class_id', 'student_cid']))
     <div class="bg-white rounded-2xl shadow p-8 text-center text-slate-400">
         <i class="fas fa-users text-4xl mb-3 opacity-40"></i>
         <p>No active students found for the selected filters.</p>

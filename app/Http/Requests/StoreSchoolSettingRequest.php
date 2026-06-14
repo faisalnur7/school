@@ -27,6 +27,12 @@ class StoreSchoolSettingRequest extends FormRequest
             'primary_color'    => 'nullable|string|max:20',
             'secondary_color'  => 'nullable|string|max:20',
             'id_card_color'    => 'nullable|string|max:20',
+            'principal_designation' => 'nullable|string|max:255',
+            'principal_name'        => 'nullable|string|max:255',
+            'principal_school_name'  => 'nullable|string|max:255',
+            'principal_phone'        => 'nullable|string|max:50',
+            'transfer_certificate_template' => 'nullable|string|max:10000',
+            'testimonial_template'          => 'nullable|string|max:10000',
             'logo'             => 'nullable|image|max:100',
             'letter_head'      => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:100',
         ];

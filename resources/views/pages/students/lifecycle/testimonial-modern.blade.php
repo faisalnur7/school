@@ -47,13 +47,15 @@
 </style>
 </head>
 <body>
+@php($currentStyle = $style ?? 'modern')
 
+@unless($isPdf ?? false)
 <div class="print-bar">
     <a href="{{ route('students.testimonial', [$student, 'style' => 'classic']) }}"
         style="background:#78716c;color:#fff;padding:6px 14px;border-radius:6px;text-decoration:none;font-family:sans-serif;font-size:12px;">
         ⇄ Switch to Classic
     </a>
-    <a href="{{ route('students.testimonial.pdf', $student) }}"
+    <a href="{{ route('students.testimonial.pdf', ['student' => $student, 'style' => $currentStyle]) }}"
         style="background:#dc2626;color:#fff;padding:6px 14px;border-radius:6px;text-decoration:none;font-family:sans-serif;font-size:12px;">
         ⬇ Download PDF
     </a>
@@ -62,6 +64,7 @@
         🖨 Print
     </button>
 </div>
+@endunless
 
 <div class="page">
     <div class="header">
@@ -111,20 +114,7 @@
         </div>
 
         <div class="narrative">
-            <p>
-                This is to certify that <strong>{{ $student->full_name_en }}</strong>, son/daughter of
-                <strong>{{ $student->father_name ?? '—' }}</strong>, was a bonafide student of
-                <strong>{{ $setting->name ?? config('app.name') }}</strong>.
-            </p>
-            <p>
-                During his/her period of study, his/her conduct and behaviour were found to be
-                <strong>satisfactory</strong>. He/She was regular in attendance and participated actively
-                in academic and co-curricular activities.
-            </p>
-            <p>
-                We wish him/her every success in life and recommend him/her for any purpose for which
-                this testimonial may be required.
-            </p>
+            {!! $certificateTextHtml ?? '' !!}
         </div>
 
         <div class="signatures">

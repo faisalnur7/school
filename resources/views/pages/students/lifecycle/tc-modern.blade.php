@@ -44,13 +44,15 @@
 </style>
 </head>
 <body>
+@php($currentStyle = $style ?? 'modern')
 
+@unless($isPdf ?? false)
 <div class="print-bar">
     <a href="{{ route('students.tc', [$student, 'style' => 'classic']) }}"
         style="background:#78716c;color:#fff;padding:6px 14px;border-radius:6px;text-decoration:none;font-family:sans-serif;font-size:12px;">
         ⇄ Switch to Classic
     </a>
-    <a href="{{ route('students.tc.pdf', $student) }}"
+    <a href="{{ route('students.tc.pdf', ['student' => $student, 'style' => $currentStyle]) }}"
         style="background:#dc2626;color:#fff;padding:6px 14px;border-radius:6px;text-decoration:none;font-family:sans-serif;font-size:12px;">
         ⬇ Download PDF
     </a>
@@ -59,6 +61,7 @@
         🖨 Print
     </button>
 </div>
+@endunless
 
 <div class="page">
     <div class="header">
@@ -80,12 +83,8 @@
     </div>
 
     <div class="body">
-        <div class="intro">
-            This is to certify that <strong>{{ $student->full_name_en }}</strong>
-            @if($student->full_name_bn)({{ $student->full_name_bn }})@endif,
-            son/daughter of <strong>{{ $student->father_name ?? '—' }}</strong> and
-            <strong>{{ $student->mother_name ?? '—' }}</strong>,
-            was a bonafide student of this institution and is hereby granted this Transfer Certificate.
+        <div class="narrative">
+            {!! $certificateTextHtml ?? '' !!}
         </div>
 
         <div class="info-grid">
@@ -107,14 +106,6 @@
                 <div class="value">{{ $value }}</div>
             </div>
             @endforeach
-        </div>
-
-        <div class="conduct-box">
-            ✓ &nbsp; His/Her conduct and character during the period of study at this institution was <strong>Good</strong>.
-        </div>
-
-        <div class="closing">
-            We wish him/her all the best in future endeavours.
         </div>
 
         <div class="signatures">
