@@ -148,6 +148,7 @@
                                                         $roll = $info?->roll ?? '—';
                                                         $section = $info?->section?->name_en ?? '—';
                                                         $isAbsent = $mark?->is_absent ?? false;
+                                                        $rowKey = "marks.$i";
                                                     @endphp
                                                     <tr class="mark-row {{ $isAbsent ? 'table-secondary' : '' }}"
                                                         data-student="{{ $student->id }}">
@@ -169,7 +170,7 @@
                                                                 <input type="number"
                                                                     name="marks[{{ $i }}][tutorial_marks]"
                                                                     class="form-control form-control-sm text-center mark-input"
-                                                                    value="{{ $mark?->tutorial_marks ?? '' }}" min="0"
+                                                                    value="{{ old($rowKey.'.tutorial_marks', $mark?->tutorial_marks) }}" min="0"
                                                                     max="{{ $fullMarks }}"
                                                                     step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
                                                             </td>
@@ -179,7 +180,7 @@
                                                                     <input type="number"
                                                                         name="marks[{{ $i }}][cq_marks]"
                                                                         class="form-control form-control-sm text-center mark-input"
-                                                                        value="{{ $mark?->cq_marks ?? '' }}" min="0"
+                                                                        value="{{ old($rowKey.'.cq_marks', $mark?->cq_marks) }}" min="0"
                                                                         max="{{ $subjectConfig['creative_marks'] }}"
                                                                         step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
                                                                 </td>
@@ -189,7 +190,7 @@
                                                                     <input type="number"
                                                                         name="marks[{{ $i }}][mcq_marks]"
                                                                         class="form-control form-control-sm text-center mark-input"
-                                                                        value="{{ $mark?->mcq_marks ?? '' }}" min="0"
+                                                                        value="{{ old($rowKey.'.mcq_marks', $mark?->mcq_marks) }}" min="0"
                                                                         max="{{ $subjectConfig['mcq_marks'] }}"
                                                                         step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
                                                                 </td>
@@ -199,7 +200,7 @@
                                                                     <input type="number"
                                                                         name="marks[{{ $i }}][practical_marks]"
                                                                         class="form-control form-control-sm text-center mark-input"
-                                                                        value="{{ $mark?->practical_marks ?? '' }}"
+                                                                        value="{{ old($rowKey.'.practical_marks', $mark?->practical_marks) }}"
                                                                         min="0"
                                                                         max="{{ $subjectConfig['practical_marks'] }}"
                                                                         step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
@@ -210,7 +211,7 @@
                                                                     <input type="number"
                                                                         name="marks[{{ $i }}][viva_marks]"
                                                                         class="form-control form-control-sm text-center mark-input"
-                                                                        value="{{ $mark?->viva_marks ?? '' }}" min="0"
+                                                                        value="{{ old($rowKey.'.viva_marks', $mark?->viva_marks) }}" min="0"
                                                                         max="{{ $subjectConfig['viva_marks'] }}"
                                                                         step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
                                                                 </td>
@@ -234,7 +235,7 @@
                                                             <input type="checkbox"
                                                                 name="marks[{{ $i }}][is_absent]"
                                                                 class="absent-checkbox" value="1"
-                                                                {{ $isAbsent ? 'checked' : '' }}>
+                                                                {{ old($rowKey.'.is_absent', $isAbsent) ? 'checked' : '' }}>
                                                         </td>
                                                     </tr>
                                                 @empty

@@ -23,7 +23,6 @@ class YearlyFinalReportController extends Controller
             'pairWeights'  => [],
             'highest'      => 0,
             'filters'      => [],
-            'statusMap'    => [],
         ]);
     }
 
@@ -47,7 +46,6 @@ class YearlyFinalReportController extends Controller
             'sessions' => AcademicSession::orderByDesc('id')->get(),
             'classes'  => SchoolClass::where('status', 1)->orderBy('id')->get(),
             'filters'  => $filters,
-            'statusMap' => $this->buildStatusMap(collect($report['rows'] ?? [])->pluck('student.id')->all(), $filters),
         ]));
     }
 
@@ -116,12 +114,12 @@ class YearlyFinalReportController extends Controller
         }
 
         $rows = [[
-            'Pair 1 Total' => $row['totals'][1]['total'] ?? 0,
-            'Pair 1 Weighted' => $row['totals'][1]['weighted'] ?? 0,
-            'Pair 2 Total' => $row['totals'][2]['total'] ?? 0,
-            'Pair 2 Weighted' => $row['totals'][2]['weighted'] ?? 0,
-            'Pair 3 Total' => $row['totals'][3]['total'] ?? 0,
-            'Pair 3 Weighted' => $row['totals'][3]['weighted'] ?? 0,
+            'Pair 1 Total' => data_get($row, 'totals.1.total', 0),
+            'Pair 1 Weighted' => data_get($row, 'totals.1.weighted', 0),
+            'Pair 2 Total' => data_get($row, 'totals.2.total', 0),
+            'Pair 2 Weighted' => data_get($row, 'totals.2.weighted', 0),
+            'Pair 3 Total' => data_get($row, 'totals.3.total', 0),
+            'Pair 3 Weighted' => data_get($row, 'totals.3.weighted', 0),
             'Grand Total' => $row['grand_total'] ?? 0,
             'Position' => $row['position'] ?? '-',
         ]];

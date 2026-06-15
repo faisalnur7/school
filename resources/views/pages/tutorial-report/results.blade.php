@@ -2,6 +2,8 @@
 
 @section('contents')
 <div class="col-12">
+    @include('partials.report-header')
+
     <div class="d-flex justify-content-between align-items-center mb-4 no-print">
         <div class="d-flex align-items-center gap-3">
             <div class="rounded-circle d-flex align-items-center justify-content-center shadow"
@@ -82,6 +84,32 @@
         </div>
     @endforeach
 </div>
+@endsection
+
+@section('styles')
+<style>
+@media print {
+    body {
+        background: #fff !important;
+    }
+
+    .no-print,
+    .btn,
+    .card-header .btn-group {
+        display: none !important;
+    }
+
+    .card,
+    .card-body {
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .report-header-card {
+        margin-bottom: 16px !important;
+    }
+}
+</style>
 @endsection
 
 @section('scripts')

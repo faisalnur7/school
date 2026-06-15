@@ -45,7 +45,7 @@ class YearlyFinalReportService
     {
         $students = $this->getStudents($sessionId, $classId, $sectionId, $studentId);
         $exams = $this->getSessionPairExams($sessionId);
-        $pairWeights = $this->resolvePairWeights($exams);
+        $pairWeights = array_replace([1 => 0, 2 => 0, 3 => 0], $this->resolvePairWeights($exams));
 
         $examIds = $exams->pluck('id')->all();
         $studentIds = $students->pluck('id')->all();
@@ -60,7 +60,11 @@ class YearlyFinalReportService
 
         $rows = [];
         foreach ($students as $student) {
-            $totals = [];
+            $totals = [
+                1 => ['tutorial' => 0.0, 'terminal' => 0.0, 'total' => 0.0, 'weight' => data_get($pairWeights, 1, 0), 'weighted' => 0.0],
+                2 => ['tutorial' => 0.0, 'terminal' => 0.0, 'total' => 0.0, 'weight' => data_get($pairWeights, 2, 0), 'weighted' => 0.0],
+                3 => ['tutorial' => 0.0, 'terminal' => 0.0, 'total' => 0.0, 'weight' => data_get($pairWeights, 3, 0), 'weighted' => 0.0],
+            ];
             $grandTotal = 0;
             for ($pairNo = 1; $pairNo <= 3; $pairNo++) {
                 $tutorialExam = $pairExamMap->get('tutorial:' . $pairNo)?->first();

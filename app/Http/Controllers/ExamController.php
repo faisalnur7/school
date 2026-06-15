@@ -187,7 +187,9 @@ class ExamController extends Controller
                     ->where('subject_id', $subject->id)
                     ->whereIn('student_id', $students->pluck('id'))
                     ->get()
-                    ->each(fn($m) => $existingMarks[$m->student_id] = $m);
+                    ->each(function ($mark) use (&$existingMarks) {
+                        $existingMarks[$mark->student_id] = $mark;
+                    });
 
                 $subjectConfig = $subject->getEffectiveMarksForClass($classId);
             }

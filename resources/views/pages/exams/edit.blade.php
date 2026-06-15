@@ -8,7 +8,7 @@
                 <h4 class="card-title mb-0 font-weight-bold text-white">
                     <i class="fas fa-edit mr-2"></i>Form
                 </h4>
-                <a href="{{ route('exams.show.index') }}" class="btn btn-light btn-sm">
+                <a href="{{ route('exams.index') }}" class="btn btn-light btn-sm">
                     <i class="fas fa-arrow-left mr-1"></i> Back
                 </a>
             </div>
@@ -16,6 +16,7 @@
 
         <form method="POST" action="{{ route('exams.update', $exam) }}" id="modernForm">
             @csrf
+            @method('PUT')
 
             <div class="card-body p-3">
                 @if($errors->any())
@@ -116,7 +117,7 @@
 
             <div class="card-footer bg-light border-top py-2 px-3">
                 <div class="d-flex justify-content-between gap-2">
-                    <a href="{{ route('exams.show.index') }}" class="btn btn-secondary btn-sm">
+                    <a href="{{ route('exams.index') }}" class="btn btn-secondary btn-sm">
                         <i class="fas fa-times mr-1"></i>Cancel
                     </a>
                     <button type="submit" class="btn btn-primary btn-sm">
