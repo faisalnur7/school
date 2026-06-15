@@ -123,6 +123,7 @@ Route::get('/reboot', function () {
     Artisan::call('config:clear');
     Artisan::call('view:clear');
     Artisan::call('clear-compiled');
+    Artisan::call('migrate', ['--force' => true]);
     Artisan::call('config:cache');
     Artisan::call('route:cache');
     Artisan::call('view:cache');
