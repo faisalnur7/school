@@ -37,6 +37,9 @@
                             <th>Reference</th>
                             <th>Notes</th>
                             <th>Total</th>
+                            <th>Paid</th>
+                            <th>Due</th>
+                            <th>Status</th>
                             <th width="120">Actions</th>
                         </tr>
                     </thead>
@@ -49,6 +52,9 @@
                                 <td>{{ $purchase->reference_no }}</td>
                                 <td>{{ $purchase->notes }}</td>
                                 <td>{{ number_format((float)$purchase->total_amount, 2) }}</td>
+                                <td>{{ number_format((float)($purchase->paid_amount ?? 0), 2) }}</td>
+                                <td>{{ number_format((float)($purchase->due_amount ?? 0), 2) }}</td>
+                                <td><span class="badge badge-{{ $purchase->status === 'paid' ? 'success' : ($purchase->status === 'partial' ? 'warning' : 'danger') }}">{{ ucfirst($purchase->status ?? 'unpaid') }}</span></td>
                                 <td>
                                     <a href="{{ route('inventory.purchases.voucher', $purchase->id) }}" class="btn btn-sm btn-secondary" title="Print Voucher" target="_blank">
                                         <i class="fas fa-print"></i>
@@ -59,7 +65,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="text-center text-muted">No purchases found.</td></tr>
+                            <tr><td colspan="10" class="text-center text-muted">No purchases found.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -70,4 +76,3 @@
     </div>
 </div>
 @endsection
-

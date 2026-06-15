@@ -17,6 +17,7 @@ class AccountsHubController extends Controller
                 ['icon' => 'fa-chart-line',     'title' => 'Income & Expenditure', 'subtitle' => 'Income & expenditure report',  'route' => 'reports.income-expenditure', 'permission' => 'view_card_income_expenditure', 'from' => '#be185d', 'to' => '#9d174d'],
                 ['icon' => 'fa-coins',          'title' => 'Cash Summary',         'subtitle' => 'View cash summary',            'route' => 'reports.cash-summary', 'permission' => 'view_card_cash_summary', 'from' => '#1d4ed8', 'to' => '#1e40af'],
                 ['icon' => 'fa-file-invoice',   'title' => 'Receipt & Payment',    'subtitle' => 'Receipt & payment report',     'route' => 'reports.receipt-payment', 'permission' => 'view_card_receipt_payment', 'from' => '#0369a1', 'to' => '#075985'],
+                ['icon' => 'fa-truck',          'title' => 'Supplier Due',         'subtitle' => 'Outstanding supplier invoices','route' => 'reports.supplier-dues', 'permission' => 'view_supplier_due_report', 'from' => '#ea580c', 'to' => '#c2410c'],
                 ['icon' => 'fa-water',          'title' => 'Cash Flow',            'subtitle' => 'View cash flow report',        'route' => 'reports.cash-flow', 'permission' => 'view_card_cash_flow', 'from' => '#15803d', 'to' => '#166534'],
             ],
             'Cash Management' => [

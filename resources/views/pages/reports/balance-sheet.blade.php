@@ -21,6 +21,24 @@
             </div>
             <div class="card-body">
                 <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="text-muted mb-3" style="font-size:13px;text-transform:uppercase;letter-spacing:1px">
+                            Liabilities</h5>
+                        <table class="table table-sm mb-0">
+                            <tr>
+                                <td>Accounts Payable - Suppliers</td>
+                                <td class="text-right fw-bold" style="color:#e11d48">
+                                    {{ number_format((float) $supplierLiability, 2) }}
+                                </td>
+                            </tr>
+                            <tr style="border-top:2px solid #e2e8f0">
+                                <td class="fw-bold">Total Liabilities</td>
+                                <td class="text-right fw-bold" style="font-size:15px;color:#e11d48">
+                                    {{ number_format((float) $totalLiabilities, 2) }}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                     {{-- Equity Side --}}
                     <div class="col-md-6">
                         <h5 class="text-muted mb-3" style="font-size:13px;text-transform:uppercase;letter-spacing:1px">
@@ -50,7 +68,7 @@
                         </table>
                     </div>
                     {{-- Summary --}}
-                    <div class="col-md-6">
+                    <div class="col-md-12 mt-4">
                         <h5 class="text-muted mb-3" style="font-size:13px;text-transform:uppercase;letter-spacing:1px">
                             Summary</h5>
                         <div class="d-flex flex-column gap-2">

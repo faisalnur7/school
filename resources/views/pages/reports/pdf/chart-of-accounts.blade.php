@@ -18,10 +18,11 @@
     <tbody>
         @foreach($group->accounts as $acc)
         @php
-            $debit   = $acc->journalLines->sum('debit');
-            $credit  = $acc->journalLines->sum('credit');
+            $isPayable = $acc->name === 'Accounts Payable';
+            $debit   = $isPayable ? 0 : $acc->journalLines->sum('debit');
+            $credit  = $isPayable ? (float) $supplierLiability : $acc->journalLines->sum('credit');
             $opening = (float) ($acc->opening_balance ?? 0);
-            $net     = $acc->balance;
+            $net     = $isPayable ? (float) $supplierLiability : $acc->balance;
         @endphp
         <tr>
             <td>{{ $acc->name }}</td>

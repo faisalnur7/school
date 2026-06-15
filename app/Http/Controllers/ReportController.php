@@ -16,6 +16,15 @@ class ReportController extends Controller
                 'from'     => '#0ea5e9',
                 'to'       => '#0369a1',
             ],
+            [
+                'icon'     => 'fa-truck',
+                'title'    => 'Supplier Due',
+                'subtitle' => 'Outstanding supplier invoices',
+                'route'    => 'reports.supplier-dues',
+                'permission' => 'view_supplier_due_report',
+                'from'     => '#ea580c',
+                'to'       => '#c2410c',
+            ],
         ];
         $cards = array_values(array_filter($cards, fn ($card) => auth()->user()?->hasPermission($card['permission'])));
 
