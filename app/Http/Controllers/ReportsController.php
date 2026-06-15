@@ -13,6 +13,8 @@ use App\Models\Income;
 use App\Models\IncomeCategory;
 use App\Models\MobileBankingAccount;
 use App\Models\InventorySale;
+use App\Models\PurchaseOrder;
+use App\Models\Supplier;
 use App\Models\Payroll;
 use App\Models\Transaction;
 use Carbon\Carbon;
@@ -21,6 +23,31 @@ use Mpdf\Mpdf;
 
 class ReportsController extends Controller
 {
+    private function supplierDuesQuery(Request $request)
+    {
+        $query = PurchaseOrder::with(['supplier', 'payments'])
+            ->orderByDesc('purchase_date')
+            ->orderByDesc('id');
+
+        if ($request->filled('supplier_id')) {
+            $query->where('supplier_id', $request->supplier_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('from')) {
+            $query->whereDate('purchase_date', '>=', Carbon::createFromFormat('d/m/Y', $request->from));
+        }
+
+        if ($request->filled('to')) {
+            $query->whereDate('purchase_date', '<=', Carbon::createFromFormat('d/m/Y', $request->to));
+        }
+
+        return $query;
+    }
+
     // ── Trial Balance ──────────────────────────────────────────
     public function trialBalance(Request $request)
     {
@@ -47,15 +74,28 @@ class ReportsController extends Controller
     // ── Balance Sheet ──────────────────────────────────────────
     public function balanceSheet(Request $request)
     {
-        $year         = $request->get('year', now()->year);
-        $totalIncome  = Transaction::income()->whereYear('transaction_date', $year)->sum('amount');
-        $totalExpense = Transaction::expense()->whereYear('transaction_date', $year)->sum('amount');
-        $capital      = Transaction::capital()->whereYear('transaction_date', $year)->sum('amount');
-        $withdrawals  = Transaction::withdrawal()->whereYear('transaction_date', $year)->sum('amount');
-        $netIncome    = $totalIncome - $totalExpense;
-        $equity       = $capital + $netIncome - $withdrawals;
+        $year              = $request->get('year', now()->year);
+        $yearEnd           = Carbon::createFromDate($year, 12, 31)->endOfDay();
+        $totalIncome       = Transaction::income()->whereYear('transaction_date', $year)->sum('amount');
+        $totalExpense      = Transaction::expense()->whereYear('transaction_date', $year)->sum('amount');
+        $capital           = Transaction::capital()->whereYear('transaction_date', $year)->sum('amount');
+        $withdrawals       = Transaction::withdrawal()->whereYear('transaction_date', $year)->sum('amount');
+        $supplierLiability = $this->supplierLiabilityAsOf($yearEnd);
+        $totalLiabilities  = $supplierLiability;
+        $netIncome         = $totalIncome - $totalExpense;
+        $equity            = $capital + $netIncome - $withdrawals;
 
-        return view('pages.reports.balance-sheet', compact('totalIncome', 'totalExpense', 'netIncome', 'capital', 'withdrawals', 'equity', 'year'));
+        return view('pages.reports.balance-sheet', compact(
+            'totalIncome',
+            'totalExpense',
+            'netIncome',
+            'capital',
+            'withdrawals',
+            'equity',
+            'year',
+            'supplierLiability',
+            'totalLiabilities'
+        ));
     }
 
     // ── Cash Book ──────────────────────────────────────────────
@@ -230,7 +270,77 @@ class ReportsController extends Controller
     public function chartOfAccounts()
     {
         $groups = AccountGroup::with(['accounts.journalLines'])->orderBy('name')->get();
-        return view('pages.reports.chart-of-accounts', compact('groups'));
+        $supplierLiability = $this->supplierLiabilityAsOf(now()->endOfDay());
+        return view('pages.reports.chart-of-accounts', compact('groups', 'supplierLiability'));
+    }
+
+    // ── Supplier Due Report ────────────────────────────────────
+    public function supplierDues(Request $request)
+    {
+        $query = $this->supplierDuesQuery($request);
+
+        $purchases = (clone $query)->paginate(20)->withQueryString();
+        $suppliers = Supplier::orderBy('name')->get();
+        $allPurchases = (clone $query)->get();
+
+        $totals = [
+            'amount' => (float) $allPurchases->sum('total_amount'),
+            'paid'   => (float) $allPurchases->sum('paid_amount'),
+            'due'    => (float) $allPurchases->sum('due_amount'),
+        ];
+
+        return view('pages.reports.supplier-dues', compact('purchases', 'suppliers', 'totals'));
+    }
+
+    public function supplierDuesPdf(Request $request)
+    {
+        $query = $this->supplierDuesQuery($request);
+        $purchases = (clone $query)->get();
+
+        $totals = [
+            'amount' => (float) $purchases->sum('total_amount'),
+            'paid'   => (float) $purchases->sum('paid_amount'),
+            'due'    => (float) $purchases->sum('due_amount'),
+        ];
+
+        $supplierName = 'All Suppliers';
+        if ($request->filled('supplier_id')) {
+            $supplierName = Supplier::find($request->supplier_id)?->name ?? 'Selected Supplier';
+        }
+
+        $statusLabel = $request->filled('status')
+            ? ucfirst($request->status)
+            : 'All Status';
+
+        $dateParts = [];
+        if ($request->filled('from')) {
+            $dateParts[] = 'From: ' . Carbon::createFromFormat('d/m/Y', $request->from)->format('d M Y');
+        }
+        if ($request->filled('to')) {
+            $dateParts[] = 'To: ' . Carbon::createFromFormat('d/m/Y', $request->to)->format('d M Y');
+        }
+
+        $subtitle = collect([
+            $supplierName,
+            $statusLabel,
+            implode(' | ', $dateParts),
+        ])->filter()->implode(' • ');
+
+        $filename = 'supplier-dues';
+        if ($request->filled('supplier_id')) {
+            $filename .= '-supplier-' . $request->supplier_id;
+        }
+        if ($request->filled('status')) {
+            $filename .= '-' . $request->status;
+        }
+        if ($request->filled('from')) {
+            $filename .= '-from-' . Carbon::createFromFormat('d/m/Y', $request->from)->format('Ymd');
+        }
+        if ($request->filled('to')) {
+            $filename .= '-to-' . Carbon::createFromFormat('d/m/Y', $request->to)->format('Ymd');
+        }
+
+        $this->makePdf('pages.reports.pdf.supplier-dues', compact('purchases', 'totals', 'subtitle'), $filename);
     }
 
     // ── Headwise Transaction List ──────────────────────────────
@@ -464,14 +574,27 @@ class ReportsController extends Controller
 
     public function balanceSheetPdf(Request $request)
     {
-        $year         = $request->get('year', now()->year);
-        $totalIncome  = Transaction::income()->whereYear('transaction_date', $year)->sum('amount');
-        $totalExpense = Transaction::expense()->whereYear('transaction_date', $year)->sum('amount');
-        $capital      = Transaction::capital()->whereYear('transaction_date', $year)->sum('amount');
-        $withdrawals  = Transaction::withdrawal()->whereYear('transaction_date', $year)->sum('amount');
-        $netIncome    = $totalIncome - $totalExpense;
-        $equity       = $capital + $netIncome - $withdrawals;
-        $this->makePdf('pages.reports.pdf.balance-sheet', compact('totalIncome', 'totalExpense', 'netIncome', 'capital', 'withdrawals', 'equity', 'year'), 'balance-sheet-' . $year);
+        $year              = $request->get('year', now()->year);
+        $yearEnd           = Carbon::createFromDate($year, 12, 31)->endOfDay();
+        $totalIncome       = Transaction::income()->whereYear('transaction_date', $year)->sum('amount');
+        $totalExpense      = Transaction::expense()->whereYear('transaction_date', $year)->sum('amount');
+        $capital           = Transaction::capital()->whereYear('transaction_date', $year)->sum('amount');
+        $withdrawals       = Transaction::withdrawal()->whereYear('transaction_date', $year)->sum('amount');
+        $supplierLiability = $this->supplierLiabilityAsOf($yearEnd);
+        $totalLiabilities  = $supplierLiability;
+        $netIncome         = $totalIncome - $totalExpense;
+        $equity            = $capital + $netIncome - $withdrawals;
+        $this->makePdf('pages.reports.pdf.balance-sheet', compact(
+            'totalIncome',
+            'totalExpense',
+            'netIncome',
+            'capital',
+            'withdrawals',
+            'equity',
+            'year',
+            'supplierLiability',
+            'totalLiabilities'
+        ), 'balance-sheet-' . $year);
     }
 
     public function cashBookPdf(Request $request)
@@ -559,7 +682,14 @@ class ReportsController extends Controller
     public function chartOfAccountsPdf()
     {
         $groups = AccountGroup::with(['accounts.journalLines'])->orderBy('name')->get();
-        $this->makePdf('pages.reports.pdf.chart-of-accounts', compact('groups'), 'chart-of-accounts', 'L');
+        $supplierLiability = $this->supplierLiabilityAsOf(now()->endOfDay());
+        $this->makePdf('pages.reports.pdf.chart-of-accounts', compact('groups', 'supplierLiability'), 'chart-of-accounts', 'L');
+    }
+
+    private function supplierLiabilityAsOf(Carbon $asOf): float
+    {
+        return (float) PurchaseOrder::whereDate('purchase_date', '<=', $asOf->toDateString())
+            ->sum('due_amount');
     }
 
     public function headwiseTransactionsPdf(Request $request)

@@ -102,7 +102,7 @@
                             </tbody>
                             <tfoot>
                                 <tr class="grand-total-row">
-                                    <td colspan="4" class="text-end fw-semibold">Grand Total</td>
+                                    <td colspan="4" class="text-end fw-semibold">Subtotal</td>
                                     <td class="text-center fw-bold text-primary" id="grand_total">0.00</td>
                                     <td></td>
                                 </tr>
@@ -113,6 +113,33 @@
                     <div id="empty_state" class="empty-state">
                         <i class="fas fa-shopping-basket"></i>
                         <p>No items added yet.<br><small>Click a product card on the right to add it.</small></p>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-title">
+                        <span><i class="fas fa-calculator me-2 text-primary"></i>Summary</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="summary-box">
+                                <span class="summary-label">Subtotal</span>
+                                <span class="summary-value" id="summary_subtotal">0.00</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="summary-box">
+                                <span class="summary-label">Amount</span>
+                                <input type="number" min="0" step="0.01" name="amount" id="summary_amount" value="{{ old('amount', 0) }}" class="summary-input @error('amount') is-invalid @enderror">
+                                @error('amount')<small class="text-danger">{{ $message }}</small>@enderror
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="summary-box due">
+                                <span class="summary-label">Total Due</span>
+                                <span class="summary-value" id="summary_due">0.00</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -281,6 +308,14 @@
 .grand-total-row td { background: #f8fafc; }
 .remove-row { width: 26px; height: 26px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
 
+/* ── Summary ── */
+.summary-box { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px 14px; background: linear-gradient(180deg, #fff, #f8fafc); display: flex; flex-direction: column; gap: 4px; min-height: 78px; }
+.summary-box.due { border-color: #c7d2fe; background: linear-gradient(180deg, #eef2ff, #ffffff); }
+.summary-label { font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #64748b; }
+.summary-value { font-size: 1.25rem; font-weight: 800; color: #1d4ed8; line-height: 1.1; }
+.summary-input { border: 0; border-radius: 8px; padding: 0; background: transparent; font-size: 1.25rem; font-weight: 800; color: #1d4ed8; line-height: 1.1; outline: none; width: 100%; }
+.summary-input:focus { box-shadow: none; }
+
 /* ── Empty State ── */
 .empty-state { text-align: center; padding: 30px 20px; color: #9ca3af; }
 .empty-state i { font-size: 2.5rem; margin-bottom: 10px; display: block; }
@@ -437,8 +472,16 @@ $(function () {
         $('#items_body tr').each(function () {
             grand += parseFloat($(this).find('.line-total').text() || 0);
         });
+        const amount = parseFloat($('#summary_amount').val() || 0);
+        const due = Math.max(0, grand - amount);
         $('#grand_total').text(grand.toFixed(2));
+        $('#summary_subtotal').text(grand.toFixed(2));
+        $('#summary_due').text(due.toFixed(2));
     }
+
+    $('#summary_amount').on('input change', function () {
+        recalcGrand();
+    });
 
     function renumberNames() {
         $('#items_body tr').each(function (i) {
@@ -506,6 +549,7 @@ $(function () {
 
     // ── Init ──
     updateUI();
+    recalcGrand();
     $('#items_table').hide();
 });
 </script>

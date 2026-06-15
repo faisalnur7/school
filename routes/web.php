@@ -790,6 +790,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/cash-summary', [\App\Http\Controllers\ReportsController::class, 'cashSummary'])->name('cash-summary');
         Route::get('/receipt-payment', [\App\Http\Controllers\ReportsController::class, 'receiptPayment'])->name('receipt-payment');
         Route::get('/cash-flow', [\App\Http\Controllers\ReportsController::class, 'cashFlow'])->name('cash-flow');
+        Route::get('/supplier-dues', [\App\Http\Controllers\ReportsController::class, 'supplierDues'])->name('supplier-dues');
         Route::get('/chart-of-accounts', [\App\Http\Controllers\ReportsController::class, 'chartOfAccounts'])->name('chart-of-accounts');
         Route::get('/headwise-transactions', [\App\Http\Controllers\ReportsController::class, 'headwiseTransactions'])->name('headwise-transactions');
         Route::get('/trial-balance/pdf', [\App\Http\Controllers\ReportsController::class, 'trialBalancePdf'])->name('trial-balance.pdf');
@@ -800,6 +801,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/cash-summary/pdf', [\App\Http\Controllers\ReportsController::class, 'cashSummaryPdf'])->name('cash-summary.pdf');
         Route::get('/receipt-payment/pdf', [\App\Http\Controllers\ReportsController::class, 'receiptPaymentPdf'])->name('receipt-payment.pdf');
         Route::get('/cash-flow/pdf', [\App\Http\Controllers\ReportsController::class, 'cashFlowPdf'])->name('cash-flow.pdf');
+        Route::get('/supplier-dues/pdf', [\App\Http\Controllers\ReportsController::class, 'supplierDuesPdf'])->name('supplier-dues.pdf');
         Route::get('/chart-of-accounts/pdf', [\App\Http\Controllers\ReportsController::class, 'chartOfAccountsPdf'])->name('chart-of-accounts.pdf');
         Route::get('/headwise-transactions/pdf', [\App\Http\Controllers\ReportsController::class, 'headwiseTransactionsPdf'])->name('headwise-transactions.pdf');
         Route::get('/details-trial-balance', [\App\Http\Controllers\ReportsController::class, 'detailedTrialBalance'])->name('details-trial-balance');
@@ -978,7 +980,8 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::get('/purchases/create', [PurchaseOrderController::class, 'create'])->name('inventory.purchases.create');
                 Route::post('/purchases', [PurchaseOrderController::class, 'store'])->name('inventory.purchases.store');
                 Route::get('/purchases/{id}', [PurchaseOrderController::class, 'show'])->name('inventory.purchases.show');
-            Route::get('/purchases/{id}/voucher', [PurchaseOrderController::class, 'voucher'])->name('inventory.purchases.voucher');
+                Route::post('/purchases/{id}/payments', [PurchaseOrderController::class, 'storePayment'])->name('inventory.purchases.payments.store');
+                Route::get('/purchases/{id}/voucher', [PurchaseOrderController::class, 'voucher'])->name('inventory.purchases.voucher');
             });
 
             Route::middleware('permission:view_inventory_reports')->group(function () {

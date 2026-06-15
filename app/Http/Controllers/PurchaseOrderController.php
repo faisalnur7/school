@@ -8,12 +8,12 @@ use App\Models\Group;
 use App\Models\InventoryItem;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
+use App\Models\PurchaseOrderPayment;
 use App\Models\SchoolClass;
 use App\Models\SchoolSetting;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Models\Transaction;
-use App\Services\PettyCashService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -67,6 +67,7 @@ class PurchaseOrderController extends Controller
             'purchase_date' => ['required', 'date'],
             'reference_no' => ['nullable', 'string', 'max:120'],
             'notes' => ['nullable', 'string'],
+            'amount' => ['nullable', 'numeric', 'min:0'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.inventory_item_id' => ['required', 'exists:inventory_items,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
@@ -75,6 +76,7 @@ class PurchaseOrderController extends Controller
 
         $createdBy = auth()->id();
         $reference = $validated['reference_no'] ?: Transaction::generateReference();
+        $paymentAmount = (float) ($validated['amount'] ?? 0);
 
         $items = collect($validated['items'])
             ->groupBy('inventory_item_id')
@@ -92,13 +94,31 @@ class PurchaseOrderController extends Controller
 
         $totalAmount = (float)$items->sum('line_total');
 
-        $purchase = DB::transaction(function () use ($validated, $items, $totalAmount, $createdBy, $reference) {
+        if ($paymentAmount < 0) {
+            return back()
+                ->withInput()
+                ->withErrors(['amount' => 'Amount cannot be negative.']);
+        }
+
+        if ($paymentAmount > $totalAmount) {
+            return back()
+                ->withInput()
+                ->withErrors(['amount' => 'Amount cannot be greater than the purchase total.']);
+        }
+
+        $dueAmount = max(0, $totalAmount - $paymentAmount);
+        $status = $paymentAmount <= 0 ? 'unpaid' : ($dueAmount <= 0 ? 'paid' : 'partial');
+
+        $purchase = DB::transaction(function () use ($validated, $items, $totalAmount, $paymentAmount, $dueAmount, $status, $createdBy, $reference) {
             $purchase = PurchaseOrder::create([
                 'supplier_id' => $validated['supplier_id'],
                 'purchase_date' => $validated['purchase_date'],
                 'reference_no' => $reference,
                 'notes' => $validated['notes'] ?? null,
                 'total_amount' => $totalAmount,
+                'paid_amount' => $paymentAmount,
+                'due_amount' => $dueAmount,
+                'status' => $status,
                 'created_by' => $createdBy,
             ]);
 
@@ -128,44 +148,19 @@ class PurchaseOrderController extends Controller
                 ]);
             }
 
+            if ($paymentAmount > 0) {
+                $this->recordPurchasePayment(
+                    $purchase,
+                    $paymentAmount,
+                    $validated['purchase_date'],
+                    $validated['reference_no'] ? $validated['reference_no'] . '-ADV-01' : $purchase->reference_no . '-ADV-01',
+                    $validated['notes'] ?? null,
+                    $createdBy
+                );
+            }
+
             return $purchase;
         });
-
-        // Debit petty cash and record in transactions/expenses
-        $petty    = PettyCashService::account();
-        $category = ExpenseCategory::firstOrCreate(
-            ['slug' => 'inventory-purchase'],
-            ['name' => 'Inventory Purchase', 'is_active' => true]
-        );
-        $reference = $purchase->reference_no ?? Transaction::generateReference();
-
-        $expense = Expense::create([
-            'expense_category_id' => $category->id,
-            'title'               => 'Inventory Purchase — ' . $reference,
-            'reference_no'        => $reference,
-            'amount'              => $totalAmount,
-            'expense_date'        => $purchase->purchase_date,
-            'payment_method'      => 'Cash',
-            'account_type'        => $petty ? \App\Models\HandCash::class : null,
-            'account_id'          => $petty?->id,
-            'description'         => 'Inventory purchase ref: ' . $reference,
-            'recorded_by'         => $createdBy,
-        ]);
-
-        Transaction::create([
-            'reference_no'         => $reference,
-            'type'                 => 'expense',
-            'expense_category_id'  => $category->id,
-            'amount'               => $totalAmount,
-            'payment_method'       => 'Cash',
-            'description'          => 'Inventory Purchase — ' . $reference,
-            'transaction_date'     => $purchase->purchase_date,
-            'transactionable_type' => PurchaseOrder::class,
-            'transactionable_id'   => $purchase->id,
-            'recorded_by'          => $createdBy,
-        ]);
-
-        // AccountTransaction (petty cash debit) is handled by Expense model booted hook above.
 
         return redirect()->route('inventory.purchases.show', $purchase->id)->with('success', 'Purchase saved successfully');
     }
@@ -177,15 +172,51 @@ class PurchaseOrderController extends Controller
     {
         $this->authorizePermission('manage_inventory_purchases');
 
-        $purchase = PurchaseOrder::with(['supplier', 'items.inventoryItem.category', 'createdBy'])
+        $purchase = PurchaseOrder::with(['supplier', 'items.inventoryItem.category', 'payments.creator', 'createdBy'])
             ->findOrFail($id);
 
         return view('pages.inventory.purchases.show', compact('purchase'));
     }
 
+    public function storePayment(Request $request, $id)
+    {
+        $this->authorizePermission('manage_inventory_purchases');
+
+        $purchase = PurchaseOrder::with('payments')->findOrFail($id);
+
+        $validated = $request->validate([
+            'amount' => ['required', 'numeric', 'min:0.01'],
+            'payment_date' => ['required', 'date'],
+            'reference_no' => ['nullable', 'string', 'max:120'],
+            'notes' => ['nullable', 'string'],
+        ]);
+
+        $remaining = (float) $purchase->balance;
+        if ((float) $validated['amount'] > $remaining) {
+            return back()
+                ->withInput()
+                ->withErrors(['amount' => 'Payment amount cannot be greater than the remaining due.']);
+        }
+
+        DB::transaction(function () use ($purchase, $validated) {
+            $this->recordPurchasePayment(
+                $purchase,
+                (float) $validated['amount'],
+                $validated['payment_date'],
+                $validated['reference_no'] ?: ($purchase->reference_no . '-PAY-' . str_pad($purchase->payments()->count() + 1, 2, '0', STR_PAD_LEFT)),
+                $validated['notes'] ?? null,
+                auth()->id()
+            );
+
+            $this->syncPurchaseTotals($purchase->fresh('payments'));
+        });
+
+        return back()->with('success', 'Payment recorded successfully.');
+    }
+
     public function voucher($id)
     {
-        $purchase = PurchaseOrder::with(['supplier', 'items.inventoryItem.category', 'createdBy'])->findOrFail($id);
+        $purchase = PurchaseOrder::with(['supplier', 'items.inventoryItem.category', 'payments.creator', 'createdBy'])->findOrFail($id);
         $setting = SchoolSetting::current();
 
         $rows = $purchase->items->map(function ($item) {
@@ -199,11 +230,72 @@ class PurchaseOrderController extends Controller
 
         return view('pages.vouchers.print', [
             'setting' => $setting,
-            'voucherType' => 'Credit Voucher',
+            'voucherType' => 'Credit Purchase Voucher',
             'record' => $purchase,
-            'fromAccountName' => 'Cash / Petty Cash',
+            'fromAccountName' => $purchase->supplier?->name ?? 'Supplier',
             'rows' => $rows,
             'total' => $purchase->total_amount,
+        ]);
+    }
+
+    private function recordPurchasePayment(PurchaseOrder $purchase, float $amount, string $paymentDate, ?string $referenceNo, ?string $notes, ?int $createdBy): void
+    {
+        if ($amount <= 0) {
+            return;
+        }
+
+        $category = ExpenseCategory::firstOrCreate(
+            ['slug' => 'inventory-purchase'],
+            ['name' => 'Inventory Purchase', 'is_active' => true]
+        );
+
+        $payment = PurchaseOrderPayment::create([
+            'purchase_order_id' => $purchase->id,
+            'amount' => $amount,
+            'payment_date' => $paymentDate,
+            'payment_method' => 'Cash',
+            'reference_no' => $referenceNo,
+            'notes' => $notes,
+            'created_by' => $createdBy,
+        ]);
+
+        Expense::create([
+            'expense_category_id' => $category->id,
+            'title'               => 'Inventory Purchase Payment — ' . ($referenceNo ?? $purchase->reference_no),
+            'reference_no'        => $referenceNo,
+            'amount'              => $amount,
+            'expense_date'        => $paymentDate,
+            'payment_method'      => 'Cash',
+            'account_type'        => null,
+            'account_id'          => null,
+            'description'         => 'Supplier payment for purchase ref: ' . ($purchase->reference_no ?? '—'),
+            'recorded_by'         => $createdBy,
+        ]);
+
+        Transaction::create([
+            'reference_no'         => $referenceNo,
+            'type'                 => 'expense',
+            'expense_category_id'  => $category->id,
+            'amount'               => $amount,
+            'payment_method'       => 'Cash',
+            'description'          => 'Inventory Purchase Payment — ' . ($purchase->reference_no ?? '—'),
+            'transaction_date'     => $paymentDate,
+            'transactionable_type' => PurchaseOrderPayment::class,
+            'transactionable_id'   => $payment->id,
+            'recorded_by'          => $createdBy,
+        ]);
+    }
+
+    private function syncPurchaseTotals(PurchaseOrder $purchase): void
+    {
+        $paid = (float) $purchase->payments()->sum('amount');
+        $due = max(0, (float) $purchase->total_amount - $paid);
+
+        $purchase->update([
+            'paid_amount' => $paid,
+            'due_amount' => $due,
+            'status' => $paid <= 0 ? 'unpaid' : ($due <= 0 ? 'paid' : 'partial'),
+            'last_paid_at' => $purchase->payments()->latest('payment_date')->value('payment_date'),
         ]);
     }
 }

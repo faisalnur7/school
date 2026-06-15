@@ -1,6 +1,22 @@
 @php $content = ''; ob_start(); @endphp
 <div class="two-col">
     <div class="col">
+        <div class="section-title">Liabilities</div>
+        <table>
+            <tbody>
+                <tr>
+                    <td>Accounts Payable - Suppliers</td>
+                    <td class="text-right red">{{ number_format((float) $supplierLiability, 2) }}</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td class="bold">Total Liabilities</td>
+                    <td class="text-right bold red" style="font-size:13px">{{ number_format((float) $totalLiabilities, 2) }}</td>
+                </tr>
+            </tfoot>
+        </table>
+        <div style="height:8px"></div>
         <div class="section-title">Equity</div>
         <table>
             <tbody>

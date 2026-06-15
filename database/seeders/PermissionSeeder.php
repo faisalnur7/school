@@ -228,6 +228,7 @@ class PermissionSeeder extends Seeder
                 ['name' => 'view_reports_hub',            'display_name' => 'View Reports Hub'],
                 ['name' => 'view_student_payment_report', 'display_name' => 'View Student Payment Report'],
                 ['name' => 'view_card_reports_student_payment', 'display_name' => 'View Reports Student Payment Card'],
+                ['name' => 'view_supplier_due_report',     'display_name' => 'View Supplier Due Report'],
             ]],
             ['name' => 'Location Settings',   'sort' => 17, 'permissions' => [
                 ['name' => 'view_location_settings',      'display_name' => 'View Location Settings'],

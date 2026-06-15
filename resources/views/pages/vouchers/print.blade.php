@@ -38,8 +38,16 @@
         .summary-row td { border-top: 1.5px solid #111827; font-weight: 700; background: #f8fafc; }
 
         /* Amount words */
-        .amount-words { padding: 8px 12px; border: 1px dashed #cbd5e1; border-radius: 6px; background: #f8fafc; font-size: 11px; color: #334155; margin-bottom: 16px; }
-        .amount-words strong { color: #111827; }
+    .amount-words { padding: 8px 12px; border: 1px dashed #cbd5e1; border-radius: 6px; background: #f8fafc; font-size: 11px; color: #334155; margin-bottom: 16px; }
+    .amount-words strong { color: #111827; }
+
+    .due-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0 14px; }
+    .due-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; }
+    .due-box .label { display: block; font-size: 9.5px; color: #64748b; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
+    .due-box .value { font-size: 12.5px; font-weight: 700; color: #0f172a; }
+    .due-box.due .value { color: #dc2626; }
+    .due-box.paid .value { color: #16a34a; }
+    .due-box.status .value { color: #7c3aed; text-transform: uppercase; }
 
         /* Signatures */
         .signatures { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 80px; }
@@ -88,7 +96,7 @@
             <span>{{ $record->reference_no ?? 'N/A' }}</span>
         </div>
         <div class="meta-card">
-            <strong>From Account</strong>
+            <strong>Supplier</strong>
             <span>{{ $fromAccountName }}</span>
         </div>
     </div>
@@ -119,6 +127,25 @@
         </tbody>
     </table>
 
+    <div class="due-summary">
+        <div class="due-box">
+            <span class="label">Subtotal</span>
+            <span class="value">{{ number_format((float) $record->total_amount, 2) }}</span>
+        </div>
+        <div class="due-box paid">
+            <span class="label">Paid</span>
+            <span class="value">{{ number_format((float) ($record->paid_amount ?? 0), 2) }}</span>
+        </div>
+        <div class="due-box due">
+            <span class="label">Due</span>
+            <span class="value">{{ number_format((float) ($record->due_amount ?? 0), 2) }}</span>
+        </div>
+        <div class="due-box status">
+            <span class="label">Status</span>
+            <span class="value">{{ ucfirst($record->status ?? 'unpaid') }}</span>
+        </div>
+    </div>
+
     @php
         $formatter = new \NumberFormatter('en', \NumberFormatter::SPELLOUT);
         $amountString = number_format((float) $total, 2, '.', '');
@@ -131,7 +158,7 @@
     @endphp
 
     <div class="amount-words">
-        <strong>Amount in words:</strong> {{ $amountInWords }}
+        <strong>Invoice amount in words:</strong> {{ $amountInWords }}
     </div>
 
     <!-- Signatures -->
