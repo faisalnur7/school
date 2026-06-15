@@ -34,4 +34,16 @@ class InventorySale extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function getPaidAmountAttribute(): float
+    {
+        $items = $this->relationLoaded('items') ? $this->items : $this->items()->get();
+
+        return (float) $items->sum(fn ($item) => (float) ($item->paid_amount ?? $item->subtotal));
+    }
+
+    public function getDueAmountAttribute(): float
+    {
+        return max(0, (float) $this->total_amount - $this->paid_amount);
+    }
 }

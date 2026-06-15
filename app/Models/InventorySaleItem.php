@@ -13,6 +13,13 @@ class InventorySaleItem extends Model
         'quantity',
         'unit_price',
         'subtotal',
+        'paid_amount',
+    ];
+
+    protected $casts = [
+        'unit_price' => 'decimal:2',
+        'subtotal' => 'decimal:2',
+        'paid_amount' => 'decimal:2',
     ];
 
     public function inventorySale(): BelongsTo

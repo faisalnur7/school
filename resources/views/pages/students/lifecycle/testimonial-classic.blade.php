@@ -65,7 +65,6 @@
         @endif
         <div class="school-name">{{ $setting->name ?? config('app.name') }}</div>
         <div class="school-address">{{ $setting->address ?? '' }}</div>
-        @if($setting->eiin)<div style="font-size:11px;color:#666;">EIIN: {{ $setting->eiin }}</div>@endif
     </div>
 
     <div class="cert-title">

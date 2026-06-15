@@ -114,6 +114,13 @@ class FreeStudentshipController extends Controller
             $query->where('group_id', $request->group_id);
         }
 
+        if ($request->filled('student_cid')) {
+            $studentCid = trim((string) $request->student_cid);
+            $query->whereHas('student', function ($q) use ($studentCid) {
+                $q->where('student_cid', $studentCid);
+            });
+        }
+
         $students = $query->orderBy('roll')->get()->map(function ($academicInfo) use ($request) {
             $existingFreeStudentship = FreeStudentship::where('student_id', $academicInfo->student_id)
                 ->where('academic_session_id', $request->academic_session_id)

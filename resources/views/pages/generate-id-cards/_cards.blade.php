@@ -244,9 +244,6 @@
                         </div>
 
                         <div class="id-card__footer" style="background:#222;">
-                            @if($setting?->eiin)
-                                <span>EIIN: {{ $setting->eiin }}</span>
-                            @endif
                             @if($setting?->whatsapp_number)
                                 <span>📱 {{ $setting->whatsapp_number }}</span>
                             @endif

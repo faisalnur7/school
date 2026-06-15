@@ -33,7 +33,6 @@
     <div class="header">
         <div style="font-size:24px;font-weight:700;">{{ $setting->name ?? config('app.name') }}</div>
         <div>{{ $setting->address ?? '' }}</div>
-        @if($setting->eiin)<div>EIIN: {{ $setting->eiin }}</div>@endif
     </div>
 
     <div class="title">Transfer Certificate</div>

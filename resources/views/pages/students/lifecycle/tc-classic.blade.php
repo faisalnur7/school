@@ -13,8 +13,6 @@
     .school-logo { width: 70px; height: 70px; object-fit: contain; margin-bottom: 6px; }
     .school-name { font-size: 22px; font-weight: bold; color: #5a3e00; letter-spacing: 1px; text-transform: uppercase; }
     .school-address { font-size: 11px; color: #666; margin-top: 3px; }
-    .school-eiin { font-size: 11px; color: #666; }
-
     .cert-title { text-align: center; margin: 18px 0 20px; }
     .cert-title h2 { font-size: 20px; font-weight: bold; color: #5a3e00; text-transform: uppercase; letter-spacing: 3px; border-bottom: 1px solid #c9a84c; display: inline-block; padding-bottom: 4px; }
     .cert-title .serial { font-size: 11px; color: #888; margin-top: 6px; }
@@ -70,9 +68,6 @@
         @endif
         <div class="school-name">{{ $setting->name ?? config('app.name') }}</div>
         <div class="school-address">{{ $setting->address ?? '' }}</div>
-        @if($setting->eiin)
-        <div class="school-eiin">EIIN: {{ $setting->eiin }}</div>
-        @endif
     </div>
 
     {{-- Title --}}

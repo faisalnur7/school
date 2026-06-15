@@ -93,6 +93,8 @@ class AdmitSeatCardController extends Controller
                 ->when($request->filled('class_id'), fn ($q) => $q->where('school_class_id', $request->class_id))
                 ->when($request->filled('section_id'), fn ($q) => $q->where('section_id', $request->section_id))
                 ->when($request->filled('group_id'), fn ($q) => $q->where('group_id', $request->group_id))
+                ->where('is_current', true)
+                ->where('academic_status', 'active')
                 ->with(['schoolClass', 'section', 'group', 'academicSession'])
                 ->orderByDesc('academic_session_id')
                 ->orderByDesc('id');
@@ -101,6 +103,14 @@ class AdmitSeatCardController extends Controller
         if ($studentCid !== '') {
             $students = Student::with(['academicInformations' => $academicInfoConstraint])
                 ->where('student_cid', $studentCid)
+                ->whereHas('academicInformations', function ($query) use ($request) {
+                    $query->when($request->filled('session_id'), fn ($q) => $q->where('academic_session_id', $request->session_id))
+                        ->when($request->filled('class_id'), fn ($q) => $q->where('school_class_id', $request->class_id))
+                        ->when($request->filled('section_id'), fn ($q) => $q->where('section_id', $request->section_id))
+                        ->when($request->filled('group_id'), fn ($q) => $q->where('group_id', $request->group_id))
+                        ->where('is_current', true)
+                        ->where('academic_status', 'active');
+                })
                 ->orderBy('full_name_en')
                 ->get();
         } elseif ($request->filled('session_id')) {
@@ -109,7 +119,9 @@ class AdmitSeatCardController extends Controller
                     $query->where('academic_session_id', $request->session_id)
                         ->when($request->filled('class_id'), fn ($q) => $q->where('school_class_id', $request->class_id))
                         ->when($request->filled('section_id'), fn ($q) => $q->where('section_id', $request->section_id))
-                        ->when($request->filled('group_id'), fn ($q) => $q->where('group_id', $request->group_id));
+                        ->when($request->filled('group_id'), fn ($q) => $q->where('group_id', $request->group_id))
+                        ->where('is_current', true)
+                        ->where('academic_status', 'active');
                 })
                 ->orderBy('full_name_en')
                 ->get();
@@ -125,16 +137,21 @@ class AdmitSeatCardController extends Controller
 
     private function buildLayout(Request $request): array
     {
-        $cardsPerPage = max(1, min(10, (int) $request->input('cards_per_page', 8)));
+        $cardsPerPage = max(1, min(12, (int) $request->input('cards_per_page', 8)));
         $cardsPerRow = max(1, min(10, (int) $request->input('cards_per_row', 2)));
         $cardsPerRow = min($cardsPerRow, $cardsPerPage);
         $pageRows = (int) ceil($cardsPerPage / $cardsPerRow);
 
-        $marginMm = 19.05;
+        while ($pageRows > 4 && $cardsPerRow < min(3, $cardsPerPage)) {
+            $cardsPerRow++;
+            $pageRows = (int) ceil($cardsPerPage / $cardsPerRow);
+        }
+
+        $marginMm = 4;
         $pageWidthMm = 210 - ($marginMm * 2);
         $pageHeightMm = 297 - ($marginMm * 2);
-        $gapXmm = 3;
-        $gapYmm = 3;
+        $gapXmm = 8.5;
+        $gapYmm = 8.5;
 
         $cardWidthMm = ($pageWidthMm - ($gapXmm * ($cardsPerRow - 1))) / $cardsPerRow;
         $cardHeightMm = ($pageHeightMm - ($gapYmm * ($pageRows - 1))) / $pageRows;

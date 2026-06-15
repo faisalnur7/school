@@ -78,6 +78,7 @@ $(document).ready(function() {
             method: 'GET',
             data: {
                 academic_session_id: sessionId,
+                student_cid: $('#studentCid').val(),
                 fee_category_id: feeCategoryId,
                 school_class_id: $('#classSelect').val(),
                 section_id: $('#sectionSelect').val(),

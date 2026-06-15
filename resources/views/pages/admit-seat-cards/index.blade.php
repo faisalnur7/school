@@ -23,7 +23,7 @@
                     <div class="col-md-2">
                         <div class="form-group">
                             <label>Class</label>
-                            <select name="class_id" class="form-control form-control-sm">
+                            <select name="class_id" id="classSelect" class="form-control form-control-sm">
                                 <option value="">All Classes</option>
                                 @foreach($classes as $c)
                                     <option value="{{ $c->id }}" {{ request('class_id') == $c->id ? 'selected' : '' }}>{{ $c->name_en }}</option>
@@ -34,7 +34,7 @@
                     <div class="col-md-2">
                         <div class="form-group">
                             <label>Section</label>
-                            <select name="section_id" class="form-control form-control-sm">
+                            <select name="section_id" id="sectionSelect" class="form-control form-control-sm">
                                 <option value="">All Sections</option>
                                 @foreach($sections as $sec)
                                     <option value="{{ $sec->id }}" {{ request('section_id') == $sec->id ? 'selected' : '' }}>{{ $sec->name_en }}</option>
@@ -93,7 +93,7 @@
                                 name="cards_per_page"
                                 class="form-control form-control-sm"
                                 min="1"
-                                max="10"
+                                max="12"
                                 value="{{ $layout['cardsPerPage'] ?? request('cards_per_page', 8) }}">
                         </div>
                     </div>
@@ -177,6 +177,57 @@
         ])
     @endif
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const classSelect = document.getElementById('classSelect');
+    const sectionSelect = document.getElementById('sectionSelect');
+    const selectedSection = @json(request('section_id'));
+
+    function loadSections(classId, selectedSectionId = null) {
+        if (!sectionSelect) return;
+
+        if (!classId) {
+            sectionSelect.innerHTML = '<option value="">All Sections</option>';
+            if (window.refreshSelect2) window.refreshSelect2($(sectionSelect));
+            return;
+        }
+
+        sectionSelect.innerHTML = '<option value="">Loading...</option>';
+        if (window.refreshSelect2) window.refreshSelect2($(sectionSelect));
+
+        fetch(`{{ route('load_section_groups') }}?school_class_id=${encodeURIComponent(classId)}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to load sections');
+                return response.json();
+            })
+            .then(data => {
+                const sections = Array.isArray(data?.sections) ? data.sections : [];
+                let html = '<option value="">All Sections</option>';
+
+                sections.forEach(section => {
+                    const selected = String(selectedSectionId) === String(section.id) ? 'selected' : '';
+                    html += `<option value="${section.id}" ${selected}>${section.name_en}</option>`;
+                });
+
+                sectionSelect.innerHTML = html;
+                if (window.refreshSelect2) window.refreshSelect2($(sectionSelect));
+            })
+            .catch(() => {
+                sectionSelect.innerHTML = '<option value="">All Sections</option>';
+                if (window.refreshSelect2) window.refreshSelect2($(sectionSelect));
+            });
+    }
+
+    $(document).on('change', '#classSelect', function () {
+        loadSections(this.value);
+    });
+
+    if (classSelect && classSelect.value) {
+        loadSections(classSelect.value, selectedSection);
+    }
+});
+</script>
 
 <script>
 const form = document.getElementById('filterForm');

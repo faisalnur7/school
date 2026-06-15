@@ -20,7 +20,7 @@ class FeesHubController extends Controller
                 ['icon' => 'fa-receipt',        'title' => 'Student Receive Report',     'subtitle' => 'Monthwise receive report',        'route' => 'fees.student-receive-report', 'permission' => 'view_card_student_receive_report', 'from' => '#10b981', 'to' => '#047857'],
                 ['icon' => 'fa-file-invoice-dollar', 'title' => 'Student Receivable Report', 'subtitle' => 'Category-wise assigned fees by month', 'route' => 'fees.student-receivable-report', 'permission' => 'view_card_student_receivable_report', 'from' => '#f59e0b', 'to' => '#d97706'],
                 ['icon' => 'fa-file-invoice',   'title' => 'Classwise Due',      'subtitle' => 'Classwise due report',        'route' => 'fees.due-report', 'permission' => 'view_card_classwise_due_report', 'from' => '#0f766e', 'to' => '#0d9488'],
-                ['icon' => 'fa-user-clock',     'title' => 'Student Due',        'subtitle' => 'Student due report',          'route' => 'fees.student-due-report', 'permission' => 'view_card_student_due_report', 'from' => '#b45309', 'to' => '#92400e'],
+                ['icon' => 'fa-user-clock',     'title' => 'Student Due',        'subtitle' => 'Fee and inventory due report', 'route' => 'fees.student-due-report', 'permission' => 'view_card_student_due_report', 'from' => '#b45309', 'to' => '#92400e'],
                 ['icon' => 'fa-percentage',     'title' => 'Discount List',      'subtitle' => 'View discount list',          'route' => 'fees.discount-list', 'permission' => 'view_card_discount_list', 'from' => '#be185d', 'to' => '#9d174d'],
             ],
         ];

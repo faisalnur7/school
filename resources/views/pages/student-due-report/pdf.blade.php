@@ -17,7 +17,7 @@
 </style>
 </head>
 <body>
-<h2>Classwise Due Report</h2>
+<h2>Fees & Inventory Due Report</h2>
 <p class="sub">
     Academic Year: {{ $session?->name_en ?? '—' }}
     &nbsp;|&nbsp; Generated: {{ now()->format('d M Y, h:i A') }}
@@ -31,6 +31,7 @@
             <th>Student Name</th>
             <th>Class</th>
             <th>Section</th>
+            <th>Type</th>
             <th>Description</th>
             <th class="text-right">Amount</th>
             <th class="text-right">Paid Amount</th>
@@ -46,6 +47,7 @@
                     <td>{{ $lineIndex === 0 ? $student->name : '' }}</td>
                     <td>{{ $lineIndex === 0 ? $student->class_name : '' }}</td>
                     <td>{{ $lineIndex === 0 ? $student->section_name : '' }}</td>
+                    <td>{{ ucfirst($line->type) }}</td>
                     <td>{{ $line->description }}</td>
                     <td class="text-right">{{ number_format($line->amount, 2) }}</td>
                     <td class="text-right">{{ number_format($line->paid, 2) }}</td>
@@ -53,8 +55,8 @@
                 </tr>
             @endforeach
             <tr class="section-title">
-                <td colspan="6" class="text-right">Student Total</td>
-                <td class="text-right">{{ number_format($student->fees_total, 2) }}</td>
+                <td colspan="7" class="text-right">Student Total</td>
+                <td class="text-right">{{ number_format($student->fees_total + $student->inventory_total, 2) }}</td>
                 <td class="text-right">{{ number_format($student->paid_amount, 2) }}</td>
                 <td class="text-right">{{ number_format($student->due, 2) }}</td>
             </tr>
@@ -62,7 +64,7 @@
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="6">Grand Total</td>
+            <td colspan="7">Grand Total</td>
             <td class="text-right">{{ number_format($totals['amount'], 2) }}</td>
             <td class="text-right">{{ number_format($totals['paid'], 2) }}</td>
             <td class="text-right">{{ number_format($totals['due'], 2) }}</td>

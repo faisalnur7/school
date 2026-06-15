@@ -191,9 +191,13 @@ class StudentPaymentReportController extends Controller
                 'student.academicInformations.schoolClass',
                 'student.academicInformations.section',
                 'inventorySale.items.inventoryItem.category',
+                'inventoryDueItems.inventorySaleItem.inventoryItem.category',
             ])
             ->whereBetween('payment_date', [$fromDate->toDateString(), $toDate->toDateString()])
-            ->whereNotNull('inventory_sale_id')
+            ->where(function ($q) {
+                $q->whereNotNull('inventory_sale_id')
+                  ->orWhereHas('inventoryDueItems');
+            })
             ->get();
 
         foreach ($inventoryPayments as $payment) {
@@ -216,66 +220,109 @@ class StudentPaymentReportController extends Controller
                 continue;
             }
 
-            $sale = $payment->inventorySale;
-            if (!$sale) {
-                continue;
-            }
-
             $monthKey = Carbon::parse($payment->payment_date)->format('Y-m');
             if (!isset($months[$monthKey])) {
                 continue;
             }
-
-            $saleItems = $sale->items;
-            $saleTotal = $saleItems->sum('subtotal');
-            if ($saleTotal <= 0) {
-                continue;
-            }
-
             $academicInfo = $student->academicInformations->first();
             $studentKey = $student->id;
 
-            foreach ($saleItems as $saleItem) {
-                $inventoryItem = $saleItem->inventoryItem;
-                $inventoryCategory = $inventoryItem?->category;
-                if (!$inventoryCategory || !$inventoryCategory->is_active) {
-                    continue;
-                }
+            if ($payment->inventorySale) {
+                $sale = $payment->inventorySale;
+                $saleItems = $sale->items;
+                $saleTotal = $saleItems->sum('subtotal');
+                if ($saleTotal > 0) {
+                    $inventoryPaidTotal = (float) ($sale->paid_amount ?? 0);
 
-                $amount = (float) $payment->amount * ($saleItem->subtotal / $saleTotal);
-                if ($amount <= 0) {
-                    continue;
-                }
+                    foreach ($saleItems as $saleItem) {
+                        $inventoryItem = $saleItem->inventoryItem;
+                        $inventoryCategory = $inventoryItem?->category;
+                        if (!$inventoryCategory || !$inventoryCategory->is_active) {
+                            continue;
+                        }
 
-                if (!isset($studentMap[$studentKey])) {
-                    $studentMap[$studentKey] = [
-                        'student_id' => $studentKey,
-                        'student_cid' => $student->student_cid,
-                        'student_name' => $student->full_name_en,
-                        'class_name' => $academicInfo?->schoolClass?->name_en ?? '—',
-                        'section_name' => $academicInfo?->section?->name_en ?? '—',
-                        'monthTotals' => array_fill_keys(array_keys($months), 0.0),
-                        'student_total' => 0.0,
-                        'lines' => [],
-                    ];
-                }
+                        $amount = $inventoryPaidTotal * ($saleItem->subtotal / $saleTotal);
+                        if ($amount <= 0) {
+                            continue;
+                        }
 
-                $key = $studentKey . '|' . $inventoryCategory->id . '|' . $inventoryCategory->name;
-                if (!isset($studentMap[$studentKey]['lines'][$key])) {
-                    $studentMap[$studentKey]['lines'][$key] = [
-                        'acc_code' => $inventoryCategory->id,
-                        'description' => $inventoryCategory->name,
-                        'monthTotals' => array_fill_keys(array_keys($months), 0.0),
-                        'total' => 0.0,
-                    ];
-                }
+                        if (!isset($studentMap[$studentKey])) {
+                            $studentMap[$studentKey] = [
+                                'student_id' => $studentKey,
+                                'student_cid' => $student->student_cid,
+                                'student_name' => $student->full_name_en,
+                                'class_name' => $academicInfo?->schoolClass?->name_en ?? '—',
+                                'section_name' => $academicInfo?->section?->name_en ?? '—',
+                                'monthTotals' => array_fill_keys(array_keys($months), 0.0),
+                                'student_total' => 0.0,
+                                'lines' => [],
+                            ];
+                        }
 
-                $studentMap[$studentKey]['lines'][$key]['monthTotals'][$monthKey] += $amount;
-                $studentMap[$studentKey]['lines'][$key]['total'] += $amount;
-                $studentMap[$studentKey]['monthTotals'][$monthKey] += $amount;
-                $studentMap[$studentKey]['student_total'] += $amount;
-                $totals['months'][$monthKey] += $amount;
-                $totals['total'] += $amount;
+                        $key = $studentKey . '|' . $inventoryCategory->id . '|' . $inventoryCategory->name;
+                        if (!isset($studentMap[$studentKey]['lines'][$key])) {
+                            $studentMap[$studentKey]['lines'][$key] = [
+                                'acc_code' => $inventoryCategory->id,
+                                'description' => $inventoryCategory->name,
+                                'monthTotals' => array_fill_keys(array_keys($months), 0.0),
+                                'total' => 0.0,
+                            ];
+                        }
+
+                        $studentMap[$studentKey]['lines'][$key]['monthTotals'][$monthKey] += $amount;
+                        $studentMap[$studentKey]['lines'][$key]['total'] += $amount;
+                        $studentMap[$studentKey]['monthTotals'][$monthKey] += $amount;
+                        $studentMap[$studentKey]['student_total'] += $amount;
+                        $totals['months'][$monthKey] += $amount;
+                        $totals['total'] += $amount;
+                    }
+                }
+            }
+
+            if ($payment->inventoryDueItems->isNotEmpty()) {
+                foreach ($payment->inventoryDueItems as $dueItem) {
+                    $saleItem = $dueItem->inventorySaleItem;
+                    $inventoryItem = $saleItem?->inventoryItem;
+                    $inventoryCategory = $inventoryItem?->category;
+                    if (!$inventoryCategory || !$inventoryCategory->is_active) {
+                        continue;
+                    }
+
+                    $amount = (float) $dueItem->amount;
+                    if ($amount <= 0) {
+                        continue;
+                    }
+
+                    if (!isset($studentMap[$studentKey])) {
+                        $studentMap[$studentKey] = [
+                            'student_id' => $studentKey,
+                            'student_cid' => $student->student_cid,
+                            'student_name' => $student->full_name_en,
+                            'class_name' => $academicInfo?->schoolClass?->name_en ?? '—',
+                            'section_name' => $academicInfo?->section?->name_en ?? '—',
+                            'monthTotals' => array_fill_keys(array_keys($months), 0.0),
+                            'student_total' => 0.0,
+                            'lines' => [],
+                        ];
+                    }
+
+                    $key = $studentKey . '|due|' . $inventoryCategory->id . '|' . $inventoryCategory->name;
+                    if (!isset($studentMap[$studentKey]['lines'][$key])) {
+                        $studentMap[$studentKey]['lines'][$key] = [
+                            'acc_code' => $inventoryCategory->id,
+                            'description' => $inventoryCategory->name . ' - ' . ($inventoryItem?->name ?? 'Item'),
+                            'monthTotals' => array_fill_keys(array_keys($months), 0.0),
+                            'total' => 0.0,
+                        ];
+                    }
+
+                    $studentMap[$studentKey]['lines'][$key]['monthTotals'][$monthKey] += $amount;
+                    $studentMap[$studentKey]['lines'][$key]['total'] += $amount;
+                    $studentMap[$studentKey]['monthTotals'][$monthKey] += $amount;
+                    $studentMap[$studentKey]['student_total'] += $amount;
+                    $totals['months'][$monthKey] += $amount;
+                    $totals['total'] += $amount;
+                }
             }
         }
 
@@ -441,7 +488,7 @@ class StudentPaymentReportController extends Controller
                 DB::raw('MAX(sc2.name_en) as class_name'),
                 DB::raw('MAX(sec2.name_en) as section_name'),
                 'inventory_categories.id as category_id',
-                DB::raw('SUM(inventory_sale_items.subtotal) as paid')
+                DB::raw('SUM(COALESCE(inventory_sale_items.paid_amount, inventory_sale_items.subtotal)) as paid')
             )
             ->groupBy('students.id', 'students.student_cid', 'students.full_name_en', 'inventory_categories.id')
             ->get();

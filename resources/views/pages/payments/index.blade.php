@@ -68,10 +68,26 @@
                                     @foreach ($payment->items as $item)
                                         <span class="badge rounded-pill me-1 mb-1 bg-green-700 text-white"
                                             style="font-size:11px;border:1px solid #e2e8f0">
-                                            {{ $item->fee->feeSet->name ?? '—' }}
+                                            {{ $item->fee->feeSet->name ?? 'Fee' }}
                                         </span>
                                     @endforeach
-                                </td>
+                                                @if ($payment->inventorySale?->items?->isNotEmpty())
+                                                    @foreach ($payment->inventorySale->items as $saleItem)
+                                                        <span class="badge rounded-pill me-1 mb-1 bg-blue-600 text-white"
+                                                            style="font-size:11px;border:1px solid #bfdbfe">
+                                                            {{ $saleItem->inventoryItem->name ?? 'Inventory' }}
+                                                        </span>
+                                                    @endforeach
+                                                @endif
+                                                @if ($payment->inventoryDueItems?->isNotEmpty())
+                                                    @foreach ($payment->inventoryDueItems as $dueItem)
+                                                        <span class="badge rounded-pill me-1 mb-1 bg-orange-500 text-white"
+                                                            style="font-size:11px;border:1px solid #fdba74">
+                                                            Due: {{ $dueItem->inventorySaleItem?->inventoryItem?->name ?? 'Inventory' }}
+                                                        </span>
+                                                    @endforeach
+                                                @endif
+                                            </td>
                                 <td class="px-4 py-3" style="font-size:13px">
                                     <span class="badge rounded-pill"
                                         style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-size:11px">
@@ -80,7 +96,7 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <span class="mono fw-bold" style="font-size:15px;color:#4338ca">
-                                        {{ number_format($payment->amount, 2) }}
+                                        {{ number_format($payment->calculated_amount, 2) }}
                                     </span>
                                     <span class="text-muted mono" style="font-size:11px"> BDT</span>
                                 </td>
