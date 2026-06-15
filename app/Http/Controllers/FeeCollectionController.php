@@ -25,6 +25,7 @@ use App\Models\InventoryItem;
 use App\Services\PettyCashService;
 use App\Models\InventorySale;
 use App\Models\InventorySaleItem;
+use App\Models\PaymentInventoryItem;
 use App\Models\StockMovement;
 
 class FeeCollectionController extends Controller
@@ -156,7 +157,10 @@ class FeeCollectionController extends Controller
             'academicInformations.section',
             'academicInformations.group',
             'academicInformations.academicSession',
-            'payments'
+            'payments.items.fee.feeSet',
+            'payments.inventorySale.items.inventoryItem.category',
+            'payments.inventoryDueItems.inventorySaleItem.inventoryItem.category',
+            'payments.collector',
         ])->findOrFail($student_id);
 
         $payments = $student->payments;
@@ -317,7 +321,21 @@ class FeeCollectionController extends Controller
           ->filter(fn($cat) => $cat->items->isNotEmpty())
           ->values();
 
-        return view('pages.fees.collect_fee', compact('pendingFees', 'student', 'payments', 'inventoryCategories'));
+        $inventoryDueItems = InventorySaleItem::with(['inventorySale.payment', 'inventoryItem.category'])
+            ->whereHas('inventorySale', fn($q) => $q->where('student_id', $student->id))
+            ->whereRaw('(subtotal - COALESCE(paid_amount,0)) > 0')
+            ->get()
+            ->map(function ($item) {
+                $due = max(0, (float) $item->subtotal - (float) ($item->paid_amount ?? 0));
+                $item->due_amount = $due;
+                return $item;
+            })
+            ->groupBy(fn($item) => $item->inventoryItem?->category_id ?? 0)
+            ->map(fn($items) => $items->values())
+            ->filter()
+            ->values();
+
+        return view('pages.fees.collect_fee', compact('pendingFees', 'student', 'payments', 'inventoryCategories', 'inventoryDueItems'));
 
     }
 
@@ -325,10 +343,15 @@ class FeeCollectionController extends Controller
     {
         $request->validate([
             'fees'           => 'nullable|array',
-            'fees.*'         => 'exists:fees,id',
+            'fees.*.fee_id'   => 'required_with:fees|exists:fees,id',
+            'fees.*.amount'   => 'nullable|numeric|min:0',
             'items'          => 'nullable|array',
             'items.*.inventory_item_id' => 'required_with:items|exists:inventory_items,id',
             'items.*.quantity'          => 'required_with:items|integer|min:1',
+            'items.*.paid_amount'       => 'nullable|numeric|min:0',
+            'inventory_dues'            => 'nullable|array',
+            'inventory_dues.*.inventory_sale_item_id' => 'required_with:inventory_dues|exists:inventory_sale_items,id',
+            'inventory_dues.*.paid_amount'            => 'nullable|numeric|min:0',
             'student_id'     => 'nullable|exists:students,id',
             'payment_amount' => 'nullable|numeric|min:0',
             'payment_method' => 'nullable|string|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other,cash,bank,mobile_wallet',
@@ -337,18 +360,44 @@ class FeeCollectionController extends Controller
             'description'    => 'nullable|string|max:1000',
         ]);
 
-        if (empty($request->fees) && empty($request->items)) {
-            return response()->json(['message' => 'Please select at least one fee or item'], 422);
+        if (empty($request->fees) && empty($request->items) && empty($request->inventory_dues)) {
+            return response()->json(['message' => 'Please select at least one fee, inventory item, or inventory due item'], 422);
         }
 
         DB::beginTransaction();
 
         try {
-            $fees = Fee::with(['feeSet.items.category'])->whereIn('id', $request->fees ?? [])->lockForUpdate()->get();
+            $requestedFees = collect($request->input('fees', []))
+                ->filter(fn ($fee) => is_array($fee) && !empty($fee['fee_id']))
+                ->values();
+            $requestedItems = collect($request->input('items', []))
+                ->filter(fn ($item) => is_array($item) && !empty($item['inventory_item_id']))
+                ->values();
+            $requestedInventoryDues = collect($request->input('inventory_dues', []))
+                ->filter(fn ($item) => is_array($item) && !empty($item['inventory_sale_item_id']))
+                ->values();
 
-            $requestedItems = collect($request->items ?? []);
+            $fees = Fee::with(['feeSet.items.category'])
+                ->whereIn('id', $requestedFees->pluck('fee_id')->all())
+                ->lockForUpdate()
+                ->get();
+
+            $studentId = $fees->isNotEmpty() ? $fees->first()->student_id : null;
+            if (!$studentId) {
+                // items-only sale — student_id must be passed in payload
+                $studentId = (int) $request->student_id;
+            }
+
             $inventoryItems = $requestedItems->isNotEmpty()
                 ? InventoryItem::whereIn('id', $requestedItems->pluck('inventory_item_id'))->lockForUpdate()->get()->keyBy('id')
+                : collect();
+
+            $inventoryDueItems = $requestedInventoryDues->isNotEmpty()
+                ? InventorySaleItem::with(['inventorySale'])
+                    ->whereIn('id', $requestedInventoryDues->pluck('inventory_sale_item_id'))
+                    ->lockForUpdate()
+                    ->get()
+                    ->keyBy('id')
                 : collect();
 
             // Validate stock before any writes
@@ -360,25 +409,20 @@ class FeeCollectionController extends Controller
                 }
             }
 
-            if ($fees->isEmpty() && $requestedItems->isEmpty()) {
-                return response()->json(['message' => 'No fees or items selected'], 422);
+            foreach ($requestedInventoryDues as $ri) {
+                $saleItem = $inventoryDueItems->get($ri['inventory_sale_item_id']);
+                if (!$saleItem || $saleItem->inventorySale?->student_id != $studentId) {
+                    DB::rollBack();
+                    return response()->json(['message' => 'Invalid inventory due item selected'], 422);
+                }
             }
 
-            $studentId = $fees->isNotEmpty() ? $fees->first()->student_id : null;
-            if (!$studentId) {
-                // items-only sale — student_id must be passed in payload
-                $studentId = (int) $request->student_id;
+            if ($fees->isEmpty() && $requestedItems->isEmpty() && $requestedInventoryDues->isEmpty()) {
+                return response()->json(['message' => 'No fees, items, or due items selected'], 422);
             }
 
             if ($fees->where('student_id', '!=', $studentId)->count()) {
                 return response()->json(['message' => 'Fees must belong to the same student'], 422);
-            }
-
-            // Inventory sale subtotal
-            $inventorySaleTotal = 0.0;
-            foreach ($requestedItems as $ri) {
-                $invItem = $inventoryItems->get($ri['inventory_item_id']);
-                $inventorySaleTotal += round((float)$invItem->selling_price * (int)$ri['quantity'], 2);
             }
 
             $student = Student::with('academicInformations')->find($studentId);
@@ -425,7 +469,14 @@ class FeeCollectionController extends Controller
             // ── Pass 1: compute per-fee scholarship discount & totals ──
             $grossAmount              = 0;
             $totalScholarshipDiscount = 0;
-            $feeNetAmounts            = []; // fee_id => net after scholarship
+            $feeNetAmounts            = []; // fee_id => net after scholarship/discount
+            $requestedFeeAmounts      = [];
+
+            foreach ($requestedFees as $feeLine) {
+                $requestedFeeAmounts[(int) $feeLine['fee_id']] = isset($feeLine['amount'])
+                    ? max(0, (float) $feeLine['amount'])
+                    : null;
+            }
 
             foreach ($fees as $fee) {
                 $feeGross       = $fee->amount - $fee->paid_amount;
@@ -462,27 +513,76 @@ class FeeCollectionController extends Controller
                 $totalScholarshipDiscount         += $feeScholarship;
             }
 
+            $inventorySaleTotal   = 0.0;
+            $inventoryPaidTotal   = 0.0;
+            $inventoryGrossTotal  = 0.0;
+            $inventoryPaidAmounts = [];
+
+            foreach ($requestedItems as $ri) {
+                $invItem = $inventoryItems->get($ri['inventory_item_id']);
+                $qty     = (int) $ri['quantity'];
+                $subtotal = round((float) $invItem->selling_price * $qty, 2);
+                $inventoryGrossTotal += $subtotal;
+                $inventorySaleTotal += $subtotal;
+                $inventoryPaidAmounts[(int) $ri['inventory_item_id']] = isset($ri['paid_amount'])
+                    ? max(0, (float) $ri['paid_amount'])
+                    : $subtotal;
+
+                $inventoryPaidAmounts[(int) $ri['inventory_item_id']] = min(
+                    $inventoryPaidAmounts[(int) $ri['inventory_item_id']],
+                    $subtotal
+                );
+                $inventoryPaidTotal += $inventoryPaidAmounts[(int) $ri['inventory_item_id']];
+            }
+
+            $inventoryDueGrossTotal = 0.0;
+            $inventoryDuePaidTotal = 0.0;
+            $inventoryDuePaidAmounts = [];
+
+            foreach ($requestedInventoryDues as $ri) {
+                $saleItem = $inventoryDueItems->get($ri['inventory_sale_item_id']);
+                $dueAmount = max(0, (float) $saleItem->subtotal - (float) ($saleItem->paid_amount ?? 0));
+                $inventoryDueGrossTotal += $dueAmount;
+                $inventoryDuePaidAmounts[(int) $ri['inventory_sale_item_id']] = isset($ri['paid_amount'])
+                    ? max(0, (float) $ri['paid_amount'])
+                    : $dueAmount;
+                $inventoryDuePaidAmounts[(int) $ri['inventory_sale_item_id']] = min(
+                    $inventoryDuePaidAmounts[(int) $ri['inventory_sale_item_id']],
+                    $dueAmount
+                );
+                $inventoryDuePaidTotal += $inventoryDuePaidAmounts[(int) $ri['inventory_sale_item_id']];
+            }
+
             $totalAfterScholarship = $grossAmount - $totalScholarshipDiscount;
             $cartDiscount          = (float)($request->discount_amount ?? 0);
-            $feePaymentAmount      = max(0, $totalAfterScholarship - $cartDiscount);
-            $finalAmount           = $feePaymentAmount + $inventorySaleTotal;
+            $feePaymentDefault = max(0, $totalAfterScholarship - $cartDiscount);
+            $finalAmount       = $feePaymentDefault + $inventoryPaidTotal + $inventoryDuePaidTotal;
 
-            // Handle partial payment
-            $paymentAmount = $request->payment_amount ? min($finalAmount, (float)$request->payment_amount) : $finalAmount;
-            // Fee-only portion of the payment (exclude inventory)
-            $feeOnlyPayment = max(0, $paymentAmount - $inventorySaleTotal);
-
-            // Guard only against a fully empty submission (no fees, no items, no amount).
-            if ($paymentAmount <= 0 && $feeOnlyPayment <= 0 && $inventorySaleTotal <= 0 && empty($request->fees) && empty($request->items)) {
-                return response()->json(['message' => 'Please select at least one fee or item'], 422);
+            if ($finalAmount <= 0) {
+                return response()->json(['message' => 'Payment amount must be greater than zero.'], 422);
             }
 
             $paymentMethod = $this->normalizePaymentMethod($request->payment_method);
+            $paymentAmount = 0.0;
+
+            foreach ($fees as $fee) {
+                $netAfterScholarship = $feeNetAmounts[$fee->id] ?? 0;
+                $feeCartDiscount = $totalAfterScholarship > 0
+                    ? round($cartDiscount * ($netAfterScholarship / $totalAfterScholarship), 2)
+                    : 0;
+                $netAmount = max(0, $netAfterScholarship - $feeCartDiscount);
+                $lineAmount = $requestedFeeAmounts[$fee->id] ?? $netAmount;
+                $lineAmount = min(max(0, (float) $lineAmount), $netAmount);
+                $requestedFeeAmounts[$fee->id] = $lineAmount;
+                $paymentAmount += $lineAmount;
+            }
+
+            $paymentAmount += $inventoryPaidTotal + $inventoryDuePaidTotal;
 
             $payment = Payment::create([
                 'student_id'         => $studentId,
                 'amount'             => $paymentAmount,
-                'gross_amount'       => $grossAmount,
+                'gross_amount'       => $grossAmount + $inventorySaleTotal + $inventoryDueGrossTotal,
                 'scholarship_amount' => $totalScholarshipDiscount,
                 'discount_type'      => $cartDiscount > 0 ? ($request->discount_type ?? 'flat') : null,
                 'discount_amount'    => $cartDiscount,
@@ -498,53 +598,19 @@ class FeeCollectionController extends Controller
                 'collected_by'    => auth()->id(),
             ]);
 
-            // ── Pass 2: create PaymentItems distributing fee payment proportionally ──
-            $studentPaymentAmount  = 0.0;
-            $transportPaymentAmount = 0.0;
-            $totalNetAmount = 0.0;
-
-            // First pass: calculate total net amount
             foreach ($fees as $fee) {
                 $netAfterScholarship = $feeNetAmounts[$fee->id] ?? 0;
-                if ($netAfterScholarship <= 0) continue;
-
-                // Distribute cart discount proportionally based on share of totalAfterScholarship
                 $feeCartDiscount = $totalAfterScholarship > 0
                     ? round($cartDiscount * ($netAfterScholarship / $totalAfterScholarship), 2)
                     : 0;
-
                 $netAmount = max(0, $netAfterScholarship - $feeCartDiscount);
-                if ($netAmount <= 0) continue;
-
-                $totalNetAmount += $netAmount;
-            }
-
-            // Second pass: distribute fee-only payment amount proportionally
-            foreach ($fees as $fee) {
-                $netAfterScholarship = $feeNetAmounts[$fee->id] ?? 0;
-
-                $feeCartDiscount = $totalAfterScholarship > 0
-                    ? round($cartDiscount * ($netAfterScholarship / $totalAfterScholarship), 2)
-                    : 0;
-
-                $netAmount = max(0, $netAfterScholarship - $feeCartDiscount);
-
-                $paidAmount = $netAmount > 0
-                    ? round($feeOnlyPayment * ($netAmount / $totalNetAmount), 2)
-                    : 0.0;
+                $paidAmount = min($netAmount, (float) ($requestedFeeAmounts[$fee->id] ?? $netAmount));
 
                 PaymentItem::create([
                     'payment_id' => $payment->id,
                     'fee_id'     => $fee->id,
                     'amount'     => $paidAmount,
                 ]);
-
-                if ($netAmount <= 0) {
-                    $fee->paid_amount += 0;
-                    $fee->status = 'paid';
-                    $fee->save();
-                    continue;
-                }
 
                 $transportBase = 0.0;
                 $regularBase   = 0.0;
@@ -565,17 +631,45 @@ class FeeCollectionController extends Controller
                     $regularShare   = (float) $paidAmount;
                 }
 
-                $transportPaymentAmount += $transportShare;
-                $studentPaymentAmount   += $regularShare;
-
                 $feeScholarship = ($fee->amount - $fee->paid_amount) - $netAfterScholarship;
                 $netDue = max(0, $fee->amount - $feeScholarship - $feeCartDiscount);
                 $fee->paid_amount += $paidAmount;
-                $fee->status = $fee->paid_amount >= $netDue ? 'paid' : 'partial';
+                $fee->paid_amount = max(0, min($fee->paid_amount, $netDue));
+                $fee->status = $fee->paid_amount <= 0 ? 'pending' : ($fee->paid_amount >= $netDue ? 'paid' : 'partial');
                 $fee->save();
             }
 
-            // Post regular student fees
+            $studentPaymentAmount   = 0.0;
+            $transportPaymentAmount = 0.0;
+            foreach ($fees as $fee) {
+                $feePaid = (float) ($requestedFeeAmounts[$fee->id] ?? 0);
+                if ($feePaid <= 0) {
+                    continue;
+                }
+
+                $transportBase = 0.0;
+                $regularBase   = 0.0;
+                foreach ($fee->feeSet->items as $item) {
+                    if (($item->category->is_transport ?? 0) == 1) {
+                        $transportBase += (float) $item->amount;
+                    } else {
+                        $regularBase += (float) $item->amount;
+                    }
+                }
+
+                $totalBase = $transportBase + $regularBase;
+                if ($totalBase > 0) {
+                    $transportShare = round($feePaid * ($transportBase / $totalBase), 2);
+                    $regularShare   = round($feePaid - $transportShare, 2);
+                } else {
+                    $transportShare = 0.0;
+                    $regularShare   = (float) $feePaid;
+                }
+
+                $transportPaymentAmount += $transportShare;
+                $studentPaymentAmount   += $regularShare;
+            }
+
             if ($studentPaymentAmount > 0) {
                 $category = IncomeCategory::where('slug', 'student-payment')->firstOrFail();
                 $payment->recordIncome($category->id, 'Student Payment', [
@@ -587,7 +681,6 @@ class FeeCollectionController extends Controller
                 ]);
             }
 
-            // Post transport fees separately
             if ($transportPaymentAmount > 0) {
                 $category = IncomeCategory::where('slug', 'transport-fee')->firstOrFail();
                 $payment->recordIncome($category->id, 'Transport Fee', [
@@ -597,6 +690,42 @@ class FeeCollectionController extends Controller
                     'account_id'     => $payment->account_id,
                     'description'    => "Transport fee payment for student ID {$studentId}",
                 ]);
+            }
+
+            if ($inventoryDuePaidTotal > 0 && (!$request->account_type || !$request->account_id)) {
+                PettyCashService::credit(
+                    (float) $inventoryDuePaidTotal,
+                    'inventory_sale',
+                    $payment->receipt_no,
+                    'Inventory due settlement — ' . $payment->receipt_no,
+                    now(),
+                    Payment::class,
+                    $payment->id
+                );
+            }
+
+            foreach ($requestedInventoryDues as $ri) {
+                $saleItem = $inventoryDueItems->get($ri['inventory_sale_item_id']);
+                if (!$saleItem) {
+                    continue;
+                }
+
+                $paidAmount = (float) ($inventoryDuePaidAmounts[(int) $saleItem->id] ?? 0);
+                if ($paidAmount <= 0) {
+                    continue;
+                }
+
+                PaymentInventoryItem::create([
+                    'payment_id' => $payment->id,
+                    'inventory_sale_item_id' => $saleItem->id,
+                    'amount' => $paidAmount,
+                ]);
+
+                $saleItem->paid_amount = min(
+                    (float) $saleItem->subtotal,
+                    (float) ($saleItem->paid_amount ?? 0) + $paidAmount
+                );
+                $saleItem->save();
             }
 
             // ── Inventory sale ──
@@ -612,13 +741,16 @@ class FeeCollectionController extends Controller
                     $invItem = $inventoryItems->get($ri['inventory_item_id']);
                     $qty     = (int) $ri['quantity'];
                     $price   = (float) $invItem->selling_price;
+                    $subtotal = round($price * $qty, 2);
+                    $paidAmount = (float) ($inventoryPaidAmounts[(int) $invItem->id] ?? $subtotal);
 
                     InventorySaleItem::create([
                         'inventory_sale_id'  => $sale->id,
                         'inventory_item_id'  => $invItem->id,
                         'quantity'           => $qty,
                         'unit_price'         => $price,
-                        'subtotal'           => round($price * $qty, 2),
+                        'subtotal'           => $subtotal,
+                        'paid_amount'        => min($subtotal, max(0, $paidAmount)),
                     ]);
 
                     $invItem->decrement('current_stock', $qty);
@@ -639,7 +771,8 @@ class FeeCollectionController extends Controller
                 // Inventory sale increases petty cash (if payment account is not already set to an account)
                 if (!$payment->account_type || !$payment->account_id) {
                     PettyCashService::credit(
-                        (float) $inventorySaleTotal, 'inventory_sale',
+                        (float) $inventoryPaidTotal,
+                        'inventory_sale',
                         $payment->receipt_no, 'Inventory sale — ' . $payment->receipt_no,
                         now(), InventorySale::class, $sale->id
                     );

@@ -25,6 +25,10 @@
                         </td>
                     </tr>
                 @endforeach
+                <tr style="background:#ecfeff">
+                    <td class="bold" style="color:#0f766e">Total Inventory Sales</td>
+                    <td class="text-right bold" style="color:#0f766e">{{ number_format($totalInventorySales, 2) }}</td>
+                </tr>
             </tbody>
 
             <tfoot>

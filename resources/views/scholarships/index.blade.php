@@ -55,7 +55,7 @@
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label>Section</label>
-                                <select name="section_id" class="form-control form-control-sm">
+                                <select name="section_id" id="sectionSelect" class="form-control form-control-sm">
                                     <option value="">All Sections</option>
                                     @foreach ($sections as $sec)
                                         <option value="{{ $sec->id }}"
@@ -176,14 +176,70 @@
     </div>
 
     <script>
-        document.getElementById('classSelect').addEventListener('change', function() {
-            const url = new URL(window.location.href);
-            url.searchParams.set('class_id', this.value);
-            url.searchParams.delete('section_id');
-            url.searchParams.delete('group_id');
-            if (document.querySelector('[name="session_id"]').value)
-                url.searchParams.set('session_id', document.querySelector('[name="session_id"]').value);
-            window.location.href = url.toString();
+        document.addEventListener('DOMContentLoaded', function() {
+            const classSelect = document.getElementById('classSelect');
+            const sectionSelect = document.getElementById('sectionSelect');
+            const selectedSection = @json(request('section_id'));
+
+            function refreshSectionSelect() {
+                if (window.refreshSelect2) {
+                    window.refreshSelect2($(sectionSelect));
+                }
+            }
+
+            function replaceSectionOptions(html) {
+                const $section = $(sectionSelect);
+                if ($section.hasClass('select2-hidden-accessible')) {
+                    $section.select2('destroy');
+                }
+                sectionSelect.innerHTML = html;
+                if (window.reinitSelect2) {
+                    window.reinitSelect2(sectionSelect.parentElement);
+                } else {
+                    refreshSectionSelect();
+                }
+            }
+
+            function loadSections(classId, selectedSectionId = null) {
+                if (!sectionSelect) return;
+
+                replaceSectionOptions('<option value="">Loading...</option>');
+
+                if (!classId) {
+                    replaceSectionOptions('<option value="">All Sections</option>');
+                    return;
+                }
+
+                fetch(`{{ route('load_section_groups') }}?school_class_id=${encodeURIComponent(classId)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to load sections');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const sections = Array.isArray(data?.sections) ? data.sections : [];
+                        let html = '<option value="">All Sections</option>';
+
+                        sections.forEach(section => {
+                            const selected = String(selectedSectionId) === String(section.id) ? 'selected' : '';
+                            html += `<option value="${section.id}" ${selected}>${section.name_en}</option>`;
+                        });
+
+                        replaceSectionOptions(html);
+                    })
+                    .catch(() => {
+                        replaceSectionOptions('<option value="">All Sections</option>');
+                    });
+            }
+
+            $(document).on('change', '#classSelect', function() {
+                loadSections(this.value);
+            });
+
+            if (classSelect && classSelect.value) {
+                loadSections(classSelect.value, selectedSection);
+            }
         });
     </script>
 

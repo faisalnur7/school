@@ -146,6 +146,56 @@
                             </div>
                         </div>
 
+                        {{-- Inventory Dues --}}
+                        @if(!empty($inventoryDueItems) && $inventoryDueItems->isNotEmpty())
+                            <div class="card border-0 shadow-sm rounded-4 mt-3">
+                                <div class="card-header bg-white border-bottom py-3 px-4"
+                                    style="border-color:#f1f5f9!important">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fs-5">⏳</span>
+                                        <span class="fw-bold" style="font-size:12px;letter-spacing:.06em;color:#fff;">INVENTORY DUES</span>
+                                    </div>
+                                </div>
+                                <div class="card-body p-3">
+                                    <div class="d-flex flex-column gap-2" id="inventoryDueList">
+                                        @foreach($inventoryDueItems as $dueGroup)
+                                            @php
+                                                $firstDue = $dueGroup->first();
+                                                $dueCategory = $firstDue?->inventoryItem?->category;
+                                                $dueCategoryName = $dueCategory?->name ?? 'Inventory';
+                                            @endphp
+                                            <div class="small text-uppercase fw-bold text-muted mt-1 mb-1" style="font-size:10px;letter-spacing:.08em">
+                                                {{ $dueCategoryName }}
+                                            </div>
+                                            @foreach($dueGroup as $dueItem)
+                                                @php
+                                                    $dueAmount = (float) ($dueItem->due_amount ?? max(0, $dueItem->subtotal - ($dueItem->paid_amount ?? 0)));
+                                                @endphp
+                                                <div class="inv-due-card d-flex justify-content-between align-items-center rounded-3 px-3 py-2"
+                                                    style="background:#fff7ed;cursor:pointer;border:1.5px solid #fed7aa"
+                                                    data-due-id="{{ $dueItem->id }}"
+                                                    data-due-name="{{ $dueItem->inventoryItem->name ?? 'Inventory Item' }}"
+                                                    data-due-category="{{ $dueCategoryName }}"
+                                                    data-due-amount="{{ $dueAmount }}">
+                                                    <div class="flex-grow-1 overflow-hidden">
+                                                        <div class="fw-semibold text-dark text-truncate" style="font-size:13px">
+                                                            {{ $dueItem->inventoryItem->name ?? 'Inventory Item' }}
+                                                        </div>
+                                                        <div class="text-muted mono" style="font-size:10px">
+                                                            Due: {{ number_format($dueAmount, 2) }} BDT
+                                                        </div>
+                                                    </div>
+                                                    <span class="badge rounded-pill" style="font-size:10px;background:#ffedd5;color:#c2410c;border:1px solid #fdba74">
+                                                        + Add Due
+                                                    </span>
+                                                </div>
+                                            @endforeach
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
                     </div>{{-- /col LEFT --}}
 
                     {{-- MIDDLE: Pending Fees / Items --}}
@@ -288,7 +338,7 @@
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="fs-5">🧾</span>
                                     <span class="fw-bold text-white" style="font-size:12px;letter-spacing:.06em">SELECTED
-                                        FEES</span>
+                                        ITEMS</span>
                                     <span id="cartBadge" class="mono ms-auto badge rounded-pill"
                                         style="font-size:11px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
                                         0 items
@@ -302,7 +352,7 @@
                                         <div id="cartEmpty" class="text-center py-5 text-muted">
                                             <div style="font-size:40px;opacity:.18">🛒</div>
                                             <p class="mt-3 mb-0 fw-medium" style="font-size:13px">
-                                                No fees added yet.<br>Click a pending fee to add it.
+                                                No items added yet.<br>Click a fee, inventory item, or due item to add it.
                                             </p>
                                         </div>
                                         <div id="cartItems" class="d-flex flex-column gap-2"></div>
@@ -351,8 +401,9 @@
                                         <label for="paymentAmount" class="form-label mono text-muted fw-semibold"
                                             style="font-size:11px;letter-spacing:.08em">PAYMENT AMOUNT</label>
                                          <input type="number" id="paymentAmount" name="payment_amount" min="0" step="0.01"
-                                             placeholder="Enter payment amount" class="form-control" style="font-size:16px;border-radius:8px;border:1px solid #e2e8f0">
-                                         <small class="text-muted" style="font-size:11px">Leave empty to pay full amount, enter partial amount, or enter 0</small>
+                                             placeholder="Enter payment amount" class="form-control" readonly
+                                             style="font-size:16px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc">
+                                         <small class="text-muted" style="font-size:11px">Auto-calculated from the selected fee and inventory line payments.</small>
                                     </div>
 
                                     <div class="mb-3">
@@ -437,9 +488,17 @@
                                                 @foreach ($payment->items as $item)
                                                     <span class="badge rounded-pill me-1 mb-1"
                                                         style="font-size:10px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0">
-                                                        {{ $item->fee->feeSet->name ?? '—' }}
+                                                        {{ $item->fee->feeSet->name ?? 'Fee' }}
                                                     </span>
                                                 @endforeach
+                                                @if ($payment->inventorySale?->items?->isNotEmpty())
+                                                    @foreach ($payment->inventorySale->items as $saleItem)
+                                                        <span class="badge rounded-pill me-1 mb-1"
+                                                            style="font-size:10px;background:#ecfdf5;color:#059669;border:1px solid #a7f3d0">
+                                                            {{ $saleItem->inventoryItem->name ?? 'Inventory' }}
+                                                        </span>
+                                                    @endforeach
+                                                @endif
                                             </td>
                                             <td class="px-4 py-3" style="font-size:13px">
                                                 <span class="badge rounded-pill"
@@ -449,7 +508,7 @@
                                             </td>
                                             <td class="px-4 py-3">
                                                 <span class="mono fw-bold" style="font-size:15px;color:#64748b">
-                                                    {{ $payment->gross_amount > 0 ? number_format($payment->gross_amount, 2) : number_format($payment->amount, 2) }}
+                                                    {{ number_format($payment->calculated_gross_amount ?: $payment->gross_amount ?: $payment->calculated_amount, 2) }}
                                                 </span>
                                                 <span class="text-muted mono" style="font-size:11px"> BDT</span>
                                             </td>
@@ -477,7 +536,7 @@
                                             </td>
                                             <td class="px-4 py-3">
                                                 <span class="mono fw-bold" style="font-size:15px;color:#4338ca">
-                                                    {{ number_format($payment->amount, 2) }}
+                                                    {{ number_format($payment->calculated_amount, 2) }}
                                                 </span>
                                                 <span class="text-muted mono" style="font-size:11px"> BDT</span>
                                             </td>
@@ -537,12 +596,14 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(function() {
-            let subtotal = 0;
+            let grossSubtotal = 0;
             let cartIds = new Set();       // fee IDs
             let cartInvIds = new Set();    // inventory item IDs (for dedup)
+            let cartDueIds = new Set();    // inventory sale item IDs (for dues)
             let discountType = 'flat';
             let cartData = [];
             let invItemIndex = 0;          // running index for items[] hidden inputs
+            let dueItemIndex = 0;          // running index for inventory_dues[] hidden inputs
 
             const $feeCards = $('.fee-card');
             const $catItems = $('.cat-item');
@@ -556,6 +617,7 @@
             const $collectBtn = $('#collectBtn');
             const $discountInput = $('#discountInput');
             const $discountLine = $('#discountLine');
+            const $inventoryDueCards = $('.inv-due-card');
 
             const currentCid = @json($student->student_cid);
             const $studentCidInput = $('#studentCidSwitch');
@@ -687,13 +749,61 @@
                 });
             });
 
+            /* ── Inventory due item click ── */
+            $(document).on('click', '.inv-due-card', function() {
+                const dueId = $(this).data('due-id');
+                if (cartDueIds.has(dueId)) return;
+
+                const dueName = $(this).data('due-name');
+                const dueCategory = $(this).data('due-category') || 'Inventory';
+                const dueAmount = parseFloat($(this).data('due-amount')) || 0;
+
+                cartDueIds.add(dueId);
+                cartData.push({ cartKey: 'due_' + dueId, dueId, dueName, dueCategory, dueAmount, type: 'due' });
+                $(this).addClass('in-cart');
+                $cartEmpty.hide();
+
+                const idx = dueItemIndex++;
+                const html = `
+                    <div class="cart-row d-flex align-items-start gap-2 rounded-3 px-3 py-2"
+                         id="cart-due_${dueId}"
+                         data-unit-price="${dueAmount}"
+                         data-subtotal="${dueAmount}"
+                         style="background:#fff7ed;border:1.5px solid #fed7aa">
+                        <input type="hidden" name="inventory_dues[${idx}][inventory_sale_item_id]" value="${dueId}">
+                        <input type="hidden" name="inventory_dues[${idx}][paid_amount]" value="${dueAmount.toFixed(2)}" class="due-paid-hidden">
+                        <div class="flex-grow-1" style="line-height:1.4">
+                            <span class="fw-semibold text-dark" style="font-size:13px">${dueName}</span><br>
+                            <span class="mono text-muted" style="font-size:11px">${dueCategory}</span>
+                        </div>
+                        <div class="text-end" style="min-width:140px">
+                            <div class="input-group input-group-sm mb-1">
+                                <span class="input-group-text" style="background:#fff;border-color:#fed7aa">BDT</span>
+                                <input type="number"
+                                       class="form-control form-control-sm due-paid-input"
+                                       value="${dueAmount.toFixed(2)}"
+                                       min="0" step="0.01"
+                                       max="${dueAmount}"
+                                       style="border-color:#fed7aa">
+                            </div>
+                            <span class="mono fw-bold due-line-amount" style="font-size:13px;color:#c2410c;white-space:nowrap">${dueAmount.toFixed(2)}</span>
+                        </div>
+                        <button type="button"
+                                class="remove-btn btn btn-light btn-sm border rounded-2 px-2 py-1"
+                                data-id="due_${dueId}" data-due-id="${dueId}" data-amount="${dueAmount}" data-type="due"
+                                style="font-size:13px;line-height:1">✕</button>
+                    </div>`;
+                $cartItemsEl.append(html);
+                updateUI();
+            });
+
             /* ── Discount type toggle ── */
             $('#btnFlat').on('click', function() {
                 discountType = 'flat';
                 $(this).addClass('active');
                 $('#btnPercent').removeClass('active');
                 $('#discountTypeHidden').val('flat');
-                $discountInput.attr('max', subtotal).attr('placeholder', '0.00');
+                $discountInput.attr('placeholder', '0.00');
                 updateUI();
             });
 
@@ -702,7 +812,7 @@
                 $(this).addClass('active');
                 $('#btnFlat').removeClass('active');
                 $('#discountTypeHidden').val('percent');
-                $discountInput.attr('max', 100).attr('placeholder', '0');
+                $discountInput.attr('placeholder', '0');
                 updateUI();
             });
 
@@ -718,8 +828,7 @@
                 let items = $(this).data('items') || [];
                 if (cartIds.has(id)) return;
                 cartIds.add(id);
-                subtotal += amount;
-                cartData.push({ id, cartKey: id, name, amount, gross, discount, items });
+                cartData.push({ id, cartKey: id, name, gross, discount, items });
                 $(this).addClass('in-cart');
                 $cartEmpty.hide();
 
@@ -745,15 +854,24 @@
                      <div class="cart-row d-flex align-items-start gap-2 rounded-3 px-3 py-2"
                           id="cart-${id}"
                           style="background:#f8fafc;border:1.5px solid #e2e8f0">
-                         <input type="hidden" name="fees[]" value="${id}">
+                         <input type="hidden" name="fees[${id}][fee_id]" value="${id}">
+                         <input type="hidden" name="fees[${id}][amount]" class="fee-paid-hidden" value="${amount.toFixed(2)}">
                          <div class="flex-grow-1" style="line-height:1.4">
                              <span class="fw-semibold text-dark" style="font-size:13px">${name}</span><br>
                              ${discountHtml}
                              ${itemsBreakdown}
                          </div>
-                         <div class="text-end">
+                         <div class="text-end" style="min-width:140px">
+                             <div class="input-group input-group-sm mb-1">
+                                 <span class="input-group-text" style="background:#fff;border-color:#e2e8f0">BDT</span>
+                                 <input type="number"
+                                        class="form-control form-control-sm fee-paid-input"
+                                        value="${amount.toFixed(2)}"
+                                        min="0" step="0.01"
+                                        style="border-color:#e2e8f0">
+                             </div>
                              ${grossHtml}
-                             <span class="mono fw-bold" style="font-size:13px;color:#4338ca;white-space:nowrap">${amount.toFixed(2)}</span>
+                             <span class="mono fw-bold gross-line-amount" style="font-size:13px;color:#4338ca;white-space:nowrap">${amount.toFixed(2)}</span>
                          </div>
                          <button type="button"
                                  class="remove-btn btn btn-light btn-sm border rounded-2 px-2 py-1"
@@ -778,7 +896,6 @@
                 let cartKey   = 'inv_' + invId;
 
                 cartInvIds.add(invId);
-                subtotal += itemSubtotal;
                 cartData.push({ cartKey, invId, name, qty, unitPrice, itemSubtotal, type: 'item' });
                 $(this).addClass('in-cart');
                 $cartEmpty.hide();
@@ -792,17 +909,25 @@
                          style="background:#f0fdf4;border:1.5px solid #bbf7d0">
                         <input type="hidden" name="items[${idx}][inventory_item_id]" value="${invId}">
                         <input type="hidden" name="items[${idx}][quantity]" value="${qty}" class="inv-qty-hidden">
+                        <input type="hidden" name="items[${idx}][paid_amount]" value="${itemSubtotal.toFixed(2)}" class="inv-paid-hidden">
                         <div class="flex-grow-1" style="line-height:1.4">
                             <span class="fw-semibold text-dark" style="font-size:13px">${name}</span>
                             ${unit ? '<br><span class="mono text-muted" style="font-size:11px">' + unit + '</span>' : ''}
                         </div>
-                        <div class="text-end">
+                        <div class="text-end" style="min-width:150px">
                             <div class="d-flex align-items-center gap-1 justify-content-end mb-1">
                                 <label class="mono text-muted" style="font-size:11px">Qty:</label>
                                 <input type="number" class="cart-inv-qty form-control form-control-sm"
                                     value="${qty}" min="1" max="${stock}"
                                     data-max-stock="${stock}"
                                     style="width:55px;border-radius:8px;font-size:12px;text-align:center">
+                            </div>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text" style="background:#fff;border-color:#bbf7d0">Paid</span>
+                                <input type="number" class="cart-inv-paid form-control form-control-sm"
+                                    value="${itemSubtotal.toFixed(2)}" min="0" step="0.01"
+                                    max="${itemSubtotal}"
+                                    style="border-color:#bbf7d0">
                             </div>
                             <span class="mono fw-bold inv-subtotal-display" style="font-size:13px;color:#16a34a;white-space:nowrap">${itemSubtotal.toFixed(2)}</span>
                         </div>
@@ -824,14 +949,16 @@
                     let invId = $(this).data('inv-id');
                     cartInvIds.delete(invId);
                     $(`.inv-item-card[data-inv-id="${invId}"]`).removeClass('in-cart');
+                } else if (type === 'due') {
+                    let dueId = $(this).data('due-id');
+                    cartDueIds.delete(dueId);
+                    $(`.inv-due-card[data-due-id="${dueId}"]`).removeClass('in-cart');
                 } else {
                     cartIds.delete(id);
                     $(`.fee-card[data-id="${id}"]`).removeClass('in-cart');
                 }
-                subtotal -= amount;
-                cartData = cartData.filter(x => x.cartKey != id);
                 $('#cart-' + id).remove();
-                if (cartIds.size === 0 && cartInvIds.size === 0) $cartEmpty.show();
+                if (cartIds.size === 0 && cartInvIds.size === 0 && cartDueIds.size === 0) $cartEmpty.show();
                 updateUI();
             });
 
@@ -844,34 +971,110 @@
                 let maxStock = parseInt($(this).data('max-stock'));
                 if (newQty > maxStock) { newQty = maxStock; $(this).val(newQty); }
                 let oldSubtotal = parseFloat($row.data('subtotal'));
+                let oldPaid = parseFloat($row.find('input[name^="items"][name$="[paid_amount]"]').val()) || 0;
                 let newSubtotal = unitPrice * newQty;
-                subtotal = subtotal - oldSubtotal + newSubtotal;
                 $row.data('subtotal', newSubtotal);
                 $row.find('.inv-subtotal-display').text(newSubtotal.toFixed(2));
                 $row.find('input[name^="items"][name$="[quantity]"]').val(newQty);
+                $row.find('input[name^="items"][name$="[paid_amount]"]').attr('max', newSubtotal);
+                let currentPaid = newSubtotal;
+                if (oldSubtotal > 0) {
+                    currentPaid = roundTo2((oldPaid / oldSubtotal) * newSubtotal);
+                }
+                currentPaid = Math.max(0, Math.min(currentPaid, newSubtotal));
+                $row.find('.cart-inv-paid').val(currentPaid.toFixed(2));
+                $row.find('input[name^="items"][name$="[paid_amount]"]').val(currentPaid.toFixed(2));
+                updateUI();
+            });
+
+            $cartItemsEl.on('input', '.fee-paid-input', function() {
+                let $row = $(this).closest('.cart-row');
+                let maxDue = parseFloat($row.find('.gross-line-amount').text()) || 0;
+                let paid = Math.max(0, parseFloat($(this).val()) || 0);
+                if (paid > maxDue) {
+                    paid = maxDue;
+                    $(this).val(paid.toFixed(2));
+                }
+                $row.find('input.fee-paid-hidden').val(paid.toFixed(2));
+                updateUI();
+            });
+
+            $cartItemsEl.on('input', '.cart-inv-paid', function() {
+                let $row = $(this).closest('.cart-row');
+                let maxDue = parseFloat($row.find('.inv-subtotal-display').text()) || 0;
+                let paid = Math.max(0, parseFloat($(this).val()) || 0);
+                if (paid > maxDue) {
+                    paid = maxDue;
+                    $(this).val(paid.toFixed(2));
+                }
+                $row.find('input[name^="items"][name$="[paid_amount]"]').val(paid.toFixed(2));
+                updateUI();
+            });
+
+            $cartItemsEl.on('input', '.due-paid-input', function() {
+                let $row = $(this).closest('.cart-row');
+                let maxDue = parseFloat($row.find('.due-line-amount').text()) || 0;
+                let paid = Math.max(0, parseFloat($(this).val()) || 0);
+                if (paid > maxDue) {
+                    paid = maxDue;
+                    $(this).val(paid.toFixed(2));
+                }
+                $row.find('input[name^="inventory_dues"][name$="[paid_amount]"]').val(paid.toFixed(2));
                 updateUI();
             });
 
             /* ── Compute discount ── */
             function computeDiscount() {
                 let raw = Math.max(0, parseFloat($discountInput.val()) || 0);
-                if (discountType === 'flat') return Math.min(raw, subtotal);
-                if (discountType === 'percent') return (subtotal * Math.min(raw, 100)) / 100;
+                if (discountType === 'flat') return Math.min(raw, grossSubtotal);
+                if (discountType === 'percent') return (grossSubtotal * Math.min(raw, 100)) / 100;
                 return 0;
+            }
+
+            function roundTo2(value) {
+                return Math.round((parseFloat(value) || 0) * 100) / 100;
             }
 
             /* ── Update all UI ── */
             function updateUI() {
-                let discountAmt = computeDiscount();
-                let finalTotal = Math.max(0, subtotal - discountAmt);
-                $subtotalEl.text(subtotal.toFixed(2));
-                $totalEl.text(finalTotal.toFixed(2));
-                $discountLine.text('- ' + discountAmt.toFixed(2) + ' BDT');
+                let grossTotal = 0;
+                let paidTotal = 0;
+
+                $cartItemsEl.find('.cart-row').each(function() {
+                    const $row = $(this);
+                    if ($row.find('input.fee-paid-hidden').length) {
+                        const gross = parseFloat($row.find('.gross-line-amount').text()) || 0;
+                        const paid = parseFloat($row.find('input.fee-paid-hidden').val()) || 0;
+                        grossTotal += gross;
+                        paidTotal += paid;
+                    }
+
+                    if ($row.find('input[name^="items"][name$="[inventory_item_id]"]').length) {
+                        const gross = parseFloat($row.data('subtotal')) || 0;
+                        const paid = parseFloat($row.find('input[name^="items"][name$="[paid_amount]"]').val()) || 0;
+                        grossTotal += gross;
+                        paidTotal += paid;
+                    }
+
+                    if ($row.find('input[name^="inventory_dues["]').length) {
+                        const gross = parseFloat($row.data('subtotal')) || 0;
+                        const paid = parseFloat($row.find('input[name^="inventory_dues["][name$="[paid_amount]"]').val()) || 0;
+                        grossTotal += gross;
+                        paidTotal += paid;
+                    }
+                });
+
+                grossSubtotal = grossTotal;
+                const discountAmt = computeDiscount();
+                $subtotalEl.text(grossTotal.toFixed(2));
+                $totalEl.text(paidTotal.toFixed(2));
+                $discountLine.text(`- ${discountAmt.toFixed(2)} BDT`);
                 $('#discountAmountHidden').val(discountAmt.toFixed(2));
                 let totalCount = cartIds.size + cartInvIds.size;
+                totalCount += cartDueIds.size;
                 $badgeEl.text(totalCount + (totalCount === 1 ? ' item' : ' items'));
-                $collectBtn.prop('disabled', totalCount === 0);
-                $('#paymentAmount').val(finalTotal.toFixed(2));
+                $collectBtn.prop('disabled', totalCount === 0 || paidTotal <= 0);
+                $('#paymentAmount').val(paidTotal.toFixed(2));
             }
 
 
@@ -879,29 +1082,45 @@
             /* ── AJAX Collect ── */
             $('#collectBtn').on('click', function() {
 
-                if (cartIds.size === 0 && cartInvIds.size === 0) return;
+                if (cartIds.size === 0 && cartInvIds.size === 0 && cartDueIds.size === 0) return;
 
                 const $btn = $(this);
                 $btn.prop('disabled', true).html('⏳ &nbsp;Processing...');
 
-                // Collect items[] from hidden inputs
+                let feesPayload = [];
                 let itemsPayload = [];
-                $('#cartItems input[name^="items["]').each(function() {
-                    let name = $(this).attr('name'); // items[N][inventory_item_id] or items[N][quantity]
-                    let match = name.match(/items\[(\d+)\]\[(.+)\]/);
+                let inventoryDuesPayload = [];
+                $('#cartItems input[name^="fees["], #cartItems input[name^="items["]').each(function() {
+                    let name = $(this).attr('name');
+                    let match = name.match(/(fees|items)\[(\d+)\]\[(.+)\]/);
+                    if (!match) return;
+                    let collection = match[1], idx = match[2], field = match[3];
+                    if (collection === 'fees') {
+                        if (!feesPayload[idx]) feesPayload[idx] = {};
+                        feesPayload[idx][field] = $(this).val();
+                    } else {
+                        if (!itemsPayload[idx]) itemsPayload[idx] = {};
+                        itemsPayload[idx][field] = $(this).val();
+                    }
+                });
+                $('#cartItems input[name^="inventory_dues["]').each(function() {
+                    let name = $(this).attr('name');
+                    let match = name.match(/inventory_dues\[(\d+)\]\[(.+)\]/);
                     if (!match) return;
                     let idx = match[1], field = match[2];
-                    if (!itemsPayload[idx]) itemsPayload[idx] = {};
-                    itemsPayload[idx][field] = $(this).val();
+                    if (!inventoryDuesPayload[idx]) inventoryDuesPayload[idx] = {};
+                    inventoryDuesPayload[idx][field] = $(this).val();
                 });
-                // Filter out empty slots
+                feesPayload = feesPayload.filter(Boolean);
                 itemsPayload = itemsPayload.filter(Boolean);
+                inventoryDuesPayload = inventoryDuesPayload.filter(Boolean);
 
                 // Build payload
                 const payload = {
                     _token: $('input[name="_token"]').first().val(),
-                    fees: [...cartIds],
+                    fees: feesPayload,
                     items: itemsPayload,
+                    inventory_dues: inventoryDuesPayload,
                     student_id: @json($student->id),
                     payment_amount: $('#paymentAmount').val() ?? $totalEl.text(),
                     discount: $('#discountInput').val() || 0,
@@ -930,7 +1149,7 @@
                         cartIds.clear();
                         cartInvIds.clear();
                         invItemIndex = 0;
-                        subtotal = 0;
+                        grossSubtotal = 0;
                         cartData = [];
                         $('#cartItems').empty();
                         $('#cartEmpty').show();

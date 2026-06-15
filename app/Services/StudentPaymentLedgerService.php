@@ -37,9 +37,8 @@ class StudentPaymentLedgerService
             ->get();
 
         // ── 2. Payments received (fee payments) ───────────────────────────────
-        $payments = Payment::with(['items.fee.feeSet', 'inventorySale.items.inventoryItem.category'])
+        $payments = Payment::with(['items.fee.feeSet', 'inventorySale.items.inventoryItem.category', 'inventoryDueItems.inventorySaleItem.inventoryItem.category'])
             ->where('student_id', $student->id)
-            ->whereNull('inventory_sale_id')   // fee-only payments
             ->whereHas('items.fee.feeSet', fn($q) => $q->where('academic_session_id', $sessionId))
             ->orderBy('payment_date')
             ->orderBy('created_at')
@@ -47,9 +46,12 @@ class StudentPaymentLedgerService
             ->get();
 
         // ── 3. Inventory sale payments ────────────────────────────────────────
-        $invPayments = Payment::with(['inventorySale.items.inventoryItem.category'])
+        $invPayments = Payment::with(['inventorySale.items.inventoryItem.category', 'inventoryDueItems.inventorySaleItem.inventoryItem.category'])
             ->where('student_id', $student->id)
-            ->whereNotNull('inventory_sale_id')
+            ->where(function ($q) {
+                $q->whereNotNull('inventory_sale_id')
+                  ->orWhereHas('inventoryDueItems');
+            })
             ->orderBy('payment_date')
             ->orderBy('created_at')
             ->orderBy('id')
@@ -84,7 +86,7 @@ class StudentPaymentLedgerService
                 'code'        => 'RCP',
                 'description' => $payment->description ?: 'Fee Payment',
                 'dues'        => 0.0,
-                'received'    => (float) $payment->amount,
+                'received'    => (float) $payment->items->sum('amount'),
                 'type'        => 'fee_payment',
             ]);
 
@@ -106,23 +108,43 @@ class StudentPaymentLedgerService
         }
 
         foreach ($invPayments as $payment) {
-            $description = 'Inventory Purchase';
             if ($payment->inventorySale) {
+                $description = 'Inventory Purchase';
                 $items = $payment->inventorySale->items->map(fn($i) => $i->inventoryItem?->name ?? 'Item')->implode(', ');
                 if ($items) $description = $items;
+                $transactions->push([
+                    'sort_date'   => $payment->payment_date ?? '0000-00-00',
+                    'date'        => \Carbon\Carbon::parse($payment->payment_date)->format('d M Y'),
+                    'month_key'   => \Carbon\Carbon::parse($payment->payment_date)->format('Y-m'),
+                    'month_label' => \Carbon\Carbon::parse($payment->payment_date)->format('M-Y'),
+                    'voucher'     => 'INV-' . str_pad($payment->id, 5, '0', STR_PAD_LEFT),
+                    'code'        => 'INV',
+                    'description' => $description,
+                    'dues'        => (float) ($payment->inventorySale?->total_amount ?? 0),
+                    'received'    => (float) ($payment->inventorySale?->paid_amount ?? 0),
+                    'type'        => 'inventory',
+                ]);
             }
-            $transactions->push([
-                'sort_date'   => $payment->payment_date ?? '0000-00-00',
-                'date'        => \Carbon\Carbon::parse($payment->payment_date)->format('d M Y'),
-                'month_key'   => \Carbon\Carbon::parse($payment->payment_date)->format('Y-m'),
-                'month_label' => \Carbon\Carbon::parse($payment->payment_date)->format('M-Y'),
-                'voucher'     => 'INV-' . str_pad($payment->id, 5, '0', STR_PAD_LEFT),
-                'code'        => 'INV',
-                'description' => $description,
-                'dues'        => (float) $payment->amount,   // inventory = due at time of purchase
-                'received'    => (float) $payment->amount,   // and immediately received
-                'type'        => 'inventory',
-            ]);
+
+            if ($payment->inventoryDueItems->isNotEmpty()) {
+                foreach ($payment->inventoryDueItems as $dueItem) {
+                    $saleItem = $dueItem->inventorySaleItem;
+                    $inventoryItem = $saleItem?->inventoryItem;
+                    $category = $inventoryItem?->category;
+                    $transactions->push([
+                        'sort_date'   => $payment->payment_date ?? '0000-00-00',
+                        'date'        => \Carbon\Carbon::parse($payment->payment_date)->format('d M Y'),
+                        'month_key'   => \Carbon\Carbon::parse($payment->payment_date)->format('Y-m'),
+                        'month_label' => \Carbon\Carbon::parse($payment->payment_date)->format('M-Y'),
+                        'voucher'     => 'DUE-' . str_pad($payment->id, 5, '0', STR_PAD_LEFT),
+                        'code'        => 'DUE',
+                        'description' => trim(($category?->name ?? 'Inventory') . ' - ' . ($inventoryItem?->name ?? 'Item')),
+                        'dues'        => 0.0,
+                        'received'    => (float) $dueItem->amount,
+                        'type'        => 'inventory_due',
+                    ]);
+                }
+            }
         }
 
         // ── 5. Sort chronologically ───────────────────────────────────────────

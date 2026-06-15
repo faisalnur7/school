@@ -181,6 +181,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:view_budget')->get('/budget/hub', [BudgetHubController::class, 'index'])->name('budget.hub');
     Route::middleware('permission:view_users')->get('/users/hub', [UsersHubController::class, 'index'])->name('users.hub');
     Route::middleware('permission:view_inventory')->get('/inventory/hub', [InventoryController::class, 'hub'])->name('inventory.hub');
+    Route::middleware('permission:view_inventory')->get('/inventory/sales/hub', [InventoryController::class, 'salesHub'])->name('inventory.sales.hub');
 
     // ------------------- Website Management -------------------
     Route::middleware('permission:view_website_management')->prefix('website-management')->name('website.')->group(function () {
@@ -625,6 +626,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/payments/{payment}/edit', [PaymentController::class, 'edit'])->name('payments.edit');
         Route::put('/payments/{payment}', [PaymentController::class, 'update'])->name('payments.update');
         Route::delete('/payment-items/{paymentItem}', [PaymentController::class, 'removeItem'])->name('payment-items.remove');
+        Route::delete('/inventory-sale-items/{saleItem}', [PaymentController::class, 'removeInventoryItem'])->name('inventory-sale-items.remove');
     });
 
     Route::middleware('permission:view_accounts')->get('/accounts', [AccountController::class, 'getAccounts'])->name('accounts.index');

@@ -50,19 +50,11 @@
     </div>
     <div class="info-cell">
         <div class="lbl">Payment Date</div>
-        <div class="val">{{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}</div>
-    </div>
-    <div class="info-cell">
-        <div class="lbl">Payment Method</div>
-        <div class="val">{{ $payment->payment_method }}</div>
+        <div class="val">{{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y \a\t h:iA') }}</div>
     </div>
     <div class="info-cell">
         <div class="lbl">Collected By</div>
         <div class="val">{{ $payment->collector->name ?? '—' }}</div>
-    </div>
-    <div class="info-cell">
-        <div class="lbl">Time</div>
-        <div class="val">{{ \Carbon\Carbon::parse($payment->payment_date)->format('h:i A') }}</div>
     </div>
 </div>
 
@@ -113,9 +105,18 @@
 @php
     $hasScholarship = $payment->scholarship_amount > 0;
     $hasDiscount    = $payment->discount_amount > 0;
+    $feeItems       = $payment->items;
+    $feeRecords     = $feeItems->map(fn ($item) => $item->fee)->filter()->unique('id');
     $saleItems      = $payment->inventorySale?->items ?? collect();
+    $dueItems       = $payment->inventoryDueItems ?? collect();
     $inventoryTotal = (float)($payment->inventorySale?->total_amount ?? 0);
-    $feeTotal       = (float)$payment->items->sum('amount');
+    $feeSubtotal    = (float) $feeRecords->sum(fn ($fee) => (float) ($fee->amount ?? 0));
+    $subtotal       = round($feeSubtotal + $inventoryTotal, 2);
+    $scholarshipAmt = round((float) $payment->scholarship_amount, 2);
+    $freeStudentshipAmt = round((float) $payment->discount_amount, 2);
+    $totalDue       = round(max(0, $subtotal - $scholarshipAmt - $freeStudentshipAmt), 2);
+    $totalPaid      = round((float) $payment->amount, 2);
+    $balanceDue     = round(max(0, $totalDue - $totalPaid), 2);
 @endphp
 
 {{-- Items Sold (Inventory) --}}
@@ -132,7 +133,8 @@
         @php
             $category = $items->first()->inventoryItem->category ?? null;
             $categoryName = $category ? $category->name : 'Unknown Category';
-            $showProductNames = str_contains(strtolower($categoryName), 'stationary') || str_contains(strtolower($categoryName), 'utility');
+            $categoryKey = strtolower($categoryName);
+            $showProductNames = !str_contains($categoryKey, 'book');
             $productNames = $showProductNames
                 ? $items->map(fn($si) => $si->inventoryItem?->name)
                     ->filter()
@@ -156,53 +158,80 @@
     @endforeach
 </div>
 @endif
+
+    @if($dueItems->isNotEmpty())
+<div style="margin-top:10px">
+    <div style="font-size:8.5px;letter-spacing:.12em;font-weight:900;text-transform:uppercase;color:#333;border-bottom:1.5px solid #111;padding-bottom:4px;margin-bottom:4px">Inventory Due Settlements</div>
+    @foreach($dueItems as $dueItem)
+        @php
+            $saleItem = $dueItem->inventorySaleItem;
+            $inventoryItem = $saleItem?->inventoryItem;
+            $categoryName = $inventoryItem?->category?->name ?? 'Inventory';
+            $label = $categoryName . ' — ' . ($inventoryItem?->name ?? 'Item');
+        @endphp
+        <div style="margin-bottom:8px; display:flex; justify-content: space-between;">
+            <div style="font-size:9px;letter-spacing:.08em;font-weight:700;text-transform:uppercase;color:#333">
+                {{ $label }}
+            </div>
+            <div style="font-size:11px;font-weight:700;text-align:right;color:#111">
+                BDT {{ number_format((float) $dueItem->amount, 2) }}
+            </div>
+        </div>
+    @endforeach
+</div>
+@endif
 <div style="margin-top:10px; border-top:1.5px dashed #bbb; padding-top:8px">
 
-    @if($hasScholarship || $hasDiscount || $inventoryTotal > 0)
+    @if($subtotal > 0)
         <div style="display:flex;justify-content:space-between;font-size:11px;color:#555;margin-bottom:4px">
-            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Fee Subtotal</span>
-            <span>BDT {{ number_format($feeTotal + $payment->scholarship_amount + $payment->discount_amount, 2) }}</span>
+            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Subtotal</span>
+            <span>BDT {{ number_format($subtotal, 2) }}</span>
         </div>
     @endif
 
-    @if($hasScholarship)
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:#059669;margin-bottom:4px">
-            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Scholarship</span>
-            <span>- BDT {{ number_format($payment->scholarship_amount, 2) }}</span>
-        </div>
-    @endif
-
-    @if($hasDiscount)
+    @if($scholarshipAmt > 0)
         <div style="display:flex;justify-content:space-between;font-size:11px;color:#b45309;margin-bottom:4px">
-            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Discount</span>
-            <span>- BDT {{ number_format($payment->discount_amount, 2) }}</span>
+            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Scholarship</span>
+            <span>- BDT {{ number_format($scholarshipAmt, 2) }}</span>
         </div>
     @endif
 
-    @if($inventoryTotal > 0)
+    @if($freeStudentshipAmt > 0)
         <div style="display:flex;justify-content:space-between;font-size:11px;color:#555;margin-bottom:4px">
-            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Items Sold</span>
-            <span>BDT {{ number_format($inventoryTotal, 2) }}</span>
+            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Free Studentship</span>
+            <span>- BDT {{ number_format($freeStudentshipAmt, 2) }}</span>
         </div>
     @endif
 
-    <div class="total-row">
-        <span class="total-lbl">Total Paid</span>
-        <div>
-            <span class="total-currency">BDT</span>
-            <span class="total-val">{{ number_format($payment->amount, 2) }}</span>
+    @if($totalDue > 0)
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#7c2d12;font-weight:800;margin-top:4px">
+            <span style="letter-spacing:.06em;text-transform:uppercase;">Total Due</span>
+            <span>BDT {{ number_format($totalDue, 2) }}</span>
         </div>
-    </div>
+    @endif
+
+    @if($totalPaid > 0)
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#059669;font-weight:800;margin-top:6px">
+            <span style="letter-spacing:.06em;text-transform:uppercase;">Total Paid</span>
+            <span>BDT {{ number_format($totalPaid, 2) }}</span>
+        </div>
+    @endif
 </div>
 
 {{-- Stamp + Signature --}}
 <div class="stamp-row">
-    <div class="stamp">✓ PAID</div>
+    <div class="stamp">{{ $balanceDue > 0 ? '⚠ DUE' : '✓ PAID' }}</div>
     <div class="signature-line">
         <div class="sig-line"></div>
         <div class="sig-label">Authorised Signature</div>
     </div>
 </div>
+
+@if($balanceDue > 0)
+    <div style="margin-top:8px;font-size:9px;color:#b45309;text-align:right;letter-spacing:.06em;font-weight:700">
+        Outstanding balance after this payment: BDT {{ number_format($balanceDue, 2) }}
+    </div>
+@endif
 
 {{-- Footer --}}
 <div class="slip-footer">

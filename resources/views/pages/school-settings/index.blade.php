@@ -47,15 +47,6 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                <div class="col-md-6 form-group">
-                                    <label class="font-weight-bold">EIIN</label>
-                                    <input type="text" name="eiin"
-                                        class="form-control @error('eiin') is-invalid @enderror"
-                                        value="{{ old('eiin', $setting->eiin) }}">
-                                    @error('eiin')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
                                 <div class="col-md-12 form-group">
                                     <label class="font-weight-bold">Address <span class="text-danger">*</span></label>
                                     <textarea name="address" rows="2" class="form-control @error('address') is-invalid @enderror" required>{{ old('address', $setting->address) }}</textarea>

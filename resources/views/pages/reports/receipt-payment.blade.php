@@ -43,11 +43,15 @@
                             @empty
                             <tr><td colspan="2" class="text-center text-muted py-3">No receipts</td></tr>
                             @endforelse
+                            <tr style="background:#ecfeff">
+                                <td class="fw-semibold" style="color:#0f766e">Total Inventory Sales</td>
+                                <td class="text-right fw-semibold" style="color:#0f766e">{{ number_format($totalInventoryReceipts, 2) }}</td>
+                            </tr>
                         </tbody>
                         <tfoot style="background:#f8fafc;font-weight:700">
                             <tr>
                                 <td>Total Receipts</td>
-                                <td class="text-right" style="color:#16a34a">{{ number_format($totalReceipts, 2) }}</td>
+                                <td class="text-right" style="color:#16a34a">{{ number_format($grandTotalReceipts, 2) }}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -84,7 +88,7 @@
 
             {{-- Net --}}
             <div class="px-4 py-3 d-flex justify-content-end gap-3" style="border-top:2px solid #e2e8f0;background:#f8fafc">
-                @php $net = $totalReceipts - $totalPayments; @endphp
+                @php $net = $grandTotalReceipts - $totalPayments; @endphp
                 <span style="font-size:13px">Net Surplus / (Deficit):</span>
                 <strong style="font-size:15px;color:{{ $net >= 0 ? '#16a34a' : '#e11d48' }}">
                     {{ $net >= 0 ? number_format($net, 2) : '(' . number_format(abs($net), 2) . ')' }}

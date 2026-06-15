@@ -13,6 +13,7 @@ use App\Models\Income;
 use App\Models\IncomeCategory;
 use App\Models\MobileBankingAccount;
 use App\Models\InventorySale;
+use App\Models\Payment;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use App\Models\Payroll;
@@ -111,7 +112,9 @@ class ReportsController extends Controller
         $transactions = Transaction::with(['incomeCategory', 'expenseCategory', 'shareholder', 'transactionable'])
             ->where('payment_method', 'Cash')
             ->whereBetween('transaction_date', [$from, $to])
-            ->orderBy('transaction_date')
+            ->orderByDesc('transaction_date')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->get();
 
         $totalIn  = $transactions->whereIn('type', ['income', 'capital'])->sum('amount');
@@ -129,7 +132,8 @@ class ReportsController extends Controller
 
         $transactions = Transaction::with(['incomeCategory', 'expenseCategory', 'shareholder', 'transactionable'])
             ->whereDate('transaction_date', $date)
-            ->orderBy('created_at')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->get();
 
         $totalDebit  = $transactions->whereIn('type', ['expense', 'withdrawal'])->sum('amount');
@@ -211,6 +215,43 @@ class ReportsController extends Controller
             ->map(fn($rows, $head) => ['head' => $head, 'amount' => $rows->sum('amount')])
             ->values();
 
+        $inventoryReceipts = Payment::with([
+                'student',
+                'inventorySale.items.inventoryItem.category',
+                'inventoryDueItems.inventorySaleItem.inventoryItem.category',
+            ])
+            ->whereBetween('payment_date', [$from->toDateString(), $to->toDateString()])
+            ->where(function ($q) {
+                $q->whereNotNull('inventory_sale_id')
+                  ->orWhereHas('inventoryDueItems');
+            })
+            ->get()
+            ->map(function (Payment $payment) {
+                $saleItems = $payment->inventorySale?->items ?? collect();
+                $dueItems  = $payment->inventoryDueItems ?? collect();
+
+                $labels = $saleItems->map(function ($item) {
+                    return ($item->inventoryItem?->name ?? 'Item')
+                        . ($item->inventoryItem?->category?->name ? ' • ' . $item->inventoryItem->category->name : '');
+                })->merge($dueItems->map(function ($item) {
+                    $saleItem = $item->inventorySaleItem;
+                    $inventoryItem = $saleItem?->inventoryItem;
+                    return ($inventoryItem?->name ?? 'Item')
+                        . ($inventoryItem?->category?->name ? ' • ' . $inventoryItem->category->name : '');
+                }))->filter()->unique()->values();
+
+                return [
+                    'head' => 'Inventory Sale — ' . ($payment->receipt_no ?? '—'),
+                    'subhead' => trim(
+                        ($payment->student?->full_name_en ?? 'Unknown Student')
+                        . ($labels->isNotEmpty() ? ' | ' . $labels->implode(', ') : '')
+                    ),
+                    'amount' => (float) $payment->inventory_received_amount,
+                ];
+            })
+            ->filter(fn ($row) => $row['amount'] > 0)
+            ->values();
+
         $payments = Transaction::with(['expenseCategory', 'shareholder'])
             ->whereIn('type', ['expense', 'withdrawal'])
             ->whereBetween('transaction_date', [$from, $to])
@@ -223,10 +264,20 @@ class ReportsController extends Controller
             ->values();
 
         $totalReceipts = $receipts->sum('amount');
+        $totalInventoryReceipts = $inventoryReceipts->sum('amount');
         $totalPayments = $payments->sum('amount');
+        $grandTotalReceipts = $totalReceipts + $totalInventoryReceipts;
 
         return view('pages.reports.receipt-payment', compact(
-            'receipts', 'payments', 'totalReceipts', 'totalPayments', 'from', 'to'
+            'receipts',
+            'inventoryReceipts',
+            'payments',
+            'totalReceipts',
+            'totalInventoryReceipts',
+            'grandTotalReceipts',
+            'totalPayments',
+            'from',
+            'to'
         ));
     }
 
@@ -390,6 +441,26 @@ class ReportsController extends Controller
                 'amount' => $rows->sum('amount'),
             ])->values();
 
+        $inventorySalesByCategory = InventorySale::with('items.inventoryItem.category')
+            ->whereYear('created_at', $year)
+            ->get()
+            ->flatMap(function ($sale) {
+                return $sale->items->groupBy(fn ($item) => $item->inventoryItem?->category?->name ?? 'Uncategorised')
+                    ->map(fn ($rows, $name) => [
+                        'name'   => 'Inventory Sales — ' . $name,
+                        'amount' => $rows->sum('subtotal'),
+                    ]);
+            })
+            ->values()
+            ->groupBy('name')
+            ->map(fn ($rows) => [
+                'name'   => $rows->first()['name'],
+                'amount' => $rows->sum('amount'),
+            ])
+            ->values();
+
+        $incomeRows = $incomeByCategory->concat($inventorySalesByCategory)->values();
+
         $expenseByCategory = Expense::with('category')
             ->whereYear('expense_date', $year)
             ->get()
@@ -399,13 +470,21 @@ class ReportsController extends Controller
                 'amount' => $rows->sum('amount'),
             ])->values();
 
-        $totalIncome  = $incomeByCategory->sum('amount');
+        $totalIncome  = $incomeByCategory->sum('amount') + $inventorySalesByCategory->sum('amount');
+        $totalInventorySales = $inventorySalesByCategory->sum('amount');
         $totalExpense = $expenseByCategory->sum('amount');
         $surplus      = $totalIncome - $totalExpense;
 
         return view('pages.reports.income-expenditure', compact(
-            'incomeByCategory', 'expenseByCategory',
-            'totalIncome', 'totalExpense', 'surplus', 'year'
+            'incomeRows',
+            'incomeByCategory',
+            'inventorySalesByCategory',
+            'expenseByCategory',
+            'totalIncome',
+            'totalInventorySales',
+            'totalExpense',
+            'surplus',
+            'year'
         ));
     }
 
@@ -602,7 +681,12 @@ class ReportsController extends Controller
         $from = $request->filled('from') ? Carbon::createFromFormat('d/m/Y', $request->from) : now()->startOfMonth();
         $to   = $request->filled('to')   ? Carbon::createFromFormat('d/m/Y', $request->to)   : now();
         $transactions = Transaction::with(['incomeCategory', 'expenseCategory', 'shareholder', 'transactionable'])
-            ->where('payment_method', 'Cash')->whereBetween('transaction_date', [$from, $to])->orderBy('transaction_date')->get();
+            ->where('payment_method', 'Cash')
+            ->whereBetween('transaction_date', [$from, $to])
+            ->orderByDesc('transaction_date')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get();
         $totalIn  = $transactions->whereIn('type', ['income', 'capital'])->sum('amount');
         $totalOut = $transactions->whereIn('type', ['expense', 'withdrawal'])->sum('amount');
         $this->makePdf('pages.reports.pdf.cash-book', compact('transactions', 'totalIn', 'totalOut', 'from', 'to'), 'cash-book-' . $from->format('Ymd') . '-' . $to->format('Ymd'), 'L');
@@ -612,7 +696,10 @@ class ReportsController extends Controller
     {
         $date = $request->filled('date') ? Carbon::createFromFormat('d/m/Y', $request->date) : now();
         $transactions = Transaction::with(['incomeCategory', 'expenseCategory', 'shareholder', 'transactionable'])
-            ->whereDate('transaction_date', $date)->orderBy('created_at')->get();
+            ->whereDate('transaction_date', $date)
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get();
         $totalDebit  = $transactions->whereIn('type', ['expense', 'withdrawal'])->sum('amount');
         $totalCredit = $transactions->whereIn('type', ['income', 'capital'])->sum('amount');
         $this->makePdf('pages.reports.pdf.day-book', compact('transactions', 'totalDebit', 'totalCredit', 'date'), 'day-book-' . $date->format('Ymd'), 'L');
@@ -624,13 +711,23 @@ class ReportsController extends Controller
         $incomeByCategory = Income::with('category')->whereYear('income_date', $year)->get()
             ->groupBy('income_category_id')
             ->map(fn($rows) => ['name' => $rows->first()->category?->name ?? 'Uncategorised', 'amount' => $rows->sum('amount')])->values();
+        $inventorySalesByCategory = InventorySale::with('items.inventoryItem.category')->whereYear('created_at', $year)->get()
+            ->flatMap(function ($sale) {
+                return $sale->items->groupBy(fn ($item) => $item->inventoryItem?->category?->name ?? 'Uncategorised')
+                    ->map(fn ($rows, $name) => ['name' => 'Inventory Sales — ' . $name, 'amount' => $rows->sum('subtotal')]);
+            })->values()
+            ->groupBy('name')
+            ->map(fn ($rows) => ['name' => $rows->first()['name'], 'amount' => $rows->sum('amount')])
+            ->values();
         $expenseByCategory = Expense::with('category')->whereYear('expense_date', $year)->get()
             ->groupBy('expense_category_id')
             ->map(fn($rows) => ['name' => $rows->first()->category?->name ?? 'Uncategorised', 'amount' => $rows->sum('amount')])->values();
-        $totalIncome  = $incomeByCategory->sum('amount');
+        $incomeRows = $incomeByCategory->concat($inventorySalesByCategory)->values();
+        $totalIncome  = $incomeByCategory->sum('amount') + $inventorySalesByCategory->sum('amount');
+        $totalInventorySales = $inventorySalesByCategory->sum('amount');
         $totalExpense = $expenseByCategory->sum('amount');
         $surplus      = $totalIncome - $totalExpense;
-        $this->makePdf('pages.reports.pdf.income-expenditure', compact('incomeByCategory', 'expenseByCategory', 'totalIncome', 'totalExpense', 'surplus', 'year'), 'income-expenditure-' . $year);
+        $this->makePdf('pages.reports.pdf.income-expenditure', compact('incomeRows', 'incomeByCategory', 'inventorySalesByCategory', 'expenseByCategory', 'totalIncome', 'totalInventorySales', 'totalExpense', 'surplus', 'year'), 'income-expenditure-' . $year);
     }
 
     public function cashSummaryPdf(Request $request)
@@ -652,13 +749,50 @@ class ReportsController extends Controller
             ->whereBetween('transaction_date', [$from, $to])->get()
             ->groupBy(fn($t) => $t->type === 'capital' ? 'Capital — ' . ($t->shareholder?->name ?? 'Shareholder') : ($t->incomeCategory?->name ?? 'Uncategorised'))
             ->map(fn($rows, $head) => ['head' => $head, 'amount' => $rows->sum('amount')])->values();
+        $inventoryReceipts = Payment::with([
+                'student',
+                'inventorySale.items.inventoryItem.category',
+                'inventoryDueItems.inventorySaleItem.inventoryItem.category',
+            ])
+            ->whereBetween('payment_date', [$from->toDateString(), $to->toDateString()])
+            ->where(function ($q) {
+                $q->whereNotNull('inventory_sale_id')
+                  ->orWhereHas('inventoryDueItems');
+            })
+            ->get()
+            ->map(function (Payment $payment) {
+                $saleItems = $payment->inventorySale?->items ?? collect();
+                $dueItems  = $payment->inventoryDueItems ?? collect();
+                $labels = $saleItems->map(function ($item) {
+                    return ($item->inventoryItem?->name ?? 'Item')
+                        . ($item->inventoryItem?->category?->name ? ' • ' . $item->inventoryItem->category->name : '');
+                })->merge($dueItems->map(function ($item) {
+                    $saleItem = $item->inventorySaleItem;
+                    $inventoryItem = $saleItem?->inventoryItem;
+                    return ($inventoryItem?->name ?? 'Item')
+                        . ($inventoryItem?->category?->name ? ' • ' . $inventoryItem->category->name : '');
+                }))->filter()->unique()->values();
+
+                return [
+                    'head' => 'Inventory Sale — ' . ($payment->receipt_no ?? '—'),
+                    'subhead' => trim(
+                        ($payment->student?->full_name_en ?? 'Unknown Student')
+                        . ($labels->isNotEmpty() ? ' | ' . $labels->implode(', ') : '')
+                    ),
+                    'amount' => (float) $payment->inventory_received_amount,
+                ];
+            })
+            ->filter(fn ($row) => $row['amount'] > 0)
+            ->values();
         $payments = Transaction::with(['expenseCategory', 'shareholder'])->whereIn('type', ['expense', 'withdrawal'])
             ->whereBetween('transaction_date', [$from, $to])->get()
             ->groupBy(fn($t) => $t->type === 'withdrawal' ? 'Withdrawal — ' . ($t->shareholder?->name ?? 'Shareholder') : ($t->expenseCategory?->name ?? 'Uncategorised'))
             ->map(fn($rows, $head) => ['head' => $head, 'amount' => $rows->sum('amount')])->values();
         $totalReceipts = $receipts->sum('amount');
+        $totalInventoryReceipts = $inventoryReceipts->sum('amount');
         $totalPayments = $payments->sum('amount');
-        $this->makePdf('pages.reports.pdf.receipt-payment', compact('receipts', 'payments', 'totalReceipts', 'totalPayments', 'from', 'to'), 'receipt-payment-' . $from->format('Ymd') . '-' . $to->format('Ymd'));
+        $grandTotalReceipts = $totalReceipts + $totalInventoryReceipts;
+        $this->makePdf('pages.reports.pdf.receipt-payment', compact('receipts', 'inventoryReceipts', 'payments', 'totalReceipts', 'totalInventoryReceipts', 'grandTotalReceipts', 'totalPayments', 'from', 'to'), 'receipt-payment-' . $from->format('Ymd') . '-' . $to->format('Ymd'));
     }
 
     public function cashFlowPdf(Request $request)

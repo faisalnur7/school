@@ -1,7 +1,7 @@
 @php
     $renderForPdf = $renderForPdf ?? false;
     $layout = $layout ?? [];
-    $cardsPerPage = max(1, min(10, (int) ($layout['cardsPerPage'] ?? 8)));
+    $cardsPerPage = max(1, min(12, (int) ($layout['cardsPerPage'] ?? 8)));
     $cardsPerRow = max(1, min($cardsPerPage, (int) ($layout['cardsPerRow'] ?? 2)));
     $pageRows = max(1, (int) ($layout['pageRows'] ?? ceil($cardsPerPage / $cardsPerRow)));
     $cardWidthMm = $layout['cardWidthMm'] ?? 80;
@@ -49,26 +49,31 @@
                 @endphp
 
                 <div class="admit-card" style="width: {{ $cardWidthMm }}mm; height: {{ $cardHeightMm }}mm;">
+                    @if($logoPath)
+                        <div class="admit-card__watermark">
+                            <img src="{{ $logoPath }}" alt="" class="admit-card__watermark-logo">
+                        </div>
+                    @endif
                     <div class="admit-card__header">
-                        <div style="display:flex;align-items:flex-start;gap:1.4mm;justify-content:center;">
+                        <div class="admit-card__brand">
                             @if($logoPath)
-                                <img src="{{ $logoPath }}" alt="Logo" style="width:6.5mm;height:6.5mm;object-fit:contain;filter:grayscale(1);margin-top:0.3mm;">
+                                <img src="{{ $logoPath }}" alt="Logo" class="admit-card__logo">
                             @endif
-                            <div style="flex:1;min-width:0;">
+                            <div class="admit-card__brand-text">
                                 <div class="admit-card__school">{{ $setting?->name ?? 'School Name' }}</div>
                                 @if($schoolAddress)
-                                    <div class="admit-card__meta">{{ $schoolAddress }}</div>
-                                @endif
-                                @if($examTypeLabel)
-                                    <div class="admit-card__meta"><strong>Exam Type:</strong> {{ $examTypeLabel }}</div>
-                                @endif
-                                @if($examName)
-                                    <div class="admit-card__meta"><strong>Exam Name:</strong> {{ $examName }}</div>
+                                    <div class="admit-card__address">{{ $schoolAddress }}</div>
                                 @endif
                             </div>
                         </div>
                         <div class="admit-card__exam">
                             <div class="admit-card__exam-label">{{ $cardLabel }}</div>
+                            @if($examTypeLabel)
+                                <div class="admit-card__exam-type">{{ $examTypeLabel }}</div>
+                            @endif
+                            @if($examName)
+                                <div class="admit-card__exam-name">{{ $examName }}</div>
+                            @endif
                         </div>
                     </div>
 
@@ -108,9 +113,6 @@
                     </div>
 
                     <div class="admit-card__footer">
-                        @if($setting?->eiin)
-                            <span>EIIN: {{ $setting->eiin }}</span>
-                        @endif
                         @if($setting?->contact_number_1)
                             <span>{{ $setting->contact_number_1 }}</span>
                         @endif

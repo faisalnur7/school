@@ -28,6 +28,10 @@
                             @foreach($incomeByCategory as $row)
                             <tr><td>{{ $row['name'] }}</td><td class="text-right">{{ number_format($row['amount'], 2) }}</td></tr>
                             @endforeach
+                            <tr style="background:#ecfeff">
+                                <td class="fw-semibold" style="color:#0f766e">Inventory Sales</td>
+                                <td class="text-right fw-semibold" style="color:#0f766e">{{ number_format($totalInventorySales, 2) }}</td>
+                            </tr>
                         </tbody>
                         <tfoot>
                             <tr style="font-weight:700;border-top:2px solid #e2e8f0">

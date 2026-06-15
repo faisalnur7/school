@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title mb-0 text-white text-lg">Dues Report</h3>
+            <h3 class="card-title mb-0 text-white text-lg">Fees & Inventory Due Report</h3>
         </div>
         <div class="card-body">
 
@@ -74,8 +74,8 @@
                         <div class="info-box bg-light">
                             <span class="info-box-icon bg-primary"><i class="fas fa-file-invoice-dollar"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Total Fees</span>
-                                <span class="info-box-number">{{ number_format($totals['amount'], 2) }}</span>
+                                <span class="info-box-text">Fee Due</span>
+                                <span class="info-box-number">{{ number_format($totals['fees']['due'], 2) }}</span>
                             </div>
                         </div>
                     </div>
@@ -83,8 +83,8 @@
                         <div class="info-box bg-light">
                             <span class="info-box-icon bg-success"><i class="fas fa-check-circle"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Total Paid</span>
-                                <span class="info-box-number">{{ number_format($totals['paid'], 2) }}</span>
+                                <span class="info-box-text">Inventory Due</span>
+                                <span class="info-box-number">{{ number_format($totals['inventory']['due'], 2) }}</span>
                             </div>
                         </div>
                     </div>
@@ -108,30 +108,44 @@
                                 <th>Student Name</th>
                                 <th>Class</th>
                                 <th>Section</th>
+                                <th>Type</th>
                                 <th>Description</th>
                                 <th class="text-right">Amount</th>
                                 <th class="text-right">Paid Amount</th>
                                 <th class="text-right">Due</th>
+                                <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($rows as $index => $student)
-                                @foreach($student->lines as $lineIndex => $line)
-                                    <tr>
-                                        <td class="text-center">{{ $lineIndex === 0 ? $index + 1 : '' }}</td>
-                                        <td>{{ $lineIndex === 0 ? ($student->cid ?? '—') : '' }}</td>
-                                        <td>{{ $lineIndex === 0 ? $student->name : '' }}</td>
-                                        <td>{{ $lineIndex === 0 ? $student->class_name : '' }}</td>
-                                        <td>{{ $lineIndex === 0 ? $student->section_name : '' }}</td>
-                                        <td>{{ $line->description }}</td>
-                                        <td class="text-right">{{ number_format($line->amount, 2) }}</td>
-                                        <td class="text-right">{{ number_format($line->paid, 2) }}</td>
-                                        <td class="text-right">{{ number_format($line->due, 2) }}</td>
-                                    </tr>
-                                @endforeach
-                                <tr class="font-weight-bold" style="background:#f0f4ff;border-top:2px solid #aaa">
-                                    <td colspan="6" class="text-right">Student Total</td>
-                                    <td class="text-right">{{ number_format($student->fees_total, 2) }}</td>
+                                    @foreach($student->lines as $lineIndex => $line)
+                                        <tr>
+                                            <td class="text-center">{{ $lineIndex === 0 ? $index + 1 : '' }}</td>
+                                            <td>{{ $lineIndex === 0 ? ($student->cid ?? '—') : '' }}</td>
+                                            <td>{{ $lineIndex === 0 ? $student->name : '' }}</td>
+                                            <td>{{ $lineIndex === 0 ? $student->class_name : '' }}</td>
+                                            <td>{{ $lineIndex === 0 ? $student->section_name : '' }}</td>
+                                            <td>
+                                                <span class="badge badge-{{ $line->type === 'inventory' ? 'info' : 'primary' }}">
+                                                    {{ ucfirst($line->type) }}
+                                                </span>
+                                            </td>
+                                            <td>{{ $line->description }}</td>
+                                            <td class="text-right">{{ number_format($line->amount, 2) }}</td>
+                                            <td class="text-right">{{ number_format($line->paid, 2) }}</td>
+                                            <td class="text-right">{{ number_format($line->due, 2) }}</td>
+                                            <td class="text-center">
+                                                @if($lineIndex === 0)
+                                                    <a href="{{ route('fees.collect_payment', $student->student_id) }}" class="btn btn-sm btn-primary">
+                                                        Collect
+                                                    </a>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    <tr class="font-weight-bold" style="background:#f0f4ff;border-top:2px solid #aaa">
+                                    <td colspan="8" class="text-right">Student Total</td>
+                                    <td class="text-right">{{ number_format($student->fees_total + $student->inventory_total, 2) }}</td>
                                     <td class="text-right">{{ number_format($student->paid_amount, 2) }}</td>
                                     <td class="text-right">{{ number_format($student->due, 2) }}</td>
                                 </tr>
@@ -139,7 +153,7 @@
                         </tbody>
                         <tfoot>
                             <tr class="font-weight-bold bg-dark text-white">
-                                <td colspan="6" class="text-right">Grand Total</td>
+                                <td colspan="8" class="text-right">Grand Total</td>
                                 <td class="text-right">{{ number_format($totals['amount'], 2) }}</td>
                                 <td class="text-right">{{ number_format($totals['paid'], 2) }}</td>
                                 <td class="text-right">{{ number_format($totals['due'], 2) }}</td>

@@ -36,6 +36,11 @@ class Payment extends Model
         return $this->belongsTo(InventorySale::class);
     }
 
+    public function inventoryDueItems()
+    {
+        return $this->hasMany(PaymentInventoryItem::class);
+    }
+
     public function student()
     {
         return $this->belongsTo(Student::class);
@@ -44,6 +49,41 @@ class Payment extends Model
     public function collector()
     {
         return $this->belongsTo(User::class,'collected_by');
+    }
+
+    public function getFeeReceivedAmountAttribute(): float
+    {
+        $items = $this->relationLoaded('items') ? $this->items : $this->items()->get();
+
+        return (float) $items->sum(fn ($item) => (float) $item->amount);
+    }
+
+    public function getInventoryReceivedAmountAttribute(): float
+    {
+        $sale = $this->relationLoaded('inventorySale') ? $this->inventorySale : $this->inventorySale()->first();
+        $dueItems = $this->relationLoaded('inventoryDueItems') ? $this->inventoryDueItems : $this->inventoryDueItems()->get();
+
+        return (float) ($sale?->paid_amount ?? 0) + (float) $dueItems->sum('amount');
+    }
+
+    public function getCalculatedAmountAttribute(): float
+    {
+        return round($this->fee_received_amount + $this->inventory_received_amount, 2);
+    }
+
+    public function getCalculatedGrossAmountAttribute(): float
+    {
+        $feeItems = $this->relationLoaded('items') ? $this->items : $this->items()->get();
+        $feeGross = (float) $feeItems->sum(function ($item) {
+            return (float) ($item->fee?->amount ?? $item->amount);
+        });
+
+        $sale = $this->relationLoaded('inventorySale') ? $this->inventorySale : $this->inventorySale()->first();
+        $inventoryGross = (float) ($sale?->total_amount ?? 0);
+        $dueItems = $this->relationLoaded('inventoryDueItems') ? $this->inventoryDueItems : $this->inventoryDueItems()->with('inventorySaleItem')->get();
+        $inventoryGross += (float) $dueItems->sum(fn ($item) => (float) ($item->inventorySaleItem?->subtotal ?? 0));
+
+        return round($feeGross + $inventoryGross, 2);
     }
 
     public function getAccountModelAttribute()

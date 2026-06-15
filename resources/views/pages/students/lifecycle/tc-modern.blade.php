@@ -73,7 +73,6 @@
         <div class="header-info">
             <h1>{{ $setting->name ?? config('app.name') }}</h1>
             <p>{{ $setting->address ?? '' }}</p>
-            @if($setting->eiin)<p>EIIN: {{ $setting->eiin }}</p>@endif
         </div>
     </div>
 
