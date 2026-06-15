@@ -5,6 +5,7 @@
     $ai = $student->academicInformations->first();
 @endphp
 <div class="container-fluid">
+    @include('partials.report-header')
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title mb-0 text-white text-lg">Student Payment Ledger</h3>

@@ -2,6 +2,7 @@
 
 @section('contents')
 <div class="container-fluid">
+    @include('partials.report-header')
     <div class="card">
         <div class="card-header">
             <h3 class="card-title mb-0 text-white text-lg">Fee Due Report — Class &amp; Section Wise</h3>

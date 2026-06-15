@@ -44,12 +44,18 @@ class ProgressReportController extends Controller
         $exam     = Exam::with('academicSession')->findOrFail($filters['exam_id']);
         $school   = SchoolSetting::current();
         $gradeScale = GradingService::allGrades();
+        $sections = Section::where('school_class_id', $filters['class_id'])->get();
 
         $students = $this->getStudents($filters);
         $studentsData = $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters));
         $statusMap = $this->buildStatusMap($studentsData->pluck('student.id')->all(), (int) $filters['exam_id']);
 
-        return view('pages.progress-report.results', compact('studentsData', 'exam', 'school', 'gradeScale', 'filters', 'statusMap'));
+        return view('pages.progress-report.results', compact('studentsData', 'exam', 'school', 'gradeScale', 'filters', 'statusMap', 'sections'))
+            ->with([
+                'sessions' => AcademicSession::orderByDesc('id')->get(),
+                'classes'  => SchoolClass::all(),
+                'exams'    => Exam::orderByDesc('id')->get(),
+            ]);
     }
 
     public function pdf(Request $request)

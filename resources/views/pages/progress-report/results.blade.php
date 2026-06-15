@@ -1,7 +1,85 @@
 @extends('layouts.master')
 
 @section('contents')
+@php
+    $schoolName = $school->name ?? 'Green Chartered School & College';
+    $schoolAddress = $school->address ?? 'CIP Tower, Hazari-digir-phar, Dohajari, Chandanish, Chattogram';
+    $logoUrl = !empty($school->logo) ? asset($school->logo) : null;
+@endphp
     <div class="col-12">
+
+        <div class="card card-outline mb-4 no-print" style="border-top:3px solid #1a6b3c">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h3 class="card-title text-white mb-0"><i class="fas fa-filter mr-2 text-success"></i>Filter Options</h3>
+                <small class="text-muted">{{ $exam->name }} &mdash; {{ $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? '') }}</small>
+            </div>
+            <div class="card-body">
+                <form id="reportFormTop" method="POST" action="{{ route('result.progress-report.show') }}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <label class="font-weight-bold">Academic Session <span class="text-danger">*</span></label>
+                            <select name="session_id" class="form-control" required>
+                                <option value="">— Select Session —</option>
+                                @foreach($sessions as $s)
+                                    <option value="{{ $s->id }}" {{ (string)($filters['session_id'] ?? '') === (string)$s->id ? 'selected' : '' }}>
+                                        {{ $s->name_en ?? $s->name_bn }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <label class="font-weight-bold">Class <span class="text-danger">*</span></label>
+                            <select name="class_id" id="classSelectTop" class="form-control" required>
+                                <option value="">— Select Class —</option>
+                                @foreach($classes as $c)
+                                    <option value="{{ $c->id }}" {{ (string)($filters['class_id'] ?? '') === (string)$c->id ? 'selected' : '' }}>
+                                        {{ $c->name_en }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <label class="font-weight-bold">Section <span class="text-danger">*</span></label>
+                            <select name="section_id" id="sectionSelectTop" class="form-control" required>
+                                <option value="">— Select Section —</option>
+                                @foreach($sections as $section)
+                                    <option value="{{ $section->id }}" {{ (string)($filters['section_id'] ?? '') === (string)$section->id ? 'selected' : '' }}>
+                                        {{ $section->name_en ?? $section->name_bn }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <label class="font-weight-bold">Exam <span class="text-danger">*</span></label>
+                            <select name="exam_id" class="form-control" required>
+                                <option value="">— Select Exam —</option>
+                                @foreach($exams as $e)
+                                    <option value="{{ $e->id }}" {{ (string)($filters['exam_id'] ?? '') === (string)$e->id ? 'selected' : '' }}>
+                                        {{ $e->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <label class="font-weight-bold">Student ID <small class="text-muted">(optional)</small></label>
+                            <input type="text" name="student_id" class="form-control" value="{{ $filters['student_id'] ?? '' }}" placeholder="Leave blank for all students">
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-2 flex-wrap">
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="fas fa-eye mr-1"></i> View Report
+                        </button>
+                        <button type="button" id="pdfBtnTop" class="btn btn-danger px-4">
+                            <i class="fas fa-file-pdf mr-1"></i> Download PDF
+                        </button>
+                        <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary px-4">
+                            <i class="fas fa-arrow-left mr-1"></i> Back
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         {{-- ══ Top Action Bar ══ --}}
         <div class="d-flex justify-content-between align-items-center mb-4 no-print">
@@ -88,39 +166,54 @@
          ║  CLASSIC DESIGN (design-a)                  ║
          ╚══════════════════════════════════════════════╝ --}}
             <div class="design-a report-card-classic">
+                @if(!empty($logoUrl))
+                    <div class="report-card-watermark">
+                        <img src="{{ $logoUrl }}" alt="" class="report-card-watermark__img">
+                    </div>
+                @endif
 
-                <div class="text-center border-b pb-4 classic-header-inner">
+                <div class="classic-header-inner">
+                    <div class="classic-header-top">
+                        <div class="classic-header-brand">
+                            @if(!empty($logoUrl))
+                                <div class="classic-header-logo">
+                                    <img src="{{ $logoUrl }}" alt="{{ $schoolName }} logo">
+                                </div>
+                            @endif
+                            <div class="classic-header-copy">
+                                <h1 class="text-3xl font-bold text-green-700 uppercase tracking-wide mb-0">
+                                    {{ $schoolName }}
+                                </h1>
+                                <p class="text-sm text-gray-700 mt-1 mb-0">
+                                    {{ $schoolAddress }}
+                                </p>
+                            </div>
+                        </div>
 
-                    <h1 class="text-3xl font-bold text-green-700 uppercase tracking-wide">
-                        {{ $school->name ?? 'Green Chartered School & College' }}
-                    </h1>
-                    <p class="text-sm text-gray-700 mt-1">
-                        {{ $school->address ?? 'CIP Tower, Hazari-digir-phar, Dohajari, Chandanish, Chattogram' }}
-                    </p>
-                    <h2 class="text-2xl font-bold text-orange-700 italic mt-5 uppercase">
+                        <div class="classic-grade-table">
+                            <table class="text-xs border border-gray-700">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-3 py-1 text-center">Range</th>
+                                        <th class="px-1 py-1 text-center">Grade</th>
+                                        <th class="px-1 py-1 text-center">Point</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($gradeScale as $grade)
+                                        <tr>
+                                            <td class="px-3 py-0 text-center">{{ $grade['min'] }}-{{ $grade['max'] }}</td>
+                                            <td class="px-1 py-0 text-center">{{ $grade['letter'] }}</td>
+                                            <td class="px-1 py-0 text-center">{{ number_format($grade['gpa'], 1) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-orange-700 italic mt-5 uppercase text-center">
                         Progress Report
                     </h2>
-
-                    <div class="classic-grade-table">
-                        <table class="text-xs border border-gray-700">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="px-3 py-1 text-center">Range</th>
-                                    <th class="px-1 py-1 text-center">Grade</th>
-                                    <th class="px-1 py-1 text-center">Point</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($gradeScale as $grade)
-                                    <tr>
-                                        <td class="px-3 py-0 text-center">{{ $grade['min'] }}-{{ $grade['max'] }}</td>
-                                        <td class="px-1 py-0 text-center">{{ $grade['letter'] }}</td>
-                                        <td class="px-1 py-0 text-center">{{ number_format($grade['gpa'], 1) }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
 
                 <div class="mt-6 flex justify-between items-start">
@@ -275,18 +368,23 @@
      ║  MODERN DESIGN (design-b)                   ║
      ╚══════════════════════════════════════════════╝ --}}
             <div class="design-b rc-wrap" style="display:none">
+                @if(!empty($logoUrl))
+                    <div class="rc-watermark">
+                        <img src="{{ $logoUrl }}" alt="" class="rc-watermark__img">
+                    </div>
+                @endif
 
                 <div class="rc-header">
                     <div class="rc-header-identity">
-                        <div class="rc-school-emblem">
-                            <span class="rc-emblem-leaf rc-emblem-leaf--l"></span>
-                            <span class="rc-emblem-leaf rc-emblem-leaf--r"></span>
-                            <span class="rc-emblem-core"></span>
-                        </div>
+                        @if(!empty($logoUrl))
+                            <div class="rc-school-logo">
+                                <img src="{{ $logoUrl }}" alt="{{ $schoolName }} logo">
+                            </div>
+                        @endif
                         <div>
-                            <div class="rc-school-name">{{ $school->name ?? 'Green Chartered School & College' }}</div>
+                            <div class="rc-school-name">{{ $schoolName }}</div>
                             <div class="rc-school-addr">
-                                {{ $school->address ?? 'CIP Tower, Hazari-digir-phar, Dohajari, Chandanish, Chattogram' }}
+                                {{ $schoolAddress }}
                             </div>
                         </div>
                     </div>
@@ -524,6 +622,8 @@
      STYLES
 ═══════════════════════════════════════════════════════════════════ --}}
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
         /* ── Google Fonts ─────────────────────────────── */
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
@@ -544,6 +644,7 @@
             --rc-white: #ffffff;
             --rc-radius: 12px;
             --rc-shadow: 0 4px 24px rgba(26, 107, 60, .10), 0 1px 4px rgba(0, 0, 0, .06);
+            --rc-ff-modern: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
             --rc-ff-display: 'Playfair Display', Georgia, serif;
             --rc-ff-body: 'DM Sans', sans-serif;
             --rc-ff-mono: 'DM Mono', monospace;
@@ -625,6 +726,9 @@
 
         /* ════ CLASSIC DESIGN (design-a) ════════════════ */
         .report-card-classic {
+            position: relative;
+            overflow: hidden;
+            font-family: var(--rc-ff-modern);
             max-width: 64rem;
             margin: 0 auto 1.5rem;
             background: #fff;
@@ -637,26 +741,118 @@
 
         .classic-header-inner {
             position: relative;
-            text-align: center;
             border-bottom: 1px solid #e5e7eb;
             padding-bottom: 1rem;
         }
 
+        .classic-header-top {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 176px;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .classic-header-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .classic-header-copy {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .classic-header-logo {
+            width: 64px;
+            height: 64px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            background: #fff;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .classic-header-logo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .classic-header-copy h1 {
+            font-size: 1.6rem;
+            line-height: 1.05;
+        }
+
+        .classic-header-copy p {
+            font-size: .8rem;
+            line-height: 1.2;
+        }
+
         .classic-grade-table {
+            width: 176px;
+            justify-self: end;
+        }
+
+        .classic-grade-table table {
+            width: 100%;
+            table-layout: fixed;
+            background: #fff;
+            font-size: 10px;
+        }
+
+        .classic-grade-table th,
+        .classic-grade-table td {
+            padding: 2px 4px;
+            line-height: 1.05;
+            white-space: nowrap;
+            word-break: normal;
+        }
+
+        .classic-grade-table th:nth-child(1),
+        .classic-grade-table td:nth-child(1) { width: 44%; }
+        .classic-grade-table th:nth-child(2),
+        .classic-grade-table td:nth-child(2) { width: 28%; }
+        .classic-grade-table th:nth-child(3),
+        .classic-grade-table td:nth-child(3) { width: 28%; }
+
+        .report-card-watermark,
+        .rc-watermark {
             position: absolute;
-            top: 0;
-            right: 0;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.08;
+        }
+
+        .report-card-watermark__img,
+        .rc-watermark__img {
+            width: min(560px, 78%);
+            max-width: 78%;
+            max-height: 78%;
+            object-fit: contain;
+            filter: grayscale(100%);
         }
 
         /* ════ MODERN DESIGN (design-b) ════════════════ */
         .rc-wrap {
-            font-family: var(--rc-ff-body);
+            position: relative;
+            overflow: hidden;
+            font-family: var(--rc-ff-modern);
             color: var(--rc-ink);
             background: var(--rc-white);
             border-radius: var(--rc-radius);
             box-shadow: var(--rc-shadow);
             border-top: 4px solid var(--rc-green);
-            overflow: hidden;
             margin-bottom: 2rem;
             page-break-after: always;
         }
@@ -678,38 +874,23 @@
             min-width: 0;
         }
 
-        .rc-school-emblem {
-            position: relative;
-            width: 48px;
-            height: 48px;
+        .rc-school-logo {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, .14);
+            border: 1px solid rgba(255, 255, 255, .22);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             flex-shrink: 0;
         }
 
-        .rc-emblem-core {
-            position: absolute;
-            inset: 12px;
-            background: #fff;
-            border-radius: 50%;
-            opacity: .9;
-        }
-
-        .rc-emblem-leaf {
-            position: absolute;
-            width: 18px;
-            height: 30px;
-            background: rgba(255, 255, 255, .35);
-            border-radius: 50% 0 50% 0;
-            top: 4px;
-        }
-
-        .rc-emblem-leaf--l {
-            left: 2px;
-            transform: rotate(-20deg);
-        }
-
-        .rc-emblem-leaf--r {
-            right: 2px;
-            transform: rotate(20deg) scaleX(-1);
+        .rc-school-logo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
 
         .rc-school-name {
@@ -2056,6 +2237,30 @@ document.querySelectorAll('.js-send-result-email').forEach((btn) => {
             btn.dataset.sending = '0';
         }
     });
+});
+
+$('#classSelectTop').on('change', function () {
+    var classId = $(this).val();
+    var $section = $('#sectionSelectTop');
+    $section.html('<option value="">Loading...</option>');
+    if (!classId) {
+        $section.html('<option value="">— Select Section —</option>');
+        return;
+    }
+    $.get('/ajax/sections-by-class', { class_id: classId }, function (data) {
+        var opts = '<option value="">— Select Section —</option>';
+        $.each(data, function (i, s) {
+            opts += '<option value="' + s.id + '">' + (s.name_en || s.name_bn) + '</option>';
+        });
+        $section.html(opts);
+        if (window.refreshSelect2) refreshSelect2($section);
+    });
+});
+
+$('#pdfBtnTop').on('click', function () {
+    var form = $('#reportFormTop');
+    var params = form.serialize().replace('_token=' + $('input[name=_token]').val() + '&', '');
+    window.open('{{ route('result.progress-report.pdf') }}?' + params, '_blank');
 });
 </script>
 @endsection

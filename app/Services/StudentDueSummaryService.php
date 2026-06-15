@@ -108,6 +108,11 @@ class StudentDueSummaryService
 
             $lines = $feeLines->concat($inventoryLines)->values();
 
+            // Skip students with no outstanding fee or inventory dues.
+            if ($lines->isEmpty()) {
+                continue;
+            }
+
             $rows->push((object)[
                 'student_id'   => $student->id,
                 'cid'          => $student->student_cid,

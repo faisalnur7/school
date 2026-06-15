@@ -2,6 +2,7 @@
 
 @section('contents')
 <div class="container-fluid">
+    @include('partials.report-header')
     <div class="card">
         <div class="card-header">
             <h3 class="card-title mb-0 text-white text-lg">Student Receivable Report</h3>
@@ -23,7 +24,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label class="font-weight-bold">Class</label>
-                            <select name="class_id" class="form-control form-control-sm">
+                            <select name="class_id" id="classSelect" class="form-control form-control-sm">
                                 <option value="">All Classes</option>
                                 @foreach($classes as $class)
                                     <option value="{{ $class->id }}" {{ request('class_id') == $class->id ? 'selected' : '' }}>{{ $class->name_en }}</option>
@@ -34,7 +35,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label class="font-weight-bold">Section</label>
-                            <select name="section_id" class="form-control form-control-sm">
+                            <select name="section_id" id="sectionSelect" class="form-control form-control-sm">
                                 <option value="">All Sections</option>
                                 @foreach($sections as $section)
                                     <option value="{{ $section->id }}" {{ request('section_id') == $section->id ? 'selected' : '' }}>{{ $section->name_en }}</option>
@@ -250,4 +251,60 @@
     table { page-break-inside: avoid; }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const classSelect = document.getElementById('classSelect');
+    const sectionSelect = document.getElementById('sectionSelect');
+    const selectedSection = @json(request('section_id'));
+
+    function refreshSectionSelect() {
+        if (!sectionSelect) return;
+        if (window.refreshSelect2) window.refreshSelect2($(sectionSelect));
+    }
+
+    function loadSections(classId, selectedSectionId = null) {
+        if (!sectionSelect) return;
+
+        if (!classId) {
+            sectionSelect.innerHTML = '<option value="">All Sections</option>';
+            refreshSectionSelect();
+            return;
+        }
+
+        sectionSelect.innerHTML = '<option value="">Loading...</option>';
+        refreshSectionSelect();
+
+        fetch(`{{ route('load_section_groups') }}?school_class_id=${encodeURIComponent(classId)}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to load sections');
+                return response.json();
+            })
+            .then(data => {
+                const sections = Array.isArray(data?.sections) ? data.sections : [];
+                let html = '<option value="">All Sections</option>';
+
+                sections.forEach(section => {
+                    const selected = String(selectedSectionId) === String(section.id) ? 'selected' : '';
+                    html += `<option value="${section.id}" ${selected}>${section.name_en}</option>`;
+                });
+
+                sectionSelect.innerHTML = html;
+                refreshSectionSelect();
+            })
+            .catch(() => {
+                sectionSelect.innerHTML = '<option value="">All Sections</option>';
+                refreshSectionSelect();
+            });
+    }
+
+    $(document).on('change', '#classSelect', function () {
+        loadSections(this.value);
+    });
+
+    if (classSelect && classSelect.value) {
+        loadSections(classSelect.value, selectedSection);
+    }
+});
+</script>
 @endsection
