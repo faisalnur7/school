@@ -1,3 +1,159 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    height: auto;
+}
+
+.table-responsive {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.35);
+    border-radius: 999px;
+}
+
+.content-wrapper {
+    overflow-x: hidden;
+}
+
+.content-wrapper .card,
+.content-wrapper .table,
+.content-wrapper .modal-content {
+    width: 100%;
+}
+
+.content-wrapper .table {
+    margin-bottom: 0;
+}
+
+.content-wrapper .table thead th,
+.content-wrapper .table tbody td {
+    vertical-align: middle;
+}
+
+.content-wrapper .card-header,
+.content-wrapper .card-body,
+.content-wrapper .card-footer {
+    width: 100%;
+}
+
+.content-wrapper .btn,
+.content-wrapper .form-control,
+.content-wrapper .custom-select,
+.content-wrapper .select2-container {
+    max-width: 100%;
+}
+
+.content-wrapper .badge {
+    white-space: normal;
+}
+
+.gap-1 {
+    gap: 0.25rem !important;
+}
+
+.gap-2 {
+    gap: 0.5rem !important;
+}
+
+@media (min-width: 576px) {
+    .w-sm-auto {
+        width: auto !important;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .content-wrapper .card-header .d-flex,
+    .content-wrapper .card-footer .d-flex,
+    .content-wrapper .d-flex.justify-content-between.align-items-center,
+    .content-wrapper .d-flex.justify-content-between,
+    .content-wrapper .d-flex.align-items-center,
+    .content-wrapper .d-flex.gap-2,
+    .content-wrapper .d-flex.flex-wrap {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .content-wrapper .card-header .btn,
+    .content-wrapper .card-footer .btn,
+    .content-wrapper .card-header a.btn,
+    .content-wrapper .card-footer a.btn,
+    .content-wrapper .card-header button.btn,
+    .content-wrapper .card-footer button.btn {
+        width: 100%;
+    }
+
+    .content-wrapper .card-header .btn + .btn,
+    .content-wrapper .card-footer .btn + .btn {
+        margin-top: 0.5rem;
+        margin-left: 0 !important;
+    }
+
+    .content-wrapper .table {
+        font-size: 0.9rem;
+    }
+
+    .content-wrapper .table td,
+    .content-wrapper .table th {
+        padding: 0.7rem 0.75rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .content-wrapper .card-header,
+    .content-wrapper .card-body,
+    .content-wrapper .card-footer {
+        padding: 0.75rem !important;
+    }
+
+    .content-wrapper .table {
+        font-size: 0.85rem;
+    }
+
+    .content-wrapper .table td,
+    .content-wrapper .table th {
+        padding: 0.55rem 0.6rem;
+    }
+
+    .content-wrapper .card-title,
+    .content-wrapper .card-header h3,
+    .content-wrapper .card-header h4,
+    .content-wrapper .card-header h5 {
+        font-size: 1rem;
+        line-height: 1.3;
+    }
+
+    .content-wrapper .btn {
+        white-space: normal;
+    }
+
+    .content-wrapper .form-group,
+    .content-wrapper .mb-3,
+    .content-wrapper .mb-4 {
+        margin-bottom: 0.75rem;
+    }
+
+    .content-wrapper .row.g-2,
+    .content-wrapper .row.g-3 {
+        --bs-gutter-x: 0.75rem;
+        --bs-gutter-y: 0.75rem;
+    }
+}

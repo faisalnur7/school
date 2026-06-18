@@ -166,11 +166,11 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="col-md-3 mb-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary btn-sm mr-2">
+                    <div class="col-md-3 mb-3 d-flex flex-column flex-sm-row align-items-stretch align-items-sm-end gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm w-100 w-sm-auto">
                             <i class="fas fa-search"></i> Filter
                         </button>
-                        <a href="{{ route('students.index') }}" class="btn btn-secondary btn-sm">
+                        <a href="{{ route('students.index') }}" class="btn btn-secondary btn-sm w-100 w-sm-auto">
                             <i class="fas fa-redo"></i> Reset
                         </a>
                     </div>

@@ -84,6 +84,106 @@
             background: var(--brand-primary);
             color: white;
         }
+
+        /* Website form defaults */
+        main form input,
+        main form select,
+        main form textarea {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.85rem;
+            background: #fff;
+            font-size: 0.95rem;
+            line-height: 1.45;
+        }
+
+        main form textarea {
+            resize: vertical;
+        }
+
+        main form input:focus,
+        main form select:focus,
+        main form textarea:focus {
+            outline: none;
+            border-color: #94a3b8;
+            box-shadow: 0 0 0 4px rgba(148, 163, 184, 0.16);
+        }
+
+        main form button,
+        main form .btn,
+        main form a.btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 44px;
+            padding: 0.8rem 1.15rem;
+            border-radius: 0.95rem;
+            border: 1px solid transparent;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        main form button[type="submit"],
+        main form .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+            color: #fff;
+            box-shadow: 0 14px 26px rgba(79, 70, 229, 0.2);
+        }
+
+        main form button[type="submit"]:hover,
+        main form .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 32px rgba(79, 70, 229, 0.24);
+        }
+
+        main form .btn-secondary {
+            background: #fff;
+            color: #334155;
+            border-color: #cbd5e1;
+            box-shadow: 0 10px 20px rgba(148, 163, 184, 0.14);
+        }
+
+        main form .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            transform: translateY(-1px);
+        }
+
+        /* Website table defaults */
+        main table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        main thead th {
+            white-space: nowrap;
+        }
+
+        .overflow-x-auto,
+        .overflow-auto {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (max-width: 768px) {
+            main form button,
+            main form .btn,
+            main form a.btn {
+                width: 100%;
+            }
+
+            main table {
+                min-width: 640px;
+            }
+
+            main thead th,
+            main tbody td {
+                font-size: 0.85rem;
+            }
+        }
     </style>
 </head>
 <body class="antialiased">

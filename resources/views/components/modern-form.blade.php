@@ -11,12 +11,12 @@
 <div class="container-fluid px-3 py-3">
     <div class="card shadow-sm border-0">
         <div class="card-header bg-gradient-primary text-white py-3">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2">
                 <h4 class="card-title mb-0 font-weight-bold text-white">
                     <i class="{{ $icon }} mr-2"></i>{{ $title }}
                 </h4>
                 @if($backRoute)
-                    <a href="{{ $backRoute }}" class="btn btn-light btn-sm">
+                    <a href="{{ $backRoute }}" class="btn btn-light btn-sm w-100 w-sm-auto">
                         <i class="fas fa-arrow-left mr-1"></i> Back
                     </a>
                 @endif
@@ -49,13 +49,13 @@
             </div>
 
             <div class="card-footer bg-light border-top py-2 px-3">
-                <div class="d-flex justify-content-between gap-2">
+                <div class="d-flex flex-column flex-sm-row justify-content-between gap-2">
                     @if($backRoute)
-                        <a href="{{ $backRoute }}" class="btn btn-secondary btn-sm">
+                        <a href="{{ $backRoute }}" class="btn btn-secondary btn-sm w-100 w-sm-auto">
                             <i class="fas fa-times mr-1"></i>Cancel
                         </a>
                     @endif
-                    <button type="submit" class="btn btn-primary btn-sm">
+                    <button type="submit" class="btn btn-primary btn-sm w-100 w-sm-auto">
                         <i class="{{ $submitIcon }} mr-1"></i>{{ $submitText }}
                     </button>
                 </div>

@@ -47,11 +47,11 @@
     <div class="col-md-1">
         <label class="form-label">&nbsp;</label>
         @isset($isIndex)
-            <button type="submit" class="btn btn-primary btn-block">
+            <button type="submit" class="btn btn-primary btn-block w-100">
                 <i class="fas fa-search"></i>
             </button>
         @else
-            <button type="button" id="loadStudents" class="btn btn-primary btn-block">
+            <button type="button" id="loadStudents" class="btn btn-primary btn-block w-100">
                 <i class="fas fa-search"></i>
             </button>
         @endisset

@@ -1,8 +1,8 @@
 <div class="card">
-    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3"
+    <div class="card-header text-white rounded-top d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center shadow p-3"
        >
         <h3 class="card-title">Academic Sessions</h3>
-        <a href="{{ route('sessions.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
+        <a href="{{ route('sessions.create') }}" class="btn btn-primary btn-sm ml-sm-auto text-bold w-100 w-sm-auto">
             + Add Session
         </a>
     </div>
@@ -38,7 +38,7 @@
                                     </div>
                                 </form>
                             </td>
-                            <td style="display: flex; justify-content: center; align-items: self-start; gap: 5px;">
+                            <td class="d-flex flex-column flex-sm-row justify-content-center align-items-stretch align-items-sm-start gap-1">
                                 <a href="{{ route('sessions.edit', $session->id) }}"
                                     class="btn btn-sm btn-dark">
                                     <i class="fas fa-edit"></i>

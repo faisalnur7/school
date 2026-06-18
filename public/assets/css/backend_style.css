@@ -489,27 +489,31 @@
 .content-wrapper .table-responsive {
     background: #fff;
     border: 1px solid #e2e8f0;
-    border-radius: 0 0 14px 14px;
-    overflow: hidden;
+    border-radius: 0 0 12px 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 .content-wrapper .table-responsive > .table {
     margin-bottom: 0;
+    min-width: 100%;
 }
 
 .content-wrapper table.table {
     color: #334155;
     font-size: 13px;
+    background: #fff;
 }
 
 .content-wrapper table.table > :not(caption) > * > * {
-    padding: 0.75rem 0.95rem;
+    padding: 0.75rem 0.85rem;
     vertical-align: middle;
     border-color: #e5eaf1;
 }
 
 .content-wrapper table.table thead th {
-    background: linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%);
+    background: #f8fafc;
     color: #0f172a;
     font-weight: 700;
     border-bottom: 1px solid #d8e0ea;
@@ -533,4 +537,44 @@
 
 .content-wrapper table.table .badge {
     font-weight: 600;
+}
+
+.content-wrapper table.table tbody td {
+    word-break: normal;
+    overflow-wrap: anywhere;
+}
+
+.content-wrapper table.table .btn-group,
+.content-wrapper table.table td .d-flex {
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+@media (max-width: 767.98px) {
+    .content-wrapper .table-responsive {
+        border-radius: 0 0 10px 10px;
+    }
+
+    .content-wrapper table.table {
+        font-size: 12px;
+    }
+
+    .content-wrapper table.table > :not(caption) > * > * {
+        padding: 0.65rem 0.7rem;
+    }
+
+    .content-wrapper table.table thead th {
+        white-space: normal;
+        min-width: 110px;
+    }
+
+    .content-wrapper table.table td,
+    .content-wrapper table.table th {
+        white-space: normal;
+    }
+
+    .content-wrapper table.table td:last-child .btn,
+    .content-wrapper table.table td .btn-sm {
+        min-height: 34px;
+    }
 }

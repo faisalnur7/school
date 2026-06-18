@@ -1,7 +1,7 @@
 <div class="card">
-    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
+    <div class="card-header text-white rounded-top d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center shadow p-3">
         <h3 class="card-title mb-0 text-white text-lg">Expenses</h3>
-        <a href="{{ route('expenses.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
+        <a href="{{ route('expenses.create') }}" class="btn btn-primary btn-sm ml-sm-auto text-bold w-100 w-sm-auto">
             + Add Expense
         </a>
     </div>
@@ -34,9 +34,9 @@
                            class="form-control form-control-sm"
                            value="{{ request('to') }}" placeholder="dd/mm/yyyy" autocomplete="off">
                 </div>
-                <div class="col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-sm btn-dark">Filter</button>
-                    <a href="{{ route('expenses.index') }}" class="btn btn-sm btn-secondary">Reset</a>
+                <div class="col-md-3 d-flex flex-column flex-sm-row gap-2">
+                    <button type="submit" class="btn btn-sm btn-dark w-100 w-sm-auto">Filter</button>
+                    <a href="{{ route('expenses.index') }}" class="btn btn-sm btn-secondary w-100 w-sm-auto">Reset</a>
                 </div>
             </div>
         </form>
@@ -93,11 +93,11 @@
                                     <span class="text-muted">—</span>
                                 @endif
                             </td>
-                            <td style="display:flex;gap:5px; justify-content: center; align-items: center;;align-items:center">
-                                <a href="{{ route('expenses.voucher', $expense->id) }}" class="btn btn-sm btn-secondary" title="Print Voucher" target="_blank">
+                            <td class="d-flex flex-column flex-sm-row justify-content-center align-items-stretch align-items-sm-center gap-1">
+                                <a href="{{ route('expenses.voucher', $expense->id) }}" class="btn btn-sm btn-secondary w-100 w-sm-auto" title="Print Voucher" target="_blank">
                                     <i class="fas fa-print"></i>
                                 </a>
-                                <a href="{{ route('expenses.edit', $expense->id) }}" class="btn btn-sm btn-dark">
+                                <a href="{{ route('expenses.edit', $expense->id) }}" class="btn btn-sm btn-dark w-100 w-sm-auto">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <form action="{{ route('expenses.destroy', $expense->id) }}" method="POST"

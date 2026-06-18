@@ -50,7 +50,7 @@
     </div>
 
     <div class="col-12 mt-1">
-        <button type="button" id="loadStudents" class="btn btn-primary btn-sm">
+        <button type="button" id="loadStudents" class="btn btn-primary btn-sm w-100 w-sm-auto">
             <i class="fas fa-search mr-1"></i>Load Students
         </button>
     </div>

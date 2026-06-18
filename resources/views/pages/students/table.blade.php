@@ -1,18 +1,18 @@
 <!-- Students Table -->
 <div class="card">
     <div class="card-header bg-gradient-primary text-white py-3">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2">
             <h4 class="card-title mb-0 font-weight-bold">
                 Students
                 @if ($students->total() > 0)
                     <span class="badge badge-light ml-1">{{ $students->total() }}</span>
                 @endif
             </h4>
-            <div class="d-flex">
-                <a href="{{ route('students.export', request()->all()) }}" class="btn btn-light btn-sm mr-1">
+            <div class="d-flex flex-column flex-sm-row gap-2">
+                <a href="{{ route('students.export', request()->all()) }}" class="btn btn-light btn-sm">
                     <i class="fas fa-file-excel"></i> Export
                 </a>
-                <a href="{{ route('students.list-pdf', request()->all()) }}" class="btn btn-light btn-sm mr-1" target="_blank">
+                <a href="{{ route('students.list-pdf', request()->all()) }}" class="btn btn-light btn-sm" target="_blank">
                     <i class="fas fa-file-pdf"></i> PDF
                 </a>
                 <a href="{{ route('students.create') }}" class="btn btn-light btn-sm">
@@ -157,7 +157,7 @@
                                 </form>
                             </td>
 
-                            <td style="display: flex; justify-content: center; align-items: self-start; gap: 5px;">
+                            <td class="d-flex flex-column flex-sm-row justify-content-center align-items-stretch align-items-sm-start gap-1">
                                 <a href="{{ route('students.show', $student->id) }}" class="btn btn-sm btn-info"
                                     title="View">
                                     <i class="fas fa-eye"></i>

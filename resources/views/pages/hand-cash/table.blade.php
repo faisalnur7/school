@@ -1,13 +1,13 @@
 <div class="card">
-    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
+    <div class="card-header text-white rounded-top d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center shadow p-3">
         <h3 class="card-title mb-0 text-white text-lg">Hand Cash</h3>
-        <div class="d-flex gap-2 ml-auto">
+        <div class="d-flex flex-column flex-sm-row gap-2 ml-sm-auto w-100 w-sm-auto">
             @if($pettyCash)
-            <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#transferModal">
+            <button type="button" class="btn btn-warning btn-sm w-100 w-sm-auto" data-toggle="modal" data-target="#transferModal">
                 <i class="fas fa-exchange-alt"></i> Transfer to Bank
             </button>
             @endif
-            <a href="{{ route('hand-cash.create') }}" class="btn btn-primary btn-sm text-bold">
+            <a href="{{ route('hand-cash.create') }}" class="btn btn-primary btn-sm text-bold w-100 w-sm-auto">
                 + Add Hand Cash
             </a>
         </div>
@@ -51,7 +51,7 @@
                                 </span>
                             </td>
                             <td class="text-muted" style="font-size:13px">{{ Str::limit($cash->notes, 40) ?? '—' }}</td>
-                            <td style="display:flex;gap:5px; justify-content: center; align-items: center;;align-items:center;">
+                            <td class="d-flex flex-column flex-sm-row justify-content-center align-items-stretch align-items-sm-center gap-1">
                                 <a href="{{ route('hand-cash.edit', $cash->id) }}" class="btn btn-sm btn-dark">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -109,9 +109,9 @@
                         <input type="text" name="description" class="form-control" maxlength="255">
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-warning">Transfer</button>
+                <div class="modal-footer flex-column flex-sm-row">
+                    <button type="button" class="btn btn-secondary w-100 w-sm-auto" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning w-100 w-sm-auto">Transfer</button>
                 </div>
             </form>
         </div>

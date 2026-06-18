@@ -3,18 +3,18 @@
 @section('contents')
     <div class="container-fluid">
         @include('pages.payments.filter')
-        <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
+        <div class="card-header text-white rounded-top d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center shadow p-3">
             <h3 class="card-title">
                 Payments
                 @if ($payments->count() > 0)
                     <span class="badge badge-light">{{ $payments->count() }}</span>
                 @endif
             </h3>
-            <div class="ml-auto d-flex gap-2">
-                <a href="{{ route('students.export', request()->all()) }}" class="btn btn-success btn-sm mr-2">
+            <div class="ml-sm-auto d-flex flex-column flex-sm-row gap-2 w-100 w-sm-auto">
+                <a href="{{ route('students.export', request()->all()) }}" class="btn btn-success btn-sm w-100 w-sm-auto">
                     <i class="fas fa-file-excel"></i> Export
                 </a>
-                <a href="{{ route('students.create') }}" class="btn btn-primary btn-sm text-bold">
+                <a href="{{ route('students.create') }}" class="btn btn-primary btn-sm text-bold w-100 w-sm-auto">
                     <i class="fas fa-plus"></i> Add Student
                 </a>
             </div>
@@ -105,7 +105,7 @@
                                 </td>
                                 <td class="px-4 py-3 text-center">
                                     <a href="{{ route('payments.receipt', $payment->id) }}" target="_blank"
-                                        class="btn btn-sm fw-semibold rounded-3 d-inline-flex align-items-center gap-1"
+                                        class="btn btn-sm fw-semibold rounded-3 d-inline-flex align-items-center gap-1 w-100"
                                         style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:12px">
                                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                                             stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
