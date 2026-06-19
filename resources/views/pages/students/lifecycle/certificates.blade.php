@@ -38,8 +38,8 @@
                         class="form-control form-control-sm" placeholder="Enter name or student ID...">
                 </div>
                 <div>
-                    <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg w-full font-medium">
-                        <i class="fas fa-search mr-1"></i> Search
+                    <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg w-full font-medium" title="Search" aria-label="Search">
+                        <i class="fas fa-search"></i>
                     </button>
                 </div>
             </div>

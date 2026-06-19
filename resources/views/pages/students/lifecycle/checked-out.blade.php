@@ -18,10 +18,12 @@
                     placeholder="Name or CID">
             </div>
             <div class="mb-1">
-                <button type="submit" class="btn btn-sm btn-primary">
-                    <i class="fas fa-search mr-1"></i> Search
+                <button type="submit" class="btn btn-sm btn-primary" title="Search" aria-label="Search">
+                    <i class="fas fa-search"></i>
                 </button>
-                <a href="{{ route('students.checked-out') }}" class="btn btn-sm btn-secondary">Reset</a>
+                <a href="{{ route('students.checked-out') }}" class="btn btn-sm btn-secondary" title="Reset" aria-label="Reset">
+                    <i class="fas fa-undo-alt"></i>
+                </a>
             </div>
         </form>
     </div>

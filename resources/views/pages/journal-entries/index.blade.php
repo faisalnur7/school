@@ -30,7 +30,9 @@
                     <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Search ref / description...">
                 </div>
                 <div class="col-md-2">
-                    <button class="btn btn-secondary btn-sm w-100">Filter</button>
+                    <button class="btn btn-secondary btn-sm w-100" title="Filter" aria-label="Filter">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
             </form>
 

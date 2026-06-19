@@ -45,8 +45,12 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <button class="btn btn-secondary">Filter</button>
-                        <a href="{{ route('inventory.products.index') }}" class="btn btn-light">Reset</a>
+                        <button class="btn btn-secondary" title="Filter" aria-label="Filter">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <a href="{{ route('inventory.products.index') }}" class="btn btn-light" title="Reset" aria-label="Reset">
+                            <i class="fas fa-undo-alt"></i>
+                        </a>
                     </div>
                 </div>
             </form>
@@ -114,4 +118,3 @@
     </div>
 </div>
 @endsection
-

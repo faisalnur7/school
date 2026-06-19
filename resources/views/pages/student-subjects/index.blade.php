@@ -81,16 +81,16 @@
 
     {{-- Search Button --}}
     <div>
-        <button class="btn btn-sm btn-primary shadow-sm px-3">
-            Search
+        <button class="btn btn-sm btn-primary shadow-sm px-3" title="Search" aria-label="Search">
+            <i class="fas fa-search"></i>
         </button>
     </div>
 
     {{-- Reset Button --}}
     <div>
         <a href="{{ route('student-subjects.index') }}"
-            class="btn btn-sm btn-light border shadow-sm px-3">
-            Reset
+            class="btn btn-sm btn-light border shadow-sm px-3" title="Reset" aria-label="Reset">
+            <i class="fas fa-undo-alt"></i>
         </a>
     </div>
 

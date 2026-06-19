@@ -58,15 +58,15 @@
         </div>
         <div class="col-md-2">
             <div class="form-group">
-                <button type="submit" class="btn btn-primary btn-block">
-                    <i class="fas fa-search"></i> Filter
+                <button type="submit" class="btn btn-primary btn-block" title="Filter" aria-label="Filter">
+                    <i class="fas fa-search"></i>
                 </button>
             </div>
         </div>
         <div class="col-md-2">
             <div class="form-group">
-                <a href="{{ route('subjects.index') }}" class="btn btn-secondary btn-block">
-                    <i class="fas fa-reset"></i> Reset
+                <a href="{{ route('subjects.index') }}" class="btn btn-secondary btn-block" title="Reset" aria-label="Reset">
+                    <i class="fas fa-undo-alt"></i>
                 </a>
             </div>
         </div>

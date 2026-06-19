@@ -59,9 +59,13 @@
                         </select>
                     </div>
                     <div class="col-auto">
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-search me-1"></i> Search</button>
+                        <button type="submit" class="btn btn-primary" title="Search" aria-label="Search">
+                            <i class="fas fa-search"></i>
+                        </button>
                         @if($date || $fromDate || $toDate)
-                        <a href="{{ route('students.birthdays') }}" class="btn btn-outline-secondary ms-1">Clear</a>
+                        <a href="{{ route('students.birthdays') }}" class="btn btn-outline-secondary ms-1" title="Clear" aria-label="Clear">
+                            <i class="fas fa-undo-alt"></i>
+                        </a>
                         @endif
                     </div>
                 </div>

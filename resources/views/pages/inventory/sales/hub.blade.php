@@ -63,7 +63,9 @@
                     <input type="date" name="to" value="{{ request('to') }}" class="form-control rounded-3">
                 </div>
                 <div class="col-md-12 col-lg-1 d-grid">
-                    <button class="btn btn-dark rounded-3 fw-semibold">Filter</button>
+                    <button class="btn btn-dark rounded-3 fw-semibold" title="Filter" aria-label="Filter">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
             </form>
 

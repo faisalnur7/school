@@ -50,9 +50,8 @@
             </select>
 
             <div class="students-filter-actions">
-                <button class="students-more-filters filter_button" type="button">
+                <button class="students-more-filters filter_button" type="button" title="More Filters" aria-label="More Filters">
                     <i class="fas fa-sliders-h"></i>
-                    More Filters
                     <span class="students-filter-count" data-filter-count>0</span>
                 </button>
             </div>
@@ -99,13 +98,11 @@
                 <div class="students-filter-group">
                     <label for="students-export-reset">Actions</label>
                     <div class="students-filter-actions" id="students-export-reset">
-                        <button type="submit" class="btn btn-dark students-action-btn">
+                        <button type="submit" class="btn btn-dark students-action-btn" title="Apply Filters" aria-label="Apply Filters">
                             <i class="fas fa-search"></i>
-                            Apply Filters
                         </button>
-                        <a href="{{ route('students.index') }}" class="btn btn-outline-secondary students-action-btn">
+                        <a href="{{ route('students.index') }}" class="btn btn-outline-secondary students-action-btn" title="Reset" aria-label="Reset">
                             <i class="fas fa-undo-alt"></i>
-                            Reset
                         </a>
                     </div>
                 </div>

@@ -18,9 +18,13 @@
                         <input type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
                                class="form-control form-control-sm" value="{{ request('to', $to->format('d/m/Y')) }}" autocomplete="off">
                     </div>
-                    <button class="btn btn-sm btn-dark" style="margin-top:10px">Filter</button>
+                    <button class="btn btn-sm btn-dark" style="margin-top:10px" title="Filter" aria-label="Filter">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </form>
-                <a href="{{ route('reports.headwise-transactions.pdf', request()->query()) }}" class="btn btn-sm btn-danger" style="margin-top:10px"><i class="fas fa-file-pdf"></i> PDF</a>
+                <a href="{{ route('reports.headwise-transactions.pdf', request()->query()) }}" class="btn btn-sm btn-danger" style="margin-top:10px" title="PDF" aria-label="PDF">
+                    <i class="fas fa-file-pdf"></i>
+                </a>
             </div>
         </div>
         <div class="card-body p-0">

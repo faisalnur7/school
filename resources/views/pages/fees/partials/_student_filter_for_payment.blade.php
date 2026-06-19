@@ -69,8 +69,8 @@
 
                 {{-- Button --}}
                 <div class="col-md-2 mt-3 d-flex align-items-end">
-                    <button class="btn btn-primary w-100">
-                        Search
+                    <button class="btn btn-primary w-100" title="Search" aria-label="Search">
+                        <i class="fas fa-search"></i>
                     </button>
                 </div>
 

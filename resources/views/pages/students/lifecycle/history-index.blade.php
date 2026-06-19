@@ -18,8 +18,8 @@
                     <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Enter name or CID...">
                 </div>
                 <div>
-                    <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg w-full">
-                        <i class="fas fa-search mr-1"></i> Search
+                    <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg w-full" title="Search" aria-label="Search">
+                        <i class="fas fa-search"></i>
                     </button>
                 </div>
             </div>

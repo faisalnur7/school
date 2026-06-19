@@ -35,8 +35,12 @@
                            value="{{ request('to') }}" placeholder="dd/mm/yyyy" autocomplete="off">
                 </div>
                 <div class="col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-sm btn-dark">Filter</button>
-                    <a href="{{ route('incomes.index') }}" class="btn btn-sm btn-secondary">Reset</a>
+                    <button type="submit" class="btn btn-sm btn-dark" title="Filter" aria-label="Filter">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <a href="{{ route('incomes.index') }}" class="btn btn-sm btn-secondary" title="Reset" aria-label="Reset">
+                        <i class="fas fa-undo-alt"></i>
+                    </a>
                 </div>
             </div>
         </form>

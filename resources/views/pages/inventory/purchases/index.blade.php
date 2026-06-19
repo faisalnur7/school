@@ -21,8 +21,12 @@
                         <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Search by supplier or reference...">
                     </div>
                     <div class="col-md-6">
-                        <button class="btn btn-secondary">Search</button>
-                        <a href="{{ route('inventory.purchases.index') }}" class="btn btn-light">Reset</a>
+                        <button class="btn btn-secondary" title="Search" aria-label="Search">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <a href="{{ route('inventory.purchases.index') }}" class="btn btn-light" title="Reset" aria-label="Reset">
+                            <i class="fas fa-undo-alt"></i>
+                        </a>
                     </div>
                 </div>
             </form>
