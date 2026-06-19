@@ -260,6 +260,18 @@
                         @endif
                     </a>
                 </li>
+
+                <li class="nav-item-modern">
+                    <a href="{{ route('audit-trails.index') }}"
+                       class="nav-link-modern {{ request()->routeIs('audit-trails.*') ? 'active' : '' }}">
+                        <span class="nav-icon"><i class="fas fa-shield-alt"></i></span>
+                        <span class="nav-text">Audit Trail</span>
+
+                        @if(request()->routeIs('audit-trails.*'))
+                        <span class="nav-indicator"></span>
+                        @endif
+                    </a>
+                </li>
                 @endif
 
                 <!-- Location Settings -->

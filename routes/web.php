@@ -92,6 +92,7 @@ use App\Http\Controllers\{
     DistrictController,
     PoliceStationController,
     PostOfficeController,
+    AuditTrailController,
     ProfileController,
     AccountSettingsController,
     StudentDueReportController,
@@ -181,6 +182,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:view_shareholders')->get('/shareholders/hub', [ShareholdersHubController::class, 'index'])->name('shareholders.hub');
     Route::middleware('permission:view_budget')->get('/budget/hub', [BudgetHubController::class, 'index'])->name('budget.hub');
     Route::middleware('permission:view_users')->get('/users/hub', [UsersHubController::class, 'index'])->name('users.hub');
+    Route::middleware('permission:view_users')->get('/audit-trails', [AuditTrailController::class, 'index'])->name('audit-trails.index');
     Route::middleware('permission:view_inventory')->get('/inventory/hub', [InventoryController::class, 'hub'])->name('inventory.hub');
     Route::middleware('permission:view_inventory')->get('/inventory/sales/hub', [InventoryController::class, 'salesHub'])->name('inventory.sales.hub');
 

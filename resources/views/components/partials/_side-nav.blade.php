@@ -77,6 +77,17 @@
               </li>
             </ul>
           </li>
+
+          @if(auth()->user()?->hasPermission('view_users'))
+          <li class="nav-item">
+            <a href="{{ route('audit-trails.index') }}" class="nav-link {{ request()->routeIs('audit-trails.*') ? 'active' : '' }}">
+              <i class="nav-icon fas fa-shield-alt"></i>
+              <p>
+                Audit Trail
+              </p>
+            </a>
+          </li>
+          @endif
           
           
         </ul>

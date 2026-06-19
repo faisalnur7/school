@@ -75,6 +75,7 @@
         'budget.' => ['route' => 'budget.hub', 'label' => 'Budget'],
         'budget-allocations.' => ['route' => 'budget.hub', 'label' => 'Budget'],
         'users.' => ['route' => 'users.hub', 'label' => 'Users'],
+        'audit-trails.' => ['route' => 'users.hub', 'label' => 'Users'],
         'roles.' => ['route' => 'users.hub', 'label' => 'Users'],
         'permissions.' => ['route' => 'users.hub', 'label' => 'Users'],
         'permission-categories.' => ['route' => 'users.hub', 'label' => 'Users'],

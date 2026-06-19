@@ -14,7 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'permission' => \App\Http\Middleware\CheckPermission::class,
+            'audit.trail' => \App\Http\Middleware\RecordAuditTrail::class,
         ]);
+
+        $middleware->appendToGroup('web', \App\Http\Middleware\RecordAuditTrail::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
