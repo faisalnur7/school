@@ -10,6 +10,19 @@
   <title>{{$title}}</title>
   <link rel="icon" type="image/png" href="{{ $favicon }}">
   <link rel="shortcut icon" href="{{ $favicon }}">
+  <script>
+    (function() {
+      try {
+        var storedTheme = localStorage.getItem('school-theme');
+        var preferredTheme = storedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.dataset.theme = preferredTheme;
+        document.documentElement.classList.toggle('dark', preferredTheme === 'dark');
+        document.documentElement.style.colorScheme = preferredTheme;
+      } catch (error) {
+        document.documentElement.dataset.theme = 'light';
+      }
+    })();
+  </script>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -37,6 +50,7 @@
   <script src="{{asset('assets/plugins/jquery-ui/jquery-ui.min.js')}}"></script>
   <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
   {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
+  @vite(['resources/css/app.css'])
 
   @yield('styles')
 </head>

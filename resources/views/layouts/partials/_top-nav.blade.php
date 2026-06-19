@@ -11,6 +11,10 @@
     <ul class="navbar-nav ml-auto">
       <!-- Navbar Search -->
       
+      <li class="nav-item d-flex align-items-center mr-2">
+        @include('layouts.partials._theme-toggle')
+      </li>
+
       <!-- Notifications Dropdown Menu -->
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
@@ -38,11 +42,7 @@
           <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
         </div>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-          <i class="fas fa-expand-arrows-alt"></i>
-        </a>
-      </li>
+
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
           <img src="{{ auth()->user()->image_url }}" alt="User" class="img-circle" style="width:28px;height:28px;object-fit:cover;">

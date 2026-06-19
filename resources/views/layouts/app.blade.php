@@ -6,6 +6,19 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Laravel') }}</title>
+        <script>
+            (function() {
+                try {
+                    var storedTheme = localStorage.getItem('school-theme');
+                    var preferredTheme = storedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                    document.documentElement.dataset.theme = preferredTheme;
+                    document.documentElement.classList.toggle('dark', preferredTheme === 'dark');
+                    document.documentElement.style.colorScheme = preferredTheme;
+                } catch (error) {
+                    document.documentElement.dataset.theme = 'light';
+                }
+            })();
+        </script>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

@@ -6,6 +6,19 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Right BD') }}</title>
+        <script>
+            (function() {
+                try {
+                    var storedTheme = localStorage.getItem('school-theme');
+                    var preferredTheme = storedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                    document.documentElement.dataset.theme = preferredTheme;
+                    document.documentElement.classList.toggle('dark', preferredTheme === 'dark');
+                    document.documentElement.style.colorScheme = preferredTheme;
+                } catch (error) {
+                    document.documentElement.dataset.theme = 'light';
+                }
+            })();
+        </script>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -16,6 +29,9 @@
 
     </head>
     <body class="font-sans text-gray-900 antialiased bg-animation">
+        <div class="fixed top-4 right-4 z-50">
+            @include('layouts.partials._theme-toggle', ['buttonClass' => 'shadow-lg'])
+        </div>
         {{-- @include('layouts.partials._customer_guest_nav') --}}
         {{-- <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
             <div class="flex items-center justify-center">

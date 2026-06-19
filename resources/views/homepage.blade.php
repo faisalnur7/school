@@ -8,6 +8,21 @@
     <title>Right BD</title>
     <meta name="description" content="Free open source Tailwind CSS Store template">
     <meta name="keywords" content="tailwind,tailwindcss,tailwind css,css,starter template,free template,store template, shop layout, minimal, monochrome, minimalistic, theme, nordic">
+    <script>
+        (function() {
+            try {
+                var storedTheme = localStorage.getItem('school-theme');
+                var preferredTheme = storedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.dataset.theme = preferredTheme;
+                document.documentElement.classList.toggle('dark', preferredTheme === 'dark');
+                document.documentElement.style.colorScheme = preferredTheme;
+            } catch (error) {
+                document.documentElement.dataset.theme = 'light';
+            }
+        })();
+    </script>
+    @vite(['resources/css/app.css'])
+    @vite(['resources/js/app.js'])
     
     <link rel="stylesheet" href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css"/>
 	
@@ -103,6 +118,9 @@
 
 
             <div class="order-2 md:order-3 flex items-center" id="nav-content">
+                <div class="mr-3">
+                    @include('layouts.partials._theme-toggle')
+                </div>
 
                 <a class="inline-block no-underline hover:text-black" href="#">
                     <svg class="fill-current hover:text-black" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
