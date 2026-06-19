@@ -411,7 +411,27 @@ class StudentController extends Controller
             'academicInformations.group',
             'fees.feeSet',
             'payments',
+            'inventorySales.items.inventoryItem.category',
+            'inventorySales.payment',
+            'inventorySales.createdBy',
+            'fathersProfession',
+            'mothersProfession',
+            'guardianProfession',
+            'presentDivision',
+            'presentDistrict',
+            'presentPoliceStation',
+            'presentPostOffice',
+            'permanentDivision',
+            'permanentDistrict',
+            'permanentPoliceStation',
+            'permanentPostOffice',
         ])->findOrFail($id);
+
+        $currentAcademicInfo = $student->academicInformations
+            ->sortByDesc('id')
+            ->first();
+
+        $inventorySales = $student->inventorySales->sortByDesc('id')->values();
 
         $studentFees = $student->fees()->with(['feeSet', 'feeSet.items'])->latest()->get();
 
@@ -445,7 +465,7 @@ class StudentController extends Controller
 
         return view(
             'pages.students.show',
-            compact('student', 'regularFees', 'transportFeesFromBilling', 'totalDue', 'totalPaid', 'totalAmount', 'transports')
+            compact('student', 'currentAcademicInfo', 'inventorySales', 'regularFees', 'transportFeesFromBilling', 'totalDue', 'totalPaid', 'totalAmount', 'transports')
         );
     }
 

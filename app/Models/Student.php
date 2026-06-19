@@ -219,6 +219,11 @@ class Student extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function inventorySales()
+    {
+        return $this->hasMany(InventorySale::class);
+    }
+
     public function fees()
     {
         return $this->hasMany(\App\Models\Fee::class);

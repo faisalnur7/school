@@ -14,7 +14,7 @@
             @include('layouts.partials._header')
             <!-- Main content -->
             <section class="content">
-                <div class="container-fluid">
+                <div class="container-fluid m-1">
 
                     <!-- Main row -->
                     <div class="row">

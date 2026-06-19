@@ -82,11 +82,25 @@
 }
 
 .brand-text-modern {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     font-size: 1.4rem;
     font-weight: 700;
     color: #fff;
     letter-spacing: 0.02em;
     font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.brand-name-modern {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -259,6 +273,57 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* Collapsed sidebar state */
+body.sidebar-collapse .modern-sidebar {
+    width: 4.6rem !important;
+}
+
+body.sidebar-collapse .brand-link-modern {
+    justify-content: center;
+    padding: 20px 0;
+    gap: 0;
+}
+
+body.sidebar-collapse .brand-icon-wrapper {
+    width: 44px;
+    height: 44px;
+}
+
+body.sidebar-collapse .brand-image-modern {
+    width: 34px;
+    height: 34px;
+}
+
+body.sidebar-collapse .brand-copy-modern,
+body.sidebar-collapse .user-info,
+body.sidebar-collapse .nav-text,
+body.sidebar-collapse .nav-indicator {
+    display: none !important;
+}
+
+body.sidebar-collapse .user-panel-modern {
+    justify-content: center;
+    padding: 12px 0;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+body.sidebar-collapse .user-avatar {
+    width: 38px;
+    height: 38px;
+}
+
+body.sidebar-collapse .nav-link-modern {
+    justify-content: center;
+    gap: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body.sidebar-collapse .nav-icon {
+    margin: 0 auto;
 }
 
 /* Navigation Indicator (active dot) */
@@ -482,17 +547,141 @@
 }
 
 /* =====================================================
-   GLOBAL TABLE THEME
-   Match the app's Classes page across admin tables.
+   GLOBAL LISTING TABLE + FILTER THEME
+   Shared backend look for index pages, filters, and pagination.
    ===================================================== */
+
+.content-wrapper .card {
+    border: 1px solid #e7e5e4;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+}
+
+.content-wrapper .card .card-header {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border-bottom: 1px solid #eef2f7;
+    padding: 1rem 1.1rem !important;
+    box-shadow: none !important;
+}
+
+.content-wrapper .card .card-header .card-title,
+.content-wrapper .card .card-header h3,
+.content-wrapper .card .card-header h4,
+.content-wrapper .card .card-header h5,
+.content-wrapper .card .card-header h6,
+.content-wrapper .card .card-header p,
+.content-wrapper .card .card-header span:not(.badge) {
+    color: #111827 !important;
+}
+
+.content-wrapper .card .card-header .card-title {
+    display: block;
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: 1.2;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em;
+}
+
+.content-wrapper .card .card-header .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 40px;
+    border-radius: 12px;
+    font-weight: 600;
+    box-shadow: none;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.content-wrapper .card .card-header .btn-light,
+.content-wrapper .card .card-header .btn-primary {
+    background: #111827;
+    border-color: #111827;
+    color: #fff;
+}
+
+.content-wrapper .card .card-header .btn-light:hover,
+.content-wrapper .card .card-header .btn-primary:hover {
+    background: #1f2937;
+    border-color: #1f2937;
+    color: #fff;
+}
+
+.content-wrapper .card .card-header .btn-secondary {
+    background: #fff;
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+.content-wrapper .card .card-header .btn-secondary:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    color: #111827;
+}
+
+.content-wrapper .card .card-body {
+    background: #ffffff;
+    padding: 1rem;
+}
+
+.content-wrapper .card .card-body.px-0,
+.content-wrapper .card .card-body.pt-0,
+.content-wrapper .card .card-body.pb-0 {
+    padding: 1rem !important;
+}
+
+.content-wrapper .card .card-body > form[method="GET"] {
+    margin-bottom: 1rem;
+    padding: 0.9rem;
+    border: 1px solid #eef2f7;
+    border-radius: 16px;
+    background: #fcfcfd;
+}
+
+.content-wrapper .card .card-body > form[method="GET"] .row {
+    row-gap: 0.65rem;
+}
+
+.content-wrapper .card .card-body > form[method="GET"] .form-control,
+.content-wrapper .card .card-body > form[method="GET"] .custom-select,
+.content-wrapper .card .card-body > form[method="GET"] .select2-container--default .select2-selection--single {
+    min-height: 42px;
+    border-radius: 12px;
+    border-color: #e5e7eb;
+    background: #ffffff;
+}
+
+.content-wrapper .card .card-body > form[method="GET"] .form-control-sm,
+.content-wrapper .card .card-body > form[method="GET"] .btn-sm {
+    font-size: 0.88rem;
+}
+
+.content-wrapper .card .card-body > form[method="GET"] .btn {
+    min-height: 42px;
+    border-radius: 12px;
+    padding-inline: 1rem;
+}
 
 .content-wrapper .table-responsive {
     background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 0 0 12px 12px;
+    border: 1px solid #e7e5e4;
+    border-radius: 16px;
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
+}
+
+.content-wrapper .card .card-body > .table-responsive {
+    margin: 0.5rem 0 0.75rem;
+}
+
+.content-wrapper .card .card-body > .table-responsive:last-child {
+    margin-bottom: 0;
 }
 
 .content-wrapper .table-responsive > .table {
@@ -504,39 +693,62 @@
     color: #334155;
     font-size: 13px;
     background: #fff;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .content-wrapper table.table > :not(caption) > * > * {
-    padding: 0.75rem 0.85rem;
+    padding: 0.95rem 1rem;
     vertical-align: middle;
-    border-color: #e5eaf1;
+    border-color: #eef2f7;
 }
 
 .content-wrapper table.table thead th {
-    background: #f8fafc;
-    color: #0f172a;
+    background: #ffffff;
+    color: #374151;
+    font-size: 0.82rem;
     font-weight: 700;
-    border-bottom: 1px solid #d8e0ea;
+    border-top: 0;
+    border-bottom: 1px solid #eef2f7;
     white-space: nowrap;
 }
 
+.content-wrapper table.table thead.thead-dark th,
+.content-wrapper table.table .thead-dark th {
+    background: #ffffff !important;
+    color: #374151 !important;
+    border-color: #eef2f7 !important;
+}
+
+.content-wrapper table.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
 .content-wrapper table.table tbody tr:hover {
-    background: #f8fbff;
+    background: #fcfcfd;
 }
 
 .content-wrapper table.table td code {
     background: #f1f5f9;
-    border-radius: 5px;
+    border-radius: 999px;
     color: #0f172a;
-    padding: 2px 7px;
+    padding: 0.18rem 0.55rem;
 }
 
 .content-wrapper table.table .btn {
-    border-radius: 0.35rem;
+    border-radius: 10px;
+}
+
+.content-wrapper table.table .btn-xs,
+.content-wrapper table.table .btn-sm {
+    min-height: 34px;
+    min-width: 34px;
 }
 
 .content-wrapper table.table .badge {
-    font-weight: 600;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 0.38rem 0.6rem;
 }
 
 .content-wrapper table.table tbody td {
@@ -550,9 +762,66 @@
     gap: 0.35rem;
 }
 
+.content-wrapper .table-responsive + .d-flex.justify-content-center,
+.content-wrapper .table-responsive + .px-3,
+.content-wrapper .card-body > .d-flex.justify-content-center.mt-3,
+.content-wrapper .card-body > .d-flex.justify-content-center,
+.content-wrapper .card-body > nav,
+.content-wrapper .card-body > .pagination-wrapper {
+    padding-top: 1rem;
+}
+
+.content-wrapper .pagination {
+    gap: 0.35rem;
+    flex-wrap: wrap;
+}
+
+.content-wrapper .page-item .page-link {
+    min-width: 38px;
+    border-radius: 10px !important;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    box-shadow: none;
+}
+
+.content-wrapper .page-item.active .page-link {
+    background: #111827;
+    border-color: #111827;
+    color: #fff;
+}
+
+.content-wrapper .page-item.disabled .page-link {
+    background: #f8fafc;
+    color: #94a3b8;
+    border-color: #e5e7eb;
+}
+
 @media (max-width: 767.98px) {
+    .content-wrapper .card {
+        border-radius: 16px;
+    }
+
+    .content-wrapper .card .card-header {
+        padding: 0.9rem !important;
+    }
+
+    .content-wrapper .card .card-body > form[method="GET"] {
+        padding: 0.8rem;
+        border-radius: 14px;
+    }
+
+    .content-wrapper .card .card-body {
+        padding: 0.85rem;
+    }
+
+    .content-wrapper .card .card-body.px-0,
+    .content-wrapper .card .card-body.pt-0,
+    .content-wrapper .card .card-body.pb-0 {
+        padding: 0.85rem !important;
+    }
+
     .content-wrapper .table-responsive {
-        border-radius: 0 0 10px 10px;
+        border-radius: 14px;
     }
 
     .content-wrapper table.table {
@@ -560,12 +829,12 @@
     }
 
     .content-wrapper table.table > :not(caption) > * > * {
-        padding: 0.65rem 0.7rem;
+        padding: 0.8rem 0.75rem;
     }
 
     .content-wrapper table.table thead th {
         white-space: normal;
-        min-width: 110px;
+        min-width: 120px;
     }
 
     .content-wrapper table.table td,

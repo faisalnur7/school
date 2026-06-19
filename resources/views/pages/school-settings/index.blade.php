@@ -47,6 +47,16 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
+                                <div class="col-md-6 form-group">
+                                    <label class="font-weight-bold">School Short Name</label>
+                                    <input type="text" name="short_name"
+                                        class="form-control @error('short_name') is-invalid @enderror"
+                                        value="{{ old('short_name', $setting->short_name) }}"
+                                        placeholder="e.g. GCSC">
+                                    @error('short_name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                                 <div class="col-md-12 form-group">
                                     <label class="font-weight-bold">Address <span class="text-danger">*</span></label>
                                     <textarea name="address" rows="2" class="form-control @error('address') is-invalid @enderror" required>{{ old('address', $setting->address) }}</textarea>

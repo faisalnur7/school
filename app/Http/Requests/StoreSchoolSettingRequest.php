@@ -12,6 +12,7 @@ class StoreSchoolSettingRequest extends FormRequest
     {
         return [
             'name'             => 'required|string|max:255',
+            'short_name'       => 'nullable|string|max:100',
             'address'          => 'required|string',
             'eiin'             => 'nullable|string|max:50',
             'from_class'       => 'nullable|exists:school_classes,id',

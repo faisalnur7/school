@@ -1,7 +1,124 @@
 @extends('layouts.master')
 
+@section('styles')
+    <style>
+        .fee-collect-page {
+            color: #334155;
+        }
+
+        .fee-collect-page .card {
+            border: 1px solid #e7e5e4;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+            overflow: hidden;
+        }
+
+        .fee-collect-page .card .card-header {
+            background: #fff !important;
+            border-bottom: 1px solid #eef2f7 !important;
+            padding: 1rem 1.25rem !important;
+        }
+
+        .fee-collect-page .card .card-header .fw-bold,
+        .fee-collect-page .card .card-header .text-white,
+        .fee-collect-page .card .card-header strong,
+        .fee-collect-page .card .card-header span:not(.badge),
+        .fee-collect-page .card .card-header div {
+            color: #334155 !important;
+        }
+
+        .fee-collect-page .card .card-body {
+            padding: 1rem !important;
+            background: #fff;
+        }
+
+        .fee-collect-page .card form .card-footer,
+        .fee-collect-page #feeForm .card-footer {
+            display: block !important;
+            padding: 1.25rem !important;
+            background: #fff !important;
+            border-top: 1px solid #eef2f7 !important;
+        }
+
+        .fee-collect-page .card form .card-footer .btn,
+        .fee-collect-page #feeForm .card-footer .btn {
+            min-width: 0 !important;
+        }
+
+        .fee-collect-page .panel-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.76rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #64748b !important;
+        }
+
+        .fee-collect-page .collect-btn {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            text-align: center;
+        }
+
+        .fee-collect-page .discount-row {
+            margin-bottom: 1rem;
+        }
+
+        .fee-collect-page .discount-type-btn {
+            min-width: 44px;
+        }
+
+        .fee-collect-page .cat-item,
+        .fee-collect-page .inv-cat-item,
+        .fee-collect-page .inv-due-card,
+        .fee-collect-page .fee-card,
+        .fee-collect-page .inv-item-card,
+        .fee-collect-page .cart-row {
+            border-radius: 14px !important;
+        }
+
+        .fee-collect-page .scroll-area {
+            padding-right: 0.15rem;
+        }
+
+        .fee-collect-page .table-responsive {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border: 0;
+            border-radius: 0;
+            margin: 0;
+        }
+
+        .fee-collect-page .table-responsive > .table {
+            min-width: 1050px;
+        }
+
+        .fee-collect-page .table th,
+        .fee-collect-page .table td {
+            white-space: nowrap;
+        }
+
+        @media (max-width: 991.98px) {
+            .fee-collect-page .student-header-card .card-inner {
+                padding: 1rem 1rem 1rem 1.25rem;
+                gap: 1rem;
+            }
+
+            .fee-collect-page .meta-chips {
+                width: 100%;
+            }
+        }
+    </style>
+@endsection
+
 @section('contents')
-    <div class="container-fluid py-4 px-4">
+    <div class="container-fluid py-4 px-4 fee-collect-page">
 
         {{-- ── Student Banner ── --}}
         <div class="student-header-card mb-4">
@@ -93,7 +210,7 @@
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="fs-5">🗂️</span>
-                                    <span class="fw-bold" style="font-size:12px;letter-spacing:.06em;color:#fff;">FEE CATEGORIES</span>
+                                    <span class="panel-eyebrow">Fee Categories</span>
                                 </div>
                             </div>
                             <div class="card-body p-3">
@@ -121,7 +238,7 @@
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="fs-5">📦</span>
-                                    <span class="fw-bold" style="font-size:12px;letter-spacing:.06em;color:#fff;">INVENTORY</span>
+                                    <span class="panel-eyebrow">Inventory</span>
                                 </div>
                             </div>
                             <div class="card-body p-3">
@@ -153,7 +270,7 @@
                                     style="border-color:#f1f5f9!important">
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="fs-5">⏳</span>
-                                        <span class="fw-bold" style="font-size:12px;letter-spacing:.06em;color:#fff;">INVENTORY DUES</span>
+                                        <span class="panel-eyebrow">Inventory Dues</span>
                                     </div>
                                 </div>
                                 <div class="card-body p-3">
@@ -205,8 +322,7 @@
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="fs-5" id="middlePanelIcon">📋</span>
-                                    <span class="fw-bold" id="middlePanelTitle"
-                                        style="font-size:12px;letter-spacing:.06em;color:#fff;">PENDING FEES</span>
+                                    <span class="panel-eyebrow" id="middlePanelTitle">Pending Fees</span>
                                 </div>
                             </div>
                             <div class="card-body p-3">
@@ -337,8 +453,7 @@
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="fs-5">🧾</span>
-                                    <span class="fw-bold text-white" style="font-size:12px;letter-spacing:.06em">SELECTED
-                                        ITEMS</span>
+                                    <span class="panel-eyebrow">Selected Items</span>
                                     <span id="cartBadge" class="mono ms-auto badge rounded-pill"
                                         style="font-size:11px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
                                         0 items
@@ -433,19 +548,18 @@
                     <div class="card-header bg-white border-bottom py-3 px-4" style="border-color:#f1f5f9!important">
                         <div class="d-flex align-items-center gap-2">
                             <span class="fs-5">📑</span>
-                            <span class="fw-bold text-white" style="font-size:12px;letter-spacing:.06em">PAYMENT
-                                HISTORY</span>
-                            <span class="ms-auto text-white" style="font-size:12px">
+                            <span class="panel-eyebrow">Payment History</span>
+                            <span class="ms-auto" style="font-size:12px;color:#64748b">
                                 Total Paid:
-                                <strong class="text-white">
+                                <strong style="color:#111827">
                                     BDT {{ number_format($payments->sum('amount'), 2) }}
                                 </strong>
                                 &nbsp;|&nbsp; Scholarship:
-                                <strong class="text-white">
+                                <strong style="color:#111827">
                                     BDT {{ number_format($payments->sum('scholarship_amount'), 2) }}
                                 </strong>
                                 &nbsp;|&nbsp; Discount:
-                                <strong class="text-white">
+                                <strong style="color:#111827">
                                     BDT {{ number_format($payments->sum('discount_amount'), 2) }}
                                 </strong>
                             </span>

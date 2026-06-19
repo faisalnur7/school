@@ -4,12 +4,21 @@
     @php
         $sidebarSetting = \App\Models\SchoolSetting::current();
         $sidebarLogo = !empty($sidebarSetting->logo) ? asset($sidebarSetting->logo) : asset('assets/dist/img/AdminLTELogo.png');
+        $sidebarInstituteName = $sidebarSetting->short_name;
+        if (empty($sidebarInstituteName)) {
+            $sidebarInstituteName = 'GCSC';
+        }
+        if (empty($sidebarInstituteName)) {
+            $sidebarInstituteName = config('app.name', 'Institute');
+        }
     @endphp
     <a href="{{ route('dashboard') }}" class="brand-link-modern">
         <div class="brand-icon-wrapper">
             <img src="{{ $sidebarLogo }}" alt="Logo" class="brand-image-modern">
         </div>
-        <span class="brand-text-modern">GCSC</span>
+        <div class="brand-text-modern brand-copy-modern">
+            <span class="brand-name-modern">{{ $sidebarInstituteName }}</span>
+        </div>
     </a>
 
     <!-- Sidebar -->
