@@ -165,31 +165,79 @@
 
         .students-directory .students-pdf-panel {
             margin-top: 0.35rem;
-            border: 1px solid #eef2f7;
-            border-radius: 14px;
-            padding: 0.9rem 1rem;
-            background: #fcfcfd;
+            border: 1px solid #dbe4f0;
+            border-radius: 12px;
+            padding: 1rem 1rem 1.1rem;
+            background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
         }
 
         .students-directory .students-pdf-header {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .students-directory .students-pdf-copy {
+            min-width: 0;
         }
 
         .students-directory .students-pdf-title {
             margin: 0;
-            font-size: 0.9rem;
+            font-size: 0.98rem;
             font-weight: 700;
             color: #111827;
         }
 
+        .students-directory .students-pdf-subtitle {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.83rem;
+            line-height: 1.45;
+        }
+
+        .students-directory .students-pdf-toggle {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding-top: 0.1rem;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .students-directory .students-pdf-toggle .form-check-input {
+            margin-top: 0;
+        }
+
         .students-directory .students-pdf-checks {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.95rem 1rem;
+        }
+
+        .students-directory .students-pdf-option {
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.65rem 1rem;
+            align-items: center;
+            margin: 0;
+            min-width: 0;
+        }
+
+        .students-directory .students-pdf-option .form-check-input {
+            flex: 0 0 auto;
+            margin-top: 0.1rem;
+            margin-left: 0;
+        }
+
+        .students-directory .students-pdf-option .form-check-label {
+            margin-bottom: 0;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #1f2937;
         }
 
         .students-directory .students-table-shell {
@@ -572,6 +620,10 @@
             .students-directory .students-advanced-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
+
+            .students-directory .students-pdf-checks {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
 
         @media (max-width: 767.98px) {
@@ -589,6 +641,10 @@
 
             .students-directory .students-filter-row,
             .students-directory .students-advanced-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .students-directory .students-pdf-checks {
                 grid-template-columns: 1fr;
             }
 

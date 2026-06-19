@@ -82,6 +82,16 @@ class StudentReceivableReportController extends Controller
             ->where('is_active', 1)
             ->whereBetween('due_date', [$fromDate->toDateString(), $toDate->toDateString()]);
 
+        if ($request->filled('student_id')) {
+            $studentId = trim((string) $request->student_id);
+            $feesQuery->whereHas('student', function ($q) use ($studentId) {
+                $q->where('student_cid', $studentId);
+                if (is_numeric($studentId)) {
+                    $q->orWhere('id', $studentId);
+                }
+            });
+        }
+
         if ($request->filled('session_id')) {
             $feesQuery->whereHas('feeSet', fn($q) => $q->where('academic_session_id', $request->session_id));
         }

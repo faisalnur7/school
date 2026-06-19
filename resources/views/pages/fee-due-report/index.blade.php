@@ -13,8 +13,8 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label class="font-weight-bold">Academic Year <span class="text-danger">*</span></label>
-                            <select name="session_id" class="form-control form-control-sm" required onchange="this.form.submit()">
+                            <label class="font-weight-bold">Academic Year</label>
+                            <select name="session_id" class="form-control form-control-sm" onchange="this.form.submit()">
                                 <option value="">— Select Year —</option>
                                 @foreach($sessions as $s)
                                     <option value="{{ $s->id }}" {{ request('session_id') == $s->id ? 'selected' : '' }}>{{ $s->name_en }}</option>
@@ -33,13 +33,28 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-6 d-flex align-items-center">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="font-weight-bold">From Date</label>
+                            <input type="date" name="from_date" value="{{ request('from_date') }}" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="font-weight-bold">To Date</label>
+                            <input type="date" name="to_date" value="{{ request('to_date') }}" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <small class="text-muted">If a date range is selected, academic year and month are ignored.</small>
+                    </div>
+                    <div class="col-md-12 d-flex align-items-center mt-2">
                         <div class="form-group mb-0">
-                            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i> Generate</button>
-                            <a href="{{ route('fees.due-report') }}" class="btn btn-secondary btn-sm ml-1"><i class="fas fa-times"></i> Reset</a>
-                            @if(request('session_id') && $classSections->isNotEmpty())
-                                <button type="button" class="btn btn-success btn-sm ml-1" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
-                                <a href="{{ route('fees.due-report.pdf', request()->query()) }}" class="btn btn-danger btn-sm ml-1"><i class="fas fa-file-pdf"></i> Export PDF</a>
+                            <button type="submit" class="btn btn-primary btn-sm" title="Generate"><i class="fas fa-search"></i></button>
+                            <a href="{{ route('fees.due-report') }}" class="btn btn-secondary btn-sm ml-1" title="Reset"><i class="fas fa-times"></i></a>
+                            @if((request('session_id') || (request('from_date') && request('to_date'))) && $classSections->isNotEmpty())
+                                <button type="button" class="btn btn-success btn-sm ml-1" onclick="window.print()" title="Print"><i class="fas fa-print"></i></button>
+                                <a href="{{ route('fees.due-report.pdf', request()->query()) }}" class="btn btn-danger btn-sm ml-1" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
                             @endif
                         </div>
                     </div>
@@ -48,10 +63,10 @@
 
             <hr>
 
-            @if(!request('session_id'))
+            @if(!request('session_id') && !(request('from_date') && request('to_date')))
                 <div class="text-center py-5 text-muted">
                     <i class="fas fa-filter fa-2x mb-2"></i>
-                    <p class="mb-0">Select an Academic Year to generate the report.</p>
+                    <p class="mb-0">Select an Academic Year or a date range to generate the report.</p>
                 </div>
             @elseif($classSections->isEmpty())
                 <div class="text-center py-5 text-muted">

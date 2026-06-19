@@ -36,58 +36,53 @@
     $totalGrandTotal = $rows->sum(fn($g) => $g->students->sum('grand_total'));
 @endphp
 
-<div class="grand-total-box">
-    <strong>Grand Total of All Classes:</strong><br>
-    <span class="amount">{{ number_format($totalGrandTotal, 2) }}</span>
-</div>
+@if($categories->isEmpty())
+    <p style="text-align:center; font-size:12px; margin-top:20px;">No columns selected.</p>
+@else
+    <div class="grand-total-box">
+        <strong>Grand Total of All Classes:</strong><br>
+        <span class="amount">{{ number_format($totalGrandTotal, 2) }}</span>
+    </div>
 
-@foreach($rows as $group)
-    <h4>Class: {{ $group->class_name }} | Section: {{ $group->section_name }}</h4>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Student ID</th>
-                <th>Name</th>
-                @foreach($feeCategories as $category)
-                    <th class="text-right">{{ $category->name }}</th>
-                @endforeach
-                @foreach($invCategories as $category)
-                    <th class="text-right">{{ $category->name }}</th>
-                @endforeach
-                <th class="text-right">Grand Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($group->students as $index => $row)
+    @foreach($rows as $group)
+        <h4>Class: {{ $group->class_name }} | Section: {{ $group->section_name }}</h4>
+
+        <table>
+            <thead>
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $row->student_cid }}</td>
-                    <td>{{ $row->student_name }}</td>
-                    @foreach($feeCategories as $category)
-                        <td class="text-right">{{ number_format($row->{'fee_' . $category->id}, 2) }}</td>
+                    <th>#</th>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    @foreach($categories as $category)
+                        <th class="text-right">{{ $category->name }}</th>
                     @endforeach
-                    @foreach($invCategories as $category)
-                        <td class="text-right">{{ number_format($row->{'inv_' . $category->id}, 2) }}</td>
-                    @endforeach
-                    <td class="text-right">{{ number_format($row->grand_total, 2) }}</td>
+                    <th class="text-right">Grand Total</th>
                 </tr>
-            @endforeach
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="3">Subtotal</td>
-                @foreach($feeCategories as $category)
-                    <td class="text-right">{{ number_format($group->students->sum(fn($r) => $r->{'fee_' . $category->id}), 2) }}</td>
+            </thead>
+            <tbody>
+                @foreach($group->students as $index => $row)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $row->student_cid }}</td>
+                        <td>{{ $row->student_name }}</td>
+                        @foreach($categories as $category)
+                            <td class="text-right">{{ number_format($row->{$category->column_key}, 2) }}</td>
+                        @endforeach
+                        <td class="text-right">{{ number_format($row->grand_total, 2) }}</td>
+                    </tr>
                 @endforeach
-                @foreach($invCategories as $category)
-                    <td class="text-right">{{ number_format($group->students->sum(fn($r) => $r->{'inv_' . $category->id}), 2) }}</td>
-                @endforeach
-                <td class="text-right">{{ number_format($group->students->sum('grand_total'), 2) }}</td>
-            </tr>
-        </tfoot>
-    </table>
-@endforeach
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3">Subtotal</td>
+                    @foreach($categories as $category)
+                        <td class="text-right">{{ number_format($group->students->sum(fn($r) => $r->{$category->column_key}), 2) }}</td>
+                    @endforeach
+                    <td class="text-right">{{ number_format($group->students->sum('grand_total'), 2) }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    @endforeach
+@endif
 </body>
 </html>

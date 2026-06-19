@@ -159,7 +159,8 @@
             $('.datepicker').datepicker({
                 format: 'dd/mm/yyyy',
                 autoclose: true,
-                todayHighlight: true
+                todayHighlight: true,
+                orientation: 'bottom'
             });
 
             // Select2 init
@@ -260,7 +261,8 @@
             $(visible).datepicker({
                 format: 'dd/mm/yyyy',
                 autoclose: true,
-                todayHighlight: true
+                todayHighlight: true,
+                orientation: 'bottom'
             }).on('changeDate', function(e) {
                 hidden.value = moment(e.date).format('YYYY-MM-DD');
             });

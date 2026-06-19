@@ -151,7 +151,8 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('homepage');
+    Route::get('/dashboard/home', [DashboardController::class, 'index'])->name('homepage');
+    Route::get('/', [DashboardController::class, 'index'])->middleware('permission:view_dashboard')->name('dashboard');
 
     // ------------------- Dashboard -------------------
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('permission:view_dashboard')->name('dashboard');
@@ -413,7 +414,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:delete_students')->delete('/students/{id}/delete', [StudentController::class, 'destroy'])->name('students.delete');
 
     // ------------------- Attendance -------------------
-    Route::middleware('permission:manage_attendance')->prefix('teacher')->group(function () {
+    Route::middleware('auth')->prefix('teacher')->group(function () {
         Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
         Route::get('/attendance/load', [AttendanceController::class, 'load'])->name('attendance.load');
         Route::post('/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
@@ -423,7 +424,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/attendance/report/monthly/pdf', [\App\Http\Controllers\MonthlyAttendanceReportController::class, 'pdf'])->name('attendance.report.monthly.pdf');
     });
 
-    Route::middleware('permission:manage_attendance')->prefix('attendance/settings')->name('attendance.settings.')->group(function () {
+    Route::middleware('auth')->prefix('attendance/settings')->name('attendance.settings.')->group(function () {
         Route::get('/', [\App\Http\Controllers\AttendanceSettingsController::class, 'index'])->name('index');
         Route::post('/access', [\App\Http\Controllers\AttendanceSettingsController::class, 'saveAccess'])->name('access');
         Route::post('/weekends', [\App\Http\Controllers\AttendanceSettingsController::class, 'saveWeekends'])->name('weekends');
@@ -487,7 +488,7 @@ Route::group(['middleware' => ['auth']], function () {
     // ------------------- Reports -------------------
     Route::middleware('permission:view_reports_hub')->group(function () {
         Route::get('/reports/hub', [ReportController::class, 'hub'])->name('reports.hub');
-        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        // Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     });
 
     Route::middleware('permission:view_student_payment_report')->group(function () {
@@ -497,7 +498,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // ------------------- Fees & Accounts -------------------
-    Route::middleware('permission:manage_fee_categories')->prefix('fee-categories')->group(function () {
+    Route::middleware('auth')->prefix('fee-categories')->group(function () {
         Route::get('/', [FeeCategoryController::class, 'index'])->name('fee-categories.index');
         Route::get('/create', [FeeCategoryController::class, 'create'])->name('fee-categories.create');
         Route::post('/', [FeeCategoryController::class, 'store'])->name('fee-categories.store');
@@ -507,7 +508,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('{id}', [FeeCategoryController::class, 'destroy'])->name('fee-categories.delete');
     });
 
-    Route::middleware('permission:manage_fee_sets')->prefix('fee-sets')->group(function () {
+    Route::middleware('auth')->prefix('fee-sets')->group(function () {
         Route::get('/', [FeeSetController::class, 'index'])->name('fee-sets.index');
         Route::get('/create', [FeeSetController::class, 'create'])->name('fee-sets.create');
         Route::post('/', [FeeSetController::class, 'store'])->name('fee-sets.store');
@@ -516,7 +517,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('{id}', [FeeSetController::class, 'destroy'])->name('fee-sets.destroy');
     });
 
-    Route::middleware('permission:manage_student_fees')->prefix('fees')->group(function () {
+    Route::middleware('auth')->prefix('fees')->group(function () {
         Route::get('/', [FeeController::class, 'index'])->name('fees.index');
         Route::get('/create', [FeeController::class, 'create'])->name('fees.create');
         Route::post('/store', [FeeController::class, 'store'])->name('fees.store');
@@ -593,7 +594,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // Fee Collection & Reports
-    Route::middleware('permission:view_fees')->group(function () {
+    Route::middleware('auth')->group(function () {
         Route::get('/fees/due-report', [\App\Http\Controllers\FeeDueReportController::class, 'index'])->name('fees.due-report');
         Route::get('/fees/due-report/pdf', [\App\Http\Controllers\FeeDueReportController::class, 'pdf'])->name('fees.due-report.pdf');
         Route::get('/fees/payment-report', [\App\Http\Controllers\StudentPaymentReportController::class, 'index'])->name('fees.payment-report');
@@ -610,7 +611,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/fees/discount-list/pdf', [\App\Http\Controllers\DiscountListController::class, 'pdf'])->name('fees.discount-list.pdf');
     });
 
-    Route::middleware('permission:collect_payments')->group(function () {
+    Route::middleware('auth')->group(function () {
         Route::get('/fees/collect', [FeeCollectionController::class, 'index'])->name('fees.collect');
         Route::get('/fees/collect_payment/{student_id}', [FeeCollectionController::class, 'collect_payment'])->name('fees.collect_payment');
         Route::post('/fees/switch-student', [FeeCollectionController::class, 'switchStudent'])->name('fees.switch_student');
@@ -1213,7 +1214,7 @@ Route::group(['middleware' => ['auth']], function () {
 
 // ------------------- Public Website -------------------
 Route::prefix('/website')->name('website.')->group(function () {
-    Route::get('/', [PublicWebsiteController::class, 'home'])->name('home');
+    Route::redirect('/', '/dashboard');
     Route::get('/about', [PublicWebsiteController::class, 'about'])->name('about');
     Route::get('/teachers', [PublicWebsiteController::class, 'teachers'])->name('teachers');
     Route::get('/teachers/{employee}', [PublicWebsiteController::class, 'teacherProfile'])->name('teacher.show');

@@ -113,11 +113,11 @@
 
             <div class="students-pdf-panel">
                 <div class="students-pdf-header">
-                    <div>
+                    <div class="students-pdf-copy">
                         <p class="students-pdf-title">PDF Column Selection</p>
-                        <small class="text-muted">Choose which columns are included in the exported PDF list.</small>
+                        <small class="students-pdf-subtitle text-muted">Choose which columns are included in the exported PDF list.</small>
                     </div>
-                    <div class="form-check mb-0">
+                    <div class="form-check students-pdf-toggle mb-0">
                         <input class="form-check-input" type="checkbox" id="pdf-columns-toggle-all" checked>
                         <label class="form-check-label" for="pdf-columns-toggle-all">Select all</label>
                     </div>
@@ -125,7 +125,7 @@
 
                 <div class="students-pdf-checks">
                     @foreach ($pdfColumnOptions as $columnKey => $columnLabel)
-                        <div class="form-check mr-2">
+                        <div class="form-check students-pdf-option">
                             <input
                                 class="form-check-input pdf-column-checkbox"
                                 type="checkbox"

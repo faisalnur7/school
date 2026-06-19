@@ -48,6 +48,15 @@ class StudentDueSummaryService
                   ->when($request->filled('class_id'), fn($q) => $q->where('school_class_id', $request->class_id))
                   ->when($request->filled('section_id'), fn($q) => $q->where('section_id', $request->section_id))
             )
+            ->when($request->filled('student_id'), function ($q) use ($request) {
+                $studentId = trim((string) $request->student_id);
+                $q->where(function ($studentQuery) use ($studentId) {
+                    $studentQuery->where('student_cid', $studentId);
+                    if (is_numeric($studentId)) {
+                        $studentQuery->orWhere('id', $studentId);
+                    }
+                });
+            })
             ->get();
 
         foreach ($students as $student) {

@@ -24,7 +24,7 @@
                 </a>
             </div>
             <div class="col-6 col-lg-3">
-                <a href="{{ route('reports.index') }}" class="quick-action-card reports">
+                <a href="{{ route('accounts.hub') }}" class="quick-action-card reports">
                     <div class="action-icon"><i class="fas fa-chart-bar"></i></div>
                     <span class="action-text">View Reports</span>
                 </a>

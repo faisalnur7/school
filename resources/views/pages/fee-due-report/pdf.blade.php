@@ -25,8 +25,12 @@
 <body>
 <h2>Fee Due Report — Class &amp; Section Wise</h2>
 <p class="sub">
-    Academic Year: {{ $session?->name_en ?? '—' }}
-    @if($month) &nbsp;|&nbsp; Month: {{ $month }} @endif
+    @if(request('from_date') && request('to_date'))
+        Date Range: {{ \Carbon\Carbon::parse(request('from_date'))->format('d M Y') }} to {{ \Carbon\Carbon::parse(request('to_date'))->format('d M Y') }}
+    @else
+        Academic Year: {{ $session?->name_en ?? '—' }}
+        @if($month) &nbsp;|&nbsp; Month: {{ $month }} @endif
+    @endif
     &nbsp;|&nbsp; Generated: {{ now()->format('d M Y, h:i A') }}
 </p>
 

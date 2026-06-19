@@ -17,18 +17,24 @@ class StudentPaymentReportController extends Controller
 {
     public function index(Request $request)
     {
-        [$sessions, $feeCategories, $invCategories, $rows, $mode, $dateLabel] = $this->buildData($request);
+        $sessions = AcademicSession::orderByDesc('id')->get();
+        $classes = SchoolClass::orderBy('id')->get();
+        $sections = $request->filled('class_id')
+            ? Section::where('school_class_id', $request->class_id)->orderBy('name_en')->get()
+            : collect();
+
+        [$categories, $availableCategories, $rows, $dateLabel, $fromDate, $toDate, $selectedCategoryKeys] = $this->buildData($request);
 
         return view('pages.student-payment-report.index',
-            compact('sessions', 'feeCategories', 'invCategories', 'rows', 'mode', 'dateLabel'));
+            compact('sessions', 'classes', 'sections', 'categories', 'availableCategories', 'rows', 'dateLabel', 'fromDate', 'toDate', 'selectedCategoryKeys'));
     }
 
     public function pdf(Request $request)
     {
-        [, $feeCategories, $invCategories, $rows, $mode, $dateLabel] = $this->buildData($request);
+        [$categories, , $rows, $dateLabel] = $this->buildData($request);
 
         $html = view('pages.student-payment-report.pdf',
-            compact('feeCategories', 'invCategories', 'rows', 'mode', 'dateLabel'))->render();
+            compact('categories', 'rows', 'dateLabel'))->render();
 
         $mpdf = new Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'margin_top' => 10, 'margin_bottom' => 10]);
         $mpdf->WriteHTML($html);
@@ -93,6 +99,7 @@ class StudentPaymentReportController extends Controller
             return [$sessions, $classes, $sections, $rows, $months, $totals, $fromDate->toDateString(), $toDate->toDateString()];
         }
 
+        $studentIdFilter = trim((string) $request->input('student_id', ''));
         $studentMap = [];
 
         $payments = Payment::with([
@@ -100,6 +107,14 @@ class StudentPaymentReportController extends Controller
                 'student.academicInformations.section',
                 'items.fee.feeSet.items.category',
             ])
+            ->when($studentIdFilter !== '', function ($q) use ($studentIdFilter) {
+                $q->whereHas('student', function ($studentQuery) use ($studentIdFilter) {
+                    $studentQuery->where('student_cid', $studentIdFilter);
+                    if (is_numeric($studentIdFilter)) {
+                        $studentQuery->orWhere('id', $studentIdFilter);
+                    }
+                });
+            })
             ->whereBetween('payment_date', [$fromDate->toDateString(), $toDate->toDateString()])
             ->whereHas('items')
             ->get();
@@ -193,6 +208,15 @@ class StudentPaymentReportController extends Controller
                 'inventorySale.items.inventoryItem.category',
                 'inventoryDueItems.inventorySaleItem.inventoryItem.category',
             ])
+            ->when($request->filled('student_id'), function ($q) use ($request) {
+                $studentId = trim((string) $request->student_id);
+                $q->whereHas('student', function ($studentQuery) use ($studentId) {
+                    $studentQuery->where('student_cid', $studentId);
+                    if (is_numeric($studentId)) {
+                        $studentQuery->orWhere('id', $studentId);
+                    }
+                });
+            })
             ->whereBetween('payment_date', [$fromDate->toDateString(), $toDate->toDateString()])
             ->where(function ($q) {
                 $q->whereNotNull('inventory_sale_id')
@@ -343,73 +367,57 @@ class StudentPaymentReportController extends Controller
 
     private function buildData(Request $request): array
     {
-        $sessions      = AcademicSession::orderByDesc('id')->get();
-        $feeCategories = FeeCategory::where('status', 1)->orderBy('name')->get();
-        $invCategories = InventoryCategory::where('is_active', 1)->orderBy('name')->get();
-        $rows          = collect();
-        $mode          = null;
-        $dateLabel     = null;
+        $availableCategories = $this->buildMergedCategories();
+        $selectedCategoryKeys = $this->resolveSelectedPaymentReportColumns($request, $availableCategories);
+        $selectedCategoryLookup = array_flip($selectedCategoryKeys);
+        $studentIdFilter = trim((string) $request->input('student_id', ''));
+        $categories = $availableCategories
+            ->filter(fn ($category) => isset($selectedCategoryLookup[$category->column_key]))
+            ->values();
+        $rows = collect();
+        $dateLabel = null;
 
-        // Determine mode from request
-        if ($request->filled('mode')) {
-            $mode = $request->input('mode');
-        } elseif (!$request->anyFilled(['date', 'month', 'session_id', 'from_date', 'to_date'])) {
-            return [$sessions, $feeCategories, $invCategories, $rows, $mode, $dateLabel];
-        } else {
-            // auto-detect for backward compat
-            if ($request->filled('date'))       $mode = 'daily';
-            elseif ($request->filled('month'))  $mode = 'monthly';
-            elseif ($request->filled('session_id')) $mode = 'yearly';
-            elseif ($request->filled('from_date'))  $mode = 'range';
+        $fromDate = $this->resolvePaymentReportDate(
+            $request->input('from_date')
+            ?: $request->input('date')
+            ?: $request->input('to_date')
+        );
+        $toDate = $this->resolvePaymentReportDate(
+            $request->input('to_date')
+            ?: $request->input('date')
+            ?: $request->input('from_date')
+        );
+
+        if (! $fromDate && ! $toDate) {
+            return [$categories, $availableCategories, $rows, $dateLabel, null, null, $selectedCategoryKeys];
         }
 
-        // Build payment_date range condition closure for fee queries.
-        $dateFilter = function ($q) use ($request, $mode) {
-            match ($mode) {
-                'daily'   => $q->whereDate('payments.payment_date', $request->date),
-                'monthly' => $q->whereMonth('payments.payment_date', $request->month)
-                               ->whereYear('payments.payment_date', $request->year),
-                'range'   => $q->whereBetween('payments.payment_date', [$request->from_date, $request->to_date]),
-                default   => null,
-            };
-        };
+        $fromDate = $fromDate ?? $toDate;
+        $toDate = $toDate ?? $fromDate;
 
-        // Build payment_date range condition closure for inventory queries.
-        $inventoryDateFilter = function ($q) use ($request, $mode) {
-            match ($mode) {
-                'daily'   => $q->whereDate('payments.payment_date', $request->date),
-                'monthly' => $q->whereMonth('payments.payment_date', $request->month)
-                               ->whereYear('payments.payment_date', $request->year),
-                'yearly'  => $q->whereYear('payments.payment_date', $this->sessionYear($request->session_id)),
-                'range'   => $q->whereBetween('payments.payment_date', [$request->from_date, $request->to_date]),
-                default   => null,
-            };
-        };
+        if ($toDate->lt($fromDate)) {
+            [$fromDate, $toDate] = [$toDate, $fromDate];
+        }
 
-        // ── Fee category payments ──────────────────────────────────────────────
-        // Use Eloquent Payment relationships and fee set items to allocate paid amounts by category.
+        $studentMap = [];
+
         $payments = Payment::with([
                 'student.academicInformations.schoolClass',
                 'student.academicInformations.section',
                 'items.fee.feeSet.items.category',
             ])
-            ->when($mode === 'daily', fn($q) => $q->whereDate('payment_date', $request->date))
-            ->when($mode === 'monthly', fn($q) =>
-                $q->whereMonth('payment_date', $request->month)
-                  ->whereYear('payment_date', $request->year)
-            )
-            ->when($mode === 'range', fn($q) =>
-                $q->whereBetween('payment_date', [$request->from_date, $request->to_date])
-            )
-            ->when($mode === 'yearly', fn($q) =>
-                $q->whereHas('items.fee.feeSet', fn($q2) =>
-                    $q2->where('academic_session_id', $request->session_id)
-                )
-            )
+            ->when($request->filled('student_id'), function ($q) use ($request) {
+                $studentId = trim((string) $request->student_id);
+                $q->whereHas('student', function ($studentQuery) use ($studentId) {
+                    $studentQuery->where('student_cid', $studentId);
+                    if (is_numeric($studentId)) {
+                        $studentQuery->orWhere('id', $studentId);
+                    }
+                });
+            })
+            ->whereBetween('payment_date', [$fromDate->toDateString(), $toDate->toDateString()])
             ->whereHas('items')
             ->get();
-
-        $feeRows = collect();
 
         foreach ($payments as $payment) {
             $student = $payment->student;
@@ -417,9 +425,21 @@ class StudentPaymentReportController extends Controller
                 continue;
             }
 
-            $academicInfo = $student->academicInformations
-                ->where('academic_session_id', $request->session_id)
-                ->first() ?? $student->academicInformations->first();
+            if ($studentIdFilter !== '' && ! $this->studentMatchesFilter($student, $studentIdFilter)) {
+                continue;
+            }
+
+            $academicInfo = $this->resolveStudentAcademicInfo($student);
+
+            if (!isset($studentMap[$student->id])) {
+                $studentMap[$student->id] = $this->blankRow((object) [
+                    'student_id' => $student->id,
+                    'student_cid' => $student->student_cid,
+                    'student_name' => $student->full_name_en,
+                    'class_name' => null,
+                    'section_name' => null,
+                ], $academicInfo, $categories);
+            }
 
             foreach ($payment->items as $item) {
                 $fee = $item->fee;
@@ -435,40 +455,30 @@ class StudentPaymentReportController extends Controller
 
                 foreach ($feeSetItems as $feeSetItem) {
                     $category = $feeSetItem->category;
-                    if (!$category || !$category->status) {
+                    if (!$category || ! $category->status) {
+                        continue;
+                    }
+
+                    if (!isset($selectedCategoryLookup['fee_' . $category->id])) {
                         continue;
                     }
 
                     $paid = (float) $item->amount * (float) $feeSetItem->amount / (float) $totalAmount;
-                    $feeRows->push((object)[
-                        'student_id'   => $student->id,
-                        'student_cid'  => $student->student_cid,
-                        'student_name' => $student->full_name_en,
-                        'class_name'   => $academicInfo?->schoolClass?->name_en ?? '—',
-                        'section_name' => $academicInfo?->section?->name_en ?? '—',
-                        'category_id'  => $category->id,
-                        'paid'         => $paid,
-                    ]);
+                    if ($paid <= 0) {
+                        continue;
+                    }
+
+                    $columnKey = 'fee_' . $category->id;
+                    if (!isset($studentMap[$student->id][$columnKey])) {
+                        $studentMap[$student->id][$columnKey] = 0;
+                    }
+
+                    $studentMap[$student->id][$columnKey] += $paid;
                 }
             }
         }
 
-        $feeRows = $feeRows
-            ->groupBy(fn($row) => $row->student_id . '|' . $row->category_id)
-            ->map(fn($group) => (object)[
-                'student_id'   => $group->first()->student_id,
-                'student_cid'  => $group->first()->student_cid,
-                'student_name' => $group->first()->student_name,
-                'class_name'   => $group->first()->class_name,
-                'section_name' => $group->first()->section_name,
-                'category_id'  => $group->first()->category_id,
-                'paid'         => $group->sum('paid'),
-            ])
-            ->values();
-
-        // ── Inventory category payments ────────────────────────────────────────
-        // payments → inventory_sales → inventory_sale_items → inventory_items → inventory_categories
-        $invRows = Payment::query()
+        $inventoryPayments = Payment::query()
             ->join('inventory_sales',      'inventory_sales.id',           '=', 'payments.inventory_sale_id')
             ->join('inventory_sale_items', 'inventory_sale_items.inventory_sale_id', '=', 'inventory_sales.id')
             ->join('inventory_items',      'inventory_items.id',           '=', 'inventory_sale_items.inventory_item_id')
@@ -480,7 +490,15 @@ class StudentPaymentReportController extends Controller
             ->leftJoin('school_classes as sc2', 'sc2.id', '=', 'sai2.school_class_id')
             ->leftJoin('sections as sec2',       'sec2.id', '=', 'sai2.section_id')
             ->where('inventory_categories.is_active', 1)
-            ->tap($inventoryDateFilter)
+            ->when($studentIdFilter !== '', function ($q) use ($studentIdFilter) {
+                $q->where(function ($studentQuery) use ($studentIdFilter) {
+                    $studentQuery->where('students.student_cid', $studentIdFilter);
+                    if (is_numeric($studentIdFilter)) {
+                        $studentQuery->orWhere('students.id', $studentIdFilter);
+                    }
+                });
+            })
+            ->whereBetween('payments.payment_date', [$fromDate->toDateString(), $toDate->toDateString()])
             ->select(
                 'students.id as student_id',
                 'students.student_cid',
@@ -493,23 +511,16 @@ class StudentPaymentReportController extends Controller
             ->groupBy('students.id', 'students.student_cid', 'students.full_name_en', 'inventory_categories.id')
             ->get();
 
-        // ── Build pivot rows ───────────────────────────────────────────────────
-        $studentMap = [];
-
-        foreach ($feeRows as $r) {
+        foreach ($inventoryPayments as $r) {
             $sid = $r->student_id;
             if (!isset($studentMap[$sid])) {
-                $studentMap[$sid] = $this->blankRow($r, $feeCategories, $invCategories);
+                $studentMap[$sid] = $this->blankRow($r, null, $categories);
             }
-            $studentMap[$sid]['fee_' . $r->category_id] = (float) $r->paid;
-        }
-
-        foreach ($invRows as $r) {
-            $sid = $r->student_id;
-            if (!isset($studentMap[$sid])) {
-                $studentMap[$sid] = $this->blankRow($r, $feeCategories, $invCategories);
+            $columnKey = 'inv_' . $r->category_id;
+            if (!isset($studentMap[$sid][$columnKey])) {
+                $studentMap[$sid][$columnKey] = 0;
             }
-            $studentMap[$sid]['inv_' . $r->category_id] = (float) $r->paid;
+            $studentMap[$sid][$columnKey] += (float) $r->paid;
         }
 
         $rows = collect(array_values($studentMap))->map(function ($row) {
@@ -528,22 +539,109 @@ class StudentPaymentReportController extends Controller
             ->sortBy('class_name')
             ->values();
 
-        $dateLabel = $this->buildDateLabel($request, $mode, $sessions);
+        $dateLabel = 'Date Range: ' . $fromDate->format('d M Y') . ' - ' . $toDate->format('d M Y');
 
-        return [$sessions, $feeCategories, $invCategories, $rows, $mode, $dateLabel];
+        return [
+            $categories,
+            $availableCategories,
+            $rows,
+            $dateLabel,
+            $fromDate->toDateString(),
+            $toDate->toDateString(),
+            $selectedCategoryKeys,
+        ];
     }
 
-    private function blankRow(object $r, $feeCategories, $invCategories): array
+    private function buildMergedCategories()
+    {
+        return FeeCategory::where('status', 1)
+            ->orderBy('name')
+            ->get()
+            ->map(function ($category) {
+                return (object) [
+                    'kind' => 'fee',
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'column_key' => 'fee_' . $category->id,
+                ];
+            })
+            ->concat(
+                InventoryCategory::where('is_active', 1)
+                    ->orderBy('name')
+                    ->get()
+                    ->map(function ($category) {
+                        return (object) [
+                            'kind' => 'inventory',
+                            'id' => $category->id,
+                            'name' => $category->name,
+                            'column_key' => 'inv_' . $category->id,
+                        ];
+                    })
+            )
+            ->values();
+    }
+
+    private function resolveSelectedPaymentReportColumns(Request $request, $availableCategories): array
+    {
+        $selectionWasSubmitted = $request->has('columns_present');
+        $selected = array_values(array_filter((array) $request->input('columns', []), function ($value) {
+            return is_string($value) && $value !== '';
+        }));
+
+        $validKeys = $availableCategories->pluck('column_key')->all();
+        $selected = array_values(array_intersect($selected, $validKeys));
+
+        if (! $selectionWasSubmitted && empty($selected)) {
+            return $validKeys;
+        }
+
+        return $selected;
+    }
+
+    private function studentMatchesFilter($student, string $studentIdFilter): bool
+    {
+        if ($studentIdFilter === '') {
+            return true;
+        }
+
+        if ((string) $student->student_cid === $studentIdFilter) {
+            return true;
+        }
+
+        return is_numeric($studentIdFilter) && (string) $student->id === $studentIdFilter;
+    }
+
+    private function resolveStudentAcademicInfo($student)
+    {
+        return $student->academicInformations
+            ->firstWhere('is_current', true)
+            ?? $student->academicInformations->sortByDesc('academic_session_id')->first()
+            ?? $student->academicInformations->first();
+    }
+
+    private function resolvePaymentReportDate(?string $value): ?Carbon
+    {
+        if (! $value) {
+            return null;
+        }
+
+        return Carbon::parse($value);
+    }
+
+    private function blankRow(object $r, $academicInfo, $categories): array
     {
         $row = [
             'student_id'   => $r->student_id,
             'student_cid'  => $r->student_cid,
             'student_name' => $r->student_name,
-            'class_name'   => $r->class_name ?? '—',
-            'section_name' => $r->section_name ?? '—',
+            'class_name'   => $academicInfo?->schoolClass?->name_en ?? $r->class_name ?? '—',
+            'section_name' => $academicInfo?->section?->name_en ?? $r->section_name ?? '—',
         ];
-        foreach ($feeCategories as $fc) $row['fee_' . $fc->id] = 0;
-        foreach ($invCategories  as $ic) $row['inv_' . $ic->id] = 0;
+
+        foreach ($categories as $category) {
+            $row[$category->column_key] = 0;
+        }
+
         return $row;
     }
 
@@ -556,14 +654,4 @@ class StudentPaymentReportController extends Controller
         return (int) ($m[0] ?? now()->year);
     }
 
-    private function buildDateLabel(Request $request, ?string $mode, $sessions): ?string
-    {
-        return match ($mode) {
-            'daily'   => 'Date: ' . $request->date,
-            'monthly' => date('F', mktime(0, 0, 0, $request->month, 1)) . ' ' . $request->year,
-            'yearly'  => 'Session: ' . ($sessions->find($request->session_id)?->name_en ?? '—'),
-            'range'   => $request->from_date . ' to ' . $request->to_date,
-            default   => null,
-        };
-    }
 }

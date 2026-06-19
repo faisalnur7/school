@@ -13,8 +13,14 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
+                            <label>Student ID</label>
+                            <input type="text" name="student_id" class="form-control form-control-sm" value="{{ request('student_id') }}" placeholder="Search specific student">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
                             <label class="font-weight-bold">Academic Year <span class="text-danger">*</span></label>
-                            <select name="session_id" class="form-control form-control-sm" required onchange="this.form.submit()">
+                            <select name="session_id" class="form-control form-control-sm" onchange="this.form.submit()">
                                 <option value="">— Select Year —</option>
                                 @foreach($sessions as $s)
                                     <option value="{{ $s->id }}" {{ request('session_id') == $s->id ? 'selected' : '' }}>{{ $s->name_en }}</option>
@@ -46,11 +52,11 @@
                     </div>
                     <div class="col-md-3 d-flex align-items-center">
                         <div class="form-group mb-0">
-                            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i> Generate</button>
-                            <a href="{{ route('fees.student-due-report') }}" class="btn btn-secondary btn-sm ml-1"><i class="fas fa-times"></i> Reset</a>
+                            <button type="submit" class="btn btn-primary btn-sm" title="Generate"><i class="fas fa-search"></i></button>
+                            <a href="{{ route('fees.student-due-report') }}" class="btn btn-secondary btn-sm ml-1" title="Reset"><i class="fas fa-times"></i></a>
                             @if(request('session_id') && $rows->isNotEmpty())
-                                <button type="button" class="btn btn-success btn-sm ml-1" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
-                                <a href="{{ route('fees.student-due-report.pdf', request()->query()) }}" class="btn btn-danger btn-sm ml-1"><i class="fas fa-file-pdf"></i> Export PDF</a>
+                                <button type="button" class="btn btn-success btn-sm ml-1" onclick="window.print()" title="Print"><i class="fas fa-print"></i></button>
+                                <a href="{{ route('fees.student-due-report.pdf', request()->query()) }}" class="btn btn-danger btn-sm ml-1" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
                             @endif
                         </div>
                     </div>

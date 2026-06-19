@@ -25,6 +25,15 @@ class ReportController extends Controller
                 'from'     => '#ea580c',
                 'to'       => '#c2410c',
             ],
+            [
+                'icon'     => 'fa-wallet',
+                'title'    => 'Accounts Hub',
+                'subtitle' => 'Open accounting reports and tools',
+                'route'    => 'accounts.hub',
+                'permission' => 'view_accounts',
+                'from'     => '#1d4ed8',
+                'to'       => '#2563eb',
+            ],
         ];
         $cards = array_values(array_filter($cards, fn ($card) => auth()->user()?->hasPermission($card['permission'])));
 

@@ -65,6 +65,15 @@ class DiscountListController extends Controller
                   ->when($request->filled('section_id'), fn($q) => $q->where('section_id', $request->section_id))
                   ->when($request->filled('group_id'),   fn($q) => $q->where('group_id', $request->group_id))
             )
+            ->when($request->filled('student_id'), function ($q) use ($request) {
+                $studentId = trim((string) $request->student_id);
+                $q->whereHas('student', function ($studentQuery) use ($studentId) {
+                    $studentQuery->where('student_cid', $studentId);
+                    if (is_numeric($studentId)) {
+                        $studentQuery->orWhere('id', $studentId);
+                    }
+                });
+            })
             ->when($request->filled('month'), fn($q) =>
                 $q->whereMonth('payment_date', $request->month)
             )

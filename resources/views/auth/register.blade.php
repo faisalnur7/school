@@ -7,7 +7,7 @@
                 <h1 class="text-4xl font-bold mb-3">Welcome to our store</h1>
             </div>
             <div>
-                <form method="POST" action="{{ route('customer.register') }}">
+                <form method="POST" action="{{ route('register') }}">
                     @csrf
 
                     <!-- Name -->

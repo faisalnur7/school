@@ -8,6 +8,7 @@ class FeeCategory extends Model
 {
     protected $fillable = [
         'name',
+        'name_en',
         'bn_name',
         'description',
         'status',
@@ -15,4 +16,8 @@ class FeeCategory extends Model
         'student_type',
     ];
 
+    public function setNameEnAttribute($value): void
+    {
+        $this->attributes['name'] = $value;
+    }
 }

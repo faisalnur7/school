@@ -52,7 +52,7 @@
                 </tr>
             @endforeach
             <tr class="section-total">
-                <td colspan="6"></td>
+                <td></td>
                 @foreach($months as $monthKey => $monthLabel)
                     <td class="text-right">{{ number_format($student->monthTotals[$monthKey] ?? 0, 2) }}</td>
                 @endforeach

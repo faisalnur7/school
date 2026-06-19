@@ -341,6 +341,15 @@ class FeeCollectionController extends Controller
 
     public function pay(Request $request)
     {
+        $feesInput = collect($request->input('fees', []));
+        if ($feesInput->isNotEmpty() && ! is_array($feesInput->first())) {
+            $request->merge([
+                'fees' => $feesInput
+                    ->map(fn ($feeId) => ['fee_id' => $feeId])
+                    ->all(),
+            ]);
+        }
+
         $request->validate([
             'fees'           => 'nullable|array',
             'fees.*.fee_id'   => 'required_with:fees|exists:fees,id',
@@ -671,25 +680,29 @@ class FeeCollectionController extends Controller
             }
 
             if ($studentPaymentAmount > 0) {
-                $category = IncomeCategory::where('slug', 'student-payment')->firstOrFail();
-                $payment->recordIncome($category->id, 'Student Payment', [
-                    'amount'         => $studentPaymentAmount,
-                    'payment_method' => $paymentMethod,
-                    'account_type'   => $payment->account_type,
-                    'account_id'     => $payment->account_id,
-                    'description'    => "Student fee payment for student ID {$studentId}",
-                ]);
+                $category = IncomeCategory::where('slug', 'student-payment')->first();
+                if ($category) {
+                    $payment->recordIncome($category->id, 'Student Payment', [
+                        'amount'         => $studentPaymentAmount,
+                        'payment_method' => $paymentMethod,
+                        'account_type'   => $payment->account_type,
+                        'account_id'     => $payment->account_id,
+                        'description'    => "Student fee payment for student ID {$studentId}",
+                    ]);
+                }
             }
 
             if ($transportPaymentAmount > 0) {
-                $category = IncomeCategory::where('slug', 'transport-fee')->firstOrFail();
-                $payment->recordIncome($category->id, 'Transport Fee', [
-                    'amount'         => $transportPaymentAmount,
-                    'payment_method' => $paymentMethod,
-                    'account_type'   => $payment->account_type,
-                    'account_id'     => $payment->account_id,
-                    'description'    => "Transport fee payment for student ID {$studentId}",
-                ]);
+                $category = IncomeCategory::where('slug', 'transport-fee')->first();
+                if ($category) {
+                    $payment->recordIncome($category->id, 'Transport Fee', [
+                        'amount'         => $transportPaymentAmount,
+                        'payment_method' => $paymentMethod,
+                        'account_type'   => $payment->account_type,
+                        'account_id'     => $payment->account_id,
+                        'description'    => "Transport fee payment for student ID {$studentId}",
+                    ]);
+                }
             }
 
             if ($inventoryDuePaidTotal > 0 && (!$request->account_type || !$request->account_id)) {

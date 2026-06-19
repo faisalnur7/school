@@ -13,8 +13,14 @@
                 <div class="row">
                     <div class="col-md-2">
                         <div class="form-group">
+                            <label class="font-weight-bold">Student ID</label>
+                            <input type="text" name="student_id" class="form-control form-control-sm" value="{{ request('student_id') }}" placeholder="Search specific student">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
                             <label class="font-weight-bold">Academic Year <span class="text-danger">*</span></label>
-                            <select name="session_id" class="form-control form-control-sm" required onchange="this.form.submit()">
+                            <select name="session_id" class="form-control form-control-sm" onchange="this.form.submit()">
                                 <option value="">— Select Year —</option>
                                 @foreach($sessions as $s)
                                     <option value="{{ $s->id }}" {{ request('session_id') == $s->id ? 'selected' : '' }}>{{ $s->name_en }}</option>

@@ -361,11 +361,29 @@ class PublicWebsiteController extends Controller
 
     protected function publishedPage(string $typeOrSlug, bool $bySlug = false): ?WebsitePage
     {
-        $query = WebsitePage::query()->published()->with('sections');
+        if ($bySlug) {
+            return WebsitePage::query()
+                ->published()
+                ->with('sections')
+                ->where('slug', $typeOrSlug)
+                ->firstOrFail();
+        }
 
-        return $bySlug
-            ? $query->where('slug', $typeOrSlug)->firstOrFail()
-            : $query->where('page_type', $typeOrSlug)->first();
+        $page = WebsitePage::query()
+            ->published()
+            ->with('sections')
+            ->where('page_type', $typeOrSlug)
+            ->first();
+
+        if ($page) {
+            return $page;
+        }
+
+        return WebsitePage::query()
+            ->published()
+            ->with('sections')
+            ->where('slug', $typeOrSlug)
+            ->first();
     }
 
     protected function navigationLinks(): array

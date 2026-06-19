@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Holiday;
+use App\Models\LeaveBalance;
+use App\Models\LeaveRequest;
+use App\Models\SubjectClassAssignment;
+use App\Models\TeacherSectionAssignment;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,9 +21,52 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        $user = $request->user()->load(['role', 'employee.designation']);
+        $employee = $user->employee;
+
+        $teacherAssignments = collect();
+        $assignedSubjects = collect();
+        $leaveBalances = collect();
+        $holidays = collect();
+
+        if ($employee && $employee->employee_type === 'teacher') {
+            $teacherAssignments = TeacherSectionAssignment::query()
+                ->with(['session', 'schoolClass', 'section'])
+                ->where('user_id', $user->id)
+                ->latest('id')
+                ->get();
+
+            $classIds = $teacherAssignments->pluck('class_id')->unique()->values();
+
+            if ($classIds->isNotEmpty()) {
+                $assignedSubjects = SubjectClassAssignment::query()
+                    ->with(['subject', 'schoolClass'])
+                    ->whereIn('school_class_id', $classIds)
+                    ->get()
+                    ->unique(fn ($item) => $item->subject_id.'-'.$item->school_class_id)
+                    ->values();
+            }
+
+            $leaveBalances = LeaveBalance::query()
+                ->where('employee_id', $employee->id)
+                ->orderBy('leave_type')
+                ->get();
+
+            $holidays = Holiday::query()
+                ->whereDate('date', '>=', now()->toDateString())
+                ->orderBy('date')
+                ->limit(30)
+                ->get();
+        }
+
+        return view('account.profile-edit', compact(
+            'user',
+            'employee',
+            'teacherAssignments',
+            'assignedSubjects',
+            'leaveBalances',
+            'holidays'
+        ));
     }
 
     /**

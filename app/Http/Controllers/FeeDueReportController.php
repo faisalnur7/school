@@ -39,6 +39,109 @@ class FeeDueReportController extends Controller
         $classSections = collect();
         $categories = collect();
         $grandTotals = ['fees' => 0, 'paid' => 0, 'due' => 0];
+        $fromDate = $request->filled('from_date') ? Carbon::parse($request->from_date) : null;
+        $toDate = $request->filled('to_date') ? Carbon::parse($request->to_date) : null;
+
+        if ($fromDate && $toDate) {
+            if ($toDate->lt($fromDate)) {
+                [$fromDate, $toDate] = [$toDate, $fromDate];
+            }
+
+            $students = Student::query()
+                ->with([
+                    'academicInformations' => fn($q) => $q->with(['schoolClass', 'section']),
+                    'fees' => fn($q) => $q
+                        ->where('is_active', 1)
+                        ->whereBetween('due_date', [$fromDate->toDateString(), $toDate->toDateString()])
+                        ->with([
+                            'paymentItems',
+                            'feeSet.items.category',
+                        ]),
+                ])
+                ->whereHas('fees', fn($q) =>
+                    $q->where('is_active', 1)
+                      ->whereBetween('due_date', [$fromDate->toDateString(), $toDate->toDateString()])
+                )
+                ->get();
+
+            $allCategories = collect();
+            foreach ($students as $student) {
+                foreach ($student->fees as $fee) {
+                    foreach ($fee->feeSet->items as $item) {
+                        if ($item->category) {
+                            $allCategories->put($item->category->id, $item->category);
+                        }
+                    }
+                }
+            }
+            $categories = $allCategories->sortBy('name');
+
+            $grouped = $students->groupBy(function ($s) {
+                $ai = $s->academicInformations->first();
+                return ($ai?->school_class_id ?? 0) . '|' . ($ai?->section_id ?? 0);
+            });
+
+            $classSections = $grouped->map(function ($sectionStudents) use ($categories) {
+                $ai = $sectionStudents->first()->academicInformations->first();
+
+                $catTotals = [];
+                foreach ($categories as $cat) {
+                    $catTotals[$cat->id] = ['fees' => 0, 'paid' => 0, 'due' => 0];
+                }
+
+                $totalFees = 0;
+                $totalPaid = 0;
+
+                foreach ($sectionStudents as $student) {
+                    foreach ($student->fees as $fee) {
+                        $netAmount = (float) $fee->amount - (float) $fee->scholarship_discount;
+                        $paidAmount = $fee->paymentItems->sum('amount');
+                        $totalFees += $netAmount;
+                        $totalPaid += $paidAmount;
+
+                        $feeSetItems = $fee->feeSet->items;
+                        $feeSetTotal = $feeSetItems->sum('amount');
+
+                        foreach ($feeSetItems as $item) {
+                            if (!$item->category) {
+                                continue;
+                            }
+
+                            $catId = $item->category->id;
+                            $catShare = $feeSetTotal > 0 ? ($item->amount / $feeSetTotal) : 0;
+                            $catFee = $netAmount * $catShare;
+                            $catPaid = $paidAmount * $catShare;
+                            $catTotals[$catId]['fees'] += $catFee;
+                            $catTotals[$catId]['paid'] += $catPaid;
+                            $catTotals[$catId]['due']  += max(0, $catFee - $catPaid);
+                        }
+                    }
+                }
+
+                $due = max(0, $totalFees - $totalPaid);
+
+                return (object)[
+                    'class_id'     => $ai?->school_class_id,
+                    'class_name'   => $ai?->schoolClass?->name_en ?? '—',
+                    'section_id'   => $ai?->section_id,
+                    'section_name' => $ai?->section?->name_en ?? '—',
+                    'total_fees'   => $totalFees,
+                    'total_paid'   => $totalPaid,
+                    'due'          => $due,
+                    'cat_totals'   => $catTotals,
+                ];
+            })
+            ->sortBy(fn($r) => $r->class_name . $r->section_name)
+            ->values();
+
+            $grandTotals = [
+                'fees' => $classSections->sum('total_fees'),
+                'paid' => $classSections->sum('total_paid'),
+                'due'  => $classSections->sum('due'),
+            ];
+
+            return [$sessions, $classes, $classSections, $categories, $grandTotals];
+        }
 
         if (!$request->filled('session_id')) {
             return [$sessions, $classes, $classSections, $categories, $grandTotals];
