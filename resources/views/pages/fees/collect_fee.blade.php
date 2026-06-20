@@ -1714,6 +1714,12 @@
                                 }, 600); // small delay for fonts/styles to settle
                             });
                         }
+
+                        // Refresh the collection page so the updated payment history
+                        // and fee status are visible immediately after payment.
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 1200);
                     },
 
                     error: function(xhr) {
