@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AcademicSession;
 use App\Models\Attendance;
 use App\Models\AttendanceItem;
+use App\Models\AttendanceSetting;
 use App\Models\Holiday;
 use App\Models\SchoolClass;
 use App\Models\SchoolSetting;
@@ -87,8 +88,10 @@ class MonthlyAttendanceReportController extends Controller
         ]);
         $mpdf->WriteHTML($html);
         $filename = 'attendance_' . $month . '.pdf';
-        $mpdf->Output($filename, 'D');
-        exit;
+
+        return response($mpdf->Output('', 'S'))
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
     // ---------------------------------------------------------------
@@ -184,6 +187,10 @@ class MonthlyAttendanceReportController extends Controller
 
     private function authorizeSection(int $sessionId, int $classId, int $sectionId): void
     {
+        if (AttendanceSetting::current()->is_open_for_all) {
+            return;
+        }
+
         $ok = TeacherSectionAssignment::query()
             ->where('user_id', auth()->id())
             ->where('session_id', $sessionId)
