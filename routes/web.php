@@ -1214,6 +1214,7 @@ Route::group(['middleware' => ['auth']], function () {
 
 // ------------------- Public Website -------------------
 Route::prefix('/website')->name('website.')->group(function () {
+    Route::get('/home', [PublicWebsiteController::class, 'home'])->name('home');
     Route::redirect('/', '/dashboard');
     Route::get('/about', [PublicWebsiteController::class, 'about'])->name('about');
     Route::get('/teachers', [PublicWebsiteController::class, 'teachers'])->name('teachers');

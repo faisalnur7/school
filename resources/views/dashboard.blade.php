@@ -3,8 +3,8 @@
 @section('contents')
 <div class="dashboard-modern">
     <!-- Quick Actions Bar -->
-    <div class="quick-actions-section mb-4">
-        <div class="row g-3">
+    <div class="quick-actions-section mb-5">
+        <div class="row g-4">
             <div class="col-6 col-lg-3">
                 <a href="{{ route('attendance.index') }}" class="quick-action-card attendance">
                     <div class="action-icon"><i class="fas fa-clipboard-check"></i></div>
@@ -286,7 +286,16 @@
     margin-bottom: 24px;
 }
 
+.quick-actions-section .row {
+    row-gap: 18px;
+}
+
+.quick-actions-section [class*="col-"] {
+    display: flex;
+}
+
 .quick-action-card {
+    width: 100%;
     display: flex;
     align-items: center;
     gap: 14px;

@@ -32,10 +32,10 @@
 
     <ul class="navbar-nav ml-auto align-items-center">
         <li class="nav-item d-flex align-items-center mr-1 mr-md-2">
-            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill d-flex align-items-center gap-1 inky-search-trigger"
-                data-toggle="modal" data-target="#inkySearchModal" aria-label="Ask Aya search">
+            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill d-inline-flex align-items-center gap-2 inky-search-trigger border-gray-300"
+                data-toggle="modal" data-target="#inkySearchModal" aria-label="Search Aya">
                 <i class="fas fa-search"></i>
-                <span class="d-none d-sm-inline">Ask Aya...</span>
+                <span class="d-none d-sm-inline">Search Aya</span>
                 <kbd class="inky-shortcut">Ctrl+K</kbd>
             </button>
         </li>
@@ -116,17 +116,17 @@
 
 <div class="modal fade inky-search-modal-root" id="inkySearchModal" tabindex="-1" role="dialog" aria-labelledby="inkySearchModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg inky-search-dialog" role="document">
-        <div class="modal-content border-0 shadow-lg inky-search-modal">
-            <div class="modal-header border-0 pb-0">
-                <div class="inky-search-heading">
-                    <span class="inky-search-badge">Command palette</span>
-                    <h5 class="modal-title font-weight-bold mb-1" id="inkySearchModalLabel">Ask Aya</h5>
-                    <small class="text-muted">Search modules, pages, and actions</small>
+            <div class="modal-content border-0 shadow-lg inky-search-modal">
+                <div class="modal-header border-0 pb-0">
+                    <div class="inky-search-heading">
+                        <span class="inky-search-badge">Quick Search</span>
+                        <h5 class="modal-title font-weight-bold mb-0" id="inkySearchModalLabel">Search Aya</h5>
+                        <small class="text-muted">Find modules, pages, and actions</small>
+                    </div>
+                    <button type="button" class="inky-search-close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <button type="button" class="inky-search-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
             <div class="modal-body pt-3">
                 <label class="sr-only" for="inkySearchInput">Search pages, settings, or entities</label>
                 <div class="inky-search-input-wrap">
@@ -134,10 +134,9 @@
                         <i class="fas fa-search text-muted"></i>
                     </span>
                     <input type="search" id="inkySearchInput" class="form-control inky-search-input" placeholder="Search pages, settings, or entities..." autocomplete="off">
-                    <kbd class="inky-shortcut inky-shortcut--inline d-none d-sm-inline">Ctrl K</kbd>
                 </div>
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3 mb-2">
-                    <small class="text-muted">Start typing to jump to a page</small>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-2 mb-2">
+                    <small class="text-muted">Type to filter results</small>
                     <small class="text-muted d-none d-sm-inline">Esc to close</small>
                 </div>
                 <div id="inkySearchResults" class="inky-search-results"></div>

@@ -31,6 +31,13 @@ use App\Models\StockMovement;
 
 class FeeCollectionController extends Controller
 {
+    private function currentAcademicInformation(Student $student)
+    {
+        return $student->academicInformations
+            ->firstWhere('is_current', true)
+            ?? $student->academicInformations->sortByDesc('id')->first();
+    }
+
     private function normalizePaymentMethod(?string $method): string
     {
         return match (strtolower((string) $method)) {
@@ -44,7 +51,7 @@ class FeeCollectionController extends Controller
 
     private function buildStudentFeeDescription(Student $student): string
     {
-        $info = $student->academicInformations?->last();
+        $info = $this->currentAcademicInformation($student);
 
         $studentName = $student->full_name_en ?: 'Student';
         $studentCid = $student->student_cid ?: $student->id;
@@ -175,7 +182,7 @@ class FeeCollectionController extends Controller
 
         $payments = $student->payments;
 
-        $sessionId = optional($student->academicInformations->last())->academic_session_id;
+        $sessionId = optional($this->currentAcademicInformation($student))->academic_session_id;
 
         $pendingFees = Fee::with(['feeSet.items.category', 'scholarship'])
             ->where('student_id', $student->id)
@@ -316,7 +323,7 @@ class FeeCollectionController extends Controller
             $fee->calculated_net_amount = max(0, $feeGross - $totalDiscount + $totalTransport);
         }
 
-        $studentClassId = optional($student->academicInformations->last())->school_class_id;
+        $studentClassId = optional($this->currentAcademicInformation($student))->school_class_id;
 
         $inventoryCategories = InventoryCategory::with(['items' => function ($q) use ($studentClassId) {
             $q->where('is_active', true)
@@ -446,7 +453,7 @@ class FeeCollectionController extends Controller
             }
 
             $student = Student::with(['academicInformations.schoolClass', 'academicInformations.section', 'academicInformations.group'])->find($studentId);
-            $sessionId = optional($student->academicInformations->last())->academic_session_id;
+            $sessionId = optional($this->currentAcademicInformation($student))->academic_session_id;
 
             $scholarships = Scholarship::where('student_id', $studentId)
                 ->where('status', 'active')
