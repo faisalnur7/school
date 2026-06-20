@@ -13,7 +13,7 @@
         </div>
     </div>
 
-    <div class="card card-outline" style="border-top:3px solid #1a6b3c">
+    <div class="card card-outline no-print result-filter-panel">
         <div class="card-header">
             <h3 class="card-title text-white"><i class="fas fa-filter mr-2 text-success"></i>Filter Options</h3>
         </div>
@@ -59,15 +59,15 @@
                         <input type="text" name="student_id" class="form-control" placeholder="Leave blank for all students">
                     </div>
                 </div>
-                <div class="d-flex gap-2 mt-2">
-                    <button type="submit" class="btn btn-success px-4">
-                        <i class="fas fa-eye mr-1"></i> View Report
+                <div class="result-filter-actions mt-2">
+                    <button type="submit" class="btn btn-success result-filter-icon-btn" title="View Report" aria-label="View Report">
+                        <i class="fas fa-eye"></i>
                     </button>
-                    <button type="button" id="pdfBtn" class="btn btn-danger px-4">
-                        <i class="fas fa-file-pdf mr-1"></i> Download PDF
+                    <button type="button" id="pdfBtn" class="btn btn-danger result-filter-icon-btn" title="Download PDF" aria-label="Download PDF">
+                        <i class="fas fa-file-pdf"></i>
                     </button>
-                    <a href="{{ route('results.hub') }}" class="btn btn-secondary px-4">
-                        <i class="fas fa-arrow-left mr-1"></i> Back
+                    <a href="{{ route('results.hub') }}" class="btn btn-secondary result-filter-icon-btn" title="Back" aria-label="Back">
+                        <i class="fas fa-arrow-left"></i>
                     </a>
                 </div>
             </form>

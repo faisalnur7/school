@@ -8,7 +8,7 @@
 @endphp
     <div class="col-12">
 
-        <div class="card card-outline mb-4 no-print" style="border-top:3px solid #1a6b3c">
+        <div class="card card-outline mb-4 no-print result-filter-panel">
             <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h3 class="card-title text-white mb-0"><i class="fas fa-filter mr-2 text-success"></i>Filter Options</h3>
                 <small class="text-muted">{{ $exam->name }} &mdash; {{ $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? '') }}</small>
@@ -66,15 +66,15 @@
                             <input type="text" name="student_id" class="form-control" value="{{ $filters['student_id'] ?? '' }}" placeholder="Leave blank for all students">
                         </div>
                     </div>
-                    <div class="d-flex gap-2 mt-2 flex-wrap">
-                        <button type="submit" class="btn btn-success px-4">
-                            <i class="fas fa-eye mr-1"></i> View Report
+                    <div class="result-filter-actions mt-2">
+                        <button type="submit" class="btn btn-success result-filter-icon-btn" title="View Report" aria-label="View Report">
+                            <i class="fas fa-eye"></i>
                         </button>
-                        <button type="button" id="pdfBtnTop" class="btn btn-danger px-4">
-                            <i class="fas fa-file-pdf mr-1"></i> Download PDF
+                        <button type="button" id="pdfBtnTop" class="btn btn-danger result-filter-icon-btn" title="Download PDF" aria-label="Download PDF">
+                            <i class="fas fa-file-pdf"></i>
                         </button>
-                        <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary px-4">
-                            <i class="fas fa-arrow-left mr-1"></i> Back
+                        <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary result-filter-icon-btn" title="Back" aria-label="Back">
+                            <i class="fas fa-arrow-left"></i>
                         </a>
                     </div>
                 </form>
@@ -95,14 +95,14 @@
                 </div>
             </div>
             <div class="d-flex gap-2">
-                <a href="{{ route('result.progress-report.pdf', $filters) }}" target="_blank" class="btn btn-danger btn-sm">
-                    <i class="fas fa-file-pdf mr-1"></i> PDF
+                <a href="{{ route('result.progress-report.pdf', $filters) }}" target="_blank" class="btn btn-danger btn-sm result-filter-icon-btn" title="PDF" aria-label="PDF">
+                    <i class="fas fa-file-pdf"></i>
                 </a>
-                <button onclick="window.print()" class="btn btn-info btn-sm no-print">
-                    <i class="fas fa-print mr-1"></i> Print
+                <button onclick="window.print()" class="btn btn-info btn-sm no-print result-filter-icon-btn" title="Print" aria-label="Print">
+                    <i class="fas fa-print"></i>
                 </button>
-                <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary btn-sm no-print">
-                    <i class="fas fa-arrow-left mr-1"></i> Back
+                <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary btn-sm no-print result-filter-icon-btn" title="Back" aria-label="Back">
+                    <i class="fas fa-arrow-left"></i>
                 </a>
             </div>
         </div>
@@ -2067,6 +2067,124 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             display: flex;
             align-items: center;
             gap: 6px;
+        }
+
+        html[data-theme='dark'] .report-card-classic {
+            background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+            border-color: rgba(148, 163, 184, 0.2);
+            box-shadow: 0 18px 40px rgba(2, 6, 23, 0.36);
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .report-card-classic .classic-header-inner {
+            border-bottom-color: rgba(148, 163, 184, 0.18);
+        }
+
+        html[data-theme='dark'] .report-card-classic .classic-header-logo {
+            background: #0f172a;
+            border-color: rgba(148, 163, 184, 0.2);
+        }
+
+        html[data-theme='dark'] .report-card-classic .classic-grade-table table {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .report-card-classic .classic-grade-table th {
+            background: #1e293b;
+            color: #f8fafc;
+        }
+
+        html[data-theme='dark'] .report-card-classic .classic-grade-table td {
+            color: #cbd5e1;
+        }
+
+        html[data-theme='dark'] .report-card-classic .text-green-700 {
+            color: #86efac !important;
+        }
+
+        html[data-theme='dark'] .report-card-classic .text-orange-700 {
+            color: #fdba74 !important;
+        }
+
+        html[data-theme='dark'] .report-card-classic .text-gray-800,
+        html[data-theme='dark'] .report-card-classic .text-gray-700,
+        html[data-theme='dark'] .report-card-classic .text-gray-600,
+        html[data-theme='dark'] .report-card-classic .text-gray-500,
+        html[data-theme='dark'] .report-card-classic .text-black,
+        html[data-theme='dark'] .report-card-classic .text-muted {
+            color: #cbd5e1 !important;
+        }
+
+        html[data-theme='dark'] .rc-wrap {
+            color: #e2e8f0;
+            background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+            border-color: rgba(148, 163, 184, 0.2);
+            box-shadow: 0 18px 40px rgba(2, 6, 23, 0.32);
+        }
+
+        html[data-theme='dark'] .rc-header {
+            background: linear-gradient(135deg, #0f4023 0%, #124a2a 55%, #166534 100%);
+        }
+
+        html[data-theme='dark'] .rc-student-strip {
+            background: rgba(15, 23, 42, 0.94);
+            border-bottom-color: rgba(148, 163, 184, 0.18);
+        }
+
+        html[data-theme='dark'] .rc-attendance-pill {
+            background: #0f172a;
+            border-color: rgba(148, 163, 184, 0.18);
+        }
+
+        html[data-theme='dark'] .rc-table thead tr {
+            background: #1e293b;
+            color: #f8fafc;
+        }
+
+        html[data-theme='dark'] .rc-table tbody tr {
+            border-bottom-color: rgba(148, 163, 184, 0.16);
+        }
+
+        html[data-theme='dark'] .rc-table tbody tr:nth-child(even) {
+            background: rgba(15, 23, 42, 0.94);
+        }
+
+        html[data-theme='dark'] .rc-table tbody tr:hover {
+            background: rgba(30, 41, 59, 0.94);
+        }
+
+        html[data-theme='dark'] .rc-table tbody tr.rc-row-fail {
+            background: rgba(127, 29, 29, 0.28) !important;
+        }
+
+        html[data-theme='dark'] .rc-field-label,
+        html[data-theme='dark'] .rc-att-label,
+        html[data-theme='dark'] .rc-published {
+            color: #94a3b8;
+        }
+
+        html[data-theme='dark'] .rc-field-value,
+        html[data-theme='dark'] .rc-att-count,
+        html[data-theme='dark'] .rc-title-main,
+        html[data-theme='dark'] .rc-school-name {
+            color: #f8fafc;
+        }
+
+        html[data-theme='dark'] .rc-school-addr,
+        html[data-theme='dark'] .rc-title-sub {
+            color: #cbd5e1;
+            opacity: 1;
+        }
+
+        html[data-theme='dark'] .rc-scale-table {
+            background: rgba(15, 23, 42, 0.96);
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .rc-scale-table th,
+        html[data-theme='dark'] .rc-scale-table td {
+            border-color: rgba(148, 163, 184, 0.18);
         }
 
         .rc-signatures {

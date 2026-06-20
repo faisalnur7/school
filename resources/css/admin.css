@@ -926,6 +926,93 @@ html[data-theme='dark'] .attendance-filter-btn {
     box-shadow: 0 8px 18px rgba(2, 6, 23, 0.28);
 }
 
+html[data-theme='dark'] .tutorial-report-page .result-filter-panel {
+    background: #0f172a !important;
+    border-color: rgba(148, 163, 184, 0.24) !important;
+    box-shadow: 0 16px 36px rgba(2, 6, 23, 0.36) !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .result-filter-panel .card-header {
+    background: #111827 !important;
+    border-bottom-color: rgba(148, 163, 184, 0.18) !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .result-filter-panel .card-body {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .result-filter-panel :is(label, .form-label, .control-label, .text-muted, small, span, strong, b, p) {
+    color: #e2e8f0 !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .result-filter-panel .card-title {
+    color: #f8fafc !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .result-filter-panel .form-control,
+html[data-theme='dark'] .tutorial-report-page .result-filter-panel .custom-select {
+    background: #111827 !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(148, 163, 184, 0.28) !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .result-filter-panel .form-control::placeholder {
+    color: #94a3b8 !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .result-filter-panel .form-control:focus,
+html[data-theme='dark'] .tutorial-report-page .result-filter-panel .custom-select:focus {
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 0 0.2rem rgba(96, 165, 250, 0.2) !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .tutorial-report-filter-panel {
+    background: #0f172a !important;
+    border-color: rgba(148, 163, 184, 0.24) !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .tutorial-report-filter-header {
+    background: #111827 !important;
+    border-bottom-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .tutorial-report-filter-body {
+    background: #0f172a !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .tutorial-report-filter-form {
+    background: #0f172a !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .tutorial-report-filter-label,
+html[data-theme='dark'] .tutorial-report-page .tutorial-report-filter-label .text-muted,
+html[data-theme='dark'] .tutorial-report-page .tutorial-report-filter-label small {
+    color: #cbd5e1 !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .tutorial-report-filter-control {
+    background: #111827 !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(148, 163, 184, 0.3) !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .tutorial-report-filter-control::placeholder {
+    color: #94a3b8 !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .tutorial-report-filter-control:focus {
+    background: #111827 !important;
+    color: #f8fafc !important;
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 0 0.2rem rgba(96, 165, 250, 0.22) !important;
+}
+
+html[data-theme='dark'] .tutorial-report-page .tutorial-report-filter-actions .btn {
+    box-shadow: 0 8px 18px rgba(2, 6, 23, 0.28) !important;
+}
+
 html[data-theme='dark'] .inventory-filter-panel {
     background: linear-gradient(180deg, rgba(17, 24, 39, 0.98) 0%, rgba(15, 23, 42, 0.96) 100%) !important;
     border-color: rgba(148, 163, 184, 0.18) !important;

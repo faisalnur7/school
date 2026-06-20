@@ -8,6 +8,7 @@ use App\Models\Exam;
 use App\Models\ExamMark;
 use App\Models\ResultEmailStatus;
 use App\Models\SchoolClass;
+use App\Models\Section;
 use App\Models\Student;
 use App\Models\StudentAcademicInformation;
 use Illuminate\Http\Request;
@@ -31,11 +32,13 @@ class TutorialReportController extends Controller
             'class_id'   => ['required', 'exists:school_classes,id'],
             'section_id' => ['required', 'exists:sections,id'],
             'exam_id'    => ['required', 'exists:exams,id'],
-            'student_id' => ['nullable'],
+            'student_id' => ['nullable', 'string'],
         ]);
 
         $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id']);
         $exam     = Exam::with('academicSession')->findOrFail($filters['exam_id']);
+        $reportContext = $this->buildReportContext($filters);
+        $sections = Section::where('school_class_id', $filters['class_id'])->orderBy('name_en')->get();
 
         if ($exam->type !== Exam::TYPE_TUTORIAL) {
             if ($request->ajax() || $request->expectsJson()) {
@@ -45,8 +48,16 @@ class TutorialReportController extends Controller
         }
 
         $students = $this->getStudents($filters);
+        $sessions = AcademicSession::orderByDesc('id')->get();
+        $classes = SchoolClass::all();
+        $exams = Exam::where('type', Exam::TYPE_TUTORIAL)->orderByDesc('id')->get();
 
         $studentsData = $students->map(function ($student) use ($exam) {
+            $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession'])
+                ->where('student_id', $student->id)
+                ->where('academic_session_id', $exam->academic_session_id)
+                ->first();
+
             $marks = ExamMark::with('subject')
                 ->where('exam_id', $exam->id)
                 ->where('student_id', $student->id)
@@ -66,6 +77,7 @@ class TutorialReportController extends Controller
 
             return [
                 'student'        => $student,
+                'academicInfo'   => $academicInfo,
                 'rows'           => $rows,
                 'total_obtained' => $totalObtained,
             ];
@@ -73,7 +85,7 @@ class TutorialReportController extends Controller
 
         $statusMap = $this->buildStatusMap($studentsData->pluck('student.id')->all(), (int) $filters['exam_id']);
 
-        return view('pages.tutorial-report.results', compact('studentsData', 'exam', 'filters', 'statusMap'));
+        return view('pages.tutorial-report.results', compact('studentsData', 'exam', 'filters', 'statusMap', 'reportContext', 'sections', 'sessions', 'classes', 'exams'));
     }
 
     public function pdf(Request $request)
@@ -83,11 +95,12 @@ class TutorialReportController extends Controller
             'class_id'   => ['required', 'exists:school_classes,id'],
             'section_id' => ['required', 'exists:sections,id'],
             'exam_id'    => ['required', 'exists:exams,id'],
-            'student_id' => ['nullable'],
+            'student_id' => ['nullable', 'string'],
         ]);
 
         $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id']);
         $exam     = Exam::with('academicSession')->findOrFail($filters['exam_id']);
+        $reportContext = $this->buildReportContext($filters);
 
         if ($exam->type !== Exam::TYPE_TUTORIAL) {
             return back()->with('error', 'Selected exam is not a tutorial exam.');
@@ -96,6 +109,11 @@ class TutorialReportController extends Controller
         $students = $this->getStudents($filters);
 
         $studentsData = $students->map(function ($student) use ($exam) {
+            $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession'])
+                ->where('student_id', $student->id)
+                ->where('academic_session_id', $exam->academic_session_id)
+                ->first();
+
             $marks = ExamMark::with('subject')
                 ->where('exam_id', $exam->id)
                 ->where('student_id', $student->id)
@@ -115,12 +133,13 @@ class TutorialReportController extends Controller
 
             return [
                 'student'        => $student,
+                'academicInfo'   => $academicInfo,
                 'rows'           => $rows,
                 'total_obtained' => $totalObtained,
             ];
         });
 
-        $html = view('pages.tutorial-report.print', compact('studentsData', 'exam', 'filters'))->render();
+        $html = view('pages.tutorial-report.print', compact('studentsData', 'exam', 'filters', 'reportContext'))->render();
         $mpdf = new \Mpdf\Mpdf(['format' => 'A4', 'margin_top' => 15, 'margin_bottom' => 15, 'margin_left' => 15, 'margin_right' => 15]);
         $mpdf->WriteHTML($html);
 
@@ -206,6 +225,19 @@ class TutorialReportController extends Controller
         return "tutorial:exam:{$examId}:student:{$studentId}";
     }
 
+    private function buildReportContext(array $filters): array
+    {
+        $session = AcademicSession::find($filters['session_id']);
+        $class = SchoolClass::find($filters['class_id']);
+        $section = Section::find($filters['section_id']);
+
+        return [
+            'session' => $session?->name_en ?? ($session?->name_bn ?? '—'),
+            'class' => $class?->name_en ?? ($class?->name_bn ?? '—'),
+            'section' => $section?->name_en ?? ($section?->name_bn ?? '—'),
+        ];
+    }
+
     private function buildStatusMap(array $studentIds, int $examId): array
     {
         if (empty($studentIds)) {
@@ -224,14 +256,25 @@ class TutorialReportController extends Controller
     private function getStudents(array $filters)
     {
         if (! empty($filters['student_id'])) {
-            return Student::where('id', $filters['student_id'])
-                ->orWhere('student_cid', $filters['student_id'])
+            return Student::where(function ($query) use ($filters) {
+                    $query->where('id', $filters['student_id'])
+                        ->orWhere('student_cid', $filters['student_id']);
+                })
+                ->whereHas('academicInformations', function ($query) use ($filters) {
+                    $query->where('academic_session_id', $filters['session_id'])
+                        ->when($filters['class_id'] ?? null, fn ($q) => $q->where('school_class_id', $filters['class_id']))
+                        ->when($filters['section_id'] ?? null, fn ($q) => $q->where('section_id', $filters['section_id']))
+                        ->where('is_current', true)
+                        ->where('academic_status', 'active');
+                })
                 ->get();
         }
 
         $ids = StudentAcademicInformation::where('academic_session_id', $filters['session_id'])
             ->where('school_class_id', $filters['class_id'])
             ->where('section_id', $filters['section_id'])
+            ->where('is_current', true)
+            ->where('academic_status', 'active')
             ->pluck('student_id');
 
         return Student::whereIn('id', $ids)->orderBy('id')->get();

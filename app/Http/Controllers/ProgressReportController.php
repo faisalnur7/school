@@ -178,14 +178,25 @@ class ProgressReportController extends Controller
     private function getStudents(array $filters)
     {
         if (!empty($filters['student_id'])) {
-            return Student::where('id', $filters['student_id'])
-                ->orWhere('student_cid', $filters['student_id'])
+            return Student::where(function ($query) use ($filters) {
+                    $query->where('id', $filters['student_id'])
+                        ->orWhere('student_cid', $filters['student_id']);
+                })
+                ->whereHas('academicInformations', function ($query) use ($filters) {
+                    $query->where('academic_session_id', $filters['session_id'])
+                        ->when($filters['class_id'] ?? null, fn ($q) => $q->where('school_class_id', $filters['class_id']))
+                        ->when($filters['section_id'] ?? null, fn ($q) => $q->where('section_id', $filters['section_id']))
+                        ->where('is_current', true)
+                        ->where('academic_status', 'active');
+                })
                 ->get();
         }
 
         $ids = StudentAcademicInformation::where('academic_session_id', $filters['session_id'])
             ->where('school_class_id', $filters['class_id'])
             ->where('section_id', $filters['section_id'])
+            ->where('is_current', true)
+            ->where('academic_status', 'active')
             ->pluck('student_id');
 
         return Student::whereIn('id', $ids)->orderBy('id')->get();
