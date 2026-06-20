@@ -145,7 +145,7 @@ require __DIR__.'/auth.php';
 
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/dashboard/home', [DashboardController::class, 'index'])->name('homepage');
-    Route::get('/', [DashboardController::class, 'index'])->middleware('permission:view_dashboard')->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->middleware('permission:view_dashboard');
 
     // ------------------- Dashboard -------------------
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('permission:view_dashboard')->name('dashboard');
