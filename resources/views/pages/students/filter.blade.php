@@ -49,6 +49,14 @@
                 <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactive</option>
             </select>
 
+            <select name="per_page" class="form-control students-filter-select" onchange="this.form.submit()">
+                <option value="10" {{ (int) request('per_page', 10) === 10 ? 'selected' : '' }}>10 / page</option>
+                <option value="20" {{ (int) request('per_page') === 20 ? 'selected' : '' }}>20 / page</option>
+                <option value="30" {{ (int) request('per_page') === 30 ? 'selected' : '' }}>30 / page</option>
+                <option value="40" {{ (int) request('per_page') === 40 ? 'selected' : '' }}>40 / page</option>
+                <option value="50" {{ (int) request('per_page') === 50 ? 'selected' : '' }}>50 / page</option>
+            </select>
+
             <div class="students-filter-actions">
                 <button class="students-more-filters filter_button" type="button" title="More Filters" aria-label="More Filters">
                     <i class="fas fa-sliders-h"></i>

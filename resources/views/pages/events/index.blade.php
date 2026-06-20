@@ -6,7 +6,6 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title">Events</h3>
             <div>
-                <a href="{{ route('website.cms.hub') }}" class="btn btn-secondary btn-sm">Website Hub</a>
                 <a href="{{ route('events.create') }}" class="btn btn-primary btn-sm">Add Event</a>
             </div>
         </div>

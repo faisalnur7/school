@@ -10,41 +10,47 @@
                     <i class="fas fa-calendar-alt text-primary mr-2"></i>Monthly Attendance Report
                 </h4>
             </div>
-            <div class="card-body py-2">
-                <div class="d-flex flex-wrap align-items-end">
-                    <div class="p-1" style="flex: 1; min-width: 180px;">
-                        <select id="rep_session_id" class="form-control form-control-sm mr-2 mb-1" required>
-                            <option value="">Select Session</option>
-                            @foreach ($sessions as $session)
-                                <option value="{{ $session->id }}">{{ $session->name_en }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+            <div class="card-body">
+                <div class="attendance-filter-panel">
+                    <div class="attendance-filter-row">
+                        <div class="attendance-filter-field">
+                            <label class="attendance-filter-label" for="rep_session_id">Session</label>
+                            <select id="rep_session_id" class="form-control form-control-sm attendance-filter-control" required>
+                                <option value="">Select Session</option>
+                                @foreach ($sessions as $session)
+                                    <option value="{{ $session->id }}">{{ $session->name_en }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="p-1" style="flex: 1; min-width: 140px;">
-                        <select id="classSelect" class="form-control form-control-sm mr-2 mb-1" required>
-                            <option value="">Select Class</option>
-                            @foreach ($classes as $class)
-                                <option value="{{ $class->id }}">{{ $class->name_en }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                        <div class="attendance-filter-field">
+                            <label class="attendance-filter-label" for="classSelect">Class</label>
+                            <select id="classSelect" class="form-control form-control-sm attendance-filter-control" required>
+                                <option value="">Select Class</option>
+                                @foreach ($classes as $class)
+                                    <option value="{{ $class->id }}">{{ $class->name_en }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="p-1" style="flex: 1; min-width: 140px;">
+                        <div class="attendance-filter-field">
+                            <label class="attendance-filter-label" for="sectionSelect">Section</label>
+                            <select id="sectionSelect" class="form-control form-control-sm attendance-filter-control" required>
+                                <option value="">Select Section</option>
+                            </select>
+                        </div>
 
-                        <select id="sectionSelect" class="form-control form-control-sm mr-2 mb-1" required>
-                            <option value="">Select Section</option>
-                        </select>
-                    </div>
+                        <div class="attendance-filter-field">
+                            <label class="attendance-filter-label" for="rep_month">Month</label>
+                            <input type="month" id="rep_month" class="form-control form-control-sm attendance-filter-control"
+                                value="{{ $defaultMonth }}" required />
+                        </div>
 
-                    <div class="p-1" style="flex: 1; min-width: 160px;">
-                        <input type="month" id="rep_month" class="form-control form-control-sm mr-2 mb-1"
-                            value="{{ $defaultMonth }}" required />
-                    </div>
-                    <div class="p-1" style="min-width: 140px;">
-                        <button type="button" id="btnLoadReport" class="btn btn-sm btn-primary mb-1">
-                            <i class="fas fa-sync-alt mr-1"></i>Load Report
-                        </button>
+                        <div class="attendance-filter-action">
+                            <button type="button" id="btnLoadReport" class="btn btn-sm btn-primary attendance-filter-btn">
+                                <i class="fas fa-sync-alt mr-1"></i>Load Report
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

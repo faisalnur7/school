@@ -2,13 +2,15 @@
 <head>
   @php
     $schoolSetting = \App\Models\SchoolSetting::current();
-    $favicon = !empty($schoolSetting->logo) ? asset($schoolSetting->logo) : asset('assets/dist/img/AdminLTELogo.png');
+    $favicon = !empty($schoolSetting->favicon)
+        ? asset($schoolSetting->favicon)
+        : (!empty($schoolSetting->logo) ? asset($schoolSetting->logo) : asset('assets/dist/img/AdminLTELogo.png'));
   @endphp
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- <title>@yield('title')</title> -->
   <title>{{$title}}</title>
-  <link rel="icon" type="image/png" href="{{ $favicon }}">
+  <link rel="icon" href="{{ $favicon }}">
   <link rel="shortcut icon" href="{{ $favicon }}">
   <script>
     (function() {
@@ -49,8 +51,8 @@
   <!-- jQuery UI 1.11.4 -->
   <script src="{{asset('assets/plugins/jquery-ui/jquery-ui.min.js')}}"></script>
   <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-  {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
-  @vite(['resources/css/app.css'])
+  {{-- @vite(['resources/css/website.css', 'resources/js/app.js']) --}}
+  @vite(['resources/css/website.css'])
 
   @yield('styles')
 </head>

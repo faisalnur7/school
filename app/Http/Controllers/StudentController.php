@@ -21,6 +21,7 @@ use App\Models\SchoolSetting;
 use App\Models\StudentAcademicInformation;
 use App\Models\Transport;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 use Carbon\Carbon;
 
 class StudentController extends Controller
@@ -47,6 +48,53 @@ class StudentController extends Controller
             'present_address' => 'Present Address',
             'status' => 'Status',
         ];
+    }
+
+    private function sortStudentsForGrouping(Collection $students): Collection
+    {
+        return $students->sortBy(function ($student) {
+            $academicInformation = $student->academicInformations->last();
+            $className = mb_strtolower($academicInformation?->schoolClass?->name_en ?? 'zzz unassigned class');
+            $sectionName = mb_strtolower($academicInformation?->section?->name_en ?? 'zzz unassigned section');
+            $roll = $academicInformation?->roll;
+            $rollSort = is_numeric($roll) ? str_pad((string) (int) $roll, 10, '0', STR_PAD_LEFT) : '9999999999';
+            $studentName = mb_strtolower($student->full_name_en ?? '');
+
+            return "{$className}|{$sectionName}|{$rollSort}|{$studentName}";
+        })->values();
+    }
+
+    private function groupStudentsByClassAndSection(Collection $students): Collection
+    {
+        return $this->sortStudentsForGrouping($students)
+            ->groupBy(function ($student) {
+                $academicInformation = $student->academicInformations->last();
+
+                return ($academicInformation?->school_class_id ?? 'unassigned') . '|' . ($academicInformation?->section_id ?? 'unassigned');
+            })
+            ->map(function (Collection $classStudents) {
+                $classInfo = $classStudents->first()?->academicInformations->last()?->schoolClass;
+
+                return [
+                    'class_name' => $classInfo?->name_en ?? 'Unassigned Class',
+                    'sections' => $classStudents
+                        ->groupBy(function ($student) {
+                            $academicInformation = $student->academicInformations->last();
+
+                            return $academicInformation?->section_id ?? 'unassigned';
+                        })
+                        ->map(function (Collection $sectionStudents) {
+                            $sectionInfo = $sectionStudents->first()?->academicInformations->last()?->section;
+
+                            return [
+                                'section_name' => $sectionInfo?->name_en ?? 'Unassigned Section',
+                                'students' => $sectionStudents->values(),
+                            ];
+                        })
+                        ->values(),
+                ];
+            })
+            ->values();
     }
 
     private function filteredStudentsQuery(Request $request)
@@ -151,24 +199,11 @@ class StudentController extends Controller
             $q->orderByRaw('CAST(roll AS UNSIGNED) ASC');
         }]);
 
-        $hasSession = $request->filled('academic_session_id');
-        $hasClass = $request->filled('school_class_id');
-        $hasSection = $request->filled('section_id');
-        $hasGroup = $request->filled('group_id');
-
-        if ($hasSession && ! $hasClass && ! $hasSection && ! $hasGroup) {
-            return $query
-                ->orderByRaw("(SELECT school_class_id FROM student_academic_information WHERE student_id = students.id AND academic_session_id = ? ORDER BY id DESC LIMIT 1) ASC", [$request->academic_session_id])
-                ->orderByRaw("(SELECT CAST(roll AS UNSIGNED) FROM student_academic_information WHERE student_id = students.id AND academic_session_id = ? ORDER BY id DESC LIMIT 1) ASC", [$request->academic_session_id]);
-        }
-
-        if ($hasSession || $hasClass || $hasSection) {
-            return $query
-                ->orderByRaw("(SELECT CAST(roll AS UNSIGNED) FROM student_academic_information WHERE student_id = students.id ORDER BY id DESC LIMIT 1) ASC");
-        }
-
         return $query
-            ->orderByRaw("(SELECT CAST(roll AS UNSIGNED) FROM student_academic_information WHERE student_id = students.id ORDER BY id DESC LIMIT 1) ASC");
+            ->orderByRaw("COALESCE((SELECT school_class_id FROM student_academic_information WHERE student_id = students.id ORDER BY id DESC LIMIT 1), 999999) ASC")
+            ->orderByRaw("COALESCE((SELECT section_id FROM student_academic_information WHERE student_id = students.id ORDER BY id DESC LIMIT 1), 999999) ASC")
+            ->orderByRaw("COALESCE((SELECT CAST(roll AS UNSIGNED) FROM student_academic_information WHERE student_id = students.id ORDER BY id DESC LIMIT 1), 999999999) ASC")
+            ->orderBy('full_name_en', 'asc');
     }
 
     /**
@@ -178,7 +213,14 @@ class StudentController extends Controller
     {
         $query = $this->filteredStudentsQuery($request);
 
-        $students = $this->applyStudentOrdering($query, $request)->paginate(15);
+        $allowedPerPage = [10, 20, 30, 40, 50];
+        $perPage = (int) $request->input('per_page', 10);
+        if (! in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 10;
+        }
+
+        $students = $this->applyStudentOrdering($query, $request)->paginate($perPage);
+        $groupedStudents = $this->groupStudentsByClassAndSection($students->getCollection());
 
         // Get filter data
         $academicSessions = AcademicSession::where('status', 1)->get();
@@ -217,6 +259,8 @@ class StudentController extends Controller
 
         return view('pages.students.index', compact(
             'students',
+            'groupedStudents',
+            'perPage',
             'academicSessions',
             'classes',
             'sections',
@@ -504,6 +548,7 @@ class StudentController extends Controller
             ;
 
         $students = $this->applyStudentOrdering($students, $request)->get();
+        $groupedStudents = $this->groupStudentsByClassAndSection($students);
 
         $setting = SchoolSetting::first();
         $filterHeading = [
@@ -521,7 +566,7 @@ class StudentController extends Controller
                 : null,
         ];
 
-        $html = view('pages.students.list-pdf', compact('students', 'setting', 'selectedColumns', 'pdfColumnOptions', 'filterHeading'))->render();
+        $html = view('pages.students.list-pdf', compact('students', 'groupedStudents', 'setting', 'selectedColumns', 'pdfColumnOptions', 'filterHeading'))->render();
 
         $mpdf = new \Mpdf\Mpdf([
             'orientation'   => 'L',

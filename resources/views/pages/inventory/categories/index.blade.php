@@ -1,10 +1,30 @@
 @extends('layouts.master')
 
+@section('styles')
+    <style>
+        .inventory-filter-panel {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.875rem;
+            padding: 1rem;
+        }
+
+        .inventory-filter-panel .btn {
+            min-width: 96px;
+        }
+
+        html[data-theme='dark'] .inventory-filter-panel {
+            background: #0f172a;
+            border-color: rgba(148, 163, 184, 0.22);
+        }
+    </style>
+@endsection
+
 @section('contents')
 <div class="col-12">
     <div class="card">
-        <div class="card-header flex justify-between items-center">
-            <h3 class="card-title font-bold text-white">Inventory Categories</h3>
+        <div class="card-header bg-white flex justify-between items-center">
+            <h3 class="card-title font-bold text-slate-900">Inventory Categories</h3>
             <div class="card-tools ml-auto">
                 @if(auth()->user()?->hasPermission('manage_inventory_categories'))
                     <a href="{{ route('inventory.categories.create') }}" class="btn btn-primary btn-sm">
@@ -17,17 +37,19 @@
             @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
             @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
-            <form method="GET" class="mb-3">
-                <div class="row">
+            <form method="GET" class="mb-3 inventory-filter-panel">
+                <div class="row g-2 align-items-end">
                     <div class="col-md-6">
                         <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Search category...">
                     </div>
-                    <div class="col-md-3">
-                        <button class="btn btn-secondary" title="Search" aria-label="Search">
+                    <div class="col-md-3 d-flex flex-wrap gap-2">
+                        <button class="btn btn-dark btn-sm" title="Search" aria-label="Search">
                             <i class="fas fa-search"></i>
+                            <span>Search</span>
                         </button>
-                        <a href="{{ route('inventory.categories.index') }}" class="btn btn-light" title="Reset" aria-label="Reset">
+                        <a href="{{ route('inventory.categories.index') }}" class="btn btn-light btn-sm" title="Reset" aria-label="Reset">
                             <i class="fas fa-undo-alt"></i>
+                            <span>Reset</span>
                         </a>
                     </div>
                 </div>

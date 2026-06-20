@@ -1,4 +1,28 @@
 @extends('layouts.master')
+@section('styles')
+    <style>
+        .trial-balance-table tfoot {
+            background: #f8fafc;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .trial-balance-table tfoot td {
+            background: transparent;
+            color: inherit;
+            border-top: 2px solid #cbd5e1;
+        }
+
+        html[data-theme='dark'] .trial-balance-table tfoot {
+            background: #1e293b;
+            color: #f8fafc;
+        }
+
+        html[data-theme='dark'] .trial-balance-table tfoot td {
+            border-top-color: rgba(148, 163, 184, 0.28);
+        }
+    </style>
+@endsection
 @section('contents')
     @php
         $fmt = fn($v) => $v > 0 ? number_format($v, 2) : '—';
@@ -43,7 +67,7 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-bordered mb-0" style="font-size:12px;min-width:800px">
+                    <table class="table table-bordered mb-0 trial-balance-table" style="font-size:12px;min-width:800px">
                         <thead style="background:#1e293b;color:#fff">
                             <tr>
                                 <th rowspan="2" style="vertical-align:middle;width:30%">Account</th>
@@ -101,7 +125,7 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                        <tfoot style="background:#f8fafc;font-weight:700">
+                        <tfoot>
                             <tr>
                                 <td>Total</td>
                                 <td class="text-right">{{ number_format($begTotDr, 2) }}</td>

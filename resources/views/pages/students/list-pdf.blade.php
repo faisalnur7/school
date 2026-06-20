@@ -17,6 +17,38 @@
     td { padding: 5px 6px; border-bottom: 1px solid #ddd; vertical-align: top; }
     .text-center { text-align: center; }
     .small { font-size: 9px; color: #555; }
+    .group-row td {
+        background: #f8fafc;
+        color: #1f2937;
+        font-weight: 700;
+        border-bottom: 1px solid #cbd5e1;
+        padding: 6px 8px;
+    }
+    .group-row--section td {
+        background: #eef6ff;
+    }
+    .group-pill {
+        display: inline-block;
+        padding: 2px 6px;
+        margin-right: 6px;
+        border-radius: 999px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+    .group-pill--section {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+    .group-meta {
+        margin-left: 6px;
+        color: #64748b;
+        font-size: 9px;
+        font-weight: 600;
+    }
 </style>
 </head>
 <body>
@@ -87,93 +119,112 @@
         </tr>
     </thead>
     <tbody>
-        @foreach($students as $index => $student)
-            @php
-                $academicInformation = $student->academicInformations->last();
-            @endphp
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                @foreach($selectedColumns as $column)
-                    <td>
-                        @switch($column)
-                            @case('student_cid')
-                                {{ $student->student_cid ?? '—' }}
-                                @break
-
-                            @case('roll')
-                                {{ $academicInformation?->roll ?? '—' }}
-                                @break
-
-                            @case('full_name_en')
-                                <strong>{{ $student->full_name_en ?? '—' }}</strong>
-                                @break
-
-                            @case('full_name_bn')
-                                {{ $student->full_name_bn ?? '—' }}
-                                @break
-
-                            @case('class')
-                                {{ $academicInformation?->schoolClass?->name_en ?? '—' }}
-                                @break
-
-                            @case('section')
-                                {{ $academicInformation?->section?->name_en ?? '—' }}
-                                @break
-
-                            @case('group')
-                                {{ $academicInformation?->group?->name_en ?? '—' }}
-                                @break
-
-                            @case('gender')
-                                {{ $student->gender_text ?? '—' }}
-                                @break
-
-                            @case('religion')
-                                {{ $student->religion_text ?? '—' }}
-                                @break
-
-                            @case('date_of_birth')
-                                {{ $student->date_of_birth ? \Carbon\Carbon::parse($student->date_of_birth)->format('d M Y') : '—' }}
-                                @break
-
-                            @case('blood_group')
-                                {{ $student->blood_group_text ?? '—' }}
-                                @break
-
-                            @case('father_name')
-                                {{ $student->father_name ?? '—' }}
-                                @break
-
-                            @case('mother_name')
-                                {{ $student->mother_name ?? '—' }}
-                                @break
-
-                            @case('father_phone')
-                                {{ $student->father_phone ?? '—' }}
-                                @break
-
-                            @case('mother_phone')
-                                {{ $student->mother_phone ?? '—' }}
-                                @break
-
-                            @case('guardian_phone')
-                                {{ $student->guardian_phone ?? '—' }}
-                                @break
-                            
-                            @case('present_address')
-                                {{ $student->present_address ?? '—' }}
-                                @break
-
-                            @case('status')
-                                {{ $student->status ? 'Active' : 'Inactive' }}
-                                @break
-
-                            @default
-                                —
-                        @endswitch
-                    </td>
-                @endforeach
+        @php $rowNumber = 0; @endphp
+        @foreach($groupedStudents as $classGroup)
+            <tr class="group-row">
+                <td colspan="{{ count($selectedColumns) + 1 }}">
+                    <span class="group-pill">Class</span>{{ $classGroup['class_name'] }}
+                </td>
             </tr>
+
+            @foreach($classGroup['sections'] as $sectionGroup)
+                <tr class="group-row group-row--section">
+                    <td colspan="{{ count($selectedColumns) + 1 }}">
+                        <span class="group-pill group-pill--section">Section</span>{{ $sectionGroup['section_name'] }}
+                        <span class="group-meta">{{ $sectionGroup['students']->count() }} students</span>
+                    </td>
+                </tr>
+
+                @foreach($sectionGroup['students'] as $student)
+                    @php
+                        $rowNumber++;
+                        $academicInformation = $student->academicInformations->last();
+                    @endphp
+                    <tr>
+                        <td>{{ $rowNumber }}</td>
+                        @foreach($selectedColumns as $column)
+                            <td>
+                                @switch($column)
+                                    @case('student_cid')
+                                        {{ $student->student_cid ?? '—' }}
+                                        @break
+
+                                    @case('roll')
+                                        {{ $academicInformation?->roll ?? '—' }}
+                                        @break
+
+                                    @case('full_name_en')
+                                        <strong>{{ $student->full_name_en ?? '—' }}</strong>
+                                        @break
+
+                                    @case('full_name_bn')
+                                        {{ $student->full_name_bn ?? '—' }}
+                                        @break
+
+                                    @case('class')
+                                        {{ $academicInformation?->schoolClass?->name_en ?? '—' }}
+                                        @break
+
+                                    @case('section')
+                                        {{ $academicInformation?->section?->name_en ?? '—' }}
+                                        @break
+
+                                    @case('group')
+                                        {{ $academicInformation?->group?->name_en ?? '—' }}
+                                        @break
+
+                                    @case('gender')
+                                        {{ $student->gender_text ?? '—' }}
+                                        @break
+
+                                    @case('religion')
+                                        {{ $student->religion_text ?? '—' }}
+                                        @break
+
+                                    @case('date_of_birth')
+                                        {{ $student->date_of_birth ? \Carbon\Carbon::parse($student->date_of_birth)->format('d M Y') : '—' }}
+                                        @break
+
+                                    @case('blood_group')
+                                        {{ $student->blood_group_text ?? '—' }}
+                                        @break
+
+                                    @case('father_name')
+                                        {{ $student->father_name ?? '—' }}
+                                        @break
+
+                                    @case('mother_name')
+                                        {{ $student->mother_name ?? '—' }}
+                                        @break
+
+                                    @case('father_phone')
+                                        {{ $student->father_phone ?? '—' }}
+                                        @break
+
+                                    @case('mother_phone')
+                                        {{ $student->mother_phone ?? '—' }}
+                                        @break
+
+                                    @case('guardian_phone')
+                                        {{ $student->guardian_phone ?? '—' }}
+                                        @break
+                                    
+                                    @case('present_address')
+                                        {{ $student->present_address ?? '—' }}
+                                        @break
+
+                                    @case('status')
+                                        {{ $student->status ? 'Active' : 'Inactive' }}
+                                        @break
+
+                                    @default
+                                        —
+                                @endswitch
+                            </td>
+                        @endforeach
+                    </tr>
+                @endforeach
+            @endforeach
         @endforeach
     </tbody>
 </table>

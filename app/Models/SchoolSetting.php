@@ -12,7 +12,7 @@ class SchoolSetting extends Model
         'website', 'email', 'facebook_page', 'whatsapp_number', 'whatsapp_qr',
         'contact_number_1', 'contact_number_2',
         'primary_color', 'secondary_color', 'id_card_color',
-        'logo', 'letter_head',
+        'logo', 'favicon', 'letter_head',
         'principal_designation', 'principal_name', 'principal_school_name', 'principal_phone',
         'transfer_certificate_template', 'testimonial_template',
     ];

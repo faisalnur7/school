@@ -104,8 +104,6 @@ class AppServiceProvider extends ServiceProvider
         $hubLabel = null;
 
         $hubMap = [
-            'website.cms.' => ['route' => 'website.cms.hub', 'label' => 'Website Management'],
-            'website.' => ['route' => 'website.cms.hub', 'label' => 'Website Management'],
             'inventory.sales.' => ['route' => 'inventory.sales.hub', 'label' => 'Inventory Sales Hub'],
             'inventory.' => ['route' => 'inventory.hub', 'label' => 'Inventory'],
             'yearly-final-report.' => ['route' => 'results.hub', 'label' => 'Results'],
@@ -178,8 +176,6 @@ class AppServiceProvider extends ServiceProvider
             'roles.' => ['route' => 'users.hub', 'label' => 'Users'],
             'permissions.' => ['route' => 'users.hub', 'label' => 'Users'],
             'permission-categories.' => ['route' => 'users.hub', 'label' => 'Users'],
-            'notices.' => ['route' => 'website.cms.hub', 'label' => 'Website Management'],
-            'events.' => ['route' => 'website.cms.hub', 'label' => 'Website Management'],
             'generate-id-cards.' => ['route' => 'institute.hub', 'label' => 'Institute'],
             'settings.rooms.' => ['route' => 'institute.hub', 'label' => 'Institute'],
             'settings.buildings.' => ['route' => 'institute.hub', 'label' => 'Institute'],
@@ -400,7 +396,6 @@ class AppServiceProvider extends ServiceProvider
             'district.' => ['view_location_settings'],
             'police-station.' => ['view_location_settings'],
             'post-office.' => ['view_location_settings'],
-            'website.' => ['view_website_management'],
             'inventory.' => ['view_inventory'],
             'transport.' => ['manage_transports'],
             'result.' => ['view_results'],

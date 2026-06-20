@@ -1,4 +1,40 @@
 @extends('layouts.master')
+@section('styles')
+    <style>
+        .receipt-payment-table tfoot {
+            background: #f8fafc;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .receipt-payment-table tfoot td {
+            background: transparent;
+            color: inherit;
+            border-top: 2px solid #cbd5e1;
+        }
+
+        .receipt-payment-net {
+            border-top: 2px solid #cbd5e1;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        html[data-theme='dark'] .receipt-payment-table tfoot {
+            background: #1e293b;
+            color: #f8fafc;
+        }
+
+        html[data-theme='dark'] .receipt-payment-table tfoot td {
+            border-top-color: rgba(148, 163, 184, 0.28);
+        }
+
+        html[data-theme='dark'] .receipt-payment-net {
+            border-top-color: rgba(148, 163, 184, 0.28);
+            background: #1e293b;
+            color: #f8fafc;
+        }
+    </style>
+@endsection
 @section('contents')
 <div class="container-fluid">
     @include('partials.report-header')
@@ -34,7 +70,7 @@
                     <div class="px-3 py-2" style="background:#f0fdf4;border-bottom:1px solid #bbf7d0">
                         <strong style="color:#16a34a">Receipts</strong>
                     </div>
-                    <table class="table table-sm mb-0" style="font-size:13px">
+                    <table class="table table-sm mb-0 receipt-payment-table" style="font-size:13px">
                         <thead style="background:#f8fafc">
                             <tr><th>Head</th><th class="text-right">Amount</th></tr>
                         </thead>
@@ -52,7 +88,7 @@
                                 <td class="text-right fw-semibold" style="color:#0f766e">{{ number_format($totalInventoryReceipts, 2) }}</td>
                             </tr>
                         </tbody>
-                        <tfoot style="background:#f8fafc;font-weight:700">
+                        <tfoot>
                             <tr>
                                 <td>Total Receipts</td>
                                 <td class="text-right" style="color:#16a34a">{{ number_format($grandTotalReceipts, 2) }}</td>
@@ -66,7 +102,7 @@
                     <div class="px-3 py-2" style="background:#fff1f2;border-bottom:1px solid #fecdd3">
                         <strong style="color:#e11d48">Payments</strong>
                     </div>
-                    <table class="table table-sm mb-0" style="font-size:13px">
+                    <table class="table table-sm mb-0 receipt-payment-table" style="font-size:13px">
                         <thead style="background:#f8fafc">
                             <tr><th>Head</th><th class="text-right">Amount</th></tr>
                         </thead>
@@ -80,7 +116,7 @@
                             <tr><td colspan="2" class="text-center text-muted py-3">No payments</td></tr>
                             @endforelse
                         </tbody>
-                        <tfoot style="background:#f8fafc;font-weight:700">
+                        <tfoot>
                             <tr>
                                 <td>Total Payments</td>
                                 <td class="text-right" style="color:#e11d48">{{ number_format($totalPayments, 2) }}</td>
@@ -91,7 +127,7 @@
             </div>
 
             {{-- Net --}}
-            <div class="px-4 py-3 d-flex justify-content-end gap-3" style="border-top:2px solid #e2e8f0;background:#f8fafc">
+            <div class="receipt-payment-net px-4 py-3 d-flex justify-content-end gap-3">
                 @php $net = $grandTotalReceipts - $totalPayments; @endphp
                 <span style="font-size:13px">Net Surplus / (Deficit):</span>
                 <strong style="font-size:15px;color:{{ $net >= 0 ? '#16a34a' : '#e11d48' }}">

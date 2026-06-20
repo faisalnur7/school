@@ -35,6 +35,7 @@ class StoreSchoolSettingRequest extends FormRequest
             'transfer_certificate_template' => 'nullable|string|max:10000',
             'testimonial_template'          => 'nullable|string|max:10000',
             'logo'             => 'nullable|image|max:100',
+            'favicon'          => 'nullable|file|mimes:ico,png,jpg,jpeg,gif,webp|max:100',
             'letter_head'      => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:100',
         ];
     }

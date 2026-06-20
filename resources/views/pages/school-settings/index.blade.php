@@ -176,7 +176,7 @@
 
                         {{-- File Uploads --}}
                         <div class="col-md-4">
-                            <h5 class="mb-3 text-muted border-bottom pb-2">Logo, Letter Head & WhatsApp QR</h5>
+                            <h5 class="mb-3 text-muted border-bottom pb-2">Logo, Favicon, Letter Head & WhatsApp QR</h5>
 
                             <div class="form-group">
                                 <label class="font-weight-bold">Logo</label>
@@ -195,6 +195,33 @@
                                     <div class="text-danger small">{{ $message }}</div>
                                 @enderror
                                 <small class="text-muted">Max 100KB. JPG, PNG, GIF.</small>
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label class="font-weight-bold">Favicon</label>
+                                @if ($setting->favicon)
+                                    <div class="mb-2">
+                                        @php $faviconExt = pathinfo($setting->favicon, PATHINFO_EXTENSION); @endphp
+                                        @if (in_array(strtolower($faviconExt), ['jpg', 'jpeg', 'png', 'gif', 'webp', 'ico']))
+                                            <img src="{{ asset($setting->favicon) }}" alt="Favicon" class="img-thumbnail"
+                                                style="max-height:64px">
+                                        @else
+                                            <a href="{{ asset($setting->favicon) }}" target="_blank"
+                                                class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-file"></i> View Current
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endif
+                                <input type="file" name="favicon"
+                                    class="form-control-file @error('favicon') is-invalid @enderror"
+                                    accept="image/*,.ico" onchange="previewImage(this,'faviconPreview')">
+                                <img id="faviconPreview" src="#" alt="Preview" class="img-thumbnail mt-2 d-none"
+                                    style="max-height:64px">
+                                @error('favicon')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted">Recommended 32x32 PNG or ICO. Max 100KB.</small>
                             </div>
 
                             <div class="form-group mt-3">

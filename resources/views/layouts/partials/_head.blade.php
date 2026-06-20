@@ -1,13 +1,15 @@
 <head>
     @php
         $schoolSetting = \App\Models\SchoolSetting::current();
-        $favicon = !empty($schoolSetting->logo) ? asset($schoolSetting->logo) : asset('assets/dist/img/AdminLTELogo.png');
+        $favicon = !empty($schoolSetting->favicon)
+            ? asset($schoolSetting->favicon)
+            : (!empty($schoolSetting->logo) ? asset($schoolSetting->logo) : asset('assets/dist/img/AdminLTELogo.png'));
     @endphp
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- <title>@yield('title')</title> -->
     <title>@yield('title')</title>
-    <link rel="icon" type="image/png" href="{{ $favicon }}">
+    <link rel="icon" href="{{ $favicon }}">
     <link rel="shortcut icon" href="{{ $favicon }}">
     <script>
         (function() {
@@ -61,7 +63,7 @@
     <!-- Moment.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
 
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/admin.css'])
 
     <style>
         .content-wrapper {

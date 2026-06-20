@@ -1,5 +1,25 @@
 @extends('layouts.master')
 
+@section('styles')
+    <style>
+        .supplier-dues-filters {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
+
+        .supplier-dues-filters .btn {
+            min-width: 108px;
+        }
+
+        html[data-theme='dark'] .supplier-dues-filters {
+            background: #0f172a;
+            border-color: rgba(148, 163, 184, 0.22);
+        }
+    </style>
+@endsection
+
 @section('contents')
 <div class="container-fluid">
     @include('partials.report-header')
@@ -14,7 +34,7 @@
             </div>
         </div>
         <div class="card-body">
-            <form method="GET" class="mb-3">
+            <form method="GET" class="mb-3 supplier-dues-filters">
             <div class="row g-2">
                 <div class="col-md-3">
                     <select name="supplier_id" class="form-control">
@@ -39,8 +59,9 @@
                     <input type="text" name="to" value="{{ request('to') }}" class="form-control" placeholder="To dd/mm/yyyy">
                 </div>
                 <div class="col-md-3">
-                    <button class="btn btn-secondary" title="Filter" aria-label="Filter">
+                    <button class="btn btn-dark" title="Filter" aria-label="Filter">
                         <i class="fas fa-search"></i>
+                        <span>Filter</span>
                     </button>
                     <a href="{{ route('reports.supplier-dues') }}" class="btn btn-light" title="Reset" aria-label="Reset">
                         <i class="fas fa-undo-alt"></i>

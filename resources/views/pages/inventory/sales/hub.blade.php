@@ -1,21 +1,89 @@
 @extends('layouts.master')
 
+@section('styles')
+    <style>
+        .inventory-sales-panel--sticky {
+            position: sticky;
+            top: 0.75rem;
+            z-index: 40;
+            backdrop-filter: blur(12px);
+        }
+
+        #inventorySalesPanel {
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%) !important;
+            border: 1px solid rgba(148, 163, 184, 0.18) !important;
+        }
+
+        .inventory-sales-panel--sticky .card-body {
+            background: transparent !important;
+        }
+
+        .inventory-sales-filter .form-control,
+        .inventory-sales-filter .form-select {
+            min-height: 2.9rem;
+        }
+
+        .inventory-sales-receipt-col {
+            width: 11rem;
+            white-space: nowrap;
+        }
+
+        .inventory-sales-receipt,
+        .inventory-sales-receipt-method {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: normal;
+        }
+
+        .inventory-sales-receipt-method {
+            max-width: 100%;
+        }
+
+        .inventory-sales-list .btn-outline-primary {
+            min-width: 5.75rem;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        html[data-theme='dark'] .inventory-sales-panel--sticky .card-body {
+            background: transparent !important;
+        }
+
+        html[data-theme='dark'] #inventorySalesPanel {
+            background: linear-gradient(180deg, rgba(17, 24, 39, 0.98) 0%, rgba(15, 23, 42, 0.96) 100%) !important;
+            border-color: rgba(148, 163, 184, 0.18) !important;
+            box-shadow: 0 10px 24px rgba(2, 6, 23, 0.26) !important;
+        }
+
+        html[data-theme='dark'] .inventory-sales-receipt-col,
+        html[data-theme='dark'] .inventory-sales-receipt,
+        html[data-theme='dark'] .inventory-sales-receipt-method {
+            color: #e2e8f0;
+        }
+    </style>
+@endsection
+
 @section('contents')
-<div class="container-fluid py-4">
-    <div class="rounded-4 shadow-sm overflow-hidden mb-4" style="background:linear-gradient(135deg,#0f766e,#115e59);">
-        <div class="position-relative p-4 p-md-5">
-            <div class="position-absolute top-0 end-0 w-25 h-100 opacity-25" style="background:radial-gradient(circle at top right, rgba(255,255,255,.35), transparent 65%);"></div>
+<div class="container-fluid py-4 inventory-sales-hub">
+    <div class="inventory-sales-hero shadow-sm overflow-hidden mb-4">
+        <div class="inventory-sales-hero__inner position-relative p-4 p-md-5">
+            <div class="inventory-sales-hero__glow"></div>
             <div class="d-flex flex-wrap align-items-center gap-3 position-relative">
-                <div class="d-flex align-items-center justify-content-center rounded-4 bg-white bg-opacity-15" style="width:72px;height:72px;">
-                    <i class="fas fa-receipt text-white fs-2"></i>
+                <div class="inventory-sales-hero__icon">
+                    <i class="fas fa-cash-register inventory-sales-hero__icon-mark" aria-hidden="true"></i>
                 </div>
-                <div class="text-white">
-                    <h3 class="mb-1 fw-bold">Inventory Sales Hub</h3>
-                    <p class="mb-0 text-white-50">Browse sales and filter by the purchase items behind the stock source.</p>
+                <div class="inventory-sales-hero__copy text-white">
+                    <h3 class="mb-1 fw-bold inventory-sales-hero__title">Inventory Sales Hub</h3>
+                    <p class="mb-0 inventory-sales-hero__subtitle">Browse sales and filter by the purchase items behind the stock source.</p>
                 </div>
-                <div class="ms-auto d-flex flex-wrap gap-2">
+                <div class="ml-auto d-flex flex-wrap gap-2 inventory-sales-hero__actions">
                     <a href="{{ route('inventory.hub') }}" class="btn btn-light btn-sm fw-semibold rounded-3">
-                        <i class="fas fa-arrow-left me-1"></i> Back to Hub
+                        <i class="fas fa-arrow-left mr-1"></i> Back to Hub
                     </a>
                     <a href="{{ route('inventory.purchases.index') }}" class="btn btn-outline-light btn-sm fw-semibold rounded-3">
                         Purchases
@@ -25,9 +93,15 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-4 mb-4">
-        <div class="card-body p-4">
-            <form method="GET" action="{{ route('inventory.sales.hub') }}" class="row g-3 align-items-end">
+    <div
+        id="inventorySalesPanel"
+        class="card border-0 shadow-sm rounded-4 mb-4 inventory-sales-panel inventory-sales-panel--sticky"
+    >
+        <div
+            class="card-body p-4 inventory-sales-panel__body"
+            style="background: transparent !important;"
+        >
+            <form method="GET" action="{{ route('inventory.sales.hub') }}" class="row g-3 align-items-end inventory-sales-filter">
                 <div class="col-md-4 col-lg-3">
                     <label class="form-label fw-semibold text-muted small">Search</label>
                     <input type="text" name="q" value="{{ request('q') }}" class="form-control rounded-3" placeholder="Receipt, student, item...">
@@ -77,7 +151,7 @@
         </div>
     </div>
 
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-4 inventory-sales-stats">
         <div class="col-md-4">
             <div class="card border-0 shadow-sm rounded-4 h-100">
                 <div class="card-body p-4">
@@ -105,7 +179,7 @@
     </div>
 
     @if($selectedPurchase)
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card border-0 shadow-sm rounded-4 mb-4 inventory-sales-summary">
             <div class="card-header bg-white border-0 py-3 px-4">
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                     <div>
@@ -130,7 +204,7 @@
         </div>
     @endif
 
-    <div class="card border-0 shadow-sm rounded-4">
+    <div class="card border-0 shadow-sm rounded-4 inventory-sales-list">
         <div class="card-header bg-white border-0 py-3 px-4">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <div>
@@ -144,7 +218,7 @@
             <table class="table align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="px-4">Receipt</th>
+                        <th class="px-4 inventory-sales-receipt-col">Receipt</th>
                         <th>Student / Buyer</th>
                         <th>Items</th>
                         <th class="text-end">Gross</th>
@@ -163,9 +237,9 @@
                             })->unique()->values();
                         @endphp
                         <tr>
-                            <td class="px-4">
-                                <div class="fw-semibold">{{ $sale->payment?->receipt_no ?? '—' }}</div>
-                                <div class="text-muted small">{{ $sale->payment?->payment_method ?? 'Sale' }}</div>
+                            <td class="px-4 inventory-sales-receipt-col">
+                                <div class="fw-semibold inventory-sales-receipt">{{ $sale->payment?->receipt_no ?? '—' }}</div>
+                                <div class="text-muted small inventory-sales-receipt-method">{{ $sale->payment?->payment_method ?? 'Sale' }}</div>
                             </td>
                             <td>
                                 <div class="fw-semibold">{{ $sale->student?->full_name_en ?? 'Walk-in / Unknown' }}</div>

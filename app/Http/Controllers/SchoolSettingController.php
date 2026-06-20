@@ -32,6 +32,15 @@ class SchoolSettingController extends Controller
             unset($validated['logo']);
         }
 
+        if ($request->hasFile('favicon')) {
+            $image    = $request->file('favicon');
+            $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('uploads/school_settings'), $filename);
+            $validated['favicon'] = 'uploads/school_settings/' . $filename;
+        } else {
+            unset($validated['favicon']);
+        }
+
         if ($request->hasFile('letter_head')) {
             $file     = $request->file('letter_head');
             $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();

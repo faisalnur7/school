@@ -34,6 +34,13 @@
             color: #6b7280;
         }
 
+        .students-directory .students-directory-subtitle {
+            margin-top: 2px;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #6b7280;
+        }
+
         .students-directory .students-toolbar {
             background: #ffffff;
             border: 1px solid #e7e5e4;
@@ -51,7 +58,7 @@
 
         .students-directory .students-filter-row {
             display: grid;
-            grid-template-columns: minmax(220px, 2.2fr) repeat(4, minmax(140px, 1fr)) auto auto;
+            grid-template-columns: minmax(220px, 2.2fr) repeat(5, minmax(120px, 1fr)) auto auto;
             gap: 0.75rem;
             align-items: center;
         }
@@ -357,6 +364,35 @@
             color: #111827;
         }
 
+        .students-directory .students-pdf-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.6rem;
+            min-height: 2.6rem;
+            padding: 0.45rem 0.65rem;
+            border-radius: 12px;
+            border: 1px solid #fecaca;
+            background: #fff;
+            color: #dc2626;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .students-directory .students-pdf-action:hover {
+            transform: translateY(-1px);
+            border-color: #fca5a5;
+            background: #fff5f5;
+            color: #b91c1c;
+            box-shadow: 0 12px 22px rgba(15, 23, 42, 0.08);
+        }
+
+        .students-directory .students-pdf-action i {
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1;
+        }
+
         .students-directory .students-table-wrap {
             overflow-x: auto;
         }
@@ -395,6 +431,47 @@
 
         .students-directory .students-table tbody tr:hover {
             background: #fcfcfd;
+        }
+
+        .students-directory .students-group-row td {
+            padding: 0.75rem 1rem;
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: #1f2937;
+            background: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .students-directory .students-group-row--section td {
+            padding-left: 1.3rem;
+            background: #f9fafb;
+        }
+
+        .students-directory .students-group-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            padding: 0.22rem 0.55rem;
+            border-radius: 999px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .students-directory .students-group-badge--section {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .students-directory .students-group-meta {
+            margin-left: 0.5rem;
+            color: #6b7280;
+            font-size: 0.78rem;
+            font-weight: 600;
         }
 
         .students-directory .students-serial {
@@ -698,6 +775,277 @@
                 width: 100%;
                 justify-content: center;
             }
+        }
+
+        html[data-theme='dark'] .students-directory {
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .students-directory .students-title,
+        html[data-theme='dark'] .students-directory .students-table-title,
+        html[data-theme='dark'] .students-directory .students-pdf-title,
+        html[data-theme='dark'] .students-directory .student-name {
+            color: #f8fafc;
+        }
+
+        html[data-theme='dark'] .students-directory .students-directory-subtitle {
+            color: #cbd5e1;
+        }
+
+        html[data-theme='dark'] .students-directory .students-subtitle,
+        html[data-theme='dark'] .students-directory .students-table-meta,
+        html[data-theme='dark'] .students-directory .students-pdf-subtitle,
+        html[data-theme='dark'] .students-directory .students-footer,
+        html[data-theme='dark'] .students-directory .student-subline,
+        html[data-theme='dark'] .students-directory .student-inline-meta,
+        html[data-theme='dark'] .students-directory .student-meta-item,
+        html[data-theme='dark'] .students-directory .student-contact-item,
+        html[data-theme='dark'] .students-directory .students-filter-group label {
+            color: #94a3b8;
+        }
+
+        html[data-theme='dark'] .students-directory .students-toolbar,
+        html[data-theme='dark'] .students-directory .students-table-shell,
+        html[data-theme='dark'] .students-directory .students-pdf-panel {
+            background: linear-gradient(180deg, rgba(17, 24, 39, 0.98) 0%, rgba(15, 23, 42, 0.96) 100%);
+            border-color: rgba(148, 163, 184, 0.18);
+            box-shadow: 0 10px 24px rgba(2, 6, 23, 0.26);
+        }
+
+        html[data-theme='dark'] .students-directory .students-table-header,
+        html[data-theme='dark'] .students-directory .students-footer {
+            border-color: rgba(148, 163, 184, 0.14);
+        }
+
+        html[data-theme='dark'] .students-directory .students-advanced-filters {
+            border-top-color: rgba(148, 163, 184, 0.14);
+        }
+
+        html[data-theme='dark'] .students-directory .students-search-input,
+        html[data-theme='dark'] .students-directory .students-filter-select,
+        html[data-theme='dark'] .students-directory .students-filter-input {
+            border-color: rgba(148, 163, 184, 0.2);
+            background: rgba(15, 23, 42, 0.96);
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .students-directory .students-search-input::placeholder,
+        html[data-theme='dark'] .students-directory .students-filter-input::placeholder {
+            color: #94a3b8;
+        }
+
+        html[data-theme='dark'] .students-directory .students-search-field i,
+        html[data-theme='dark'] .students-directory .student-inline-meta i,
+        html[data-theme='dark'] .students-directory .student-meta-item i,
+        html[data-theme='dark'] .students-directory .student-contact-item i {
+            color: #94a3b8;
+        }
+
+        html[data-theme='dark'] .students-directory .students-search-input:focus,
+        html[data-theme='dark'] .students-directory .students-filter-select:focus,
+        html[data-theme='dark'] .students-directory .students-filter-input:focus {
+            border-color: rgba(96, 165, 250, 0.35);
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.12);
+        }
+
+        html[data-theme='dark'] .students-directory .students-more-filters {
+            border-color: rgba(148, 163, 184, 0.18);
+            background: rgba(15, 23, 42, 0.96);
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .students-directory .students-more-filters:hover {
+            background: #1e293b;
+            color: #f8fafc;
+        }
+
+        html[data-theme='dark'] .students-directory .students-filter-count,
+        html[data-theme='dark'] .students-directory .students-count-pill {
+            background: #1e293b;
+            color: #f8fafc;
+        }
+
+        html[data-theme='dark'] .students-directory .students-pdf-title {
+            color: #f8fafc;
+        }
+
+        html[data-theme='dark'] .students-directory .students-pdf-subtitle {
+            color: #94a3b8;
+        }
+
+        html[data-theme='dark'] .students-directory .students-pdf-toggle,
+        html[data-theme='dark'] .students-directory .students-pdf-option .form-check-label {
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .students-directory .students-pdf-panel .form-check-input {
+            background-color: rgba(15, 23, 42, 0.96);
+            border-color: #64748b;
+        }
+
+        html[data-theme='dark'] .students-directory .students-pdf-panel .form-check-input:checked {
+            background-color: #60a5fa;
+            border-color: #60a5fa;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M6.2 11.2 2.9 8l-1.1 1.1 4.4 4.4L14.2 5.5 13.1 4.4 6.2 11.2Z' fill='%230b1220'/%3E%3C/svg%3E");
+        }
+
+        html[data-theme='dark'] .students-directory .students-pdf-panel .form-check-input:focus {
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.14);
+        }
+
+        html[data-theme='dark'] .students-directory .students-pdf-panel .form-check-input:hover {
+            border-color: #93c5fd;
+        }
+
+        html[data-theme='dark'] .students-directory .students-table thead th {
+            background: #1e293b;
+            border-bottom-color: rgba(148, 163, 184, 0.16);
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .students-directory .students-table tbody td {
+            border-bottom-color: rgba(148, 163, 184, 0.14);
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .students-directory .students-table tbody tr:hover {
+            background: rgba(30, 41, 59, 0.78);
+        }
+
+        html[data-theme='dark'] .students-directory .students-group-row td {
+            background: rgba(15, 23, 42, 0.96);
+            border-bottom-color: rgba(148, 163, 184, 0.16);
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .students-directory .students-group-row--section td {
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        html[data-theme='dark'] .students-directory .students-group-badge {
+            background: rgba(96, 165, 250, 0.16);
+            color: #bfdbfe;
+        }
+
+        html[data-theme='dark'] .students-directory .students-group-badge--section {
+            background: rgba(14, 165, 233, 0.16);
+            color: #bae6fd;
+        }
+
+        html[data-theme='dark'] .students-directory .students-group-meta {
+            color: #94a3b8;
+        }
+
+        html[data-theme='dark'] .students-directory .student-chip--light {
+            background: rgba(15, 23, 42, 0.94);
+            border-color: rgba(148, 163, 184, 0.2);
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .students-directory .student-chip--dark {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        html[data-theme='dark'] .students-directory .student-chip--info {
+            background: rgba(96, 165, 250, 0.16);
+            color: #bfdbfe;
+        }
+
+        html[data-theme='dark'] .students-directory .student-chip--success {
+            background: rgba(34, 197, 94, 0.16);
+            color: #bbf7d0;
+        }
+
+        html[data-theme='dark'] .students-directory .student-chip--warning {
+            background: rgba(245, 158, 11, 0.16);
+            color: #fde68a;
+        }
+
+        html[data-theme='dark'] .students-directory .student-switch-track {
+            background: #334155;
+        }
+
+        html[data-theme='dark'] .students-directory .student-switch-track::after {
+            background: #f8fafc;
+        }
+
+        html[data-theme='dark'] .students-directory .student-switch input:checked + .student-switch-track {
+            background: #2563eb;
+        }
+
+        html[data-theme='dark'] .students-directory .students-action-btn.btn-dark {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #fff;
+        }
+
+        html[data-theme='dark'] .students-directory .students-action-btn.btn-outline-secondary {
+            border-color: rgba(148, 163, 184, 0.28);
+            background: rgba(15, 23, 42, 0.96);
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .students-directory .students-action-btn.btn-outline-secondary:hover {
+            background: #1e293b;
+            border-color: rgba(148, 163, 184, 0.36);
+            color: #f8fafc;
+        }
+
+        html[data-theme='dark'] .students-directory .students-pdf-action {
+            border-color: rgba(248, 113, 113, 0.34);
+            background: rgba(15, 23, 42, 0.96);
+            color: #fca5a5;
+        }
+
+        html[data-theme='dark'] .students-directory .students-pdf-action:hover {
+            background: rgba(127, 29, 29, 0.38);
+            border-color: rgba(248, 113, 113, 0.46);
+            color: #fecaca;
+        }
+
+        html[data-theme='dark'] .students-directory .student-icon-btn {
+            background: rgba(15, 23, 42, 0.96);
+            border-color: rgba(148, 163, 184, 0.2);
+            color: #cbd5e1;
+        }
+
+        html[data-theme='dark'] .students-directory .student-icon-btn:hover {
+            background: #1e293b;
+            border-color: rgba(148, 163, 184, 0.3);
+            color: #f8fafc;
+        }
+
+        html[data-theme='dark'] .students-directory .student-icon-btn--danger {
+            color: #fca5a5;
+            border-color: rgba(248, 113, 113, 0.3);
+            background: rgba(15, 23, 42, 0.96);
+        }
+
+        html[data-theme='dark'] .students-directory .student-icon-btn--danger:hover {
+            background: rgba(127, 29, 29, 0.45);
+            border-color: rgba(248, 113, 113, 0.4);
+            color: #fecaca;
+        }
+
+        html[data-theme='dark'] .students-directory .students-empty {
+            color: #94a3b8;
+        }
+
+        html[data-theme='dark'] .students-directory .students-empty i {
+            color: #64748b;
+        }
+
+        html[data-theme='dark'] .students-directory .students-pagination .page-link {
+            background: rgba(15, 23, 42, 0.96);
+            border-color: rgba(148, 163, 184, 0.2);
+            color: #cbd5e1;
+        }
+
+        html[data-theme='dark'] .students-directory .students-pagination .page-item.active .page-link {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #fff;
         }
     </style>
 @endsection

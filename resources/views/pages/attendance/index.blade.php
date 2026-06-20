@@ -34,52 +34,49 @@
                     </h4>
                 </div>
             </div>
-            <div class="card-body py-2">
+            <div class="card-body">
+                <div class="attendance-filter-panel">
+                    <div class="attendance-filter-row">
+                        <div class="attendance-filter-field">
+                            <label class="attendance-filter-label" for="att_session_id">Session</label>
+                            <select id="att_session_id" class="form-control form-control-sm attendance-filter-control" required>
+                                <option value="">Select Session</option>
+                                @foreach ($sessions as $session)
+                                    <option value="{{ $session->id }}">{{ $session->name_en }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                <div class="d-flex flex-wrap align-items-end">
+                        <div class="attendance-filter-field">
+                            <label class="attendance-filter-label" for="classSelect">Class</label>
+                            <select id="classSelect" class="form-control form-control-sm attendance-filter-control" required>
+                                <option value="">Select Class</option>
+                                @foreach ($classes as $class)
+                                    <option value="{{ $class->id }}">{{ $class->name_en }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    {{-- Session --}}
-                    <div class="p-1" style="flex: 1; min-width: 180px;">
-                        <select id="att_session_id" class="form-control form-control-sm" required>
-                            <option value="">Select Session</option>
-                            @foreach ($sessions as $session)
-                                <option value="{{ $session->id }}">{{ $session->name_en }}</option>
-                            @endforeach
-                        </select>
+                        <div class="attendance-filter-field">
+                            <label class="attendance-filter-label" for="sectionSelect">Section</label>
+                            <select id="sectionSelect" class="form-control form-control-sm attendance-filter-control" required>
+                                <option value="">Select Section</option>
+                            </select>
+                        </div>
+
+                        <div class="attendance-filter-field">
+                            <label class="attendance-filter-label" for="att_date">Date</label>
+                            <input type="date" id="att_date" class="form-control form-control-sm attendance-filter-control"
+                                value="{{ $defaultDate }}" required />
+                        </div>
+
+                        <div class="attendance-filter-action">
+                            <button type="button" id="btnLoadStudents" class="btn btn-primary btn-sm attendance-filter-btn">
+                                Load Students
+                            </button>
+                        </div>
                     </div>
-
-                    {{-- Class --}}
-                    <div class="p-1" style="flex: 1; min-width: 140px;">
-                        <select id="classSelect" class="form-control form-control-sm" required>
-                            <option value="">Select Class</option>
-                            @foreach ($classes as $class)
-                                <option value="{{ $class->id }}">{{ $class->name_en }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    {{-- Section --}}
-                    <div class="p-1" style="flex: 1; min-width: 140px;">
-                        <select id="sectionSelect" class="form-control form-control-sm" required>
-                            <option value="">Select Section</option>
-                        </select>
-                    </div>
-
-                    {{-- Date --}}
-                    <div class="p-1" style="flex: 1; min-width: 160px;">
-                        <input type="date" id="att_date" class="form-control form-control-sm"
-                            value="{{ $defaultDate }}" required />
-                    </div>
-
-                    {{-- Button --}}
-                    <div class="p-1" style="min-width: 140px;">
-                        <button type="button" id="btnLoadStudents" class="btn btn-primary btn-sm btn-block w-100">
-                            Load Students
-                        </button>
-                    </div>
-
                 </div>
-
             </div>
         </div>
 
