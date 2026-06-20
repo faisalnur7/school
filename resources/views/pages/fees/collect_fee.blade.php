@@ -64,6 +64,25 @@
             text-align: center;
         }
 
+        .fee-collect-page #mainTabs {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .fee-collect-page #mainTabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .fee-collect-page #mainTabs .nav-item {
+            flex: 0 0 auto;
+        }
+
+        .fee-collect-page #mainTabs .nav-link {
+            white-space: nowrap;
+        }
+
         .fee-collect-page .discount-row {
             margin-bottom: 1rem;
         }
@@ -81,8 +100,213 @@
             border-radius: 14px !important;
         }
 
+        .fee-collect-page .inv-item-card--out {
+            opacity: .58;
+            background: #f8fafc !important;
+            border-color: #dbe4ee !important;
+        }
+
+        .fee-collect-page .inv-item-card--out:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            cursor: not-allowed !important;
+        }
+
         .fee-collect-page .scroll-area {
             padding-right: 0.15rem;
+        }
+
+        .fee-collect-page .cart-row {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-areas:
+                "main remove"
+                "controls controls";
+            gap: 0.3rem 0.55rem;
+            padding: 0.6rem 0.65rem !important;
+            align-items: start;
+            align-content: start;
+        }
+
+        .fee-collect-page .cart-row > .flex-grow-1,
+        .fee-collect-page .cart-row-main {
+            grid-area: main;
+            min-width: 0;
+        }
+
+        .fee-collect-page .cart-row > .text-end,
+        .fee-collect-page .cart-row-controls {
+            grid-area: controls;
+            width: 100%;
+            min-width: 0 !important;
+            text-align: left !important;
+        }
+
+        .fee-collect-page .cart-row-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.35rem 0.5rem;
+        }
+
+        .fee-collect-page .cart-row .remove-btn,
+        .fee-collect-page .cart-row-remove {
+            grid-area: remove;
+            align-self: start;
+            justify-self: end;
+            width: 30px;
+            height: 30px;
+            padding: 0 !important;
+            line-height: 1;
+            border-radius: 999px !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            margin-left: 0 !important;
+        }
+
+        .fee-collect-page .cart-line-title {
+            display: block;
+            font-size: 13px;
+            line-height: 1.25;
+            font-weight: 600;
+            color: #111827;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .fee-collect-page .cart-line-subtitle {
+            display: block;
+            margin-top: 0.15rem;
+            font-size: 11px;
+            line-height: 1.2;
+            color: #64748b;
+        }
+
+        .fee-collect-page .cart-line-total {
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .fee-collect-page .cart-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.4rem 0.6rem;
+        }
+
+        .fee-collect-page #cartItems {
+            gap: 0.5rem !important;
+        }
+
+        .fee-collect-page .cart-control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            min-width: 0;
+            flex: 1 1 120px;
+        }
+
+        .fee-collect-page .cart-control-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            white-space: nowrap;
+        }
+
+        .fee-collect-page .cart-control-group .input-group {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .fee-collect-page .cart-control-group .form-control,
+        .fee-collect-page .cart-control-group .input-group-text {
+            padding-top: 0.28rem;
+            padding-bottom: 0.28rem;
+            font-size: 0.8rem;
+        }
+
+        .fee-collect-page .cart-control-group .form-control {
+            min-width: 0;
+        }
+
+        .fee-collect-page .cart-control-group--qty .form-control {
+            max-width: 54px;
+            text-align: center;
+        }
+
+        .fee-collect-page .cart-qty-stepper {
+            display: inline-flex;
+            align-items: stretch;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .fee-collect-page .cart-qty-stepper-btn {
+            width: 28px;
+            border: 0;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .fee-collect-page .cart-qty-stepper-btn:hover:not(:disabled) {
+            background: #eef2ff;
+            color: #4338ca;
+        }
+
+        .fee-collect-page .cart-qty-stepper-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .fee-collect-page .cart-qty-stepper-input {
+            width: 38px !important;
+            border: 0 !important;
+            border-left: 1px solid #cbd5e1 !important;
+            border-right: 1px solid #cbd5e1 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            text-align: center;
+            padding-left: 0.15rem !important;
+            padding-right: 0.15rem !important;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .fee-collect-page .cart-qty-stepper-input::-webkit-outer-spin-button,
+        .fee-collect-page .cart-qty-stepper-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .fee-collect-page .cart-control-group--paid .input-group {
+            max-width: 128px;
+        }
+
+        .fee-collect-page .cart-row-controls .cart-line-total {
+            margin-left: auto;
+            padding-left: 0.25rem;
+        }
+
+        .fee-collect-page .history-summary {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 0.25rem 0.35rem;
         }
 
         .fee-collect-page .table-responsive {
@@ -104,21 +328,201 @@
             white-space: nowrap;
         }
 
+        .fee-collect-page .payment-history-table thead th {
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .fee-collect-page .payment-history-table tbody td {
+            vertical-align: middle;
+        }
+
+        .fee-collect-page .payment-history-table td.payment-history-items {
+            white-space: normal !important;
+            min-width: 320px;
+            max-width: 520px;
+        }
+
+        .fee-collect-page .payment-history-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem 0.4rem;
+            align-items: center;
+        }
+
+        .fee-collect-page .payment-history-tag {
+            display: inline-flex;
+            align-items: center;
+            max-width: 100%;
+            white-space: nowrap;
+            line-height: 1.1;
+            padding: 0.38rem 0.58rem;
+        }
+
+        .fee-collect-page .payment-history-table td.payment-history-method,
+        .fee-collect-page .payment-history-table td.payment-history-gross,
+        .fee-collect-page .payment-history-table td.payment-history-scholarship,
+        .fee-collect-page .payment-history-table td.payment-history-discount,
+        .fee-collect-page .payment-history-table td.payment-history-paid,
+        .fee-collect-page .payment-history-table td.payment-history-collector,
+        .fee-collect-page .payment-history-table td.payment-history-actions {
+            white-space: nowrap;
+        }
+
+        .fee-collect-page .payment-history-table td.payment-history-actions {
+            min-width: 180px;
+        }
+
+        .fee-collect-page .payment-history-table .payment-history-action-btn {
+            white-space: nowrap;
+        }
+
         @media (max-width: 991.98px) {
+            .fee-collect-page .payment-history-table td.payment-history-items {
+                min-width: 260px;
+                max-width: 360px;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-actions {
+                min-width: 150px;
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .fee-collect-page {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+            }
+
             .fee-collect-page .student-header-card .card-inner {
-                padding: 1rem 1rem 1rem 1.25rem;
-                gap: 1rem;
+                padding: 1rem;
+                gap: 0.75rem;
+                align-items: flex-start;
+            }
+
+            .fee-collect-page .student-identity {
+                width: 100%;
+            }
+
+            .fee-collect-page .student-name {
+                white-space: normal;
             }
 
             .fee-collect-page .meta-chips {
                 width: 100%;
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .fee-collect-page .chip {
+                min-width: 0;
+                width: 100%;
+            }
+
+            .fee-collect-page .chip--switch {
+                grid-column: 1 / -1;
+            }
+
+            .fee-collect-page .chip--switch .d-flex {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            .fee-collect-page .chip--switch .form-control,
+            .fee-collect-page .chip--switch .btn {
+                width: 100%;
+            }
+
+            .fee-collect-page .scroll-area {
+                max-height: none !important;
+            }
+
+            .fee-collect-page .history-summary {
+                width: 100%;
+                justify-content: flex-start;
+                margin-left: 0 !important;
+                margin-top: 0.5rem;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .fee-collect-page {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+
+            .fee-collect-page .student-header-card .card-inner {
+                padding: 0.85rem;
+            }
+
+            .fee-collect-page .meta-chips {
+                grid-template-columns: 1fr;
+            }
+
+            .fee-collect-page .back-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .fee-collect-page #mainTabs .nav-link {
+                padding: 0.65rem 0.9rem;
+                font-size: 0.95rem;
+            }
+
+            .fee-collect-page .card .card-header,
+            .fee-collect-page .card .card-body,
+            .fee-collect-page .card form .card-footer {
+                padding-left: 0.9rem !important;
+                padding-right: 0.9rem !important;
+            }
+
+            .fee-collect-page .cart-row {
+                grid-template-columns: minmax(0, 1fr) auto;
+                gap: 0.28rem 0.45rem;
+                padding: 0.55rem 0.6rem !important;
+            }
+
+            .fee-collect-page #cartItems {
+                gap: 0.4rem !important;
+            }
+
+            .fee-collect-page .cart-controls {
+                justify-content: flex-start;
+            }
+
+            .fee-collect-page .cart-row-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .fee-collect-page .cart-control-group {
+                flex: 1 1 100%;
+                width: 100%;
+            }
+
+            .fee-collect-page .cart-control-group--qty {
+                width: auto;
+                flex: 0 0 auto;
+            }
+
+            .fee-collect-page .cart-control-group--paid .input-group {
+                max-width: 100%;
+            }
+
+            .fee-collect-page .cart-row-controls .cart-line-total {
+                margin-left: 0;
+                align-self: flex-end;
+            }
+
+            .fee-collect-page .history-summary {
+                font-size: 0.8rem;
             }
         }
     </style>
 @endsection
 
 @section('contents')
-    <div class="container-fluid py-4 px-4 fee-collect-page">
+    <div class="container-fluid py-3 px-3 py-lg-4 px-lg-4 fee-collect-page">
 
         {{-- ── Student Banner ── --}}
         <div class="student-header-card mb-4">
@@ -146,7 +550,7 @@
                         <span class="chip-label">ID</span>
                         <span class="chip-value">{{ $student->student_cid }}</span>
                     </div>
-                    <div class="chip" style="min-width:220px">
+                    <div class="chip chip--switch" style="min-width:220px">
                         <span class="chip-label">STUDENT ID</span>
                         <div class="d-flex align-items-center gap-2 mt-1">
                             <input type="text" id="studentCidSwitch" class="form-control form-control-sm"
@@ -202,7 +606,7 @@
                 <div class="row g-4">
 
                     {{-- LEFT: Categories --}}
-                    <div class="col-md-3 col-xl-2">
+                    <div class="col-12 col-lg-3 col-xl-2">
 
                         {{-- Fee Categories --}}
                         <div class="card border-0 shadow-sm rounded-4 mb-3">
@@ -316,7 +720,7 @@
                     </div>{{-- /col LEFT --}}
 
                     {{-- MIDDLE: Pending Fees / Items --}}
-                    <div class="col-md-5 col-xl-6">
+                    <div class="col-12 col-lg-5 col-xl-6">
                         <div class="card border-0 shadow-sm rounded-4 h-100">
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
@@ -398,14 +802,15 @@
                                     {{-- Inventory Item Cards --}}
                                     @foreach($inventoryCategories as $cat)
                                         @foreach($cat->items as $invItem)
-                                            <div class="inv-item-card align-items-center gap-2 rounded-3 px-3 py-2 mb-2"
+                                            <div class="inv-item-card align-items-center gap-2 rounded-3 px-3 py-2 mb-2 {{ $invItem->current_stock > 0 ? '' : 'inv-item-card--out' }}"
                                                 data-inv-cat="{{ $cat->id }}"
                                                 data-inv-id="{{ $invItem->id }}"
                                                 data-name="{{ $invItem->name }}"
                                                 data-price="{{ $invItem->selling_price }}"
                                                 data-stock="{{ $invItem->current_stock }}"
                                                 data-unit="{{ $invItem->unit }}"
-                                                style="display:none;border:1.5px solid #d1fae5;cursor:pointer;background:#f0fdf4">
+                                                aria-disabled="{{ $invItem->current_stock > 0 ? 'false' : 'true' }}"
+                                                style="display:none;border:1.5px solid #d1fae5;cursor:{{ $invItem->current_stock > 0 ? 'pointer' : 'not-allowed' }};background:#f0fdf4">
                                                 {{-- Icon --}}
                                                 <div class="d-flex align-items-center justify-content-center flex-shrink-0 rounded-3"
                                                     style="width:34px;height:34px;background:#dcfce7">
@@ -425,17 +830,9 @@
                                                         @endif
                                                     </div>
                                                 </div>
-                                                {{-- Price + qty --}}
+                                                {{-- Price + stock --}}
                                                 <div class="d-flex align-items-center gap-2 flex-shrink-0">
                                                     <span class="mono fw-bold" style="font-size:14px;color:#059669">{{ number_format($invItem->selling_price, 2) }}</span>
-                                                    @if($invItem->current_stock > 0)
-                                                        <input type="number" class="inv-qty-input form-control form-control-sm"
-                                                            value="1" min="1" max="{{ $invItem->current_stock }}"
-                                                            style="width:52px;border-radius:8px;font-size:12px;text-align:center;border:1px solid #bbf7d0"
-                                                            onclick="event.stopPropagation()">
-                                                        <span class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
-                                                            style="width:26px;height:26px;background:#16a34a;color:#fff;font-size:14px;font-weight:700">+</span>
-                                                    @endif
                                                 </div>
                                             </div>
                                         @endforeach
@@ -447,7 +844,7 @@
                     </div>{{-- /col MIDDLE --}}
 
                     {{-- RIGHT: Cart --}}
-                    <div class="col-md-4 col-xl-4">
+                    <div class="col-12 col-lg-4 col-xl-4">
                         <div class="card border-0 shadow-sm rounded-4 h-100">
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
@@ -549,7 +946,7 @@
                         <div class="d-flex align-items-center gap-2">
                             <span class="fs-5">📑</span>
                             <span class="panel-eyebrow">Payment History</span>
-                            <span class="ms-auto" style="font-size:12px;color:#64748b">
+                            <span class="ms-auto history-summary" style="font-size:12px;color:#64748b">
                                 Total Paid:
                                 <strong style="color:#111827">
                                     BDT {{ number_format($payments->sum('amount'), 2) }}
@@ -567,14 +964,13 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
+                            <table class="table table-hover align-middle mb-0 payment-history-table">
                                 <thead style="background:#f8fafc;font-size:11px;letter-spacing:.07em">
                                     <tr>
                                         <th class="mono px-4 py-3 text-muted">#</th>
                                         <th class="mono px-4 py-3 text-muted">RECEIPT NO</th>
                                         <th class="mono px-4 py-3 text-muted">DATE</th>
                                         <th class="mono px-4 py-3 text-muted">ITEMS</th>
-                                        <th class="mono px-4 py-3 text-muted">METHOD</th>
                                         <th class="mono px-4 py-3 text-muted">GROSS</th>
                                         <th class="mono px-4 py-3 text-muted">SCHOLARSHIP</th>
                                         <th class="mono px-4 py-3 text-muted">DISCOUNT</th>
@@ -598,35 +994,32 @@
                                             <td class="px-4 py-3 mono text-muted" style="font-size:13px">
                                                 {{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}
                                             </td>
-                                            <td class="px-4 py-3" style="font-size:13px">
-                                                @foreach ($payment->items as $item)
-                                                    <span class="badge rounded-pill me-1 mb-1"
-                                                        style="font-size:10px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0">
-                                                        {{ $item->fee->feeSet->name ?? 'Fee' }}
-                                                    </span>
-                                                @endforeach
-                                                @if ($payment->inventorySale?->items?->isNotEmpty())
-                                                    @foreach ($payment->inventorySale->items as $saleItem)
-                                                        <span class="badge rounded-pill me-1 mb-1"
-                                                            style="font-size:10px;background:#ecfdf5;color:#059669;border:1px solid #a7f3d0">
-                                                            {{ $saleItem->inventoryItem->name ?? 'Inventory' }}
+                                            <td class="px-4 py-3 payment-history-items" style="font-size:13px">
+                                                <div class="payment-history-tags">
+                                                    @foreach ($payment->items as $item)
+                                                        <span class="badge rounded-pill payment-history-tag"
+                                                            style="font-size:10px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0">
+                                                            {{ $item->fee->feeSet->name ?? 'Fee' }}
                                                         </span>
                                                     @endforeach
-                                                @endif
+                                                    @if ($payment->inventorySale?->items?->isNotEmpty())
+                                                        @foreach ($payment->inventorySale->items as $saleItem)
+                                                            <span class="badge rounded-pill payment-history-tag"
+                                                                style="font-size:10px;background:#ecfdf5;color:#059669;border:1px solid #a7f3d0">
+                                                                {{ $saleItem->inventoryItem->name ?? 'Inventory' }}
+                                                            </span>
+                                                        @endforeach
+                                                    @endif
+                                                </div>
                                             </td>
-                                            <td class="px-4 py-3" style="font-size:13px">
-                                                <span class="badge rounded-pill"
-                                                    style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-size:11px">
-                                                    {{ $payment->payment_method }}
-                                                </span>
-                                            </td>
-                                            <td class="px-4 py-3">
+
+                                            <td class="px-4 py-3 payment-history-gross">
                                                 <span class="mono fw-bold" style="font-size:15px;color:#64748b">
                                                     {{ number_format($payment->calculated_gross_amount ?: $payment->gross_amount ?: $payment->calculated_amount, 2) }}
                                                 </span>
                                                 <span class="text-muted mono" style="font-size:11px"> BDT</span>
                                             </td>
-                                            <td class="px-4 py-3">
+                                            <td class="px-4 py-3 payment-history-scholarship">
                                                 @if ($payment->scholarship_amount > 0)
                                                     <span class="mono fw-bold" style="font-size:13px;color:#059669">
                                                         -{{ number_format($payment->scholarship_amount, 2) }}
@@ -636,7 +1029,7 @@
                                                     <span class="text-muted mono" style="font-size:12px">—</span>
                                                 @endif
                                             </td>
-                                            <td class="px-4 py-3">
+                                            <td class="px-4 py-3 payment-history-discount">
                                                 @if ($payment->discount_amount > 0)
                                                     <span class="mono fw-bold" style="font-size:13px;color:#b45309">
                                                         -{{ number_format($payment->discount_amount, 2) }}
@@ -648,31 +1041,34 @@
                                                     <span class="text-muted mono" style="font-size:12px">—</span>
                                                 @endif
                                             </td>
-                                            <td class="px-4 py-3">
+                                            <td class="px-4 py-3 payment-history-paid">
                                                 <span class="mono fw-bold" style="font-size:15px;color:#4338ca">
                                                     {{ number_format($payment->calculated_amount, 2) }}
                                                 </span>
                                                 <span class="text-muted mono" style="font-size:11px"> BDT</span>
                                             </td>
-                                            <td class="px-4 py-3 text-muted" style="font-size:13px">
+                                            <td class="px-4 py-3 text-muted payment-history-collector" style="font-size:13px">
                                                 {{ $payment->collector->name ?? '—' }}
                                             </td>
-                                            <td class="px-4 py-3 text-center">
-                                                <div class="d-flex gap-2 justify-content-center">
+                                            <td class="px-4 py-3 text-center payment-history-actions">
+                                                <div class="d-flex gap-1 justify-content-center align-items-center flex-wrap">
                                                     <a href="{{ route('payments.edit', $payment->id) }}"
-                                                        class="btn btn-sm fw-semibold rounded-3 d-inline-flex align-items-center gap-1"
-                                                        style="background:#fef3c7;color:#d97706;border:1px solid #fcd34d;font-size:12px">
+                                                        class="btn btn-sm btn-dark d-inline-flex align-items-center justify-content-center payment-history-action-btn"
+                                                        title="Edit payment"
+                                                        aria-label="Edit payment"
+                                                        style="width:32px;height:32px;padding:0">
                                                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                                                             stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
                                                             stroke-linejoin="round">
                                                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                                                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                                                         </svg>
-                                                        Edit
                                                     </a>
                                                     <a href="{{ route('payments.receipt', $payment->id) }}" target="_blank"
-                                                        class="btn btn-sm fw-semibold rounded-3 d-inline-flex align-items-center gap-1"
-                                                        style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:12px">
+                                                        class="btn btn-sm btn-secondary d-inline-flex align-items-center justify-content-center payment-history-action-btn"
+                                                        title="Print Receipt"
+                                                        aria-label="Print Receipt"
+                                                        style="width:32px;height:32px;padding:0">
                                                         <svg width="13" height="13" viewBox="0 0 24 24"
                                                             fill="none" stroke="currentColor" stroke-width="2.2"
                                                             stroke-linecap="round" stroke-linejoin="round">
@@ -681,7 +1077,6 @@
                                                                 d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
                                                             <rect x="6" y="14" width="12" height="8" />
                                                         </svg>
-                                                        Print Receipt
                                                     </a>
                                                 </div>
                                             </td>
@@ -879,31 +1274,34 @@
 
                 const idx = dueItemIndex++;
                 const html = `
-                    <div class="cart-row d-flex align-items-start gap-2 rounded-3 px-3 py-2"
+                    <div class="cart-row rounded-3 px-3 py-2"
                          id="cart-due_${dueId}"
                          data-unit-price="${dueAmount}"
                          data-subtotal="${dueAmount}"
                          style="background:#fff7ed;border:1.5px solid #fed7aa">
                         <input type="hidden" name="inventory_dues[${idx}][inventory_sale_item_id]" value="${dueId}">
                         <input type="hidden" name="inventory_dues[${idx}][paid_amount]" value="${dueAmount.toFixed(2)}" class="due-paid-hidden">
-                        <div class="flex-grow-1" style="line-height:1.4">
-                            <span class="fw-semibold text-dark" style="font-size:13px">${dueName}</span><br>
-                            <span class="mono text-muted" style="font-size:11px">${dueCategory}</span>
+                        <div class="cart-row-main" style="line-height:1.35">
+                            <span class="cart-line-title">${dueName}</span>
+                            <span class="cart-line-subtitle">${dueCategory}</span>
                         </div>
-                        <div class="text-end" style="min-width:140px">
-                            <div class="input-group input-group-sm mb-1">
-                                <span class="input-group-text" style="background:#fff;border-color:#fed7aa">BDT</span>
-                                <input type="number"
-                                       class="form-control form-control-sm due-paid-input"
-                                       value="${dueAmount.toFixed(2)}"
-                                       min="0" step="0.01"
-                                       max="${dueAmount}"
-                                       style="border-color:#fed7aa">
+                        <div class="cart-row-controls">
+                            <div class="cart-control-group cart-control-group--paid">
+                                <span class="cart-control-label">Paid</span>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text" style="background:#fff;border-color:#fed7aa">BDT</span>
+                                    <input type="number"
+                                           class="form-control form-control-sm due-paid-input"
+                                           value="${dueAmount.toFixed(2)}"
+                                           min="0" step="0.01"
+                                           max="${dueAmount}"
+                                           style="border-color:#fed7aa">
+                                </div>
                             </div>
-                            <span class="mono fw-bold due-line-amount" style="font-size:13px;color:#c2410c;white-space:nowrap">${dueAmount.toFixed(2)}</span>
+                            <span class="mono fw-bold due-line-amount cart-line-total" style="color:#c2410c">${dueAmount.toFixed(2)}</span>
                         </div>
                         <button type="button"
-                                class="remove-btn btn btn-light btn-sm border rounded-2 px-2 py-1"
+                                class="remove-btn cart-row-remove btn btn-light btn-sm border rounded-2 px-2 py-1"
                                 data-id="due_${dueId}" data-due-id="${dueId}" data-amount="${dueAmount}" data-type="due"
                                 style="font-size:13px;line-height:1">✕</button>
                     </div>`;
@@ -965,30 +1363,33 @@
                 }
 
                 let html = `
-                     <div class="cart-row d-flex align-items-start gap-2 rounded-3 px-3 py-2"
+                     <div class="cart-row rounded-3 px-3 py-2"
                           id="cart-${id}"
                           style="background:#f8fafc;border:1.5px solid #e2e8f0">
                          <input type="hidden" name="fees[${id}][fee_id]" value="${id}">
                          <input type="hidden" name="fees[${id}][amount]" class="fee-paid-hidden" value="${amount.toFixed(2)}">
-                         <div class="flex-grow-1" style="line-height:1.4">
-                             <span class="fw-semibold text-dark" style="font-size:13px">${name}</span><br>
+                         <div class="cart-row-main" style="line-height:1.35">
+                             <span class="cart-line-title">${name}</span>
                              ${discountHtml}
                              ${itemsBreakdown}
                          </div>
-                         <div class="text-end" style="min-width:140px">
-                             <div class="input-group input-group-sm mb-1">
-                                 <span class="input-group-text" style="background:#fff;border-color:#e2e8f0">BDT</span>
-                                 <input type="number"
-                                        class="form-control form-control-sm fee-paid-input"
-                                        value="${amount.toFixed(2)}"
-                                        min="0" step="0.01"
-                                        style="border-color:#e2e8f0">
+                         <div class="cart-row-controls">
+                             <div class="cart-control-group cart-control-group--paid">
+                                 <span class="cart-control-label">Paid</span>
+                                 <div class="input-group input-group-sm">
+                                     <span class="input-group-text" style="background:#fff;border-color:#e2e8f0">BDT</span>
+                                     <input type="number"
+                                            class="form-control form-control-sm fee-paid-input"
+                                            value="${amount.toFixed(2)}"
+                                            min="0" step="0.01"
+                                            style="border-color:#e2e8f0">
+                                 </div>
                              </div>
                              ${grossHtml}
-                             <span class="mono fw-bold gross-line-amount" style="font-size:13px;color:#4338ca;white-space:nowrap">${amount.toFixed(2)}</span>
+                             <span class="mono fw-bold gross-line-amount cart-line-total" style="color:#4338ca">${amount.toFixed(2)}</span>
                          </div>
                          <button type="button"
-                                 class="remove-btn btn btn-light btn-sm border rounded-2 px-2 py-1"
+                                 class="remove-btn cart-row-remove btn btn-light btn-sm border rounded-2 px-2 py-1"
                                  data-id="${id}" data-amount="${amount}" data-type="fee"
                                  style="font-size:13px;line-height:1">✕</button>
                      </div>`;
@@ -998,14 +1399,15 @@
 
             /* ── Add inventory item on card click ── */
             $(document).on('click', '.inv-item-card', function(e) {
-                if ($(e.target).is('input')) return; // don’t trigger on qty input click
+                if ($(e.target).is('input')) return;
                 let invId = $(this).data('inv-id');
+                let stock = parseInt($(this).data('stock')) || 0;
+                if (stock <= 0) return;
                 if (cartInvIds.has(invId)) return;
                 let name      = $(this).data('name');
                 let unitPrice = parseFloat($(this).data('price'));
-                let stock     = parseInt($(this).data('stock'));
                 let unit      = $(this).data('unit') || '';
-                let qty       = Math.max(1, parseInt($(this).find('.inv-qty-input').val()) || 1);
+                let qty       = 1;
                 let itemSubtotal = unitPrice * qty;
                 let cartKey   = 'inv_' + invId;
 
@@ -1016,7 +1418,7 @@
 
                 let idx = invItemIndex++;
                 let html = `
-                    <div class="cart-row d-flex align-items-start gap-2 rounded-3 px-3 py-2"
+                    <div class="cart-row rounded-3 px-3 py-2"
                          id="cart-${cartKey}"
                          data-unit-price="${unitPrice}"
                          data-subtotal="${itemSubtotal}"
@@ -1024,29 +1426,33 @@
                         <input type="hidden" name="items[${idx}][inventory_item_id]" value="${invId}">
                         <input type="hidden" name="items[${idx}][quantity]" value="${qty}" class="inv-qty-hidden">
                         <input type="hidden" name="items[${idx}][paid_amount]" value="${itemSubtotal.toFixed(2)}" class="inv-paid-hidden">
-                        <div class="flex-grow-1" style="line-height:1.4">
-                            <span class="fw-semibold text-dark" style="font-size:13px">${name}</span>
-                            ${unit ? '<br><span class="mono text-muted" style="font-size:11px">' + unit + '</span>' : ''}
+                        <div class="cart-row-main" style="line-height:1.35">
+                            <span class="cart-line-title">${name}</span>
+                            ${unit ? '<span class="cart-line-subtitle">' + unit + '</span>' : ''}
                         </div>
-                        <div class="text-end" style="min-width:150px">
-                            <div class="d-flex align-items-center gap-1 justify-content-end mb-1">
-                                <label class="mono text-muted" style="font-size:11px">Qty:</label>
-                                <input type="number" class="cart-inv-qty form-control form-control-sm"
-                                    value="${qty}" min="1" max="${stock}"
-                                    data-max-stock="${stock}"
-                                    style="width:55px;border-radius:8px;font-size:12px;text-align:center">
+                        <div class="cart-row-controls">
+                            <div class="cart-control-group cart-control-group--qty">
+                                <div class="cart-qty-stepper">
+                                    <button type="button" class="cart-qty-stepper-btn cart-qty-decrease" aria-label="Decrease quantity" ${qty <= 1 ? 'disabled' : ''}>−</button>
+                                    <input type="number" inputmode="numeric" step="1" class="cart-inv-qty form-control form-control-sm cart-qty-stepper-input"
+                                        value="${qty}" min="1" max="${stock}"
+                                        data-max-stock="${stock}">
+                                    <button type="button" class="cart-qty-stepper-btn cart-qty-increase" aria-label="Increase quantity" ${qty >= stock ? 'disabled' : ''}>+</button>
+                                </div>
                             </div>
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text" style="background:#fff;border-color:#bbf7d0">Paid</span>
-                                <input type="number" class="cart-inv-paid form-control form-control-sm"
-                                    value="${itemSubtotal.toFixed(2)}" min="0" step="0.01"
-                                    max="${itemSubtotal}"
-                                    style="border-color:#bbf7d0">
+                            <div class="cart-control-group cart-control-group--paid">
+                                <span class="cart-control-label">Paid</span>
+                                <div class="input-group input-group-sm">
+                                    <input type="number" class="cart-inv-paid form-control form-control-sm"
+                                        value="${itemSubtotal.toFixed(2)}" min="0" step="0.01"
+                                        max="${itemSubtotal}"
+                                        style="border-color:#bbf7d0">
+                                </div>
                             </div>
-                            <span class="mono fw-bold inv-subtotal-display" style="font-size:13px;color:#16a34a;white-space:nowrap">${itemSubtotal.toFixed(2)}</span>
+                            <span class="mono fw-bold inv-subtotal-display cart-line-total" style="color:#16a34a">${itemSubtotal.toFixed(2)}</span>
                         </div>
                         <button type="button"
-                                class="remove-btn btn btn-light btn-sm border rounded-2 px-2 py-1"
+                                class="remove-btn cart-row-remove btn btn-light btn-sm border rounded-2 px-2 py-1"
                                 data-id="${cartKey}" data-inv-id="${invId}" data-amount="${itemSubtotal}" data-type="item"
                                 style="font-size:13px;line-height:1">✕</button>
                     </div>`;
@@ -1077,28 +1483,50 @@
             });
 
             /* ── Inventory item quantity change in cart ── */
-            $cartItemsEl.on('input', '.cart-inv-qty', function() {
-                let $row = $(this).closest('.cart-row');
-                let cartKey = $row.attr('id').replace('cart-', '');
+            function syncInventoryRowQuantity($row, newQty) {
+                let $qtyInput = $row.find('.cart-inv-qty');
+                let maxStock = parseInt($qtyInput.data('max-stock')) || parseInt($qtyInput.attr('max')) || 1;
+                newQty = Math.max(1, Math.min(maxStock, parseInt(newQty) || 1));
+
                 let unitPrice = parseFloat($row.data('unit-price'));
-                let newQty = Math.max(1, parseInt($(this).val()) || 1);
-                let maxStock = parseInt($(this).data('max-stock'));
-                if (newQty > maxStock) { newQty = maxStock; $(this).val(newQty); }
                 let oldSubtotal = parseFloat($row.data('subtotal'));
                 let oldPaid = parseFloat($row.find('input[name^="items"][name$="[paid_amount]"]').val()) || 0;
                 let newSubtotal = unitPrice * newQty;
+
+                $qtyInput.val(newQty);
+                $row.find('.cart-qty-decrease').prop('disabled', newQty <= 1);
+                $row.find('.cart-qty-increase').prop('disabled', newQty >= maxStock);
                 $row.data('subtotal', newSubtotal);
                 $row.find('.inv-subtotal-display').text(newSubtotal.toFixed(2));
                 $row.find('input[name^="items"][name$="[quantity]"]').val(newQty);
                 $row.find('input[name^="items"][name$="[paid_amount]"]').attr('max', newSubtotal);
+
                 let currentPaid = newSubtotal;
                 if (oldSubtotal > 0) {
                     currentPaid = roundTo2((oldPaid / oldSubtotal) * newSubtotal);
                 }
                 currentPaid = Math.max(0, Math.min(currentPaid, newSubtotal));
+
                 $row.find('.cart-inv-paid').val(currentPaid.toFixed(2));
                 $row.find('input[name^="items"][name$="[paid_amount]"]').val(currentPaid.toFixed(2));
                 updateUI();
+            }
+
+            $cartItemsEl.on('click', '.cart-qty-decrease', function() {
+                let $row = $(this).closest('.cart-row');
+                let currentQty = parseInt($row.find('.cart-inv-qty').val()) || 1;
+                syncInventoryRowQuantity($row, currentQty - 1);
+            });
+
+            $cartItemsEl.on('click', '.cart-qty-increase', function() {
+                let $row = $(this).closest('.cart-row');
+                let currentQty = parseInt($row.find('.cart-inv-qty').val()) || 1;
+                syncInventoryRowQuantity($row, currentQty + 1);
+            });
+
+            $cartItemsEl.on('input', '.cart-inv-qty', function() {
+                let $row = $(this).closest('.cart-row');
+                syncInventoryRowQuantity($row, $(this).val());
             });
 
             $cartItemsEl.on('input', '.fee-paid-input', function() {

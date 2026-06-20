@@ -441,26 +441,6 @@ class ReportsController extends Controller
                 'amount' => $rows->sum('amount'),
             ])->values();
 
-        $inventorySalesByCategory = InventorySale::with('items.inventoryItem.category')
-            ->whereYear('created_at', $year)
-            ->get()
-            ->flatMap(function ($sale) {
-                return $sale->items->groupBy(fn ($item) => $item->inventoryItem?->category?->name ?? 'Uncategorised')
-                    ->map(fn ($rows, $name) => [
-                        'name'   => 'Inventory Sales — ' . $name,
-                        'amount' => $rows->sum('subtotal'),
-                    ]);
-            })
-            ->values()
-            ->groupBy('name')
-            ->map(fn ($rows) => [
-                'name'   => $rows->first()['name'],
-                'amount' => $rows->sum('amount'),
-            ])
-            ->values();
-
-        $incomeRows = $incomeByCategory->concat($inventorySalesByCategory)->values();
-
         $expenseByCategory = Expense::with('category')
             ->whereYear('expense_date', $year)
             ->get()
@@ -470,18 +450,14 @@ class ReportsController extends Controller
                 'amount' => $rows->sum('amount'),
             ])->values();
 
-        $totalIncome  = $incomeByCategory->sum('amount') + $inventorySalesByCategory->sum('amount');
-        $totalInventorySales = $inventorySalesByCategory->sum('amount');
+        $totalIncome  = $incomeByCategory->sum('amount');
         $totalExpense = $expenseByCategory->sum('amount');
         $surplus      = $totalIncome - $totalExpense;
 
         return view('pages.reports.income-expenditure', compact(
-            'incomeRows',
             'incomeByCategory',
-            'inventorySalesByCategory',
             'expenseByCategory',
             'totalIncome',
-            'totalInventorySales',
             'totalExpense',
             'surplus',
             'year'
@@ -711,23 +687,13 @@ class ReportsController extends Controller
         $incomeByCategory = Income::with('category')->whereYear('income_date', $year)->get()
             ->groupBy('income_category_id')
             ->map(fn($rows) => ['name' => $rows->first()->category?->name ?? 'Uncategorised', 'amount' => $rows->sum('amount')])->values();
-        $inventorySalesByCategory = InventorySale::with('items.inventoryItem.category')->whereYear('created_at', $year)->get()
-            ->flatMap(function ($sale) {
-                return $sale->items->groupBy(fn ($item) => $item->inventoryItem?->category?->name ?? 'Uncategorised')
-                    ->map(fn ($rows, $name) => ['name' => 'Inventory Sales — ' . $name, 'amount' => $rows->sum('subtotal')]);
-            })->values()
-            ->groupBy('name')
-            ->map(fn ($rows) => ['name' => $rows->first()['name'], 'amount' => $rows->sum('amount')])
-            ->values();
         $expenseByCategory = Expense::with('category')->whereYear('expense_date', $year)->get()
             ->groupBy('expense_category_id')
             ->map(fn($rows) => ['name' => $rows->first()->category?->name ?? 'Uncategorised', 'amount' => $rows->sum('amount')])->values();
-        $incomeRows = $incomeByCategory->concat($inventorySalesByCategory)->values();
-        $totalIncome  = $incomeByCategory->sum('amount') + $inventorySalesByCategory->sum('amount');
-        $totalInventorySales = $inventorySalesByCategory->sum('amount');
+        $totalIncome  = $incomeByCategory->sum('amount');
         $totalExpense = $expenseByCategory->sum('amount');
         $surplus      = $totalIncome - $totalExpense;
-        $this->makePdf('pages.reports.pdf.income-expenditure', compact('incomeRows', 'incomeByCategory', 'inventorySalesByCategory', 'expenseByCategory', 'totalIncome', 'totalInventorySales', 'totalExpense', 'surplus', 'year'), 'income-expenditure-' . $year);
+        $this->makePdf('pages.reports.pdf.income-expenditure', compact('incomeByCategory', 'expenseByCategory', 'totalIncome', 'totalExpense', 'surplus', 'year'), 'income-expenditure-' . $year);
     }
 
     public function cashSummaryPdf(Request $request)

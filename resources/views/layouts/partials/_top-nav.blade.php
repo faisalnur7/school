@@ -33,9 +33,9 @@
     <ul class="navbar-nav ml-auto align-items-center">
         <li class="nav-item d-flex align-items-center mr-1 mr-md-2">
             <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill d-flex align-items-center gap-1 inky-search-trigger"
-                data-toggle="modal" data-target="#inkySearchModal" aria-label="Ask Inky search">
+                data-toggle="modal" data-target="#inkySearchModal" aria-label="Ask Aya search">
                 <i class="fas fa-search"></i>
-                <span class="d-none d-sm-inline">Ask Inky...</span>
+                <span class="d-none d-sm-inline">Ask Aya...</span>
                 <kbd class="inky-shortcut">Ctrl+K</kbd>
             </button>
         </li>
@@ -120,7 +120,7 @@
             <div class="modal-header border-0 pb-0">
                 <div class="inky-search-heading">
                     <span class="inky-search-badge">Command palette</span>
-                    <h5 class="modal-title font-weight-bold mb-1" id="inkySearchModalLabel">Ask Inky</h5>
+                    <h5 class="modal-title font-weight-bold mb-1" id="inkySearchModalLabel">Ask Aya</h5>
                     <small class="text-muted">Search modules, pages, and actions</small>
                 </div>
                 <button type="button" class="inky-search-close" data-dismiss="modal" aria-label="Close">

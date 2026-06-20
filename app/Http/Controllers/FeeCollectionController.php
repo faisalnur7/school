@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\Payment;
 use App\Models\PaymentItem;
+use App\Models\Income;
 use App\Models\IncomeCategory;
 use App\Models\Transport;
 use App\Models\Scholarship;
@@ -39,6 +40,26 @@ class FeeCollectionController extends Controller
             'cheque', 'check' => 'Cheque',
             default => 'Cash',
         };
+    }
+
+    private function buildStudentFeeDescription(Student $student): string
+    {
+        $info = $student->academicInformations?->last();
+
+        $studentName = $student->full_name_en ?: 'Student';
+        $studentCid = $student->student_cid ?: $student->id;
+        $className = $info?->schoolClass?->name_en ?? 'N/A';
+        $sectionName = $info?->section?->name_en ?? 'N/A';
+        $groupName = $info?->group?->name_en ?? 'N/A';
+
+        return sprintf(
+            'Student fee payment for %s (ID %s) | Class: %s | Section: %s | Group: %s',
+            $studentName,
+            $studentCid,
+            $className,
+            $sectionName,
+            $groupName
+        );
     }
 
     public function index(Request $request)
@@ -305,7 +326,8 @@ class FeeCollectionController extends Controller
                           $cls->where('item_type', 'classwise')
                               ->where('school_class_id', $studentClassId);
                       });
-              });
+              })
+              ->orderByRaw('CASE WHEN current_stock > 0 THEN 0 ELSE 1 END, name ASC');
         }])->where('is_active', true)->get()
           ->filter(fn($cat) => $cat->items->isNotEmpty())
           ->values();
@@ -423,7 +445,7 @@ class FeeCollectionController extends Controller
                 return response()->json(['message' => 'Fees must belong to the same student'], 422);
             }
 
-            $student = Student::with('academicInformations')->find($studentId);
+            $student = Student::with(['academicInformations.schoolClass', 'academicInformations.section', 'academicInformations.group'])->find($studentId);
             $sessionId = optional($student->academicInformations->last())->academic_session_id;
 
             $scholarships = Scholarship::where('student_id', $studentId)
@@ -576,6 +598,9 @@ class FeeCollectionController extends Controller
             }
 
             $paymentAmount += $inventoryPaidTotal + $inventoryDuePaidTotal;
+            $paymentDescription = trim($this->buildStudentFeeDescription($student) . (
+                filled($request->description) ? ' | Note: ' . trim((string) $request->description) : ''
+            ));
 
             $payment = Payment::create([
                 'student_id'         => $studentId,
@@ -588,7 +613,7 @@ class FeeCollectionController extends Controller
                 'payment_method'  => $paymentMethod,
                 'account_type'    => $request->account_type ?? null,
                 'account_id'      => $request->account_id ?? null,
-                'description'     => $request->description,
+                'description'     => $paymentDescription,
                 'receipt_no'      => 'R-' . now()->format('Ymd') . '-' . str_pad(
                                         Payment::whereDate('created_at', today())->count() + 1,
                                         4, '0', STR_PAD_LEFT
@@ -676,7 +701,7 @@ class FeeCollectionController extends Controller
                         'payment_method' => $paymentMethod,
                         'account_type'   => $payment->account_type,
                         'account_id'     => $payment->account_id,
-                        'description'    => "Student fee payment for student ID {$studentId}",
+                        'description'    => $paymentDescription,
                     ]);
                 }
             }
@@ -689,7 +714,7 @@ class FeeCollectionController extends Controller
                         'payment_method' => $paymentMethod,
                         'account_type'   => $payment->account_type,
                         'account_id'     => $payment->account_id,
-                        'description'    => "Transport fee payment for student ID {$studentId}",
+                        'description'    => $paymentDescription,
                     ]);
                 }
             }
@@ -770,14 +795,21 @@ class FeeCollectionController extends Controller
                 $payment->inventory_sale_id = $sale->id;
                 $payment->save();
 
-                // Inventory sale increases petty cash (if payment account is not already set to an account)
-                if (!$payment->account_type || !$payment->account_id) {
-                    PettyCashService::credit(
-                        (float) $inventoryPaidTotal,
-                        'inventory_sale',
-                        $payment->receipt_no, 'Inventory sale — ' . $payment->receipt_no,
-                        now(), InventorySale::class, $sale->id
+                if ($inventoryPaidTotal > 0) {
+                    $category = IncomeCategory::firstOrCreate(
+                        ['slug' => 'inventory-sale'],
+                        ['name' => 'Inventory Sale']
                     );
+
+                    $payment->recordIncome($category->id, 'Inventory Sale', [
+                        'amount'         => round((float) $inventoryPaidTotal, 2),
+                        'income_date'    => Carbon::parse($payment->payment_date ?? now())->toDateString(),
+                        'transaction_date' => Carbon::parse($payment->payment_date ?? now())->toDateString(),
+                        'payment_method' => $paymentMethod,
+                        'account_type'   => $payment->account_type,
+                        'account_id'     => $payment->account_id,
+                        'description'    => 'Inventory sale payment for receipt ' . $payment->receipt_no . ' | ' . $paymentDescription,
+                    ]);
                 }
             }
 

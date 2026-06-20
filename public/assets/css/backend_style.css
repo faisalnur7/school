@@ -2,6 +2,38 @@
     background: #252f51 !important;
 }
 
+.wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-wrapper {
+    flex: 1 0 auto;
+}
+
+.main-footer {
+    margin-top: auto;
+    min-height: 34px;
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+.compact-main-footer__inner {
+    width: 100%;
+    gap: 8px;
+}
+
+.compact-main-footer__text,
+.compact-main-footer__version {
+    line-height: 1.2;
+}
+
 /* =====================================================
    MODERN SIDEBAR STYLES
    ===================================================== */
@@ -137,9 +169,9 @@
 .user-panel-modern {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 16px;
-    margin: 8px 12px 16px;
+    gap: 8px;
+    padding: 10px 12px;
+    margin: 6px 10px 12px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 14px;
     border: 1px solid rgba(255, 255, 255, 0.06);
@@ -151,8 +183,8 @@
 }
 
 .user-avatar {
-    width: 44px;
-    height: 44px;
+    width: 38px;
+    height: 38px;
     border-radius: 12px;
     overflow: hidden;
     flex-shrink: 0;
@@ -174,7 +206,7 @@
 }
 
 .user-name {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: #fff;
     white-space: nowrap;
@@ -183,7 +215,7 @@
 }
 
 .user-role {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: rgba(255, 255, 255, 0.5);
     font-weight: 500;
 }
@@ -195,7 +227,7 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
 .nav-item-modern {
@@ -206,12 +238,12 @@
 .nav-link-modern {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 12px 16px;
-    border-radius: 12px;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
     color: rgba(255, 255, 255, 0.65);
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: 0.82rem;
     font-weight: 500;
     position: relative;
     overflow: hidden;
@@ -240,7 +272,7 @@
 }
 
 .nav-link-modern.active::before {
-    height: 24px;
+    height: 20px;
 }
 
 .nav-link-modern.active .nav-icon {
@@ -253,12 +285,12 @@
 
 /* Navigation Icon */
 .nav-icon {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 0.92rem;
     flex-shrink: 0;
 }
 
@@ -305,14 +337,14 @@ body.sidebar-collapse .nav-indicator {
 
 body.sidebar-collapse .user-panel-modern {
     justify-content: center;
-    padding: 12px 0;
+    padding: 8px 0;
     margin-left: 10px;
     margin-right: 10px;
 }
 
 body.sidebar-collapse .user-avatar {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
 }
 
 body.sidebar-collapse .nav-link-modern {
@@ -388,14 +420,14 @@ body.sidebar-collapse .nav-icon {
     }
     
     .nav-link-modern {
-        padding: 14px 14px;
+        padding: 10px 12px;
         font-size: 0.8rem;
     }
     
     .nav-icon {
-        width: 18px;
-        height: 18px;
-        font-size: 0.9rem;
+        width: 17px;
+        height: 17px;
+        font-size: 0.85rem;
     }
     
     .nav-text {
@@ -403,20 +435,21 @@ body.sidebar-collapse .nav-icon {
     }
     
     .user-panel-modern {
-        padding: 12px;
+        padding: 8px 10px;
+        gap: 7px;
     }
     
     .user-avatar {
-        width: 36px;
-        height: 36px;
+        width: 34px;
+        height: 34px;
     }
     
     .user-name {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
     }
     
     .user-role {
-        font-size: 0.65rem;
+        font-size: 0.62rem;
     }
 }
 
@@ -543,6 +576,16 @@ body.sidebar-collapse .nav-icon {
     .pagination-modern {
         justify-content: center;
         order: 1;
+    }
+
+    .main-footer {
+        padding: 5px 10px;
+        font-size: 11px;
+        min-height: 30px;
+    }
+
+    .compact-main-footer__inner {
+        gap: 4px;
     }
 }
 

@@ -48,6 +48,7 @@ class IncomeController extends Controller
             'School Bag',
             'Student Uniform',
             'Sports Dress',
+            'Inventory Sale',
             'Inventory Sales',
         ];
 
