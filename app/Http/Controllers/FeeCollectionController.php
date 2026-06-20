@@ -56,52 +56,41 @@ class FeeCollectionController extends Controller
         // FILTER STUDENTS
         // ===========================
         $studentQuery = Student::with([
-            'academicInformations.schoolClass',
-            'academicInformations.section',
-            'academicInformations.group',
-            'academicInformations.academicSession'
-        ]);
-
-        // Student CID
-        if ($request->student_id) {
-            $studentQuery->where('student_cid', $request->student_id);
-        }
-
-        // Academic Session
-        if ($request->academic_session_id) {
-            $studentQuery->whereHas('academicInformations', function($q) use ($request){
-                $q->where('academic_session_id', $request->academic_session_id);
+            'academicInformations' => function ($q) {
+                $q->where('is_current', true)
+                    ->where('academic_status', 'active')
+                    ->with(['schoolClass', 'section', 'group', 'academicSession']);
+            },
+        ])
+            // Only show active students from their current academic record.
+            ->where('status', 1)
+            ->when($request->filled('student_id'), function ($query) use ($request) {
+                $query->where('student_cid', $request->student_id);
+            })
+            ->whereHas('academicInformations', function ($q) use ($request) {
+                $q->where('is_current', true)
+                    ->where('academic_status', 'active')
+                    ->when($request->filled('academic_session_id'), function ($subQuery) use ($request) {
+                        $subQuery->where('academic_session_id', $request->academic_session_id);
+                    })
+                    ->when($request->filled('school_class_id'), function ($subQuery) use ($request) {
+                        $subQuery->where('school_class_id', $request->school_class_id);
+                    })
+                    ->when($request->filled('section_id'), function ($subQuery) use ($request) {
+                        $subQuery->where('section_id', $request->section_id);
+                    })
+                    ->when($request->filled('group_id'), function ($subQuery) use ($request) {
+                        $subQuery->where('group_id', $request->group_id);
+                    });
             });
-        }
-
-        // Class
-        if ($request->school_class_id) {
-            $studentQuery->whereHas('academicInformations', function($q) use ($request){
-                $q->where('school_class_id', $request->school_class_id);
-            });
-        }
-
-        // Section
-        if ($request->section_id) {
-            $studentQuery->whereHas('academicInformations', function($q) use ($request){
-                $q->where('section_id', $request->section_id);
-            });
-        }
-
-        // Group
-        if ($request->group_id) {
-            $studentQuery->whereHas('academicInformations', function($q) use ($request){
-                $q->where('group_id', $request->group_id);
-            });
-        }
 
         // Only search if filters applied
         if (
-            $request->student_id ||
-            $request->school_class_id ||
-            $request->section_id ||
-            $request->group_id ||
-            $request->academic_session_id
+            $request->filled('student_id') ||
+            $request->filled('school_class_id') ||
+            $request->filled('section_id') ||
+            $request->filled('group_id') ||
+            $request->filled('academic_session_id')
         ) {
             $students = $studentQuery->get();
         }

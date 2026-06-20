@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer(['layouts.partials._top-nav', 'layouts.partials._header'], function ($view) {
+        View::composer(['layouts.partials._top-nav', 'layouts.partials._header', 'components.partials._header'], function ($view) {
             $routeName = Route::currentRouteName() ?? '';
             $meta = $this->buildAdminNavigationMeta($routeName);
 
@@ -203,6 +203,11 @@ class AppServiceProvider extends ServiceProvider
                 $hubLabel = $meta['label'];
                 break;
             }
+        }
+
+        if (!$hubRoute && !in_array($routeName, ['homepage', 'dashboard'], true)) {
+            $hubRoute = 'homepage';
+            $hubLabel = null;
         }
 
         $segments = $routeName !== '' ? explode('.', $routeName) : [];

@@ -55,6 +55,15 @@
                     <span class="students-filter-count" data-filter-count>0</span>
                 </button>
             </div>
+
+            <div class="students-filter-actions students-filter-actions--submit" id="students-export-reset">
+                <button type="submit" class="btn btn-dark students-action-btn" title="Apply Filters" aria-label="Apply Filters">
+                    <i class="fas fa-search"></i>
+                </button>
+                <a href="{{ route('students.index') }}" class="btn btn-outline-secondary students-action-btn" title="Reset" aria-label="Reset">
+                    <i class="fas fa-undo-alt"></i>
+                </a>
+            </div>
         </div>
 
         <div class="students-advanced-filters hidden" id="filterCollapse">
@@ -94,18 +103,6 @@
                         @endforeach
                     </select>
                 </div>
-
-                <div class="students-filter-group">
-                    <label for="students-export-reset">Actions</label>
-                    <div class="students-filter-actions" id="students-export-reset">
-                        <button type="submit" class="btn btn-dark students-action-btn" title="Apply Filters" aria-label="Apply Filters">
-                            <i class="fas fa-search"></i>
-                        </button>
-                        <a href="{{ route('students.index') }}" class="btn btn-outline-secondary students-action-btn" title="Reset" aria-label="Reset">
-                            <i class="fas fa-undo-alt"></i>
-                        </a>
-                    </div>
-                </div>
             </div>
 
             <div class="students-pdf-panel">
@@ -131,7 +128,7 @@
                                 id="pdf-column-{{ $columnKey }}"
                                 {{ in_array($columnKey, $selectedPdfColumns, true) ? 'checked' : '' }}
                             >
-                            <label class="form-check-label" for="pdf-column-{{ $columnKey }}">
+                            <label class="form-check-label ml-4" for="pdf-column-{{ $columnKey }}">
                                 {{ $columnLabel }}
                             </label>
                         </div>

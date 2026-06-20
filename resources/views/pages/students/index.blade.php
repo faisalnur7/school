@@ -51,7 +51,7 @@
 
         .students-directory .students-filter-row {
             display: grid;
-            grid-template-columns: minmax(220px, 2.2fr) repeat(4, minmax(140px, 1fr)) auto;
+            grid-template-columns: minmax(220px, 2.2fr) repeat(4, minmax(140px, 1fr)) auto auto;
             gap: 0.75rem;
             align-items: center;
         }
@@ -100,6 +100,10 @@
             justify-content: flex-end;
             gap: 0.65rem;
             flex-wrap: wrap;
+        }
+
+        .students-directory .students-filter-actions--submit {
+            justify-content: flex-start;
         }
 
         .students-directory .students-more-filters {
@@ -202,7 +206,7 @@
             flex: 0 0 auto;
             display: inline-flex;
             align-items: center;
-            gap: 0.45rem;
+            gap: 0.6rem;
             padding-top: 0.1rem;
             white-space: nowrap;
             font-size: 0.9rem;
@@ -223,6 +227,7 @@
         .students-directory .students-pdf-option {
             display: flex;
             align-items: center;
+            gap: 0.55rem;
             margin: 0;
             min-width: 0;
         }
@@ -231,6 +236,37 @@
             flex: 0 0 auto;
             margin-top: 0.1rem;
             margin-left: 0;
+        }
+
+        .students-directory .students-pdf-panel .form-check-input {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.05rem;
+            height: 1.05rem;
+            border: 2px solid #111111;
+            border-radius: 999px;
+            background-color: #ffffff;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 0.72rem 0.72rem;
+            box-shadow: none;
+            cursor: pointer;
+            transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .students-directory .students-pdf-panel .form-check-input:checked {
+            background-color: #111111;
+            border-color: #111111;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M6.2 11.2 2.9 8l-1.1 1.1 4.4 4.4L14.2 5.5 13.1 4.4 6.2 11.2Z' fill='%23ffffff'/%3E%3C/svg%3E");
+        }
+
+        .students-directory .students-pdf-panel .form-check-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.12);
+        }
+
+        .students-directory .students-pdf-panel .form-check-input:hover {
+            border-color: #000000;
         }
 
         .students-directory .students-pdf-option .form-check-label {

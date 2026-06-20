@@ -8,7 +8,7 @@
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
-    <x-partials._header title={{$title}} />
+    <x-partials._header :title="$title" />
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
