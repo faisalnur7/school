@@ -17,25 +17,32 @@
         <div class="card-body">
             @include('hr._alerts')
 
-            <form method="GET" class="mb-3">
-                <div class="row">
-                    <div class="col-md-4">
-                        <input
-                            type="text"
-                            name="search"
-                            class="form-control form-control-sm"
-                            value="{{ request('search') }}"
-                            placeholder="Search name or location"
-                        >
+            <form method="GET" class="classrooms-filter-panel mb-3" role="search">
+                <div class="classrooms-filter-row">
+                    <div class="classrooms-filter-search">
+                        <label class="sr-only" for="classroom-search">Search name or location</label>
+                        <div class="input-group classrooms-filter-input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text classrooms-filter-icon" aria-hidden="true">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                            </div>
+                            <input
+                                type="text"
+                                id="classroom-search"
+                                name="search"
+                                class="form-control classrooms-filter-input"
+                                value="{{ request('search') }}"
+                                placeholder="Search name or location"
+                            >
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-primary btn-sm">
-                            <i class="fas fa-search mr-1"></i>Search
+                    <div class="classrooms-filter-actions">
+                        <button type="submit" class="btn btn-primary classrooms-filter-btn" title="Search" aria-label="Search">
+                            <i class="fas fa-search"></i>
                         </button>
-                    </div>
-                    <div class="col-md-2">
-                        <a href="{{ route('classrooms.index') }}" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-times mr-1"></i>Reset
+                        <a href="{{ route('classrooms.index') }}" class="btn btn-outline-secondary classrooms-filter-btn" title="Reset" aria-label="Reset">
+                            <i class="fas fa-times"></i>
                         </a>
                     </div>
                 </div>

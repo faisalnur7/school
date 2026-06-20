@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('contents')
-<div class="container-fluid">
+<div class="container-fluid hub-container">
     {{-- Modern Hero Section with Animated Background --}}
     <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-700 via-purple-600 to-pink-500 p-8 mb-8">
         {{-- Animated Decorations --}}
@@ -20,10 +20,10 @@
     </div>
     
     {{-- Modern Card Grid --}}
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
+    <div class="hub-grid">
         @foreach($cards as $card)
         <a href="{{ route($card['route']) }}" class="group no-underline">
-            <div class="relative overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-xl h-full">
+            <div class="hub-card relative overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-xl h-full">
                 {{-- Gradient Overlay on Hover --}}
                 <div class="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                      style="background: linear-gradient(135deg, {{ $card['from'] }}20, {{ $card['to'] }}20);"></div>

@@ -82,6 +82,32 @@
                 overflow: hidden;
             }
         }
+
+        html[data-theme='dark'] #mainSidebar {
+            background-color: #0f172a;
+            box-shadow: 2px 0 16px rgba(2, 6, 23, 0.35);
+        }
+
+        html[data-theme='dark'] #mainSidebar .brand-link-modern,
+        html[data-theme='dark'] #mainSidebar .sidebar-modern,
+        html[data-theme='dark'] #mainSidebar .user-panel-modern {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] #mainSidebar .nav-link-modern {
+            color: #cbd5e1;
+        }
+
+        html[data-theme='dark'] #mainSidebar .nav-link-modern:hover,
+        html[data-theme='dark'] #mainSidebar .nav-link-modern.active {
+            background-color: rgba(37, 99, 235, 0.16);
+            color: #f8fafc;
+        }
+
+        html[data-theme='dark'] .sidebar-overlay {
+            background-color: rgba(2, 6, 23, 0.62);
+        }
     </style>
 
 <script>

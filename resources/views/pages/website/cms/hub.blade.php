@@ -16,10 +16,10 @@
     <div class="card card-outline card-primary mb-4">
         <div class="card-header"><h3 class="card-title font-bold">System Pages</h3></div>
         <div class="card-body">
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div class="hub-grid">
                 @foreach($systemPageDefinitions as $type => $card)
                 <a href="{{ route('website.cms.page.edit', $type) }}" class="group no-underline">
-                    <div class="rounded-2xl overflow-hidden shadow-md transition-all duration-200 group-hover:-translate-y-2 group-hover:shadow-xl bg-white h-full">
+                    <div class="hub-card rounded-2xl overflow-hidden shadow-md transition-all duration-200 group-hover:-translate-y-2 group-hover:shadow-xl bg-white h-full">
                         <div class="flex items-center justify-center py-6 relative"
                              style="background: linear-gradient(135deg, {{ match($type) {
                                  'home' => '#0891b2',

@@ -168,6 +168,51 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        html[data-theme='dark'] body {
+            background:
+                radial-gradient(circle at top, rgba(59, 130, 246, 0.12), transparent 34%),
+                linear-gradient(180deg, #020617 0%, #0f172a 58%, #111827 100%);
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .glass {
+            background: rgba(15, 23, 42, 0.72);
+        }
+
+        html[data-theme='dark'] .glass-strong {
+            background: rgba(15, 23, 42, 0.88);
+        }
+
+        html[data-theme='dark'] .site-header {
+            background: rgba(15, 23, 42, 0.94) !important;
+            border-color: rgba(148, 163, 184, 0.16) !important;
+            box-shadow: 0 16px 40px rgba(2, 6, 23, 0.28);
+        }
+
+        html[data-theme='dark'] .site-menu-panel {
+            background: rgba(15, 23, 42, 0.98) !important;
+            border-color: rgba(148, 163, 184, 0.18) !important;
+        }
+
+        html[data-theme='dark'] .site-footer {
+            background: rgba(15, 23, 42, 0.88) !important;
+            border-color: rgba(148, 163, 184, 0.16) !important;
+        }
+
+        html[data-theme='dark'] .site-footer .border-slate-200 {
+            border-color: rgba(148, 163, 184, 0.16) !important;
+        }
+
+        html[data-theme='dark'] .site-header .text-slate-900,
+        html[data-theme='dark'] .site-header .text-slate-800,
+        html[data-theme='dark'] .site-footer .text-slate-900,
+        html[data-theme='dark'] .site-footer .text-slate-800,
+        html[data-theme='dark'] .site-footer .text-slate-700,
+        html[data-theme='dark'] .site-footer .text-slate-600,
+        html[data-theme='dark'] .site-footer .text-slate-500 {
+            color: #e2e8f0 !important;
+        }
+
         @media (max-width: 768px) {
             main form button,
             main form .btn,
@@ -188,7 +233,7 @@
 </head>
 <body class="antialiased">
     {{-- Header --}}
-    <header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-b border-slate-200/60 shadow-sm">
+    <header class="site-header fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-b border-slate-200/60 shadow-sm">
         <div class="relative mx-auto max-w-[1440px]">
             <div class="flex items-center justify-between px-4 py-3 lg:px-8">
                 {{-- Logo --}}
@@ -232,7 +277,7 @@
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         <span>Menu</span>
                     </summary>
-                    <nav class="absolute right-4 mt-3 w-72 rounded-2xl border border-slate-200 bg-white/98 p-2 shadow-2xl">
+                    <nav class="site-menu-panel absolute right-4 mt-3 w-72 rounded-2xl border border-slate-200 bg-white/98 p-2 shadow-2xl">
                         @foreach($navLinks ?? $links as $item)
                             <a href="{{ $item['url'] ?? route($item['route']) }}" class="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-colors {{ isset($item['route_name']) && request()->routeIs($item['route_name']) ? 'text-white bg-gradient-to-r from-sky-500 to-indigo-600' : 'text-slate-700 hover:bg-slate-100' }}">
                                 {{ $item['label'] }}
@@ -271,7 +316,7 @@
     </main>
 
     {{-- Footer --}}
-    <footer class="mt-16 border-t border-slate-200/70 bg-white/80">
+    <footer class="site-footer mt-16 border-t border-slate-200/70 bg-white/80">
         <div class="mx-auto max-w-[1440px] px-4 py-12 lg:px-8">
             <div class="grid gap-8 lg:grid-cols-4">
                 {{-- Brand Column --}}

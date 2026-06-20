@@ -33,42 +33,15 @@
     <ul class="navbar-nav ml-auto align-items-center">
         <li class="nav-item d-flex align-items-center mr-1 mr-md-2">
             <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill d-inline-flex align-items-center gap-2 inky-search-trigger border-gray-300"
-                data-toggle="modal" data-target="#inkySearchModal" aria-label="Search Aya">
+                data-toggle="modal" data-target="#inkySearchModal" aria-label="Ask in Seekly">
                 <i class="fas fa-search"></i>
-                <span class="d-none d-sm-inline">Search Aya</span>
+                <span class="d-none d-sm-inline">Ask in Seekly</span>
                 <kbd class="inky-shortcut">Ctrl+K</kbd>
             </button>
         </li>
 
         <li class="nav-item d-flex align-items-center mr-2">
             @include('layouts.partials._theme-toggle')
-        </li>
-
-        <li class="nav-item dropdown">
-            <a class="nav-link" data-toggle="dropdown" href="#" aria-label="Notifications">
-                <i class="far fa-bell"></i>
-                <span class="badge badge-warning navbar-badge">15</span>
-            </a>
-            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                <span class="dropdown-item dropdown-header">15 Notifications</span>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                    <i class="fas fa-envelope mr-2"></i> 4 new messages
-                    <span class="float-right text-muted text-sm">3 mins</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                    <i class="fas fa-users mr-2"></i> 8 friend requests
-                    <span class="float-right text-muted text-sm">12 hours</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item">
-                    <i class="fas fa-file mr-2"></i> 3 new reports
-                    <span class="float-right text-muted text-sm">2 days</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-            </div>
         </li>
 
         <li class="nav-item dropdown">
@@ -120,7 +93,7 @@
                 <div class="modal-header border-0 pb-0">
                     <div class="inky-search-heading">
                         <span class="inky-search-badge">Quick Search</span>
-                        <h5 class="modal-title font-weight-bold mb-0" id="inkySearchModalLabel">Search Aya</h5>
+                        <h5 class="modal-title font-weight-bold mb-0" id="inkySearchModalLabel">Ask in Seekly</h5>
                         <small class="text-muted">Find modules, pages, and actions</small>
                     </div>
                     <button type="button" class="inky-search-close" data-dismiss="modal" aria-label="Close">

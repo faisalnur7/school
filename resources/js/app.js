@@ -36,9 +36,25 @@ function applyTheme(theme) {
     root.style.colorScheme = nextTheme;
 
     document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
-        button.setAttribute('aria-pressed', nextTheme === 'dark' ? 'true' : 'false');
-        button.dataset.activeTheme = nextTheme;
+        updateThemeToggleButton(button, nextTheme);
     });
+}
+
+function updateThemeToggleButton(button, activeTheme) {
+    const nextTheme = activeTheme === 'dark' ? 'light' : 'dark';
+    const nextThemeLabel = nextTheme === 'dark' ? 'Dark' : 'Light';
+
+    button.setAttribute('aria-pressed', activeTheme === 'dark' ? 'true' : 'false');
+    button.setAttribute('aria-label', `Switch to ${nextThemeLabel.toLowerCase()} mode`);
+    button.setAttribute('title', `Switch to ${nextThemeLabel.toLowerCase()} mode`);
+    button.dataset.activeTheme = activeTheme;
+    button.dataset.nextTheme = nextTheme;
+
+    const label = button.querySelector('[data-theme-toggle-label]');
+
+    if (label) {
+        label.textContent = nextThemeLabel;
+    }
 }
 
 function setTheme(theme, persist = true) {
@@ -65,8 +81,7 @@ function syncThemeButtons() {
     const currentTheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
 
     document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
-        button.setAttribute('aria-pressed', currentTheme === 'dark' ? 'true' : 'false');
-        button.dataset.activeTheme = currentTheme;
+        updateThemeToggleButton(button, currentTheme);
     });
 }
 
