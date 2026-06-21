@@ -550,14 +550,14 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::middleware('auth')->group(function () {
         Route::get('/fees/collect', [FeeCollectionController::class, 'index'])->name('fees.collect');
-        Route::get('/fees/collect_payment/{student_id}', [FeeCollectionController::class, 'collect_payment'])->name('fees.collect_payment');
+        Route::get('/fees/collect_payment', [FeeCollectionController::class, 'collect_payment'])->name('fees.collect_payment');
         Route::post('/fees/switch-student', [FeeCollectionController::class, 'switchStudent'])->name('fees.switch_student');
-        Route::get('/fees/search-student', [FeeCollectionController::class, 'search'])->name('fees.search-student');
+        Route::get('/fees/search-student', [FeeCollectionController::class, 'searchStudents'])->name('fees.search-student');
         Route::post('/fees/pay', [FeeCollectionController::class, 'pay'])->name('fees.pay');
         Route::get('/fees/category-pay', [FeeCollectionController::class, 'categoryPay'])->name('fees.category.pay');
         Route::get('/fees/load-category-fees', [FeeCollectionController::class, 'loadCategoryFees'])->name('fees.load.category');
         Route::post('/fees/category-pay', [FeeCollectionController::class, 'storeCategoryPayment'])->name('fees.category.store');
-        Route::get('/fees/search', [FeeCollectionController::class, 'search'])->name('fees.search');
+        Route::get('/fees/search', [FeeCollectionController::class, 'searchStudents'])->name('fees.search');
     });
 
     Route::middleware('permission:manage_transactions')->group(function () {

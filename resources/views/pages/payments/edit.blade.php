@@ -282,7 +282,7 @@
                             style="background:linear-gradient(135deg,#6366f1,#4338ca);font-size:14px">
                             ✓ Update Payment
                         </button>
-                        <a href="{{ route('fees.collect_payment', $payment->student_id) }}" class="btn btn-outline-secondary w-100 fw-bold rounded-3 py-2 compact-secondary-btn"
+                        <a href="{{ route('fees.collect_payment', ['student_id' => $payment->student_id]) }}" class="btn btn-outline-secondary w-100 fw-bold rounded-3 py-2 compact-secondary-btn"
                             style="font-size:14px">
                             Cancel
                         </a>

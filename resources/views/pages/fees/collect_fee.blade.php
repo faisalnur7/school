@@ -91,6 +91,29 @@
             min-width: 44px;
         }
 
+        .fee-collect-page .cat-badge.badge,
+        .fee-collect-page .inv-cat-item > .badge,
+        .fee-collect-page #cartBadge {
+            min-width: 2.1rem;
+            padding: 0.45rem 0.7rem !important;
+            font-size: 0.95rem !important;
+            line-height: 1 !important;
+            font-weight: 700 !important;
+        }
+
+        .fee-collect-page .inv-due-card > .badge {
+            min-width: auto;
+            padding: 0.28rem 0.55rem !important;
+            font-size: 0.8rem !important;
+            line-height: 1 !important;
+            font-weight: 700 !important;
+            white-space: nowrap;
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .fee-collect-page .cat-item,
         .fee-collect-page .inv-cat-item,
         .fee-collect-page .inv-due-card,
@@ -518,6 +541,357 @@
                 font-size: 0.8rem;
             }
         }
+
+        .fee-collect-page .student-search-trigger {
+            border-radius: 12px;
+            min-width: 118px;
+        }
+
+        .fee-collect-page .student-search-modal .modal-header,
+        .fee-collect-page .student-search-modal .modal-footer {
+            border-color: #eef2f7;
+        }
+
+        .fee-collect-page .student-search-results {
+            min-height: 120px;
+        }
+
+        .fee-collect-page .student-search-table thead th {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            border-top: 0;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0.55rem 0.75rem;
+            white-space: nowrap;
+        }
+
+        .fee-collect-page .student-search-table tbody td {
+            padding: 0.45rem 0.75rem;
+            font-size: 0.9rem;
+            color: #0f172a;
+            white-space: nowrap;
+        }
+
+        .fee-collect-page .student-search-row {
+            cursor: pointer;
+            transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+        }
+
+        .fee-collect-page .student-search-row:hover,
+        .fee-collect-page .student-search-row:focus {
+            background: #eff6ff;
+            box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.18);
+            outline: none;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-search-modal .modal-content {
+            background: #111827;
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-search-modal .modal-header,
+        html[data-theme='dark'] .fee-collect-page .student-search-modal .modal-footer {
+            border-color: rgba(148, 163, 184, 0.18);
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-search-table thead th {
+            border-bottom-color: rgba(148, 163, 184, 0.18);
+            color: #cbd5e1;
+            background: rgba(15, 23, 42, 0.96);
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-search-table tbody td {
+            color: #e2e8f0;
+            border-color: rgba(148, 163, 184, 0.14);
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-search-row:hover,
+        html[data-theme='dark'] .fee-collect-page .student-search-row:focus {
+            background: rgba(30, 41, 59, 0.95);
+        }
+
+        html[data-theme='dark'] .fee-collect-page {
+            color: #e2e8f0;
+            background: #0b1020;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-header-card,
+        html[data-theme='dark'] .fee-collect-page .card,
+        html[data-theme='dark'] .fee-collect-page .modal-content {
+            background: #0f172a !important;
+            border-color: rgba(148, 163, 184, 0.18) !important;
+            box-shadow: 0 12px 28px rgba(2, 6, 23, 0.38) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-header-card .card-inner,
+        html[data-theme='dark'] .fee-collect-page .card .card-body,
+        html[data-theme='dark'] .fee-collect-page .card form .card-footer,
+        html[data-theme='dark'] .fee-collect-page #feeForm .card-footer {
+            background: #0f172a !important;
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .card .card-header,
+        html[data-theme='dark'] .fee-collect-page .card-header.bg-white,
+        html[data-theme='dark'] .fee-collect-page .card-footer.bg-white,
+        html[data-theme='dark'] .fee-collect-page .fee-card.bg-white {
+            background: #0b1120 !important;
+            color: #e2e8f0 !important;
+            border-color: rgba(148, 163, 184, 0.14) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .card form .card-footer *,
+        html[data-theme='dark'] .fee-collect-page #feeForm .card-footer * {
+            border-color: rgba(148, 163, 184, 0.14) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .discount-row,
+        html[data-theme='dark'] .fee-collect-page #discountSection {
+            background: #0f172a !important;
+            border: 1px solid rgba(148, 163, 184, 0.18) !important;
+            border-radius: 14px !important;
+            padding: 0.85rem !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page #discountSection {
+            box-shadow: inset 0 0 0 1px rgba(30, 41, 59, 0.55) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .discount-row .d-flex.align-items-center.gap-2.mb-2 {
+            margin-bottom: 0.55rem !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .discount-type-btn {
+            background: #111827 !important;
+            color: #cbd5e1 !important;
+            border: 1px solid rgba(148, 163, 184, 0.24) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .discount-type-btn.active {
+            background: #6366f1 !important;
+            color: #ffffff !important;
+            border-color: #6366f1 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page #subtotalAmount,
+        html[data-theme='dark'] .fee-collect-page #totalAmount,
+        html[data-theme='dark'] .fee-collect-page .discount-amount-line {
+            color: #cbd5e1 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page #subtotalAmount,
+        html[data-theme='dark'] .fee-collect-page #discountInput,
+        html[data-theme='dark'] .fee-collect-page #paymentAmount,
+        html[data-theme='dark'] .fee-collect-page #descriptionInput {
+            background: #0b1120 !important;
+            border-color: rgba(148, 163, 184, 0.24) !important;
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page #discountInput {
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page #paymentAmount::placeholder,
+        html[data-theme='dark'] .fee-collect-page #discountInput::placeholder,
+        html[data-theme='dark'] .fee-collect-page #descriptionInput::placeholder {
+            color: #94a3b8 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .discount-row .form-label,
+        html[data-theme='dark'] .fee-collect-page .discount-row .text-muted,
+        html[data-theme='dark'] .fee-collect-page .discount-row .mono.text-muted,
+        html[data-theme='dark'] .fee-collect-page .discount-row small {
+            color: #94a3b8 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page hr {
+            border-top-color: rgba(148, 163, 184, 0.22) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .card-footer .d-flex.justify-content-between.align-items-baseline {
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .card-footer .d-flex.justify-content-between.align-items-center.mt-2 {
+            color: #94a3b8 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .card-footer .collect-btn {
+            background: linear-gradient(135deg, #6366f1, #4338ca) !important;
+            color: #ffffff !important;
+            border: 0 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-header-card .card-inner {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+        }
+
+        html[data-theme='dark'] .fee-collect-page .back-btn,
+        html[data-theme='dark'] .fee-collect-page .btn-outline-primary,
+        html[data-theme='dark'] .fee-collect-page .btn-outline-secondary {
+            background: #111827 !important;
+            border-color: rgba(99, 102, 241, 0.55) !important;
+            color: #e2e8f0 !important;
+            box-shadow: none !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .back-btn:hover,
+        html[data-theme='dark'] .fee-collect-page .btn-outline-primary:hover,
+        html[data-theme='dark'] .fee-collect-page .btn-outline-secondary:hover {
+            background: #1e293b !important;
+            color: #f8fafc !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .label-tag,
+        html[data-theme='dark'] .fee-collect-page .student-name,
+        html[data-theme='dark'] .fee-collect-page .panel-eyebrow,
+        html[data-theme='dark'] .fee-collect-page .cart-control-label,
+        html[data-theme='dark'] .fee-collect-page .cart-line-subtitle,
+        html[data-theme='dark'] .fee-collect-page .text-muted,
+        html[data-theme='dark'] .fee-collect-page small,
+        html[data-theme='dark'] .fee-collect-page .history-summary,
+        html[data-theme='dark'] .fee-collect-page .student-search-modal .text-muted {
+            color: #cbd5e1 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .meta-chips .chip,
+        html[data-theme='dark'] .fee-collect-page .chip--switch,
+        html[data-theme='dark'] .fee-collect-page .student-search-table thead th,
+        html[data-theme='dark'] .fee-collect-page .student-search-table tbody td {
+            background: #111827 !important;
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .meta-chips .chip-value,
+        html[data-theme='dark'] .fee-collect-page .chip--switch .form-control,
+        html[data-theme='dark'] .fee-collect-page .chip--switch .form-control::placeholder {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .chip,
+        html[data-theme='dark'] .fee-collect-page .chip--switch,
+        html[data-theme='dark'] .fee-collect-page .student-search-modal .modal-header,
+        html[data-theme='dark'] .fee-collect-page .student-search-modal .modal-footer,
+        html[data-theme='dark'] .fee-collect-page .nav-tabs {
+            border-color: rgba(148, 163, 184, 0.18) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .chip,
+        html[data-theme='dark'] .fee-collect-page .student-search-table,
+        html[data-theme='dark'] .fee-collect-page .payment-history-table,
+        html[data-theme='dark'] .fee-collect-page .table-responsive,
+        html[data-theme='dark'] .fee-collect-page .cart-qty-stepper,
+        html[data-theme='dark'] .fee-collect-page .input-group,
+        html[data-theme='dark'] .fee-collect-page .form-control,
+        html[data-theme='dark'] .fee-collect-page textarea.form-control,
+        html[data-theme='dark'] .fee-collect-page select.form-control {
+            background: #111827 !important;
+            color: #e2e8f0 !important;
+            border-color: rgba(148, 163, 184, 0.2) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .form-control::placeholder,
+        html[data-theme='dark'] .fee-collect-page textarea.form-control::placeholder {
+            color: #94a3b8 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .input-group-text,
+        html[data-theme='dark'] .fee-collect-page .cart-qty-stepper-btn {
+            background: #0b1120 !important;
+            color: #cbd5e1 !important;
+            border-color: rgba(148, 163, 184, 0.2) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .nav-tabs {
+            border-bottom-color: rgba(148, 163, 184, 0.18) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .nav-tabs .nav-link {
+            background: #0f172a !important;
+            color: #93c5fd !important;
+            border-color: rgba(148, 163, 184, 0.18) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .nav-tabs .nav-link.active {
+            background: #f8fafc !important;
+            color: #111827 !important;
+            border-color: rgba(248, 250, 252, 0.65) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .fee-card,
+        html[data-theme='dark'] .fee-collect-page .inv-cat-item,
+        html[data-theme='dark'] .fee-collect-page .inv-due-card,
+        html[data-theme='dark'] .fee-collect-page .inv-item-card,
+        html[data-theme='dark'] .fee-collect-page .cat-item,
+        html[data-theme='dark'] .fee-collect-page .cart-row,
+        html[data-theme='dark'] .fee-collect-page .student-search-row {
+            background: #111827 !important;
+            color: #e2e8f0 !important;
+            border-color: rgba(148, 163, 184, 0.18) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .fee-card:hover,
+        html[data-theme='dark'] .fee-collect-page .inv-cat-item:hover,
+        html[data-theme='dark'] .fee-collect-page .inv-due-card:hover,
+        html[data-theme='dark'] .fee-collect-page .inv-item-card:hover,
+        html[data-theme='dark'] .fee-collect-page .cat-item:hover,
+        html[data-theme='dark'] .fee-collect-page .cart-row:hover,
+        html[data-theme='dark'] .fee-collect-page .student-search-row:hover {
+            background: #1e293b !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .inv-item-card--out {
+            background: #0f172a !important;
+            border-color: rgba(148, 163, 184, 0.14) !important;
+            opacity: 0.55;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-search-modal .table-responsive,
+        html[data-theme='dark'] .fee-collect-page .student-search-modal .student-search-table {
+            background: #0f172a !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-search-table thead th {
+            background: #0b1120 !important;
+            color: #cbd5e1 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-search-table tbody td {
+            background: #111827 !important;
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-search-row:hover,
+        html[data-theme='dark'] .fee-collect-page .student-search-row:focus {
+            background: #1e293b !important;
+            box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.35) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .text-dark {
+            color: #f8fafc !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .badge {
+            border-color: rgba(148, 163, 184, 0.18) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-search-trigger {
+            background: #111827 !important;
+            color: #e2e8f0 !important;
+            border-color: rgba(99, 102, 241, 0.55) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-search-modal .modal-content {
+            background: #0f172a !important;
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .student-search-modal .modal-body {
+            background: #0f172a !important;
+        }
     </style>
 @endsection
 
@@ -526,8 +900,11 @@
 
         {{-- ── Student Banner ── --}}
         <div class="student-header-card mb-4">
-            <div class="card-inner">
-                <a href="{{ url()->previous() }}" class="back-btn">
+                <div class="card-inner">
+                    <button type="button" class="btn btn-outline-primary btn-sm student-search-trigger mr-2" data-toggle="modal" data-target="#studentSearchModal">
+                        Search Student
+                    </button>
+                    <a href="{{ url()->previous() }}" class="back-btn">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
                             stroke-linejoin="round" />
@@ -537,24 +914,24 @@
                 <div class="header-divider"></div>
                 <div class="student-identity">
                     <div class="avatar-ring">
-                        <span class="avatar-initials">{{ strtoupper(substr($student->full_name_en, 0, 2)) }}</span>
+                        <span class="avatar-initials">{{ $student?->full_name_en ? strtoupper(substr($student->full_name_en, 0, 2)) : '—' }}</span>
                     </div>
                     <div>
                         <p class="label-tag">STUDENT</p>
-                        <h5 class="student-name">{{ $student->full_name_en }}</h5>
+                        <h5 class="student-name">{{ $student->full_name_en ?? 'Student not selected' }}</h5>
                     </div>
                 </div>
-                @php $info = $student->academicInformations->last(); @endphp
+                @php $info = $student?->academicInformations?->last(); @endphp
                 <div class="meta-chips ms-auto">
                     <div class="chip">
                         <span class="chip-label">ID</span>
-                        <span class="chip-value">{{ $student->student_cid }}</span>
+                        <span class="chip-value">{{ $student->student_cid ?? '—' }}</span>
                     </div>
                     <div class="chip chip--switch" style="min-width:220px">
                         <span class="chip-label">STUDENT ID</span>
                         <div class="d-flex align-items-center gap-2 mt-1">
                             <input type="text" id="studentCidSwitch" class="form-control form-control-sm"
-                                value="{{ $student->student_cid }}" placeholder="Enter Student ID" autocomplete="off"
+                                value="{{ $student->student_cid ?? '' }}" placeholder="Enter Student ID" autocomplete="off"
                                 style="border-radius:12px;border:1px solid #c7d2fe" />
                             <button type="button" id="studentCidSwitchBtn" class="btn btn-sm"
                                 style="border-radius:12px;background:#4338ca;color:#fff">
@@ -564,15 +941,86 @@
                     </div>
                     <div class="chip">
                         <span class="chip-label">CLASS</span>
-                        <span class="chip-value">{{ $info->schoolClass->name_en ?? '—' }}</span>
+                        <span class="chip-value">{{ $info?->schoolClass?->name_en ?? '—' }}</span>
                     </div>
                     <div class="chip">
                         <span class="chip-label">SECTION</span>
-                        <span class="chip-value">{{ $info->section->name_en ?? '—' }}</span>
+                        <span class="chip-value">{{ $info?->section?->name_en ?? '—' }}</span>
                     </div>
                     <div class="chip">
                         <span class="chip-label">GROUP</span>
-                        <span class="chip-value">{{ $info->group->name_en ?? 'N/A' }}</span>
+                        <span class="chip-value">{{ $info?->group?->name_en ?? 'N/A' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade student-search-modal" id="studentSearchModal" tabindex="-1" role="dialog" aria-labelledby="studentSearchModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div>
+                            <h5 class="modal-title mb-0" id="studentSearchModalLabel">Search Student</h5>
+                            <small class="text-muted">Filter students and pick one to collect payment.</small>
+                        </div>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="studentSearchForm">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-2">
+                                    <label class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">STUDENT ID</label>
+                                    <input type="text" name="student_id" class="form-control" placeholder="Enter Student ID">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">SESSION</label>
+                                    <select name="academic_session_id" class="form-control">
+                                        <option value="">All</option>
+                                        @foreach($sessions ?? collect() as $session)
+                                            <option value="{{ $session->id }}">{{ $session->name_en }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">CLASS</label>
+                                    <select name="school_class_id" id="studentSearchClass" class="form-control">
+                                        <option value="">All</option>
+                                        @foreach($classes ?? collect() as $class)
+                                            <option value="{{ $class->id }}">{{ $class->name_en }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">SECTION</label>
+                                    <select name="section_id" id="studentSearchSection" class="form-control" disabled>
+                                        <option value="">All</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">GROUP</label>
+                                    <select name="group_id" class="form-control">
+                                        <option value="">All</option>
+                                        @foreach($groups ?? collect() as $group)
+                                            <option value="{{ $group->id }}">{{ $group->name_en }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-dark w-100" title="Search" aria-label="Search">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="student-search-results mt-4" id="studentSearchResults">
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-search fa-2x mb-2"></i>
+                                <p class="mb-0">Use the filters above to search for a student.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -707,7 +1155,7 @@
                                                         </div>
                                                     </div>
                                                     <span class="badge rounded-pill" style="font-size:10px;background:#ffedd5;color:#c2410c;border:1px solid #fdba74">
-                                                        + Add Due
+                                                        Due
                                                     </span>
                                                 </div>
                                             @endforeach
@@ -1127,10 +1575,80 @@
             const $discountInput = $('#discountInput');
             const $discountLine = $('#discountLine');
             const $inventoryDueCards = $('.inv-due-card');
+            const $studentSearchForm = $('#studentSearchForm');
+            const $studentSearchResults = $('#studentSearchResults');
+            const $studentSearchClass = $('#studentSearchClass');
+            const $studentSearchSection = $('#studentSearchSection');
 
-            const currentCid = @json($student->student_cid);
+            const currentCid = @json($student?->student_cid ?? '');
             const $studentCidInput = $('#studentCidSwitch');
             const $studentCidBtn = $('#studentCidSwitchBtn');
+
+            function loadStudentSearchResults(query = null) {
+                if (!$studentSearchResults.length) return;
+
+                $studentSearchResults.html(`
+                    <div class="text-center text-muted py-4">
+                        <div class="spinner-border spinner-border-sm text-primary mb-2" role="status" aria-hidden="true"></div>
+                        <p class="mb-0">Searching students...</p>
+                    </div>
+                `);
+
+                $.get('{{ route('fees.search-student') }}', query || ($studentSearchForm.length ? $studentSearchForm.serialize() : {}))
+                    .done(function (html) {
+                        $studentSearchResults.html(html);
+                    })
+                    .fail(function () {
+                        $studentSearchResults.html(`
+                            <div class="text-center text-danger py-4">
+                                <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                                <p class="mb-0">Unable to load students. Please try again.</p>
+                            </div>
+                        `);
+                    });
+            }
+
+            function selectSearchStudent(url) {
+                if (!url) return;
+                window.location.href = url;
+            }
+
+            function resetStudentSearchSection() {
+                if (!$studentSearchSection.length) return;
+
+                $studentSearchSection.html('<option value="">All</option>');
+                $studentSearchSection.prop('disabled', true);
+            }
+
+            function loadStudentSearchSections(classId) {
+                if (!$studentSearchSection.length) return;
+
+                if (!classId) {
+                    resetStudentSearchSection();
+                    return;
+                }
+
+                $studentSearchSection.prop('disabled', true).html('<option value="">Loading...</option>');
+
+                fetch(`{{ route('load_section_groups') }}?school_class_id=${encodeURIComponent(classId)}`)
+                    .then((response) => {
+                        if (!response.ok) throw new Error('Failed to load sections');
+                        return response.json();
+                    })
+                    .then((data) => {
+                        const sections = Array.isArray(data?.sections) ? data.sections : [];
+                        let html = '<option value="">All</option>';
+
+                        sections.forEach((section) => {
+                            html += `<option value="${section.id}">${section.name_en}</option>`;
+                        });
+
+                        $studentSearchSection.html(html).prop('disabled', false);
+                    })
+                    .catch(() => {
+                        resetStudentSearchSection();
+                    });
+            }
 
             function showSwitchError(title, message, icon) {
                 Swal.fire({
@@ -1663,7 +2181,7 @@
                     fees: feesPayload,
                     items: itemsPayload,
                     inventory_dues: inventoryDuesPayload,
-                    student_id: @json($student->id),
+                    student_id: @json($student?->id),
                     payment_amount: $('#paymentAmount').val() ?? $totalEl.text(),
                     discount: $('#discountInput').val() || 0,
                     discount_type: $('#discountTypeHidden').val(),
@@ -1756,6 +2274,44 @@
                 $('div.tab-pane').removeClass('active show');
                 $(this).addClass('active');
                 $($(this).attr('href')).addClass('active show');
+            });
+
+            if ($studentSearchForm.length) {
+                $studentSearchForm.on('submit', function(e) {
+                    e.preventDefault();
+                    loadStudentSearchResults();
+                });
+            }
+
+            $studentSearchResults.on('click', '.student-search-row', function () {
+                selectSearchStudent($(this).data('url'));
+            });
+
+            $studentSearchResults.on('keydown', '.student-search-row', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    selectSearchStudent($(this).data('url'));
+                }
+            });
+
+            if ($studentSearchClass.length) {
+                $studentSearchClass.on('change', function () {
+                    loadStudentSearchSections(this.value);
+                });
+            }
+
+            $('#studentSearchModal').on('shown.bs.modal', function() {
+                if ($studentSearchForm.length) {
+                    $studentSearchForm[0].reset();
+                }
+                resetStudentSearchSection();
+                $studentSearchResults.html(`
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-search fa-2x mb-2"></i>
+                        <p class="mb-0">Use the filters above to search for a student.</p>
+                    </div>
+                `);
+                $(this).find('input[name="student_id"]').trigger('focus');
             });
 
             // Activate tab based on URL hash (e.g., /fees/collect_payment/1#tabHistory)

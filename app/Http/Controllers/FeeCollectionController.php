@@ -69,28 +69,15 @@ class FeeCollectionController extends Controller
         );
     }
 
-    public function index(Request $request)
+    private function buildStudentSearchQuery(Request $request)
     {
-        $classes = SchoolClass::all();
-        $sections = Section::all();
-        $groups = Group::all();
-        $sessions = AcademicSession::all(); // NEW
-
-        $student = null;
-        $students = collect();
-        $pendingFees = collect();
-
-        // ===========================
-        // FILTER STUDENTS
-        // ===========================
-        $studentQuery = Student::with([
+        return Student::with([
             'academicInformations' => function ($q) {
                 $q->where('is_current', true)
                     ->where('academic_status', 'active')
                     ->with(['schoolClass', 'section', 'group', 'academicSession']);
             },
         ])
-            // Only show active students from their current academic record.
             ->where('status', 1)
             ->when($request->filled('student_id'), function ($query) use ($request) {
                 $query->where('student_cid', $request->student_id);
@@ -111,6 +98,23 @@ class FeeCollectionController extends Controller
                         $subQuery->where('group_id', $request->group_id);
                     });
             });
+    }
+
+    public function index(Request $request)
+    {
+        $classes = SchoolClass::all();
+        $sections = Section::all();
+        $groups = Group::all();
+        $sessions = AcademicSession::all(); // NEW
+
+        $student = null;
+        $students = collect();
+        $pendingFees = collect();
+
+        // ===========================
+        // FILTER STUDENTS
+        // ===========================
+        $studentQuery = $this->buildStudentSearchQuery($request);
 
         // Only search if filters applied
         if (
@@ -164,11 +168,32 @@ class FeeCollectionController extends Controller
             'success' => true,
             'student_id' => $student->id,
             'student_name' => $student->full_name_en,
-            'redirect_url' => route('fees.collect_payment', $student->id)
+            'redirect_url' => route('fees.collect_payment', ['student_id' => $student->id])
         ]);
     }
 
-    public function collect_payment($student_id){
+    public function collect_payment(Request $request)
+    {
+        $classes = SchoolClass::all();
+        $sections = Section::all();
+        $groups = Group::all();
+        $sessions = AcademicSession::all();
+        $studentId = $request->query('student_id', $request->query('id'));
+
+        if (blank($studentId)) {
+            return view('pages.fees.collect_fee', [
+                'student' => null,
+                'payments' => collect(),
+                'pendingFees' => collect(),
+                'inventoryCategories' => collect(),
+                'inventoryDueItems' => collect(),
+                'classes' => $classes,
+                'sections' => $sections,
+                'groups' => $groups,
+                'sessions' => $sessions,
+            ]);
+        }
+
         $student = Student::with([
             'academicInformations.schoolClass',
             'academicInformations.section',
@@ -181,7 +206,7 @@ class FeeCollectionController extends Controller
             'payments.inventorySale.items.inventoryItem.category',
             'payments.inventoryDueItems.inventorySaleItem.inventoryItem.category',
             'payments.collector',
-        ])->findOrFail($student_id);
+        ])->findOrFail($studentId);
 
         $payments = $student->payments;
 
@@ -356,8 +381,28 @@ class FeeCollectionController extends Controller
             ->filter()
             ->values();
 
-        return view('pages.fees.collect_fee', compact('pendingFees', 'student', 'payments', 'inventoryCategories', 'inventoryDueItems'));
+        return view('pages.fees.collect_fee', compact(
+            'pendingFees',
+            'student',
+            'payments',
+            'inventoryCategories',
+            'inventoryDueItems',
+            'classes',
+            'sections',
+            'groups',
+            'sessions'
+        ));
 
+    }
+
+    public function searchStudents(Request $request)
+    {
+        $students = $this->buildStudentSearchQuery($request)
+            ->orderBy('student_cid')
+            ->limit(50)
+            ->get();
+
+        return view('pages.fees.partials.student_search_results', compact('students'))->render();
     }
 
     public function pay(Request $request)

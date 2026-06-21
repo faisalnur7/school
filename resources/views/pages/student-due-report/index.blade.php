@@ -361,7 +361,7 @@
                                             <td class="text-right">{{ number_format($line->due, 2) }}</td>
                                             <td class="text-center">
                                                 @if($lineIndex === 0)
-                                                    <a href="{{ route('fees.collect_payment', $student->student_id) }}" class="btn btn-sm btn-primary">
+                                                    <a href="{{ route('fees.collect_payment', ['student_id' => $student->student_id]) }}" class="btn btn-sm btn-primary">
                                                         Collect
                                                     </a>
                                                 @endif

@@ -736,7 +736,7 @@
                                 <p class="student-profile-panel-subtitle">Billing overview and fee groups</p>
                             </div>
                             <div class="d-flex flex-wrap" style="gap: 0.5rem;">
-                                <a href="{{ route('fees.collect_payment', $student->id) }}" class="btn btn-sm btn-success">
+                                <a href="{{ route('fees.collect_payment', ['student_id' => $student->id]) }}" class="btn btn-sm btn-success">
                                     <i class="fas fa-money-bill-wave mr-1"></i> Collect
                                 </a>
                                 <a href="{{ route('payments.index') }}?student_id={{ $student->id }}" class="btn btn-sm btn-outline-secondary">

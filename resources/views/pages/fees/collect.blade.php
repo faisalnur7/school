@@ -48,7 +48,7 @@
                     </td>
 
                     <td>
-                        <a href="{{ route('fees.collect_payment',['student_id'=>$std->id]) }}"
+                        <a href="{{ route('fees.collect_payment',['student_id' => $std->id]) }}"
                            class="btn btn-sm btn-dark">
                             Collect Fee
                         </a>

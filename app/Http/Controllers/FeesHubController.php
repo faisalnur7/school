@@ -8,7 +8,7 @@ class FeesHubController extends Controller
     {
         $sections = [
             'Fee Settings & Payment Collection' => [
-                ['icon' => 'fa-hand-holding-usd', 'title' => 'Collect Payments', 'subtitle' => 'Collect student payments',   'route' => 'fees.collect', 'permission' => 'view_card_collect_payments', 'from' => '#dc2626', 'to' => '#b91c1c'],
+                ['icon' => 'fa-hand-holding-usd', 'title' => 'Collect Payments', 'subtitle' => 'Collect student payments',   'route' => 'fees.collect_payment', 'permission' => 'view_card_collect_payments', 'from' => '#dc2626', 'to' => '#b91c1c'],
                 ['icon' => 'fa-tags',           'title' => 'Fee Categories',     'subtitle' => 'Manage fee categories',       'route' => 'fee-categories.index', 'permission' => 'view_card_fee_categories', 'from' => '#4f46e5', 'to' => '#7c3aed'],
                 ['icon' => 'fa-layer-group',    'title' => 'Fee Sets',           'subtitle' => 'Manage fee sets',             'route' => 'fee-sets.index', 'permission' => 'view_card_fee_sets', 'from' => '#0891b2', 'to' => '#0e7490'],
                 ['icon' => 'fa-award',          'title' => 'Scholarships',       'subtitle' => 'Manage scholarships',         'route' => 'scholarships.index', 'permission' => 'view_card_scholarships', 'from' => '#059669', 'to' => '#047857'],

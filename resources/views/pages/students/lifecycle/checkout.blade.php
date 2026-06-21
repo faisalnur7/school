@@ -78,7 +78,7 @@
                         <i class="fas fa-exclamation-triangle"></i>
                         Due: ৳{{ number_format($rec->totalDue, 2) }}
                     </span>
-                    <a href="{{ route('fees.collect_payment', $rec->student_id) }}" class="btn btn-sm btn-warning">
+                    <a href="{{ route('fees.collect_payment', ['student_id' => $rec->student_id]) }}" class="btn btn-sm btn-warning">
                         <i class="fas fa-money-bill mr-1"></i> Pay Fees
                     </a>
                     @else
