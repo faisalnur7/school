@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Payment;
@@ -44,9 +45,64 @@ class PaymentController extends Controller
     }
     
     public function receipt(Payment $payment){
-        $payment->load(['items.fee.feeSet.items.category', 'student', 'collector', 'inventorySale.items.inventoryItem.category', 'inventoryDueItems.inventorySaleItem.inventoryItem.category']);
+        $payment->load([
+            'items.fee.feeSet.items.category',
+            'student',
+            'collector',
+            'inventorySale.items.inventoryItem.category',
+            'inventoryDueItems.inventorySaleItem.inventoryItem.category',
+        ]);
         $setting = SchoolSetting::current();
-        return view('pages.payments.receipt', compact('payment', 'setting'));
+        $receiptSummary = $this->buildReceiptSummary($payment);
+
+        return view('pages.payments.receipt', compact('payment', 'setting', 'receiptSummary'));
+    }
+
+    private function buildReceiptSummary(Payment $payment): array
+    {
+        $feeRecords = $payment->items
+            ->map(fn ($item) => $item->fee)
+            ->filter()
+            ->unique('id')
+            ->values();
+
+        $feeSubtotal = (float) $feeRecords->sum(fn ($fee) => (float) ($fee->amount ?? 0));
+        $scholarshipAmt = round((float) ($payment->scholarship_amount ?? 0), 2);
+        $freeStudentshipAmt = round((float) ($payment->discount_amount ?? 0), 2);
+        $totalDue = round(max(0, $feeSubtotal - $scholarshipAmt - $freeStudentshipAmt), 2);
+
+        $paidCutoffDate = $payment->payment_date
+            ? Carbon::parse($payment->payment_date)->toDateString()
+            : Carbon::parse($payment->created_at ?: now())->toDateString();
+
+        $paidByFee = collect();
+        if ($feeRecords->isNotEmpty()) {
+            $paidByFee = PaymentItem::query()
+                ->selectRaw('payment_items.fee_id as fee_id, SUM(payment_items.amount) as total_paid')
+                ->join('payments', 'payments.id', '=', 'payment_items.payment_id')
+                ->whereIn('payment_items.fee_id', $feeRecords->pluck('id')->all())
+                ->where(function ($query) use ($payment, $paidCutoffDate) {
+                    $query->whereDate('payments.payment_date', '<', $paidCutoffDate)
+                        ->orWhere(function ($subQuery) use ($payment, $paidCutoffDate) {
+                            $subQuery->whereDate('payments.payment_date', '=', $paidCutoffDate)
+                                ->where('payments.id', '<=', $payment->id);
+                        });
+                })
+                ->groupBy('payment_items.fee_id')
+                ->pluck('total_paid', 'fee_id');
+        }
+
+        $feePaidTotal = round($feeRecords->sum(fn ($fee) => (float) ($paidByFee[$fee->id] ?? 0)), 2);
+        $balanceDue = round(max(0, $totalDue - $feePaidTotal), 2);
+
+        return [
+            'feeSubtotal' => $feeSubtotal,
+            'scholarshipAmt' => $scholarshipAmt,
+            'freeStudentshipAmt' => $freeStudentshipAmt,
+            'totalDue' => $totalDue,
+            'totalPaid' => $feePaidTotal,
+            'balanceDue' => $balanceDue,
+        ];
     }
 
     public function edit(Payment $payment)

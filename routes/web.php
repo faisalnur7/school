@@ -683,6 +683,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/', [TransportController::class, 'index'])->name('transports.index');
         Route::get('/create', [TransportController::class, 'create'])->name('transports.create');
         Route::get('/edit/{id}', [TransportController::class, 'edit'])->name('transports.edit');
+        Route::put('/{transport}', [TransportController::class, 'update'])->name('transports.update');
         Route::post('/toggle-status/{transport}', [TransportController::class, 'toggleStatus'])->name('transports.toggle-status');
         Route::get('/students', [TransportController::class, 'getStudents'])->name('transports.get-students');
         Route::post('/bulk', [TransportController::class, 'storeBulk'])->name('transports.store-bulk');

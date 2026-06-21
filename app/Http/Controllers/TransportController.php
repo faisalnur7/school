@@ -48,6 +48,11 @@ class TransportController extends Controller
             $query->whereHas('studentAcademicInformation', fn($q) => $q->where('group_id', $request->group_id));
         }
 
+        if ($request->filled('student_cid')) {
+            $studentCid = trim($request->student_cid);
+            $query->where('students.student_cid', 'like', "%{$studentCid}%");
+        }
+
         // Student-level filters (match StudentController)
         if ($request->filled('permanent_division_id')) {
             $query->where('students.permanent_division_id', $request->permanent_division_id);
@@ -120,10 +125,89 @@ class TransportController extends Controller
         return view('transports.create', compact('sessions', 'feeCategories', 'classes'));
     }
 
+    public function edit($id)
+    {
+        $transport = Transport::with([
+            'student',
+            'studentAcademicInformation.student',
+            'studentAcademicInformation.schoolClass',
+            'studentAcademicInformation.section',
+            'studentAcademicInformation.group',
+            'academicSession',
+            'feeCategory',
+        ])->findOrFail($id);
+
+        $sessions = AcademicSession::all();
+        $feeCategories = FeeCategory::where('status', 1)->where('is_transport',1)->get();
+        $classes = SchoolClass::all();
+
+        return view('transports.edit', compact('transport', 'sessions', 'feeCategories', 'classes'));
+    }
+
+    public function update(Request $request, Transport $transport)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:0',
+            'status' => 'required|in:active,inactive',
+            'remarks' => 'nullable|string',
+        ]);
+
+        DB::transaction(function () use ($request, $transport) {
+            $transport->loadMissing([
+                'studentAcademicInformation',
+                'studentAcademicInformation.schoolClass',
+                'studentAcademicInformation.group',
+            ]);
+
+            $transport->update([
+                'amount' => $request->amount,
+                'status' => $request->status,
+                'remarks' => $request->remarks,
+            ]);
+
+            $studentInfo = $transport->studentAcademicInformation;
+            if (!$studentInfo) {
+                return;
+            }
+
+            $feeSetQuery = FeeSet::where('academic_session_id', $transport->academic_session_id)
+                ->where('school_class_id', $studentInfo->school_class_id)
+                ->where('frequency', 'monthly');
+
+            if ($studentInfo->group_id) {
+                $feeSetQuery->where('group_id', $studentInfo->group_id);
+            } else {
+                $feeSetQuery->whereNull('group_id');
+            }
+
+            $feeSet = $feeSetQuery->first();
+            if (!$feeSet) {
+                return;
+            }
+
+            FeeSetItem::where('fee_set_id', $feeSet->id)
+                ->where('fee_category_id', $transport->fee_category_id)
+                ->update(['amount' => $transport->amount]);
+
+            Fee::where('student_id', $transport->student_id)
+                ->where('fee_set_id', $feeSet->id)
+                ->where('status', '!=', 'paid')
+                ->update([
+                    'amount' => $transport->amount,
+                    'is_active' => $transport->status === Transport::STATUS_ACTIVE ? 1 : 0,
+                ]);
+        });
+
+        return redirect()->route('transports.index')
+            ->with('success', 'Transport fee updated successfully');
+    }
+
     public function getStudents(Request $request)
     {
         $query = StudentAcademicInformation::with(['student', 'schoolClass', 'section', 'group'])
-            ->where('academic_session_id', $request->academic_session_id);
+            ->where('academic_session_id', $request->academic_session_id)
+            ->where('is_current', true)
+            ->where('academic_status', 'active');
 
         if ($request->school_class_id) {
             $query->where('school_class_id', $request->school_class_id);
@@ -138,12 +222,14 @@ class TransportController extends Controller
         }
 
         $students = $query->orderBy('roll', 'asc')->get();
-        $feeCategory = FeeCategory::where('is_transport',1)->first();
-        $existingTransports = Transport::where('academic_session_id', $request->academic_session_id)
-            ->where('fee_category_id', $feeCategory->id)
-            ->whereIn('student_id', $students->pluck('student_id'))
-            ->get()
-            ->keyBy('student_id');
+        $feeCategory = FeeCategory::where('is_transport', 1)->first();
+        $existingTransports = $feeCategory
+            ? Transport::where('academic_session_id', $request->academic_session_id)
+                ->where('fee_category_id', $feeCategory->id)
+                ->whereIn('student_id', $students->pluck('student_id'))
+                ->get()
+                ->keyBy('student_id')
+            : collect();
 
         $result = $students->map(function ($info) use ($existingTransports) {
             $existing = $existingTransports->get($info->student_id);

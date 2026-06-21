@@ -49,7 +49,8 @@
                         </thead>
                         <tbody>
                             @forelse($transports as $transport)
-                                <tr>
+                                @php($isRowEditing = old('editing_transport_id') == $transport->id)
+                                <tr data-transport-id="{{ $transport->id }}">
                                     <td class="px-4 py-3">
                                         <code style="background:#f1f5f9;padding:3px 8px;border-radius:6px">
                                             {{ $transport->student->student_cid ?? 'N/A'}}
@@ -72,9 +73,32 @@
                                     </td>
                                     <td class="px-4 py-3">{{ $transport->feeCategory->name }}</td>
                                     <td class="px-4 py-3">
-                                        <span class="fw-bold" style="color:#4338ca">
-                                            ৳{{ number_format($transport->amount, 2) }}
-                                        </span>
+                                        <form id="transportUpdateForm{{ $transport->id }}"
+                                              action="{{ route('transports.update', $transport->id) }}"
+                                              method="POST"
+                                              class="transport-inline-form"
+                                              data-original-amount="{{ $transport->amount }}">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="{{ $transport->status }}">
+                                            <input type="hidden" name="remarks" value="{{ $transport->remarks }}">
+                                            <input type="hidden" name="editing_transport_id" value="{{ $transport->id }}">
+
+                                            <span class="fw-bold transport-amount-display {{ $isRowEditing ? 'd-none' : '' }}" style="color:#4338ca">
+                                                ৳{{ number_format($transport->amount, 2) }}
+                                            </span>
+                                            <input
+                                                type="number"
+                                                name="amount"
+                                                class="form-control form-control-sm transport-amount-input {{ $isRowEditing ? '' : 'd-none' }}"
+                                                value="{{ old('amount', $transport->amount) }}"
+                                                step="0.01"
+                                                min="0"
+                                            >
+                                            @error('amount')
+                                                <small class="text-danger d-block mt-1">{{ $message }}</small>
+                                            @enderror
+                                        </form>
                                     </td>
                                     <td class="px-4 py-3">{{ $transport->academicSession->name_en }}</td>
                                     <td class="px-4 py-3 text-center">
@@ -87,20 +111,24 @@
                                         </form>
                                     </td>
                                     <td class="px-4 py-3 text-center">
-                                        <a href="{{ route('transports.edit', $transport->id) }}" class="btn btn-sm btn-warning me-1"><i class="fas fa-edit"></i></a>
-                                        <form action="{{ route('transports.destroy', $transport->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" 
-                                                onclick="return confirm('Remove this transport fee?')">
-                                                <i class="fas fa-trash"></i>
+                                        <div class="transport-row-actions">
+                                            <button type="button" class="btn btn-sm btn-warning me-1 transport-edit-btn {{ $isRowEditing ? 'd-none' : '' }}">
+                                                <i class="fas fa-edit"></i>
                                             </button>
-                                        </form>
+                                            <button type="submit"
+                                                    form="transportUpdateForm{{ $transport->id }}"
+                                                    class="btn btn-sm btn-success me-1 transport-update-btn {{ $isRowEditing ? '' : 'd-none' }}">
+                                                Update
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-secondary me-1 transport-cancel-btn {{ $isRowEditing ? '' : 'd-none' }}">
+                                                Cancel
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-5 text-muted">
+                                    <td colspan="8" class="text-center py-5 text-muted">
                                         <div style="font-size:48px;opacity:.2">🚌</div>
                                         <p class="mt-3">No transport fees assigned yet</p>
                                     </td>
@@ -121,4 +149,31 @@
 
 @section('scripts')
     @include('scripts.common.load_academic_information')
+    <script>
+        $(document).on('click', '.transport-edit-btn', function () {
+            const $row = $(this).closest('tr');
+            const $form = $row.find('.transport-inline-form');
+
+            $row.addClass('is-editing');
+            $row.find('.transport-amount-display').addClass('d-none');
+            $row.find('.transport-amount-input').removeClass('d-none').trigger('focus').trigger('select');
+            $row.find('.transport-edit-btn').addClass('d-none');
+            $row.find('.transport-update-btn, .transport-cancel-btn').removeClass('d-none');
+            $form.find('input[name="editing_transport_id"]').val($row.data('transport-id'));
+        });
+
+        $(document).on('click', '.transport-cancel-btn', function () {
+            const $row = $(this).closest('tr');
+            const $form = $row.find('.transport-inline-form');
+            const originalAmount = $form.data('original-amount');
+
+            $row.removeClass('is-editing');
+            $row.find('.transport-amount-input').val(originalAmount).addClass('d-none');
+            $row.find('.transport-amount-display')
+                .text('৳' + parseFloat(originalAmount).toFixed(2))
+                .removeClass('d-none');
+            $row.find('.transport-edit-btn').removeClass('d-none');
+            $row.find('.transport-update-btn, .transport-cancel-btn').addClass('d-none');
+        });
+    </script>
 @endsection

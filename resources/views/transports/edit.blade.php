@@ -3,7 +3,7 @@
 @section('contents')
     <div class="container-fluid py-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold">🚌 Assign Transport Fee</h4>
+            <h4 class="fw-bold">🚌 Edit Transport Fee</h4>
             <a href="{{ route('transports.index') }}" class="btn btn-secondary">
                 ← Back to List
             </a>
@@ -13,162 +13,107 @@
             <div class="card-header bg-gradient-primary text-white py-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 class="card-title mb-0 font-weight-bold text-white">
-                        <i class="fas fa-filter mr-2"></i>Filter Students
+                        <i class="fas fa-user-edit mr-2"></i>Update Student Transport
                     </h4>
                     <a href="{{ route('transports.index') }}" class="btn btn-light btn-sm">
                         <i class="fas fa-arrow-left mr-1"></i> Back
                     </a>
                 </div>
             </div>
-            <div class="card-body">
-                @include('transports.filter')
 
-                <!-- Student List -->
-                <div id="studentListContainer" style="display: none;">
-                    <h5 class="mb-3">Students List</h5>
+            <div class="card-body">
+                <form method="POST" action="{{ route('transports.update', $transport->id) }}">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Academic Session</label>
+                            <input type="text" class="form-control" value="{{ $transport->academicSession?->name_en ?? 'N/A' }}" disabled>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Class</label>
+                            <input type="text" class="form-control" value="{{ $transport->studentAcademicInformation?->schoolClass?->name_en ?? 'N/A' }}" disabled>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Section</label>
+                            <input type="text" class="form-control" value="{{ $transport->studentAcademicInformation?->section?->name_en ?? 'N/A' }}" disabled>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Group</label>
+                            <input type="text" class="form-control" value="{{ $transport->studentAcademicInformation?->group?->name_en ?? 'N/A' }}" disabled>
+                        </div>
+                    </div>
+
                     <div class="table-responsive">
-                        <table class="table table-bordered">
+                        <table class="table table-bordered align-middle">
                             <thead style="background:#f8fafc">
                                 <tr>
-                                    <th width="10%">Student ID</th>
-                                    <th width="25%">Student Name</th>
-                                    <th width="15%">Amount (৳)</th>
-                                    <th width="15%">Status</th>
+                                    <th width="12%">Student ID</th>
+                                    <th width="10%">Roll</th>
+                                    <th width="28%">Student Name</th>
+                                    <th width="16%">Amount (৳)</th>
+                                    <th width="14%">Status</th>
                                     <th width="20%">Current Transport</th>
                                 </tr>
                             </thead>
-                            <tbody id="studentTableBody">
+                            <tbody>
+                                <tr>
+                                    <td>{{ $transport->student?->student_cid ?? 'N/A' }}</td>
+                                    <td>{{ $transport->studentAcademicInformation?->roll ?? 'N/A' }}</td>
+                                    <td>
+                                        <div class="fw-bold">{{ $transport->student?->full_name_en ?? 'N/A' }}</div>
+                                    </td>
+                                    <td>
+                                        <input
+                                            type="number"
+                                            name="amount"
+                                            class="form-control"
+                                            value="{{ old('amount', $transport->amount) }}"
+                                            step="0.01"
+                                            min="0"
+                                            required
+                                        >
+                                        @error('amount')
+                                            <small class="text-danger">{{ $message }}</small>
+                                        @enderror
+                                    </td>
+                                    <td>
+                                        <select name="status" class="form-control" required>
+                                            <option value="active" @selected(old('status', $transport->status) === 'active')>Active</option>
+                                            <option value="inactive" @selected(old('status', $transport->status) === 'inactive')>Inactive</option>
+                                        </select>
+                                        @error('status')
+                                            <small class="text-danger">{{ $message }}</small>
+                                        @enderror
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-info">
+                                            ৳{{ number_format((float) $transport->amount, 2) }}
+                                        </span>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
-                    <div class="text-right mt-3">
-                        <button type="button" id="saveTransports" class="btn btn-success">Save Transport Fees</button>
+
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Remarks</label>
+                            <textarea name="remarks" class="form-control" rows="3" placeholder="Optional remarks">{{ old('remarks', $transport->remarks) }}</textarea>
+                            @error('remarks')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
                     </div>
-                </div>
+
+                    <div class="text-right mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            Update Transport Fee
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-@endsection
-
-@section('scripts')
-    @include('scripts.common.load_academic_information')
-    
-    <script>
-        $(document).ready(function() {
-            let studentsData = [];
-
-            $('#loadStudents').click(function() {
-                const sessionId = $('#academic_session_id').val();
-                const feeCategoryId = $('#fee_category_id').val();
-                
-                if (!sessionId) {
-                    alert('Please select Academic Session');
-                    return;
-                }
-                
-                if (!feeCategoryId) {
-                    alert('Please select Fee Category');
-                    return;
-                }
-
-                $.ajax({
-                    url: '{{ route("transports.get-students") }}',
-                    method: 'GET',
-                    data: {
-                        academic_session_id: sessionId,
-                        fee_category_id: feeCategoryId,
-                        school_class_id: $('#classSelect').val(),
-                        section_id: $('#sectionSelect').val(),
-                        group_id: $('#groupSelect').val()
-                    },
-                    success: function(students) {
-                        studentsData = students;
-                        renderStudentTable(students);
-                        $('#studentListContainer').show();
-                    },
-                    error: function() {
-                        alert('Error loading students');
-                    }
-                });
-            });
-
-            function renderStudentTable(students) {
-                let html = '';
-                students.forEach(function(student) {
-                    const existingInfo = student.existing_transport 
-                        ? `৳${parseFloat(student.existing_transport.amount).toFixed(2)} (${student.existing_transport.status})`
-                        : 'None';
-
-                    html += `
-                        <tr data-student-id="${student.student_id}">
-                            <td>${student.student_cid}</td>
-                            <td>${student.name}</td>
-                            <td>
-                                <input type="number" class="form-control transport-amount" 
-                                       placeholder="0.00" 
-                                       value="${student.existing_transport ? student.existing_transport.amount : ''}"
-                                       step="0.01" min="0">
-                            </td>
-                            <td>
-                                <select class="form-control transport-status">
-                                    <option value="active" ${student.existing_transport?.status === 'active' ? 'selected' : 'selected'}>Active</option>
-                                    <option value="inactive" ${student.existing_transport?.status === 'inactive' ? 'selected' : ''}>Inactive</option>
-                                </select>
-                            </td>
-                            <td class="text-center">${existingInfo}</td>
-                        </tr>
-                    `;
-                });
-                $('#studentTableBody').html(html);
-            }
-
-            $('#saveTransports').click(function() {
-                const sessionId = $('#academic_session_id').val();
-                const feeCategoryId = $('#fee_category_id').val();
-
-                if (!sessionId || !feeCategoryId) {
-                    alert('Please fill required fields');
-                    return;
-                }
-
-                const transports = [];
-                $('#studentTableBody tr').each(function() {
-                    const studentId = $(this).data('student-id');
-                    const amount = $(this).find('.transport-amount').val();
-                    const status = $(this).find('.transport-status').val();
-
-                    if (amount && parseFloat(amount) > 0) {
-                        transports.push({
-                            student_id: studentId,
-                            amount: amount,
-                            status: status
-                        });
-                    }
-                });
-
-                if (transports.length === 0) {
-                    alert('Please assign at least one transport fee with valid amount');
-                    return;
-                }
-
-                $.ajax({
-                    url: '{{ route("transports.store-bulk") }}',
-                    method: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        academic_session_id: sessionId,
-                        fee_category_id: feeCategoryId,
-                        transports: transports
-                    },
-                    success: function(response) {
-                        alert(response.message);
-                        window.location.href = '{{ route("transports.index") }}';
-                    },
-                    error: function(xhr) {
-                        alert('Error: ' + (xhr.responseJSON?.message || 'Something went wrong'));
-                    }
-                });
-            });
-        });
-    </script>
 @endsection

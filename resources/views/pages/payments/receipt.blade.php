@@ -415,7 +415,7 @@
         <div class="slip-col">
             <div class="copy-label">Institute Copy</div>
             <div class="slip">
-                @include('pages.payments.receipt-body', ['payment' => $payment])
+                @include('pages.payments.receipt-body', ['payment' => $payment, 'receiptSummary' => $receiptSummary])
             </div>
         </div>
 
@@ -430,7 +430,7 @@
         <div class="slip-col">
             <div class="copy-label">Student Copy</div>
             <div class="slip">
-                @include('pages.payments.receipt-body', ['payment' => $payment])
+                @include('pages.payments.receipt-body', ['payment' => $payment, 'receiptSummary' => $receiptSummary])
             </div>
         </div>
 

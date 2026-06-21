@@ -42,11 +42,11 @@
 <div class="info-grid">
     <div class="info-cell">
         <div class="lbl">Student Name</div>
-        <div class="val">{{ $payment->student->full_name_en }}</div>
+        <div class="val">{{ $payment->student?->full_name_en ?? '—' }}</div>
     </div>
     <div class="info-cell">
         <div class="lbl">Student ID</div>
-        <div class="val">{{ $payment->student->student_cid }}</div>
+        <div class="val">{{ $payment->student?->student_cid ?? '—' }}</div>
     </div>
     <div class="info-cell">
         <div class="lbl">Payment Date</div>
@@ -110,13 +110,13 @@
     $saleItems      = $payment->inventorySale?->items ?? collect();
     $dueItems       = $payment->inventoryDueItems ?? collect();
     $inventoryTotal = (float)($payment->inventorySale?->total_amount ?? 0);
-    $feeSubtotal    = (float) $feeRecords->sum(fn ($fee) => (float) ($fee->amount ?? 0));
+    $feeSubtotal    = (float) ($receiptSummary['feeSubtotal'] ?? $feeRecords->sum(fn ($fee) => (float) ($fee->amount ?? 0)));
     $subtotal       = round($feeSubtotal + $inventoryTotal, 2);
-    $scholarshipAmt = round((float) $payment->scholarship_amount, 2);
-    $freeStudentshipAmt = round((float) $payment->discount_amount, 2);
-    $totalDue       = round(max(0, $subtotal - $scholarshipAmt - $freeStudentshipAmt), 2);
-    $totalPaid      = round((float) $payment->amount, 2);
-    $balanceDue     = round(max(0, $totalDue - $totalPaid), 2);
+    $scholarshipAmt = round((float) ($receiptSummary['scholarshipAmt'] ?? $payment->scholarship_amount), 2);
+    $freeStudentshipAmt = round((float) ($receiptSummary['freeStudentshipAmt'] ?? $payment->discount_amount), 2);
+    $totalDue       = round($receiptSummary['totalDue'] ?? max(0, $subtotal - $scholarshipAmt - $freeStudentshipAmt), 2);
+    $totalPaid      = round($receiptSummary['totalPaid'] ?? $payment->amount, 2);
+    $balanceDue     = round($receiptSummary['balanceDue'] ?? max(0, $totalDue - $totalPaid), 2);
 @endphp
 
 {{-- Items Sold (Inventory) --}}

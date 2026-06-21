@@ -174,6 +174,9 @@ class FeeCollectionController extends Controller
             'academicInformations.section',
             'academicInformations.group',
             'academicInformations.academicSession',
+            'payments' => function ($query) {
+                $query->orderByDesc('payment_date')->orderByDesc('id');
+            },
             'payments.items.fee.feeSet',
             'payments.inventorySale.items.inventoryItem.category',
             'payments.inventoryDueItems.inventorySaleItem.inventoryItem.category',
