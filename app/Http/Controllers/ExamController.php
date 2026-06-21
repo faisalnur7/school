@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AcademicSession;
 use App\Models\Exam;
 use App\Models\ExamMark;
+use App\Models\Group;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Student;
@@ -152,52 +153,73 @@ class ExamController extends Controller
     }
 
     /**
-     * Marks entry: pick class → pick subject → enter marks for students of that class
+     * Marks entry: pick class -> section -> group -> subject -> enter marks
      */
     public function marksEntry(Request $request, Exam $exam)
     {
-        $classId   = $request->class_id;
-        $subjectId = $request->subject_id;
+        $classId = $request->integer('class_id') ?: null;
+        $sectionId = $request->integer('section_id') ?: null;
+        $groupId = $request->integer('group_id') ?: null;
+        $subjectId = $request->integer('subject_id') ?: null;
 
         $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
-
-        $subjects  = collect();
-        $subject   = null;
-        $students  = collect();
-        $existingMarks  = [];
-        $subjectConfig  = null;
-        $selectedClass  = null;
+        $sections = collect();
+        $groups = collect();
+        $subjects = collect();
+        $subject = null;
+        $students = collect();
+        $existingMarks = [];
+        $subjectConfig = null;
+        $selectedClass = null;
+        $selectedSection = null;
+        $selectedGroup = null;
+        $cohortReady = false;
 
         if ($classId) {
             $selectedClass = SchoolClass::find($classId);
 
-            $subjects = $this->getSubjectsForClass($classId);
+            if ($selectedClass) {
+                $sections = $this->getSectionsForClass($classId);
+                $selectedSection = $sectionId ? $sections->firstWhere('id', $sectionId) : null;
+                $groups = $selectedSection ? $this->getGroupsForClassAndSection($exam, $classId, $selectedSection->id) : collect();
+                $selectedGroup = $groupId ? $groups->firstWhere('id', $groupId) : null;
 
-            if (! $subjectId && $subjects->isNotEmpty()) {
-                $subjectId = $subjects->first()->id;
-            }
+                $cohortReady = true;
+                if ($sections->isNotEmpty() && ! $selectedSection) {
+                    $cohortReady = false;
+                } elseif ($groups->isNotEmpty() && ! $selectedGroup) {
+                    $cohortReady = false;
+                }
 
-            $subject = $subjectId ? Subject::find($subjectId) : null;
+                if ($cohortReady) {
+                    $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id);
 
-            // Students in this class for this session
-            $students = $this->getStudentsForClass($exam, $classId);
+                    if (! $subjectId && $subjects->isNotEmpty()) {
+                        $subjectId = $subjects->first()->id;
+                    }
 
-            if ($subject) {
-                ExamMark::where('exam_id', $exam->id)
-                    ->where('subject_id', $subject->id)
-                    ->whereIn('student_id', $students->pluck('id'))
-                    ->get()
-                    ->each(function ($mark) use (&$existingMarks) {
-                        $existingMarks[$mark->student_id] = $mark;
-                    });
+                    $subject = $subjectId ? $subjects->firstWhere('id', $subjectId) : null;
+                    $students = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId);
 
-                $subjectConfig = $subject->getEffectiveMarksForClass($classId);
+                    if ($subject) {
+                        ExamMark::where('exam_id', $exam->id)
+                            ->where('subject_id', $subject->id)
+                            ->whereIn('student_id', $students->pluck('id'))
+                            ->get()
+                            ->each(function ($mark) use (&$existingMarks) {
+                                $existingMarks[$mark->student_id] = $mark;
+                            });
+
+                        $subjectConfig = $subject->getEffectiveMarksForClass($classId);
+                    }
+                }
             }
         }
 
         return view('pages.exams.marks-entry', compact(
-            'exam', 'classes', 'selectedClass', 'subjects', 'subject',
-            'students', 'existingMarks', 'subjectConfig', 'classId', 'subjectId'
+            'exam', 'classes', 'selectedClass', 'sections', 'groups', 'selectedSection',
+            'selectedGroup', 'subjects', 'subject', 'students', 'existingMarks',
+            'subjectConfig', 'classId', 'sectionId', 'groupId', 'subjectId', 'cohortReady'
         ));
     }
 
@@ -208,16 +230,31 @@ class ExamController extends Controller
     {
         $request->validate([
             'class_id'           => 'required|exists:school_classes,id',
+            'section_id'         => 'nullable|exists:sections,id',
+            'group_id'           => 'nullable|exists:groups,id',
             'subject_id'         => 'required|exists:subjects,id',
             'marks'              => 'array',
             'marks.*.student_id' => 'required|exists:students,id',
         ]);
 
-        $classId   = $request->class_id;
-        $subjectId = $request->subject_id;
-        $subject   = Subject::findOrFail($subjectId);
-        $config    = $subject->getEffectiveMarksForClass($classId);
+        $classId = (int) $request->class_id;
+        $sectionId = $request->filled('section_id') ? (int) $request->section_id : null;
+        $groupId = $request->filled('group_id') ? (int) $request->group_id : null;
+        $subjectId = (int) $request->subject_id;
+        $subject = Subject::findOrFail($subjectId);
+        $config = $subject->getEffectiveMarksForClass($classId);
         $isTutorial = $exam->type === Exam::TYPE_TUTORIAL;
+        $submittedStudentIds = collect($request->input('marks', []))
+            ->pluck('student_id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->values()
+            ->all();
+        $allowedStudentIds = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId)
+            ->pluck('id')
+            ->all();
+
+        abort_unless(empty(array_diff($submittedStudentIds, $allowedStudentIds)), 422, 'One or more submitted marks do not belong to the selected class/section/group.');
 
         DB::transaction(function () use ($request, $exam, $subject, $subjectId, $classId, $config, $isTutorial) {
             foreach ($request->marks as $row) {
@@ -267,6 +304,8 @@ class ExamController extends Controller
         return redirect()->route('exams.marks-entry', [
             'exam'       => $exam->id,
             'class_id'   => $classId,
+            'section_id' => $sectionId,
+            'group_id'   => $groupId,
             'subject_id' => $subjectId,
         ])->with('success', 'Marks saved successfully.');
     }
@@ -276,60 +315,75 @@ class ExamController extends Controller
      */
     public function preview(Request $request, Exam $exam)
     {
-        $classId   = $request->class_id;
-        $subjectId = $request->subject_id;
-        $filter    = $request->filter ?? 'all';
+        $classId = $request->integer('class_id') ?: null;
+        $sectionId = $request->integer('section_id') ?: null;
+        $groupId = $request->integer('group_id') ?: null;
+        $subjectId = $request->integer('subject_id') ?: null;
+        $filter = $request->filter ?? 'all';
 
-        $classes  = SchoolClass::where('status', 1)->orderBy('id')->get();
+        $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
+        $sections = collect();
+        $groups = collect();
         $subjects = collect();
-        $subject  = null;
-        $marks    = collect();
+        $subject = null;
+        $marks = collect();
         $passMark = 33;
         $selectedClass = null;
+        $selectedSection = null;
+        $selectedGroup = null;
 
         if ($classId) {
             $selectedClass = SchoolClass::find($classId);
 
-            $subjects = $this->getSubjectsForClass($classId);
+            if ($selectedClass) {
+                $sections = $this->getSectionsForClass($classId);
+                $selectedSection = $sectionId ? $sections->firstWhere('id', $sectionId) : null;
+                $groups = $selectedSection ? $this->getGroupsForClassAndSection($exam, $classId, $selectedSection->id) : collect();
+                $selectedGroup = $groupId ? $groups->firstWhere('id', $groupId) : null;
 
-            if (! $subjectId && $subjects->isNotEmpty()) {
-                $subjectId = $subjects->first()->id;
-            }
+                if (($sections->isEmpty() || $selectedSection) && ($groups->isEmpty() || $selectedGroup)) {
+                    $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id);
 
-            $subject = $subjectId ? Subject::find($subjectId) : null;
+                    if (! $subjectId && $subjects->isNotEmpty()) {
+                        $subjectId = $subjects->first()->id;
+                    }
 
-            if ($subject) {
-                $config   = $subject->getEffectiveMarksForClass($classId);
-                $passMark = (float) ($config['pass_mark'] ?? 33);
+                    $subject = $subjectId ? $subjects->firstWhere('id', $subjectId) : null;
 
-                $studentIds = $this->getStudentsForClass($exam, $classId)->pluck('id');
+                    if ($subject) {
+                        $config = $subject->getEffectiveMarksForClass($classId);
+                        $passMark = (float) ($config['pass_mark'] ?? 33);
 
-                $marks = ExamMark::where('exam_id', $exam->id)
-                    ->where('subject_id', $subjectId)
-                    ->whereIn('student_id', $studentIds)
-                    ->with('student')
-                    ->get();
+                        $studentIds = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId)->pluck('id');
 
-                if ($exam->type === Exam::TYPE_TUTORIAL) {
-                    $passMark = 0;
-                    $marks = match ($filter) {
-                        'highest' => $marks->sortByDesc('total'),
-                        default   => $marks->sortBy(fn($m) => $m->student->full_name_en),
-                    };
-                } else {
-                    $marks = match ($filter) {
-                        'passed'  => $marks->filter(fn($m) => ! $m->is_absent && $m->total >= $passMark),
-                        'failed'  => $marks->filter(fn($m) => $m->is_absent || $m->total < $passMark),
-                        'highest' => $marks->sortByDesc('total'),
-                        default   => $marks->sortBy(fn($m) => $m->student->full_name_en),
-                    };
+                        $marks = ExamMark::where('exam_id', $exam->id)
+                            ->where('subject_id', $subjectId)
+                            ->whereIn('student_id', $studentIds)
+                            ->with('student')
+                            ->get();
+
+                        if ($exam->type === Exam::TYPE_TUTORIAL) {
+                            $passMark = 0;
+                            $marks = match ($filter) {
+                                'highest' => $marks->sortByDesc('total'),
+                                default   => $marks->sortBy(fn($m) => $m->student->full_name_en),
+                            };
+                        } else {
+                            $marks = match ($filter) {
+                                'passed'  => $marks->filter(fn($m) => ! $m->is_absent && $m->total >= $passMark),
+                                'failed'  => $marks->filter(fn($m) => $m->is_absent || $m->total < $passMark),
+                                'highest' => $marks->sortByDesc('total'),
+                                default   => $marks->sortBy(fn($m) => $m->student->full_name_en),
+                            };
+                        }
+                    }
                 }
             }
         }
 
         return view('pages.exams.preview', compact(
-            'exam', 'classes', 'selectedClass', 'subjects', 'subject',
-            'marks', 'filter', 'passMark', 'classId', 'subjectId'
+            'exam', 'classes', 'selectedClass', 'sections', 'groups', 'selectedSection', 'selectedGroup',
+            'subjects', 'subject', 'marks', 'filter', 'passMark', 'classId', 'sectionId', 'groupId', 'subjectId'
         ));
     }
 
@@ -340,18 +394,28 @@ class ExamController extends Controller
     {
         $exam->load(['academicSession']);
 
-        $classId       = $request->class_id;
-        $filter        = $request->filter ?? 'all';
-        $classes       = SchoolClass::where('status', 1)->orderBy('id')->get();
+        $classId = $request->integer('class_id') ?: null;
+        $sectionId = $request->integer('section_id') ?: null;
+        $groupId = $request->integer('group_id') ?: null;
+        $filter = $request->filter ?? 'all';
+        $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
         $selectedClass = $classId ? SchoolClass::find($classId) : null;
+        $sections = collect();
+        $groups = collect();
+        $selectedSection = null;
+        $selectedGroup = null;
 
-        $results  = [];
+        $results = [];
         $subjects = collect();
 
         if ($classId) {
-            $subjects = $this->getSubjectsForClass($classId);
+            $sections = $this->getSectionsForClass($classId);
+            $selectedSection = $sectionId ? $sections->firstWhere('id', $sectionId) : null;
+            $groups = $selectedSection ? $this->getGroupsForClassAndSection($exam, $classId, $selectedSection->id) : collect();
+            $selectedGroup = $groupId ? $groups->firstWhere('id', $groupId) : null;
+            $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id);
 
-            $students = $this->getStudentsForClass($exam, $classId);
+            $students = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId);
             $studentIds = $students->pluck('id');
 
             $allMarks = ExamMark::where('exam_id', $exam->id)
@@ -360,21 +424,21 @@ class ExamController extends Controller
                 ->groupBy('student_id');
 
             foreach ($students as $student) {
-                $studentMarks   = $allMarks->get($student->id, collect());
+                $studentMarks = $allMarks->get($student->id, collect());
                 $subjectResults = [];
-                $totalObtained  = 0;
-                $totalFull      = 0;
-                $gpas           = [];
-                $hasFailed      = false;
+                $totalObtained = 0;
+                $totalFull = 0;
+                $gpas = [];
+                $hasFailed = false;
 
                 foreach ($subjects as $subject) {
-                    $config    = $subject->getEffectiveMarksForClass($classId);
+                    $config = $subject->getEffectiveMarksForClass($classId);
                     $fullMarks = (float) ($config['total_marks'] ?: 100);
-                    $passMark  = (float) ($config['pass_mark'] ?? 33);
-                    $mark      = $studentMarks->firstWhere('subject_id', $subject->id);
-                    $obtained  = $mark ? (float) $mark->total : 0;
-                    $isAbsent  = $mark ? $mark->is_absent : false;
-                    $grade     = GradingService::getGrade($obtained, $fullMarks);
+                    $passMark = (float) ($config['pass_mark'] ?? 33);
+                    $mark = $studentMarks->firstWhere('subject_id', $subject->id);
+                    $obtained = $mark ? (float) $mark->total : 0;
+                    $isAbsent = $mark ? $mark->is_absent : false;
+                    $grade = GradingService::getGrade($obtained, $fullMarks);
 
                     if ($grade['letter'] === 'F' || $isAbsent) {
                         $hasFailed = true;
@@ -391,8 +455,8 @@ class ExamController extends Controller
                     ];
 
                     $totalObtained += $obtained;
-                    $totalFull     += $fullMarks;
-                    $gpas[]         = $isAbsent ? 0 : $grade['gpa'];
+                    $totalFull += $fullMarks;
+                    $gpas[] = $isAbsent ? 0 : $grade['gpa'];
                 }
 
                 $avgGpa = count($gpas) > 0 ? round(array_sum($gpas) / count($gpas), 2) : 0;
@@ -421,7 +485,7 @@ class ExamController extends Controller
                     $sameCount++;
                 } else {
                     $row['rank'] = $rank;
-                    $sameCount  = 1;
+                    $sameCount = 1;
                 }
                 $prevTotal = $row['total_obtained'];
                 $rank++;
@@ -436,7 +500,8 @@ class ExamController extends Controller
         };
 
         return view('pages.exams.terminal-result', compact(
-            'exam', 'classes', 'selectedClass', 'subjects', 'displayResults', 'results', 'filter', 'classId'
+            'exam', 'classes', 'selectedClass', 'sections', 'groups', 'selectedSection', 'selectedGroup',
+            'subjects', 'displayResults', 'results', 'filter', 'classId', 'sectionId', 'groupId'
         ));
     }
 
@@ -445,13 +510,15 @@ class ExamController extends Controller
      */
     public function previewPdf(Request $request, Exam $exam)
     {
-        $classId   = $request->class_id;
-        $subjectId = $request->subject_id;
-        $subject   = Subject::find($subjectId);
-        $config    = $subject ? $subject->getEffectiveMarksForClass($classId) : [];
-        $passMark  = (float) ($config['pass_mark'] ?? 33);
+        $classId = $request->integer('class_id') ?: null;
+        $sectionId = $request->integer('section_id') ?: null;
+        $groupId = $request->integer('group_id') ?: null;
+        $subjectId = $request->integer('subject_id') ?: null;
+        $subject = Subject::find($subjectId);
+        $config = $subject ? $subject->getEffectiveMarksForClass($classId) : [];
+        $passMark = (float) ($config['pass_mark'] ?? 33);
 
-        $studentIds = $this->getStudentsForClass($exam, $classId)->pluck('id');
+        $studentIds = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId)->pluck('id');
 
         $marks = ExamMark::where('exam_id', $exam->id)
             ->where('subject_id', $subjectId)
@@ -474,14 +541,20 @@ class ExamController extends Controller
      */
     public function terminalResultPdf(Request $request, Exam $exam)
     {
-        $classId  = $request->class_id;
+        $classId  = $request->integer('class_id') ?: null;
+        $sectionId = $request->integer('section_id') ?: null;
+        $groupId = $request->integer('group_id') ?: null;
         $exam->load(['academicSession']);
 
         $selectedClass = SchoolClass::find($classId);
 
-        $subjects = $this->getSubjectsForClass($classId);
+        $sections = $this->getSectionsForClass($classId);
+        $selectedSection = $sectionId ? $sections->firstWhere('id', $sectionId) : null;
+        $groups = $selectedSection ? $this->getGroupsForClassAndSection($exam, $classId, $selectedSection->id) : collect();
+        $selectedGroup = $groupId ? $groups->firstWhere('id', $groupId) : null;
+        $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id);
 
-        $students   = $this->getStudentsForClass($exam, $classId);
+        $students   = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId);
         $studentIds = $students->pluck('id');
 
         $allMarks = ExamMark::where('exam_id', $exam->id)
@@ -558,14 +631,45 @@ class ExamController extends Controller
         return response()->json($sections);
     }
 
+    private function getSectionsForClass(int $classId): \Illuminate\Support\Collection
+    {
+        return Section::where('school_class_id', $classId)
+            ->orderBy('name_en')
+            ->get(['id', 'school_class_id', 'name_en']);
+    }
+
+    private function getGroupsForClassAndSection(Exam $exam, int $classId, int $sectionId): \Illuminate\Support\Collection
+    {
+        $groupIds = StudentAcademicInformation::query()
+            ->where('school_class_id', $classId)
+            ->where('section_id', $sectionId)
+            ->when($exam->academic_session_id, fn ($query) => $query->where('academic_session_id', $exam->academic_session_id))
+            ->where('is_current', true)
+            ->whereNotNull('group_id')
+            ->distinct()
+            ->pluck('group_id');
+
+        if ($groupIds->isEmpty()) {
+            return collect();
+        }
+
+        return Group::whereIn('id', $groupIds)
+            ->where('status', 1)
+            ->orderBy('name_en')
+            ->get(['id', 'name_en', 'status']);
+    }
+
     /**
      * Get subjects for a class, expanding parent subjects into their individual papers.
      * e.g. "Bangla" (parent) → ["Bangla 1st Paper", "Bangla 2nd Paper"]
      */
-    private function getSubjectsForClass(int $classId): \Illuminate\Support\Collection
+    private function getSubjectsForClass(int $classId, ?int $groupId = null): \Illuminate\Support\Collection
     {
         $assignments = SubjectClassAssignment::where('school_class_id', $classId)
             ->where('is_active', true)
+            ->when($groupId, fn ($query) => $query->where(function ($subQuery) use ($groupId) {
+                $subQuery->whereNull('group_id')->orWhere('group_id', $groupId);
+            }), fn ($query) => $query->whereNull('group_id'))
             ->with(['subject' => fn($q) => $q->with('papers')])
             ->get();
 
@@ -587,16 +691,24 @@ class ExamController extends Controller
         return $subjects->unique('id')->values();
     }
 
-    private function getStudentsForClass(Exam $exam, int $classId)
+    private function getStudentsForClass(Exam $exam, int $classId, ?int $sectionId = null, ?int $groupId = null)
     {
         return Student::where('status', 1)
-            ->whereHas('academicInformations', function ($q) use ($exam, $classId) {
+            ->whereHas('academicInformations', function ($q) use ($exam, $classId, $sectionId, $groupId) {
                 $q->where('school_class_id', $classId);
                 if ($exam->academic_session_id) {
                     $q->where('academic_session_id', $exam->academic_session_id);
                 }
+                if ($sectionId) {
+                    $q->where('section_id', $sectionId);
+                }
+                if ($groupId) {
+                    $q->where('group_id', $groupId);
+                }
             })
             ->with(['academicInformations' => fn($q) => $q->where('school_class_id', $classId)
+                ->when($sectionId, fn ($subQuery) => $subQuery->where('section_id', $sectionId))
+                ->when($groupId, fn ($subQuery) => $subQuery->where('group_id', $groupId))
                 ->with(['section', 'group'])])
             ->orderBy('full_name_en')
             ->get();

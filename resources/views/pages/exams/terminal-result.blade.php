@@ -17,7 +17,13 @@
                 </div>
                 <div>
                     @if ($classId)
-                        <a href="{{ route('exams.terminal-result-pdf', ['exam' => $exam->id, 'class_id' => $classId, 'filter' => $filter]) }}"
+                        <a href="{{ route('exams.terminal-result-pdf', array_filter([
+                            'exam' => $exam->id,
+                            'class_id' => $classId,
+                            'section_id' => $sectionId,
+                            'group_id' => $groupId,
+                            'filter' => $filter,
+                        ], fn($value) => ! is_null($value))) }}"
                             class="btn btn-sm btn-danger mr-2">
                             <i class="fas fa-file-pdf mr-1"></i>PDF
                         </a>
@@ -49,10 +55,10 @@
             @endphp
             <div class="row mb-3">
                 <div class="col-md-3">
-                    <div class="info-box bg-primary">
-                        <span class="info-box-icon"><i class="fas fa-users"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Total — {{ $selectedClass->name_en }}</span>
+                <div class="info-box bg-primary">
+                    <span class="info-box-icon"><i class="fas fa-users"></i></span>
+                    <div class="info-box-content">
+                            <span class="info-box-text">Total — {{ $selectedClass?->name_en ?? '' }}</span>
                             <span class="info-box-number">{{ $totalStudents }}</span>
                         </div>
                     </div>
@@ -85,7 +91,13 @@
                 <div class="card-body py-2 d-flex align-items-center flex-wrap">
                     <div class="btn-group btn-group-sm mr-4">
                         @foreach (['all' => "All ($totalStudents)", 'passed' => "Passed ($passedCount)", 'failed' => "Failed ($failedCount)"] as $key => $label)
-                            <a href="{{ route('exams.terminal-result', ['exam' => $exam->id, 'class_id' => $classId, 'filter' => $key]) }}"
+                            <a href="{{ route('exams.terminal-result', array_filter([
+                                'exam' => $exam->id,
+                                'class_id' => $classId,
+                                'section_id' => $sectionId,
+                                'group_id' => $groupId,
+                                'filter' => $key,
+                            ], fn($value) => ! is_null($value))) }}"
                                 class="btn {{ $filter === $key ? 'btn-primary' : 'btn-outline-primary' }}">
                                 {{ $label }}
                             </a>
@@ -106,7 +118,7 @@
             {{-- Result Table --}}
             <div class="card">
                 <div class="card-header">
-                    <strong>Result Sheet — {{ $selectedClass->name_en }}</strong>
+                    <strong>Result Sheet — {{ $selectedClass?->name_en ?? '' }}</strong>
                     <span class="badge badge-light ml-2">{{ count($displayResults) }} students</span>
                 </div>
                 <div class="card-body p-0">

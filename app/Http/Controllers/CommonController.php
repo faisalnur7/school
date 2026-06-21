@@ -25,7 +25,12 @@ class CommonController extends Controller
 
     public function load_groups(Request $request)
     {
-        return ['groups' => Group::all()];
+        return response()->json([
+            'groups' => Group::query()
+                ->where('status', 1)
+                ->orderBy('name_en')
+                ->get(),
+        ]);
     }
 
     public function loadSections(Request $request)

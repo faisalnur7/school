@@ -9,20 +9,15 @@
             </div>
         @endif
 
-
-
-        {{-- Class Selector --}}
         <div class="card card-outline card-primary mb-3">
-            {{-- Header --}}
-            <div class="card-header d-flex justify-content-between align-items-center mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
                     <h4 class="mb-0 font-weight-bold text-white">
                         <i class="fas fa-keyboard text-success mr-2"></i>Marks Entry
                     </h4>
                     <small class="text-muted">
                         {{ $exam->name }} &mdash;
-                        <span
-                            class="badge badge-{{ $exam->type === 'term' ? 'danger' : 'info' }}">{{ $exam->type_label }}</span>
+                        <span class="badge badge-{{ $exam->type === 'term' ? 'danger' : 'info' }}">{{ $exam->type_label }}</span>
                         &mdash; {{ $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? '') }}
                     </small>
                 </div>
@@ -31,33 +26,90 @@
                 </a>
             </div>
 
-            <div class="card-body py-2">
-                <form method="GET" class="form-inline" id="classForm">
-                    <input type="hidden" name="subject_id" id="hidden_subject_id" value="{{ $subjectId }}">
-                    <label class="mr-2 font-weight-bold">Select Class:</label>
-                    @foreach ($classes as $class)
-                        <a href="{{ route('exams.marks-entry', ['exam' => $exam->id, 'class_id' => $class->id]) }}"
-                            class="btn btn-sm mr-1 mb-1 {{ $classId == $class->id ? 'btn-primary' : 'btn-outline-primary' }}">
-                            {{ $class->name_en }}
-                        </a>
-                    @endforeach
-                </form>
+            <div class="card-body">
+                <div class="form-group mb-0">
+                    <label class="font-weight-bold mr-2">Select Class:</label>
+                    <div class="d-flex flex-wrap">
+                        @foreach ($classes as $class)
+                            <a href="{{ route('exams.marks-entry', ['exam' => $exam->id, 'class_id' => $class->id]) }}"
+                               class="btn btn-sm mr-1 mb-1 {{ $classId == $class->id ? 'btn-primary' : 'btn-outline-primary' }}">
+                                {{ $class->name_en }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
+                @if ($classId)
+                    <div class="mt-3 p-3 border rounded bg-light">
+                        <div class="d-flex flex-wrap align-items-center">
+                            <strong class="mr-2 mb-2">Selected Cohort:</strong>
+                            <span class="badge badge-primary mr-2 mb-2">{{ $selectedClass?->name_en ?? 'Class' }}</span>
+                            @if ($selectedSection)
+                                <span class="badge badge-info mr-2 mb-2">{{ $selectedSection->name_en }}</span>
+                            @endif
+                            @if ($selectedGroup)
+                                <span class="badge badge-warning mr-2 mb-2">{{ $selectedGroup->name_en }}</span>
+                            @endif
+                        </div>
+
+                        @if ($sections->isNotEmpty() && ! $selectedSection)
+                            <div class="mt-3">
+                                <div class="font-weight-bold mb-2">Select Section:</div>
+                                <div class="d-flex flex-wrap">
+                                    @foreach ($sections as $section)
+                                        <a href="{{ route('exams.marks-entry', array_filter([
+                                            'exam' => $exam->id,
+                                            'class_id' => $classId,
+                                            'section_id' => $section->id,
+                                        ], fn($value) => ! is_null($value))) }}"
+                                           class="btn btn-sm mr-1 mb-1 {{ $sectionId == $section->id ? 'btn-info' : 'btn-outline-info' }}">
+                                            {{ $section->name_en }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @elseif ($groups->isNotEmpty() && ! $selectedGroup)
+                            <div class="mt-3">
+                                <div class="font-weight-bold mb-2">Select Group:</div>
+                                <div class="d-flex flex-wrap">
+                                    @foreach ($groups as $group)
+                                        <a href="{{ route('exams.marks-entry', array_filter([
+                                            'exam' => $exam->id,
+                                            'class_id' => $classId,
+                                            'section_id' => $sectionId,
+                                            'group_id' => $group->id,
+                                        ], fn($value) => ! is_null($value))) }}"
+                                           class="btn btn-sm mr-1 mb-1 {{ $groupId == $group->id ? 'btn-warning' : 'btn-outline-warning' }}">
+                                            {{ $group->name_en }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                @endif
             </div>
         </div>
 
-        @if ($classId)
+        @if ($classId && $cohortReady)
             <div class="row">
-                {{-- Subject Sidebar --}}
                 <div class="col-md-2">
-                    <div class="card">
+                    <div class="card h-100">
                         <div class="card-header py-2 bg-light">
                             <strong><i class="fas fa-book mr-1"></i>Subjects</strong>
-                            <br><small class="text-muted">{{ $selectedClass->name_en }}</small>
+                            <br>
+                            <small class="text-muted">{{ $selectedClass?->name_en ?? '' }}</small>
                         </div>
                         <div class="list-group list-group-flush">
                             @forelse($subjects as $s)
-                                <a href="{{ route('exams.marks-entry', ['exam' => $exam->id, 'class_id' => $classId, 'subject_id' => $s->id]) }}"
-                                    class="list-group-item list-group-item-action py-2 px-3 {{ $subject && $subject->id === $s->id ? 'active' : '' }}">
+                                <a href="{{ route('exams.marks-entry', array_filter([
+                                    'exam' => $exam->id,
+                                    'class_id' => $classId,
+                                    'section_id' => $sectionId,
+                                    'group_id' => $groupId,
+                                    'subject_id' => $s->id,
+                                ], fn($value) => ! is_null($value))) }}"
+                                   class="list-group-item list-group-item-action py-2 px-3 {{ $subject && $subject->id === $s->id ? 'active' : '' }}">
                                     <small>{{ $s->name }}</small>
                                 </a>
                             @empty
@@ -67,7 +119,6 @@
                     </div>
                 </div>
 
-                {{-- Marks Table --}}
                 <div class="col-md-10">
                     @if ($subject)
                         @php
@@ -97,6 +148,8 @@
                             <form method="POST" action="{{ route('exams.save-marks', $exam) }}">
                                 @csrf
                                 <input type="hidden" name="class_id" value="{{ $classId }}">
+                                <input type="hidden" name="section_id" value="{{ $sectionId }}">
+                                <input type="hidden" name="group_id" value="{{ $groupId }}">
                                 <input type="hidden" name="subject_id" value="{{ $subject->id }}">
 
                                 <div class="card-body p-0">
@@ -109,28 +162,19 @@
                                                     <th class="text-center" style="width:55px">Roll</th>
                                                     <th class="text-center" style="width:70px">Section</th>
                                                     @if ($isTutorial)
-                                                        <th class="text-center" style="width:110px">Tutorial<br><small
-                                                                class="text-warning">/{{ $fullMarks }}</small></th>
+                                                        <th class="text-center" style="width:110px">Tutorial<br><small class="text-warning">/{{ $fullMarks }}</small></th>
                                                     @else
                                                         @if ($hasCq)
-                                                            <th class="text-center" style="width:85px">CQ<br><small
-                                                                    class="text-warning">/{{ $subjectConfig['creative_marks'] }}</small>
-                                                            </th>
+                                                            <th class="text-center" style="width:85px">CQ<br><small class="text-warning">/{{ $subjectConfig['creative_marks'] }}</small></th>
                                                         @endif
                                                         @if ($hasMcq)
-                                                            <th class="text-center" style="width:85px">MCQ<br><small
-                                                                    class="text-warning">/{{ $subjectConfig['mcq_marks'] }}</small>
-                                                            </th>
+                                                            <th class="text-center" style="width:85px">MCQ<br><small class="text-warning">/{{ $subjectConfig['mcq_marks'] }}</small></th>
                                                         @endif
                                                         @if ($hasPractical)
-                                                            <th class="text-center" style="width:85px">Practical<br><small
-                                                                    class="text-warning">/{{ $subjectConfig['practical_marks'] }}</small>
-                                                            </th>
+                                                            <th class="text-center" style="width:85px">Practical<br><small class="text-warning">/{{ $subjectConfig['practical_marks'] }}</small></th>
                                                         @endif
                                                         @if ($hasViva)
-                                                            <th class="text-center" style="width:85px">Viva<br><small
-                                                                    class="text-warning">/{{ $subjectConfig['viva_marks'] }}</small>
-                                                            </th>
+                                                            <th class="text-center" style="width:85px">Viva<br><small class="text-warning">/{{ $subjectConfig['viva_marks'] }}</small></th>
                                                         @endif
                                                     @endif
                                                     <th class="text-center" style="width:75px">Total</th>
@@ -150,98 +194,62 @@
                                                         $isAbsent = $mark?->is_absent ?? false;
                                                         $rowKey = "marks.$i";
                                                     @endphp
-                                                    <tr class="mark-row {{ $isAbsent ? 'table-secondary' : '' }}"
-                                                        data-student="{{ $student->id }}">
+                                                    <tr class="mark-row {{ $isAbsent ? 'table-secondary' : '' }}" data-student="{{ $student->id }}">
                                                         <td class="text-center text-muted">{{ $i + 1 }}</td>
                                                         <td>
                                                             <strong>{{ $student->full_name_en }}</strong>
                                                             @if ($student->full_name_bn)
-                                                                <br><small
-                                                                    class="text-muted">{{ $student->full_name_bn }}</small>
+                                                                <br><small class="text-muted">{{ $student->full_name_bn }}</small>
                                                             @endif
-                                                            <input type="hidden"
-                                                                name="marks[{{ $i }}][student_id]"
-                                                                value="{{ $student->id }}">
+                                                            <input type="hidden" name="marks[{{ $i }}][student_id]" value="{{ $student->id }}">
                                                         </td>
                                                         <td class="text-center">{{ $roll }}</td>
                                                         <td class="text-center"><small>{{ $section }}</small></td>
                                                         @if ($isTutorial)
                                                             <td class="p-1">
-                                                                <input type="number"
-                                                                    name="marks[{{ $i }}][tutorial_marks]"
-                                                                    class="form-control form-control-sm text-center mark-input"
-                                                                    value="{{ old($rowKey.'.tutorial_marks', $mark?->tutorial_marks) }}" min="0"
-                                                                    max="{{ $fullMarks }}"
-                                                                    step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
+                                                                <input type="number" name="marks[{{ $i }}][tutorial_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.tutorial_marks', $mark?->tutorial_marks) }}" min="0" max="{{ $fullMarks }}" step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
                                                             </td>
                                                         @else
                                                             @if ($hasCq)
                                                                 <td class="p-1">
-                                                                    <input type="number"
-                                                                        name="marks[{{ $i }}][cq_marks]"
-                                                                        class="form-control form-control-sm text-center mark-input"
-                                                                        value="{{ old($rowKey.'.cq_marks', $mark?->cq_marks) }}" min="0"
-                                                                        max="{{ $subjectConfig['creative_marks'] }}"
-                                                                        step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
+                                                                    <input type="number" name="marks[{{ $i }}][cq_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.cq_marks', $mark?->cq_marks) }}" min="0" max="{{ $subjectConfig['creative_marks'] }}" step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
                                                                 </td>
                                                             @endif
                                                             @if ($hasMcq)
                                                                 <td class="p-1">
-                                                                    <input type="number"
-                                                                        name="marks[{{ $i }}][mcq_marks]"
-                                                                        class="form-control form-control-sm text-center mark-input"
-                                                                        value="{{ old($rowKey.'.mcq_marks', $mark?->mcq_marks) }}" min="0"
-                                                                        max="{{ $subjectConfig['mcq_marks'] }}"
-                                                                        step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
+                                                                    <input type="number" name="marks[{{ $i }}][mcq_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.mcq_marks', $mark?->mcq_marks) }}" min="0" max="{{ $subjectConfig['mcq_marks'] }}" step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
                                                                 </td>
                                                             @endif
                                                             @if ($hasPractical)
                                                                 <td class="p-1">
-                                                                    <input type="number"
-                                                                        name="marks[{{ $i }}][practical_marks]"
-                                                                        class="form-control form-control-sm text-center mark-input"
-                                                                        value="{{ old($rowKey.'.practical_marks', $mark?->practical_marks) }}"
-                                                                        min="0"
-                                                                        max="{{ $subjectConfig['practical_marks'] }}"
-                                                                        step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
+                                                                    <input type="number" name="marks[{{ $i }}][practical_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.practical_marks', $mark?->practical_marks) }}" min="0" max="{{ $subjectConfig['practical_marks'] }}" step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
                                                                 </td>
                                                             @endif
                                                             @if ($hasViva)
                                                                 <td class="p-1">
-                                                                    <input type="number"
-                                                                        name="marks[{{ $i }}][viva_marks]"
-                                                                        class="form-control form-control-sm text-center mark-input"
-                                                                        value="{{ old($rowKey.'.viva_marks', $mark?->viva_marks) }}" min="0"
-                                                                        max="{{ $subjectConfig['viva_marks'] }}"
-                                                                        step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
+                                                                    <input type="number" name="marks[{{ $i }}][viva_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.viva_marks', $mark?->viva_marks) }}" min="0" max="{{ $subjectConfig['viva_marks'] }}" step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
                                                                 </td>
                                                             @endif
                                                         @endif
                                                         <td class="text-center">
-                                                            <strong
-                                                                class="total-display {{ (! $isTutorial && $mark && !$isAbsent && $mark->total < $passMark) ? 'text-danger' : 'text-success' }}">
-                                                                {{ $mark && !$isAbsent ? number_format($mark->total, 1) : ($isAbsent ? 'AB' : '—') }}
+                                                            <strong class="total-display {{ (! $isTutorial && $mark && ! $isAbsent && $mark->total < $passMark) ? 'text-danger' : 'text-success' }}">
+                                                                {{ $mark && ! $isAbsent ? number_format($mark->total, 1) : ($isAbsent ? 'AB' : '—') }}
                                                             </strong>
                                                         </td>
                                                         @if (! $isTutorial)
                                                             <td class="text-center">
-                                                                <span
-                                                                    class="grade-badge badge badge-{{ $mark && !$isAbsent ? ($mark->letter_grade === 'F' ? 'danger' : 'success') : 'secondary' }}">
+                                                                <span class="grade-badge badge badge-{{ $mark && ! $isAbsent ? ($mark->letter_grade === 'F' ? 'danger' : 'success') : 'secondary' }}">
                                                                     {{ $mark ? ($isAbsent ? 'AB' : $mark->letter_grade) : '—' }}
                                                                 </span>
                                                             </td>
                                                         @endif
                                                         <td class="text-center">
-                                                            <input type="checkbox"
-                                                                name="marks[{{ $i }}][is_absent]"
-                                                                class="absent-checkbox" value="1"
-                                                                {{ old($rowKey.'.is_absent', $isAbsent) ? 'checked' : '' }}>
+                                                            <input type="checkbox" name="marks[{{ $i }}][is_absent]" class="absent-checkbox" value="1" {{ old($rowKey.'.is_absent', $isAbsent) ? 'checked' : '' }}>
                                                         </td>
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="12" class="text-center text-muted py-4">No students
-                                                            found for this class/session.</td>
+                                                        <td colspan="12" class="text-center text-muted py-4">No students found for this cohort.</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
@@ -250,14 +258,18 @@
                                 </div>
 
                                 <div class="card-footer d-flex justify-content-between align-items-center">
-                                    <span class="text-muted"><i class="fas fa-users mr-1"></i>{{ $students->count() }}
-                                        students</span>
+                                    <span class="text-muted"><i class="fas fa-users mr-1"></i>{{ $students->count() }} students</span>
                                     <div>
                                         <button type="submit" class="btn btn-success btn-lg">
                                             <i class="fas fa-save mr-2"></i>Save All Marks
                                         </button>
-                                        <a href="{{ route('exams.preview', ['exam' => $exam->id, 'class_id' => $classId, 'subject_id' => $subject->id]) }}"
-                                            class="btn btn-info ml-2">
+                                        <a href="{{ route('exams.preview', array_filter([
+                                            'exam' => $exam->id,
+                                            'class_id' => $classId,
+                                            'section_id' => $sectionId,
+                                            'group_id' => $groupId,
+                                            'subject_id' => $subject->id,
+                                        ], fn($value) => ! is_null($value))) }}" class="btn btn-info ml-2">
                                             <i class="fas fa-eye mr-1"></i>Preview
                                         </a>
                                     </div>
@@ -271,6 +283,19 @@
                         </div>
                     @endif
                 </div>
+            </div>
+        @elseif($classId)
+            <div class="card card-body text-center text-muted py-5">
+                <i class="fas fa-layer-group fa-3x mb-3"></i>
+                <p>
+                    @if ($sections->isNotEmpty() && ! $selectedSection)
+                        Select a section to continue.
+                    @elseif ($groups->isNotEmpty() && ! $selectedGroup)
+                        Select a group to continue.
+                    @else
+                        Select a subject to continue.
+                    @endif
+                </p>
             </div>
         @else
             <div class="card card-body text-center text-muted py-5">

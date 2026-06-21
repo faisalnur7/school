@@ -124,6 +124,31 @@ Route::get('/reboot', function () {
     return 'rebooted & caches cleared!';
 });
 
+Route::get('/marks/seed', function (\Illuminate\Http\Request $request) {
+    $options = [];
+    if ($request->filled('session')) {
+        $options['--session'] = (int) $request->query('session');
+    }
+
+    Artisan::call('results:seed-marks', $options);
+
+    return nl2br(e(Artisan::output()));
+})->name('marks.seed');
+
+Route::get('/marks/sweep', function (\Illuminate\Http\Request $request) {
+    $options = [];
+    if ($request->filled('session')) {
+        $options['--session'] = (int) $request->query('session');
+    }
+    if ($request->boolean('all')) {
+        $options['--all'] = true;
+    }
+
+    Artisan::call('results:sweep-marks', $options);
+
+    return nl2br(e(Artisan::output()));
+})->name('marks.sweep');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

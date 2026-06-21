@@ -14,7 +14,14 @@
                 </div>
                 <div>
                     @if ($subject && $classId)
-                        <a href="{{ route('exams.preview-pdf', ['exam' => $exam->id, 'class_id' => $classId, 'subject_id' => $subject->id, 'filter' => $filter]) }}"
+                        <a href="{{ route('exams.preview-pdf', array_filter([
+                            'exam' => $exam->id,
+                            'class_id' => $classId,
+                            'section_id' => $sectionId,
+                            'group_id' => $groupId,
+                            'subject_id' => $subject->id,
+                            'filter' => $filter,
+                        ], fn($value) => ! is_null($value))) }}"
                             class="btn btn-sm btn-danger mr-2">
                             <i class="fas fa-file-pdf mr-1"></i>PDF
                         </a>
@@ -32,21 +39,78 @@
                         {{ $class->name_en }}
                     </a>
                 @endforeach
+
+                @if ($classId)
+                    <div class="mt-3 p-3 border rounded bg-light">
+                        <div class="d-flex flex-wrap align-items-center">
+                            <strong class="mr-2 mb-2">Selected Cohort:</strong>
+                            <span class="badge badge-primary mr-2 mb-2">{{ $selectedClass?->name_en ?? 'Class' }}</span>
+                            @if ($selectedSection)
+                                <span class="badge badge-info mr-2 mb-2">{{ $selectedSection->name_en }}</span>
+                            @endif
+                            @if ($selectedGroup)
+                                <span class="badge badge-warning mr-2 mb-2">{{ $selectedGroup->name_en }}</span>
+                            @endif
+                        </div>
+
+                        @if ($sections->isNotEmpty() && ! $selectedSection)
+                            <div class="mt-3">
+                                <div class="font-weight-bold mb-2">Select Section:</div>
+                                <div class="d-flex flex-wrap">
+                                    @foreach ($sections as $section)
+                                        <a href="{{ route('exams.preview', array_filter([
+                                            'exam' => $exam->id,
+                                            'class_id' => $classId,
+                                            'section_id' => $section->id,
+                                        ], fn($value) => ! is_null($value))) }}"
+                                           class="btn btn-sm mr-1 mb-1 {{ $sectionId == $section->id ? 'btn-info' : 'btn-outline-info' }}">
+                                            {{ $section->name_en }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @elseif ($groups->isNotEmpty() && ! $selectedGroup)
+                            <div class="mt-3">
+                                <div class="font-weight-bold mb-2">Select Group:</div>
+                                <div class="d-flex flex-wrap">
+                                    @foreach ($groups as $group)
+                                        <a href="{{ route('exams.preview', array_filter([
+                                            'exam' => $exam->id,
+                                            'class_id' => $classId,
+                                            'section_id' => $sectionId,
+                                            'group_id' => $group->id,
+                                        ], fn($value) => ! is_null($value))) }}"
+                                           class="btn btn-sm mr-1 mb-1 {{ $groupId == $group->id ? 'btn-warning' : 'btn-outline-warning' }}">
+                                            {{ $group->name_en }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                @endif
             </div>
         </div>
 
-        @if ($classId)
+        @if ($classId && (($sections->isEmpty() || $selectedSection) && ($groups->isEmpty() || $selectedGroup)))
             <div class="row">
                 {{-- Subject Sidebar --}}
                 <div class="col-md-2">
                     <div class="card">
                         <div class="card-header py-2 bg-light">
                             <strong>Subjects</strong>
-                            <br><small class="text-muted">{{ $selectedClass->name_en }}</small>
+                            <br><small class="text-muted">{{ $selectedClass?->name_en ?? '' }}</small>
                         </div>
                         <div class="list-group list-group-flush">
                             @forelse($subjects as $s)
-                                <a href="{{ route('exams.preview', ['exam' => $exam->id, 'class_id' => $classId, 'subject_id' => $s->id, 'filter' => $filter]) }}"
+                                <a href="{{ route('exams.preview', array_filter([
+                                    'exam' => $exam->id,
+                                    'class_id' => $classId,
+                                    'section_id' => $sectionId,
+                                    'group_id' => $groupId,
+                                    'subject_id' => $s->id,
+                                    'filter' => $filter,
+                                ], fn($value) => ! is_null($value))) }}"
                                     class="list-group-item list-group-item-action py-2 px-3 {{ $subject && $subject->id === $s->id ? 'active' : '' }}">
                                     <small>{{ $s->name }}</small>
                                 </a>
@@ -67,7 +131,14 @@
                             <div class="card-body py-2">
                                 <div class="btn-group btn-group-sm">
                                     @foreach (($isTutorial ? ['all' => ['All', 'primary'], 'highest' => ['Highest First', 'success']] : ['all' => ['All', 'primary'], 'highest' => ['Highest First', 'success'], 'passed' => ['Passed', 'info'], 'failed' => ['Failed', 'danger']]) as $key => [$label, $color])
-                                        <a href="{{ route('exams.preview', ['exam' => $exam->id, 'class_id' => $classId, 'subject_id' => $subject->id, 'filter' => $key]) }}"
+                                        <a href="{{ route('exams.preview', array_filter([
+                                            'exam' => $exam->id,
+                                            'class_id' => $classId,
+                                            'section_id' => $sectionId,
+                                            'group_id' => $groupId,
+                                            'subject_id' => $subject->id,
+                                            'filter' => $key,
+                                        ], fn($value) => ! is_null($value))) }}"
                                             class="btn {{ $filter === $key ? "btn-$color" : "btn-outline-$color" }}">
                                             {{ $label }}
                                         </a>
@@ -89,18 +160,15 @@
                                 ->whereIn(
                                     'student_id',
                                     \App\Models\Student::where('status', 1)
-                                        ->whereHas(
-                                            'academicInformations',
-                                            fn($q) => $q
-                                                ->where('school_class_id', $classId)
+                                        ->whereHas('academicInformations', function ($q) use ($classId, $sectionId, $groupId, $exam) {
+                                            $q->where('school_class_id', $classId)
                                                 ->when(
                                                     $exam->academic_session_id,
-                                                    fn($q2) => $q2->where(
-                                                        'academic_session_id',
-                                                        $exam->academic_session_id,
-                                                    ),
-                                                ),
-                                        )
+                                                    fn ($subQuery) => $subQuery->where('academic_session_id', $exam->academic_session_id),
+                                                )
+                                                ->when($sectionId, fn ($subQuery) => $subQuery->where('section_id', $sectionId))
+                                                ->when($groupId, fn ($subQuery) => $subQuery->where('group_id', $groupId));
+                                        })
                                         ->pluck('id'),
                                 )
                                 ->get();
@@ -202,6 +270,19 @@
                         </div>
                     @endif
                 </div>
+            </div>
+        @elseif($classId)
+            <div class="card card-body text-center text-muted py-5">
+                <i class="fas fa-layer-group fa-3x mb-3"></i>
+                <p>
+                    @if ($sections->isNotEmpty() && ! $selectedSection)
+                        Select a section to continue.
+                    @elseif ($groups->isNotEmpty() && ! $selectedGroup)
+                        Select a group to continue.
+                    @else
+                        Select a subject to continue.
+                    @endif
+                </p>
             </div>
         @else
             <div class="card card-body text-center text-muted py-5">
