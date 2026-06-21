@@ -368,7 +368,7 @@
                                             </td>
                                         </tr>
                                     @endforeach
-                                    <tr class="font-weight-bold" style="background:#f0f4ff;border-top:2px solid #aaa">
+                                <tr class="font-weight-bold" style="background:#f0f4ff;border-top:2px solid #aaa">
                                     <td colspan="8" class="text-right">Student Total</td>
                                     <td class="text-right">{{ number_format($student->fees_total + $student->inventory_total, 2) }}</td>
                                     <td class="text-right">{{ number_format($student->paid_amount, 2) }}</td>
