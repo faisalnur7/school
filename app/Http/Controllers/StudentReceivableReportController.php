@@ -34,7 +34,7 @@ class StudentReceivableReportController extends Controller
         $mpdf->Output('student-receivable-report.pdf', 'D');
     }
 
-    private function buildData(Request $request): array
+    public function buildData(Request $request): array
     {
         $sessions = AcademicSession::orderByDesc('id')->get();
         $classes  = SchoolClass::orderBy('id')->get();
@@ -143,6 +143,57 @@ class StudentReceivableReportController extends Controller
             $sid = $student->id;
             $isNewStudent = ($studentAcademicCounts[$sid] ?? 1) <= 1;
 
+            $applicableItems = [];
+            $applicableTotal = 0.0;
+
+            foreach ($feeSetItems as $item) {
+                $cat = $item->category;
+                if (!$cat || !$cat->status) {
+                    continue;
+                }
+
+                $studentType = $cat->student_type ?? 'both';
+                if ($isNewStudent && $studentType === 'old') continue;
+                if (!$isNewStudent && $studentType === 'new') continue;
+
+                $baseAmount = (float) $item->amount;
+                if ($baseAmount <= 0) {
+                    continue;
+                }
+
+                $applicableItems[] = ['cat' => $cat, 'base_amount' => $baseAmount];
+                $applicableTotal += $baseAmount;
+            }
+
+            if (empty($applicableItems) || $applicableTotal <= 0) {
+                continue;
+            }
+
+            $adjustedLines = [];
+            $scholarshipDiscount = (float) $fee->scholarship_discount;
+            foreach ($applicableItems as $applicableItem) {
+                $amount = $applicableItem['base_amount'];
+                if ($scholarshipDiscount > 0) {
+                    $amount -= $scholarshipDiscount * ($applicableItem['base_amount'] / $applicableTotal);
+                }
+                $amount = max(0, $amount);
+                if ($amount <= 0) {
+                    continue;
+                }
+
+                $adjustedLines[] = [
+                    'cat' => $applicableItem['cat'],
+                    'amount' => $amount,
+                ];
+            }
+
+            $netTotal = array_sum(array_column($adjustedLines, 'amount'));
+            if ($netTotal <= 0) {
+                continue;
+            }
+
+            $paidTotal = min((float) $fee->paid_amount, $netTotal);
+
             if (!isset($studentMap[$sid])) {
                 $studentMap[$sid] = [
                     'student_id'    => $sid,
@@ -152,39 +203,22 @@ class StudentReceivableReportController extends Controller
                     'section_name'  => $academicInfo?->section?->name_en ?? '—',
                     'is_new'        => $isNewStudent,
                     'months'        => array_fill_keys(array_keys($months), 0.0),
+                    'paidMonths'    => array_fill_keys(array_keys($months), 0.0),
+                    'dueMonths'     => array_fill_keys(array_keys($months), 0.0),
                     'categories'    => [],
                     'total'         => 0.0,
+                    'paid_total'    => 0.0,
+                    'due_total'     => 0.0,
                 ];
             }
 
-            foreach ($feeSetItems as $item) {
-                $cat = $item->category;
-                if (!$cat || !$cat->status) continue;
-
-                // Filter by student_type: new students skip 'old'-only categories and vice versa
-                $studentType = $cat->student_type ?? 'both';
-                if ($isNewStudent && $studentType === 'old') continue;
-                if (!$isNewStudent && $studentType === 'new') continue;
-
+            foreach ($adjustedLines as $line) {
+                $cat = $line['cat'];
                 $catId  = $cat->id;
-                // Use the fee set item amount directly — fee.amount is already the
-                // student-type-adjusted sum, so proportional splitting gives wrong values
-                // when new/old-only categories are excluded from the total.
-                $amount = (float) $item->amount;
-                if ($amount <= 0) continue;
-
-                // Apply scholarship discount proportionally across applicable items
-                if ($fee->scholarship_discount > 0) {
-                    $applicableTotal = $feeSetItems->filter(function ($i) use ($isNewStudent) {
-                        $t = $i->category->student_type ?? 'both';
-                        if ($isNewStudent && $t === 'old') return false;
-                        if (!$isNewStudent && $t === 'new') return false;
-                        return true;
-                    })->sum('amount');
-                    if ($applicableTotal > 0) {
-                        $amount -= (float) $fee->scholarship_discount * ($item->amount / $applicableTotal);
-                    }
-                }
+                $amount = $line['amount'];
+                $share = $netTotal > 0 ? ($amount / $netTotal) : 0;
+                $paidAmount = $paidTotal * $share;
+                $dueAmount = max(0, $amount - $paidAmount);
 
                 if (!isset($studentMap[$sid]['categories'][$catId])) {
                     $studentMap[$sid]['categories'][$catId] = array_fill_keys(array_keys($months), 0.0);
@@ -192,7 +226,11 @@ class StudentReceivableReportController extends Controller
 
                 $studentMap[$sid]['categories'][$catId][$monthKey]  += $amount;
                 $studentMap[$sid]['months'][$monthKey]               += $amount;
+                $studentMap[$sid]['paidMonths'][$monthKey]            += $paidAmount;
+                $studentMap[$sid]['dueMonths'][$monthKey]             += $dueAmount;
                 $studentMap[$sid]['total']                           += $amount;
+                $studentMap[$sid]['paid_total']                      += $paidAmount;
+                $studentMap[$sid]['due_total']                       += $dueAmount;
                 $totals['categories'][$catId][$monthKey]             += $amount;
                 $totals['months'][$monthKey]                         += $amount;
                 $totals['total']                                     += $amount;

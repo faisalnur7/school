@@ -63,7 +63,7 @@ class StudentPaymentReportController extends Controller
         $mpdf->Output('student-receive-report.pdf', 'D');
     }
 
-    private function buildReceiveData(Request $request): array
+    public function buildReceiveData(Request $request): array
     {
         $sessions = AcademicSession::orderByDesc('id')->get();
         $classes = SchoolClass::orderBy('id')->get();
@@ -365,7 +365,7 @@ class StudentPaymentReportController extends Controller
         return [$sessions, $classes, $sections, $rows, $months, $totals, $fromDate->toDateString(), $toDate->toDateString()];
     }
 
-    private function buildData(Request $request): array
+    public function buildData(Request $request): array
     {
         $availableCategories = $this->buildMergedCategories();
         $selectedCategoryKeys = $this->resolveSelectedPaymentReportColumns($request, $availableCategories);

@@ -20,6 +20,15 @@
     tfoot td { font-weight: bold; background: #fff; }
     .text-right { text-align: right; }
     .text-center { text-align: center; }
+    .class-report {
+        page-break-inside: avoid;
+        break-inside: avoid-page;
+        margin-bottom: 10px;
+    }
+    .class-report.page-break {
+        page-break-before: always;
+        break-before: page;
+    }
 </style>
 </head>
 <body>
@@ -67,14 +76,15 @@
         });
     @endphp
 
-    <h4 class="class-title">
-        {{ $className }}
-        &nbsp;&nbsp; Fees: {{ number_format($classFees, 2) }}
-        &nbsp; Paid: {{ number_format($classPaid, 2) }}
-        &nbsp; Due: {{ number_format($classDue, 2) }}
-    </h4>
+    <div class="class-report {{ $loop->first ? '' : 'page-break' }}">
+        <h4 class="class-title">
+            {{ $className }}
+            &nbsp;&nbsp; Fees: {{ number_format($classFees, 2) }}
+            &nbsp; Paid: {{ number_format($classPaid, 2) }}
+            &nbsp; Due: {{ number_format($classDue, 2) }}
+        </h4>
 
-    <table>
+        <table>
         <thead>
             <tr>
                 <th class="left" rowspan="2">#</th>
@@ -128,7 +138,8 @@
             </tr>
         </tfoot>
         @endif
-    </table>
+        </table>
+    </div>
 @endforeach
 </body>
 </html>

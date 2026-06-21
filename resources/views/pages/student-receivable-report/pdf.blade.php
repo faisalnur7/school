@@ -6,6 +6,7 @@
     body { font-family: sans-serif; font-size: 10px; }
     table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
     th, td { border: 1px solid #999; padding: 3px 5px; }
+    th.text-right, td.text-right { white-space: nowrap; }
     thead { background: #333; color: #fff; }
     tfoot { background: #e9ecef; font-weight: bold; }
     .text-right { text-align: right; }
@@ -42,19 +43,19 @@
     </thead>
     <tbody>
         @foreach($rows as $index => $student)
-            @php $visibleCats = $categories->filter(fn($c) => isset($student->categories[$c->id]) && array_sum($student->categories[$c->id]) > 0)->count(); @endphp
-            @if($visibleCats === 0) @continue @endif
-            @foreach($categories as $cat)
-                @if(!isset($student->categories[$cat->id])) @continue @endif
+            @php
+                $visibleCats = $categories->filter(fn($c) => isset($student->categories[$c->id]) && array_sum($student->categories[$c->id]) > 0)->values();
+            @endphp
+            @if($visibleCats->isEmpty()) @continue @endif
+            @foreach($visibleCats as $cat)
                 @php $catMonths = $student->categories[$cat->id]; $catTotal = array_sum($catMonths); @endphp
-                @if($catTotal <= 0) @continue @endif
                 <tr>
                     @if($loop->first)
-                        <td rowspan="{{ $visibleCats + 1 }}" class="text-center">{{ $index + 1 }}</td>
-                        <td rowspan="{{ $visibleCats + 1 }}">{{ $student->student_cid ?? '—' }}</td>
-                        <td rowspan="{{ $visibleCats + 1 }}">{{ $student->student_name }}</td>
-                        <td rowspan="{{ $visibleCats + 1 }}">{{ $student->class_name }}</td>
-                        <td rowspan="{{ $visibleCats + 1 }}">{{ $student->section_name }}</td>
+                        <td rowspan="{{ $visibleCats->count() + 3 }}" class="text-center">{{ $index + 1 }}</td>
+                        <td rowspan="{{ $visibleCats->count() + 3 }}">{{ $student->student_cid ?? '—' }}</td>
+                        <td rowspan="{{ $visibleCats->count() + 3 }}">{{ $student->student_name }}</td>
+                        <td rowspan="{{ $visibleCats->count() + 3 }}">{{ $student->class_name }}</td>
+                        <td rowspan="{{ $visibleCats->count() + 3 }}">{{ $student->section_name }}</td>
                     @endif
                     <td>{{ $cat->name }}</td>
                     @foreach($months as $monthKey => $monthLabel)
@@ -69,6 +70,20 @@
                     <td class="text-right">{{ number_format($student->months[$monthKey] ?? 0, 2) }}</td>
                 @endforeach
                 <td class="text-right">{{ number_format($student->total, 2) }}</td>
+            </tr>
+            <tr class="bg-light">
+                <td>PAID</td>
+                @foreach($months as $monthKey => $monthLabel)
+                    <td class="text-right">{{ number_format($student->paidMonths[$monthKey] ?? 0, 2) }}</td>
+                @endforeach
+                <td class="text-right">{{ number_format($student->paid_total ?? 0, 2) }}</td>
+            </tr>
+            <tr class="bg-light">
+                <td>DUE</td>
+                @foreach($months as $monthKey => $monthLabel)
+                    <td class="text-right">{{ number_format($student->dueMonths[$monthKey] ?? 0, 2) }}</td>
+                @endforeach
+                <td class="text-right">{{ number_format($student->due_total ?? 0, 2) }}</td>
             </tr>
         @endforeach
     </tbody>

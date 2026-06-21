@@ -540,6 +540,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/fees/student-receive-report/pdf', [\App\Http\Controllers\StudentPaymentReportController::class, 'receivePdf'])->name('fees.student-receive-report.pdf');
         Route::get('/fees/student-receivable-report', [\App\Http\Controllers\StudentReceivableReportController::class, 'index'])->name('fees.student-receivable-report');
         Route::get('/fees/student-receivable-report/pdf', [\App\Http\Controllers\StudentReceivableReportController::class, 'pdf'])->name('fees.student-receivable-report.pdf');
+        Route::get('/fees/all-in-one-report', [\App\Http\Controllers\AllInOneReportController::class, 'index'])->name('fees.all-in-one-report');
+        Route::get('/fees/all-in-one-report/pdf', [\App\Http\Controllers\AllInOneReportController::class, 'pdf'])->name('fees.all-in-one-report.pdf');
         Route::get('/fees/student-due-report', [\App\Http\Controllers\StudentDueReportController::class, 'index'])->name('fees.student-due-report');
         Route::get('/fees/student-due-report/pdf', [\App\Http\Controllers\StudentDueReportController::class, 'pdf'])->name('fees.student-due-report.pdf');
         Route::get('/fees/student-ledger/{student}', [\App\Http\Controllers\StudentLedgerReportController::class, 'show'])->name('fees.student-ledger.show');

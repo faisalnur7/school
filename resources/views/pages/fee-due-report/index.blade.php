@@ -238,7 +238,7 @@
 <div class="container-fluid fees-report-page">
     @include('partials.report-header')
     <div class="fees-report-shell">
-        <div class="fees-report-card">
+        <div class="fees-report-card fees-report-no-print">
             <form method="GET" action="{{ route('fees.due-report') }}" class="fees-report-form">
                 <div class="fees-report-grid fees-report-grid--primary">
                     <div class="fees-report-field">
@@ -516,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 print-color-adjust: exact;
             }
 
-            .fees-report-page .fees-report-card:first-of-type {
+            .fees-report-page .fees-report-no-print {
                 display: none !important;
             }
 

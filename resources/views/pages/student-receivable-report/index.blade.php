@@ -161,6 +161,11 @@
             background: #1e293b;
             color: #f8fafc;
         }
+
+        .fees-report-page .table-responsive th.text-right,
+        .fees-report-page .table-responsive td.text-right {
+            white-space: nowrap;
+        }
     </style>
 @endsection
 
@@ -290,16 +295,16 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($rows as $index => $student)
-                                @php
-                                    $visibleCats = $categories->filter(
-                                        fn($c) => isset($student->categories[$c->id]) && array_sum($student->categories[$c->id]) > 0
-                                    )->values();
-                                    $rowspan = $visibleCats->count() + 1;
-                                    $firstCatId = $visibleCats->first()?->id;
-                                @endphp
-                                @if($visibleCats->isEmpty()) @continue @endif
-                                @foreach($visibleCats as $cat)
+                                @foreach($rows as $index => $student)
+                                    @php
+                                        $visibleCats = $categories->filter(
+                                            fn($c) => isset($student->categories[$c->id]) && array_sum($student->categories[$c->id]) > 0
+                                        )->values();
+                                        $rowspan = $visibleCats->count() + 3;
+                                        $firstCatId = $visibleCats->first()?->id;
+                                    @endphp
+                                    @if($visibleCats->isEmpty()) @continue @endif
+                                    @foreach($visibleCats as $cat)
                                     @php
                                         $catMonths = $student->categories[$cat->id];
                                         $catTotal  = array_sum($catMonths);
@@ -334,6 +339,20 @@
                                         <td class="text-right">{{ number_format($student->months[$monthKey] ?? 0, 2) }}</td>
                                     @endforeach
                                     <td class="text-right">{{ number_format($student->total, 2) }}</td>
+                                </tr>
+                                <tr class="font-weight-bold bg-light">
+                                    <td>PAID</td>
+                                    @foreach($months as $monthKey => $monthLabel)
+                                        <td class="text-right text-success">{{ number_format($student->paidMonths[$monthKey] ?? 0, 2) }}</td>
+                                    @endforeach
+                                    <td class="text-right text-success">{{ number_format($student->paid_total ?? 0, 2) }}</td>
+                                </tr>
+                                <tr class="font-weight-bold bg-light">
+                                    <td>DUE</td>
+                                    @foreach($months as $monthKey => $monthLabel)
+                                        <td class="text-right text-danger">{{ number_format($student->dueMonths[$monthKey] ?? 0, 2) }}</td>
+                                    @endforeach
+                                    <td class="text-right text-danger">{{ number_format($student->due_total ?? 0, 2) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
