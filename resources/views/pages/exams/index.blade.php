@@ -1,5 +1,37 @@
 @extends('layouts.master')
 
+@section('styles')
+    <style>
+        .exam-actions {
+            gap: 0.35rem;
+        }
+
+        .exam-actions .exam-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            min-width: 36px;
+            height: 36px;
+            min-height: 36px;
+            padding: 0;
+            line-height: 1;
+            vertical-align: middle;
+            overflow: hidden;
+        }
+
+        .exam-actions .exam-action-btn i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            line-height: 1;
+            margin: 0;
+        }
+    </style>
+@endsection
+
 @section('contents')
     <div class="container-fluid">
 
@@ -101,29 +133,40 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="btn-group btn-group-md">
+                                    <div class="exam-actions d-flex justify-content-center align-items-center flex-wrap">
                                         <a href="{{ route('exams.show', $exam) }}"
-                                            class="btn btn-outline-primary  flex justify-center items-center"
-                                            title="View"><i class="fas fa-eye"></i></a>
+                                            class="btn btn-xs btn-info exam-action-btn" title="View" aria-label="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                         <a href="{{ route('exams.marks-entry', $exam) }}"
-                                            class="btn btn-outline-success  flex justify-center items-center"
-                                            title="Enter Marks"><i class="fas fa-keyboard"></i></a>
+                                            class="btn btn-xs btn-success exam-action-btn" title="Enter Marks"
+                                            aria-label="Enter Marks">
+                                            <i class="fas fa-keyboard"></i>
+                                        </a>
                                         @if ($exam->type === 'term')
                                             <a href="{{ route('exams.terminal-result', $exam) }}"
-                                                class="btn btn-outline-warning  flex justify-center items-center"
-                                                title="Terminal Result"><i class="fas fa-trophy"></i></a>
+                                                class="btn btn-xs btn-warning exam-action-btn" title="Terminal Result"
+                                                aria-label="Terminal Result">
+                                                <i class="fas fa-trophy"></i>
+                                            </a>
                                         @else
                                             <a href="{{ route('exams.preview', $exam) }}"
-                                                class="btn btn-outline-info  flex justify-center items-center"
-                                                title="Preview"><i class="fas fa-chart-bar"></i></a>
+                                                class="btn btn-xs btn-info exam-action-btn" title="Preview"
+                                                aria-label="Preview">
+                                                <i class="fas fa-chart-bar"></i>
+                                            </a>
                                         @endif
                                         <a href="{{ route('exams.edit', $exam) }}"
-                                            class="btn btn-outline-secondary  flex justify-center items-center"
-                                            title="Edit"><i class="fas fa-edit"></i></a>
-                                        <button class="btn btn-outline-danger flex justify-center items-center"
-                                            title="Delete"
+                                            class="btn btn-xs btn-secondary exam-action-btn" title="Edit"
+                                            aria-label="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-xs btn-danger exam-action-btn"
+                                            title="Delete" aria-label="Delete"
                                             onclick="if(confirm('Delete this exam?')){this.closest('form').requestSubmit()}"
-                                            form="delete-exam-{{ $exam->id }}"><i class="fas fa-trash"></i></button>
+                                            form="delete-exam-{{ $exam->id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                     <form id="delete-exam-{{ $exam->id }}" method="POST"
                                         action="{{ route('exams.destroy', $exam) }}" class="d-none">

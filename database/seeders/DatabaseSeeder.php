@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             AcademicSessionSeeder::class,
+            ExamSeeder::class,
             SchoolClassSeeder::class,
             FeeCategorySeeder::class,
             IncomeCategorySeeder::class,

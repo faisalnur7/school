@@ -32,6 +32,7 @@ class RoleSeeder extends Seeder
                     'view_financials', 'manage_incomes', 'manage_expenses', 'manage_transactions',
                         'manage_income_categories', 'manage_expense_categories',
                     'view_results', 'manage_exams', 'manage_student_subjects',
+                    'view_card_terminal_report', 'view_card_tutorial_exam_report',
                     'view_shareholders', 'manage_shareholders',
                     'view_hr', 'manage_employees', 'manage_designations', 'manage_departments',
                         'manage_salary_structures', 'manage_payroll', 'manage_leave_requests',
@@ -63,6 +64,7 @@ class RoleSeeder extends Seeder
                     'view_attendance', 'manage_attendance',
                     'view_students',
                     'view_results', 'manage_exams',
+                    'view_card_terminal_report', 'view_card_tutorial_exam_report',
                 ],
             ],
             [

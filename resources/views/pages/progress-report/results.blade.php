@@ -7,79 +7,7 @@
     $logoUrl = !empty($school->logo) ? asset($school->logo) : null;
 @endphp
     <div class="col-12">
-
-        <div class="card card-outline mb-4 no-print result-filter-panel">
-            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <h3 class="card-title text-white mb-0"><i class="fas fa-filter mr-2 text-success"></i>Filter Options</h3>
-                <small class="text-muted">{{ $exam->name }} &mdash; {{ $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? '') }}</small>
-            </div>
-            <div class="card-body">
-                <form id="reportFormTop" method="POST" action="{{ route('result.progress-report.show') }}">
-                    @csrf
-                    <div class="row">
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <label class="font-weight-bold">Academic Session <span class="text-danger">*</span></label>
-                            <select name="session_id" class="form-control" required>
-                                <option value="">— Select Session —</option>
-                                @foreach($sessions as $s)
-                                    <option value="{{ $s->id }}" {{ (string)($filters['session_id'] ?? '') === (string)$s->id ? 'selected' : '' }}>
-                                        {{ $s->name_en ?? $s->name_bn }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <label class="font-weight-bold">Class <span class="text-danger">*</span></label>
-                            <select name="class_id" id="classSelectTop" class="form-control" required>
-                                <option value="">— Select Class —</option>
-                                @foreach($classes as $c)
-                                    <option value="{{ $c->id }}" {{ (string)($filters['class_id'] ?? '') === (string)$c->id ? 'selected' : '' }}>
-                                        {{ $c->name_en }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <label class="font-weight-bold">Section <span class="text-danger">*</span></label>
-                            <select name="section_id" id="sectionSelectTop" class="form-control" required>
-                                <option value="">— Select Section —</option>
-                                @foreach($sections as $section)
-                                    <option value="{{ $section->id }}" {{ (string)($filters['section_id'] ?? '') === (string)$section->id ? 'selected' : '' }}>
-                                        {{ $section->name_en ?? $section->name_bn }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <label class="font-weight-bold">Exam <span class="text-danger">*</span></label>
-                            <select name="exam_id" class="form-control" required>
-                                <option value="">— Select Exam —</option>
-                                @foreach($exams as $e)
-                                    <option value="{{ $e->id }}" {{ (string)($filters['exam_id'] ?? '') === (string)$e->id ? 'selected' : '' }}>
-                                        {{ $e->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <label class="font-weight-bold">Student ID <small class="text-muted">(optional)</small></label>
-                            <input type="text" name="student_id" class="form-control" value="{{ $filters['student_id'] ?? '' }}" placeholder="Leave blank for all students">
-                        </div>
-                    </div>
-                    <div class="result-filter-actions mt-2">
-                        <button type="submit" class="btn btn-success result-filter-icon-btn" title="View Report" aria-label="View Report">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button type="button" id="pdfBtnTop" class="btn btn-danger result-filter-icon-btn" title="Download PDF" aria-label="Download PDF">
-                            <i class="fas fa-file-pdf"></i>
-                        </button>
-                        <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary result-filter-icon-btn" title="Back" aria-label="Back">
-                            <i class="fas fa-arrow-left"></i>
-                        </a>
-                    </div>
-                </form>
-            </div>
-        </div>
+        @include('pages.progress-report._filter')
 
         {{-- ══ Top Action Bar ══ --}}
         <div class="d-flex justify-content-between align-items-center mb-4 no-print">
@@ -89,7 +17,7 @@
                     <i class="fas fa-file-invoice text-white fa-lg"></i>
                 </div>
                 <div>
-                    <h4 class="mb-0 font-weight-bold text-white">Terminal Exam Report</h4>
+                    <h4 class="mb-0 font-weight-bold text-white">Progress Report</h4>
                     <small class="text-muted">{{ $exam->name }} &mdash;
                         {{ $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? '') }}</small>
                 </div>
@@ -2357,28 +2285,5 @@ document.querySelectorAll('.js-send-result-email').forEach((btn) => {
     });
 });
 
-$('#classSelectTop').on('change', function () {
-    var classId = $(this).val();
-    var $section = $('#sectionSelectTop');
-    $section.html('<option value="">Loading...</option>');
-    if (!classId) {
-        $section.html('<option value="">— Select Section —</option>');
-        return;
-    }
-    $.get('/ajax/sections-by-class', { class_id: classId }, function (data) {
-        var opts = '<option value="">— Select Section —</option>';
-        $.each(data, function (i, s) {
-            opts += '<option value="' + s.id + '">' + (s.name_en || s.name_bn) + '</option>';
-        });
-        $section.html(opts);
-        if (window.refreshSelect2) refreshSelect2($section);
-    });
-});
-
-$('#pdfBtnTop').on('click', function () {
-    var form = $('#reportFormTop');
-    var params = form.serialize().replace('_token=' + $('input[name=_token]').val() + '&', '');
-    window.open('{{ route('result.progress-report.pdf') }}?' + params, '_blank');
-});
 </script>
 @endsection

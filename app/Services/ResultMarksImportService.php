@@ -19,21 +19,20 @@ use Illuminate\Support\Str;
 
 class ResultMarksImportService
 {
-    public function run(?int $sessionId = null, bool $reset = false): array
+    public function run(?int $sessionId = null, bool $reset = false, bool $all = false): array
     {
         $session = $this->resolveSession($sessionId);
         $exams = $this->sessionExams($session->id);
 
-        $cohorts = $this->cohorts();
+        $cohorts = $all ? $this->cohortsForSession($session->id) : $this->cohorts();
         $summary = [];
 
         foreach ($cohorts as $cohort) {
-            $class = SchoolClass::where('name_en', $cohort['class'])->firstOrFail();
+            $class = SchoolClass::findOrFail($cohort['class_id']);
             $section = Section::where('school_class_id', $class->id)
-                ->where('name_en', $cohort['section'])
-                ->firstOrFail();
-            $group = ! empty($cohort['group'])
-                ? Group::where('name_en', $cohort['group'])->firstOrFail()
+                ->findOrFail($cohort['section_id']);
+            $group = ! empty($cohort['group_id'])
+                ? Group::findOrFail($cohort['group_id'])
                 : null;
 
             $students = $this->studentsForCohort($session->id, $class->id, $section->id, $group?->id);
@@ -194,18 +193,69 @@ class ResultMarksImportService
             [
                 'key' => 'play',
                 'label' => 'Play Class Section A',
-                'class' => 'Play',
-                'section' => 'A',
-                'group' => null,
+                'class_id' => SchoolClass::where('name_en', 'Play')->value('id'),
+                'section_id' => Section::where('name_en', 'A')
+                    ->whereHas('schoolClass', fn ($query) => $query->where('name_en', 'Play'))
+                    ->value('id'),
+                'group_id' => null,
             ],
             [
                 'key' => 'nine-business',
                 'label' => 'Class Nine Section A Business Studies',
-                'class' => 'Nine',
-                'section' => 'A',
-                'group' => 'Business Studies',
+                'class_id' => SchoolClass::where('name_en', 'Nine')->value('id'),
+                'section_id' => Section::where('name_en', 'A')
+                    ->whereHas('schoolClass', fn ($query) => $query->where('name_en', 'Nine'))
+                    ->value('id'),
+                'group_id' => Group::where('name_en', 'Business Studies')->value('id'),
             ],
         ];
+    }
+
+    private function cohortsForSession(int $sessionId): array
+    {
+        return StudentAcademicInformation::query()
+            ->where('academic_session_id', $sessionId)
+            ->where('is_current', true)
+            ->where('academic_status', 'active')
+            ->with([
+                'schoolClass:id,name_en',
+                'section:id,school_class_id,name_en',
+                'group:id,name_en',
+            ])
+            ->get(['id', 'school_class_id', 'section_id', 'group_id'])
+            ->groupBy(fn (StudentAcademicInformation $info) => implode('|', [
+                $info->school_class_id,
+                $info->section_id,
+                $info->group_id ?? 'null',
+            ]))
+            ->map(function (Collection $infos) {
+                $info = $infos->first();
+                $class = $info?->schoolClass;
+                $section = $info?->section;
+                $group = $info?->group;
+
+                if (! $class || ! $section) {
+                    return null;
+                }
+
+                $label = trim(sprintf(
+                    'Class %s Section %s%s',
+                    $class->name_en,
+                    $section->name_en,
+                    $group ? ' ' . $group->name_en : ''
+                ));
+
+                return [
+                    'key' => Str::slug($label . ' ' . $class->id . ' ' . $section->id . ' ' . ($group?->id ?? 'nogroup')),
+                    'label' => $label,
+                    'class_id' => $class->id,
+                    'section_id' => $section->id,
+                    'group_id' => $group?->id,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
     }
 
     private function resolveSession(?int $sessionId = null): AcademicSession

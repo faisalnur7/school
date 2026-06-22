@@ -129,6 +129,7 @@ Route::get('/marks/seed', function (\Illuminate\Http\Request $request) {
     if ($request->filled('session')) {
         $options['--session'] = (int) $request->query('session');
     }
+    $options['--all'] = true;
 
     Artisan::call('results:seed-marks', $options);
 
@@ -660,12 +661,12 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/bulk-assign', [\App\Http\Controllers\StudentSubjectController::class, 'bulkAssign'])->name('bulk-assign');
     });
 
-    Route::middleware('permission:view_results')->prefix('result/progress-report')->name('result.progress-report.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\ProgressReportController::class, 'index'])->name('index');
-        Route::post('/', [\App\Http\Controllers\ProgressReportController::class, 'show'])->name('show');
-        Route::get('/pdf', [\App\Http\Controllers\ProgressReportController::class, 'pdf'])->name('pdf');
-        Route::post('/send-email', [\App\Http\Controllers\ProgressReportController::class, 'sendEmail'])->name('email');
-    });
+Route::middleware('permission:view_results')->prefix('result/progress-report')->name('result.progress-report.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\ProgressReportController::class, 'index'])->name('index');
+    Route::get('/results', [\App\Http\Controllers\ProgressReportController::class, 'show'])->name('show');
+    Route::get('/pdf', [\App\Http\Controllers\ProgressReportController::class, 'pdf'])->name('pdf');
+    Route::post('/send-email', [\App\Http\Controllers\ProgressReportController::class, 'sendEmail'])->name('email');
+});
 
     Route::middleware('permission:view_card_yearly_final_report')->prefix('result/yearly-final-report')->name('result.yearly-final-report.')->group(function () {
         Route::get('/', [\App\Http\Controllers\YearlyFinalReportController::class, 'index'])->name('index');

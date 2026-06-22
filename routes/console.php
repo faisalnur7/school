@@ -17,9 +17,10 @@ Artisan::command('attendance:send-absent-emails', function (AttendanceAbsentEmai
 
 Schedule::command('attendance:send-absent-emails')->everyTenMinutes();
 
-Artisan::command('results:seed-marks {--session=}', function (ResultMarksImportService $service) {
+Artisan::command('results:seed-marks {--session=} {--all}', function (ResultMarksImportService $service) {
     $sessionId = $this->option('session') ? (int) $this->option('session') : null;
-    $result = $service->run($sessionId);
+    $all = (bool) $this->option('all');
+    $result = $service->run($sessionId, false, $all);
 
     $this->info("Seeded marks for session {$result['session']['id']} ({$result['session']['name']}).");
     foreach ($result['summary'] as $row) {

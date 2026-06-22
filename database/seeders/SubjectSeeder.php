@@ -68,6 +68,7 @@ class SubjectSeeder extends Seeder
                     'mcq_marks'                 => $mcq,
                     'practical_marks'           => $practical,
                     'viva_marks'                => 0,
+                    'tutorial_marks'            => 20,
                     'pass_mark'                 => $pass,
                     'is_active'                 => $isActive,
                 ]);
@@ -93,6 +94,7 @@ class SubjectSeeder extends Seeder
                     'mcq_marks'                 => 0,
                     'practical_marks'           => 0,
                     'viva_marks'                => 0,
+                    'tutorial_marks'            => 20,
                     'pass_mark'                 => 0,
                     'is_active'                 => true,
                 ]);
@@ -111,6 +113,7 @@ class SubjectSeeder extends Seeder
                         'mcq_marks'                 => $p['mcq'],
                         'practical_marks'           => $p['practical'] ?? 0,
                         'viva_marks'                => 0,
+                        'tutorial_marks'            => 20,
                         'pass_mark'                 => $p['pass'],
                         'is_active'                 => true,
                     ]);

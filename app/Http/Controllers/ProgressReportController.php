@@ -21,13 +21,13 @@ use Illuminate\Support\Facades\Mail;
 
 class ProgressReportController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('pages.progress-report.index', [
-            'sessions' => AcademicSession::orderByDesc('id')->get(),
-            'classes'  => SchoolClass::all(),
-            'exams'    => Exam::orderByDesc('id')->get(),
-        ]);
+        if ($this->hasCompleteFilters($request)) {
+            return $this->show($request);
+        }
+
+        return view('pages.progress-report.index', $this->buildFilterPageData($request));
     }
 
     public function show(Request $request)
@@ -41,7 +41,9 @@ class ProgressReportController extends Controller
         ]);
 
         $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id']);
-        $exam     = Exam::with('academicSession')->findOrFail($filters['exam_id']);
+        $exam     = Exam::with('academicSession')
+            ->where('type', Exam::TYPE_TERMINAL)
+            ->findOrFail($filters['exam_id']);
         $school   = SchoolSetting::current();
         $gradeScale = GradingService::allGrades();
         $sections = Section::where('school_class_id', $filters['class_id'])->get();
@@ -54,7 +56,7 @@ class ProgressReportController extends Controller
             ->with([
                 'sessions' => AcademicSession::orderByDesc('id')->get(),
                 'classes'  => SchoolClass::all(),
-                'exams'    => Exam::orderByDesc('id')->get(),
+                'exams'    => Exam::where('type', Exam::TYPE_TERMINAL)->orderByDesc('id')->get(),
             ]);
     }
 
@@ -69,7 +71,9 @@ class ProgressReportController extends Controller
         ]);
 
         $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id']);
-        $exam     = Exam::with('academicSession')->findOrFail($filters['exam_id']);
+        $exam     = Exam::with('academicSession')
+            ->where('type', Exam::TYPE_TERMINAL)
+            ->findOrFail($filters['exam_id']);
         $school   = SchoolSetting::current();
         $gradeScale = GradingService::allGrades();
 
@@ -158,6 +162,28 @@ class ProgressReportController extends Controller
     private function contextKey(int $examId, int $studentId): string
     {
         return "progress:exam:{$examId}:student:{$studentId}";
+    }
+
+    private function hasCompleteFilters(Request $request): bool
+    {
+        return $request->filled(['session_id', 'class_id', 'section_id', 'exam_id']);
+    }
+
+    private function buildFilterPageData(Request $request): array
+    {
+        $filters = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id']);
+
+        $sections = ! empty($filters['class_id'])
+            ? Section::where('school_class_id', (int) $filters['class_id'])->orderBy('name_en')->get()
+            : collect();
+
+        return [
+            'sessions' => AcademicSession::orderByDesc('id')->get(),
+            'classes' => SchoolClass::all(),
+            'sections' => $sections,
+            'exams' => Exam::where('type', Exam::TYPE_TERMINAL)->orderByDesc('id')->get(),
+            'filters' => $filters,
+        ];
     }
 
     private function buildStatusMap(array $studentIds, int $examId): array
