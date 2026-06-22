@@ -4,73 +4,75 @@
 <div class="col-12 tutorial-report-page">
     @include('partials.report-header')
 
-    <div class="card card-outline mb-4 no-print result-filter-panel tutorial-report-filter-panel">
-        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 tutorial-report-filter-header">
-            <h3 class="card-title text-white mb-0"><i class="fas fa-filter mr-2 text-info"></i>Filter Options</h3>
-            <small class="text-muted">{{ $exam->name }} &mdash; {{ $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? '') }}</small>
-        </div>
-        <div class="card-body tutorial-report-filter-body">
-            <form id="reportFormTop" class="tutorial-report-filter-form" method="GET" action="{{ route('result.tutorial-report.show') }}">
-                <div class="row">
-                    <div class="col-md-6 col-lg-3 mb-3">
-                        <label class="font-weight-bold tutorial-report-filter-label">Academic Session <span class="text-danger">*</span></label>
-                        <select name="session_id" class="form-control tutorial-report-filter-control" required>
-                            <option value="">— Select Session —</option>
-                            @foreach($sessions as $s)
-                                <option value="{{ $s->id }}" {{ (string)($filters['session_id'] ?? '') === (string)$s->id ? 'selected' : '' }}>
-                                    {{ $s->name_en ?? $s->name_bn }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-6 col-lg-3 mb-3">
-                        <label class="font-weight-bold tutorial-report-filter-label">Class <span class="text-danger">*</span></label>
-                        <select name="class_id" id="classSelectTop" class="form-control tutorial-report-filter-control" required>
-                            <option value="">— Select Class —</option>
-                            @foreach($classes as $c)
-                                <option value="{{ $c->id }}" {{ (string)($filters['class_id'] ?? '') === (string)$c->id ? 'selected' : '' }}>
-                                    {{ $c->name_en }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-6 col-lg-3 mb-3">
-                        <label class="font-weight-bold tutorial-report-filter-label">Section <span class="text-danger">*</span></label>
-                        <select name="section_id" id="sectionSelectTop" class="form-control tutorial-report-filter-control" required>
-                            <option value="">— Select Section —</option>
-                            @foreach($sections as $section)
-                                <option value="{{ $section->id }}" {{ (string)($filters['section_id'] ?? '') === (string)$section->id ? 'selected' : '' }}>
-                                    {{ $section->name_en ?? $section->name_bn }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-6 col-lg-3 mb-3">
-                        <label class="font-weight-bold tutorial-report-filter-label">Tutorial Exam <span class="text-danger">*</span></label>
-                        <select name="exam_id" class="form-control tutorial-report-filter-control" required>
-                            <option value="">— Select Exam —</option>
-                            @foreach($exams as $e)
-                                <option value="{{ $e->id }}" {{ (string)($filters['exam_id'] ?? '') === (string)$e->id ? 'selected' : '' }}>
-                                    {{ $e->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-6 col-lg-3 mb-3">
-                        <label class="font-weight-bold tutorial-report-filter-label">Student ID <small class="text-muted">(optional)</small></label>
-                        <input type="text" name="student_id" class="form-control tutorial-report-filter-control" value="{{ $filters['student_id'] ?? '' }}" placeholder="Enter Student ID or CID">
-                    </div>
+    <div class="tutorial-report-toolbar no-print">
+        <form id="reportFormTop" class="tutorial-report-filter-form" method="GET" action="{{ route('result.tutorial-report.show') }}">
+            <div class="tutorial-report-filter-row">
+                <div class="tutorial-report-filter-group">
+                    <label for="tutorialSessionSelect">Academic Session <span class="text-danger">*</span></label>
+                    <select name="session_id" id="tutorialSessionSelect" class="form-control tutorial-report-filter-select" required>
+                        <option value="">— Select Session —</option>
+                        @foreach($sessions as $s)
+                            <option value="{{ $s->id }}" {{ (string)($filters['session_id'] ?? '') === (string)$s->id ? 'selected' : '' }}>
+                                {{ $s->name_en ?? $s->name_bn }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
-                <div class="result-filter-actions mt-2 tutorial-report-filter-actions">
-                    <button type="submit" class="btn btn-info result-filter-icon-btn" title="View Report" aria-label="View Report">
+
+                <div class="tutorial-report-filter-group">
+                    <label for="classSelectTop">Class <span class="text-danger">*</span></label>
+                    <select name="class_id" id="classSelectTop" class="form-control tutorial-report-filter-select" required>
+                        <option value="">— Select Class —</option>
+                        @foreach($classes as $c)
+                            <option value="{{ $c->id }}" {{ (string)($filters['class_id'] ?? '') === (string)$c->id ? 'selected' : '' }}>
+                                {{ $c->name_en }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="tutorial-report-filter-group">
+                    <label for="sectionSelectTop">Section <span class="text-danger">*</span></label>
+                    <select name="section_id" id="sectionSelectTop" class="form-control tutorial-report-filter-select" required>
+                        <option value="">— Select Section —</option>
+                        @foreach($sections as $section)
+                            <option value="{{ $section->id }}" {{ (string)($filters['section_id'] ?? '') === (string)$section->id ? 'selected' : '' }}>
+                                {{ $section->name_en ?? $section->name_bn }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="tutorial-report-filter-group">
+                    <label for="tutorialExamSelect">Exam <span class="text-danger">*</span></label>
+                    <select name="exam_id" id="tutorialExamSelect" class="form-control tutorial-report-filter-select" required>
+                        <option value="">— Select Exam —</option>
+                        @foreach($exams as $e)
+                            <option value="{{ $e->id }}" {{ (string)($filters['exam_id'] ?? '') === (string)$e->id ? 'selected' : '' }}>
+                                {{ $e->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="tutorial-report-filter-group">
+                    <label for="tutorialStudentInput">Student ID <small class="text-muted">(optional)</small></label>
+                    <input type="text" name="student_id" id="tutorialStudentInput" class="form-control tutorial-report-filter-input" value="{{ $filters['student_id'] ?? '' }}" placeholder="Leave blank for all students">
+                </div>
+
+                <div class="tutorial-report-filter-actions">
+                    <button type="submit" class="btn tutorial-report-action-btn tutorial-report-action-btn--primary" title="View Report" aria-label="View Report">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <a href="{{ route('result.tutorial-report.index') }}" class="btn btn-secondary result-filter-icon-btn" title="Back" aria-label="Back">
-                        <i class="fas fa-arrow-left"></i>
+                    <button type="button" id="tutorialReportPdfBtn" class="btn btn-danger tutorial-report-action-btn" title="Download PDF" aria-label="Download PDF">
+                        <i class="fas fa-file-pdf"></i>
+                    </button>
+                    <a href="{{ route('result.tutorial-report.index') }}" class="btn tutorial-report-action-btn tutorial-report-action-btn--ghost" title="Reset" aria-label="Reset">
+                        <i class="fas fa-undo-alt"></i>
                     </a>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-4 no-print">
@@ -181,6 +183,107 @@
 
 @section('styles')
 <style>
+.tutorial-report-toolbar {
+    background: #ffffff;
+    border: 1px solid #e7e5e4;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    padding: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.tutorial-report-filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.tutorial-report-filter-row {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+    gap: 0.75rem;
+    align-items: end;
+}
+
+.tutorial-report-filter-group label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.77rem;
+    font-weight: 700;
+    color: #6b7280;
+}
+
+.tutorial-report-filter-select,
+.tutorial-report-filter-input {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: #111827;
+    font-size: 0.92rem;
+    box-shadow: none;
+}
+
+.tutorial-report-filter-select:focus,
+.tutorial-report-filter-input:focus {
+    border-color: #cbd5e1;
+    box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.05);
+}
+
+.tutorial-report-filter-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.tutorial-report-action-btn {
+    min-width: 46px;
+    min-height: 46px;
+    border-radius: 12px;
+}
+
+.tutorial-report-action-btn--primary {
+    background: #111827;
+    border-color: #111827;
+    color: #fff;
+}
+
+.tutorial-report-action-btn--primary:hover {
+    background: #0f172a;
+    border-color: #0f172a;
+    color: #fff;
+}
+
+.tutorial-report-action-btn--ghost {
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: #374151;
+}
+
+.tutorial-report-action-btn--ghost:hover {
+    background: #f8fafc;
+    color: #111827;
+}
+
+@media (max-width: 1280px) {
+    .tutorial-report-filter-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .tutorial-report-filter-actions {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .tutorial-report-filter-row {
+        grid-template-columns: 1fr;
+    }
+}
+
 .tutorial-report-table thead th {
     background: #0f172a;
     color: #f8fafc;
@@ -432,6 +535,8 @@ html[data-theme='dark'] .tutorial-report-table tbody td {
 <script>
 $(function () {
     var selectedSection = @json($filters['section_id'] ?? null);
+    var form = document.getElementById('reportFormTop');
+    var pdfBtn = document.getElementById('tutorialReportPdfBtn');
 
     function loadSections(classId, selectedSectionId = null) {
         var $section = $('#sectionSelectTop');
@@ -462,6 +567,10 @@ $(function () {
     if ($('#classSelectTop').val()) {
         loadSections($('#classSelectTop').val(), selectedSection);
     }
+
+    pdfBtn?.addEventListener('click', function () {
+        window.open('{{ route('result.tutorial-report.pdf') }}?' + $(form).serialize(), '_blank');
+    });
 });
 
 document.querySelectorAll('.js-send-result-email').forEach((btn) => {

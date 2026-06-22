@@ -102,14 +102,17 @@
 </style>
 
 <div class="progress-report-toolbar no-print">
-    <form action="{{ route('result.progress-report.index') }}" method="GET" class="progress-report-filter-form" id="progressReportForm">
+    <form action="{{ route('result.progress-report.index') }}" method="GET" class="progress-report-filter-form"
+        id="progressReportForm">
         <div class="progress-report-filter-row">
             <div class="progress-report-filter-group">
                 <label for="progressSessionSelect">Academic Session <span class="text-danger">*</span></label>
-                <select name="session_id" id="progressSessionSelect" class="form-control progress-report-filter-select" required>
+                <select name="session_id" id="progressSessionSelect" class="form-control progress-report-filter-select"
+                    required>
                     <option value="">— Select Session —</option>
                     @foreach ($sessions as $session)
-                        <option value="{{ $session->id }}" {{ (string)($filters['session_id'] ?? '') === (string)$session->id ? 'selected' : '' }}>
+                        <option value="{{ $session->id }}"
+                            {{ (string) ($filters['session_id'] ?? '') === (string) $session->id ? 'selected' : '' }}>
                             {{ $session->name_en ?? $session->name_bn }}
                         </option>
                     @endforeach
@@ -118,10 +121,12 @@
 
             <div class="progress-report-filter-group">
                 <label for="progressClassSelect">Class <span class="text-danger">*</span></label>
-                <select name="class_id" id="progressClassSelect" class="form-control progress-report-filter-select" required>
+                <select name="class_id" id="progressClassSelect" class="form-control progress-report-filter-select"
+                    required>
                     <option value="">— Select Class —</option>
                     @foreach ($classes as $class)
-                        <option value="{{ $class->id }}" {{ (string)($filters['class_id'] ?? '') === (string)$class->id ? 'selected' : '' }}>
+                        <option value="{{ $class->id }}"
+                            {{ (string) ($filters['class_id'] ?? '') === (string) $class->id ? 'selected' : '' }}>
                             {{ $class->name_en }}
                         </option>
                     @endforeach
@@ -130,10 +135,12 @@
 
             <div class="progress-report-filter-group">
                 <label for="progressSectionSelect">Section <span class="text-danger">*</span></label>
-                <select name="section_id" id="progressSectionSelect" class="form-control progress-report-filter-select" required>
+                <select name="section_id" id="progressSectionSelect" class="form-control progress-report-filter-select"
+                    required>
                     <option value="">— Select Section —</option>
                     @foreach ($sections as $section)
-                        <option value="{{ $section->id }}" {{ (string)($filters['section_id'] ?? '') === (string)$section->id ? 'selected' : '' }}>
+                        <option value="{{ $section->id }}"
+                            {{ (string) ($filters['section_id'] ?? '') === (string) $section->id ? 'selected' : '' }}>
                             {{ $section->name_en ?? $section->name_bn }}
                         </option>
                     @endforeach
@@ -142,12 +149,12 @@
 
             <div class="progress-report-filter-group">
                 <label for="progressExamSelect">Exam <span class="text-danger">*</span></label>
-                <select name="exam_id" id="progressExamSelect" class="form-control progress-report-filter-select" required>
+                <select name="exam_id" id="progressExamSelect" class="form-control progress-report-filter-select"
+                    required>
                     <option value="">— Select Exam —</option>
                     @foreach ($exams as $exam)
-                        <option value="{{ $exam->id }}"
-                            data-exam-type="{{ $exam->type }}"
-                            {{ (string)($filters['exam_id'] ?? '') === (string)$exam->id ? 'selected' : '' }}>
+                        <option value="{{ $exam->id }}" data-exam-type="{{ $exam->type }}"
+                            {{ (string) ($filters['exam_id'] ?? '') === (string) $exam->id ? 'selected' : '' }}>
                             {{ $exam->name }}
                         </option>
                     @endforeach
@@ -156,17 +163,23 @@
 
             <div class="progress-report-filter-group">
                 <label for="progressStudentInput">Student ID <small class="text-muted">(optional)</small></label>
-                <input type="text" name="student_id" id="progressStudentInput" class="form-control progress-report-filter-input" value="{{ $filters['student_id'] ?? '' }}" placeholder="Leave blank for all students">
+                <input type="text" name="student_id" id="progressStudentInput"
+                    class="form-control progress-report-filter-input" value="{{ $filters['student_id'] ?? '' }}"
+                    placeholder="Leave blank for all students">
             </div>
 
             <div class="progress-report-filter-actions">
-                <button type="submit" class="btn progress-report-action-btn progress-report-action-btn--primary" title="View Report" aria-label="View Report">
+                <button type="submit" class="btn progress-report-action-btn progress-report-action-btn--primary"
+                    title="View Report" aria-label="View Report">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button type="button" id="progressReportPdfBtn" class="btn btn-danger progress-report-action-btn" title="Download PDF" aria-label="Download PDF">
+                <button type="button" id="progressReportPdfBtn" class="btn btn-danger progress-report-action-btn"
+                    title="Download PDF" aria-label="Download PDF">
                     <i class="fas fa-file-pdf"></i>
                 </button>
-                <a href="{{ route('result.progress-report.index') }}" class="btn progress-report-action-btn progress-report-action-btn--ghost" title="Reset" aria-label="Reset">
+                <a href="{{ route('result.progress-report.index') }}"
+                    class="btn progress-report-action-btn progress-report-action-btn--ghost" title="Reset"
+                    aria-label="Reset">
                     <i class="fas fa-undo-alt"></i>
                 </a>
             </div>
@@ -175,19 +188,18 @@
 </div>
 
 <script>
-(function () {
-    document.addEventListener('DOMContentLoaded', function () {
+    $(function() {
         var $ = window.jQuery;
-        var form = document.getElementById('progressReportForm');
-        if (!form || typeof $ === 'undefined') {
+        if (typeof $ === 'undefined') {
             return;
         }
 
-        var classSelect = document.getElementById('progressClassSelect');
+        var form = document.getElementById('progressReportForm');
         var sectionSelect = document.getElementById('progressSectionSelect');
         var examSelect = document.getElementById('progressExamSelect');
         var pdfBtn = document.getElementById('progressReportPdfBtn');
         var selectedExamId = @json((string) ($filters['exam_id'] ?? ''));
+        var selectedSectionId = @json((string) ($filters['section_id'] ?? ''));
 
         function refreshSelect2($el) {
             if (window.refreshSelect2) {
@@ -210,8 +222,10 @@
             refreshSelect2($(sectionSelect));
 
             $.get('/ajax/sections-by-class', { class_id: classId }, function (data) {
+                var sections = Array.isArray(data) ? data : ((data && Array.isArray(data.sections)) ? data.sections : []);
                 var options = '<option value="">— Select Section —</option>';
-                $.each(data, function (i, section) {
+
+                $.each(sections, function (i, section) {
                     var selected = String(selectedSectionId || '') === String(section.id) ? 'selected' : '';
                     options += '<option value="' + section.id + '" ' + selected + '>' + (section.name_en || section.name_bn) + '</option>';
                 });
@@ -254,24 +268,21 @@
             }
         }
 
-        if (classSelect) {
-            classSelect.addEventListener('change', function () {
-                loadSections(this.value, null);
-            });
-        }
+        $(document).on('change', '#progressClassSelect', function () {
+            loadSections(this.value, null);
+        });
 
-        if (classSelect && classSelect.value) {
-            loadSections(classSelect.value, @json($filters['section_id'] ?? null));
+        if ($('#progressClassSelect').val()) {
+            loadSections($('#progressClassSelect').val(), selectedSectionId);
         }
 
         filterExams(selectedExamId);
 
-        if (pdfBtn) {
-            pdfBtn.addEventListener('click', function () {
+        if (pdfBtn && form) {
+            $(pdfBtn).on('click', function () {
                 var params = new URLSearchParams(new FormData(form)).toString();
                 window.open('{{ route('result.progress-report.pdf') }}?' + params, '_blank');
             });
         }
     });
-})();
 </script>

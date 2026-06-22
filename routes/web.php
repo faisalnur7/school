@@ -173,6 +173,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/dashboard/home', [DashboardController::class, 'index'])->name('homepage');
     Route::get('/', [DashboardController::class, 'index'])->middleware('permission:view_dashboard');
 
+    // Shared lookup used by report and student-assignment filters.
+    Route::get('/ajax/sections-by-class', [\App\Http\Controllers\ExamController::class, 'getSectionsByClass'])->name('ajax.sections-by-class');
+
     // ------------------- Dashboard -------------------
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('permission:view_dashboard')->name('dashboard');
 
@@ -648,7 +651,6 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::middleware('permission:manage_exams')->group(function () {
-        Route::get('/ajax/sections-by-class', [\App\Http\Controllers\ExamController::class, 'getSectionsByClass'])->name('ajax.sections-by-class');
         Route::get('/marks', [MarkController::class, 'index'])->name('marks.index');
         Route::post('/marks/store', [MarkController::class, 'store'])->name('marks.store');
         Route::get('/onlineexams', [OnlineExamController::class, 'index'])->name('onlineexams.index');

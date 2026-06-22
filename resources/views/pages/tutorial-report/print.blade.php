@@ -21,9 +21,10 @@
     .pdf-header h1 { font-size: 15px; font-weight: 700; margin: 0; }
     .pdf-header .meta { font-size: 10px; color: #94a3b8; margin-top: 2px; }
 
-    .report-context { display: table; width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-bottom: 8px; }
-    .report-context__row { display: table-row; }
-    .report-context__cell { display: table-cell; width: 33.333%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; vertical-align: top; }
+    .report-context { width: 100%; margin-bottom: 8px; border-collapse: separate; border-spacing: 0 0; table-layout: fixed; }
+    .report-context__cell { width: 33.333%; padding: 0 6px 0 0; vertical-align: top; }
+    .report-context__cell:last-child { padding-right: 0; }
+    .report-context__box { padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; }
     .report-context__label { display: block; font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #64748b; margin-bottom: 2px; }
     .report-context__value { display: block; font-size: 11px; font-weight: 700; color: #0f172a; }
 
@@ -50,22 +51,28 @@
     <div class="meta">{{ $exam->name }} &nbsp;|&nbsp; {{ $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? '') }} &nbsp;|&nbsp; Generated: {{ now()->format('d M Y, h:i A') }}</div>
 </div>
 
-<div class="report-context">
-    <div class="report-context__row">
-        <div class="report-context__cell">
-            <span class="report-context__label">Session</span>
-            <span class="report-context__value">{{ $reportContext['session'] ?? '—' }}</span>
-        </div>
-        <div class="report-context__cell">
-            <span class="report-context__label">Class</span>
-            <span class="report-context__value">{{ $reportContext['class'] ?? '—' }}</span>
-        </div>
-        <div class="report-context__cell">
-            <span class="report-context__label">Section</span>
-            <span class="report-context__value">{{ $reportContext['section'] ?? '—' }}</span>
-        </div>
-    </div>
-</div>
+<table class="report-context" cellpadding="0" cellspacing="0">
+    <tr>
+        <td class="report-context__cell">
+            <div class="report-context__box">
+                <span class="report-context__label">Session</span>
+                <span class="report-context__value">{{ $reportContext['session'] ?? '—' }}</span>
+            </div>
+        </td>
+        <td class="report-context__cell">
+            <div class="report-context__box">
+                <span class="report-context__label">Class</span>
+                <span class="report-context__value">{{ $reportContext['class'] ?? '—' }}</span>
+            </div>
+        </td>
+        <td class="report-context__cell">
+            <div class="report-context__box">
+                <span class="report-context__label">Section</span>
+                <span class="report-context__value">{{ $reportContext['section'] ?? '—' }}</span>
+            </div>
+        </td>
+    </tr>
+</table>
 
 @foreach($studentsData as $data)
     @php
