@@ -6,6 +6,8 @@ use App\Models\AcademicSession;
 use App\Models\Certificate;
 use App\Models\Division;
 use App\Models\District;
+use App\Models\Exam;
+use App\Models\ExamMark;
 use App\Models\Fee;
 use App\Models\FeeSet;
 use App\Models\Group;
@@ -15,13 +17,19 @@ use App\Models\Profession;
 use App\Models\SchoolClass;
 use App\Models\SchoolSetting;
 use App\Models\Section;
+use App\Models\Subject;
+use App\Models\SubjectClassAssignment;
 use App\Models\Student;
 use App\Models\StudentAcademicInformation;
+use App\Models\StudentSubject;
 use App\Models\CertificateTemplate;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class StudentLifecycleController extends Controller
 {
@@ -173,6 +181,494 @@ class StudentLifecycleController extends Controller
         return $this->renderTemplateText($template, $replacements);
     }
 
+    private const PROMOTION_MODE_MERIT = 'final_term_merit_list';
+    private const PROMOTION_MODE_FAIL = 'n_subjects_fail';
+    private const PROMOTION_MODE_CUSTOM = 'custom';
+
+    private function promotionModes(): array
+    {
+        return [
+            self::PROMOTION_MODE_MERIT => 'Final Term Merit List',
+            self::PROMOTION_MODE_FAIL => 'N Subjects Fail',
+            self::PROMOTION_MODE_CUSTOM => 'Custom',
+        ];
+    }
+
+    private function normalizePromotionMode(?string $mode): string
+    {
+        $mode = trim((string) $mode);
+
+        return match ($mode) {
+            'merit', 'merit_list' => self::PROMOTION_MODE_MERIT,
+            'fail', 'fail_based' => self::PROMOTION_MODE_FAIL,
+            self::PROMOTION_MODE_CUSTOM => self::PROMOTION_MODE_CUSTOM,
+            default => self::PROMOTION_MODE_MERIT,
+        };
+    }
+
+    private function promotionFilterDefaults(Request $request): array
+    {
+        $sourceSessionId = $request->input('source_session_id', $request->input('academic_session_id'));
+        $sourceClassId = $request->input('source_class_id', $request->input('school_class_id'));
+        $targetSessionId = $request->input('target_session_id');
+        $targetClassId = $request->input('target_class_id');
+        $studentId = trim((string) $request->input('student_id', $request->input('student_cid', '')));
+        $mode = $this->normalizePromotionMode($request->input('promotion_mode'));
+        $failThreshold = $request->input('fail_threshold', 1);
+
+        return [
+            'source_session_id' => $sourceSessionId !== null && $sourceSessionId !== '' ? (string) $sourceSessionId : null,
+            'source_class_id' => $sourceClassId !== null && $sourceClassId !== '' ? (string) $sourceClassId : null,
+            'target_session_id' => $targetSessionId !== null && $targetSessionId !== '' ? (string) $targetSessionId : null,
+            'target_class_id' => $targetClassId !== null && $targetClassId !== '' ? (string) $targetClassId : null,
+            'student_id' => $studentId !== '' ? $studentId : null,
+            'promotion_mode' => $mode,
+            'fail_threshold' => $failThreshold !== null && $failThreshold !== '' ? (int) $failThreshold : 1,
+        ];
+    }
+
+    private function resolvePromotionStudent(?string $studentId): ?Student
+    {
+        $studentId = trim((string) $studentId);
+
+        if ($studentId === '') {
+            return null;
+        }
+
+        return Student::query()
+            ->where('student_cid', $studentId)
+            ->orWhere('id', is_numeric($studentId) ? (int) $studentId : -1)
+            ->first();
+    }
+
+    private function promotionSubjectPool(int $classId): \Illuminate\Support\Collection
+    {
+        return SubjectClassAssignment::query()
+            ->with(['subject' => fn ($query) => $query->with('papers')])
+            ->where('school_class_id', $classId)
+            ->where('is_active', true)
+            ->get();
+    }
+
+    private function promotionSubjectsForAcademicInfo(StudentAcademicInformation $info, \Illuminate\Support\Collection $assignments): \Illuminate\Support\Collection
+    {
+        $student = $info->student;
+
+        return $assignments
+            ->filter(function (SubjectClassAssignment $assignment) use ($info, $student) {
+                if ($assignment->group_id !== null && (int) $assignment->group_id !== (int) $info->group_id) {
+                    return false;
+                }
+
+                return $assignment->appliesToStudent(
+                    $student?->gender,
+                    $student?->religion
+                );
+            })
+            ->flatMap(function (SubjectClassAssignment $assignment) {
+                $subject = $assignment->subject;
+
+                if (! $subject) {
+                    return [];
+                }
+
+                if ($subject->is_parent && $subject->papers->isNotEmpty()) {
+                    return $subject->papers;
+                }
+
+                return [$subject];
+            })
+            ->unique('id')
+            ->values();
+    }
+
+    private function promotionCurrentAcademicInfos(array $filters): \Illuminate\Support\Collection
+    {
+        $student = $this->resolvePromotionStudent($filters['student_id'] ?? null);
+
+        $query = StudentAcademicInformation::query()
+            ->with(['student', 'academicSession', 'schoolClass', 'section', 'group'])
+            ->where('academic_session_id', $filters['source_session_id'])
+            ->where('school_class_id', $filters['source_class_id'])
+            ->where('is_current', true)
+            ->where('academic_status', 'active')
+            ->orderByDesc('id');
+
+        if ($student) {
+            $query->where('student_id', $student->id);
+        }
+
+        return $query->get()
+            ->unique('student_id')
+            ->values();
+    }
+
+    private function promotionMetrics(int $sourceSessionId, int $sourceClassId, \Illuminate\Support\Collection $infos): array
+    {
+        $assignments = $this->promotionSubjectPool($sourceClassId);
+        $exam = Exam::query()
+            ->where('academic_session_id', $sourceSessionId)
+            ->where('type', Exam::TYPE_TERMINAL)
+            ->where('status', Exam::STATUS_PUBLISHED)
+            ->orderByDesc('end_date')
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $exam) {
+            return [
+                'exam' => null,
+                'metrics' => $infos->mapWithKeys(function (StudentAcademicInformation $info, int $index) {
+                    return [$info->student_id => [
+                        'source_rank' => $index + 1,
+                        'source_total' => 0,
+                        'failed_subjects' => 0,
+                        'source_fail_status' => 'Pending result data',
+                    ]];
+                })->all(),
+            ];
+        }
+
+        $studentIds = $infos->pluck('student_id')->all();
+        $marks = ExamMark::query()
+            ->where('exam_id', $exam->id)
+            ->whereIn('student_id', $studentIds)
+            ->get()
+            ->groupBy('student_id');
+
+        $metrics = [];
+        foreach ($infos as $info) {
+            $subjects = $this->promotionSubjectsForAcademicInfo($info, $assignments);
+            $studentMarks = $marks->get($info->student_id, collect());
+
+            $total = 0.0;
+            $failedSubjects = 0;
+            $subjectCount = 0;
+
+            foreach ($subjects as $subject) {
+                $subjectCount++;
+                $config = $subject->getEffectiveMarksForClass($sourceClassId);
+                $passMark = (float) ($config['pass_mark'] ?? 33);
+                $mark = $studentMarks->firstWhere('subject_id', $subject->id);
+                $obtained = $mark ? (float) $mark->total : 0.0;
+                $isAbsent = ! $mark || (bool) $mark->is_absent;
+                $isFailed = $isAbsent || $obtained < $passMark || (($mark->letter_grade ?? null) === 'F');
+
+                $total += $obtained;
+                if ($isFailed) {
+                    $failedSubjects++;
+                }
+            }
+
+            $metrics[$info->student_id] = [
+                'source_rank' => 0,
+                'source_total' => round($total, 2),
+                'failed_subjects' => $failedSubjects,
+                'subject_count' => $subjectCount,
+                'source_fail_status' => $failedSubjects > 0 ? 'Failed in ' . $failedSubjects . ' subject(s)' : 'Passed',
+            ];
+        }
+
+        $sorted = $infos->sort(function (StudentAcademicInformation $a, StudentAcademicInformation $b) use ($metrics) {
+            $aMetrics = $metrics[$a->student_id];
+            $bMetrics = $metrics[$b->student_id];
+
+            if ($aMetrics['source_total'] !== $bMetrics['source_total']) {
+                return $bMetrics['source_total'] <=> $aMetrics['source_total'];
+            }
+
+            if ($aMetrics['failed_subjects'] !== $bMetrics['failed_subjects']) {
+                return $aMetrics['failed_subjects'] <=> $bMetrics['failed_subjects'];
+            }
+
+            return strcasecmp($a->student?->full_name_en ?? '', $b->student?->full_name_en ?? '');
+        })->values();
+
+        $rank = 1;
+        $prevTotal = null;
+        $sameCount = 0;
+        foreach ($sorted as $info) {
+            $total = $metrics[$info->student_id]['source_total'];
+
+            if ($prevTotal !== null && $total === $prevTotal) {
+                $metrics[$info->student_id]['source_rank'] = $rank - $sameCount;
+                $sameCount++;
+            } else {
+                $metrics[$info->student_id]['source_rank'] = $rank;
+                $sameCount = 1;
+            }
+
+            $prevTotal = $total;
+            $rank++;
+        }
+
+        return [
+            'exam' => $exam,
+            'metrics' => $metrics,
+        ];
+    }
+
+    private function promotionTargetRollBase(array $row): ?int
+    {
+        if (empty($row['target_session_id']) || empty($row['target_class_id'])) {
+            return null;
+        }
+
+        return StudentAcademicInformation::getNextRoll(
+            (int) $row['target_session_id'],
+            (int) $row['target_class_id'],
+            $row['target_section_id'] !== null ? (int) $row['target_section_id'] : null,
+            $row['target_group_id'] !== null ? (int) $row['target_group_id'] : null
+        );
+    }
+
+    private function promotionRowsForView(array $filters): \Illuminate\Support\Collection
+    {
+        $infos = $this->promotionCurrentAcademicInfos($filters);
+        $metricBundle = $this->promotionMetrics((int) $filters['source_session_id'], (int) $filters['source_class_id'], $infos);
+        $metrics = $metricBundle['metrics'];
+        $mode = $filters['promotion_mode'];
+        $targetSessionId = $filters['target_session_id'] ? (int) $filters['target_session_id'] : null;
+        $targetClassId = $filters['target_class_id'] ? (int) $filters['target_class_id'] : null;
+
+        $rows = $infos->map(function (StudentAcademicInformation $info) use ($metrics, $mode, $targetSessionId, $targetClassId) {
+            $metric = $metrics[$info->student_id] ?? [
+                'source_rank' => null,
+                'source_total' => 0,
+                'failed_subjects' => 0,
+                'source_fail_status' => '—',
+            ];
+
+            $row = [
+                'academic_info' => $info,
+                'student' => $info->student,
+                'source_rank' => $metric['source_rank'],
+                'source_total' => $metric['source_total'],
+                'failed_subjects' => $metric['failed_subjects'],
+                'source_fail_status' => $metric['source_fail_status'],
+                'selected' => true,
+                'target_session_id' => $targetSessionId,
+                'target_class_id' => $targetClassId,
+                'target_section_id' => $info->section_id,
+                'target_group_id' => $info->group_id,
+            ];
+
+            $row['target_roll'] = $this->promotionTargetRollBase($row);
+
+            return $row;
+        });
+
+        if ($mode === self::PROMOTION_MODE_FAIL) {
+            $threshold = max(1, (int) ($filters['fail_threshold'] ?? 1));
+
+            $rows = $rows->filter(fn (array $row) => ($row['failed_subjects'] ?? 0) >= $threshold)->values();
+        }
+
+        return match ($mode) {
+            self::PROMOTION_MODE_FAIL => $rows->sort(function (array $a, array $b) {
+                if ($a['failed_subjects'] !== $b['failed_subjects']) {
+                    return $b['failed_subjects'] <=> $a['failed_subjects'];
+                }
+
+                if ($a['source_rank'] !== $b['source_rank']) {
+                    return $a['source_rank'] <=> $b['source_rank'];
+                }
+
+                return strcasecmp($a['student']?->full_name_en ?? '', $b['student']?->full_name_en ?? '');
+            })->values(),
+            default => $rows->sort(function (array $a, array $b) {
+                if ($a['source_rank'] !== $b['source_rank']) {
+                    return $a['source_rank'] <=> $b['source_rank'];
+                }
+
+                if ($a['source_total'] !== $b['source_total']) {
+                    return $b['source_total'] <=> $a['source_total'];
+                }
+
+                return strcasecmp($a['student']?->full_name_en ?? '', $b['student']?->full_name_en ?? '');
+            })->values(),
+        };
+    }
+
+    private function applySequentialTargetRolls(\Illuminate\Support\Collection $rows): \Illuminate\Support\Collection
+    {
+        $nextRolls = [];
+
+        return $rows->values()->map(function (array $row) use (&$nextRolls) {
+            $bucketKey = implode(':', [
+                $row['target_session_id'] ?? 'null',
+                $row['target_class_id'] ?? 'null',
+                $row['target_section_id'] ?? 'null',
+                $row['target_group_id'] ?? 'null',
+            ]);
+
+            if (! array_key_exists($bucketKey, $nextRolls)) {
+                $nextRolls[$bucketKey] = $row['target_roll'] ?? $this->promotionTargetRollBase($row);
+            }
+
+            $row['target_roll'] = $nextRolls[$bucketKey];
+            $nextRolls[$bucketKey] = ((int) $nextRolls[$bucketKey]) + 1;
+
+            return $row;
+        });
+    }
+
+    private function applyPromotedStudentFees(StudentAcademicInformation $academicInfo): void
+    {
+        $student = $academicInfo->student;
+        if (! $student) {
+            return;
+        }
+
+        $feeSets = FeeSet::with('items.category')
+            ->where('school_class_id', $academicInfo->school_class_id)
+            ->where('academic_session_id', $academicInfo->academic_session_id)
+            ->get();
+
+        $studentType = $student->academicInformations()->count() > 1 ? 'old' : 'new';
+
+        foreach ($feeSets as $feeSet) {
+            $applicableAmount = $feeSet->items->filter(fn ($item) =>
+                in_array($item->category->student_type ?? 'both', ['both', $studentType], true)
+            )->sum('amount');
+
+            if ($applicableAmount <= 0) {
+                continue;
+            }
+
+            foreach ($this->generateFeeDueDates($feeSet->frequency, $feeSet->month) as $dueDate) {
+                Fee::updateOrCreate(
+                    [
+                        'student_id' => $student->id,
+                        'fee_set_id' => $feeSet->id,
+                        'due_date' => $dueDate,
+                    ],
+                    [
+                        'amount' => $applicableAmount,
+                        'status' => 'pending',
+                    ]
+                );
+            }
+        }
+    }
+
+    private function applyPromotedStudentSubjects(StudentAcademicInformation $academicInfo): void
+    {
+        $student = $academicInfo->student;
+        if (! $student) {
+            return;
+        }
+
+        $gender = $student->gender == 1 ? 'male' : 'female';
+        $religion = match ((int) $student->religion) {
+            1 => 'islam',
+            2 => 'hinduism',
+            3 => 'christianity',
+            4 => 'buddhism',
+            default => 'other',
+        };
+
+        $assignments = SubjectClassAssignment::query()
+            ->where('school_class_id', $academicInfo->school_class_id)
+            ->where(function ($query) use ($academicInfo) {
+                $query->whereNull('group_id')
+                    ->orWhere('group_id', $academicInfo->group_id);
+            })
+            ->where(function ($query) use ($gender) {
+                $query->where('gender', 'all')
+                    ->orWhere('gender', $gender);
+            })
+            ->where(function ($query) use ($religion) {
+                $query->where('religion', 'all')
+                    ->orWhere('religion', $religion);
+            })
+            ->where('is_compulsory', true)
+            ->where('is_active', true)
+            ->with('subject')
+            ->get();
+
+        foreach ($assignments as $assignment) {
+            $subject = $assignment->subject;
+            if (! $subject) {
+                continue;
+            }
+
+            StudentSubject::updateOrCreate(
+                [
+                    'student_id' => $student->id,
+                    'subject_id' => $subject->id,
+                    'academic_session_id' => $academicInfo->academic_session_id,
+                ],
+                [
+                    'school_class_id' => $academicInfo->school_class_id,
+                    'is_optional' => false,
+                    'is_mandatory' => true,
+                ]
+            );
+        }
+    }
+
+    private function generateFeeDueDates(string $frequency, $month = null): array
+    {
+        $year = now()->year;
+        $dates = [];
+
+        switch ($frequency) {
+            case 'monthly':
+                for ($m = 1; $m <= 12; $m++) {
+                    $dates[] = Carbon::create($year, $m, 1)->endOfMonth()->toDateString();
+                }
+                break;
+            case 'yearly':
+                $dates[] = Carbon::create($year, 12, 31)->toDateString();
+                break;
+            case 'others':
+                if (! empty($month)) {
+                    $dates[] = Carbon::create($year, (int) $month, 1)->endOfMonth()->toDateString();
+                }
+                break;
+        }
+
+        return $dates;
+    }
+
+    private function applyPromotedStudentLifecycleData(StudentAcademicInformation $academicInfo): void
+    {
+        $this->applyPromotedStudentFees($academicInfo);
+        $this->applyPromotedStudentSubjects($academicInfo);
+    }
+
+    private function promotionIndexValidationRules(): array
+    {
+        return [
+            'source_session_id' => ['required_with:source_class_id', 'exists:academic_sessions,id'],
+            'source_class_id'   => ['required_with:source_session_id', 'exists:school_classes,id'],
+            'target_session_id' => ['nullable', 'exists:academic_sessions,id'],
+            'target_class_id'   => ['nullable', 'exists:school_classes,id'],
+            'student_id'        => ['nullable', 'string', 'max:255'],
+            'promotion_mode'    => ['nullable'],
+            'fail_threshold'    => ['nullable', 'integer', 'min:1'],
+        ];
+    }
+
+    private function selectedPromotionRows(array $rows): array
+    {
+        return array_values(array_filter($rows, fn (array $row) => ! empty($row['selected'])));
+    }
+
+    private function preparePromotionStorePayload(Request $request): array
+    {
+        return [
+            'source_session_id' => $request->input('source_session_id', $request->input('academic_session_id')),
+            'source_class_id' => $request->input('source_class_id', $request->input('school_class_id')),
+            'target_session_id' => $request->input('target_session_id'),
+            'target_class_id' => $request->input('target_class_id'),
+            'student_id' => $request->input('student_id', $request->input('student_cid')),
+            'promotion_mode' => $this->normalizePromotionMode($request->input('promotion_mode')),
+            'fail_threshold' => $request->input('fail_threshold', 1),
+            'promotions' => $request->input('promotions', []),
+        ];
+    }
+
     // ─── A. New Admission ────────────────────────────────────────────────────
 
     public function admissionForm()
@@ -201,69 +697,147 @@ class StudentLifecycleController extends Controller
 
     public function promoteIndex(Request $request)
     {
-        $students = collect();
-        if ($request->filled(['academic_session_id', 'school_class_id'])) {
-            $students = StudentAcademicInformation::with(['student', 'section', 'group'])
-                ->where('academic_session_id', $request->academic_session_id)
-                ->where('school_class_id', $request->school_class_id)
-                ->where('is_current', true)
-                ->where('academic_status', 'active')
-                ->get();
+        $filters = $this->promotionFilterDefaults($request);
+
+        if (filled($filters['source_session_id']) || filled($filters['source_class_id'])) {
+            $validator = Validator::make($filters, $this->promotionIndexValidationRules());
+            $validator->validate();
         }
 
-        return view('pages.students.lifecycle.promote', array_merge($this->baseData(), compact('students')));
+        $students = collect();
+        if (! empty($filters['source_session_id']) && ! empty($filters['source_class_id'])) {
+            $students = $this->promotionRowsForView($filters);
+
+            if ($students->isNotEmpty() && ! empty($filters['target_session_id']) && ! empty($filters['target_class_id'])) {
+                $students = $this->applySequentialTargetRolls($students);
+            }
+        }
+
+        return view('pages.students.lifecycle.promote', array_merge($this->baseData(), [
+            'students' => $students,
+            'filters' => $filters,
+            'promotionModes' => $this->promotionModes(),
+        ]));
     }
 
     public function promoteStore(Request $request)
     {
-        $request->validate([
-            'source_session_id'            => 'required|exists:academic_sessions,id',
-            'target_session_id'            => 'required|exists:academic_sessions,id',
-            'promotions'                   => 'required|array|min:1',
-            'promotions.*.id'              => 'required|exists:student_academic_information,id',
-            'promotions.*.school_class_id' => 'required|exists:school_classes,id',
-            'promotions.*.section_id'      => 'required|exists:sections,id',
-        ]);
+        $payload = $this->preparePromotionStorePayload($request);
 
-        if ($request->source_session_id == $request->target_session_id) {
-            return back()->withErrors(['target_session_id' => 'Use Mid-Year Correction for same-session changes.']);
+        $validated = Validator::make($payload, [
+            'source_session_id' => ['required', 'exists:academic_sessions,id'],
+            'source_class_id'   => ['required', 'exists:school_classes,id'],
+            'target_session_id' => ['required', 'exists:academic_sessions,id', 'different:source_session_id'],
+            'target_class_id'   => ['required', 'exists:school_classes,id'],
+            'student_id'        => ['nullable', 'string', 'max:255'],
+            'promotion_mode'    => ['required', 'in:' . implode(',', array_keys($this->promotionModes()))],
+            'fail_threshold'    => ['nullable', 'integer', 'min:1'],
+            'promotions'        => ['required', 'array', 'min:1'],
+        ])->validate();
+
+        $selectedRows = $this->selectedPromotionRows($validated['promotions']);
+        if (empty($selectedRows)) {
+            return back()->withErrors(['promotions' => 'Select at least one student to promote.'])->withInput();
+        }
+
+        foreach ($selectedRows as $index => $row) {
+            Validator::make($row, [
+                'selected' => ['nullable'],
+                'source_academic_information_id' => ['required', 'exists:student_academic_information,id'],
+                'student_id' => ['required'],
+                'target_roll' => ['required', 'integer', 'min:1'],
+                'target_section_id' => ['nullable', 'exists:sections,id'],
+                'target_group_id' => ['nullable', 'exists:groups,id'],
+            ])->validate();
+
+            if ($validated['promotion_mode'] === self::PROMOTION_MODE_CUSTOM && (int) $row['target_roll'] < 1) {
+                throw ValidationException::withMessages([
+                    'promotions' => 'Target rolls must be positive integers.',
+                ]);
+            }
+        }
+
+        if ($validated['promotion_mode'] === self::PROMOTION_MODE_CUSTOM) {
+            $rolls = collect($selectedRows)->pluck('target_roll')->map(fn ($value) => (string) $value);
+            if ($rolls->contains(fn ($value) => trim($value) === '') || $rolls->unique()->count() !== $rolls->count()) {
+                return back()->withErrors(['promotions' => 'Target rolls must be filled in and unique for custom promotion.'])->withInput();
+            }
         }
 
         try {
-            DB::transaction(function () use ($request) {
-                foreach ($request->promotions as $data) {
-                    $old = StudentAcademicInformation::findOrFail($data['id']);
+            DB::transaction(function () use ($validated, $selectedRows) {
+                foreach ($selectedRows as $row) {
+                    $source = StudentAcademicInformation::query()
+                        ->with('student')
+                        ->whereKey($row['source_academic_information_id'])
+                        ->lockForUpdate()
+                        ->firstOrFail();
 
-                    $promotionStatus = ($data['school_class_id'] == $old->school_class_id) ? 'retained' : 'promoted';
+                    if ((int) $source->academic_session_id !== (int) $validated['source_session_id'] || (int) $source->school_class_id !== (int) $validated['source_class_id']) {
+                        throw ValidationException::withMessages([
+                            'promotions' => 'One or more selected rows do not belong to the chosen source session/class.',
+                        ]);
+                    }
 
-                    $roll = StudentAcademicInformation::getNextRoll(
-                        $request->target_session_id,
-                        $data['school_class_id'],
-                        $data['section_id'],
-                        $data['group_id'] ?? null
-                    );
+                    if (! $source->is_current) {
+                        throw ValidationException::withMessages([
+                            'promotions' => 'Only current academic information records can be promoted.',
+                        ]);
+                    }
 
-                    StudentAcademicInformation::where('student_id', $old->student_id)->update(['is_current' => false]);
+                    $existingTarget = StudentAcademicInformation::query()
+                        ->where('student_id', $source->student_id)
+                        ->where('academic_session_id', $validated['target_session_id'])
+                        ->lockForUpdate()
+                        ->exists();
 
-                    StudentAcademicInformation::create([
-                        'student_id'                       => $old->student_id,
-                        'academic_session_id'              => $request->target_session_id,
-                        'school_class_id'                  => $data['school_class_id'],
-                        'section_id'                       => $data['section_id'],
-                        'group_id'                         => $data['group_id'] ?? null,
-                        'roll'                             => $roll,
-                        'academic_status'                  => 'active',
-                        'promotion_status'                 => $promotionStatus,
-                        'is_current'                       => true,
-                        'previous_academic_information_id' => $old->id,
+                    if ($existingTarget) {
+                        throw ValidationException::withMessages([
+                            'target_session_id' => 'One or more students already have a record for the target session.',
+                        ]);
+                    }
+
+                    StudentAcademicInformation::query()
+                        ->where('student_id', $source->student_id)
+                        ->where('is_current', true)
+                        ->lockForUpdate()
+                        ->update(['is_current' => false]);
+
+                    $promotionStatus = ((int) $validated['target_class_id'] === (int) $source->school_class_id)
+                        ? 'retained'
+                        : 'promoted';
+
+                    $newAcademicInfo = StudentAcademicInformation::create([
+                        'student_id' => $source->student_id,
+                        'academic_session_id' => $validated['target_session_id'],
+                        'school_class_id' => $validated['target_class_id'],
+                        'section_id' => filled($row['target_section_id'] ?? null) ? $row['target_section_id'] : $source->section_id,
+                        'group_id' => filled($row['target_group_id'] ?? null) ? $row['target_group_id'] : $source->group_id,
+                        'roll' => $row['target_roll'],
+                        'academic_status' => 'active',
+                        'promotion_status' => $promotionStatus,
+                        'is_current' => true,
+                        'previous_academic_information_id' => $source->id,
                     ]);
+
+                    $newAcademicInfo->loadMissing('student');
+                    $this->applyPromotedStudentLifecycleData($newAcademicInfo);
                 }
             });
         } catch (UniqueConstraintViolationException) {
-            return back()->withErrors(['target_session_id' => 'One or more students already have a record for the target session.']);
+            return back()->withErrors(['target_session_id' => 'One or more students already have a record for the target session.'])->withInput();
         }
 
-        return redirect()->route('students.promote')->with('success', count($request->promotions) . ' student(s) promoted successfully.');
+        return redirect()->route('students.promote', array_filter([
+            'source_session_id' => $validated['source_session_id'],
+            'source_class_id' => $validated['source_class_id'],
+            'target_session_id' => $validated['target_session_id'],
+            'target_class_id' => $validated['target_class_id'],
+            'student_id' => $validated['student_id'] ?? null,
+            'promotion_mode' => $validated['promotion_mode'],
+            'fail_threshold' => $validated['fail_threshold'] ?? null,
+        ], fn ($value) => $value !== null && $value !== ''))
+            ->with('success', count($selectedRows) . ' student(s) promoted successfully.');
     }
 
     // ─── C. Mid-Year Correction ──────────────────────────────────────────────
