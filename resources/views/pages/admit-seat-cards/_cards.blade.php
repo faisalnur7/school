@@ -78,10 +78,6 @@
                     </div>
 
                     <div class="admit-card__body">
-                        <div class="admit-card__photo-wrap">
-                            <img src="{{ $photoPath }}" class="admit-card__photo" alt="{{ $student->full_name_en }}">
-                        </div>
-
                         <div class="admit-card__info">
                             <div class="admit-card__name">{{ $student->full_name_en }}</div>
 
@@ -109,6 +105,10 @@
                                     <span class="admit-card__val">{{ $ai?->academicSession?->name_en ?? '—' }}</span>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="admit-card__photo-wrap">
+                            <img src="{{ $photoPath }}" class="admit-card__photo" alt="{{ $student->full_name_en }}">
                         </div>
                     </div>
 

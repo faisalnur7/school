@@ -1,6 +1,6 @@
 @page {
     size: A4 portrait;
-    margin: 4mm;
+    margin: 4mm 6.35mm;
 }
 
 .admit-card-pages {
@@ -180,14 +180,14 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 1mm;
+    gap: 1.3mm;
     min-width: 0;
 }
 
 .admit-card__name {
-    font-size: 9.2pt;
+    font-size: 12pt;
     font-weight: 900;
-    line-height: 1.02;
+    line-height: 1.0;
     text-align: left;
     word-break: break-word;
     color: #111111;
@@ -196,19 +196,19 @@
 .admit-card__rows {
     display: flex;
     flex-direction: column;
-    gap: 0.7mm;
+    gap: 1.05mm;
 }
 
 .admit-card__row {
     display: flex;
-    gap: 1.5mm;
+    gap: 2mm;
     align-items: flex-start;
-    line-height: 1.06;
-    font-size: 6pt;
+    line-height: 1.08;
+    font-size: 8.5pt;
 }
 
 .admit-card__lbl {
-    min-width: 12mm;
+    min-width: 14mm;
     font-weight: 800;
     text-transform: uppercase;
     color: #666666;
@@ -220,6 +220,7 @@
     font-weight: 700;
     color: #111111;
     word-break: break-word;
+    font-size: 8.5pt;
 }
 
 .admit-card__footer {
@@ -242,7 +243,7 @@
 
 @media screen {
     .admit-card-pages {
-        padding: 1mm 0 2mm;
+        padding: 1mm 24px 2mm;
     }
 }
 

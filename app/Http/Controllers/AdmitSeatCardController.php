@@ -147,9 +147,10 @@ class AdmitSeatCardController extends Controller
             $pageRows = (int) ceil($cardsPerPage / $cardsPerRow);
         }
 
-        $marginMm = 4;
-        $pageWidthMm = 210 - ($marginMm * 2);
-        $pageHeightMm = 297 - ($marginMm * 2);
+        $marginXmm = 6.35; // 24px at 96dpi
+        $marginYmm = 4;
+        $pageWidthMm = 210 - ($marginXmm * 2);
+        $pageHeightMm = 297 - ($marginYmm * 2);
         $gapXmm = 8.5;
         $gapYmm = 8.5;
 
@@ -164,7 +165,7 @@ class AdmitSeatCardController extends Controller
             'cardHeightMm' => round($cardHeightMm, 2),
             'gapXmm' => $gapXmm,
             'gapYmm' => $gapYmm,
-            'marginMm' => $marginMm,
+            'marginMm' => $marginXmm,
         ];
     }
 }
