@@ -13,7 +13,7 @@
                 <i class="fas fa-file-pdf" aria-hidden="true"></i>
                 <span class="sr-only">PDF</span>
             </a>
-            <a href="{{ route('students.create') }}" class="btn btn-sm btn-primary">
+            <a href="{{ route('students.admission') }}" class="btn btn-sm btn-primary">
                 <i class="fas fa-plus mr-1"></i> Add Student
             </a>
         </div>

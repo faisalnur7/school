@@ -400,6 +400,422 @@
             white-space: nowrap;
         }
 
+        .fee-collect-page .mobile-collect-shell,
+        .fee-collect-page .mobile-cart-backdrop {
+            display: none;
+        }
+
+        .fee-collect-page .mobile-select-chip,
+        .fee-collect-page .mobile-summary-card,
+        .fee-collect-page .mobile-topbar,
+        .fee-collect-page .mobile-selection-row,
+        .fee-collect-page .mobile-selection-footer,
+        .fee-collect-page .mobile-cart-toggle,
+        .fee-collect-page .mobile-cart-summary {
+            border-radius: 18px;
+        }
+
+        .fee-collect-page .min-w-0 {
+            min-width: 0 !important;
+        }
+
+        .fee-collect-page .mobile-selection-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            padding: 0.9rem 1rem;
+            text-align: left;
+            transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+        }
+
+        .fee-collect-page .mobile-selection-row:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .fee-collect-page .mobile-selection-row.is-selected {
+            border-color: #4338ca;
+            background: #eef2ff;
+            box-shadow: inset 0 0 0 1px rgba(67, 56, 202, 0.08);
+        }
+
+        .fee-collect-page .mobile-selection-row.is-added {
+            border-style: dashed;
+            opacity: 0.8;
+        }
+
+        .fee-collect-page .mobile-selection-row .mobile-selection-mark {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 4.5rem;
+            padding: 0.35rem 0.55rem;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: #eff6ff;
+            color: #4338ca;
+        }
+
+        .fee-collect-page .mobile-selection-row.is-added .mobile-selection-mark {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .fee-collect-page .mobile-selection-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.25;
+            margin-bottom: 0.15rem;
+        }
+
+        .fee-collect-page .mobile-selection-subtitle {
+            font-size: 0.78rem;
+            color: #64748b;
+            line-height: 1.25;
+        }
+
+        .fee-collect-page .mobile-selection-price {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #4338ca;
+            white-space: nowrap;
+        }
+
+        .fee-collect-page .mobile-select-chip {
+            flex: 0 0 auto;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 0.1rem;
+            min-width: 130px;
+            border: 1px solid #dbe4ee;
+            background: #fff;
+            color: #0f172a;
+            padding: 0.72rem 0.85rem;
+            text-align: left;
+            scroll-snap-align: start;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+        }
+
+        .fee-collect-page .mobile-select-chip strong {
+            font-size: 0.92rem;
+            line-height: 1.15;
+        }
+
+        .fee-collect-page .mobile-select-chip small {
+            color: #64748b;
+            font-size: 0.74rem;
+        }
+
+        .fee-collect-page .mobile-select-chip.is-active {
+            border-color: #4338ca;
+            background: #eef2ff;
+            color: #312e81;
+        }
+
+        .fee-collect-page .mobile-summary-card {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+            padding: 0.95rem 1rem;
+        }
+
+        .fee-collect-page .mobile-topbar {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+            backdrop-filter: blur(10px);
+        }
+
+        .fee-collect-page .mobile-topbar .mobile-topbar-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .fee-collect-page .mobile-topbar .mobile-topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 0 0 auto;
+        }
+
+        .fee-collect-page .mobile-topbar .mobile-icon-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            border: 1px solid #dbe4ee;
+            background: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #334155;
+        }
+
+        .fee-collect-page .mobile-topbar .student-name {
+            font-size: 1rem;
+            line-height: 1.2;
+        }
+
+        .fee-collect-page .mobile-topbar .label-tag {
+            margin-bottom: 0.1rem;
+            font-size: 0.7rem;
+        }
+
+        .fee-collect-page .mobile-meta-row {
+            display: flex;
+            gap: 0.45rem;
+            overflow-x: auto;
+            padding-bottom: 0.1rem;
+            scroll-snap-type: x proximity;
+            scrollbar-width: none;
+        }
+
+        .fee-collect-page .mobile-meta-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .fee-collect-page .mobile-meta-chip {
+            flex: 0 0 auto;
+            white-space: nowrap;
+            scroll-snap-align: start;
+            border: 1px solid #dbe4ee;
+            background: #fff;
+            color: #475569;
+            padding: 0.45rem 0.7rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .fee-collect-page .mobile-switch-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .fee-collect-page .mobile-switch-row .form-control,
+        .fee-collect-page .mobile-switch-row .btn {
+            min-height: 44px;
+        }
+
+        .fee-collect-page .mobile-switch-row .form-control {
+            border-radius: 14px;
+            font-size: 16px;
+        }
+
+        .fee-collect-page .mobile-switch-row .btn {
+            border-radius: 14px;
+            min-width: 88px;
+        }
+
+        .fee-collect-page .mobile-chip-scroll {
+            display: flex;
+            align-items: stretch;
+            gap: 0.6rem;
+            overflow-x: auto;
+            padding-bottom: 0.15rem;
+            scroll-snap-type: x proximity;
+            scrollbar-width: none;
+        }
+
+        .fee-collect-page .mobile-chip-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .fee-collect-page .mobile-chip-scroll::after {
+            content: '';
+            flex: 0 0 8px;
+        }
+
+        .fee-collect-page .mobile-summary-line {
+            font-size: 0.86rem;
+            color: #475569;
+            line-height: 1.35;
+        }
+
+        .fee-collect-page .mobile-summary-line strong {
+            color: #0f172a;
+        }
+
+        .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle {
+            width: 100%;
+            border: 0;
+            background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+            color: #0f172a;
+            padding: 0.9rem 1rem;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle strong {
+            font-size: 1rem;
+            line-height: 1.2;
+        }
+
+        .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle small {
+            color: #475569;
+            font-size: 0.74rem;
+        }
+
+        .fee-collect-page .mobile-cart-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            color: #0f172a;
+        }
+
+        .fee-collect-page .mobile-cart-summary .mobile-cart-count {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .fee-collect-page .mobile-cart-summary .mobile-cart-total {
+            font-size: 1.05rem;
+            font-weight: 800;
+            white-space: nowrap;
+            color: #111827;
+        }
+
+        .fee-collect-page .mobile-collect-action {
+            width: 100%;
+            min-height: 48px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .fee-collect-page .mobile-selection-modal .modal-dialog {
+            margin: 0;
+            max-width: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .fee-collect-page .mobile-selection-modal .modal-content {
+            min-height: 100vh;
+            border: 0;
+            border-radius: 0;
+            background: #f8fafc;
+        }
+
+        .fee-collect-page .mobile-selection-modal .modal-header,
+        .fee-collect-page .mobile-selection-modal .modal-footer {
+            background: #fff;
+            border-color: #e2e8f0;
+        }
+
+        .fee-collect-page .mobile-selection-modal .modal-body {
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .fee-collect-page .mobile-selection-modal .mobile-selection-search {
+            border-radius: 14px;
+            min-height: 44px;
+            font-size: 16px;
+        }
+
+        .fee-collect-page .mobile-selection-modal .mobile-selection-footer {
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            padding: 0.9rem 1rem;
+        }
+
+        .fee-collect-page .mobile-selection-modal .mobile-selection-footer .selection-meta {
+            font-size: 0.82rem;
+            color: #475569;
+            flex: 1 1 140px;
+        }
+
+        .fee-collect-page .mobile-selection-modal .mobile-selection-footer .selection-action {
+            min-height: 48px;
+            border-radius: 14px;
+            min-width: 160px;
+        }
+
+        .fee-collect-page .mobile-cart-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 1040;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(1px);
+        }
+
+        .fee-collect-page .mobile-cart-backdrop.is-visible {
+            display: block;
+        }
+
+        body.mobile-cart-open {
+            overflow: hidden;
+        }
+
+        .fee-collect-page .mobile-quick-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        @media (min-width: 1024px) {
+            .fee-collect-page .mobile-collect-shell,
+            .fee-collect-page .mobile-quick-actions,
+            .fee-collect-page .mobile-cart-backdrop {
+                display: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet {
+                position: static !important;
+                inset: auto !important;
+                left: auto !important;
+                right: auto !important;
+                bottom: auto !important;
+                transform: none !important;
+                transition: none !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                overflow: visible !important;
+                max-height: none !important;
+                width: auto !important;
+                z-index: auto !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle {
+                display: none !important;
+            }
+
+            .fee-collect-page .mobile-cart-toggle-wrap,
+            .fee-collect-page #collectBtnMobile {
+                display: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .card-body,
+            .fee-collect-page .mobile-checkout-sheet .card-footer {
+                display: block !important;
+                max-height: none !important;
+            }
+        }
+
         @media (max-width: 991.98px) {
             .fee-collect-page .payment-history-table td.payment-history-items {
                 min-width: 260px;
@@ -465,6 +881,131 @@
                 justify-content: flex-start;
                 margin-left: 0 !important;
                 margin-top: 0.5rem;
+            }
+        }
+
+        @media (max-width: 1023.98px) {
+            .fee-collect-page {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+                padding-bottom: 6.5rem;
+            }
+
+            .fee-collect-page .student-header-card {
+                display: none !important;
+            }
+
+            .fee-collect-page .desktop-collect-layout > .col-12.col-lg-3.col-xl-2,
+            .fee-collect-page .desktop-collect-layout > .col-12.col-lg-5.col-xl-6 {
+                display: none !important;
+            }
+
+            .fee-collect-page .mobile-collect-shell {
+                display: block;
+                margin-bottom: 0.9rem;
+            }
+
+            .fee-collect-page #mainTabs {
+                position: sticky;
+                top: var(--mobile-tabs-top, 0px);
+                z-index: 1035;
+                margin-bottom: 0.85rem !important;
+                background: rgba(248, 250, 252, 0.95);
+                backdrop-filter: blur(8px);
+                padding-top: 0.35rem;
+                padding-bottom: 0.35rem;
+                margin-left: -0.5rem;
+                margin-right: -0.5rem;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+
+            .fee-collect-page #mainTabs .nav-link {
+                border-radius: 999px;
+            }
+
+            .fee-collect-page .mobile-topbar {
+                display: block;
+                position: sticky;
+                top: 0;
+                z-index: 1040;
+                margin-bottom: 0.75rem;
+            }
+
+            .fee-collect-page .mobile-summary-card {
+                margin-top: 0.75rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet {
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 1045;
+                transform: translateY(calc(100% - 148px));
+                transition: transform 0.24s ease, box-shadow 0.24s ease;
+                box-shadow: 0 -12px 32px rgba(15, 23, 42, 0.22);
+                border-radius: 22px 22px 0 0;
+                overflow: hidden;
+                max-height: calc(100dvh - 148px);
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open {
+                transform: translateY(0);
+                max-height: calc(100dvh - 0.5rem);
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .card-header {
+                padding: 0 !important;
+                border: 0 !important;
+                background: transparent !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .card-header > .d-flex.align-items-center.gap-2 {
+                display: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .card-body {
+                max-height: calc(100dvh - 210px);
+                overflow-y: auto;
+                padding-bottom: 1rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .card-footer {
+                position: sticky;
+                bottom: 0;
+                z-index: 2;
+                padding: 0.8rem 0.9rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .card-body,
+            .fee-collect-page .mobile-checkout-sheet .card-footer {
+                display: none;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .card-body,
+            .fee-collect-page .mobile-checkout-sheet.is-open .card-footer {
+                display: block;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-toggle {
+                border-radius: 22px 22px 0 0;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-toggle .mobile-cart-chevron {
+                transform: rotate(180deg);
+            }
+
+            .fee-collect-page .mobile-cart-backdrop.is-visible {
+                display: block;
+            }
+
+            .fee-collect-page .mobile-topbar .student-name {
+                font-size: 0.95rem;
+            }
+
+            .fee-collect-page .mobile-selection-modal .modal-dialog {
+                margin: 0;
             }
         }
 
@@ -539,6 +1080,64 @@
 
             .fee-collect-page .history-summary {
                 font-size: 0.8rem;
+            }
+
+            .fee-collect-page .mobile-topbar .mobile-topbar-row {
+                align-items: flex-start;
+            }
+
+            .fee-collect-page .mobile-select-chip {
+                min-width: 118px;
+                padding: 0.68rem 0.78rem;
+            }
+
+            .fee-collect-page .mobile-selection-modal .modal-body {
+                padding: 0.9rem;
+            }
+
+            .fee-collect-page .mobile-selection-modal .mobile-selection-footer {
+                padding: 0.8rem 0.9rem;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1023.98px) {
+            .fee-collect-page .mobile-selection-modal .modal-dialog {
+                width: min(92vw, 860px);
+                margin: 1rem auto;
+                height: auto;
+            }
+
+            .fee-collect-page .mobile-selection-modal .modal-content {
+                min-height: auto;
+                border-radius: 24px;
+                overflow: hidden;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet {
+                width: min(100%, 860px);
+                left: 50%;
+                right: auto;
+                transform: translateX(-50%) translateY(calc(100% - 148px));
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open {
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @media (max-width: 1023.98px) {
+            .fee-collect-page .student-search-trigger {
+                min-width: 0;
+            }
+        }
+
+        .fee-collect-page .mobile-only {
+            display: none;
+        }
+
+        @media (max-width: 1023.98px) {
+            .fee-collect-page .mobile-only {
+                display: block;
             }
         }
 
@@ -892,11 +1491,42 @@
         html[data-theme='dark'] .fee-collect-page .student-search-modal .modal-body {
             background: #0f172a !important;
         }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle {
+            background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+            color: #ffffff;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle small {
+            color: rgba(255, 255, 255, 0.72);
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-cart-summary {
+            color: #ffffff;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-cart-summary .mobile-cart-total {
+            color: #ffffff;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-cart-summary .mobile-cart-count {
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-collect-action {
+            background: linear-gradient(135deg, #6366f1, #4338ca) !important;
+            color: #ffffff !important;
+            border-color: transparent !important;
+        }
     </style>
 @endsection
 
 @section('contents')
     <div class="container-fluid py-3 px-3 py-lg-4 px-lg-4 fee-collect-page">
+        @php
+            $feeSets = $pendingFees->groupBy('fee_set_id');
+            $mobileDueCount = isset($inventoryDueItems) ? $inventoryDueItems->flatten(1)->count() : 0;
+        @endphp
 
         {{-- ── Student Banner ── --}}
         <div class="student-header-card mb-4">
@@ -953,6 +1583,43 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="mobile-collect-shell mobile-only">
+            <div class="mobile-topbar card p-3 mb-3">
+                <div class="mobile-topbar-row">
+                    <a href="{{ url()->previous() }}" class="mobile-icon-btn" aria-label="Back">
+                        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </a>
+                    <button type="button" class="mobile-icon-btn student-search-trigger" data-toggle="modal" data-target="#studentSearchModal" aria-label="Search Student">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </button>
+                    <div class="flex-grow-1 min-w-0">
+                        <p class="label-tag">STUDENT</p>
+                        <h5 class="student-name mb-0 text-truncate">{{ $student->full_name_en ?? 'Student not selected' }}</h5>
+                    </div>
+                    <div class="avatar-ring flex-shrink-0">
+                        <span class="avatar-initials">{{ $student?->full_name_en ? strtoupper(substr($student->full_name_en, 0, 2)) : '—' }}</span>
+                    </div>
+                </div>
+                @php $info = $student?->academicInformations?->last(); @endphp
+                <div class="mobile-meta-row mt-3">
+                    <span class="mobile-meta-chip">ID {{ $student->student_cid ?? '—' }}</span>
+                    <span class="mobile-meta-chip">Class {{ $info?->schoolClass?->name_en ?? '—' }}</span>
+                    <span class="mobile-meta-chip">Section {{ $info?->section?->name_en ?? '—' }}</span>
+                    <span class="mobile-meta-chip">Group {{ $info?->group?->name_en ?? 'N/A' }}</span>
+                </div>
+                <div class="mobile-switch-row mt-3">
+                    <input type="text" id="studentCidSwitchMobile" class="form-control student-cid-switch-input"
+                        value="{{ $student->student_cid ?? '' }}" placeholder="Enter Student ID" autocomplete="off" />
+                    <button type="button" id="studentCidSwitchBtnMobile" class="btn btn-primary">
+                        Switch
+                    </button>
+                </div>
+            </div>
+
         </div>
 
         <div class="modal fade student-search-modal" id="studentSearchModal" tabindex="-1" role="dialog" aria-labelledby="studentSearchModalLabel" aria-hidden="true">
@@ -1026,6 +1693,34 @@
             </div>
         </div>
 
+        <div class="modal fade mobile-selection-modal" id="mobileSelectionModal" tabindex="-1" role="dialog" aria-labelledby="mobileSelectionTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="min-w-0">
+                            <p class="panel-eyebrow mb-1">Select Items</p>
+                            <h5 class="modal-title mb-0 text-truncate" id="mobileSelectionTitle">Select Items</h5>
+                        </div>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <input type="search" id="mobileSelectionSearch" class="form-control mobile-selection-search" placeholder="Search items">
+                        </div>
+                        <div id="mobileSelectionList" class="d-flex flex-column gap-2"></div>
+                    </div>
+                    <div class="modal-footer mobile-selection-footer">
+                        <div class="selection-meta" id="mobileSelectionMeta">0 selected · BDT 0.00</div>
+                        <button type="button" class="btn btn-primary selection-action" id="mobileSelectionAddBtn" disabled>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         {{-- ── Tabs ── --}}
         <ul class="nav nav-tabs mb-4" id="mainTabs">
@@ -1051,7 +1746,50 @@
                  TAB 1 — COLLECT PAYMENT
             ══════════════════════════════════════ --}}
             <div class="tab-pane fade show active" id="tabCollect">
-                <div class="row g-4">
+                <div class="mobile-quick-actions mobile-only mb-3">
+                    <div class="card mobile-summary-card mb-3">
+                        <div class="mobile-chip-scroll">
+                            @foreach ($feeSets as $feeSetId => $fees)
+                                <button type="button" class="mobile-select-chip"
+                                    data-selection-kind="fee"
+                                    data-selection-key="{{ $feeSetId }}"
+                                    data-selection-title="{{ $fees->first()->feeSet->name }}"
+                                    aria-label="Open {{ $fees->first()->feeSet->name }}">
+                                    <strong>{{ $fees->first()->feeSet->name }}</strong>
+                                    <small>{{ $fees->count() }} fee{{ $fees->count() === 1 ? '' : 's' }}</small>
+                                </button>
+                            @endforeach
+                            @foreach($inventoryCategories as $cat)
+                                <button type="button" class="mobile-select-chip"
+                                    data-selection-kind="inventory"
+                                    data-selection-key="{{ $cat->id }}"
+                                    data-selection-title="{{ $cat->name }}"
+                                    aria-label="Open {{ $cat->name }}">
+                                    <strong>{{ $cat->name }}</strong>
+                                    <small>{{ $cat->items->count() }} item{{ $cat->items->count() === 1 ? '' : 's' }}</small>
+                                </button>
+                            @endforeach
+                            @if($mobileDueCount > 0)
+                                <button type="button" class="mobile-select-chip"
+                                    data-selection-kind="due"
+                                    data-selection-key="all"
+                                    data-selection-title="Inventory Dues"
+                                    aria-label="Open Inventory Dues">
+                                    <strong>Inventory Dues</strong>
+                                    <small>{{ $mobileDueCount }} due{{ $mobileDueCount === 1 ? '' : 's' }}</small>
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="card mobile-summary-card">
+                        <div class="mobile-summary-line" id="mobileSummaryText">
+                            Tap a category to add fees, inventory items, or dues.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="desktop-collect-layout row g-4">
 
                     {{-- LEFT: Categories --}}
                     <div class="col-12 col-lg-3 col-xl-2">
@@ -1292,7 +2030,7 @@
                     </div>{{-- /col MIDDLE --}}
 
                     {{-- RIGHT: Cart --}}
-                    <div class="col-12 col-lg-4 col-xl-4">
+                    <div class="col-12 col-lg-4 col-xl-4 mobile-checkout-sheet">
                         <div class="card border-0 shadow-sm rounded-4 h-100">
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
@@ -1303,6 +2041,20 @@
                                         style="font-size:11px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
                                         0 items
                                     </span>
+                                </div>
+                                <div class="mobile-only mobile-cart-toggle-wrap mt-3">
+                                    <button type="button" class="mobile-cart-toggle" id="mobileCartToggle">
+                                        <div class="mobile-cart-summary">
+                                            <div class="min-w-0">
+                                                <strong id="mobileCartTotal">BDT 0.00</strong>
+                                                <small class="d-block text-truncate" id="mobileCartCount">No items added yet</small>
+                                            </div>
+                                            <span class="mobile-cart-chevron" aria-hidden="true">⌃</span>
+                                        </div>
+                                    </button>
+                                    <button type="button" class="btn btn-primary mobile-collect-action collect-btn mobile-only" id="collectBtnMobile" disabled>
+                                        ✓ &nbsp;COLLECT PAYMENT
+                                    </button>
                                 </div>
                             </div>
                             <form id="feeForm">
@@ -1382,6 +2134,7 @@
                     </div>
 
                 </div>
+                <div class="mobile-cart-backdrop" id="mobileCartBackdrop"></div>
             </div>
 
 
@@ -1571,7 +2324,7 @@
             const $subtotalEl = $('#subtotalAmount');
             const $totalEl = $('#totalAmount');
             const $badgeEl = $('#cartBadge');
-            const $collectBtn = $('#collectBtn');
+            const $collectBtns = $('.collect-btn');
             const $discountInput = $('#discountInput');
             const $discountLine = $('#discountLine');
             const $inventoryDueCards = $('.inv-due-card');
@@ -1579,10 +2332,25 @@
             const $studentSearchResults = $('#studentSearchResults');
             const $studentSearchClass = $('#studentSearchClass');
             const $studentSearchSection = $('#studentSearchSection');
+            const $studentCidInputs = $('#studentCidSwitch, #studentCidSwitchMobile');
+            const $studentCidBtns = $('#studentCidSwitchBtn, #studentCidSwitchBtnMobile');
+            const $mobileCheckoutSheet = $('.mobile-checkout-sheet');
+            const $mobileCartToggle = $('#mobileCartToggle');
+            const $mobileCartBackdrop = $('#mobileCartBackdrop');
+            const $mobileCartTotal = $('#mobileCartTotal');
+            const $mobileCartCount = $('#mobileCartCount');
+            const $mobileSummaryText = $('#mobileSummaryText');
+            const $mobileSelectionModal = $('#mobileSelectionModal');
+            const $mobileSelectionTitle = $('#mobileSelectionTitle');
+            const $mobileSelectionSearch = $('#mobileSelectionSearch');
+            const $mobileSelectionList = $('#mobileSelectionList');
+            const $mobileSelectionMeta = $('#mobileSelectionMeta');
+            const $mobileSelectionAddBtn = $('#mobileSelectionAddBtn');
+            const isMobileViewport = () => window.matchMedia('(max-width: 1023.98px)').matches;
 
             const currentCid = @json($student?->student_cid ?? '');
-            const $studentCidInput = $('#studentCidSwitch');
-            const $studentCidBtn = $('#studentCidSwitchBtn');
+            const $studentCidInput = $studentCidInputs;
+            const $studentCidBtn = $studentCidBtns;
 
             function loadStudentSearchResults(query = null) {
                 if (!$studentSearchResults.length) return;
@@ -1660,7 +2428,7 @@
             }
 
             function attemptStudentSwitch() {
-                const cid = ($studentCidInput.val() || '').trim();
+                const cid = ($studentCidInputs.filter(':visible').val() || $studentCidInputs.first().val() || '').trim();
 
                 if (cid === '' || cid.length < 1) {
                     showSwitchError('Invalid CID', 'Please enter a valid student CID.', 'warning');
@@ -1671,7 +2439,7 @@
                     return;
                 }
 
-                $studentCidBtn.prop('disabled', true).text('...');
+                $studentCidBtns.prop('disabled', true).text('...');
 
                 Swal.fire({
                     title: 'Searching...',
@@ -1728,20 +2496,318 @@
                             'error');
                     },
                     complete: function() {
-                        $studentCidBtn.prop('disabled', false).text('Switch');
+                        $studentCidBtns.prop('disabled', false).text('Switch');
                     }
                 });
             }
 
-            $studentCidBtn.on('click', attemptStudentSwitch);
-            $studentCidInput.on('keydown', function(e) {
+            $studentCidBtns.on('click', attemptStudentSwitch);
+            $studentCidInputs.on('input', function() {
+                const value = $(this).val();
+                $studentCidInputs.not(this).val(value);
+            });
+            $studentCidInputs.on('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     attemptStudentSwitch();
                 }
             });
-            $studentCidInput.on('blur', function() {
+            $studentCidInputs.on('blur', function() {
                 attemptStudentSwitch();
+            });
+
+            const mobileSelectionState = {
+                kind: null,
+                key: null,
+                title: '',
+                items: [],
+            };
+            const mobileSelectionSelected = new Set();
+
+            function escapeHtml(value) {
+                return String(value ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
+            function mobileSelectionSourceSelector(item) {
+                if (item.kind === 'fee') {
+                    return `.fee-card[data-id="${item.id}"]`;
+                }
+
+                if (item.kind === 'inventory') {
+                    return `.inv-item-card[data-inv-id="${item.id}"]`;
+                }
+
+                return `.inv-due-card[data-due-id="${item.id}"]`;
+            }
+
+            function buildMobileSelectionItems(kind, key) {
+                if (kind === 'fee') {
+                    return $feeCards.filter(function() {
+                        return String($(this).data('cat')) === String(key);
+                    }).map(function() {
+                        const $card = $(this);
+                        const id = String($card.data('id'));
+                        return {
+                            kind: 'fee',
+                            id,
+                            key: `fee_${id}`,
+                            label: String($card.data('name') || 'Fee'),
+                            subtitle: String($card.find('.mono.text-muted').first().text() || '').trim() || 'Fee item',
+                            amount: parseFloat($card.data('amount')) || 0,
+                            added: $card.hasClass('in-cart'),
+                            disabled: false,
+                        };
+                    }).get();
+                }
+
+                if (kind === 'inventory') {
+                    return $('.inv-item-card').filter(function() {
+                        return String($(this).data('inv-cat')) === String(key);
+                    }).map(function() {
+                        const $card = $(this);
+                        const id = String($card.data('inv-id'));
+                        const stock = parseInt($card.data('stock')) || 0;
+                        const unit = String($card.data('unit') || '').trim();
+                        return {
+                            kind: 'inventory',
+                            id,
+                            key: `inv_${id}`,
+                            label: String($card.data('name') || 'Inventory Item'),
+                            subtitle: stock > 0 ? `${stock} left${unit ? ` · ${unit}` : ''}` : 'Out of stock',
+                            amount: parseFloat($card.data('price')) || 0,
+                            added: $card.hasClass('in-cart'),
+                            disabled: stock <= 0,
+                        };
+                    }).get();
+                }
+
+                return $inventoryDueCards.map(function() {
+                    const $card = $(this);
+                    const id = String($card.data('due-id'));
+                    return {
+                        kind: 'due',
+                        id,
+                        key: `due_${id}`,
+                        label: String($card.data('due-name') || 'Inventory Due'),
+                        subtitle: String($card.data('due-category') || 'Inventory'),
+                        amount: parseFloat($card.data('due-amount')) || 0,
+                        added: $card.hasClass('in-cart'),
+                        disabled: false,
+                    };
+                }).get();
+            }
+
+            function updateMobileSelectionMeta() {
+                if (!$mobileSelectionMeta.length) return;
+
+                const selectedItems = mobileSelectionState.items.filter((item) => mobileSelectionSelected.has(item.key) && !item.added && !item.disabled);
+                const selectedSubtotal = selectedItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+                $mobileSelectionMeta.text(`${selectedItems.length} selected · BDT ${selectedSubtotal.toFixed(2)}`);
+                $mobileSelectionAddBtn.prop('disabled', selectedItems.length === 0);
+            }
+
+            function renderMobileSelectionList(filterText = '') {
+                if (!$mobileSelectionList.length) return;
+
+                const needle = String(filterText || '').trim().toLowerCase();
+                const visibleItems = mobileSelectionState.items.filter((item) => {
+                    if (!needle) return true;
+                    return [item.label, item.subtitle, item.amount.toFixed(2)]
+                        .join(' ')
+                        .toLowerCase()
+                        .includes(needle);
+                });
+
+                if (!visibleItems.length) {
+                    $mobileSelectionList.html(`
+                        <div class="text-center text-muted py-5">
+                            <div style="font-size:36px;opacity:.18">🔎</div>
+                            <p class="mt-2 mb-0">No items matched your search.</p>
+                        </div>
+                    `);
+                    updateMobileSelectionMeta();
+                    return;
+                }
+
+                const html = visibleItems.map((item) => {
+                    const isSelected = mobileSelectionSelected.has(item.key) && !item.added && !item.disabled;
+                    const sourceSelector = mobileSelectionSourceSelector(item);
+                    const statusLabel = item.added ? 'Added' : (item.disabled ? 'Out of stock' : (isSelected ? 'Selected' : 'Add'));
+                    const rightMeta = item.kind === 'inventory' && item.subtitle
+                        ? `<small class="d-block mt-1 text-muted" style="font-size:10px">${escapeHtml(item.subtitle)}</small>`
+                        : `<small class="d-block mt-1 text-muted" style="font-size:10px">${escapeHtml(item.subtitle || '')}</small>`;
+
+                    return `
+                        <button type="button"
+                            class="mobile-selection-row ${isSelected ? 'is-selected' : ''} ${item.added ? 'is-added' : ''}"
+                            data-selection-key="${escapeHtml(item.key)}"
+                            data-source-selector="${escapeHtml(sourceSelector)}"
+                            data-selection-amount="${escapeHtml(item.amount.toFixed(2))}"
+                            ${item.added || item.disabled ? 'disabled' : ''}
+                            aria-pressed="${isSelected ? 'true' : 'false'}">
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="d-flex align-items-start justify-content-between gap-2">
+                                    <div class="min-w-0">
+                                        <div class="mobile-selection-title text-truncate">${escapeHtml(item.label)}</div>
+                                        <div class="mobile-selection-subtitle text-truncate">${escapeHtml(item.kind === 'fee' ? item.subtitle : item.subtitle)}</div>
+                                    </div>
+                                    <div class="text-end flex-shrink-0">
+                                        <div class="mobile-selection-price">BDT ${item.amount.toFixed(2)}</div>
+                                        ${rightMeta}
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="mobile-selection-mark">${escapeHtml(statusLabel)}</span>
+                        </button>
+                    `;
+                }).join('');
+
+                $mobileSelectionList.html(html);
+                updateMobileSelectionMeta();
+            }
+
+            function openMobileSelection(kind, key, title) {
+                mobileSelectionState.kind = kind;
+                mobileSelectionState.key = key;
+                mobileSelectionState.title = title;
+                mobileSelectionState.items = buildMobileSelectionItems(kind, key);
+                mobileSelectionSelected.clear();
+
+                if ($mobileSelectionTitle.length) {
+                    $mobileSelectionTitle.text(title);
+                }
+
+                if ($mobileSelectionSearch.length) {
+                    $mobileSelectionSearch.val('');
+                }
+
+                renderMobileSelectionList('');
+
+                if ($mobileSelectionModal.length) {
+                    if (isMobileViewport()) {
+                        toggleMobileCart(false);
+                    }
+
+                    $mobileSelectionModal.modal('show');
+                }
+            }
+
+            function closeMobileSelection() {
+                mobileSelectionSelected.clear();
+                mobileSelectionState.kind = null;
+                mobileSelectionState.key = null;
+                mobileSelectionState.title = '';
+                mobileSelectionState.items = [];
+                if ($mobileSelectionSearch.length) {
+                    $mobileSelectionSearch.val('');
+                }
+                if ($mobileSelectionList.length) {
+                    $mobileSelectionList.empty();
+                }
+            }
+
+            function toggleMobileCart(forceOpen = null) {
+                if (!$mobileCheckoutSheet.length || !isMobileViewport()) return;
+
+                const open = forceOpen === null ? !$mobileCheckoutSheet.hasClass('is-open') : !!forceOpen;
+                $mobileCheckoutSheet.toggleClass('is-open', open);
+                $mobileCartBackdrop.toggleClass('is-visible', open);
+                $('body').toggleClass('mobile-cart-open', open);
+            }
+
+            function syncMobileCartState(countText, totalText, summaryText) {
+                if ($mobileCartCount.length) {
+                    $mobileCartCount.text(countText);
+                }
+                if ($mobileCartTotal.length) {
+                    $mobileCartTotal.text(totalText);
+                }
+                if ($mobileSummaryText.length) {
+                    $mobileSummaryText.text(summaryText);
+                }
+            }
+
+            function syncMobileStickyOffsets() {
+                if (!isMobileViewport()) {
+                    document.documentElement.style.removeProperty('--mobile-tabs-top');
+                    return;
+                }
+
+                const $topbar = $('.mobile-topbar:visible').first();
+                const topbarHeight = Math.ceil(($topbar.outerHeight(true) || 0));
+                document.documentElement.style.setProperty('--mobile-tabs-top', `${topbarHeight}px`);
+            }
+
+            $(document).on('click', '.mobile-select-chip', function() {
+                const kind = $(this).data('selection-kind');
+                const key = $(this).data('selection-key');
+                const title = $(this).data('selection-title') || 'Select Items';
+
+                $('.mobile-select-chip').removeClass('is-active');
+                $(this).addClass('is-active');
+                openMobileSelection(kind, key, title);
+            });
+
+            $mobileSelectionList.on('click', '.mobile-selection-row', function() {
+                if ($(this).prop('disabled')) return;
+
+                const key = String($(this).data('selection-key') || '');
+                if (!key) return;
+
+                if (mobileSelectionSelected.has(key)) {
+                    mobileSelectionSelected.delete(key);
+                } else {
+                    mobileSelectionSelected.add(key);
+                }
+
+                renderMobileSelectionList($mobileSelectionSearch.val() || '');
+            });
+
+            $mobileSelectionSearch.on('input', function() {
+                renderMobileSelectionList($(this).val() || '');
+            });
+
+            $mobileSelectionAddBtn.on('click', function() {
+                const selectedItems = mobileSelectionState.items.filter((item) => mobileSelectionSelected.has(item.key) && !item.added && !item.disabled);
+
+                if (!selectedItems.length) {
+                    return;
+                }
+
+                selectedItems.forEach((item) => {
+                    const $source = $(mobileSelectionSourceSelector(item));
+                    if ($source.length) {
+                        $source.trigger('click');
+                    }
+                });
+
+                $mobileSelectionModal.modal('hide');
+            });
+
+            $mobileSelectionModal.on('hidden.bs.modal', function() {
+                $('.mobile-select-chip').removeClass('is-active');
+                closeMobileSelection();
+            });
+
+            $mobileCartToggle.on('click', function() {
+                toggleMobileCart();
+            });
+
+            $mobileCartBackdrop.on('click', function() {
+                toggleMobileCart(false);
+            });
+
+            $(window).on('resize', function() {
+                if (!isMobileViewport()) {
+                    toggleMobileCart(false);
+                    $mobileCartBackdrop.removeClass('is-visible');
+                }
+                syncMobileStickyOffsets();
             });
 
             /* ── Category click (fees) ── */
@@ -2133,14 +3199,28 @@
                 let totalCount = cartIds.size + cartInvIds.size;
                 totalCount += cartDueIds.size;
                 $badgeEl.text(totalCount + (totalCount === 1 ? ' item' : ' items'));
-                $collectBtn.prop('disabled', totalCount === 0 || paidTotal <= 0);
+                $collectBtns.prop('disabled', totalCount === 0 || paidTotal <= 0);
                 $('#paymentAmount').val(paidTotal.toFixed(2));
+
+                const cartCountText = totalCount === 0
+                    ? 'No items added yet'
+                    : `${totalCount} item${totalCount === 1 ? '' : 's'} added`;
+                const cartTotalText = `BDT ${paidTotal.toFixed(2)}`;
+                const summaryText = totalCount === 0
+                    ? 'Tap a category to add fees, inventory items, or dues.'
+                    : `${totalCount} item${totalCount === 1 ? '' : 's'} selected · ${cartTotalText} ready to collect`;
+
+                syncMobileCartState(cartCountText, cartTotalText, summaryText);
+
+                if (isMobileViewport() && totalCount === 0) {
+                    toggleMobileCart(false);
+                }
             }
 
 
 
             /* ── AJAX Collect ── */
-            $('#collectBtn').on('click', function() {
+            $('.collect-btn').on('click', function() {
 
                 if (cartIds.size === 0 && cartInvIds.size === 0 && cartDueIds.size === 0) return;
 
@@ -2217,6 +3297,7 @@
                         $('#descriptionInput').val('');
                         $btn.prop('disabled', true).html('✓ &nbsp;COLLECT PAYMENT');
                         updateUI();
+                        toggleMobileCart(false);
 
                         // ── Open receipt in new tab & auto-print ──
                         const receiptUrl = '{{ url('payments') }}/' + res.payment_id +
@@ -2323,6 +3404,9 @@
                     if ($link.length) $link.trigger('click');
                 }, 100);
             });
+
+            updateUI();
+            syncMobileStickyOffsets();
         });
     </script>
 @endsection

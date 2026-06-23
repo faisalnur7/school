@@ -18,7 +18,7 @@
                 </a>
             </div>
             <div class="col-6 col-lg-3">
-                <a href="{{ route('students.create') }}" class="quick-action-card student">
+                <a href="{{ route('students.admission') }}" class="quick-action-card student">
                     <div class="action-icon"><i class="fas fa-user-plus"></i></div>
                     <span class="action-text">Add Student</span>
                 </a>

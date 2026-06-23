@@ -91,8 +91,8 @@
                                 <tr>
                                     <th>Product</th>
                                     <th class="text-center" style="width:90px">Last Price</th>
-                                    <th class="text-center" style="width:75px">Qty</th>
-                                    <th class="text-center" style="width:90px">Unit Price</th>
+                                    <th class="text-center" style="width:110px">Qty</th>
+                                    <th class="text-center" style="width:130px">Unit Price</th>
                                     <th class="text-center" style="width:90px">Total</th>
                                     <th style="width:36px"></th>
                                 </tr>
@@ -307,6 +307,12 @@
 .purchase-table tfoot td { font-size: .85rem; padding: 8px 6px; border-top: 2px solid #e5e7eb; }
 .grand-total-row td { background: #f8fafc; }
 .remove-row { width: 26px; height: 26px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
+.purchase-table th:nth-child(3),
+.purchase-table td:nth-child(3) { width: 110px; }
+.purchase-table th:nth-child(4),
+.purchase-table td:nth-child(4) { width: 130px; }
+.purchase-table .qty-input { min-width: 90px; }
+.purchase-table .unit-price-input { min-width: 110px; }
 
 /* ── Summary ── */
 .summary-box { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px 14px; background: linear-gradient(180deg, #fff, #f8fafc); display: flex; flex-direction: column; gap: 4px; min-height: 78px; }
@@ -400,8 +406,8 @@ $(function () {
                 </select>
             </td>
             <td class="last-price text-muted text-center small">${price > 0 ? price.toFixed(2) : '—'}</td>
-            <td><input type="number" min="1" name="items[${idx}][quantity]" class="form-control form-control-sm qty text-center" value="1" required></td>
-            <td><input type="number" step="0.01" min="0" name="items[${idx}][unit_price]" class="form-control form-control-sm unit-price text-center" value="${price.toFixed(2)}" required></td>
+            <td><input type="number" min="1" name="items[${idx}][quantity]" class="form-control form-control-sm qty text-center qty-input" value="1" required></td>
+            <td><input type="number" step="0.01" min="0" name="items[${idx}][unit_price]" class="form-control form-control-sm unit-price text-center unit-price-input" value="${price.toFixed(2)}" required></td>
             <td class="line-total text-center small fw-bold">${price.toFixed(2)}</td>
             <td class="text-center">
                 <button type="button" class="btn btn-sm btn-danger remove-row" title="Remove"><i class="fas fa-times"></i></button>
