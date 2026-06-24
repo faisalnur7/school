@@ -17,6 +17,7 @@ class StockController extends Controller
         $this->authorizePermission('view_inventory_reports');
 
         $query = InventoryItem::with('category')
+            ->where('stock_type', '!=', 'made_to_order')
             ->orderBy('name');
 
         if ($request->filled('q')) {
@@ -36,6 +37,7 @@ class StockController extends Controller
 
         $query = InventoryItem::with('category')
             ->where('is_active', true)
+            ->where('stock_type', '!=', 'made_to_order')
             ->whereColumn('current_stock', '<', 'minimum_stock_alert')
             ->orderBy('current_stock');
 
@@ -50,4 +52,3 @@ class StockController extends Controller
         return view('pages.inventory.reports.low-stock', compact('items'));
     }
 }
-

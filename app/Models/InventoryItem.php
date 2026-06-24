@@ -10,10 +10,13 @@ class InventoryItem extends Model
 {
     protected $fillable = [
         'category_id',
+        'item_type',
         'name',
         'description',
         'purchase_price',
         'selling_price',
+        'is_flexible_price',
+        'stock_type',
         'current_stock',
         'minimum_stock_alert',
         'unit',
@@ -25,6 +28,7 @@ class InventoryItem extends Model
     protected $casts = [
         'purchase_price' => 'decimal:2',
         'selling_price' => 'decimal:2',
+        'is_flexible_price' => 'boolean',
         'is_active' => 'boolean',
     ];
 
@@ -51,5 +55,10 @@ class InventoryItem extends Model
     public function stockMovements(): HasMany
     {
         return $this->hasMany(StockMovement::class, 'inventory_item_id');
+    }
+
+    public function isMadeToOrder(): bool
+    {
+        return ($this->stock_type ?? 'stocked') === 'made_to_order';
     }
 }

@@ -1987,16 +1987,19 @@
 
                                     {{-- Inventory Item Cards --}}
                                     @foreach($inventoryCategories as $cat)
-                                        @foreach($cat->items as $invItem)
-                                            <div class="inv-item-card align-items-center gap-2 rounded-3 px-3 py-2 mb-2 {{ $invItem->current_stock > 0 ? '' : 'inv-item-card--out' }}"
+                                    @foreach($cat->items as $invItem)
+                                        @php $isMadeToOrder = ($invItem->stock_type ?? 'stocked') === 'made_to_order'; @endphp
+                                            <div class="inv-item-card align-items-center gap-2 rounded-3 px-3 py-2 mb-2 {{ ($invItem->current_stock > 0 || $isMadeToOrder) ? '' : 'inv-item-card--out' }}"
                                                 data-inv-cat="{{ $cat->id }}"
                                                 data-inv-id="{{ $invItem->id }}"
                                                 data-name="{{ $invItem->name }}"
                                                 data-price="{{ $invItem->selling_price }}"
+                                                data-flexible-price="{{ $invItem->is_flexible_price ? 1 : 0 }}"
+                                                data-stock-type="{{ $isMadeToOrder ? 'made_to_order' : 'stocked' }}"
                                                 data-stock="{{ $invItem->current_stock }}"
                                                 data-unit="{{ $invItem->unit }}"
-                                                aria-disabled="{{ $invItem->current_stock > 0 ? 'false' : 'true' }}"
-                                                style="display:none;border:1.5px solid #d1fae5;cursor:{{ $invItem->current_stock > 0 ? 'pointer' : 'not-allowed' }};background:#f0fdf4">
+                                                aria-disabled="{{ ($invItem->current_stock > 0 || $isMadeToOrder) ? 'false' : 'true' }}"
+                                                style="display:none;border:1.5px solid #d1fae5;cursor:{{ ($invItem->current_stock > 0 || $isMadeToOrder) ? 'pointer' : 'not-allowed' }};background:#f0fdf4">
                                                 {{-- Icon --}}
                                                 <div class="d-flex align-items-center justify-content-center flex-shrink-0 rounded-3"
                                                     style="width:34px;height:34px;background:#dcfce7">
@@ -2006,7 +2009,9 @@
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <p class="fw-semibold text-dark mb-0 text-truncate" style="font-size:13px">{{ $invItem->name }}</p>
                                                     <div class="d-flex align-items-center gap-2 mt-1">
-                                                        @if($invItem->current_stock > 0)
+                                                        @if($isMadeToOrder)
+                                                            <span class="badge rounded-pill" style="font-size:10px;background:#fef3c7;color:#92400e;border:1px solid #fde68a">Made to order</span>
+                                                        @elseif($invItem->current_stock > 0)
                                                             <span class="badge rounded-pill" style="font-size:10px;background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0">{{ $invItem->current_stock }} left</span>
                                                         @else
                                                             <span class="badge rounded-pill" style="font-size:10px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca">Out of stock</span>
@@ -2019,6 +2024,12 @@
                                                 {{-- Price + stock --}}
                                                 <div class="d-flex align-items-center gap-2 flex-shrink-0">
                                                     <span class="mono fw-bold" style="font-size:14px;color:#059669">{{ number_format($invItem->selling_price, 2) }}</span>
+                                                    @if($invItem->is_flexible_price)
+                                                        <span class="badge rounded-pill" style="font-size:10px;background:#fef3c7;color:#92400e;border:1px solid #fde68a">Flexible</span>
+                                                    @endif
+                                                    @if($isMadeToOrder)
+                                                        <span class="badge rounded-pill" style="font-size:10px;background:#ede9fe;color:#6d28d9;border:1px solid #ddd6fe">MTO</span>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endforeach
@@ -2578,10 +2589,12 @@
                             id,
                             key: `inv_${id}`,
                             label: String($card.data('name') || 'Inventory Item'),
-                            subtitle: stock > 0 ? `${stock} left${unit ? ` · ${unit}` : ''}` : 'Out of stock',
+                            subtitle: String($card.data('stock-type')) === 'made_to_order'
+                                ? `Made to order${unit ? ` · ${unit}` : ''}`
+                                : (stock > 0 ? `${stock} left${unit ? ` · ${unit}` : ''}` : 'Out of stock'),
                             amount: parseFloat($card.data('price')) || 0,
                             added: $card.hasClass('in-cart'),
-                            disabled: stock <= 0,
+                            disabled: String($card.data('stock-type')) !== 'made_to_order' && stock <= 0,
                         };
                     }).get();
                 }
@@ -2986,17 +2999,19 @@
                 if ($(e.target).is('input')) return;
                 let invId = $(this).data('inv-id');
                 let stock = parseInt($(this).data('stock')) || 0;
-                if (stock <= 0) return;
+                let isMadeToOrder = String($(this).data('stock-type')) === 'made_to_order';
+                if (!isMadeToOrder && stock <= 0) return;
                 if (cartInvIds.has(invId)) return;
                 let name      = $(this).data('name');
                 let unitPrice = parseFloat($(this).data('price'));
+                let isFlexible = parseInt($(this).data('flexible-price')) === 1;
                 let unit      = $(this).data('unit') || '';
                 let qty       = 1;
                 let itemSubtotal = unitPrice * qty;
                 let cartKey   = 'inv_' + invId;
 
                 cartInvIds.add(invId);
-                cartData.push({ cartKey, invId, name, qty, unitPrice, itemSubtotal, type: 'item' });
+                cartData.push({ cartKey, invId, name, qty, unitPrice, itemSubtotal, isFlexible, isMadeToOrder, type: 'item' });
                 $(this).addClass('in-cart');
                 $cartEmpty.hide();
 
@@ -3005,23 +3020,40 @@
                     <div class="cart-row rounded-3 px-3 py-2"
                          id="cart-${cartKey}"
                          data-unit-price="${unitPrice}"
+                         data-flexible-price="${isFlexible ? 1 : 0}"
+                         data-stock-type="${isMadeToOrder ? 'made_to_order' : 'stocked'}"
                          data-subtotal="${itemSubtotal}"
                          style="background:#f0fdf4;border:1.5px solid #bbf7d0">
                         <input type="hidden" name="items[${idx}][inventory_item_id]" value="${invId}">
                         <input type="hidden" name="items[${idx}][quantity]" value="${qty}" class="inv-qty-hidden">
+                        <input type="hidden" name="items[${idx}][unit_price]" value="${unitPrice.toFixed(2)}" class="inv-unit-price-hidden">
                         <input type="hidden" name="items[${idx}][paid_amount]" value="${itemSubtotal.toFixed(2)}" class="inv-paid-hidden">
                         <div class="cart-row-main" style="line-height:1.35">
                             <span class="cart-line-title">${name}</span>
                             ${unit ? '<span class="cart-line-subtitle">' + unit + '</span>' : ''}
                         </div>
                         <div class="cart-row-controls">
+                            <div class="cart-control-group cart-control-group--unit">
+                                <span class="cart-control-label">Unit</span>
+                                ${
+                                    isFlexible
+                                        ? `<div class="input-group input-group-sm">
+                                               <input type="number" class="cart-inv-unit-price form-control form-control-sm"
+                                                   value="${unitPrice.toFixed(2)}" min="0" step="0.01"
+                                                   style="border-color:#fde68a">
+                                           </div>`
+                                        : `<span class="mono fw-semibold" style="font-size:12px;color:#065f46">${unitPrice.toFixed(2)}</span>`
+                                }
+                            </div>
                             <div class="cart-control-group cart-control-group--qty">
                                 <div class="cart-qty-stepper">
                                     <button type="button" class="cart-qty-stepper-btn cart-qty-decrease" aria-label="Decrease quantity" ${qty <= 1 ? 'disabled' : ''}>−</button>
                                     <input type="number" inputmode="numeric" step="1" class="cart-inv-qty form-control form-control-sm cart-qty-stepper-input"
-                                        value="${qty}" min="1" max="${stock}"
-                                        data-max-stock="${stock}">
-                                    <button type="button" class="cart-qty-stepper-btn cart-qty-increase" aria-label="Increase quantity" ${qty >= stock ? 'disabled' : ''}>+</button>
+                                        value="${qty}" min="1"
+                                        ${isMadeToOrder ? '' : `max="${stock}"`}
+                                        data-max-stock="${isMadeToOrder ? '' : stock}"
+                                        data-unlimited-stock="${isMadeToOrder ? 1 : 0}">
+                                    <button type="button" class="cart-qty-stepper-btn cart-qty-increase" aria-label="Increase quantity" ${!isMadeToOrder && qty >= stock ? 'disabled' : ''}>+</button>
                                 </div>
                             </div>
                             <div class="cart-control-group cart-control-group--paid">
@@ -3069,20 +3101,52 @@
             /* ── Inventory item quantity change in cart ── */
             function syncInventoryRowQuantity($row, newQty) {
                 let $qtyInput = $row.find('.cart-inv-qty');
-                let maxStock = parseInt($qtyInput.data('max-stock')) || parseInt($qtyInput.attr('max')) || 1;
+                let unlimited = parseInt($qtyInput.data('unlimited-stock')) === 1;
+                let maxStock = unlimited ? Number.MAX_SAFE_INTEGER : (parseInt($qtyInput.data('max-stock')) || parseInt($qtyInput.attr('max')) || 1);
                 newQty = Math.max(1, Math.min(maxStock, parseInt(newQty) || 1));
 
-                let unitPrice = parseFloat($row.data('unit-price'));
+                let unitPrice = parseFloat($row.find('input[name^="items"][name$="[unit_price]"]').val()) || parseFloat($row.data('unit-price'));
                 let oldSubtotal = parseFloat($row.data('subtotal'));
                 let oldPaid = parseFloat($row.find('input[name^="items"][name$="[paid_amount]"]').val()) || 0;
                 let newSubtotal = unitPrice * newQty;
 
                 $qtyInput.val(newQty);
                 $row.find('.cart-qty-decrease').prop('disabled', newQty <= 1);
-                $row.find('.cart-qty-increase').prop('disabled', newQty >= maxStock);
+                $row.find('.cart-qty-increase').prop('disabled', !unlimited && newQty >= maxStock);
                 $row.data('subtotal', newSubtotal);
                 $row.find('.inv-subtotal-display').text(newSubtotal.toFixed(2));
                 $row.find('input[name^="items"][name$="[quantity]"]').val(newQty);
+                $row.find('input[name^="items"][name$="[unit_price]"]').val(unitPrice.toFixed(2));
+                $row.find('input[name^="items"][name$="[paid_amount]"]').attr('max', newSubtotal);
+
+                let currentPaid = newSubtotal;
+                if (oldSubtotal > 0) {
+                    currentPaid = roundTo2((oldPaid / oldSubtotal) * newSubtotal);
+                }
+                currentPaid = Math.max(0, Math.min(currentPaid, newSubtotal));
+
+                $row.find('.cart-inv-paid').val(currentPaid.toFixed(2));
+                $row.find('input[name^="items"][name$="[paid_amount]"]').val(currentPaid.toFixed(2));
+                updateUI();
+            }
+
+            function syncInventoryRowUnitPrice($row, newUnitPrice) {
+                let $unitPriceInput = $row.find('.cart-inv-unit-price');
+                let unlimited = parseInt($row.find('.cart-inv-qty').data('unlimited-stock')) === 1;
+                let maxStock = unlimited ? Number.MAX_SAFE_INTEGER : (parseInt($row.find('.cart-inv-qty').data('max-stock')) || 1);
+                newUnitPrice = Math.max(0, parseFloat(newUnitPrice) || 0);
+
+                let oldSubtotal = parseFloat($row.data('subtotal'));
+                let oldPaid = parseFloat($row.find('input[name^="items"][name$="[paid_amount]"]').val()) || 0;
+                let qty = parseInt($row.find('.cart-inv-qty').val()) || 1;
+                qty = Math.max(1, Math.min(maxStock, qty));
+                let newSubtotal = newUnitPrice * qty;
+
+                $unitPriceInput.val(newUnitPrice.toFixed(2));
+                $row.data('unit-price', newUnitPrice);
+                $row.data('subtotal', newSubtotal);
+                $row.find('.inv-subtotal-display').text(newSubtotal.toFixed(2));
+                $row.find('input[name^="items"][name$="[unit_price]"]').val(newUnitPrice.toFixed(2));
                 $row.find('input[name^="items"][name$="[paid_amount]"]').attr('max', newSubtotal);
 
                 let currentPaid = newSubtotal;
@@ -3111,6 +3175,11 @@
             $cartItemsEl.on('input', '.cart-inv-qty', function() {
                 let $row = $(this).closest('.cart-row');
                 syncInventoryRowQuantity($row, $(this).val());
+            });
+
+            $cartItemsEl.on('input', '.cart-inv-unit-price', function() {
+                let $row = $(this).closest('.cart-row');
+                syncInventoryRowUnitPrice($row, $(this).val());
             });
 
             $cartItemsEl.on('input', '.fee-paid-input', function() {

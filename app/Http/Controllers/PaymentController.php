@@ -193,7 +193,7 @@ class PaymentController extends Controller
                         $stockDelta = $qty - $oldQty;
                         if ($stockDelta !== 0) {
                             $inventoryItem = $si->inventoryItem()->lockForUpdate()->first();
-                            if ($inventoryItem) {
+                            if ($inventoryItem && !$inventoryItem->isMadeToOrder()) {
                                 if ($stockDelta > 0) {
                                     $inventoryItem->decrement('current_stock', $stockDelta);
                                 } else {
@@ -307,7 +307,7 @@ class PaymentController extends Controller
             $payment = $sale?->payment;
             $inventoryItem = $saleItem->inventoryItem;
 
-            if ($inventoryItem && $saleItem->quantity) {
+            if ($inventoryItem && !$inventoryItem->isMadeToOrder() && $saleItem->quantity) {
                 $inventoryItem->increment('current_stock', (int) $saleItem->quantity);
 
                 \App\Models\StockMovement::create([

@@ -658,6 +658,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::middleware('permission:manage_student_subjects')->prefix('student-subjects')->name('student-subjects.')->group(function () {
         Route::get('/', [\App\Http\Controllers\StudentSubjectController::class, 'index'])->name('index');
+        Route::get('/ajax/exams-by-session', [\App\Http\Controllers\StudentSubjectController::class, 'getExamsBySession'])->name('ajax.exams-by-session');
         Route::get('/{student}/assign', [\App\Http\Controllers\StudentSubjectController::class, 'assign'])->name('assign');
         Route::post('/{student}/save', [\App\Http\Controllers\StudentSubjectController::class, 'saveAssignment'])->name('save');
         Route::post('/bulk-assign', [\App\Http\Controllers\StudentSubjectController::class, 'bulkAssign'])->name('bulk-assign');

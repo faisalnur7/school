@@ -362,7 +362,7 @@ class FeeCollectionController extends Controller
                               ->where('school_class_id', $studentClassId);
                       });
               })
-              ->orderByRaw('CASE WHEN current_stock > 0 THEN 0 ELSE 1 END, name ASC');
+              ->orderByRaw("CASE WHEN stock_type = 'made_to_order' THEN 0 WHEN current_stock > 0 THEN 1 ELSE 2 END, name ASC");
         }])->where('is_active', true)->get()
           ->filter(fn($cat) => $cat->items->isNotEmpty())
           ->values();
@@ -423,6 +423,7 @@ class FeeCollectionController extends Controller
             'items'          => 'nullable|array',
             'items.*.inventory_item_id' => 'required_with:items|exists:inventory_items,id',
             'items.*.quantity'          => 'required_with:items|integer|min:1',
+            'items.*.unit_price'        => 'nullable|numeric|min:0',
             'items.*.paid_amount'       => 'nullable|numeric|min:0',
             'inventory_dues'            => 'nullable|array',
             'inventory_dues.*.inventory_sale_item_id' => 'required_with:inventory_dues|exists:inventory_sale_items,id',
@@ -478,7 +479,12 @@ class FeeCollectionController extends Controller
             // Validate stock before any writes
             foreach ($requestedItems as $ri) {
                 $invItem = $inventoryItems->get($ri['inventory_item_id']);
-                if (!$invItem || $invItem->current_stock < $ri['quantity']) {
+                if (!$invItem) {
+                    DB::rollBack();
+                    return response()->json(['message' => 'Invalid inventory item selected'], 422);
+                }
+
+                if (!$invItem->isMadeToOrder() && $invItem->current_stock < $ri['quantity']) {
                     DB::rollBack();
                     return response()->json(['message' => 'Insufficient stock for: ' . ($invItem->name ?? 'item')], 422);
                 }
@@ -592,21 +598,30 @@ class FeeCollectionController extends Controller
             $inventoryPaidTotal   = 0.0;
             $inventoryGrossTotal  = 0.0;
             $inventoryPaidAmounts = [];
+            $resolvedInventoryItems = [];
 
             foreach ($requestedItems as $ri) {
                 $invItem = $inventoryItems->get($ri['inventory_item_id']);
                 $qty     = (int) $ri['quantity'];
-                $subtotal = round((float) $invItem->selling_price * $qty, 2);
-                $inventoryGrossTotal += $subtotal;
-                $inventorySaleTotal += $subtotal;
-                $inventoryPaidAmounts[(int) $ri['inventory_item_id']] = isset($ri['paid_amount'])
+                $unitPrice = $invItem->is_flexible_price
+                    ? round((float) ($ri['unit_price'] ?? $invItem->selling_price), 2)
+                    : round((float) $invItem->selling_price, 2);
+                $subtotal = round($unitPrice * $qty, 2);
+                $paidAmount = isset($ri['paid_amount'])
                     ? max(0, (float) $ri['paid_amount'])
                     : $subtotal;
 
-                $inventoryPaidAmounts[(int) $ri['inventory_item_id']] = min(
-                    $inventoryPaidAmounts[(int) $ri['inventory_item_id']],
-                    $subtotal
-                );
+                $resolvedInventoryItems[] = [
+                    'item' => $invItem,
+                    'qty' => $qty,
+                    'unit_price' => $unitPrice,
+                    'subtotal' => $subtotal,
+                    'paid_amount' => $paidAmount,
+                ];
+
+                $inventoryGrossTotal += $subtotal;
+                $inventorySaleTotal += $subtotal;
+                $inventoryPaidAmounts[(int) $ri['inventory_item_id']] = min($paidAmount, $subtotal);
                 $inventoryPaidTotal += $inventoryPaidAmounts[(int) $ri['inventory_item_id']];
             }
 
@@ -819,12 +834,12 @@ class FeeCollectionController extends Controller
                     'created_by'   => auth()->id(),
                 ]);
 
-                foreach ($requestedItems as $ri) {
-                    $invItem = $inventoryItems->get($ri['inventory_item_id']);
-                    $qty     = (int) $ri['quantity'];
-                    $price   = (float) $invItem->selling_price;
-                    $subtotal = round($price * $qty, 2);
-                    $paidAmount = (float) ($inventoryPaidAmounts[(int) $invItem->id] ?? $subtotal);
+                foreach ($resolvedInventoryItems as $line) {
+                    $invItem = $line['item'];
+                    $qty     = $line['qty'];
+                    $price   = $line['unit_price'];
+                    $subtotal = $line['subtotal'];
+                    $paidAmount = (float) $line['paid_amount'];
 
                     InventorySaleItem::create([
                         'inventory_sale_id'  => $sale->id,
@@ -835,16 +850,18 @@ class FeeCollectionController extends Controller
                         'paid_amount'        => min($subtotal, max(0, $paidAmount)),
                     ]);
 
-                    $invItem->decrement('current_stock', $qty);
+                    if (!$invItem->isMadeToOrder()) {
+                        $invItem->decrement('current_stock', $qty);
 
-                    StockMovement::create([
-                        'inventory_item_id' => $invItem->id,
-                        'type'              => 'sale',
-                        'quantity_change'   => -$qty,
-                        'unit_price'        => $price,
-                        'created_by'        => auth()->id(),
-                        'note'              => 'Sale via payment ' . $payment->receipt_no,
-                    ]);
+                        StockMovement::create([
+                            'inventory_item_id' => $invItem->id,
+                            'type'              => 'sale',
+                            'quantity_change'   => -$qty,
+                            'unit_price'        => $price,
+                            'created_by'        => auth()->id(),
+                            'note'              => 'Sale via payment ' . $payment->receipt_no,
+                        ]);
+                    }
                 }
 
                 $payment->inventory_sale_id = $sale->id;

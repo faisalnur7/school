@@ -101,9 +101,19 @@
                                  <td>{{ $item->name }}</td>
                                  <td>{{ $item->unit }}</td>
                                  <td>{{ number_format((float)$item->purchase_price, 2) }}</td>
-                                 <td>{{ number_format((float)$item->selling_price, 2) }}</td>
                                  <td>
-                                     @if($item->minimum_stock_alert > 0 && $item->current_stock < $item->minimum_stock_alert)
+                                     <div>{{ number_format((float)$item->selling_price, 2) }}</div>
+                                     @if($item->is_flexible_price)
+                                         <span class="badge badge-warning">Flexible</span>
+                                     @else
+                                         <span class="badge badge-light">Fixed</span>
+                                     @endif
+                                 </td>
+                                 <td>
+                                     @if($item->stock_type === 'made_to_order')
+                                         <span class="badge badge-warning">Made to order</span>
+                                         <div class="text-muted small mt-1">N/A</div>
+                                     @elseif($item->minimum_stock_alert > 0 && $item->current_stock < $item->minimum_stock_alert)
                                          <span class="badge badge-danger">{{ $item->current_stock }}</span>
                                      @else
                                          <span class="badge badge-info">{{ $item->current_stock }}</span>

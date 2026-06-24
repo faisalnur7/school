@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicSession;
+use App\Models\Exam;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\StudentAcademicInformation;
 use App\Models\StudentSubject;
 use App\Models\SubjectClassAssignment;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -21,35 +23,86 @@ class StudentSubjectController extends Controller
     {
         $classes  = SchoolClass::where('status', 1)->orderBy('id')->get();
         $sessions = AcademicSession::orderByDesc('id')->get();
+        $studentCid = trim((string) $request->input('student_cid', ''));
+        $selectedSessionId = $request->input('session_id');
+        $selectedClass = $request->filled('class_id') ? SchoolClass::find($request->class_id) : null;
+        $selectedSectionId = $request->input('section_id');
+        $selectedExam = $request->filled('exam_id') ? Exam::with('examSubjects')->find($request->exam_id) : null;
+
+        if (!$selectedSessionId && $selectedExam) {
+            $selectedSessionId = $selectedExam->academic_session_id;
+        }
+
+        if ($selectedSessionId && $selectedExam && (int) $selectedExam->academic_session_id !== (int) $selectedSessionId) {
+            $selectedExam = null;
+        }
+
+        $exams = $selectedSessionId
+            ? Exam::where('academic_session_id', $selectedSessionId)->orderByDesc('id')->get()
+            : collect();
 
         $students = collect();
-        $selectedClass   = null;
-        $selectedSection = null;
         $sections        = collect();
 
         if ($request->filled('class_id')) {
-            $selectedClass = SchoolClass::find($request->class_id);
             $sections      = Section::where('school_class_id', $request->class_id)->get();
+        }
 
-            $query = Student::where('status', 1)
-                ->whereHas('academicInformations', function ($q) use ($request) {
-                    $q->where('school_class_id', $request->class_id);
-                    if ($request->filled('section_id')) {
-                        $q->where('section_id', $request->section_id);
-                    }
-                    if ($request->filled('session_id')) {
-                        $q->where('academic_session_id', $request->session_id);
-                    }
-                })
-                ->with(['academicInformations' => fn($q) => $q->where('school_class_id', $request->class_id)
-                    ->with(['section', 'group'])]);
+        $query = Student::where('status', 1)
+            ->when($studentCid !== '', fn ($q) => $q->where('student_cid', 'like', "%{$studentCid}%"))
+            ->whereHas('academicInformations', function ($q) use ($request, $selectedSessionId) {
+                $q->when($request->filled('class_id'), fn ($query) => $query->where('school_class_id', $request->class_id))
+                    ->when($request->filled('section_id'), fn ($query) => $query->where('section_id', $request->section_id))
+                    ->when($selectedSessionId, fn ($query) => $query->where('academic_session_id', $selectedSessionId));
+            })
+            ->with(['academicInformations' => function ($q) use ($request, $selectedSessionId) {
+                $q->when($request->filled('class_id'), fn ($query) => $query->where('school_class_id', $request->class_id))
+                    ->when($request->filled('section_id'), fn ($query) => $query->where('section_id', $request->section_id))
+                    ->when($selectedSessionId, fn ($query) => $query->where('academic_session_id', $selectedSessionId))
+                    ->with(['section', 'group']);
+            }]);
 
+        if ($selectedExam) {
+            $examSubjectIds = $selectedExam->examSubjects->pluck('subject_id')->all();
+
+            if (!empty($examSubjectIds)) {
+                $query->whereHas('studentSubjects', function ($subjectQuery) use ($selectedSessionId, $examSubjectIds) {
+                    $subjectQuery->when($selectedSessionId, fn ($q) => $q->where('academic_session_id', $selectedSessionId))
+                        ->whereIn('subject_id', $examSubjectIds);
+                });
+            }
+        }
+
+        if ($request->filled('class_id') || $studentCid !== '') {
             $students = $query->orderBy('full_name_en')->paginate(30)->withQueryString();
         }
 
         return view('pages.student-subjects.index', compact(
-            'classes', 'sessions', 'sections', 'students', 'selectedClass'
+            'classes', 'sessions', 'sections', 'students', 'selectedClass', 'selectedSectionId', 'selectedSessionId', 'selectedExam', 'exams', 'studentCid'
         ));
+    }
+
+    public function getExamsBySession(Request $request): JsonResponse
+    {
+        $sessionId = $request->query('session_id');
+
+        if (!$sessionId) {
+            return response()->json(['exams' => []]);
+        }
+
+        $exams = Exam::query()
+            ->where('academic_session_id', $sessionId)
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn (Exam $exam) => [
+                'id' => $exam->id,
+                'name' => $exam->name,
+                'type' => $exam->type,
+                'type_label' => $exam->type_label,
+            ])
+            ->values();
+
+        return response()->json(['exams' => $exams]);
     }
 
     /**

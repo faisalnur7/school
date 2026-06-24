@@ -92,6 +92,35 @@
                     </div>
                 </div>
 
+                <div class="row mb-2">
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input type="checkbox" name="is_flexible_price" value="1" class="form-check-input" id="isFlexiblePrice" {{ old('is_flexible_price') ? 'checked' : '' }}>
+                            <label class="form-check-label font-weight-600" for="isFlexiblePrice">Flexible price</label>
+                        </div>
+                        <small class="text-muted d-block mt-1">Allow the final unit price to be adjusted during Collect Payment for student-specific cases.</small>
+                        @error('is_flexible_price')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4">
+                        <label class="form-label small font-weight-600 mb-1">Stock Type</label>
+                        <select name="stock_type" class="form-control form-control-sm @error('stock_type') is-invalid @enderror">
+                            <option value="stocked" {{ old('stock_type', 'stocked') === 'stocked' ? 'selected' : '' }}>Stocked</option>
+                            <option value="made_to_order" {{ old('stock_type') === 'made_to_order' ? 'selected' : '' }}>Made to order</option>
+                        </select>
+                        @error('stock_type')<small class="text-danger">{{ $message }}</small>@enderror
+                    </div>
+                    <div class="col-md-8">
+                        <div class="alert alert-light border mb-0 py-2 px-3">
+                            <small class="text-muted">
+                                Use <strong>Made to order</strong> for uniforms and similar items that are produced after customer order. These can be sold without stock.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Row 3: Min Stock Alert | Status | Description -->
                 <div class="row mb-2">
                     <div class="col-md-4">

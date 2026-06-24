@@ -66,7 +66,7 @@ class AdmitSeatCardController extends Controller
             : collect();
 
         $groups = Group::orderBy('name_en')->get();
-        $examsQuery = Exam::orderByDesc('id');
+        $examsQuery = Exam::query()->orderByDesc('id');
 
         if ($request->filled('exam_type')) {
             $examsQuery->where('type', $request->exam_type);
