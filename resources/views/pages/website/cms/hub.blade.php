@@ -2,6 +2,55 @@
 @section('title', 'Website Management')
 @section('contents')
 <div class="col-12">
+    @php
+        $systemPageCards = collect($systemPageDefinitions)->map(function ($card, $type) use ($systemPages) {
+            $systemPage = $systemPages[$type] ?? null;
+            $status = $systemPage ? ucfirst($systemPage->status) : 'Not set up';
+
+            return [
+                'route' => 'website.cms.page.edit',
+                'params' => [$type],
+                'icon' => $card['icon'],
+                'title' => $card['label'],
+                'subtitle' => $status,
+                'badge' => $status,
+                'from' => match ($type) {
+                    'home' => '#0891b2',
+                    'about' => '#7c3aed',
+                    'academics' => '#4f46e5',
+                    'admission' => '#059669',
+                    'notices' => '#d97706',
+                    'news-events' => '#dc2626',
+                    'calendar' => '#0f766e',
+                    'results' => '#0f766e',
+                    'gallery' => '#2563eb',
+                    'teachers-staff' => '#475569',
+                    'contact' => '#059669',
+                    'downloads' => '#1f2937',
+                    'facilities' => '#0ea5e9',
+                    'policies' => '#b45309',
+                    default => '#64748b',
+                },
+                'to' => match ($type) {
+                    'home' => '#0e7490',
+                    'about' => '#6d28d9',
+                    'academics' => '#3730a3',
+                    'admission' => '#047857',
+                    'notices' => '#b45309',
+                    'news-events' => '#b91c1c',
+                    'calendar' => '#0d9488',
+                    'results' => '#115e59',
+                    'gallery' => '#1d4ed8',
+                    'teachers-staff' => '#334155',
+                    'contact' => '#047857',
+                    'downloads' => '#111827',
+                    'facilities' => '#0284c7',
+                    'policies' => '#92400e',
+                    default => '#475569',
+                },
+            ];
+        })->values();
+    @endphp
 
     {{-- Hero --}}
     <div class="bg-gradient-to-br from-slate-800 to-slate-600 rounded-2xl p-8 mb-6 flex items-center gap-5">
@@ -16,61 +65,7 @@
     <div class="card card-outline card-primary mb-4">
         <div class="card-header"><h3 class="card-title font-bold">System Pages</h3></div>
         <div class="card-body">
-            <div class="hub-grid">
-                @foreach($systemPageDefinitions as $type => $card)
-                <a href="{{ route('website.cms.page.edit', $type) }}" class="group no-underline">
-                    <div class="hub-card rounded-2xl overflow-hidden shadow-md transition-all duration-200 group-hover:-translate-y-2 group-hover:shadow-xl bg-white h-full">
-                        <div class="flex items-center justify-center py-6 relative"
-                             style="background: linear-gradient(135deg, {{ match($type) {
-                                 'home' => '#0891b2',
-                                 'about' => '#7c3aed',
-                                 'academics' => '#4f46e5',
-                                 'admission' => '#059669',
-                                 'notices' => '#d97706',
-                                 'news-events' => '#dc2626',
-                                 'calendar' => '#0f766e',
-                                 'results' => '#0f766e',
-                                 'gallery' => '#2563eb',
-                                 'teachers-staff' => '#475569',
-                                 'contact' => '#059669',
-                                 'downloads' => '#1f2937',
-                                 'facilities' => '#0ea5e9',
-                                 'policies' => '#b45309',
-                                 default => '#64748b',
-                             } }}, {{ match($type) {
-                                 'home' => '#0e7490',
-                                 'about' => '#6d28d9',
-                                 'academics' => '#3730a3',
-                                 'admission' => '#047857',
-                                 'notices' => '#b45309',
-                                 'news-events' => '#b91c1c',
-                                 'calendar' => '#0d9488',
-                                 'results' => '#115e59',
-                                 'gallery' => '#1d4ed8',
-                                 'teachers-staff' => '#334155',
-                                 'contact' => '#047857',
-                                 'downloads' => '#111827',
-                                 'facilities' => '#0284c7',
-                                 'policies' => '#92400e',
-                                 default => '#475569',
-                             } }});">
-                            <i class="fas {{ $card['icon'] }} text-3xl text-white"></i>
-                            @if(isset($systemPages[$type]) && $systemPages[$type]->status === 'published')
-                                <span class="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-green-400 border-2 border-white"></span>
-                            @else
-                                <span class="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-slate-300 border-2 border-white"></span>
-                            @endif
-                        </div>
-                        <div class="px-3 py-3 text-center">
-                            <p class="text-slate-800 font-bold text-sm mb-0">{{ $card['label'] }}</p>
-                            <p class="text-slate-400 text-xs mt-0.5 mb-0">
-                                {{ isset($systemPages[$type]) ? ucfirst($systemPages[$type]->status) : 'Not set up' }}
-                            </p>
-                        </div>
-                    </div>
-                </a>
-                @endforeach
-            </div>
+            <x-hub-card-browser :cards="$systemPageCards" storage-key="website-cms-system-pages" default-view="medium" />
         </div>
     </div>
 
