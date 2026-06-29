@@ -32,7 +32,7 @@ class AdmitSeatCardController extends Controller
             return redirect()->route('results.admit-seat-cards.index')->with('error', 'No data to export.');
         }
 
-        $html = view('pages.admit-seat-cards.pdf', compact('students', 'setting', 'cardType', 'examType', 'selectedExam', 'layout'))->render();
+        $html = view('pages.admit-seat-cards.pdf', compact('students', 'setting', 'cardType', 'cardSettings', 'examType', 'selectedExam', 'layout'))->render();
         $filename = $cardType === 'seat_card' ? 'seat-cards.pdf' : 'admit-cards.pdf';
 
         $mpdf = new Mpdf([
@@ -64,7 +64,9 @@ class AdmitSeatCardController extends Controller
             ->whereIn('card_type', [1, 2])
             ->get()
             ->keyBy('card_type');
-        $cardSettings = $cardSettingsMap->get($cardTypeId) ?? AdmitSeatCardSetting::current($cardTypeId);
+        $cardSettingsMap->put(1, $this->applyCardDefaults($cardSettingsMap->get(1)));
+        $cardSettingsMap->put(2, $this->applyCardDefaults($cardSettingsMap->get(2)));
+        $cardSettings = $cardSettingsMap->get($cardTypeId) ?? $this->applyCardDefaults(AdmitSeatCardSetting::current($cardTypeId));
         $layout = $this->buildLayout($cardSettings);
 
         $sections = $request->filled('class_id')
@@ -149,9 +151,22 @@ class AdmitSeatCardController extends Controller
             'card_height_value' => ['required', 'numeric', 'min:0.1'],
             'grid_gap_value' => ['required', 'numeric', 'min:0.1'],
             'card_dimension_unit' => ['required', 'in:cm,px'],
+            'card_is_transparent' => ['nullable', 'boolean'],
+            'card_color_type' => ['required', 'in:gradient,solid'],
+            'card_color_gradient_1' => ['nullable', 'string', 'max:20'],
+            'card_color_gradient_2' => ['nullable', 'string', 'max:20'],
+            'card_solid_color' => ['nullable', 'string', 'max:20'],
+            'card_school_name_text_color' => ['nullable', 'string', 'max:20'],
+            'card_school_detail_text_color' => ['nullable', 'string', 'max:20'],
+            'card_title_text_color' => ['nullable', 'string', 'max:20'],
+            'card_exam_type_text_color' => ['nullable', 'string', 'max:20'],
+            'card_exam_name_text_color' => ['nullable', 'string', 'max:20'],
+            'card_logo' => ['nullable', 'image', 'max:100'],
         ]);
 
-        AdmitSeatCardSetting::current($cardTypeId)->fill([
+        $isTransparent = $request->boolean('card_is_transparent');
+
+        $payload = [
             'card_type' => $cardTypeId,
             'cards_per_page' => $validated['cards_per_page'],
             'cards_per_row' => $validated['cards_per_row'],
@@ -159,7 +174,32 @@ class AdmitSeatCardController extends Controller
             'card_height_value' => $validated['card_height_value'],
             'grid_gap_value' => $validated['grid_gap_value'],
             'card_dimension_unit' => $validated['card_dimension_unit'],
-        ])->save();
+            'card_is_transparent' => $isTransparent,
+            'card_color_type' => $validated['card_color_type'],
+            'card_color_gradient_1' => $validated['card_color_gradient_1'] ?: '#1e3a5f',
+            'card_color_gradient_2' => $validated['card_color_gradient_2'] ?: '#2563eb',
+            'card_solid_color' => $validated['card_solid_color'] ?: '#1e3a5f',
+            'card_school_name_text_color' => data_get($validated, 'card_school_name_text_color') ?: ($isTransparent ? '#111827' : '#ffffff'),
+            'card_school_detail_text_color' => data_get($validated, 'card_school_detail_text_color') ?: ($isTransparent ? '#334155' : '#e5e7eb'),
+            'card_title_text_color' => data_get($validated, 'card_title_text_color') ?: ($isTransparent ? '#111827' : '#ffffff'),
+            'card_exam_type_text_color' => data_get($validated, 'card_exam_type_text_color') ?: ($isTransparent ? '#111827' : '#ffffff'),
+            'card_exam_name_text_color' => data_get($validated, 'card_exam_name_text_color') ?: ($isTransparent ? '#334155' : '#e5e7eb'),
+        ];
+
+        if ($request->hasFile('card_logo')) {
+            $image = $request->file('card_logo');
+            $directory = public_path('uploads/card_settings');
+
+            if (!is_dir($directory)) {
+                mkdir($directory, 0755, true);
+            }
+
+            $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->move($directory, $filename);
+            $payload['card_logo'] = 'uploads/card_settings/' . $filename;
+        }
+
+        AdmitSeatCardSetting::current($cardTypeId)->fill($payload)->save();
 
         return back()->with('success', 'Card settings saved.');
     }
@@ -250,5 +290,23 @@ class AdmitSeatCardController extends Controller
         return $unit === 'px'
             ? ($value / 96) * 25.4
             : $value * 10;
+    }
+
+    private function applyCardDefaults(?AdmitSeatCardSetting $settings): AdmitSeatCardSetting
+    {
+        $settings ??= new AdmitSeatCardSetting();
+
+        return $settings->fill([
+            'card_is_transparent' => $settings->card_is_transparent ?? false,
+            'card_color_type' => $settings->card_color_type ?? 'gradient',
+            'card_color_gradient_1' => $settings->card_color_gradient_1 ?? '#1e3a5f',
+            'card_color_gradient_2' => $settings->card_color_gradient_2 ?? '#2563eb',
+            'card_solid_color' => $settings->card_solid_color ?? '#1e3a5f',
+            'card_school_name_text_color' => $settings->card_school_name_text_color ?? '#ffffff',
+            'card_school_detail_text_color' => $settings->card_school_detail_text_color ?? '#e5e7eb',
+            'card_title_text_color' => $settings->card_title_text_color ?? '#ffffff',
+            'card_exam_type_text_color' => $settings->card_exam_type_text_color ?? '#ffffff',
+            'card_exam_name_text_color' => $settings->card_exam_name_text_color ?? '#e5e7eb',
+        ]);
     }
 }

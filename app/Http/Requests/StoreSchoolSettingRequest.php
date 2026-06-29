@@ -27,7 +27,6 @@ class StoreSchoolSettingRequest extends FormRequest
             'contact_number_2' => 'nullable|string|max:20',
             'primary_color'    => 'nullable|string|max:20',
             'secondary_color'  => 'nullable|string|max:20',
-            'id_card_color'    => 'nullable|string|max:20',
             'principal_designation' => 'nullable|string|max:255',
             'principal_name'        => 'nullable|string|max:255',
             'principal_school_name'  => 'nullable|string|max:255',

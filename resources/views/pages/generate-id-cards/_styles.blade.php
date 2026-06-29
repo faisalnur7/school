@@ -1,8 +1,3 @@
-@php
-    $idColor = $setting?->id_card_color ?? '#1e3a5f';
-    $secondary = $setting?->secondary_color ?? '#2563eb';
-@endphp
-
 @page {
     size: A4 landscape;
     margin: 10mm 8mm 8mm 8mm;
@@ -60,7 +55,6 @@
 }
 
 .id-card__header {
-    color: #fff;
     padding: 2.2mm 2.2mm 1.8mm;
     display: flex;
     align-items: center;
@@ -68,7 +62,7 @@
 }
 
 .id-card__header--front {
-    background: linear-gradient(135deg, {{ $idColor }}, {{ $secondary }});
+    background: var(--card-theme-bg, linear-gradient(135deg, #1e3a5f, #2563eb));
     flex-direction: column;
     text-align: center;
     justify-content: center;
@@ -76,7 +70,7 @@
 }
 
 .id-card__header--back {
-    background: #222;
+    background: var(--card-theme-bg, linear-gradient(135deg, #1e3a5f, #2563eb));
     justify-content: center;
     min-height: 13mm;
     flex-direction: column;
@@ -95,6 +89,7 @@
     line-height: 1.08;
     text-transform: uppercase;
     letter-spacing: 0.03em;
+    color: var(--id-card-school-name-color, #ffffff);
 }
 
 .id-card__slogan {
@@ -102,6 +97,7 @@
     opacity: 0.85;
     line-height: 1.05;
     margin-top: 0.3mm;
+    color: var(--id-card-school-detail-color, #e5e7eb);
 }
 
 .id-card__label-badge {
@@ -109,12 +105,13 @@
     margin-top: 1mm;
     padding: 0.6mm 2mm;
     border-radius: 10mm;
-    border: 0.25mm solid rgba(255,255,255,0.45);
+    border: 0.25mm solid var(--id-card-title-color, rgba(255,255,255,0.45));
     background: rgba(255,255,255,0.16);
     font-size: 4.7pt;
     font-weight: 700;
     letter-spacing: 0.08em;
     white-space: nowrap;
+    color: var(--id-card-title-color, #ffffff);
 }
 
 .id-card__front-body {
@@ -143,7 +140,7 @@
     text-align: center;
     font-size: 7.2pt;
     font-weight: 800;
-    color: {{ $idColor }};
+    color: var(--card-theme-accent, #1e3a5f);
     line-height: 1.15;
     word-break: break-word;
 }
@@ -151,7 +148,7 @@
 .id-card__name-bn {
     text-align: center;
     font-size: 5.4pt;
-    color: #475569;
+    color: var(--id-card-school-detail-color, #475569);
     line-height: 1.12;
     margin-top: 0.3mm;
     word-break: break-word;
@@ -161,7 +158,7 @@
     height: 0.45mm;
     margin: 1.4mm 0 1.6mm;
     border-radius: 1mm;
-    background: linear-gradient(90deg, {{ $idColor }}, transparent);
+    background: linear-gradient(90deg, var(--card-theme-accent, #1e3a5f), transparent);
 }
 
 .id-card__rows {
@@ -184,14 +181,14 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #94a3b8;
+    color: var(--id-card-school-detail-color, #94a3b8);
     flex-shrink: 0;
 }
 
 .id-card__val {
     font-size: 4.6pt;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--id-card-school-detail-color, #1e293b);
     word-break: break-word;
 }
 
@@ -204,12 +201,17 @@
     padding: 1.3mm 1.8mm;
     font-size: 4.4pt;
     line-height: 1.05;
-    color: rgba(255,255,255,0.88);
+    color: var(--id-card-school-detail-color, rgba(255,255,255,0.88));
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     gap: 1.5mm;
     text-align: center;
+}
+
+.id-card__footer--front,
+.id-card__footer--back {
+    background: var(--card-theme-bg, linear-gradient(135deg, #1e3a5f, #2563eb));
 }
 
 .id-card__back-body {
@@ -231,8 +233,8 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #222;
-    border-bottom: 0.25mm solid #cbd5e1;
+    color: var(--id-card-title-color, var(--card-theme-accent, #1e3a5f));
+    border-bottom: 0.25mm solid var(--id-card-title-color, var(--card-theme-accent, #1e3a5f));
     padding-bottom: 0.8mm;
 }
 

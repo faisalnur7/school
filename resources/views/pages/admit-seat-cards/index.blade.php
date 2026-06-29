@@ -140,6 +140,7 @@
         @include('pages.admit-seat-cards._cards', [
             'students' => $students,
             'setting' => $setting,
+            'cardSettings' => $cardSettings ?? null,
             'renderForPdf' => false,
             'cardType' => $cardType ?? 'admit_card',
             'examType' => $examType ?? null,
@@ -152,7 +153,7 @@
 <div class="modal fade" id="cardSettingsModal" tabindex="-1" role="dialog" aria-labelledby="cardSettingsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered card-settings-modal-dialog" role="document">
         <div class="modal-content card-settings-modal-content">
-            <form method="POST" action="{{ route('results.admit-seat-cards.settings') }}">
+            <form method="POST" action="{{ route('results.admit-seat-cards.settings') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header card-settings-modal-header">
                     <div>
@@ -166,6 +167,19 @@
                 </div>
                 <div class="modal-body card-settings-modal-body">
                     <input type="hidden" name="card_type" value="{{ old('card_type', $cardType ?? 'admit_card') }}">
+                    @php
+                        $selectedColorType = old('card_color_type', $cardSettings?->card_color_type ?? 'gradient');
+                        $selectedTransparent = old('card_is_transparent', $cardSettings?->card_is_transparent ?? false);
+                        $resolveLogoUrl = function (?string $path) {
+                            if (!$path) {
+                                return null;
+                            }
+
+                            return file_exists(public_path($path)) ? asset($path) : null;
+                        };
+                        $schoolLogoUrl = $resolveLogoUrl($setting?->logo ?? null);
+                        $currentCardLogoUrl = $resolveLogoUrl($cardSettings?->card_logo ?? null) ?: $schoolLogoUrl;
+                    @endphp
                     <div class="row">
                         <div class="col-12 col-md-4 mb-3">
                             <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
@@ -236,6 +250,159 @@
                                     value="{{ old('grid_gap_value', $cardSettings?->grid_gap_value ?? 0.85) }}">
                             </div>
                         </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Card Logo</label>
+                                <input type="file" name="card_logo" id="admitSeatCardLogoInput" class="form-control form-control-sm admit-seat-cards-filter-control" accept="image/*">
+                                <small class="text-muted d-block mt-2">Leave blank to use the school logo.</small>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Logo Preview</label>
+                                <div class="d-flex align-items-center" style="gap:10px">
+                                    <img
+                                        id="admitSeatCardLogoPreview"
+                                        src="{{ $currentCardLogoUrl ?: '' }}"
+                                        alt="Card logo preview"
+                                        class="rounded"
+                                        style="width:52px;height:52px;object-fit:contain;border:1px solid #dbe4ee;background:#fff;padding:4px;">
+                                    <span class="text-muted small">Current logo used by this card type.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Transparent</label>
+                                <select name="card_is_transparent" id="admitSeatCardIsTransparent" class="form-control form-control-sm admit-seat-cards-filter-control">
+                                    <option value="0" {{ !$selectedTransparent ? 'selected' : '' }}>No</option>
+                                    <option value="1" {{ $selectedTransparent ? 'selected' : '' }}>Yes</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">School Name Color</label>
+                                <div class="d-flex align-items-center" style="gap:10px">
+                                    <input type="color" name="card_school_name_text_color" id="admitSeatSchoolNameColor"
+                                        class="form-control form-control-color p-1"
+                                        style="width:48px;height:38px;cursor:pointer"
+                                        value="{{ old('card_school_name_text_color', $cardSettings?->card_school_name_text_color ?? '#ffffff') }}">
+                                    <div id="admitSeatSchoolNameColorPreview" class="rounded"
+                                        style="width:32px;height:32px;border:1px solid #ddd;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">School Details Color</label>
+                                <div class="d-flex align-items-center" style="gap:10px">
+                                    <input type="color" name="card_school_detail_text_color" id="admitSeatSchoolDetailColor"
+                                        class="form-control form-control-color p-1"
+                                        style="width:48px;height:38px;cursor:pointer"
+                                        value="{{ old('card_school_detail_text_color', $cardSettings?->card_school_detail_text_color ?? '#e5e7eb') }}">
+                                    <div id="admitSeatSchoolDetailColorPreview" class="rounded"
+                                        style="width:32px;height:32px;border:1px solid #ddd;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Card Title Color</label>
+                                <div class="d-flex align-items-center" style="gap:10px">
+                                    <input type="color" name="card_title_text_color" id="admitSeatTitleColor"
+                                        class="form-control form-control-color p-1"
+                                        style="width:48px;height:38px;cursor:pointer"
+                                        value="{{ old('card_title_text_color', $cardSettings?->card_title_text_color ?? '#ffffff') }}">
+                                    <div id="admitSeatTitleColorPreview" class="rounded"
+                                        style="width:32px;height:32px;border:1px solid #ddd;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Exam Type Color</label>
+                                <div class="d-flex align-items-center" style="gap:10px">
+                                    <input type="color" name="card_exam_type_text_color" id="admitSeatExamTypeColor"
+                                        class="form-control form-control-color p-1"
+                                        style="width:48px;height:38px;cursor:pointer"
+                                        value="{{ old('card_exam_type_text_color', $cardSettings?->card_exam_type_text_color ?? '#ffffff') }}">
+                                    <div id="admitSeatExamTypeColorPreview" class="rounded"
+                                        style="width:32px;height:32px;border:1px solid #ddd;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Exam Name Color</label>
+                                <div class="d-flex align-items-center" style="gap:10px">
+                                    <input type="color" name="card_exam_name_text_color" id="admitSeatExamNameColor"
+                                        class="form-control form-control-color p-1"
+                                        style="width:48px;height:38px;cursor:pointer"
+                                        value="{{ old('card_exam_name_text_color', $cardSettings?->card_exam_name_text_color ?? '#e5e7eb') }}">
+                                    <div id="admitSeatExamNameColorPreview" class="rounded"
+                                        style="width:32px;height:32px;border:1px solid #ddd;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2 admit-seat-theme-color-fields">
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Color Type</label>
+                                <select name="card_color_type" id="admitSeatCardColorType" class="form-control form-control-sm admit-seat-cards-filter-control">
+                                    <option value="gradient" {{ $selectedColorType === 'gradient' ? 'selected' : '' }}>Gradient</option>
+                                    <option value="solid" {{ $selectedColorType === 'solid' ? 'selected' : '' }}>Solid</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3 admit-seat-card-gradient-field {{ $selectedColorType === 'solid' ? 'd-none' : '' }}">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Gradient Color 1</label>
+                                <div class="d-flex align-items-center" style="gap:10px">
+                                    <input type="color" name="card_color_gradient_1" id="admitSeatCardColorGradient1"
+                                        class="form-control form-control-color p-1"
+                                        style="width:48px;height:38px;cursor:pointer"
+                                        value="{{ old('card_color_gradient_1', $cardSettings?->card_color_gradient_1 ?? '#1e3a5f') }}">
+                                    <div id="admitSeatCardColorGradient1Preview" class="rounded"
+                                        style="width:32px;height:32px;border:1px solid #ddd;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3 admit-seat-card-gradient-field {{ $selectedColorType === 'solid' ? 'd-none' : '' }}">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Gradient Color 2</label>
+                                <div class="d-flex align-items-center" style="gap:10px">
+                                    <input type="color" name="card_color_gradient_2" id="admitSeatCardColorGradient2"
+                                        class="form-control form-control-color p-1"
+                                        style="width:48px;height:38px;cursor:pointer"
+                                        value="{{ old('card_color_gradient_2', $cardSettings?->card_color_gradient_2 ?? '#2563eb') }}">
+                                    <div id="admitSeatCardColorGradient2Preview" class="rounded"
+                                        style="width:32px;height:32px;border:1px solid #ddd;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3 admit-seat-card-solid-field {{ $selectedColorType === 'solid' ? '' : 'd-none' }}">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Solid Color</label>
+                                <div class="d-flex align-items-center" style="gap:10px">
+                                    <input type="color" name="card_solid_color" id="admitSeatCardSolidColor"
+                                        class="form-control form-control-color p-1"
+                                        style="width:48px;height:38px;cursor:pointer"
+                                        value="{{ old('card_solid_color', $cardSettings?->card_solid_color ?? '#1e3a5f') }}">
+                                    <div id="admitSeatCardSolidColorPreview" class="rounded"
+                                        style="width:32px;height:32px;border:1px solid #ddd;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-8 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Theme Preview</label>
+                                <div id="admitSeatCardThemePreview" class="rounded" style="height:44px;border:1px solid #dbe4ee;"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-settings-help">
                         These settings are saved once and used by search and PDF output.
@@ -260,6 +427,17 @@
                 'card_height_value' => $setting->card_height_value,
                 'grid_gap_value' => $setting->grid_gap_value,
                 'card_dimension_unit' => $setting->card_dimension_unit,
+                'card_is_transparent' => $setting->card_is_transparent,
+                'card_color_type' => $setting->card_color_type,
+                'card_color_gradient_1' => $setting->card_color_gradient_1,
+                'card_color_gradient_2' => $setting->card_color_gradient_2,
+                'card_solid_color' => $setting->card_solid_color,
+                'card_school_name_text_color' => $setting->card_school_name_text_color,
+                'card_school_detail_text_color' => $setting->card_school_detail_text_color,
+                'card_title_text_color' => $setting->card_title_text_color,
+                'card_exam_type_text_color' => $setting->card_exam_type_text_color,
+                'card_exam_name_text_color' => $setting->card_exam_name_text_color,
+                'card_logo_url' => ($setting->card_logo && file_exists(public_path($setting->card_logo))) ? asset($setting->card_logo) : null,
             ],
         ];
     })->toArray();
@@ -273,10 +451,44 @@ document.addEventListener('DOMContentLoaded', function () {
     const cardSettingsModal = document.getElementById('cardSettingsModal');
     const cardSettingsForm = cardSettingsModal?.querySelector('form');
     const cardSettingsTypeLabel = document.getElementById('cardSettingsModalTypeLabel');
+    const admitSeatCardIsTransparent = document.getElementById('admitSeatCardIsTransparent');
+    const admitSeatCardThemePreview = document.getElementById('admitSeatCardThemePreview');
+    const admitSeatCardColorType = document.getElementById('admitSeatCardColorType');
+    const admitSeatCardColorGradient1 = document.getElementById('admitSeatCardColorGradient1');
+    const admitSeatCardColorGradient2 = document.getElementById('admitSeatCardColorGradient2');
+    const admitSeatCardSolidColor = document.getElementById('admitSeatCardSolidColor');
+    const admitSeatSchoolNameColor = document.getElementById('admitSeatSchoolNameColor');
+    const admitSeatSchoolDetailColor = document.getElementById('admitSeatSchoolDetailColor');
+    const admitSeatTitleColor = document.getElementById('admitSeatTitleColor');
+    const admitSeatExamTypeColor = document.getElementById('admitSeatExamTypeColor');
+    const admitSeatExamNameColor = document.getElementById('admitSeatExamNameColor');
+    const admitSeatCardColorGradient1Preview = document.getElementById('admitSeatCardColorGradient1Preview');
+    const admitSeatCardColorGradient2Preview = document.getElementById('admitSeatCardColorGradient2Preview');
+    const admitSeatCardSolidColorPreview = document.getElementById('admitSeatCardSolidColorPreview');
+    const admitSeatSchoolNameColorPreview = document.getElementById('admitSeatSchoolNameColorPreview');
+    const admitSeatSchoolDetailColorPreview = document.getElementById('admitSeatSchoolDetailColorPreview');
+    const admitSeatTitleColorPreview = document.getElementById('admitSeatTitleColorPreview');
+    const admitSeatExamTypeColorPreview = document.getElementById('admitSeatExamTypeColorPreview');
+    const admitSeatExamNameColorPreview = document.getElementById('admitSeatExamNameColorPreview');
+    const admitSeatCardLogoInput = document.getElementById('admitSeatCardLogoInput');
+    const admitSeatCardLogoPreview = document.getElementById('admitSeatCardLogoPreview');
     const selectedSection = @json(request('section_id'));
     const hasValidationErrors = @json($errors->any());
     const cardSettingsMap = @json($cardSettingsPayload);
     const defaultCardType = @json($cardType ?? 'admit_card');
+    const fallbackSchoolLogo = @json($schoolLogoUrl);
+    const defaultThemeSettings = {
+        card_is_transparent: false,
+        card_color_type: 'gradient',
+        card_color_gradient_1: '#1e3a5f',
+        card_color_gradient_2: '#2563eb',
+        card_solid_color: '#1e3a5f',
+        card_school_name_text_color: '#ffffff',
+        card_school_detail_text_color: '#e5e7eb',
+        card_title_text_color: '#ffffff',
+        card_exam_type_text_color: '#ffffff',
+        card_exam_name_text_color: '#e5e7eb',
+    };
 
     function settingKeyFromCardType(cardType) {
         return cardType === 'seat_card' ? '2' : '1';
@@ -292,11 +504,31 @@ document.addEventListener('DOMContentLoaded', function () {
         const key = settingKeyFromCardType(cardType || defaultCardType);
         const settings = cardSettingsMap[key] || cardSettingsMap['1'] || {};
 
-        const fields = ['cards_per_page', 'cards_per_row', 'card_width_value', 'card_height_value', 'grid_gap_value', 'card_dimension_unit'];
+        const fields = [
+            'cards_per_page',
+            'cards_per_row',
+            'card_width_value',
+            'card_height_value',
+            'grid_gap_value',
+            'card_dimension_unit',
+            'card_is_transparent',
+            'card_color_type',
+            'card_color_gradient_1',
+            'card_color_gradient_2',
+            'card_solid_color',
+            'card_school_name_text_color',
+            'card_school_detail_text_color',
+            'card_title_text_color',
+            'card_exam_type_text_color',
+            'card_exam_name_text_color',
+        ];
         fields.forEach((field) => {
             const input = cardSettingsForm.elements.namedItem(field);
-            if (input && settings[field] !== undefined && settings[field] !== null) {
-                input.value = settings[field];
+            const value = field === 'card_is_transparent'
+                ? ((settings[field] ?? defaultThemeSettings[field]) ? '1' : '0')
+                : (settings[field] ?? defaultThemeSettings[field]);
+            if (input && value !== undefined && value !== null) {
+                input.value = value;
             }
         });
 
@@ -307,6 +539,87 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (cardSettingsTypeLabel) {
             cardSettingsTypeLabel.textContent = settingLabelFromCardType(cardType || defaultCardType);
+        }
+
+        refreshCardThemeControls();
+    }
+
+    function refreshCardThemeControls() {
+        if (!cardSettingsForm) return;
+
+        const isTransparent = admitSeatCardIsTransparent?.value === '1' || admitSeatCardIsTransparent?.value === 'true' || admitSeatCardIsTransparent?.checked === true;
+        const colorType = admitSeatCardColorType?.value || 'gradient';
+        const gradient1 = admitSeatCardColorGradient1?.value || '#1e3a5f';
+        const gradient2 = admitSeatCardColorGradient2?.value || '#2563eb';
+        const solid = admitSeatCardSolidColor?.value || gradient1;
+        const theme = isTransparent
+            ? 'transparent'
+            : (colorType === 'solid'
+                ? solid
+                : `linear-gradient(135deg, ${gradient1}, ${gradient2})`);
+
+        if (isTransparent) {
+            if (admitSeatSchoolNameColor && admitSeatSchoolNameColor.value === '#ffffff') admitSeatSchoolNameColor.value = '#111827';
+            if (admitSeatSchoolDetailColor && admitSeatSchoolDetailColor.value === '#e5e7eb') admitSeatSchoolDetailColor.value = '#334155';
+            if (admitSeatTitleColor && admitSeatTitleColor.value === '#ffffff') admitSeatTitleColor.value = '#111827';
+            if (admitSeatExamTypeColor && admitSeatExamTypeColor.value === '#ffffff') admitSeatExamTypeColor.value = '#111827';
+            if (admitSeatExamNameColor && admitSeatExamNameColor.value === '#e5e7eb') admitSeatExamNameColor.value = '#334155';
+        }
+
+        if (isTransparent) {
+            $('.admit-seat-theme-color-fields').hide();
+        } else {
+            $('.admit-seat-theme-color-fields').show();
+            if (colorType === 'solid') {
+                $('.admit-seat-card-gradient-field').hide();
+                $('.admit-seat-card-solid-field').show();
+            } else {
+                $('.admit-seat-card-gradient-field').show();
+                $('.admit-seat-card-solid-field').hide();
+            }
+        }
+
+        if (admitSeatCardThemePreview) {
+            admitSeatCardThemePreview.style.background = theme;
+            admitSeatCardThemePreview.style.borderStyle = isTransparent ? 'dashed' : 'solid';
+        }
+
+        if (admitSeatSchoolNameColorPreview) {
+            admitSeatSchoolNameColorPreview.style.background = admitSeatSchoolNameColor?.value || '#ffffff';
+        }
+
+        if (admitSeatSchoolDetailColorPreview) {
+            admitSeatSchoolDetailColorPreview.style.background = admitSeatSchoolDetailColor?.value || '#e5e7eb';
+        }
+
+        if (admitSeatTitleColorPreview) {
+            admitSeatTitleColorPreview.style.background = admitSeatTitleColor?.value || '#ffffff';
+        }
+
+        if (admitSeatExamTypeColorPreview) {
+            admitSeatExamTypeColorPreview.style.background = admitSeatExamTypeColor?.value || '#ffffff';
+        }
+
+        if (admitSeatExamNameColorPreview) {
+            admitSeatExamNameColorPreview.style.background = admitSeatExamNameColor?.value || '#e5e7eb';
+        }
+
+        if (admitSeatCardColorGradient1Preview) {
+            admitSeatCardColorGradient1Preview.style.background = gradient1;
+        }
+
+        if (admitSeatCardColorGradient2Preview) {
+            admitSeatCardColorGradient2Preview.style.background = gradient2;
+        }
+
+        if (admitSeatCardSolidColorPreview) {
+            admitSeatCardSolidColorPreview.style.background = solid;
+        }
+
+        if (admitSeatCardLogoPreview) {
+            const currentUrl = cardSettingsMap[settingKeyFromCardType(cardTypeSelect?.value || defaultCardType)]?.card_logo_url || fallbackSchoolLogo;
+            admitSeatCardLogoPreview.src = currentUrl || '';
+            admitSeatCardLogoPreview.classList.toggle('d-none', !currentUrl);
         }
     }
 
@@ -349,6 +662,28 @@ document.addEventListener('DOMContentLoaded', function () {
         loadSections(this.value);
     });
 
+    $(document).on('change', '#admitSeatCardIsTransparent, #admitSeatCardColorType, #admitSeatCardColorGradient1, #admitSeatCardColorGradient2, #admitSeatCardSolidColor, #admitSeatSchoolNameColor, #admitSeatSchoolDetailColor, #admitSeatTitleColor, #admitSeatExamTypeColor, #admitSeatExamNameColor', function () {
+        refreshCardThemeControls();
+    });
+
+    if (admitSeatCardLogoInput && admitSeatCardLogoPreview) {
+        admitSeatCardLogoInput.addEventListener('change', function () {
+            const file = this.files && this.files[0];
+            if (!file) {
+                admitSeatCardLogoPreview.src = fallbackSchoolLogo || '';
+                admitSeatCardLogoPreview.classList.toggle('d-none', !fallbackSchoolLogo);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                admitSeatCardLogoPreview.src = event.target.result;
+                admitSeatCardLogoPreview.classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
     if (classSelect && classSelect.value) {
         loadSections(classSelect.value, selectedSection);
     }
@@ -357,6 +692,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!hasValidationErrors) {
             applyCardSettings(cardTypeSelect?.value || defaultCardType);
         }
+    });
+
+    $('#cardSettingsModal').on('shown.bs.modal', function () {
+        refreshCardThemeControls();
     });
 
     @if($errors->any())

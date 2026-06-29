@@ -27,7 +27,6 @@ class SchoolSettingSeeder extends Seeder
                 'contact_number_2' => '+880 1886-780642',
                 'primary_color' => '#1e3a5f',
                 'secondary_color' => '#2563eb',
-                'id_card_color' => '#1e3a5f',
                 'logo' => 'assets/img/logo.png',
                 'letter_head' => null,
                 'created_at' => '2026-05-20 03:18:53',

@@ -11,7 +11,7 @@ class SchoolSetting extends Model
         'from_class', 'to_class', 'slogan',
         'website', 'email', 'facebook_page', 'whatsapp_number', 'whatsapp_qr',
         'contact_number_1', 'contact_number_2',
-        'primary_color', 'secondary_color', 'id_card_color',
+        'primary_color', 'secondary_color',
         'logo', 'favicon', 'letter_head',
         'principal_designation', 'principal_name', 'principal_school_name', 'principal_phone',
         'transfer_certificate_template', 'testimonial_template',

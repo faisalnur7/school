@@ -12,8 +12,25 @@
     $cardType = $cardType ?? 'id_card';
     $isLibraryCard = $cardType === 'library_card';
     $isAdmitOrSeatCard = in_array($cardType, ['admit_card', 'seat_card'], true);
-    $idColor = $setting?->id_card_color ?? '#1e3a5f';
-    $secondary = $setting?->secondary_color ?? '#2563eb';
+    $cardSettings = $cardSettings ?? null;
+    $cardIsTransparent = (bool) ($cardSettings?->card_is_transparent ?? false);
+    $cardColorType = in_array($cardSettings?->card_color_type ?? 'gradient', ['gradient', 'solid'], true)
+        ? ($cardSettings?->card_color_type ?? 'gradient')
+        : 'gradient';
+    $cardGradient1 = $cardSettings?->card_color_gradient_1 ?? '#1e3a5f';
+    $cardGradient2 = $cardSettings?->card_color_gradient_2 ?? '#2563eb';
+    $cardSolidColor = $cardSettings?->card_solid_color ?? '#1e3a5f';
+    $cardThemeAccent = $cardIsTransparent
+        ? 'transparent'
+        : ($cardColorType === 'solid' ? $cardSolidColor : $cardGradient1);
+    $cardThemeBackground = $cardIsTransparent
+        ? 'transparent'
+        : ($cardColorType === 'solid'
+        ? $cardSolidColor
+        : "linear-gradient(135deg, {$cardGradient1}, {$cardGradient2})");
+    $cardSchoolNameColor = $cardSettings?->card_school_name_text_color ?? '#ffffff';
+    $cardSchoolDetailColor = $cardSettings?->card_school_detail_text_color ?? '#e5e7eb';
+    $cardTitleColor = $cardSettings?->card_title_text_color ?? '#ffffff';
     $frontTitle = match ($cardType) {
         'library_card' => 'LIBRARY CARD',
         'admit_card' => 'ADMIT CARD',
@@ -28,13 +45,23 @@
     };
     $backSectionTitle = $isLibraryCard || $isAdmitOrSeatCard ? 'Student Details' : 'Parent / Guardian';
 
-    $logoPath = null;
-    if ($setting?->logo && file_exists(public_path($setting->logo))) {
-        $logoPath = $renderForPdf ? public_path($setting->logo) : asset($setting->logo);
+    $resolveImagePath = function (?string $path) use ($renderForPdf) {
+        if (!$path || !file_exists(public_path($path))) {
+            return null;
+        }
+
+        return $renderForPdf ? public_path($path) : asset($path);
+    };
+
+    $logoPath = $resolveImagePath($cardSettings?->card_logo ?? null)
+        ?? $resolveImagePath($setting?->logo ?? null);
+
+    if (!$logoPath) {
+        $logoPath = null;
     }
 @endphp
 
-<div class="id-card-pages" style="--id-card-width: {{ $cardWidthMm }}mm; --id-card-height: {{ $cardHeightMm }}mm; --id-card-gap: {{ $gapMm }}mm;">
+<div class="id-card-pages" style="--id-card-width: {{ $cardWidthMm }}mm; --id-card-height: {{ $cardHeightMm }}mm; --id-card-gap: {{ $gapMm }}mm; --card-theme-bg: {{ $cardThemeBackground }}; --card-theme-accent: {{ $cardThemeAccent }}; --id-card-school-name-color: {{ $cardSchoolNameColor }}; --id-card-school-detail-color: {{ $cardSchoolDetailColor }}; --id-card-title-color: {{ $cardTitleColor }};">
     @foreach($studentPages as $pageIndex => $pageStudents)
         <div class="id-card-page" style="grid-template-columns: repeat({{ $cardsPerRow }}, max-content); gap: {{ $gapMm }}mm {{ $gapMm }}mm;">
             @foreach($pageStudents as $student)
@@ -120,7 +147,7 @@
                             </div>
                         </div>
 
-                        <div class="id-card__footer" style="background: linear-gradient(135deg, {{ $idColor }}, {{ $secondary }});">
+                        <div class="id-card__footer id-card__footer--front">
                             @if($setting?->contact_number_1)
                                 <span>📞 {{ $setting->contact_number_1 }}</span>
                             @endif
@@ -251,7 +278,7 @@
                             <div class="id-card__back-notice">If found, please return to the school.</div>
                         </div>
 
-                        <div class="id-card__footer" style="background:#222;">
+                        <div class="id-card__footer id-card__footer--back">
                             @if($setting?->whatsapp_number)
                                 <span>📱 {{ $setting->whatsapp_number }}</span>
                             @endif

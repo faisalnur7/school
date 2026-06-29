@@ -360,25 +360,6 @@
                                         <div class="text-danger small">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                <div class="col-md-12 form-group">
-                                    <label class="font-weight-bold">ID Card Color</label>
-                                    <div class="d-flex align-items-center gap-2" style="gap:8px">
-                                        <input type="color" name="id_card_color" id="idCardColor"
-                                            class="form-control form-control-color p-1"
-                                            style="width:48px;height:38px;cursor:pointer"
-                                            value="{{ old('id_card_color', $setting->id_card_color ?? '#1e3a5f') }}">
-                                        <input type="text" id="idCardColorHex" class="form-control form-control-sm"
-                                            style="width:110px;font-family:monospace"
-                                            value="{{ old('id_card_color', $setting->id_card_color ?? '#1e3a5f') }}"
-                                            oninput="syncColor(this,'idCardColor')">
-                                        <div id="idCardPreview" class="rounded"
-                                            style="width:32px;height:32px;border:1px solid #ddd;background:{{ $setting->id_card_color ?? '#1e3a5f' }}">
-                                        </div>
-                                    </div>
-                                    @error('id_card_color')
-                                        <div class="text-danger small">{{ $message }}</div>
-                                    @enderror
-                                </div>
                             </div>
 
                         </div>

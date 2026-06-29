@@ -71,7 +71,8 @@
 .admit-card__header {
     padding: 1.7mm 1.8mm 1.3mm;
     text-align: center;
-    border-bottom: 0.3mm solid #d1d5db;
+    border-bottom: 0.3mm solid var(--admit-card-theme-accent, #d1d5db);
+    background: var(--admit-card-theme-bg, #ffffff);
     position: relative;
     z-index: 1;
 }
@@ -103,14 +104,14 @@
     line-height: 1.0;
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    color: #111111;
+    color: var(--admit-card-school-name-color, #ffffff);
 }
 
 .admit-card__address {
     margin-top: 0.55mm;
     font-size: 6.4pt;
     line-height: 1.15;
-    color: #444444;
+    color: var(--admit-card-school-detail-color, rgba(255, 255, 255, 0.82));
     font-weight: 600;
     word-break: break-word;
 }
@@ -121,14 +122,14 @@
 
 .admit-card__exam-label {
     display: inline-block;
-    border: 0.3mm solid #111111;
+    border: 0.3mm solid var(--admit-card-title-color, rgba(255, 255, 255, 0.55));
     padding: 0.75mm 2.2mm;
     font-size: 5.4pt;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #111111;
-    background: #f4f4f5;
+    color: var(--admit-card-title-color, #ffffff);
+    background: rgba(255, 255, 255, 0.16);
     border-radius: 1.2mm;
 }
 
@@ -137,7 +138,7 @@
     font-size: 7.4pt;
     font-weight: 900;
     line-height: 1.05;
-    color: #111111;
+    color: var(--admit-card-exam-type-color, #ffffff);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
@@ -147,7 +148,7 @@
     font-size: 6.8pt;
     font-weight: 700;
     line-height: 1.08;
-    color: #444444;
+    color: var(--admit-card-exam-name-color, rgba(255, 255, 255, 0.86));
 }
 
 .admit-card__body {
@@ -225,14 +226,14 @@
 }
 
 .admit-card__footer {
-    border-top: 0.3mm solid #d1d5db;
+    border-top: 0.3mm solid var(--admit-card-theme-accent, #d1d5db);
     padding: 0.9mm 1.5mm;
     font-size: 4.5pt;
     line-height: 1.05;
     display: flex;
     justify-content: space-between;
     gap: 2mm;
-    color: #444444;
+    color: var(--admit-card-school-detail-color, #444444);
     background: #fafafa;
     position: relative;
     z-index: 1;

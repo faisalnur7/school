@@ -22,6 +22,7 @@ body {
     @include('pages.admit-seat-cards._cards', [
         'students' => $students,
         'setting' => $setting,
+        'cardSettings' => $cardSettings ?? null,
         'renderForPdf' => true,
         'cardType' => $cardType ?? 'admit_card',
         'examType' => $examType ?? null,

@@ -19,6 +19,6 @@ body {
 </style>
 </head>
 <body>
-    @include('pages.generate-id-cards._cards', ['students' => $students, 'setting' => $setting, 'renderForPdf' => true, 'cardType' => $cardType ?? 'id_card', 'layout' => $layout ?? []])
+    @include('pages.generate-id-cards._cards', ['students' => $students, 'setting' => $setting, 'cardSettings' => $cardSettings ?? null, 'renderForPdf' => true, 'cardType' => $cardType ?? 'id_card', 'layout' => $layout ?? []])
 </body>
 </html>
