@@ -290,6 +290,8 @@
         .payment-report-page .payment-report-group-card {
             overflow: hidden;
             margin-bottom: 1rem;
+            border-radius: 0;
+            padding:3px;
         }
 
         .payment-report-page .payment-report-group-header {
