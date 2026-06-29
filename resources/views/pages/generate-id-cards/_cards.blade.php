@@ -1,6 +1,14 @@
 @php
     $renderForPdf = $renderForPdf ?? false;
-    $studentPages = $students->chunk(4);
+    $layout = $layout ?? [];
+    $cardsPerPage = max(1, min(12, (int) ($layout['cardsPerPage'] ?? 4)));
+    $cardsPerRow = max(1, min($cardsPerPage, (int) ($layout['cardsPerRow'] ?? 2)));
+    $pageRows = max(1, (int) ($layout['pageRows'] ?? ceil($cardsPerPage / $cardsPerRow)));
+    $cardWidthMm = $layout['cardWidthMm'] ?? 54;
+    $cardHeightMm = $layout['cardHeightMm'] ?? 84;
+    $gapMm = $layout['gridGapMm'] ?? 5;
+
+    $studentPages = $students->chunk($cardsPerPage);
     $cardType = $cardType ?? 'id_card';
     $isLibraryCard = $cardType === 'library_card';
     $isAdmitOrSeatCard = in_array($cardType, ['admit_card', 'seat_card'], true);
@@ -26,9 +34,9 @@
     }
 @endphp
 
-<div class="id-card-pages">
+<div class="id-card-pages" style="--id-card-width: {{ $cardWidthMm }}mm; --id-card-height: {{ $cardHeightMm }}mm; --id-card-gap: {{ $gapMm }}mm;">
     @foreach($studentPages as $pageIndex => $pageStudents)
-        <div class="id-card-page">
+        <div class="id-card-page" style="grid-template-columns: repeat({{ $cardsPerRow }}, max-content); gap: {{ $gapMm }}mm {{ $gapMm }}mm;">
             @foreach($pageStudents as $student)
                 @php
                     $ai = $student->academicInformations->first();
@@ -45,8 +53,8 @@
                     }
                 @endphp
 
-                <div class="id-card-pair">
-                    <div class="id-card">
+                <div class="id-card-pair" style="gap: {{ $gapMm }}mm;">
+                    <div class="id-card" style="width: {{ $cardWidthMm }}mm; height: {{ $cardHeightMm }}mm;">
                         <div class="id-card__header id-card__header--front">
                             @if($logoPath)
                                 <img src="{{ $logoPath }}" class="id-card__logo" alt="Logo">
@@ -125,7 +133,7 @@
                         </div>
                     </div>
 
-                    <div class="id-card id-card--back">
+                    <div class="id-card id-card--back" style="width: {{ $cardWidthMm }}mm; height: {{ $cardHeightMm }}mm;">
                         <div class="id-card__header id-card__header--back">
                             <div class="id-card__school-name">{{ $setting?->name ?? 'School Name' }}</div>
                             @if($setting?->slogan)

@@ -76,20 +76,23 @@
                                 autocomplete="off">
                         </div>
                     </div>
-                    <div class="col-md-2 d-flex align-items-center id-card-filter-actions">
-                        <div class="form-group mb-0 d-flex flex-wrap" style="gap:6px">
-                            <button type="submit" class="btn btn-primary btn-sm id-card-filter-btn" title="Generate">
-                                <i class="fas fa-id-card"></i>
+                </div>
+                <div class="id-card-filter-actions-row">
+                    <div class="d-flex flex-wrap justify-content-end id-card-filter-actions-inner">
+                        <button type="button" class="btn btn-outline-primary btn-sm id-card-filter-btn" data-toggle="modal" data-target="#idCardSettingsModal" title="Card settings">
+                            <i class="fas fa-sliders-h"></i>
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-sm id-card-filter-btn" title="Generate">
+                            <i class="fas fa-id-card"></i>
+                        </button>
+                        <a href="{{ route('students.id-cards') }}" class="btn btn-secondary btn-sm id-card-filter-btn" title="Reset">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        @if($students->isNotEmpty())
+                            <button type="button" class="btn btn-success btn-sm id-card-filter-btn" onclick="window.print()" title="Print">
+                                <i class="fas fa-print"></i>
                             </button>
-                            <a href="{{ route('students.id-cards') }}" class="btn btn-secondary btn-sm id-card-filter-btn" title="Reset">
-                                <i class="fas fa-times"></i>
-                            </a>
-                            @if($students->isNotEmpty())
-                                <button type="button" class="btn btn-success btn-sm id-card-filter-btn" onclick="window.print()" title="Print">
-                                    <i class="fas fa-print"></i>
-                                </button>
-                            @endif
-                        </div>
+                        @endif
                     </div>
                 </div>
             </form>
@@ -113,19 +116,147 @@
             <span class="badge badge-light border px-3 py-2" style="font-size:12px">
                 {{ ($cardType ?? 'id_card') === 'library_card' ? 'Library card' : 'Front + Back per student' }}
             </span>
-            <span class="badge badge-light border px-3 py-2" style="font-size:12px">54mm × 84mm cards</span>
+            <span class="badge badge-light border px-3 py-2" style="font-size:12px">
+                {{ number_format($layout['cardWidthMm'] ?? 54, 1) }}mm × {{ number_format($layout['cardHeightMm'] ?? 84, 1) }}mm
+            </span>
             <span class="badge badge-light border px-3 py-2" style="font-size:12px">Landscape print and PDF</span>
         </div>
 
-        @include('pages.generate-id-cards._cards', ['students' => $students, 'setting' => $setting, 'renderForPdf' => false, 'cardType' => $cardType ?? 'id_card'])
+        @include('pages.generate-id-cards._cards', [
+            'students' => $students,
+            'setting' => $setting,
+            'renderForPdf' => false,
+            'cardType' => $cardType ?? 'id_card',
+            'layout' => $layout ?? [],
+        ])
     @endif
 </div>
+
+<div class="modal fade" id="idCardSettingsModal" tabindex="-1" role="dialog" aria-labelledby="idCardSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered id-card-settings-modal-dialog" role="document">
+        <div class="modal-content id-card-settings-modal-content">
+            <form method="POST" action="{{ route('students.id-cards.settings') }}">
+                @csrf
+                <div class="modal-header id-card-settings-modal-header">
+                    <div>
+                        <h5 class="modal-title mb-1" id="idCardSettingsModalLabel">Card Settings</h5>
+                        <small class="text-muted d-block" id="idCardSettingsModalTypeLabel">{{ (old('card_type', $cardType ?? 'id_card') === 'library_card') ? 'Library Card Settings' : 'ID Card Settings' }}</small>
+                        <small class="text-muted d-block">Save a single layout profile for search, print, and PDF output.</small>
+                    </div>
+                    <button type="button" class="close id-card-settings-modal-close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body id-card-settings-modal-body">
+                    <input type="hidden" name="card_type" value="{{ old('card_type', $cardType ?? 'id_card') }}">
+                    <div class="row">
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="id-card-settings-field mb-0">
+                                <label class="font-weight-bold id-card-filter-label">Cards / Page</label>
+                                <input type="number" name="cards_per_page" class="form-control form-control-sm id-card-filter-input" min="1" max="12" value="{{ old('cards_per_page', $cardSettings?->cards_per_page ?? 4) }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="id-card-settings-field mb-0">
+                                <label class="font-weight-bold id-card-filter-label">Cards / Row</label>
+                                <input type="number" name="cards_per_row" class="form-control form-control-sm id-card-filter-input" min="1" max="10" value="{{ old('cards_per_row', $cardSettings?->cards_per_row ?? 2) }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="id-card-settings-field mb-0">
+                                <label class="font-weight-bold id-card-filter-label">Card Width</label>
+                                <input type="number" name="card_width_value" class="form-control form-control-sm id-card-filter-input" min="0.1" step="0.1" value="{{ old('card_width_value', $cardSettings?->card_width_value ?? 5.4) }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="id-card-settings-field mb-0">
+                                <label class="font-weight-bold id-card-filter-label">Card Height</label>
+                                <input type="number" name="card_height_value" class="form-control form-control-sm id-card-filter-input" min="0.1" step="0.1" value="{{ old('card_height_value', $cardSettings?->card_height_value ?? 8.4) }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="id-card-settings-field mb-0">
+                                <label class="font-weight-bold id-card-filter-label">Unit</label>
+                                <select name="card_dimension_unit" class="form-control form-control-sm id-card-filter-input">
+                                    <option value="cm" {{ old('card_dimension_unit', $cardSettings?->card_dimension_unit ?? 'cm') === 'cm' ? 'selected' : '' }}>Centimeter (cm)</option>
+                                    <option value="px" {{ old('card_dimension_unit', $cardSettings?->card_dimension_unit ?? 'cm') === 'px' ? 'selected' : '' }}>Pixel (px)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="id-card-settings-field mb-0">
+                                <label class="font-weight-bold id-card-filter-label">Grid Gap</label>
+                                <input type="number" name="grid_gap_value" class="form-control form-control-sm id-card-filter-input" min="0.1" step="0.1" value="{{ old('grid_gap_value', $cardSettings?->grid_gap_value ?? 0.5) }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="id-card-settings-help">These settings are saved once and used by search and PDF output.</div>
+                </div>
+                <div class="modal-footer id-card-settings-modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@php
+    $cardSettingsPayload = $cardSettingsMap->mapWithKeys(function ($setting) {
+        return [
+            (string) $setting->card_type => [
+                'cards_per_page' => $setting->cards_per_page,
+                'cards_per_row' => $setting->cards_per_row,
+                'card_width_value' => $setting->card_width_value,
+                'card_height_value' => $setting->card_height_value,
+                'grid_gap_value' => $setting->grid_gap_value,
+                'card_dimension_unit' => $setting->card_dimension_unit,
+            ],
+        ];
+    })->toArray();
+@endphp
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const classSelect = document.getElementById('classSelect');
     const sectionSelect = document.getElementById('sectionSelect');
+    const cardTypeSelect = document.querySelector('#filterForm select[name="card_type"]');
+    const settingsModal = document.getElementById('idCardSettingsModal');
+    const settingsForm = settingsModal?.querySelector('form');
+    const settingsTypeLabel = document.getElementById('idCardSettingsModalTypeLabel');
     const selectedSection = @json(request('section_id'));
+    const hasValidationErrors = @json($errors->any());
+    const cardSettingsMap = @json($cardSettingsPayload);
+    const defaultCardType = @json($cardType ?? 'id_card');
+
+    function settingKeyFromCardType(cardType) {
+        return cardType === 'library_card' ? '4' : '3';
+    }
+
+    function settingLabelFromCardType(cardType) {
+        return cardType === 'library_card' ? 'Library Card Settings' : 'ID Card Settings';
+    }
+
+    function applyCardSettings(cardType) {
+        if (!settingsForm) return;
+
+        const key = settingKeyFromCardType(cardType || defaultCardType);
+        const settings = cardSettingsMap[key] || cardSettingsMap['3'] || {};
+
+        ['cards_per_page', 'cards_per_row', 'card_width_value', 'card_height_value', 'grid_gap_value', 'card_dimension_unit'].forEach((field) => {
+            const input = settingsForm.elements.namedItem(field);
+            if (input && settings[field] !== undefined && settings[field] !== null) {
+                input.value = settings[field];
+            }
+        });
+
+        const hiddenType = settingsForm.elements.namedItem('card_type');
+        if (hiddenType) hiddenType.value = cardType || defaultCardType;
+
+        if (settingsTypeLabel) {
+            settingsTypeLabel.textContent = settingLabelFromCardType(cardType || defaultCardType);
+        }
+    }
 
     function refreshSectionSelect() {
         if (!sectionSelect) return;
@@ -187,6 +318,16 @@ document.addEventListener('DOMContentLoaded', function () {
     if (classSelect && classSelect.value) {
         loadSections(classSelect.value, selectedSection);
     }
+
+    $('#idCardSettingsModal').on('show.bs.modal', function () {
+        if (!hasValidationErrors) {
+            applyCardSettings(cardTypeSelect?.value || defaultCardType);
+        }
+    });
+
+    @if($errors->any())
+        $('#idCardSettingsModal').modal('show');
+    @endif
 });
 </script>
 
@@ -236,6 +377,73 @@ document.addEventListener('DOMContentLoaded', function () {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
+
+.id-card-filter-actions-inner {
+    gap: 6px;
+}
+
+.id-card-filter-actions-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.75rem;
+}
+
+.id-card-settings-modal-dialog {
+    max-width: 860px;
+}
+
+.id-card-settings-modal-content {
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+}
+
+.id-card-settings-modal-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #eaeef4;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    align-items: flex-start;
+}
+
+.id-card-settings-modal-close {
+    opacity: 0.7;
+    font-size: 1.8rem;
+    line-height: 1;
+    text-shadow: none;
+}
+
+.id-card-settings-modal-close:hover {
+    opacity: 1;
+}
+
+.id-card-settings-modal-body {
+    padding: 1.25rem;
+    background: #fff;
+}
+
+.id-card-settings-field {
+    padding: 0.95rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+}
+
+.id-card-settings-help {
+    margin-top: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 0.88rem;
+    border: 1px solid #e5e7eb;
+}
+
+.id-card-settings-modal-footer {
+    padding: 1rem 1.25rem 1.2rem;
+    border-top: 1px solid #eaeef4;
+    background: #fff;
 }
 
 .card-header {
@@ -375,6 +583,41 @@ html[data-theme='dark'] .id-card-filter-shell .btn-primary {
 html[data-theme='dark'] .id-card-filter-shell .btn-success {
     background: #16a34a;
     border-color: #16a34a;
+}
+
+@media (max-width: 767.98px) {
+    .id-card-filter-actions-inner {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .id-card-filter-actions-row {
+        justify-content: flex-start;
+    }
+}
+
+html[data-theme='dark'] .id-card-settings-modal-content {
+    background: linear-gradient(180deg, rgba(17, 24, 39, 0.98) 0%, rgba(15, 23, 42, 0.97) 100%);
+    border-color: rgba(148, 163, 184, 0.18);
+    box-shadow: 0 24px 60px rgba(2, 6, 23, 0.34);
+}
+
+html[data-theme='dark'] .id-card-settings-modal-header,
+html[data-theme='dark'] .id-card-settings-modal-body,
+html[data-theme='dark'] .id-card-settings-modal-footer {
+    background: rgba(15, 23, 42, 0.97) !important;
+    color: #e2e8f0 !important;
+}
+
+html[data-theme='dark'] .id-card-settings-field {
+    background: rgba(15, 23, 42, 0.96);
+    border-color: rgba(148, 163, 184, 0.22);
+}
+
+html[data-theme='dark'] .id-card-settings-help {
+    background: rgba(15, 23, 42, 0.96);
+    border-color: rgba(148, 163, 184, 0.22);
+    color: #cbd5e1;
 }
 
 html[data-theme='dark'] .id-card-filter-shell .text-muted,

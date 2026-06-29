@@ -77,26 +77,6 @@
                         </select>
                     </div>
                     <div class="admit-seat-cards-filter-group">
-                        <label class="font-weight-bold admit-seat-cards-filter-label">Cards / Page</label>
-                        <input
-                            type="number"
-                            name="cards_per_page"
-                            class="form-control form-control-sm admit-seat-cards-filter-control"
-                            min="1"
-                            max="12"
-                            value="{{ $layout['cardsPerPage'] ?? request('cards_per_page', 8) }}">
-                    </div>
-                    <div class="admit-seat-cards-filter-group">
-                        <label class="font-weight-bold admit-seat-cards-filter-label">Cards / Row</label>
-                        <input
-                            type="number"
-                            name="cards_per_row"
-                            class="form-control form-control-sm admit-seat-cards-filter-control"
-                            min="1"
-                            max="10"
-                            value="{{ $layout['cardsPerRow'] ?? request('cards_per_row', 2) }}">
-                    </div>
-                    <div class="admit-seat-cards-filter-group">
                         <label class="font-weight-bold admit-seat-cards-filter-label">Student ID</label>
                         <input
                             type="text"
@@ -107,6 +87,9 @@
                             autocomplete="off">
                     </div>
                     <div class="admit-seat-cards-filter-actions">
+                        <button type="button" class="btn btn-outline-primary btn-sm result-filter-icon-btn" data-toggle="modal" data-target="#cardSettingsModal" title="Card settings" aria-label="Card settings">
+                            <i class="fas fa-sliders-h"></i>
+                        </button>
                         <button type="submit" class="btn btn-dark btn-sm result-filter-icon-btn" title="Generate" aria-label="Generate">
                             <i class="fas fa-id-card"></i>
                         </button>
@@ -146,6 +129,12 @@
             <span class="badge badge-light border px-3 py-2" style="font-size:12px">
                 {{ $layout['cardsPerRow'] ?? 2 }} cards/row
             </span>
+            <span class="badge badge-light border px-3 py-2" style="font-size:12px">
+                {{ number_format($layout['cardWidthMm'] ?? 0, 1) }}mm × {{ number_format($layout['cardHeightMm'] ?? 0, 1) }}mm
+            </span>
+            <span class="badge badge-light border px-3 py-2" style="font-size:12px">
+                {{ number_format($layout['gridGapMm'] ?? 0, 1) }}mm gap
+            </span>
         </div>
 
         @include('pages.admit-seat-cards._cards', [
@@ -160,11 +149,166 @@
     @endif
 </div>
 
+<div class="modal fade" id="cardSettingsModal" tabindex="-1" role="dialog" aria-labelledby="cardSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered card-settings-modal-dialog" role="document">
+        <div class="modal-content card-settings-modal-content">
+            <form method="POST" action="{{ route('results.admit-seat-cards.settings') }}">
+                @csrf
+                <div class="modal-header card-settings-modal-header">
+                    <div>
+                        <h5 class="modal-title mb-1" id="cardSettingsModalLabel">Card Settings</h5>
+                        <small class="text-muted d-block" id="cardSettingsModalTypeLabel">{{ (old('card_type', $cardType ?? 'admit_card') === 'seat_card') ? 'Seat Card Settings' : 'Admit Card Settings' }}</small>
+                        <small class="text-muted d-block">Save a single layout profile for search, print, and PDF output.</small>
+                    </div>
+                    <button type="button" class="close card-settings-modal-close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body card-settings-modal-body">
+                    <input type="hidden" name="card_type" value="{{ old('card_type', $cardType ?? 'admit_card') }}">
+                    <div class="row">
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Cards / Page</label>
+                                <input
+                                    type="number"
+                                    name="cards_per_page"
+                                    class="form-control form-control-sm admit-seat-cards-filter-control"
+                                    min="1"
+                                    max="12"
+                                    value="{{ old('cards_per_page', $cardSettings?->cards_per_page ?? 8) }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Cards / Row</label>
+                                <input
+                                    type="number"
+                                    name="cards_per_row"
+                                    class="form-control form-control-sm admit-seat-cards-filter-control"
+                                    min="1"
+                                    max="10"
+                                    value="{{ old('cards_per_row', $cardSettings?->cards_per_row ?? 2) }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Card Width</label>
+                                <input
+                                    type="number"
+                                    name="card_width_value"
+                                    class="form-control form-control-sm admit-seat-cards-filter-control"
+                                    min="0.1"
+                                    step="0.1"
+                                    value="{{ old('card_width_value', $cardSettings?->card_width_value ?? 9.4) }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Card Height</label>
+                                <input
+                                    type="number"
+                                    name="card_height_value"
+                                    class="form-control form-control-sm admit-seat-cards-filter-control"
+                                    min="0.1"
+                                    step="0.1"
+                                    value="{{ old('card_height_value', $cardSettings?->card_height_value ?? 6.6) }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Unit</label>
+                                <select name="card_dimension_unit" class="form-control form-control-sm admit-seat-cards-filter-control">
+                                    <option value="cm" {{ old('card_dimension_unit', $cardSettings?->card_dimension_unit ?? 'cm') === 'cm' ? 'selected' : '' }}>Centimeter (cm)</option>
+                                    <option value="px" {{ old('card_dimension_unit', $cardSettings?->card_dimension_unit ?? 'cm') === 'px' ? 'selected' : '' }}>Pixel (px)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <div class="admit-seat-cards-filter-group admit-seat-cards-modal-field mb-0">
+                                <label class="font-weight-bold admit-seat-cards-filter-label">Grid Gap</label>
+                                <input
+                                    type="number"
+                                    name="grid_gap_value"
+                                    class="form-control form-control-sm admit-seat-cards-filter-control"
+                                    min="0.1"
+                                    step="0.1"
+                                    value="{{ old('grid_gap_value', $cardSettings?->grid_gap_value ?? 0.85) }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-settings-help">
+                        These settings are saved once and used by search and PDF output.
+                    </div>
+                </div>
+                <div class="modal-footer card-settings-modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@php
+    $cardSettingsPayload = $cardSettingsMap->mapWithKeys(function ($setting) {
+        return [
+            (string) $setting->card_type => [
+                'cards_per_page' => $setting->cards_per_page,
+                'cards_per_row' => $setting->cards_per_row,
+                'card_width_value' => $setting->card_width_value,
+                'card_height_value' => $setting->card_height_value,
+                'grid_gap_value' => $setting->grid_gap_value,
+                'card_dimension_unit' => $setting->card_dimension_unit,
+            ],
+        ];
+    })->toArray();
+@endphp
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const classSelect = document.getElementById('classSelect');
     const sectionSelect = document.getElementById('sectionSelect');
+    const cardTypeSelect = document.querySelector('#filterForm select[name="card_type"]');
+    const cardSettingsModal = document.getElementById('cardSettingsModal');
+    const cardSettingsForm = cardSettingsModal?.querySelector('form');
+    const cardSettingsTypeLabel = document.getElementById('cardSettingsModalTypeLabel');
     const selectedSection = @json(request('section_id'));
+    const hasValidationErrors = @json($errors->any());
+    const cardSettingsMap = @json($cardSettingsPayload);
+    const defaultCardType = @json($cardType ?? 'admit_card');
+
+    function settingKeyFromCardType(cardType) {
+        return cardType === 'seat_card' ? '2' : '1';
+    }
+
+    function settingLabelFromCardType(cardType) {
+        return cardType === 'seat_card' ? 'Seat Card Settings' : 'Admit Card Settings';
+    }
+
+    function applyCardSettings(cardType) {
+        if (!cardSettingsForm) return;
+
+        const key = settingKeyFromCardType(cardType || defaultCardType);
+        const settings = cardSettingsMap[key] || cardSettingsMap['1'] || {};
+
+        const fields = ['cards_per_page', 'cards_per_row', 'card_width_value', 'card_height_value', 'grid_gap_value', 'card_dimension_unit'];
+        fields.forEach((field) => {
+            const input = cardSettingsForm.elements.namedItem(field);
+            if (input && settings[field] !== undefined && settings[field] !== null) {
+                input.value = settings[field];
+            }
+        });
+
+        const cardTypeInput = cardSettingsForm.elements.namedItem('card_type');
+        if (cardTypeInput) {
+            cardTypeInput.value = cardType || defaultCardType;
+        }
+
+        if (cardSettingsTypeLabel) {
+            cardSettingsTypeLabel.textContent = settingLabelFromCardType(cardType || defaultCardType);
+        }
+    }
 
     function loadSections(classId, selectedSectionId = null) {
         if (!sectionSelect) return;
@@ -208,6 +352,16 @@ document.addEventListener('DOMContentLoaded', function () {
     if (classSelect && classSelect.value) {
         loadSections(classSelect.value, selectedSection);
     }
+
+    $('#cardSettingsModal').on('show.bs.modal', function () {
+        if (!hasValidationErrors) {
+            applyCardSettings(cardTypeSelect?.value || defaultCardType);
+        }
+    });
+
+    @if($errors->any())
+        $('#cardSettingsModal').modal('show');
+    @endif
 });
 </script>
 
@@ -254,7 +408,7 @@ document.getElementById('examSelect')?.addEventListener('change', function () {
 
 .admit-seat-cards-page .admit-seat-cards-filter-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 0.75rem;
     align-items: end;
 }
@@ -280,6 +434,63 @@ document.getElementById('examSelect')?.addEventListener('change', function () {
 .admit-seat-cards-page .admit-seat-cards-filter-control:focus {
     border-color: #cbd5e1;
     box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.05);
+}
+
+.admit-seat-cards-page .card-settings-modal-dialog {
+    max-width: 860px;
+}
+
+.admit-seat-cards-page .card-settings-modal-content {
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+}
+
+.admit-seat-cards-page .card-settings-modal-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #eaeef4;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    align-items: flex-start;
+}
+
+.admit-seat-cards-page .card-settings-modal-close {
+    opacity: 0.7;
+    font-size: 1.8rem;
+    line-height: 1;
+    text-shadow: none;
+}
+
+.admit-seat-cards-page .card-settings-modal-close:hover {
+    opacity: 1;
+}
+
+.admit-seat-cards-page .card-settings-modal-body {
+    padding: 1.25rem;
+    background: #fff;
+}
+
+.admit-seat-cards-page .admit-seat-cards-modal-field {
+    padding: 0.95rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+}
+
+.admit-seat-cards-page .card-settings-help {
+    margin-top: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 0.88rem;
+    border: 1px solid #e5e7eb;
+}
+
+.admit-seat-cards-page .card-settings-modal-footer {
+    padding: 1rem 1.25rem 1.2rem;
+    border-top: 1px solid #eaeef4;
+    background: #fff;
 }
 
 .admit-seat-cards-page .admit-seat-cards-filter-actions {

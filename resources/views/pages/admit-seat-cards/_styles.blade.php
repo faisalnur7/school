@@ -1,6 +1,6 @@
 @page {
     size: A4 portrait;
-    margin: 4mm 6.35mm;
+    margin: 10mm 6.35mm 4mm 6.35mm;
 }
 
 .admit-card-pages {
@@ -8,6 +8,7 @@
     flex-direction: column;
     gap: 8.5mm;
     padding: 0;
+    padding-top: 6mm;
 }
 
 .admit-card-page {
@@ -160,18 +161,18 @@
 }
 
 .admit-card__photo-wrap {
-    flex: 0 0 19mm;
+    flex: 0 0 20mm;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .admit-card__photo {
-    width: 19mm;
-    height: 21mm;
+    width: 20mm;
+    height: 30mm;
     object-fit: cover;
     border: 0.35mm solid #111111;
-    border-radius: 1.2mm;
+    border-radius: 1.4mm;
     filter: grayscale(1);
     box-shadow: 0 0.3mm 1mm rgba(15, 23, 42, 0.12);
 }
@@ -248,6 +249,10 @@
 }
 
 @media print {
+    .admit-card-pages {
+        padding-top: 6mm !important;
+    }
+
     .no-print,
     .main-sidebar,
     .main-header,

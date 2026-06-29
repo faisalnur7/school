@@ -26,6 +26,11 @@ use Carbon\Carbon;
 
 class StudentController extends Controller
 {
+    private const STUDENT_IMAGE_MIN_WIDTH = 290;
+    private const STUDENT_IMAGE_MAX_WIDTH = 300;
+    private const STUDENT_IMAGE_MIN_HEIGHT = 440;
+    private const STUDENT_IMAGE_MAX_HEIGHT = 450;
+
     private function pdfColumnOptions(): array
     {
         return [
@@ -664,7 +669,16 @@ class StudentController extends Controller
             // ================= BASIC INFO =================
             'full_name_bn' => 'nullable|string|max:255',
             'full_name_en' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:100',
+            'image' => [
+                'nullable',
+                'image',
+                'mimes:jpeg,png,jpg,gif,webp',
+                'max:100',
+                'dimensions:min_width=' . self::STUDENT_IMAGE_MIN_WIDTH .
+                    ',max_width=' . self::STUDENT_IMAGE_MAX_WIDTH .
+                    ',min_height=' . self::STUDENT_IMAGE_MIN_HEIGHT .
+                    ',max_height=' . self::STUDENT_IMAGE_MAX_HEIGHT,
+            ],
             'date_of_birth' => 'nullable|date',
             'gender' => 'nullable|integer',
             'birth_certificate_number' => 'nullable|string|max:255',

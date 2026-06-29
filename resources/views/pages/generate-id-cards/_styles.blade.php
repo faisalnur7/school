@@ -5,21 +5,21 @@
 
 @page {
     size: A4 landscape;
-    margin: 8mm;
+    margin: 10mm 8mm 8mm 8mm;
 }
 
 .id-card-pages {
     display: flex;
     flex-direction: column;
-    gap: 8mm;
+    gap: var(--id-card-gap, 5mm);
+    padding-top: 6mm;
 }
 
 .id-card-page {
     display: grid;
-    grid-template-columns: repeat(2, max-content);
     justify-content: center;
     align-content: start;
-    gap: 6mm 5mm;
+    gap: var(--id-card-gap, 5mm) var(--id-card-gap, 5mm);
     page-break-inside: avoid;
     break-inside: avoid;
     page-break-after: always;
@@ -33,7 +33,7 @@
 
 .id-card-pair {
     display: flex;
-    gap: 4mm;
+    gap: var(--id-card-gap, 5mm);
     align-items: stretch;
     page-break-inside: avoid;
     break-inside: avoid;
@@ -41,8 +41,8 @@
 
 .id-card {
     position: relative;
-    width: 54mm;
-    height: 84mm;
+    width: var(--id-card-width, 54mm);
+    height: var(--id-card-height, 84mm);
     overflow: hidden;
     border-radius: 3.5mm;
     background: #fff;
@@ -126,10 +126,10 @@
 }
 
 .id-card__photo {
-    width: 14.5mm;
-    height: 18mm;
+    width: 18mm;
+    height: 27mm;
     object-fit: cover;
-    border-radius: 1.6mm;
+    border-radius: 1.8mm;
     border: 0.3mm solid #e2e8f0;
     box-shadow: 0 0.6mm 1.8mm rgba(15, 23, 42, 0.12);
 }
@@ -271,6 +271,10 @@
 }
 
 @media print {
+    .id-card-pages {
+        padding-top: 6mm !important;
+    }
+
     .no-print,
     .main-sidebar,
     .main-header,

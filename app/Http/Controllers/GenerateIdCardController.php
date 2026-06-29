@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicSession;
+use App\Models\AdmitSeatCardSetting;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Group;
@@ -15,30 +16,28 @@ class GenerateIdCardController extends Controller
 {
     public function index(Request $request)
     {
-        [$sessions, $classes, $sections, $groups, $students, $setting] = $this->buildData($request);
-        $cardType = $this->normalizeCardType($request->input('card_type', 'id_card'));
+        [$sessions, $classes, $sections, $groups, $students, $setting, $cardType, $cardSettingsMap, $cardSettings, $layout] = $this->buildData($request);
 
         return view('pages.generate-id-cards.index', compact(
-            'sessions', 'classes', 'sections', 'groups', 'students', 'setting', 'cardType'
+            'sessions', 'classes', 'sections', 'groups', 'students', 'setting', 'cardType', 'cardSettingsMap', 'cardSettings', 'layout'
         ));
     }
 
     public function pdf(Request $request)
     {
-        [, , , , $students, $setting] = $this->buildData($request);
-        $cardType = $this->normalizeCardType($request->input('card_type', 'id_card'));
+        [, , , , $students, $setting, $cardType, $cardSettingsMap, $cardSettings, $layout] = $this->buildData($request);
 
         if ($students->isEmpty()) {
             return redirect()->route('students.id-cards')->with('error', 'No data to export.');
         }
 
-        $html = view('pages.generate-id-cards.pdf', compact('students', 'setting', 'cardType'))->render();
+        $html = view('pages.generate-id-cards.pdf', compact('students', 'setting', 'cardType', 'layout'))->render();
 
         $filename = $cardType === 'library_card' ? 'library-cards.pdf' : 'id-cards.pdf';
 
         $mpdf = new Mpdf([
             'format'                   => 'A4-L',
-            'margin_top'               => 8,
+            'margin_top'               => 10,
             'margin_bottom'            => 8,
             'margin_left'              => 8,
             'margin_right'             => 8,
@@ -55,6 +54,8 @@ class GenerateIdCardController extends Controller
         $sessions = AcademicSession::orderByDesc('id')->get();
         $classes  = SchoolClass::get();
         $setting  = SchoolSetting::first();
+        $cardType = $this->normalizeCardType($request->input('card_type', 'id_card'));
+        $cardTypeId = $this->cardTypeToSettingType($cardType);
 
         $sections = $request->filled('class_id')
             ? Section::where('school_class_id', $request->class_id)->orderBy('name_en')->get()
@@ -63,6 +64,14 @@ class GenerateIdCardController extends Controller
 
         $students = collect();
         $studentCid = trim((string) $request->input('student_cid', ''));
+        $cardSettingsMap = AdmitSeatCardSetting::query()
+            ->whereIn('card_type', [3, 4])
+            ->get()
+            ->keyBy('card_type');
+        $cardSettingsMap->put(3, $cardSettingsMap->get(3) ?? AdmitSeatCardSetting::current(3));
+        $cardSettingsMap->put(4, $cardSettingsMap->get(4) ?? AdmitSeatCardSetting::current(4));
+        $cardSettings = $cardSettingsMap->get($cardTypeId);
+        $layout = $this->buildLayout($cardSettings);
 
         $academicInfoConstraint = function ($query) use ($request) {
             $query->when($request->filled('session_id'), fn ($q) => $q->where('academic_session_id', $request->session_id))
@@ -91,11 +100,114 @@ class GenerateIdCardController extends Controller
                 ->get();
         }
 
-        return [$sessions, $classes, $sections, $groups, $students, $setting];
+        return [$sessions, $classes, $sections, $groups, $students, $setting, $cardType, $cardSettingsMap, $cardSettings, $layout];
     }
 
     private function normalizeCardType(?string $cardType): string
     {
         return in_array($cardType, ['id_card', 'library_card'], true) ? $cardType : 'id_card';
+    }
+
+    public function saveSettings(Request $request)
+    {
+        $cardType = $this->normalizeCardType($request->input('card_type', 'id_card'));
+        $cardTypeId = $this->cardTypeToSettingType($cardType);
+
+        $validated = $request->validate([
+            'card_type' => ['required', 'in:id_card,library_card'],
+            'cards_per_page' => ['required', 'integer', 'min:1', 'max:12'],
+            'cards_per_row' => ['required', 'integer', 'min:1', 'max:10'],
+            'card_width_value' => ['required', 'numeric', 'min:0.1'],
+            'card_height_value' => ['required', 'numeric', 'min:0.1'],
+            'grid_gap_value' => ['required', 'numeric', 'min:0.1'],
+            'card_dimension_unit' => ['required', 'in:cm,px'],
+        ]);
+
+        AdmitSeatCardSetting::current($cardTypeId)->fill([
+            'card_type' => $cardTypeId,
+            'cards_per_page' => $validated['cards_per_page'],
+            'cards_per_row' => $validated['cards_per_row'],
+            'card_width_value' => $validated['card_width_value'],
+            'card_height_value' => $validated['card_height_value'],
+            'grid_gap_value' => $validated['grid_gap_value'],
+            'card_dimension_unit' => $validated['card_dimension_unit'],
+        ])->save();
+
+        return back()->with('success', 'Card settings saved.');
+    }
+
+    private function cardTypeToSettingType(string $cardType): int
+    {
+        return $cardType === 'library_card' ? 4 : 3;
+    }
+
+    private function buildLayout(AdmitSeatCardSetting $settings): array
+    {
+        $cardsPerPage = max(1, min(12, (int) ($settings->cards_per_page ?? 4)));
+        $cardsPerRow = max(1, min(10, (int) ($settings->cards_per_row ?? 2)));
+        $cardsPerRow = min($cardsPerRow, $cardsPerPage);
+        $pageRows = (int) ceil($cardsPerPage / $cardsPerRow);
+
+        $marginLeftMm = 8;
+        $marginRightMm = 8;
+        $marginTopMm = 10;
+        $marginBottomMm = 8;
+        $pageWidthMm = 297 - ($marginLeftMm + $marginRightMm);
+        $pageHeightMm = 210 - ($marginTopMm + $marginBottomMm);
+
+        $dimensionUnit = strtolower((string) ($settings->card_dimension_unit ?? 'cm'));
+        $dimensionUnit = in_array($dimensionUnit, ['cm', 'px'], true) ? $dimensionUnit : 'cm';
+
+        $gapValue = $this->normalizeDimensionValue($settings->grid_gap_value ?? null, $dimensionUnit, 0.5);
+        $cardWidthValue = $this->normalizeDimensionValue($settings->card_width_value ?? null, $dimensionUnit, 5.4);
+        $cardHeightValue = $this->normalizeDimensionValue($settings->card_height_value ?? null, $dimensionUnit, 8.4);
+
+        $gapMm = $this->dimensionToMm($gapValue, $dimensionUnit);
+        $cardWidthMm = $this->dimensionToMm($cardWidthValue, $dimensionUnit);
+        $cardHeightMm = $this->dimensionToMm($cardHeightValue, $dimensionUnit);
+
+        $maxCardsPerRow = max(1, (int) floor(($pageWidthMm + $gapMm) / ($cardWidthMm + $gapMm)));
+        $maxPageRows = max(1, (int) floor(($pageHeightMm + $gapMm) / ($cardHeightMm + $gapMm)));
+
+        $cardsPerRow = min($cardsPerRow, $maxCardsPerRow);
+        $pageRows = min($pageRows, $maxPageRows);
+        $cardsPerPage = min($cardsPerPage, max(1, $cardsPerRow * $pageRows));
+
+        return [
+            'cardsPerPage' => $cardsPerPage,
+            'cardsPerRow' => $cardsPerRow,
+            'pageRows' => $pageRows,
+            'cardWidthMm' => round($cardWidthMm, 2),
+            'cardHeightMm' => round($cardHeightMm, 2),
+            'gridGapMm' => round($gapMm, 2),
+            'gridGapValue' => round($gapValue, 2),
+            'cardWidthValue' => round($cardWidthValue, 2),
+            'cardHeightValue' => round($cardHeightValue, 2),
+            'cardDimensionUnit' => $dimensionUnit,
+            'cardWidthDefaultCm' => round($cardWidthMm / 10, 2),
+            'cardHeightDefaultCm' => round($cardHeightMm / 10, 2),
+            'gridGapDefaultCm' => round($gapMm / 10, 2),
+            'cardWidthDefaultPx' => round($cardWidthMm / 25.4 * 96, 2),
+            'cardHeightDefaultPx' => round($cardHeightMm / 25.4 * 96, 2),
+            'gridGapDefaultPx' => round($gapMm / 25.4 * 96, 2),
+        ];
+    }
+
+    private function normalizeDimensionValue(mixed $value, string $unit, float $fallbackCm): float
+    {
+        $numeric = is_numeric($value) ? (float) $value : null;
+
+        if ($numeric !== null && $numeric > 0) {
+            return $numeric;
+        }
+
+        return $fallbackCm;
+    }
+
+    private function dimensionToMm(float $value, string $unit): float
+    {
+        return $unit === 'px'
+            ? ($value / 96) * 25.4
+            : $value * 10;
     }
 }

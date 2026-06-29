@@ -357,6 +357,7 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('/students/birthdays', [\App\Http\Controllers\StudentBirthdayController::class, 'index'])->name('students.birthdays');
         Route::get('/students/id-cards', [\App\Http\Controllers\GenerateIdCardController::class, 'index'])->name('students.id-cards');
+        Route::post('/students/id-cards/settings', [\App\Http\Controllers\GenerateIdCardController::class, 'saveSettings'])->name('students.id-cards.settings');
         Route::get('/students/id-cards/pdf', [\App\Http\Controllers\GenerateIdCardController::class, 'pdf'])->name('students.id-cards.pdf');
         Route::get('/students', [StudentController::class, 'index'])->name('students.index');
         Route::get('/students/{id}', [StudentController::class, 'show'])->name('students.show');
@@ -694,6 +695,7 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
         Route::delete('/{id}', [ResultController::class, 'destroy'])->name('results.destroy');
         Route::get('/reports', [ResultController::class, 'reports'])->name('results.reports');
         Route::get('/admit-seat-cards', [\App\Http\Controllers\AdmitSeatCardController::class, 'index'])->name('results.admit-seat-cards.index');
+        Route::post('/admit-seat-cards/settings', [\App\Http\Controllers\AdmitSeatCardController::class, 'saveSettings'])->name('results.admit-seat-cards.settings');
         Route::get('/admit-seat-cards/pdf', [\App\Http\Controllers\AdmitSeatCardController::class, 'pdf'])->name('results.admit-seat-cards.pdf');
     });
 

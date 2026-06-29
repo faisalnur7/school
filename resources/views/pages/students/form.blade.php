@@ -1,8 +1,12 @@
 @php
+    $errors = $errors ?? new \Illuminate\Support\ViewErrorBag();
     $inputClasses =
         'bg-white peer block w-full rounded-lg border border-gray-300 bg-transparent px-3 text-gray-900';
     $labelClasses =
         'absolute left-3 -top-2 !text-gray-700 transition-all text-sm bg-white px-2 pointer-events-none !font-medium';
+    $useAdmissionDropzone = !empty($admissionMode) || !empty($editMode);
+    $existingImageUrl = !empty($student?->image) ? asset($student->image) : null;
+    $existingImageName = !empty($student?->image) ? basename($student->image) : null;
 
     $date_of_birth = '';
     if(!empty($student)){
@@ -177,7 +181,42 @@
                     <option value="0">Not Disabled</option>
                     <option value="1" @selected(old('disable', $student->disable ?? 0) == 1)>Disabled</option>
                 </select>
-                <input type="file" class="border-gray-300 rounded-lg p-2 w-full" name="image">
+
+                @if ($useAdmissionDropzone)
+                    <div class="md:col-span-2 lg:col-span-2">
+                        <label class="form-label mb-2">Student Image</label>
+                        <div
+                            id="studentImageDropzone"
+                            class="student-image-dropzone dropzone rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 p-4"
+                            data-min-width="290"
+                            data-max-width="300"
+                            data-min-height="440"
+                            data-max-height="450"
+                            @if ($existingImageUrl)
+                                data-existing-image-url="{{ $existingImageUrl }}"
+                                data-existing-image-name="{{ $existingImageName }}"
+                            @endif
+                        >
+                            <div class="dz-message needsclick">
+                                <div class="text-base font-semibold text-slate-700">Drop student photo here or click to browse</div>
+                                <div class="mt-1 text-sm text-slate-500">Allowed size: 290-300 px wide and 440-450 px tall.</div>
+                            </div>
+                        </div>
+                        <input type="file" id="studentImageInput" name="image" class="d-none" accept="image/*">
+                        <div id="studentImageValidationError" class="mt-2 text-sm text-danger"></div>
+                        @error('image')
+                            <div class="mt-2 text-sm text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                @else
+                    <div class="relative w-full">
+                        <input type="file" class="border-gray-300 rounded-lg p-2 w-full" name="image" accept="image/*">
+                        <label class="{{ $labelClasses }}">Student Image</label>
+                        @error('image')
+                            <div class="mt-2 text-sm text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                @endif
             </div>
         </div>
 

@@ -484,20 +484,20 @@
             display: flex;
             align-items: flex-start;
             gap: 0.85rem;
-            min-width: 260px;
+            min-width: 420px;
         }
 
         .students-directory .student-avatar {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
+            width: 300px;
+            height: 450px;
+            border-radius: 20px;
             object-fit: cover;
             background: linear-gradient(135deg, #111827 0%, #374151 100%);
             color: #fff;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            font-size: 2.5rem;
             font-weight: 700;
             flex-shrink: 0;
         }

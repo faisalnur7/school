@@ -37,10 +37,10 @@
         }
 
         .student-profile-avatar {
-            width: 92px;
-            height: 92px;
-            flex: 0 0 92px;
-            border-radius: 24px;
+            width: 300px;
+            height: 450px;
+            flex: 0 0 300px;
+            border-radius: 28px;
             object-fit: cover;
             border: 3px solid rgba(255, 255, 255, 0.18);
             box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
@@ -51,7 +51,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 5rem;
             font-weight: 700;
             color: #fff;
             background: linear-gradient(135deg, #334155, #475569);
