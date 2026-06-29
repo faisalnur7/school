@@ -11,6 +11,7 @@ use App\Models\Section;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Mpdf\Mpdf;
 
 class StudentPaymentReportController extends Controller
@@ -330,7 +331,8 @@ class StudentPaymentReportController extends Controller
                         ];
                     }
 
-                    $key = $studentKey . '|due|' . $inventoryCategory->id . '|' . $inventoryCategory->name;
+                    $columnKey = $categoryKeyMap['inv_' . $inventoryCategory->id] ?? 'inv_' . $inventoryCategory->id;
+                    $key = $studentKey . '|due|' . $columnKey;
                     if (!isset($studentMap[$studentKey]['lines'][$key])) {
                         $studentMap[$studentKey]['lines'][$key] = [
                             'acc_code' => $inventoryCategory->id,
@@ -368,7 +370,8 @@ class StudentPaymentReportController extends Controller
     public function buildData(Request $request): array
     {
         $availableCategories = $this->buildMergedCategories();
-        $selectedCategoryKeys = $this->resolveSelectedPaymentReportColumns($request, $availableCategories);
+        $categoryKeyMap = $this->buildCategoryKeyMap($availableCategories);
+        $selectedCategoryKeys = $this->resolveSelectedPaymentReportColumns($request, $availableCategories, $categoryKeyMap);
         $selectedCategoryLookup = array_flip($selectedCategoryKeys);
         $studentIdFilter = trim((string) $request->input('student_id', ''));
         $categories = $availableCategories
@@ -468,7 +471,7 @@ class StudentPaymentReportController extends Controller
                         continue;
                     }
 
-                    $columnKey = 'fee_' . $category->id;
+                    $columnKey = $categoryKeyMap['fee_' . $category->id] ?? 'fee_' . $category->id;
                     if (!isset($studentMap[$student->id][$columnKey])) {
                         $studentMap[$student->id][$columnKey] = 0;
                     }
@@ -516,7 +519,7 @@ class StudentPaymentReportController extends Controller
             if (!isset($studentMap[$sid])) {
                 $studentMap[$sid] = $this->blankRow($r, null, $categories);
             }
-            $columnKey = 'inv_' . $r->category_id;
+            $columnKey = $categoryKeyMap['inv_' . $r->category_id] ?? 'inv_' . $r->category_id;
             if (!isset($studentMap[$sid][$columnKey])) {
                 $studentMap[$sid][$columnKey] = 0;
             }
@@ -525,7 +528,7 @@ class StudentPaymentReportController extends Controller
 
         $rows = collect(array_values($studentMap))->map(function ($row) {
             $row['grand_total'] = array_sum(array_filter($row, fn($v, $k) =>
-                is_numeric($v) && (str_starts_with($k, 'fee_') || str_starts_with($k, 'inv_')),
+                is_numeric($v) && str_starts_with($k, 'category_'),
                 ARRAY_FILTER_USE_BOTH
             ));
             return (object) $row;
@@ -554,7 +557,7 @@ class StudentPaymentReportController extends Controller
 
     private function buildMergedCategories()
     {
-        return FeeCategory::where('status', 1)
+        $categories = FeeCategory::where('status', 1)
             ->orderBy('name')
             ->get()
             ->map(function ($category) {
@@ -577,11 +580,43 @@ class StudentPaymentReportController extends Controller
                             'column_key' => 'inv_' . $category->id,
                         ];
                     })
-            )
+            );
+
+        return $categories
+            ->groupBy(function ($category) {
+                return Str::lower(trim((string) $category->name));
+            })
+            ->map(function ($group) {
+                $first = $group->first();
+                $normalizedName = Str::lower(trim((string) $first->name));
+
+                return (object) [
+                    'kind' => $group->pluck('kind')->unique()->count() > 1 ? 'merged' : $first->kind,
+                    'id' => $first->id,
+                    'name' => $first->name,
+                    'column_key' => 'category_' . substr(md5($normalizedName), 0, 12),
+                    'source_keys' => $group->pluck('column_key')->values()->all(),
+                ];
+            })
             ->values();
     }
 
-    private function resolveSelectedPaymentReportColumns(Request $request, $availableCategories): array
+    private function buildCategoryKeyMap($availableCategories): array
+    {
+        $map = [];
+
+        foreach ($availableCategories as $category) {
+            $sourceKeys = $category->source_keys ?? [$category->column_key];
+
+            foreach ($sourceKeys as $sourceKey) {
+                $map[$sourceKey] = $category->column_key;
+            }
+        }
+
+        return $map;
+    }
+
+    private function resolveSelectedPaymentReportColumns(Request $request, $availableCategories, array $categoryKeyMap): array
     {
         $selectionWasSubmitted = $request->has('columns_present');
         $selected = array_values(array_filter((array) $request->input('columns', []), function ($value) {
@@ -589,7 +624,11 @@ class StudentPaymentReportController extends Controller
         }));
 
         $validKeys = $availableCategories->pluck('column_key')->all();
-        $selected = array_values(array_intersect($selected, $validKeys));
+        $selected = array_values(array_unique(array_values(array_filter(array_map(function ($value) use ($categoryKeyMap, $validKeys) {
+            $mapped = $categoryKeyMap[$value] ?? $value;
+
+            return in_array($mapped, $validKeys, true) ? $mapped : null;
+        }, $selected)))));
 
         if (! $selectionWasSubmitted && empty($selected)) {
             return $validKeys;
