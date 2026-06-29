@@ -20,6 +20,10 @@
             margin-bottom: 1rem;
         }
 
+        .fees-report-page .fees-report-filter-card {
+            position: relative;
+        }
+
         .fees-report-page .fees-report-form {
             display: flex;
             flex-direction: column;
@@ -232,9 +236,12 @@
 
 @section('contents')
 <div class="container-fluid fees-report-page">
+    @php
+        $reportTitle = 'Discount List';
+    @endphp
     @include('partials.report-header')
     <div class="fees-report-shell">
-        <div class="fees-report-card">
+        <div class="fees-report-card fees-report-filter-card">
             <form method="GET" action="{{ route('fees.discount-list') }}" id="filterForm" class="fees-report-form">
                 <div class="fees-report-grid fees-report-grid--primary">
                     <div class="fees-report-field">
@@ -397,10 +404,18 @@
                                     <td>{{ $row->group_name }}</td>
                                     <td class="text-right">{{ number_format($row->gross_amount, 2) }}</td>
                                     <td class="text-right text-success font-weight-bold">
-                                        @if($row->scholarship > 0) -{{ number_format($row->scholarship, 2) }} @else — @endif
+                                        @if($row->scholarship > 0)
+                                            -{{ number_format($row->scholarship, 2) }}
+                                        @else
+                                            —
+                                        @endif
                                     </td>
                                     <td class="text-right text-warning font-weight-bold">
-                                        @if($row->discount > 0) -{{ number_format($row->discount, 2) }} <small class="text-muted">({{ $row->discount_type === 'percent' ? '%' : 'flat' }})</small> @else — @endif
+                                        @if($row->discount > 0)
+                                            -{{ number_format($row->discount, 2) }} <small class="text-muted">({{ $row->discount_type === 'percent' ? '%' : 'flat' }})</small>
+                                        @else
+                                            —
+                                        @endif
                                     </td>
                                     <td class="text-right text-primary font-weight-bold">{{ number_format($row->paid, 2) }}</td>
                                 </tr>
@@ -533,8 +548,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <style>
 @media print {
-    .main-sidebar, .main-header, .content-header, form, hr, .info-box, button, a.btn { display: none !important; }
-    .content-wrapper { margin-left: 0 !important; }
+    @page {
+        size: A4 landscape;
+        margin: 8mm;
+    }
+
+    html, body {
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .main-sidebar, .main-header, .content-header, hr, .info-box, button, a.btn { display: none !important; }
+    .content-wrapper { margin-left: 0 !important; padding: 0 !important; overflow: visible !important; }
+    .container-fluid.fees-report-page { max-width: none !important; padding: 0 !important; }
+    .fees-report-shell { padding: 0 !important; }
+    .fees-report-filter-card { display: none !important; }
+    .fees-report-card { box-shadow: none !important; border-color: #d1d5db !important; break-inside: avoid; page-break-inside: avoid; }
+    table { page-break-inside: avoid; }
+    tr, td, th { page-break-inside: avoid; }
 }
 </style>
 @endsection

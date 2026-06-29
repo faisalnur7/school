@@ -20,6 +20,10 @@
             margin-bottom: 1rem;
         }
 
+        .fees-report-page .fees-report-filter-card {
+            position: relative;
+        }
+
         .fees-report-page .fees-report-form {
             display: flex;
             flex-direction: column;
@@ -166,14 +170,21 @@
         .fees-report-page .table-responsive td.text-right {
             white-space: nowrap;
         }
+
+        .fees-report-print-total {
+            display: none;
+        }
     </style>
 @endsection
 
 @section('contents')
 <div class="container-fluid fees-report-page">
+    @php
+        $reportTitle = 'Student Receivable Report';
+    @endphp
     @include('partials.report-header')
     <div class="fees-report-shell">
-        <div class="fees-report-card">
+        <div class="fees-report-card fees-report-filter-card">
             <form method="GET" action="{{ route('fees.student-receivable-report') }}" class="fees-report-form">
                 <div class="fees-report-grid fees-report-grid--primary">
                     <div class="fees-report-field">
@@ -369,6 +380,22 @@
                     </table>
                 </div>
 
+                <div class="fees-report-print-total">
+                    <span class="fees-report-print-total__label">Category Total</span>
+                    <div class="fees-report-print-total__grid">
+                        @foreach($months as $monthKey => $monthLabel)
+                            <div class="fees-report-print-total__cell">
+                                <span class="fees-report-print-total__month">{{ $monthLabel }}</span>
+                                <span class="fees-report-print-total__value">{{ number_format($totals['months'][$monthKey] ?? 0, 2) }}</span>
+                            </div>
+                        @endforeach
+                        <div class="fees-report-print-total__cell fees-report-print-total__cell--grand">
+                            <span class="fees-report-print-total__month">Total</span>
+                            <span class="fees-report-print-total__value">{{ number_format($totals['total'], 2) }}</span>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Category-wise monthly summary --}}
                 @if($categories->isNotEmpty())
                 <div class="mt-4">
@@ -417,9 +444,98 @@
 
 <style>
 @media print {
-    .main-sidebar, .main-header, .content-header, form, hr, .info-box, button, a.btn { display: none !important; }
-    .content-wrapper { margin-left: 0 !important; }
-    table { page-break-inside: avoid; }
+    @page {
+        size: A4 landscape;
+        margin: 8mm;
+    }
+
+    html, body {
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .main-sidebar, .main-header, .content-header, hr, .info-box, button, a.btn { display: none !important; }
+    .content-wrapper { margin-left: 0 !important; padding: 0 !important; overflow: visible !important; }
+    .container-fluid.fees-report-page { max-width: none !important; padding: 0 !important; }
+    .fees-report-shell { padding: 0 !important; }
+    .fees-report-filter-card { display: none !important; }
+    .fees-report-card { box-shadow: none !important; border-color: #d1d5db !important; }
+    .fees-report-page .table-responsive { overflow: visible !important; }
+    .fees-report-page table {
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+        width: 100% !important;
+    }
+    .fees-report-page thead {
+        display: table-header-group !important;
+    }
+    .fees-report-page tfoot {
+        display: none !important;
+    }
+    .fees-report-page tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-after: auto !important;
+    }
+    .fees-report-page th,
+    .fees-report-page td {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .fees-report-print-total {
+        display: block !important;
+        margin-top: 0.75rem !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-before: avoid !important;
+        break-before: avoid !important;
+    }
+
+    .fees-report-print-total__label {
+        display: block;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 0.45rem;
+        text-align: right;
+    }
+
+    .fees-report-print-total__grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+        gap: 0.35rem;
+    }
+
+    .fees-report-print-total__cell {
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 0.35rem 0.45rem;
+        text-align: right;
+        background: #fff;
+    }
+
+    .fees-report-print-total__cell--grand {
+        background: #e9ecef;
+        font-weight: 700;
+    }
+
+    .fees-report-print-total__month {
+        display: block;
+        font-size: 8px;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 0.15rem;
+    }
+
+    .fees-report-print-total__value {
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        color: #111827;
+    }
 }
 </style>
 

@@ -20,6 +20,21 @@
             margin-bottom: 1rem;
         }
 
+        .fees-report-page .fees-report-filter-card {
+            position: relative;
+        }
+
+        .fees-report-page .report-header-body {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .fees-report-page .report-header-copy {
+            min-width: 0;
+        }
+
         .fees-report-page .fees-report-form {
             display: flex;
             flex-direction: column;
@@ -166,9 +181,12 @@
 
 @section('contents')
 <div class="container-fluid fees-report-page">
+    @php
+        $reportTitle = 'Student Receive Report';
+    @endphp
     @include('partials.report-header')
     <div class="fees-report-shell">
-        <div class="fees-report-card">
+        <div class="fees-report-card fees-report-filter-card">
             <form method="GET" action="{{ route('fees.student-receive-report') }}" class="fees-report-form">
                 <div class="fees-report-grid fees-report-grid--primary">
                     <div class="fees-report-field">
@@ -318,8 +336,42 @@
 
 <style>
 @media print {
-    .main-sidebar, .main-header, .content-header, form, hr, .info-box, button, a.btn { display: none !important; }
-    .content-wrapper { margin-left: 0 !important; }
+    @page {
+        size: A4 landscape;
+        margin: 8mm;
+    }
+
+    html, body {
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .main-sidebar, .main-header, .content-header, hr, .info-box, button, a.btn { display: none !important; }
+    .content-wrapper { margin-left: 0 !important; padding: 0 !important; overflow: visible !important; }
+    .container-fluid.fees-report-page { max-width: none !important; padding: 0 !important; }
+    .fees-report-shell { padding: 0 !important; }
+    .fees-report-filter-card { display: none !important; }
+    .fees-report-card { box-shadow: none !important; border-color: #d1d5db !important; break-inside: avoid; page-break-inside: avoid; }
+    .report-header-card .report-header-body {
+        display: table !important;
+        width: 100% !important;
+        table-layout: fixed !important;
+    }
+    .report-header-card .report-header-logo,
+    .report-header-card .report-header-copy {
+        display: table-cell !important;
+        vertical-align: middle !important;
+    }
+    .report-header-card .report-header-logo {
+        width: 58px !important;
+        padding-right: 12px !important;
+    }
+    .report-header-card .report-header-copy {
+        min-width: 0 !important;
+    }
     table { page-break-inside: avoid; }
     tr, td, th { page-break-inside: avoid; }
 }

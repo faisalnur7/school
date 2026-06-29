@@ -232,9 +232,12 @@
 
 @section('contents')
 <div class="container-fluid fees-report-page">
+    @php
+        $reportTitle = 'Student Due Report';
+    @endphp
     @include('partials.report-header')
     <div class="fees-report-shell">
-        <div class="fees-report-card">
+        <div class="fees-report-card fees-report-no-print">
             <form method="GET" action="{{ route('fees.student-due-report') }}" id="filterForm" class="fees-report-form">
                 <div class="fees-report-grid fees-report-grid--primary">
                     <div class="fees-report-field">
@@ -502,8 +505,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <style>
 @media print {
-    .main-sidebar, .main-header, .content-header, form, hr, .info-box, button, a.btn { display: none !important; }
-    .content-wrapper { margin-left: 0 !important; }
+    @page {
+        size: A4 landscape;
+        margin: 8mm;
+    }
+
+    html, body {
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .main-sidebar, .main-header, .content-header, hr, .info-box, button, a.btn { display: none !important; }
+    .content-wrapper { margin-left: 0 !important; padding: 0 !important; overflow: visible !important; }
+    .container-fluid.fees-report-page { max-width: none !important; padding: 0 !important; }
+    .fees-report-shell { padding: 0 !important; }
+    .fees-report-no-print { display: none !important; }
+    .fees-report-card { box-shadow: none !important; border-color: #d1d5db !important; break-inside: avoid; page-break-inside: avoid; }
     table { page-break-inside: avoid; }
     tr, td, th { page-break-inside: avoid; }
 }

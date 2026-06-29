@@ -24,6 +24,10 @@
             margin-bottom: 1rem;
         }
 
+        .all-in-one-report-page .report-filter-card {
+            position: relative;
+        }
+
         .all-in-one-report-page .report-form {
             display: flex;
             flex-direction: column;
@@ -307,15 +311,101 @@
             border-top-color: rgba(148, 163, 184, 0.14);
             color: #e2e8f0;
         }
+
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 8mm;
+            }
+
+            html, body {
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .main-sidebar,
+            .main-header,
+            .content-header,
+            hr,
+            .info-box,
+            button,
+            a.btn {
+                display: none !important;
+            }
+
+            .content-wrapper {
+                margin-left: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+
+            .all-in-one-report-page {
+                padding: 0 !important;
+            }
+
+            .all-in-one-report-page .report-shell {
+                padding: 0 !important;
+            }
+
+            .all-in-one-report-page .report-filter-card {
+                display: none !important;
+            }
+
+            .all-in-one-report-page .report-card,
+            .all-in-one-report-page .report-section {
+                box-shadow: none !important;
+                border-color: #d1d5db !important;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .all-in-one-report-page .report-section-header {
+                padding: 0.5rem 0.75rem 0.45rem !important;
+            }
+
+            .all-in-one-report-page .report-section-title {
+                font-size: 10px !important;
+            }
+
+            .all-in-one-report-page .report-section-subtitle {
+                font-size: 9px !important;
+            }
+
+            .all-in-one-report-page .report-table-wrap {
+                overflow: visible !important;
+            }
+
+            .all-in-one-report-page .report-table {
+                width: 100% !important;
+                min-width: 0 !important;
+                table-layout: fixed !important;
+                font-size: 8px !important;
+            }
+
+            .all-in-one-report-page .report-table thead th,
+            .all-in-one-report-page .report-table tbody td,
+            .all-in-one-report-page .report-table tfoot td {
+                padding: 0.22rem 0.28rem !important;
+                white-space: normal !important;
+                word-break: break-word !important;
+                overflow-wrap: anywhere !important;
+            }
+        }
     </style>
 @endsection
 
 @section('contents')
     <div class="container-fluid all-in-one-report-page">
+        @php
+            $reportTitle = 'All In One Report';
+        @endphp
         @include('partials.report-header')
 
         <div class="report-shell">
-            <div class="report-card">
+            <div class="report-card report-filter-card">
                 <form method="GET" action="{{ route('fees.all-in-one-report') }}" class="report-form">
                     <div class="report-grid report-grid--primary">
                         <div class="report-field">

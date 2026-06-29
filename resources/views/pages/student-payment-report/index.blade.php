@@ -491,28 +491,29 @@
 @endsection
 
 @section('contents')
+    @php
+        $reportTitle = 'Student Payment Report';
+        $selectedCategoryKeys = $selectedCategoryKeys ?? ($availableCategories->pluck('column_key')->all() ?? []);
+        $reportPdfQuery = collect([
+            'student_id' => request('student_id'),
+            'session_id' => request('session_id'),
+            'class_id' => request('class_id'),
+            'section_id' => request('section_id'),
+            'from_date' => request('from_date'),
+            'to_date' => request('to_date'),
+            'date' => request('date'),
+            'columns_present' => request()->has('columns_present') ? 1 : null,
+            'columns' => request('columns'),
+        ])->filter(function ($value) {
+            return is_array($value) ? ! empty($value) : filled($value);
+        })->all();
+    @endphp
+
     <div class="container-fluid payment-report-page">
         @include('partials.report-header')
 
         <div class="payment-report-shell">
             <div class="payment-report-card payment-report-filter-card">
-                @php
-                    $selectedCategoryKeys = $selectedCategoryKeys ?? ($availableCategories->pluck('column_key')->all() ?? []);
-                    $reportPdfQuery = collect([
-                        'student_id' => request('student_id'),
-                        'session_id' => request('session_id'),
-                        'class_id' => request('class_id'),
-                        'section_id' => request('section_id'),
-                        'from_date' => request('from_date'),
-                        'to_date' => request('to_date'),
-                        'date' => request('date'),
-                        'columns_present' => request()->has('columns_present') ? 1 : null,
-                        'columns' => request('columns'),
-                    ])->filter(function ($value) {
-                        return is_array($value) ? ! empty($value) : filled($value);
-                    })->all();
-                @endphp
-
                 <form method="GET" action="{{ route('fees.payment-report') }}" class="payment-report-form mb-3">
                     <div class="payment-report-grid payment-report-grid--primary">
                         <div class="payment-report-field">
@@ -948,10 +949,6 @@
             .report-header-card .report-header-copy {
                 display: table-cell !important;
                 vertical-align: middle !important;
-            }
-
-            .report-header-copy{
-                padding-left: 20px !important;
             }
 
             .report-header-card .report-header-logo {
