@@ -571,8 +571,6 @@ class StudentController extends Controller
                 : null,
         ];
 
-        $html = view('pages.students.list-pdf', compact('students', 'groupedStudents', 'setting', 'selectedColumns', 'pdfColumnOptions', 'filterHeading'))->render();
-
         $mpdf = new \Mpdf\Mpdf([
             'orientation'   => 'L',
             'margin_top'    => 10,
@@ -593,7 +591,45 @@ class StudentController extends Controller
             </table>
         ');
 
-        $mpdf->WriteHTML($html);
+        $mpdf->WriteHTML(
+            view('pages.students.list-pdf-start', compact(
+                'students',
+                'setting',
+                'selectedColumns',
+                'pdfColumnOptions',
+                'filterHeading'
+            ))->render()
+        );
+
+        $rowNumber = 0;
+
+        foreach ($groupedStudents as $classGroup) {
+            $mpdf->WriteHTML(
+                view('pages.students.list-pdf-class-row', compact('classGroup', 'selectedColumns'))->render()
+            );
+
+            foreach ($classGroup['sections'] as $sectionGroup) {
+                $mpdf->WriteHTML(
+                    view('pages.students.list-pdf-section-row', compact('sectionGroup', 'selectedColumns'))->render()
+                );
+
+                foreach ($sectionGroup['students'] as $student) {
+                    $rowNumber++;
+                    $academicInformation = $student->academicInformations->last();
+
+                    $mpdf->WriteHTML(
+                        view('pages.students.list-pdf-student-row', compact(
+                            'student',
+                            'selectedColumns',
+                            'academicInformation',
+                            'rowNumber'
+                        ))->render()
+                    );
+                }
+            }
+        }
+
+        $mpdf->WriteHTML(view('pages.students.list-pdf-end')->render());
         $mpdf->Output('student-list.pdf', 'D');
     }
 
