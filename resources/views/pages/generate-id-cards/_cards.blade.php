@@ -30,6 +30,9 @@
         : "linear-gradient(135deg, {$cardGradient1}, {$cardGradient2})");
     $cardSchoolNameColor = $cardSettings?->card_school_name_text_color ?? '#ffffff';
     $cardSchoolDetailColor = $cardSettings?->card_school_detail_text_color ?? '#e5e7eb';
+    $cardSloganColor = $cardSettings?->card_slogan_text_color ?? '#e5e7eb';
+    $cardBackNoticeColor = $cardSettings?->card_back_notice_text_color ?? '#94a3b8';
+    $cardFooterColor = $cardSettings?->card_footer_text_color ?? '#e5e7eb';
     $cardTitleColor = $cardSettings?->card_title_text_color ?? '#ffffff';
     $frontTitle = match ($cardType) {
         'library_card' => 'LIBRARY CARD',
@@ -61,7 +64,7 @@
     }
 @endphp
 
-<div class="id-card-pages" style="--id-card-width: {{ $cardWidthMm }}mm; --id-card-height: {{ $cardHeightMm }}mm; --id-card-gap: {{ $gapMm }}mm; --card-theme-bg: {{ $cardThemeBackground }}; --card-theme-accent: {{ $cardThemeAccent }}; --id-card-school-name-color: {{ $cardSchoolNameColor }}; --id-card-school-detail-color: {{ $cardSchoolDetailColor }}; --id-card-title-color: {{ $cardTitleColor }};">
+<div class="id-card-pages" style="--id-card-width: {{ $cardWidthMm }}mm; --id-card-height: {{ $cardHeightMm }}mm; --id-card-gap: {{ $gapMm }}mm; --card-theme-bg: {{ $cardThemeBackground }}; --card-theme-accent: {{ $cardThemeAccent }}; --id-card-school-name-color: {{ $cardSchoolNameColor }}; --id-card-school-detail-color: {{ $cardSchoolDetailColor }}; --id-card-slogan-color: {{ $cardSloganColor }}; --id-card-back-notice-color: {{ $cardBackNoticeColor }}; --id-card-footer-color: {{ $cardFooterColor }}; --id-card-title-color: {{ $cardTitleColor }};">
     @foreach($studentPages as $pageIndex => $pageStudents)
         <div class="id-card-page" style="grid-template-columns: repeat({{ $cardsPerRow }}, max-content); gap: {{ $gapMm }}mm {{ $gapMm }}mm;">
             @foreach($pageStudents as $student)

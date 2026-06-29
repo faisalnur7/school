@@ -224,4 +224,76 @@ class GenerateIdCardSettingsTest extends TestCase
         $this->assertStringContainsString('--id-card-school-detail-color: #334155', $html);
         $this->assertStringContainsString('name="card_is_transparent"', $html);
     }
+
+    public function test_id_card_notice_and_footer_text_colors_are_saved_and_rendered(): void
+    {
+        $session = AcademicSession::create(['name_bn' => 'S', 'name_en' => 'S', 'status' => 1]);
+        $class = SchoolClass::create(['name_bn' => 'C', 'name_en' => 'C', 'status' => 1]);
+        $section = Section::create(['school_class_id' => $class->id, 'name_bn' => 'A', 'name_en' => 'A']);
+        $user = User::factory()->create();
+
+        $student = Student::create([
+            'full_name_en' => 'Eve',
+            'student_cid' => 'S-1004',
+        ]);
+
+        StudentAcademicInformation::create([
+            'student_id' => $student->id,
+            'academic_session_id' => $session->id,
+            'school_class_id' => $class->id,
+            'section_id' => $section->id,
+            'roll' => '4',
+            'is_current' => true,
+            'academic_status' => 'active',
+        ]);
+
+        $controller = app(GenerateIdCardController::class);
+        $this->actingAs($user);
+
+        $saveRequest = Request::create('/students/id-cards/settings', 'POST', [
+            'card_type' => 'id_card',
+            'cards_per_page' => 4,
+            'cards_per_row' => 2,
+            'card_width_value' => 5.4,
+            'card_height_value' => 8.4,
+            'grid_gap_value' => 0.5,
+            'card_dimension_unit' => 'cm',
+            'card_is_transparent' => 1,
+            'card_color_type' => 'gradient',
+            'card_color_gradient_1' => '#123456',
+            'card_color_gradient_2' => '#234567',
+            'card_solid_color' => '#0f172a',
+            'card_slogan_text_color' => '#0f172a',
+            'card_back_notice_text_color' => '#475569',
+            'card_footer_text_color' => '#111827',
+        ]);
+
+        $controller->saveSettings($saveRequest);
+
+        $setting = AdmitSeatCardSetting::query()->where('card_type', 3)->firstOrFail();
+        $this->assertSame('#0f172a', $setting->card_slogan_text_color);
+        $this->assertSame('#475569', $setting->card_back_notice_text_color);
+        $this->assertSame('#111827', $setting->card_footer_text_color);
+
+        $viewRequest = Request::create('/students/id-cards', 'GET', [
+            'session_id' => $session->id,
+            'class_id' => $class->id,
+            'section_id' => $section->id,
+            'group_id' => '',
+            'card_type' => 'id_card',
+            'student_cid' => '',
+        ]);
+
+        app()->instance('request', $viewRequest);
+        app('view')->share('errors', new ViewErrorBag());
+        $response = $controller->index($viewRequest);
+        $html = $response->render();
+
+        $this->assertStringContainsString('--id-card-slogan-color: #0f172a', $html);
+        $this->assertStringContainsString('--id-card-back-notice-color: #475569', $html);
+        $this->assertStringContainsString('--id-card-footer-color: #111827', $html);
+        $this->assertStringContainsString('name="card_slogan_text_color"', $html);
+        $this->assertStringContainsString('name="card_back_notice_text_color"', $html);
+        $this->assertStringContainsString('name="card_footer_text_color"', $html);
+    }
 }

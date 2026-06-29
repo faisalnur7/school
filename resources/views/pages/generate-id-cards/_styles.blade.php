@@ -97,7 +97,7 @@
     opacity: 0.85;
     line-height: 1.05;
     margin-top: 0.3mm;
-    color: var(--id-card-school-detail-color, #e5e7eb);
+    color: var(--id-card-slogan-color, var(--id-card-school-detail-color, #e5e7eb));
 }
 
 .id-card__label-badge {
@@ -201,7 +201,7 @@
     padding: 1.3mm 1.8mm;
     font-size: 4.4pt;
     line-height: 1.05;
-    color: var(--id-card-school-detail-color, rgba(255,255,255,0.88));
+    color: var(--id-card-footer-color, var(--id-card-school-detail-color, rgba(255,255,255,0.88)));
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
@@ -254,7 +254,7 @@
     text-align: center;
     font-size: 4.1pt;
     font-style: italic;
-    color: #94a3b8;
+    color: var(--id-card-back-notice-color, #94a3b8);
 }
 
 .id-card__qr {

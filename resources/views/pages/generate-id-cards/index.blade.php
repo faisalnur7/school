@@ -264,6 +264,45 @@
                         </div>
                         <div class="col-12 col-md-3 mb-3">
                             <div class="id-card-settings-field mb-0">
+                                <label class="font-weight-bold id-card-filter-label">Slogan Color</label>
+                                <div class="d-flex align-items-center" style="gap:10px">
+                                    <input type="color" name="card_slogan_text_color" id="cardSloganColor"
+                                        class="form-control form-control-color p-1"
+                                        style="width:48px;height:38px;cursor:pointer"
+                                        value="{{ old('card_slogan_text_color', $cardSettings?->card_slogan_text_color ?? '#e5e7eb') }}">
+                                    <div id="cardSloganColorPreview" class="rounded"
+                                        style="width:32px;height:32px;border:1px solid #ddd;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3 mb-3">
+                            <div class="id-card-settings-field mb-0">
+                                <label class="font-weight-bold id-card-filter-label">Back Notice Color</label>
+                                <div class="d-flex align-items-center" style="gap:10px">
+                                    <input type="color" name="card_back_notice_text_color" id="cardBackNoticeColor"
+                                        class="form-control form-control-color p-1"
+                                        style="width:48px;height:38px;cursor:pointer"
+                                        value="{{ old('card_back_notice_text_color', $cardSettings?->card_back_notice_text_color ?? '#94a3b8') }}">
+                                    <div id="cardBackNoticeColorPreview" class="rounded"
+                                        style="width:32px;height:32px;border:1px solid #ddd;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3 mb-3">
+                            <div class="id-card-settings-field mb-0">
+                                <label class="font-weight-bold id-card-filter-label">Footer Color</label>
+                                <div class="d-flex align-items-center" style="gap:10px">
+                                    <input type="color" name="card_footer_text_color" id="cardFooterColor"
+                                        class="form-control form-control-color p-1"
+                                        style="width:48px;height:38px;cursor:pointer"
+                                        value="{{ old('card_footer_text_color', $cardSettings?->card_footer_text_color ?? '#e5e7eb') }}">
+                                    <div id="cardFooterColorPreview" class="rounded"
+                                        style="width:32px;height:32px;border:1px solid #ddd;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3 mb-3">
+                            <div class="id-card-settings-field mb-0">
                                 <label class="font-weight-bold id-card-filter-label">Card Title Color</label>
                                 <div class="d-flex align-items-center" style="gap:10px">
                                     <input type="color" name="card_title_text_color" id="cardTitleColor"
@@ -359,6 +398,9 @@
                 'card_solid_color' => $setting->card_solid_color,
                 'card_school_name_text_color' => $setting->card_school_name_text_color,
                 'card_school_detail_text_color' => $setting->card_school_detail_text_color,
+                'card_slogan_text_color' => $setting->card_slogan_text_color,
+                'card_back_notice_text_color' => $setting->card_back_notice_text_color,
+                'card_footer_text_color' => $setting->card_footer_text_color,
                 'card_title_text_color' => $setting->card_title_text_color,
                 'card_logo_url' => $resolveLogoUrl($setting->card_logo ?? null) ?: $schoolLogoUrl,
             ],
@@ -382,6 +424,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const cardSolidColor = document.getElementById('cardSolidColor');
     const cardSchoolNameColor = document.getElementById('cardSchoolNameColor');
     const cardSchoolDetailColor = document.getElementById('cardSchoolDetailColor');
+    const cardSloganColor = document.getElementById('cardSloganColor');
+    const cardBackNoticeColor = document.getElementById('cardBackNoticeColor');
+    const cardFooterColor = document.getElementById('cardFooterColor');
     const cardTitleColor = document.getElementById('cardTitleColor');
     const cardLogoInput = document.getElementById('cardLogoInput');
     const cardLogoPreview = document.getElementById('cardLogoPreview');
@@ -390,11 +435,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const cardSolidColorPreview = document.getElementById('cardSolidColorPreview');
     const cardSchoolNameColorPreview = document.getElementById('cardSchoolNameColorPreview');
     const cardSchoolDetailColorPreview = document.getElementById('cardSchoolDetailColorPreview');
+    const cardSloganColorPreview = document.getElementById('cardSloganColorPreview');
+    const cardBackNoticeColorPreview = document.getElementById('cardBackNoticeColorPreview');
+    const cardFooterColorPreview = document.getElementById('cardFooterColorPreview');
     const cardTitleColorPreview = document.getElementById('cardTitleColorPreview');
     const selectedSection = @json(request('section_id'));
     const hasValidationErrors = @json($errors->any());
     const cardSettingsMap = @json($cardSettingsPayload);
     const defaultCardType = @json($cardType ?? 'id_card');
+    let activeCardSettings = {};
     const defaultThemeSettings = {
         card_is_transparent: false,
         card_color_type: 'gradient',
@@ -403,6 +452,9 @@ document.addEventListener('DOMContentLoaded', function () {
         card_solid_color: '#1e3a5f',
         card_school_name_text_color: '#ffffff',
         card_school_detail_text_color: '#e5e7eb',
+        card_slogan_text_color: '#e5e7eb',
+        card_back_notice_text_color: '#94a3b8',
+        card_footer_text_color: '#e5e7eb',
         card_title_text_color: '#ffffff',
     };
     const fallbackSchoolLogo = @json($schoolLogoUrl);
@@ -420,8 +472,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const key = settingKeyFromCardType(cardType || defaultCardType);
         const settings = cardSettingsMap[key] || cardSettingsMap['3'] || {};
+        activeCardSettings = settings;
 
-        ['cards_per_page', 'cards_per_row', 'card_width_value', 'card_height_value', 'grid_gap_value', 'card_dimension_unit', 'card_is_transparent', 'card_color_type', 'card_color_gradient_1', 'card_color_gradient_2', 'card_solid_color', 'card_school_name_text_color', 'card_school_detail_text_color', 'card_title_text_color'].forEach((field) => {
+        ['cards_per_page', 'cards_per_row', 'card_width_value', 'card_height_value', 'grid_gap_value', 'card_dimension_unit', 'card_is_transparent', 'card_color_type', 'card_color_gradient_1', 'card_color_gradient_2', 'card_solid_color', 'card_school_name_text_color', 'card_school_detail_text_color', 'card_slogan_text_color', 'card_back_notice_text_color', 'card_footer_text_color', 'card_title_text_color'].forEach((field) => {
             const input = settingsForm.elements.namedItem(field);
             const value = field === 'card_is_transparent'
                 ? ((settings[field] ?? defaultThemeSettings[field]) ? '1' : '0')
@@ -458,6 +511,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isTransparent) {
             if (cardSchoolNameColor && cardSchoolNameColor.value === '#ffffff') cardSchoolNameColor.value = '#111827';
             if (cardSchoolDetailColor && cardSchoolDetailColor.value === '#e5e7eb') cardSchoolDetailColor.value = '#334155';
+            if (cardSloganColor && cardSloganColor.value === '#e5e7eb') cardSloganColor.value = '#334155';
+            if (cardBackNoticeColor && cardBackNoticeColor.value === '#94a3b8') cardBackNoticeColor.value = '#64748b';
+            if (cardFooterColor && cardFooterColor.value === '#e5e7eb') cardFooterColor.value = '#111827';
             if (cardTitleColor && cardTitleColor.value === '#ffffff') cardTitleColor.value = '#111827';
         }
 
@@ -482,6 +538,18 @@ document.addEventListener('DOMContentLoaded', function () {
             cardSchoolDetailColorPreview.style.background = cardSchoolDetailColor?.value || '#e5e7eb';
         }
 
+        if (cardSloganColorPreview) {
+            cardSloganColorPreview.style.background = cardSloganColor?.value || '#e5e7eb';
+        }
+
+        if (cardBackNoticeColorPreview) {
+            cardBackNoticeColorPreview.style.background = cardBackNoticeColor?.value || '#94a3b8';
+        }
+
+        if (cardFooterColorPreview) {
+            cardFooterColorPreview.style.background = cardFooterColor?.value || '#e5e7eb';
+        }
+
         if (cardTitleColorPreview) {
             cardTitleColorPreview.style.background = cardTitleColor?.value || '#ffffff';
         }
@@ -504,8 +572,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (cardLogoPreview) {
-            cardLogoPreview.src = settings.card_logo_url || fallbackSchoolLogo || '';
-            cardLogoPreview.classList.toggle('d-none', !(settings.card_logo_url || fallbackSchoolLogo));
+            const logoUrl = activeCardSettings.card_logo_url || fallbackSchoolLogo || '';
+            cardLogoPreview.src = logoUrl;
+            cardLogoPreview.classList.toggle('d-none', !logoUrl);
         }
     }
 
@@ -574,12 +643,12 @@ document.addEventListener('DOMContentLoaded', function () {
             cardColorType.addEventListener('change', refreshCardColorControls);
         }
         settingsForm.addEventListener('input', function (event) {
-            if (['card_is_transparent', 'card_color_type', 'card_color_gradient_1', 'card_color_gradient_2', 'card_solid_color', 'card_school_name_text_color', 'card_school_detail_text_color', 'card_title_text_color'].includes(event.target.name)) {
+            if (['card_is_transparent', 'card_color_type', 'card_color_gradient_1', 'card_color_gradient_2', 'card_solid_color', 'card_school_name_text_color', 'card_school_detail_text_color', 'card_slogan_text_color', 'card_back_notice_text_color', 'card_footer_text_color', 'card_title_text_color'].includes(event.target.name)) {
                 refreshCardColorControls();
             }
         });
         settingsForm.addEventListener('change', function (event) {
-            if (['card_is_transparent', 'card_color_type', 'card_color_gradient_1', 'card_color_gradient_2', 'card_solid_color', 'card_school_name_text_color', 'card_school_detail_text_color', 'card_title_text_color'].includes(event.target.name)) {
+            if (['card_is_transparent', 'card_color_type', 'card_color_gradient_1', 'card_color_gradient_2', 'card_solid_color', 'card_school_name_text_color', 'card_school_detail_text_color', 'card_slogan_text_color', 'card_back_notice_text_color', 'card_footer_text_color', 'card_title_text_color'].includes(event.target.name)) {
                 refreshCardColorControls();
             }
         });
