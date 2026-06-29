@@ -488,18 +488,23 @@
         }
 
         .students-directory .student-avatar {
-            width: 300px;
-            height: 450px;
-            border-radius: 20px;
-            object-fit: cover;
+            width: 72px;
+            height: 96px;
+            border-radius: 14px;
             background: linear-gradient(135deg, #111827 0%, #374151 100%);
             color: #fff;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 1.1rem;
             font-weight: 700;
             flex-shrink: 0;
+        }
+
+        .students-directory img.student-avatar {
+            object-fit: contain;
+            background: #f8fafc;
+            padding: 2px;
         }
 
         .students-directory .student-name {
