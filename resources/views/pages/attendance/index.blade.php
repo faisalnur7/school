@@ -68,6 +68,9 @@
                             <label class="attendance-filter-label" for="att_date">Date</label>
                             <input type="date" id="att_date" class="form-control form-control-sm attendance-filter-control"
                                 value="{{ $defaultDate }}" required />
+                            <small class="form-text text-muted mt-1">
+                                Attendance is disabled on configured weekends and holidays.
+                            </small>
                         </div>
 
                         <div class="attendance-filter-action">

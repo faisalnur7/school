@@ -6,8 +6,10 @@ use App\Models\AcademicSession;
 use App\Models\Attendance;
 use App\Models\AttendanceItem;
 use App\Models\AttendanceSetting;
+use App\Models\Holiday;
 use App\Models\SchoolClass;
 use App\Models\StudentAcademicInformation;
+use App\Models\WeekendSetting;
 use App\Models\TeacherSectionAssignment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -60,6 +62,10 @@ class AttendanceController extends Controller
         $classId = (int) $request->class_id;
         $sectionId = (int) $request->section_id;
         $date = $normalizedDate;
+
+        if ($message = $this->blockedAttendanceMessage($date)) {
+            return response()->json(['message' => $message], 422);
+        }
 
         $this->authorizeSection($sessionId, $classId, $sectionId);
 
@@ -116,6 +122,10 @@ class AttendanceController extends Controller
         $classId = (int) $data['class_id'];
         $sectionId = (int) $data['section_id'];
         $date = $data['date'];
+
+        if ($message = $this->blockedAttendanceMessage($date)) {
+            return back()->with('error', $message);
+        }
 
         $this->authorizeSection($sessionId, $classId, $sectionId);
 
@@ -176,6 +186,10 @@ class AttendanceController extends Controller
         $sessionId = (int) $data['session_id'];
         $classId = (int) $data['class_id'];
         $sectionId = (int) $data['section_id'];
+
+        if ($message = $this->blockedAttendanceMessage($data['date'])) {
+            return back()->with('error', $message);
+        }
 
         if (
             $attendance->session_id !== $sessionId ||
@@ -254,5 +268,25 @@ class AttendanceController extends Controller
             ->map(fn ($v) => (int) $v)
             ->unique()
             ->values();
+    }
+
+    private function blockedAttendanceMessage(string $date): ?string
+    {
+        $attendanceDate = Carbon::parse($date);
+        $blockedReasons = [];
+
+        if (in_array($attendanceDate->dayOfWeek, WeekendSetting::current()->days(), true)) {
+            $blockedReasons[] = 'weekends';
+        }
+
+        if (Holiday::query()->whereDate('date', $attendanceDate->toDateString())->exists()) {
+            $blockedReasons[] = 'holidays';
+        }
+
+        if ($blockedReasons === []) {
+            return null;
+        }
+
+        return 'Attendance cannot be taken on ' . implode(' or ', $blockedReasons) . '.';
     }
 }

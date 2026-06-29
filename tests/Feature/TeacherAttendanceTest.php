@@ -8,8 +8,11 @@ use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\StudentAcademicInformation;
+use App\Models\Holiday;
+use App\Models\WeekendSetting;
 use App\Models\TeacherSectionAssignment;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -238,5 +241,108 @@ class TeacherAttendanceTest extends TestCase
             ])
             ->assertStatus(403);
     }
-}
 
+    public function test_attendance_cannot_be_taken_on_weekends(): void
+    {
+        $teacher = User::factory()->create();
+
+        $session = AcademicSession::create(['name_bn' => 'S', 'name_en' => 'S', 'status' => 1]);
+        $class = SchoolClass::create(['name_bn' => 'C', 'name_en' => 'C', 'status' => 1]);
+        $section = Section::create(['school_class_id' => $class->id, 'name_bn' => 'A', 'name_en' => 'A']);
+
+        TeacherSectionAssignment::create([
+            'user_id' => $teacher->id,
+            'session_id' => $session->id,
+            'class_id' => $class->id,
+            'section_id' => $section->id,
+        ]);
+
+        $student = Student::create(['full_name_en' => 'Alice']);
+        StudentAcademicInformation::create([
+            'student_id' => $student->id,
+            'academic_session_id' => $session->id,
+            'school_class_id' => $class->id,
+            'section_id' => $section->id,
+            'roll' => '1',
+        ]);
+
+        $date = '2026-05-10';
+        WeekendSetting::create(['weekend_days' => [Carbon::parse($date)->dayOfWeek]]);
+
+        $this->actingAs($teacher)
+            ->get('/teacher/attendance/load?session_id='.$session->id.'&class_id='.$class->id.'&section_id='.$section->id.'&date='.$date)
+            ->assertStatus(422)
+            ->assertJson([
+                'message' => 'Attendance cannot be taken on weekends.',
+            ]);
+
+        $this->actingAs($teacher)
+            ->post('/teacher/attendance', [
+                'session_id' => $session->id,
+                'class_id' => $class->id,
+                'section_id' => $section->id,
+                'date' => $date,
+                'student_ids' => [$student->id],
+                'present_ids' => [$student->id],
+            ])
+            ->assertSessionHas('error', 'Attendance cannot be taken on weekends.');
+
+        $this->assertDatabaseMissing('attendances', [
+            'session_id' => $session->id,
+            'class_id' => $class->id,
+            'section_id' => $section->id,
+            'date' => $date,
+        ]);
+    }
+
+    public function test_attendance_cannot_be_taken_on_holidays(): void
+    {
+        $teacher = User::factory()->create();
+
+        $session = AcademicSession::create(['name_bn' => 'S', 'name_en' => 'S', 'status' => 1]);
+        $class = SchoolClass::create(['name_bn' => 'C', 'name_en' => 'C', 'status' => 1]);
+        $section = Section::create(['school_class_id' => $class->id, 'name_bn' => 'A', 'name_en' => 'A']);
+
+        TeacherSectionAssignment::create([
+            'user_id' => $teacher->id,
+            'session_id' => $session->id,
+            'class_id' => $class->id,
+            'section_id' => $section->id,
+        ]);
+
+        $student = Student::create(['full_name_en' => 'Bob']);
+        StudentAcademicInformation::create([
+            'student_id' => $student->id,
+            'academic_session_id' => $session->id,
+            'school_class_id' => $class->id,
+            'section_id' => $section->id,
+            'roll' => '1',
+        ]);
+
+        WeekendSetting::create(['weekend_days' => []]);
+        $date = '2026-05-11';
+        Holiday::create([
+            'date' => $date,
+            'title' => 'Special Holiday',
+            'description' => 'School closed',
+        ]);
+
+        $this->actingAs($teacher)
+            ->post('/teacher/attendance', [
+                'session_id' => $session->id,
+                'class_id' => $class->id,
+                'section_id' => $section->id,
+                'date' => $date,
+                'student_ids' => [$student->id],
+                'present_ids' => [$student->id],
+            ])
+            ->assertSessionHas('error', 'Attendance cannot be taken on holidays.');
+
+        $this->assertDatabaseMissing('attendances', [
+            'session_id' => $session->id,
+            'class_id' => $class->id,
+            'section_id' => $section->id,
+            'date' => $date,
+        ]);
+    }
+}
