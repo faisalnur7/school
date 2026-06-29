@@ -24,6 +24,21 @@
             margin-bottom: 1rem;
         }
 
+        .payment-report-page .payment-report-filter-card {
+            position: relative;
+        }
+
+        .payment-report-page .report-header-body {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .payment-report-page .report-header-copy {
+            min-width: 0;
+        }
+
         .payment-report-page .payment-report-form {
             display: flex;
             flex-direction: column;
@@ -478,7 +493,7 @@
         @include('partials.report-header')
 
         <div class="payment-report-shell">
-            <div class="payment-report-card">
+            <div class="payment-report-card payment-report-filter-card">
                 @php
                     $selectedCategoryKeys = $selectedCategoryKeys ?? ($availableCategories->pluck('column_key')->all() ?? []);
                     $reportPdfQuery = collect([
@@ -874,7 +889,6 @@
             .main-sidebar,
             .main-header,
             .content-header,
-            form,
             hr,
             .info-box,
             button,
@@ -897,6 +911,10 @@
                 padding: 0 !important;
             }
 
+            .payment-report-filter-card {
+                display: none !important;
+            }
+
             .payment-report-card {
                 box-shadow: none !important;
                 border-color: #d1d5db !important;
@@ -916,6 +934,27 @@
 
             .payment-report-group-title {
                 font-size: 10px !important;
+            }
+
+            .report-header-card .report-header-body {
+                display: table !important;
+                width: 100% !important;
+                table-layout: fixed !important;
+            }
+
+            .report-header-card .report-header-logo,
+            .report-header-card .report-header-copy {
+                display: table-cell !important;
+                vertical-align: middle !important;
+            }
+
+            .report-header-copy{
+                padding-left: 20px !important;
+            }
+
+            .report-header-card .report-header-logo {
+                width: 58px !important;
+                padding-right: 12px !important;
             }
 
             .payment-report-table-wrap {

@@ -6,7 +6,7 @@
 @endphp
 
 <div class="card mb-3 report-header-card" style="border:1px solid #e2e8f0;">
-    <div class="card-body py-3 px-4 d-flex align-items-center" style="gap:14px;">
+    <div class="card-body py-3 px-4 report-header-body" style="width:100%;">
         <div class="report-header-logo" style="width:58px;height:58px;border:1px solid #cbd5e1;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#fff;overflow:hidden;flex-shrink:0;">
             @if(!empty($school->logo))
                 <img src="{{ asset($school->logo) }}" alt="{{ $schoolName }} logo" style="max-width:100%;max-height:100%;object-fit:contain;">
@@ -15,7 +15,7 @@
             @endif
         </div>
 
-        <div class="flex-grow-1 report-header-copy">
+        <div class="report-header-copy">
             <h2 class="mb-1 report-header-title" style="font-size:20px;font-weight:700;color:#0f172a;line-height:1.2;">{{ $schoolName }}</h2>
             @if($address)
                 <div class="report-header-address" style="font-size:13px;color:#475569;line-height:1.35;">{{ $address }}</div>
