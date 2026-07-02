@@ -462,7 +462,9 @@ class StudentPaymentReportController extends Controller
                         continue;
                     }
 
-                    if (!isset($selectedCategoryLookup['fee_' . $category->id])) {
+                    $columnKey = $categoryKeyMap['fee_' . $category->id] ?? 'fee_' . $category->id;
+
+                    if (!isset($selectedCategoryLookup[$columnKey])) {
                         continue;
                     }
 
@@ -471,7 +473,6 @@ class StudentPaymentReportController extends Controller
                         continue;
                     }
 
-                    $columnKey = $categoryKeyMap['fee_' . $category->id] ?? 'fee_' . $category->id;
                     if (!isset($studentMap[$student->id][$columnKey])) {
                         $studentMap[$student->id][$columnKey] = 0;
                     }
