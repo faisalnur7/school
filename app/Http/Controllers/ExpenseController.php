@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
@@ -10,6 +11,8 @@ use App\Models\AccountTransaction;
 use App\Models\SchoolSetting;
 use App\Services\JournalService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class ExpenseController extends Controller
 {
@@ -60,42 +63,56 @@ class ExpenseController extends Controller
 
         $data = $request->only([
             'expense_category_id', 'title', 'amount',
-            'expense_date', 'payment_method', 'account_type', 'account_id', 'reference_no', 'description',
+            'expense_date', 'payment_method', 'account_type', 'account_id', 'description',
         ]);
+        $data['reference_no'] = $request->input('reference_no');
 
-        $data['expense_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->expense_date)->format('Y-m-d');
+        $data['expense_date'] = Carbon::createFromFormat('d/m/Y', $request->expense_date)->format('Y-m-d');
         $data['recorded_by']  = auth()->id();
+        $data['reference_no'] = $data['reference_no'] ?: Expense::generateReference($data['expense_date']);
 
+        $storedAttachment = null;
         if ($request->hasFile('attachment')) {
-            $data['attachment'] = $request->file('attachment')->store('expenses', 'public');
+            $storedAttachment = $this->storeExpenseAttachment($request->file('attachment'), $data['reference_no']);
+            $data['attachment'] = $storedAttachment;
         }
 
-        $expense = Expense::create($data);
+        try {
+            DB::transaction(function () use (&$expense, $data) {
+                $expense = Expense::create($data);
 
-        Transaction::create([
-            'reference_no'         => Transaction::generateReference(),
-            'type'                 => 'expense',
-            'expense_category_id'  => $expense->expense_category_id,
-            'amount'               => $expense->amount,
-            'description'          => $expense->description,
-            'transaction_date'     => $expense->expense_date,
-            'payment_method'       => $expense->payment_method,
-            'transactionable_type' => Expense::class,
-            'transactionable_id'   => $expense->id,
-            'recorded_by'          => auth()->id(),
-        ]);
+                Transaction::create([
+                    'reference_no'         => Transaction::generateReference(),
+                    'type'                 => 'expense',
+                    'expense_category_id'  => $expense->expense_category_id,
+                    'amount'               => $expense->amount,
+                    'description'          => $expense->description,
+                    'transaction_date'     => $expense->expense_date,
+                    'payment_method'       => $expense->payment_method,
+                    'transactionable_type' => Expense::class,
+                    'transactionable_id'   => $expense->id,
+                    'recorded_by'          => auth()->id(),
+                ]);
 
-        JournalService::postSafe(
-            $expense->expense_date->toDateString(),
-            $expense->title,
-            [
-                ['account_id' => Account::resolveForSource(ExpenseCategory::class, $expense->expense_category_id), 'debit' => (float) $expense->amount, 'credit' => 0],
-                ['account_id' => Account::resolveForSource($expense->account_type ?? '', $expense->account_id ?? 0), 'debit' => 0, 'credit' => (float) $expense->amount],
-            ],
-            Expense::class,
-            $expense->id,
-            auth()->id()
-        );
+                JournalService::postSafe(
+                    $expense->expense_date->toDateString(),
+                    $expense->title,
+                    [
+                        ['account_id' => Account::resolveForSource(ExpenseCategory::class, $expense->expense_category_id), 'debit' => (float) $expense->amount, 'credit' => 0],
+                        ['account_id' => Account::resolveForSource($expense->account_type ?? '', $expense->account_id ?? 0), 'debit' => 0, 'credit' => (float) $expense->amount],
+                    ],
+                    Expense::class,
+                    $expense->id,
+                    auth()->id()
+                );
+            });
+        } catch (\Throwable $e) {
+            if ($storedAttachment) {
+                $this->deleteExpenseAttachment($storedAttachment);
+            }
+
+            throw $e;
+        }
 
         return redirect()->route('expenses.index')->with('success', 'Expense recorded successfully.');
     }
@@ -124,42 +141,57 @@ class ExpenseController extends Controller
 
         $data = $request->only([
             'expense_category_id', 'title', 'amount',
-            'expense_date', 'payment_method', 'account_type', 'account_id', 'reference_no', 'description',
+            'expense_date', 'payment_method', 'account_type', 'account_id', 'description',
         ]);
+        $data['reference_no'] = $request->input('reference_no');
 
-        $data['expense_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->expense_date)->format('Y-m-d');
+        $data['expense_date'] = Carbon::createFromFormat('d/m/Y', $request->expense_date)->format('Y-m-d');
+        $data['reference_no'] = $data['reference_no'] ?: $expense->reference_no ?: Expense::generateReference($data['expense_date']);
 
+        $storedAttachment = null;
         if ($request->hasFile('attachment')) {
-            if ($expense->attachment) {
-                \Storage::disk('public')->delete($expense->attachment);
-            }
-            $data['attachment'] = $request->file('attachment')->store('expenses', 'public');
+            $storedAttachment = $this->storeExpenseAttachment($request->file('attachment'), $data['reference_no'] ?: Expense::generateReference($data['expense_date']));
+            $data['attachment'] = $storedAttachment;
         }
 
-        $expense->update($data);
+        $oldAttachment = $expense->attachment;
 
-        Transaction::updateOrCreate(
-            ['transactionable_type' => Expense::class, 'transactionable_id' => $expense->id],
-            [
-                'reference_no'         => $expense->reference_no ?: Transaction::generateReference(),
-                'type'                 => 'expense',
-                'expense_category_id'  => $expense->expense_category_id,
-                'amount'               => $expense->amount,
-                'description'          => $expense->description,
-                'transaction_date'     => $expense->expense_date,
-                'payment_method'       => $expense->payment_method,
-                'recorded_by'          => auth()->id(),
-            ]
-        );
+        try {
+            DB::transaction(function () use ($expense, $data) {
+                $expense->update($data);
+
+                Transaction::updateOrCreate(
+                    ['transactionable_type' => Expense::class, 'transactionable_id' => $expense->id],
+                    [
+                        'reference_no'         => $expense->reference_no ?: Transaction::generateReference(),
+                        'type'                 => 'expense',
+                        'expense_category_id'  => $expense->expense_category_id,
+                        'amount'               => $expense->amount,
+                        'description'          => $expense->description,
+                        'transaction_date'     => $expense->expense_date,
+                        'payment_method'       => $expense->payment_method,
+                        'recorded_by'          => auth()->id(),
+                    ]
+                );
+            });
+        } catch (\Throwable $e) {
+            if ($storedAttachment) {
+                $this->deleteExpenseAttachment($storedAttachment);
+            }
+
+            throw $e;
+        }
+
+        if ($storedAttachment && $oldAttachment) {
+            $this->deleteExpenseAttachment($oldAttachment);
+        }
 
         return redirect()->route('expenses.index')->with('success', 'Expense updated successfully.');
     }
 
     public function destroy(Expense $expense)
     {
-        if ($expense->attachment) {
-            \Storage::disk('public')->delete($expense->attachment);
-        }
+        $this->deleteExpenseAttachment($expense->attachment);
 
         AccountTransaction::removeSource(Expense::class, $expense->id);
 
@@ -193,5 +225,39 @@ class ExpenseController extends Controller
             'rows' => $rows,
             'total' => $expense->amount,
         ]);
+    }
+
+    private function storeExpenseAttachment($file, string $referenceNo): string
+    {
+        $directory = public_path('upload/expenses');
+
+        if (! is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        $referenceSlug = preg_replace('/[^A-Za-z0-9_-]+/', '_', $referenceNo) ?: 'expense';
+        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'bin');
+        $filename = $referenceSlug . '-' . now()->format('His') . '-' . substr(md5(uniqid((string) mt_rand(), true)), 0, 8) . '.' . $extension;
+
+        $file->move($directory, $filename);
+
+        return 'upload/expenses/' . $filename;
+    }
+
+    private function deleteExpenseAttachment(?string $attachment): void
+    {
+        if (! $attachment) {
+            return;
+        }
+
+        if (str_starts_with($attachment, 'upload/')) {
+            $path = public_path($attachment);
+            if (is_file($path)) {
+                File::delete($path);
+            }
+            return;
+        }
+
+        \Storage::disk('public')->delete($attachment);
     }
 }

@@ -54,13 +54,15 @@ trait HasTransactions
 
     public function recordExpense(int $categoryId, string $title, array $data): Transaction
     {
+        $expenseDate = $data['expense_date'] ?? now()->toDateString();
+        $expenseReference = Expense::generateReference($expenseDate);
         $reference = Transaction::generateReference();
 
         $expense = Expense::create(array_merge([
             'expense_category_id' => $categoryId,
             'title'               => $title,
-            'reference_no'        => $reference,
-            'expense_date'        => now()->toDateString(),
+            'reference_no'        => $expenseReference,
+            'expense_date'        => $expenseDate,
             'recorded_by'         => auth()->id(),
         ], $data));
 

@@ -1,23 +1,39 @@
 @extends('layouts.master')
+
+@section('styles')
+    @include('pages.reports.partials.filter-style')
+@endsection
+
 @section('contents')
     <div class="container-fluid">
-    @include('partials.report-header')
+        @include('partials.report-header')
+
+        <div class="report-toolbar">
+            <form method="GET" class="supplier-dues-filters">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label mb-1" style="font-size:12px">Year</label>
+                        <input type="number" name="year" class="form-control" value="{{ $year }}" placeholder="Year">
+                    </div>
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-dark" title="Filter" aria-label="Filter">
+                            <i class="fas fa-search"></i>
+                            <span>Filter</span>
+                        </button>
+                        <a href="{{ route('reports.balance-sheet') }}" class="btn btn-light" title="Reset" aria-label="Reset">
+                            <i class="fas fa-undo-alt"></i>
+                        </a>
+                        <a href="{{ route('reports.balance-sheet.pdf', ['year' => $year]) }}" class="btn btn-danger">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
 
         <div class="card">
             <div class="card-header shadow p-0 flex justify-between items-center">
-                <h3 class="card-title flex text-white pl-3 text-medium">Balance Sheet — {{ $year }}</h3>
-                <div class="flex gap-2 pr-3 py-2 items-center justify-center ml-auto">
-                    <form method="GET" class="flex gap-2 items-end">
-                        <div>
-                            <label style="font-size:12px;color:#FFF">Year</label>
-                            <input type="number" name="year" class="form-control form-control-sm"
-                                value="{{ $year }}" style="width:120px">
-                        </div>
-                        <button class="btn btn-sm btn-dark" style="margin-top:10px">Go</button>
-                    </form>
-                    <a href="{{ route('reports.balance-sheet.pdf', ['year' => $year]) }}" class="btn btn-sm btn-danger"
-                        style="margin-top:10px"><i class="fas fa-file-pdf"></i> PDF</a>
-                </div>
+                <h3 class="card-title flex text-white pl-3 text-medium">Balance Sheet &mdash; {{ $year }}</h3>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -39,7 +55,6 @@
                             </tr>
                         </table>
                     </div>
-                    {{-- Equity Side --}}
                     <div class="col-md-6">
                         <h5 class="text-muted mb-3" style="font-size:13px;text-transform:uppercase;letter-spacing:1px">
                             Equity</h5>
@@ -67,7 +82,6 @@
                             </tr>
                         </table>
                     </div>
-                    {{-- Summary --}}
                     <div class="col-md-12 mt-4">
                         <h5 class="text-muted mb-3" style="font-size:13px;text-transform:uppercase;letter-spacing:1px">
                             Summary</h5>

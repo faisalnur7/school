@@ -89,7 +89,7 @@
                             </td>
                             <td>
                                 @if ($expense->attachment)
-                                    <a href="{{ asset('storage/' . $expense->attachment) }}" target="_blank"
+                                    <a href="{{ $expense->attachment_url }}" target="_blank"
                                        class="btn btn-sm btn-outline-secondary" title="View Attachment">
                                         <i class="fas fa-paperclip"></i>
                                     </a>

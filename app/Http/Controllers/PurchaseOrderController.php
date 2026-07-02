@@ -262,7 +262,7 @@ class PurchaseOrderController extends Controller
         Expense::create([
             'expense_category_id' => $category->id,
             'title'               => 'Inventory Purchase Payment — ' . ($referenceNo ?? $purchase->reference_no),
-            'reference_no'        => $referenceNo,
+            'reference_no'        => Expense::generateReference($paymentDate),
             'amount'              => $amount,
             'expense_date'        => $paymentDate,
             'payment_method'      => 'Cash',

@@ -14,7 +14,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('expenses.store') }}" id="modernForm">
+        <form method="POST" action="{{ route('expenses.store') }}" id="modernForm" enctype="multipart/form-data">
             @csrf
 
             <div class="card-body p-3">
@@ -76,8 +76,8 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group mb-2">
-                            <label class="small mb-1">Reference No <span class="text-muted">(optional)</span></label>
-                            <input type="text" name="reference_no" class="form-control form-control-sm" value="{{ old('reference_no') }}">
+                            <label class="small mb-1">Reference No <span class="text-muted">(auto-generated)</span></label>
+                            <input type="text" class="form-control form-control-sm" value="Auto-generated on save" disabled>
                         </div>
                     </div>
 

@@ -101,11 +101,12 @@ class PayrollService
                 // Also post to the main transactions ledger
                 $salaryCategoryId = ExpenseCategory::where('name', 'Salary')->value('id') ?? 1;
                 $reference = Transaction::generateReference();
+                $expenseReference = Expense::generateReference($lastDay);
 
                 Expense::create([
                     'expense_category_id' => $salaryCategoryId,
                     'title'               => 'Salary — ' . $emp->name,
-                    'reference_no'        => $reference,
+                    'reference_no'        => $expenseReference,
                     'amount'              => $salary->net_salary,
                     'payment_method'      => $expenseMethod,
                     'account_type'        => null,

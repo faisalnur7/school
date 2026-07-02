@@ -1,5 +1,6 @@
 @extends('layouts.master')
 @section('styles')
+    @include('pages.reports.partials.filter-style')
     <style>
         .receipt-payment-table tfoot {
             background: #f8fafc;
@@ -39,33 +40,42 @@
 <div class="container-fluid">
     @include('partials.report-header')
 
+    <div class="report-toolbar">
+        <form method="GET" class="supplier-dues-filters">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label mb-1" style="font-size:12px">From</label>
+                    <input type="text" name="from" class="form-control datepicker" value="{{ request('from', $from->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label mb-1" style="font-size:12px">To</label>
+                    <input type="text" name="to" class="form-control datepicker" value="{{ request('to', $to->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
+                </div>
+                <div class="col-md-6 d-flex gap-2">
+                    <button class="btn btn-dark" type="submit" title="Filter" aria-label="Filter">
+                        <i class="fas fa-search"></i>
+                        <span>Filter</span>
+                    </button>
+                    <a href="{{ route('reports.receipt-payment') }}" class="btn btn-light" title="Reset" aria-label="Reset">
+                        <i class="fas fa-undo-alt"></i>
+                    </a>
+                    <a href="{{ route('reports.receipt-payment.pdf', request()->query()) }}" class="btn btn-danger" title="PDF" aria-label="PDF">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <div class="card">
         <div class="card-header shadow p-0 flex justify-between items-center">
             <h3 class="card-title flex text-white pl-3 text-medium">Receipt & Payment Statement</h3>
-            <div class="flex gap-2 pr-3 py-2 items-center justify-center ml-auto">
-                <form method="GET" class="flex gap-2 items-end">
-                    <div>
-                        <label style="font-size:12px;color:#FFF">From</label>
-                        <input type="text" name="from" datepicker datepicker-format="dd/mm/yyyy"
-                               class="form-control form-control-sm" value="{{ request('from', $from->format('d/m/Y')) }}" autocomplete="off">
-                    </div>
-                    <div>
-                        <label style="font-size:12px;color:#FFF">To</label>
-                        <input type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
-                               class="form-control form-control-sm" value="{{ request('to', $to->format('d/m/Y')) }}" autocomplete="off">
-                    </div>
-                    <button class="btn btn-sm btn-dark" style="margin-top:10px" title="Filter" aria-label="Filter">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
-                <a href="{{ route('reports.receipt-payment.pdf', request()->query()) }}" class="btn btn-sm btn-danger" style="margin-top:10px" title="PDF" aria-label="PDF">
-                    <i class="fas fa-file-pdf"></i>
-                </a>
-            </div>
         </div>
         <div class="card-body p-0">
+            <div class="p-3">
+            </div>
+
             <div class="row no-gutters">
-                {{-- Receipts --}}
                 <div class="col-md-6" style="border-right:1px solid #e2e8f0">
                     <div class="px-3 py-2" style="background:#f0fdf4;border-bottom:1px solid #bbf7d0">
                         <strong style="color:#16a34a">Receipts</strong>
@@ -97,7 +107,6 @@
                     </table>
                 </div>
 
-                {{-- Payments --}}
                 <div class="col-md-6">
                     <div class="px-3 py-2" style="background:#fff1f2;border-bottom:1px solid #fecdd3">
                         <strong style="color:#e11d48">Payments</strong>
@@ -126,7 +135,6 @@
                 </div>
             </div>
 
-            {{-- Net --}}
             <div class="receipt-payment-net px-4 py-3 d-flex justify-content-end gap-3">
                 @php $net = $grandTotalReceipts - $totalPayments; @endphp
                 <span style="font-size:13px">Net Surplus / (Deficit):</span>

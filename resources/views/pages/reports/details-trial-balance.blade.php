@@ -1,5 +1,6 @@
 @extends('layouts.master')
 @section('styles')
+    @include('pages.reports.partials.filter-style')
     <style>
         .trial-balance-table tfoot {
             background: #f8fafc;
@@ -38,34 +39,41 @@
     <div class="container-fluid">
     @include('partials.report-header')
 
+        <div class="report-toolbar">
+            <form method="GET" class="supplier-dues-filters">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label mb-1" style="font-size:12px">From</label>
+                        <input type="text" name="from" class="form-control datepicker" value="{{ request('from', $from->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label mb-1" style="font-size:12px">To</label>
+                        <input type="text" name="to" class="form-control datepicker" value="{{ request('to', $to->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
+                    </div>
+                    <div class="col-md-6 d-flex gap-2">
+                        <button type="submit" class="btn btn-dark" title="Filter" aria-label="Filter">
+                            <i class="fas fa-search"></i>
+                            <span>Filter</span>
+                        </button>
+                        <a href="{{ route('reports.details-trial-balance') }}" class="btn btn-light" title="Reset" aria-label="Reset">
+                            <i class="fas fa-undo-alt"></i>
+                        </a>
+                        <a href="{{ route('reports.details-trial-balance.pdf', request()->query()) }}"
+                            class="btn btn-danger flex gap-1 justify-center items-center">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
         <div class="card">
             <div class="card-header shadow p-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h3 class="card-title text-white pl-3 mb-0 text-lg" style="font-size:15px">
-                    Detailed Trial Balance &mdash; {{ \Carbon\Carbon::parse($from)->format('d M Y') }} to
-                    {{ \Carbon\Carbon::parse($to)->format('d M Y') }}
+                    Detailed Trial Balance &mdash; {{ $from->format('d M Y') }} to {{ $to->format('d M Y') }}
                 </h3>
-                <div class="d-flex align-items-center flex-wrap gap-2 pr-3 py-2 ml-auto">
-                    <form method="GET" class="flex flex-rows align-items-center gap-2 mb-0">
-                        <input type="date" name="from" class="form-control form-control-sm" value="{{ $from }}"
-                            style="width:160px">
-
-                        <span class="text-white small">to</span>
-
-                        <input type="date" name="to" class="form-control form-control-sm"
-                            value="{{ $to }}" style="width:160px">
-
-                        <button type="submit" class="btn btn-sm btn-dark">
-                            Go
-                        </button>
-
-                        <a href="{{ route('reports.details-trial-balance.pdf', ['from' => $from, 'to' => $to]) }}"
-                            class="btn btn-sm btn-danger flex gap-1 justify-center items-center">
-                            <i class="fas fa-file-pdf"></i> PDF
-                        </a>
-                    </form>
-                </div>
             </div>
-            <div class="card-body p-0">
+            <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-bordered mb-0 trial-balance-table" style="font-size:12px;min-width:800px">
                         <thead style="background:#1e293b;color:#fff">

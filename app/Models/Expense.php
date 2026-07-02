@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\AccountTransaction;
@@ -30,6 +31,19 @@ class Expense extends Model
         'expense_date' => 'date',
         'amount'       => 'decimal:2',
     ];
+
+    public function getAttachmentUrlAttribute(): ?string
+    {
+        if (! $this->attachment) {
+            return null;
+        }
+
+        if (str_starts_with($this->attachment, 'upload/')) {
+            return asset($this->attachment);
+        }
+
+        return asset('storage/' . ltrim($this->attachment, '/'));
+    }
 
     public function category()
     {
@@ -61,8 +75,25 @@ class Expense extends Model
         };
     }
 
+    public static function generateReference(\DateTimeInterface|string|null $expenseDate = null): string
+    {
+        $date = Carbon::parse($expenseDate ?? now())->toDateString();
+
+        $sequence = static::withTrashed()
+            ->whereDate('expense_date', $date)
+            ->count() + 1;
+
+        return sprintf('TXN-%s-EXP-%06d', $date, $sequence);
+    }
+
     protected static function booted(): void
     {
+        static::creating(function (Expense $expense) {
+            if (blank($expense->reference_no)) {
+                $expense->reference_no = self::generateReference($expense->expense_date);
+            }
+        });
+
         static::saved(function (Expense $expense) {
             $accountType = $expense->account_type;
             $accountId   = $expense->account_id;

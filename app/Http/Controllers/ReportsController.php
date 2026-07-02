@@ -49,6 +49,19 @@ class ReportsController extends Controller
         return $query;
     }
 
+    private function parseReportDate(?string $value, ?Carbon $default = null): Carbon
+    {
+        if (blank($value)) {
+            return $default ?? now();
+        }
+
+        if (str_contains($value, '/')) {
+            return Carbon::createFromFormat('d/m/Y', $value);
+        }
+
+        return Carbon::parse($value);
+    }
+
     // ── Trial Balance ──────────────────────────────────────────
     public function trialBalance(Request $request)
     {
@@ -595,18 +608,18 @@ class ReportsController extends Controller
 
     public function detailedTrialBalance(Request $request)
     {
-        $from = $request->get('from', now()->startOfMonth()->toDateString());
-        $to   = $request->get('to',   now()->toDateString());
-        $rows = $this->buildDetailedTrialBalanceRows($from, $to);
+        $from = $this->parseReportDate($request->get('from'), now()->startOfMonth());
+        $to   = $this->parseReportDate($request->get('to'), now());
+        $rows = $this->buildDetailedTrialBalanceRows($from->toDateString(), $to->toDateString());
         return view('pages.reports.details-trial-balance', compact('rows', 'from', 'to'));
     }
 
     public function detailedTrialBalancePdf(Request $request)
     {
-        $from = $request->get('from', now()->startOfMonth()->toDateString());
-        $to   = $request->get('to',   now()->toDateString());
-        $rows = $this->buildDetailedTrialBalanceRows($from, $to);
-        $this->makePdf('pages.reports.pdf.details-trial-balance', compact('rows', 'from', 'to'), 'details-trial-balance-' . $from . '-' . $to);
+        $from = $this->parseReportDate($request->get('from'), now()->startOfMonth());
+        $to   = $this->parseReportDate($request->get('to'), now());
+        $rows = $this->buildDetailedTrialBalanceRows($from->toDateString(), $to->toDateString());
+        $this->makePdf('pages.reports.pdf.details-trial-balance', compact('rows', 'from', 'to'), 'details-trial-balance-' . $from->format('Y-m-d') . '-' . $to->format('Y-m-d'));
     }
 
     public function trialBalancePdf(Request $request)

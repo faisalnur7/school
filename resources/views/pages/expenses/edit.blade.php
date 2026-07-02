@@ -94,9 +94,9 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Reference No <small class="text-muted">(optional)</small></label>
-                                <input type="text" name="reference_no" class="form-control"
-                                       value="{{ old('reference_no', $expense->reference_no) }}">
+                                <label>Reference No <small class="text-muted">(system generated)</small></label>
+                                <input type="text" class="form-control"
+                                       value="{{ old('reference_no', $expense->reference_no) }}" disabled>
                             </div>
 
                             <div class="form-group">
@@ -108,7 +108,7 @@
                                 <label>Attachment</label>
                                 @if ($expense->attachment)
                                     <div class="mb-2">
-                                        <a href="{{ asset('storage/' . $expense->attachment) }}" target="_blank"
+                                        <a href="{{ $expense->attachment_url }}" target="_blank"
                                            class="btn btn-sm btn-outline-secondary">
                                             <i class="fas fa-paperclip"></i> View Current
                                         </a>

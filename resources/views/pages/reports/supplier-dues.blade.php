@@ -24,17 +24,8 @@
 <div class="container-fluid">
     @include('partials.report-header')
 
-    <div class="card">
-        <div class="card-header shadow p-0 flex justify-between items-center">
-            <h3 class="card-title flex text-white pl-3 text-medium">Supplier Due Report</h3>
-            <div class="flex gap-2 pr-3 pt-3 items-center justify-center ml-auto">
-                <a href="{{ route('reports.supplier-dues.pdf', request()->query()) }}" class="btn btn-sm btn-danger" target="_blank">
-                    <i class="fas fa-file-pdf"></i> PDF
-                </a>
-            </div>
-        </div>
-        <div class="card-body">
-            <form method="GET" class="mb-3 supplier-dues-filters">
+    <div class="report-toolbar">
+        <form method="GET" class="supplier-dues-filters">
             <div class="row g-2">
                 <div class="col-md-3">
                     <select name="supplier_id" class="form-control">
@@ -58,7 +49,7 @@
                 <div class="col-md-2">
                     <input type="text" name="to" value="{{ request('to') }}" class="form-control" placeholder="To dd/mm/yyyy">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 d-flex gap-2">
                     <button class="btn btn-dark" title="Filter" aria-label="Filter">
                         <i class="fas fa-search"></i>
                         <span>Filter</span>
@@ -66,10 +57,19 @@
                     <a href="{{ route('reports.supplier-dues') }}" class="btn btn-light" title="Reset" aria-label="Reset">
                         <i class="fas fa-undo-alt"></i>
                     </a>
+                    <a href="{{ route('reports.supplier-dues.pdf', request()->query()) }}" class="btn btn-danger" target="_blank">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </a>
                 </div>
             </div>
-            </form>
+        </form>
+    </div>
 
+    <div class="card">
+        <div class="card-header shadow p-0 flex justify-between items-center">
+            <h3 class="card-title flex text-white pl-3 text-medium">Supplier Due Report</h3>
+        </div>
+        <div class="card-body">
             <div class="row mb-3">
                 <div class="col-md-4"><div class="alert alert-primary mb-0">Total Amount: <strong>{{ number_format($totals['amount'], 2) }}</strong></div></div>
                 <div class="col-md-4"><div class="alert alert-success mb-0">Paid: <strong>{{ number_format($totals['paid'], 2) }}</strong></div></div>
