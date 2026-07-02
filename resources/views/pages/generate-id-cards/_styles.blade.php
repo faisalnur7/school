@@ -1,20 +1,20 @@
 @page {
     size: A4 landscape;
-    margin: 10mm 8mm 8mm 8mm;
+    margin: 1cm 0.8cm 0.8cm 0.8cm;
 }
 
 .id-card-pages {
     display: flex;
     flex-direction: column;
-    gap: var(--id-card-gap, 5mm);
-    padding-top: 6mm;
+    gap: var(--id-card-gap, 0.5cm);
+    padding-top: 0.6cm;
 }
 
 .id-card-page {
     display: grid;
     justify-content: center;
     align-content: start;
-    gap: var(--id-card-gap, 5mm) var(--id-card-gap, 5mm);
+    gap: var(--id-card-gap, 0.5cm) var(--id-card-gap, 0.5cm);
     page-break-inside: avoid;
     break-inside: avoid;
     page-break-after: always;
@@ -28,7 +28,7 @@
 
 .id-card-pair {
     display: flex;
-    gap: var(--id-card-gap, 5mm);
+    gap: var(--id-card-gap, 0.5cm);
     align-items: stretch;
     page-break-inside: avoid;
     break-inside: avoid;
@@ -36,13 +36,13 @@
 
 .id-card {
     position: relative;
-    width: var(--id-card-width, 54mm);
-    height: var(--id-card-height, 84mm);
+    width: var(--id-card-width, 5.4cm);
+    height: var(--id-card-height, 8.4cm);
     overflow: hidden;
-    border-radius: 3.5mm;
+    border-radius: 0.35cm;
     background: #fff;
-    border: 0.35mm solid #cbd5e1;
-    box-shadow: 0 1mm 3mm rgba(15, 23, 42, 0.14);
+    border: 0.035cm solid #cbd5e1;
+    box-shadow: 0 0.1cm 0.3cm rgba(15, 23, 42, 0.14);
     display: flex;
     flex-direction: column;
     font-family: Arial, Helvetica, sans-serif;
@@ -55,36 +55,38 @@
 }
 
 .id-card__header {
-    padding: 2.2mm 2.2mm 1.8mm;
+    padding: var(--id-card-front-padding, 0.22cm);
     display: flex;
     align-items: center;
-    gap: 1.8mm;
+    gap: 0.18cm;
 }
 
 .id-card__header--front {
     background: var(--card-theme-bg, linear-gradient(135deg, #1e3a5f, #2563eb));
     flex-direction: column;
-    text-align: center;
+    text-align: var(--id-card-front-align, center);
     justify-content: center;
-    min-height: 19mm;
+    min-height: 1.9cm;
+    align-items: center;
 }
 
 .id-card__header--back {
     background: var(--card-theme-bg, linear-gradient(135deg, #1e3a5f, #2563eb));
     justify-content: center;
-    min-height: 13mm;
+    min-height: 1.3cm;
     flex-direction: column;
-    text-align: center;
+    text-align: var(--id-card-back-align, center);
+    align-items: center;
 }
 
 .id-card__logo {
-    width: 8mm;
-    height: 8mm;
+    width: var(--id-card-logo-size, 0.8cm);
+    height: var(--id-card-logo-size, 0.8cm);
     object-fit: contain;
 }
 
 .id-card__school-name {
-    font-size: 7.2pt;
+    font-size: var(--id-card-school-name-font-size, 7.2pt);
     font-weight: 800;
     line-height: 1.08;
     text-transform: uppercase;
@@ -93,21 +95,21 @@
 }
 
 .id-card__slogan {
-    font-size: 4.8pt;
+    font-size: var(--id-card-slogan-font-size, 4.8pt);
     opacity: 0.85;
     line-height: 1.05;
-    margin-top: 0.3mm;
+    margin-top: 0.03cm;
     color: var(--id-card-slogan-color, var(--id-card-school-detail-color, #e5e7eb));
 }
 
 .id-card__label-badge {
     display: inline-block;
-    margin-top: 1mm;
-    padding: 0.6mm 2mm;
-    border-radius: 10mm;
-    border: 0.25mm solid var(--id-card-title-color, rgba(255,255,255,0.45));
+    margin-top: 0.1cm;
+    padding: 0.06cm 0.2cm;
+    border-radius: 1cm;
+    border: 0.025cm solid var(--id-card-title-color, rgba(255,255,255,0.45));
     background: rgba(255,255,255,0.16);
-    font-size: 4.7pt;
+    font-size: var(--id-card-title-font-size, 4.7pt);
     font-weight: 700;
     letter-spacing: 0.08em;
     white-space: nowrap;
@@ -116,29 +118,30 @@
 
 .id-card__front-body {
     flex: 1;
-    padding: 2mm 2.2mm 1.6mm;
+    padding: var(--id-card-front-padding, 0.2cm);
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: var(--id-card-front-align, center);
 }
 
 .id-card__photo {
-    width: 18mm;
-    height: 27mm;
+    width: var(--id-card-photo-width, 1.8cm);
+    height: var(--id-card-photo-height, 2.7cm);
     object-fit: cover;
-    border-radius: 1.8mm;
-    border: 0.3mm solid #e2e8f0;
-    box-shadow: 0 0.6mm 1.8mm rgba(15, 23, 42, 0.12);
+    border-radius: 0.18cm;
+    border: 0.03cm solid #e2e8f0;
+    box-shadow: 0 0.06cm 0.18cm rgba(15, 23, 42, 0.12);
 }
 
 .id-card__info {
     width: 100%;
-    margin-top: 1.4mm;
+    margin-top: 0.14cm;
 }
 
 .id-card__name {
     text-align: center;
-    font-size: 7.2pt;
+    font-size: var(--id-card-name-font-size, 7.2pt);
     font-weight: 800;
     color: var(--card-theme-accent, #1e3a5f);
     line-height: 1.15;
@@ -150,33 +153,33 @@
     font-size: 5.4pt;
     color: var(--id-card-school-detail-color, #475569);
     line-height: 1.12;
-    margin-top: 0.3mm;
+    margin-top: 0.03cm;
     word-break: break-word;
 }
 
 .id-card__divider {
-    height: 0.45mm;
-    margin: 1.4mm 0 1.6mm;
-    border-radius: 1mm;
+    height: 0.045cm;
+    margin: 0.14cm 0 0.16cm;
+    border-radius: 0.1cm;
     background: linear-gradient(90deg, var(--card-theme-accent, #1e3a5f), transparent);
 }
 
 .id-card__rows {
     display: flex;
     flex-direction: column;
-    gap: 0.6mm;
+    gap: 0.06cm;
 }
 
 .id-card__row,
 .id-card__back-row {
     display: flex;
-    gap: 1.3mm;
+    gap: 0.13cm;
     align-items: flex-start;
     line-height: 1.12;
 }
 
 .id-card__lbl {
-    min-width: 8.6mm;
+    min-width: 0.86cm;
     font-size: 4.2pt;
     font-weight: 700;
     text-transform: uppercase;
@@ -198,14 +201,14 @@
 
 .id-card__footer {
     margin-top: auto;
-    padding: 1.3mm 1.8mm;
+    padding: 0.13cm 0.18cm;
     font-size: 4.4pt;
     line-height: 1.05;
     color: var(--id-card-footer-color, var(--id-card-school-detail-color, rgba(255,255,255,0.88)));
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 1.5mm;
+    gap: 0.15cm;
     text-align: center;
 }
 
@@ -216,65 +219,66 @@
 
 .id-card__back-body {
     flex: 1;
-    padding: 1.7mm 2mm 1.5mm;
+    padding: var(--id-card-back-padding, 0.17cm);
     display: flex;
     flex-direction: column;
-    gap: 1.4mm;
+    gap: 0.14cm;
+    text-align: var(--id-card-back-align, center);
 }
 
 .id-card__back-section {
     display: flex;
     flex-direction: column;
-    gap: 0.7mm;
+    gap: 0.07cm;
 }
 
 .id-card__back-title {
-    font-size: 4.9pt;
+    font-size: var(--id-card-title-font-size, 4.9pt);
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--id-card-title-color, var(--card-theme-accent, #1e3a5f));
-    border-bottom: 0.25mm solid var(--id-card-title-color, var(--card-theme-accent, #1e3a5f));
-    padding-bottom: 0.8mm;
+    border-bottom: 0.025cm solid var(--id-card-title-color, var(--card-theme-accent, #1e3a5f));
+    padding-bottom: 0.08cm;
 }
 
 .id-card__back-row .id-card__lbl {
-    min-width: 10mm;
+    min-width: 1cm;
     font-size: 4.1pt;
 }
 
 .id-card__back-row .id-card__val {
-    font-size: 4.25pt;
+    font-size: var(--id-card-school-detail-font-size, 4.25pt);
 }
 
 .id-card__back-notice {
     margin-top: auto;
-    padding-top: 1.2mm;
-    border-top: 0.25mm dashed #e2e8f0;
+    padding-top: 0.12cm;
+    border-top: 0.025cm dashed #e2e8f0;
     text-align: center;
-    font-size: 4.1pt;
+    font-size: var(--id-card-school-detail-font-size, 4.1pt);
     font-style: italic;
     color: var(--id-card-back-notice-color, #94a3b8);
 }
 
 .id-card__qr {
-    width: 11mm;
-    height: 11mm;
+    width: 1.1cm;
+    height: 1.1cm;
     object-fit: contain;
-    border: 0.25mm solid #e2e8f0;
-    border-radius: 1mm;
-    padding: 0.4mm;
+    border: 0.025cm solid #e2e8f0;
+    border-radius: 0.1cm;
+    padding: 0.04cm;
 }
 
 @media screen {
     .id-card-pages {
-        padding-bottom: 8mm;
+        padding-bottom: 0.8cm;
     }
 }
 
 @media print {
     .id-card-pages {
-        padding-top: 6mm !important;
+        padding-top: 0.6cm !important;
     }
 
     .no-print,

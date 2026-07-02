@@ -54,7 +54,7 @@ class AdmitSeatCardController extends Controller
     {
         $sessions = AcademicSession::orderByDesc('id')->get();
         $classes = SchoolClass::get();
-        $setting = SchoolSetting::first();
+        $setting = SchoolSetting::current();
         $cardType = $this->normalizeCardType($request->input('card_type', 'admit_card'));
         $cardTypeId = $this->cardTypeToSettingType($cardType);
         $examType = $request->input('exam_type');
@@ -151,6 +151,23 @@ class AdmitSeatCardController extends Controller
             'card_height_value' => ['required', 'numeric', 'min:0.1'],
             'grid_gap_value' => ['required', 'numeric', 'min:0.1'],
             'card_dimension_unit' => ['required', 'in:cm,px'],
+            'card_front_alignment' => ['nullable', 'in:left,center,right'],
+            'card_back_alignment' => ['nullable', 'in:left,center,right'],
+            'card_front_padding_value' => ['nullable', 'numeric', 'min:0'],
+            'card_back_padding_value' => ['nullable', 'numeric', 'min:0'],
+            'card_photo_width_value' => ['nullable', 'numeric', 'min:0.1'],
+            'card_photo_height_value' => ['nullable', 'numeric', 'min:0.1'],
+            'card_logo_size_value' => ['nullable', 'numeric', 'min:0.1'],
+            'card_school_name_font_size' => ['nullable', 'numeric', 'min:1'],
+            'card_school_detail_font_size' => ['nullable', 'numeric', 'min:1'],
+            'card_slogan_font_size' => ['nullable', 'numeric', 'min:1'],
+            'card_title_font_size' => ['nullable', 'numeric', 'min:1'],
+            'card_name_font_size' => ['nullable', 'numeric', 'min:1'],
+            'card_exam_type_font_size' => ['nullable', 'numeric', 'min:1'],
+            'card_exam_name_font_size' => ['nullable', 'numeric', 'min:1'],
+            'card_student_detail_alignment' => ['nullable', 'in:left,center,right'],
+            'card_student_detail_font_size' => ['nullable', 'numeric', 'min:1'],
+            'card_student_detail_text_color' => ['nullable', 'string', 'max:20'],
             'card_is_transparent' => ['nullable', 'boolean'],
             'card_color_type' => ['required', 'in:gradient,solid'],
             'card_color_gradient_1' => ['nullable', 'string', 'max:20'],
@@ -158,6 +175,7 @@ class AdmitSeatCardController extends Controller
             'card_solid_color' => ['nullable', 'string', 'max:20'],
             'card_school_name_text_color' => ['nullable', 'string', 'max:20'],
             'card_school_detail_text_color' => ['nullable', 'string', 'max:20'],
+            'card_slogan_text_color' => ['nullable', 'string', 'max:20'],
             'card_title_text_color' => ['nullable', 'string', 'max:20'],
             'card_exam_type_text_color' => ['nullable', 'string', 'max:20'],
             'card_exam_name_text_color' => ['nullable', 'string', 'max:20'],
@@ -174,6 +192,23 @@ class AdmitSeatCardController extends Controller
             'card_height_value' => $validated['card_height_value'],
             'grid_gap_value' => $validated['grid_gap_value'],
             'card_dimension_unit' => $validated['card_dimension_unit'],
+            'card_front_alignment' => data_get($validated, 'card_front_alignment', 'center'),
+            'card_back_alignment' => data_get($validated, 'card_back_alignment', 'center'),
+            'card_front_padding_value' => data_get($validated, 'card_front_padding_value', 0.8),
+            'card_back_padding_value' => data_get($validated, 'card_back_padding_value', 0.8),
+            'card_photo_width_value' => data_get($validated, 'card_photo_width_value', 1.8),
+            'card_photo_height_value' => data_get($validated, 'card_photo_height_value', 2.7),
+            'card_logo_size_value' => data_get($validated, 'card_logo_size_value', 0.8),
+            'card_school_name_font_size' => data_get($validated, 'card_school_name_font_size', 7.2),
+            'card_school_detail_font_size' => data_get($validated, 'card_school_detail_font_size', 5.4),
+            'card_slogan_font_size' => data_get($validated, 'card_slogan_font_size', 4.8),
+            'card_title_font_size' => data_get($validated, 'card_title_font_size', 4.7),
+            'card_name_font_size' => data_get($validated, 'card_name_font_size', 7.2),
+            'card_exam_type_font_size' => data_get($validated, 'card_exam_type_font_size', 7.4),
+            'card_exam_name_font_size' => data_get($validated, 'card_exam_name_font_size', 6.8),
+            'card_student_detail_alignment' => data_get($validated, 'card_student_detail_alignment', 'left'),
+            'card_student_detail_font_size' => data_get($validated, 'card_student_detail_font_size', 8.5),
+            'card_student_detail_text_color' => data_get($validated, 'card_student_detail_text_color') ?: ($isTransparent ? '#111827' : '#111827'),
             'card_is_transparent' => $isTransparent,
             'card_color_type' => $validated['card_color_type'],
             'card_color_gradient_1' => $validated['card_color_gradient_1'] ?: '#1e3a5f',
@@ -181,9 +216,24 @@ class AdmitSeatCardController extends Controller
             'card_solid_color' => $validated['card_solid_color'] ?: '#1e3a5f',
             'card_school_name_text_color' => data_get($validated, 'card_school_name_text_color') ?: ($isTransparent ? '#111827' : '#ffffff'),
             'card_school_detail_text_color' => data_get($validated, 'card_school_detail_text_color') ?: ($isTransparent ? '#334155' : '#e5e7eb'),
+            'card_slogan_text_color' => data_get($validated, 'card_slogan_text_color') ?: ($isTransparent ? '#334155' : '#e5e7eb'),
             'card_title_text_color' => data_get($validated, 'card_title_text_color') ?: ($isTransparent ? '#111827' : '#ffffff'),
             'card_exam_type_text_color' => data_get($validated, 'card_exam_type_text_color') ?: ($isTransparent ? '#111827' : '#ffffff'),
             'card_exam_name_text_color' => data_get($validated, 'card_exam_name_text_color') ?: ($isTransparent ? '#334155' : '#e5e7eb'),
+            'card_show_logo_front' => $request->boolean('card_show_logo_front'),
+            'card_show_logo_back' => $request->boolean('card_show_logo_back'),
+            'card_show_photo_front' => $request->boolean('card_show_photo_front'),
+            'card_show_footer_front' => $request->boolean('card_show_footer_front'),
+            'card_show_footer_back' => $request->boolean('card_show_footer_back'),
+            'card_show_school_detail_front' => $request->boolean('card_show_school_detail_front'),
+            'card_show_school_detail_back' => $request->boolean('card_show_school_detail_back'),
+            'card_show_slogan_front' => $request->boolean('card_show_slogan_front'),
+            'card_show_slogan_back' => $request->boolean('card_show_slogan_back'),
+            'card_show_title_front' => $request->boolean('card_show_title_front'),
+            'card_show_title_back' => $request->boolean('card_show_title_back'),
+            'card_show_exam_type_front' => $request->boolean('card_show_exam_type_front'),
+            'card_show_exam_name_front' => $request->boolean('card_show_exam_name_front'),
+            'card_show_back_notice' => $request->boolean('card_show_back_notice'),
         ];
 
         if ($request->hasFile('card_logo')) {
@@ -216,10 +266,10 @@ class AdmitSeatCardController extends Controller
 
     private function buildLayout(AdmitSeatCardSetting $settings): array
     {
-        $cardsPerPage = max(1, min(12, (int) ($settings->cards_per_page ?? 8)));
-        $cardsPerRow = max(1, min(10, (int) ($settings->cards_per_row ?? 2)));
-        $cardsPerRow = min($cardsPerRow, $cardsPerPage);
-        $pageRows = (int) ceil($cardsPerPage / $cardsPerRow);
+        $requestedCardsPerPage = max(1, min(12, (int) ($settings->cards_per_page ?? 8)));
+        $requestedCardsPerRow = max(1, min(10, (int) ($settings->cards_per_row ?? 2)));
+        $requestedCardsPerRow = min($requestedCardsPerRow, $requestedCardsPerPage);
+        $requestedPageRows = (int) ceil($requestedCardsPerPage / $requestedCardsPerRow);
 
         $marginLeftMm = 6.35; // 24px at 96dpi
         $marginRightMm = 6.35;
@@ -242,15 +292,22 @@ class AdmitSeatCardController extends Controller
 
         $maxCardsPerRow = max(1, (int) floor(($pageWidthMm + $gapMm) / ($cardWidthMm + $gapMm)));
         $maxPageRows = max(1, (int) floor(($pageHeightMm + $gapMm) / ($cardHeightMm + $gapMm)));
+        $maxCardsPerPage = max(1, $maxCardsPerRow * $maxPageRows);
 
-        $cardsPerRow = min($cardsPerRow, $maxCardsPerRow);
-        $pageRows = min($pageRows, $maxPageRows);
-        $cardsPerPage = min($cardsPerPage, max(1, $cardsPerRow * $pageRows));
+        $cardsPerRow = min($requestedCardsPerRow, $maxCardsPerRow);
+        $pageRows = min($requestedPageRows, $maxPageRows);
+        $cardsPerPage = min($requestedCardsPerPage, max(1, $cardsPerRow * $pageRows));
 
         return [
+            'requestedCardsPerPage' => $requestedCardsPerPage,
+            'requestedCardsPerRow' => $requestedCardsPerRow,
+            'requestedPageRows' => $requestedPageRows,
             'cardsPerPage' => $cardsPerPage,
             'cardsPerRow' => $cardsPerRow,
             'pageRows' => $pageRows,
+            'maxCardsPerPage' => $maxCardsPerPage,
+            'maxCardsPerRow' => $maxCardsPerRow,
+            'maxPageRows' => $maxPageRows,
             'cardWidthMm' => round($cardWidthMm, 2),
             'cardHeightMm' => round($cardHeightMm, 2),
             'gridGapMm' => round($gapMm, 2),
@@ -299,6 +356,23 @@ class AdmitSeatCardController extends Controller
         return $settings->fill([
             'card_is_transparent' => $settings->card_is_transparent ?? false,
             'card_color_type' => $settings->card_color_type ?? 'gradient',
+            'card_front_alignment' => $settings->card_front_alignment ?? 'center',
+            'card_back_alignment' => $settings->card_back_alignment ?? 'center',
+            'card_front_padding_value' => $settings->card_front_padding_value ?? 0.8,
+            'card_back_padding_value' => $settings->card_back_padding_value ?? 0.8,
+            'card_photo_width_value' => $settings->card_photo_width_value ?? 1.8,
+            'card_photo_height_value' => $settings->card_photo_height_value ?? 2.7,
+            'card_logo_size_value' => $settings->card_logo_size_value ?? 0.8,
+            'card_school_name_font_size' => $settings->card_school_name_font_size ?? 7.2,
+            'card_school_detail_font_size' => $settings->card_school_detail_font_size ?? 5.4,
+            'card_slogan_font_size' => $settings->card_slogan_font_size ?? 4.8,
+            'card_title_font_size' => $settings->card_title_font_size ?? 4.7,
+            'card_name_font_size' => $settings->card_name_font_size ?? 7.2,
+            'card_exam_type_font_size' => $settings->card_exam_type_font_size ?? 7.4,
+            'card_exam_name_font_size' => $settings->card_exam_name_font_size ?? 6.8,
+            'card_student_detail_alignment' => $settings->card_student_detail_alignment ?? 'left',
+            'card_student_detail_font_size' => $settings->card_student_detail_font_size ?? 8.5,
+            'card_student_detail_text_color' => $settings->card_student_detail_text_color ?? '#111827',
             'card_color_gradient_1' => $settings->card_color_gradient_1 ?? '#1e3a5f',
             'card_color_gradient_2' => $settings->card_color_gradient_2 ?? '#2563eb',
             'card_solid_color' => $settings->card_solid_color ?? '#1e3a5f',
@@ -307,6 +381,20 @@ class AdmitSeatCardController extends Controller
             'card_title_text_color' => $settings->card_title_text_color ?? '#ffffff',
             'card_exam_type_text_color' => $settings->card_exam_type_text_color ?? '#ffffff',
             'card_exam_name_text_color' => $settings->card_exam_name_text_color ?? '#e5e7eb',
+            'card_show_logo_front' => $settings->card_show_logo_front ?? true,
+            'card_show_logo_back' => $settings->card_show_logo_back ?? true,
+            'card_show_photo_front' => $settings->card_show_photo_front ?? true,
+            'card_show_footer_front' => $settings->card_show_footer_front ?? true,
+            'card_show_footer_back' => $settings->card_show_footer_back ?? true,
+            'card_show_school_detail_front' => $settings->card_show_school_detail_front ?? true,
+            'card_show_school_detail_back' => $settings->card_show_school_detail_back ?? true,
+            'card_show_slogan_front' => $settings->card_show_slogan_front ?? true,
+            'card_show_slogan_back' => $settings->card_show_slogan_back ?? true,
+            'card_show_title_front' => $settings->card_show_title_front ?? true,
+            'card_show_title_back' => $settings->card_show_title_back ?? true,
+            'card_show_exam_type_front' => $settings->card_show_exam_type_front ?? true,
+            'card_show_exam_name_front' => $settings->card_show_exam_name_front ?? true,
+            'card_show_back_notice' => $settings->card_show_back_notice ?? true,
         ]);
     }
 }
