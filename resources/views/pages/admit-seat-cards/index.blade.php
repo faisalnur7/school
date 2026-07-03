@@ -3,6 +3,303 @@
 @section('styles')
     <style>
         @include('pages.admit-seat-cards._styles')
+        .admit-seat-cards-page .admit-seat-typography-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(248, 250, 252, 0.96) 0%, rgba(255, 255, 255, 0.98) 100%);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+
+        .admit-seat-cards-page .admit-seat-typography-header {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border-bottom: 1px solid #e5e7eb;
+            padding: 0.9rem 1rem;
+        }
+
+        .admit-seat-cards-page .admit-seat-typography-body {
+            padding: 1rem;
+        }
+
+        .admit-seat-cards-page .admit-seat-typography-row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            margin-bottom: 0.8rem;
+            padding: 0.9rem 0.95rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.9) 100%);
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+            align-items: center;
+        }
+
+        .admit-seat-cards-page .admit-seat-typography-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .admit-seat-cards-page .admit-seat-typography-row:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+        }
+
+        .admit-seat-cards-page .admit-seat-layout-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(248, 250, 252, 0.96) 0%, rgba(255, 255, 255, 0.98) 100%);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+
+        .admit-seat-cards-page .admit-seat-layout-header {
+            padding: 1rem 1rem 0.85rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        }
+
+        .admit-seat-cards-page .admit-seat-layout-header .badge {
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .admit-seat-cards-page .admit-seat-layout-header h6 {
+            letter-spacing: -0.01em;
+        }
+
+        .admit-seat-cards-page .admit-seat-layout-body {
+            padding: 1rem;
+        }
+
+        .admit-seat-cards-page .admit-seat-layout-note {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin-bottom: 0.85rem;
+            padding: 0.55rem 0.75rem;
+            border: 1px solid #dbe4ee;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #475569;
+            font-size: 0.78rem;
+            font-weight: 700;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+        }
+
+        .admit-seat-cards-page .admit-seat-layout-field {
+            height: 100%;
+            padding: 0.95rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%);
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+        }
+
+        .admit-seat-cards-page .admit-seat-layout-field:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+        }
+
+        .admit-seat-cards-page .admit-seat-layout-label {
+            margin: 0;
+            font-size: 0.76rem;
+            font-weight: 800;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .admit-seat-cards-page .card-settings-modal-content label[data-toggle="tooltip"] {
+            cursor: help;
+        }
+
+        .admit-seat-cards-page .admit-seat-layout-control {
+            width: 100%;
+            min-height: 42px;
+        }
+
+        .admit-seat-cards-page .csm-color-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: nowrap;
+        }
+
+        .admit-seat-cards-page .csm-typography-control {
+            min-height: 38px;
+            border-radius: 12px;
+            border-color: #cbd5e1;
+            box-shadow: none;
+        }
+
+        .admit-seat-cards-page .csm-typography-control:focus {
+            border-color: #94a3b8;
+            box-shadow: 0 0 0 4px rgba(148, 163, 184, 0.16);
+        }
+
+        .admit-seat-cards-page .csm-color-native {
+            width: 54px !important;
+            min-width: 54px !important;
+            max-width: 54px !important;
+            height: 38px !important;
+            padding: 0.18rem !important;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            cursor: pointer;
+            flex: 0 0 54px;
+        }
+
+        .admit-seat-cards-page .csm-color-native::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .admit-seat-cards-page .csm-color-native::-webkit-color-swatch {
+            border: 0;
+            border-radius: 8px;
+        }
+
+        .admit-seat-cards-page .csm-color-preview {
+            width: 32px;
+            height: 32px;
+            flex: 0 0 32px;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+        }
+
+        .admit-seat-cards-page .card-settings-modal-content {
+            border: 1px solid #dbe4ee;
+            border-radius: 24px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 42%);
+            box-shadow: 0 30px 80px rgba(15, 23, 42, 0.18);
+        }
+
+        .admit-seat-cards-page .card-settings-modal-header {
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid #e2e8f0;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        }
+
+        .admit-seat-cards-page .card-settings-modal-body {
+            padding: 1rem 1.2rem 1.2rem;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 18%);
+        }
+
+        .admit-seat-cards-page .card-settings-modal-footer {
+            padding: 1rem 1.2rem;
+            border-top: 1px solid #e2e8f0;
+            background: #ffffff;
+        }
+
+        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs {
+            display: flex;
+            gap: 0.35rem;
+            padding: 0.35rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.85);
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs .nav-item {
+            margin-bottom: 0;
+        }
+
+        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs .nav-link {
+            border: 0;
+            border-radius: 12px;
+            padding: 0.68rem 0.95rem;
+            font-weight: 700;
+            color: #475569;
+            background: transparent;
+            white-space: nowrap;
+            transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs .nav-link:hover {
+            color: #0f172a;
+            background: rgba(226, 232, 240, 0.6);
+        }
+
+        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs .nav-link.active {
+            color: #fff;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+        }
+
+        .admit-seat-cards-page .admit-seat-cards-settings-panel > .tab-pane > .card {
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: #ffffff;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+            overflow: hidden;
+        }
+
+        .admit-seat-cards-page .admit-seat-cards-settings-panel > .tab-pane > .card > .card-header {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+        }
+
+        .admit-seat-cards-page .admit-seat-cards-settings-panel > .tab-pane > .card > .card-body {
+            padding: 1rem;
+        }
+
+        .admit-seat-cards-page .card-settings-modal-content .form-control:not([type="color"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+        .admit-seat-cards-page .card-settings-modal-content .custom-select,
+        .admit-seat-cards-page .card-settings-modal-content select.form-control,
+        .admit-seat-cards-page .card-settings-modal-content textarea.form-control {
+            min-height: 42px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            background-color: #fff;
+            color: #0f172a;
+            box-shadow: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+        }
+
+        .admit-seat-cards-page .card-settings-modal-content .form-control:not([type="color"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+        .admit-seat-cards-page .card-settings-modal-content .custom-select:focus,
+        .admit-seat-cards-page .card-settings-modal-content select.form-control:focus,
+        .admit-seat-cards-page .card-settings-modal-content textarea.form-control:focus {
+            border-color: #94a3b8;
+            box-shadow: 0 0 0 4px rgba(148, 163, 184, 0.16);
+        }
+
+        .admit-seat-cards-page .card-settings-modal-content input[type="number"] {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .admit-seat-cards-page .card-settings-modal-content .btn-group-toggle .btn {
+            border-radius: 12px;
+            border-color: #cbd5e1;
+            background: #fff;
+            color: #475569;
+            font-weight: 700;
+            box-shadow: none;
+        }
+
+        .admit-seat-cards-page .card-settings-modal-content .btn-group-toggle .btn.active {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border-color: #1d4ed8;
+            color: #fff;
+            box-shadow: 0 10px 18px rgba(37, 99, 235, 0.18);
+        }
+
+        .admit-seat-cards-page .card-settings-modal-content .text-muted.d-block,
+        .admit-seat-cards-page .card-settings-modal-content .small.text-muted.d-block {
+            font-size: 0.72rem;
+            line-height: 1.25;
+            color: #94a3b8 !important;
+        }
 
         .admit-seat-cards-page .admit-seat-cards-filter-panel {
             background: #ffffff;
@@ -280,8 +577,8 @@
                 @csrf
                 <div class="modal-header card-settings-modal-header">
                     <div>
-                        <h5 class="modal-title mb-1" id="cardSettingsModalLabel">Card Settings</h5>
-                        <small class="text-muted d-block" id="cardSettingsModalTypeLabel">{{ (old('card_type', $cardType ?? 'admit_card') === 'seat_card') ? 'Seat Card Settings' : 'Admit Card Settings' }}</small>
+                        <h5 class="modal-title mb-1" id="cardSettingsModalLabel">{{ (old('card_type', $cardType ?? 'admit_card') === 'seat_card') ? 'Seat Card Settings' : 'Admit Card Settings' }}</h5>
+                        <small class="text-muted d-block" id="cardSettingsModalTypeLabel">Switch between admit and seat card presets.</small>
                         <small class="text-muted d-block">Save a single layout profile for search, print, and PDF output.</small>
                     </div>
                     <div class="btn-group btn-group-sm csm-type-switcher" role="group" aria-label="Card type selector">
@@ -295,6 +592,10 @@
                 </div>
                 <div class="modal-body card-settings-modal-body">
                     <input type="hidden" name="card_type" value="{{ old('card_type', $cardType ?? 'admit_card') }}">
+                    <input type="hidden" name="card_show_school_detail_back" value="{{ old('card_show_school_detail_back', $cardSettings?->card_show_school_detail_back ?? true) ? 1 : 0 }}">
+                    <input type="hidden" name="card_show_slogan_back" value="{{ old('card_show_slogan_back', $cardSettings?->card_show_slogan_back ?? true) ? 1 : 0 }}">
+                    <input type="hidden" name="card_show_title_back" value="{{ old('card_show_title_back', $cardSettings?->card_show_title_back ?? true) ? 1 : 0 }}">
+                    <input type="hidden" name="card_show_back_notice" value="{{ old('card_show_back_notice', $cardSettings?->card_show_back_notice ?? true) ? 1 : 0 }}">
                     @php
                         $selectedColorType = old('card_color_type', $cardSettings?->card_color_type ?? 'gradient');
                         $selectedTransparent = old('card_is_transparent', $cardSettings?->card_is_transparent ?? false);
@@ -340,6 +641,7 @@
                                         'school_name' => 'admitSeatSchoolNameColor',
                                         'school_detail' => 'admitSeatSchoolDetailColor',
                                         'title' => 'admitSeatTitleColor',
+                                        'name' => 'admitSeatNameColor',
                                         'student_detail_alignment' => 'admitSeatStudentDetailAlignment',
                                         'student_detail_font_size' => 'admitSeatStudentDetailFontSize',
                                         'student_detail_color' => 'admitSeatStudentDetailColor',
@@ -372,96 +674,99 @@
 
                             <div class="tab-content admit-seat-cards-settings-panel">
                                 <div class="tab-pane fade show active" id="admitSeatLayoutPane" role="tabpanel" aria-labelledby="admitSeatLayoutTab">
-                                    <div class="card mb-2 shadow-sm">
-                                    <div class="card-header py-2 bg-light d-flex align-items-center justify-content-between">
-                                        <div class="d-flex align-items-center">
-                                            <span class="badge badge-primary mr-2"><i class="fas fa-vector-square"></i></span>
-                                            <h6 class="mb-0 font-weight-bold">Layout &amp; Grid</h6>
+                                    <div class="card mb-2 shadow-sm admit-seat-layout-card">
+                                        <div class="card-header admit-seat-layout-header">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap" style="gap: 0.75rem;">
+                                                <div class="d-flex align-items-center" style="gap: 0.75rem;">
+                                                    <span class="badge badge-primary"><i class="fas fa-vector-square"></i></span>
+                                                    <div>
+                                                        <h6 class="mb-0 font-weight-bold">Layout &amp; Grid</h6>
+                                                        <small class="text-muted d-block">Tune the card grid, spacing, and page alignment.</small>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="card-body p-2">
-                                        @if(($layoutIsClamped ?? false))
-                                            <div class="alert alert-warning py-1 px-2 mb-2 small">Only {{ $maxCardsPerPage }} cards fit on A4 with the current layout.</div>
-                                        @endif
-                                        <div class="row no-gutters">
-                                            <div class="col-12 col-sm-6 col-md-4 col-xl-2 mb-2">
-                                                <div class="form-group mb-0">
-                                                    <label class="d-block mb-1 small font-weight-bold text-dark">Cards / Page</label>
-                                                    <input type="number" name="cards_per_page" class="csm-input form-control form-control-sm" min="1" max="12" value="{{ old('cards_per_page', $cardSettings?->cards_per_page ?? 8) }}">
+                                        <div class="card-body admit-seat-layout-body">
+                                            @if(($layoutIsClamped ?? false))
+                                                <div class="alert alert-warning py-2 px-3 mb-3 small rounded-lg border-0" style="background:#fff7ed;color:#9a3412;">
+                                                    Only {{ $maxCardsPerPage }} cards fit on A4 with the current layout.
                                                 </div>
-                                            </div>
-                                            <div class="col-12 col-sm-6 col-md-4 col-xl-2 mb-2">
-                                                <div class="form-group mb-0">
-                                                    <label class="d-block mb-1 small font-weight-bold text-dark">Cards / Row</label>
-                                                    <input type="number" name="cards_per_row" class="csm-input form-control form-control-sm" min="1" max="10" value="{{ old('cards_per_row', $cardSettings?->cards_per_row ?? 2) }}">
+                                            @endif
+
+                                            <div class="row">
+                                                <div class="col-12 col-md-3 mb-1">
+                                                    <div class="admit-seat-layout-field">
+                                                    <label class="admit-seat-layout-label" for="admitSeatCardsPerPage" data-toggle="tooltip" data-placement="top" title="Total cards rendered on a page." aria-label="Total cards rendered on a page.">Cards / Page</label>
+                                                    <input type="number" name="cards_per_page" id="admitSeatCardsPerPage" class="csm-input csm-typography-control form-control form-control-sm admit-seat-layout-control" min="1" max="12" value="{{ old('cards_per_page', $cardSettings?->cards_per_page ?? 8) }}">
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-12 col-sm-6 col-md-4 col-xl-2 mb-2">
-                                                <div class="form-group mb-0">
-                                                    <label class="d-block mb-1 small font-weight-bold text-dark">Grid Gap</label>
-                                                    <input type="number" name="grid_gap_value" class="csm-input form-control form-control-sm" min="0.1" step="0.1" value="{{ old('grid_gap_value', $cardSettings?->grid_gap_value ?? 0.85) }}">
+                                                <div class="col-12 col-md-3 mb-1">
+                                                    <div class="admit-seat-layout-field">
+                                                    <label class="admit-seat-layout-label" for="admitSeatCardsPerRow" data-toggle="tooltip" data-placement="top" title="How many cards sit side by side." aria-label="How many cards sit side by side.">Cards / Row</label>
+                                                    <input type="number" name="cards_per_row" id="admitSeatCardsPerRow" class="csm-input csm-typography-control form-control form-control-sm admit-seat-layout-control" min="1" max="10" value="{{ old('cards_per_row', $cardSettings?->cards_per_row ?? 2) }}">
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-12 col-sm-6 col-md-4 col-xl-2 mb-2">
-                                                <div class="form-group mb-0">
-                                                    <label class="d-block mb-1 small font-weight-bold text-dark">Card Width</label>
-                                                    <input type="number" name="card_width_value" class="csm-input form-control form-control-sm" min="0.1" step="0.1" value="{{ old('card_width_value', $cardSettings?->card_width_value ?? 9.4) }}">
+                                                <div class="col-12 col-md-3 mb-1">
+                                                    <div class="admit-seat-layout-field">
+                                                    <label class="admit-seat-layout-label" for="admitSeatGridGap" data-toggle="tooltip" data-placement="top" title="Spacing between cards on the sheet." aria-label="Spacing between cards on the sheet.">Grid Gap</label>
+                                                    <input type="number" name="grid_gap_value" id="admitSeatGridGap" class="csm-input csm-typography-control form-control form-control-sm admit-seat-layout-control" min="0.1" step="0.1" value="{{ old('grid_gap_value', $cardSettings?->grid_gap_value ?? 0.85) }}">
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-12 col-sm-6 col-md-4 col-xl-2 mb-2">
-                                                <div class="form-group mb-0">
-                                                    <label class="d-block mb-1 small font-weight-bold text-dark">Card Height</label>
-                                                    <input type="number" name="card_height_value" class="csm-input form-control form-control-sm" min="0.1" step="0.1" value="{{ old('card_height_value', $cardSettings?->card_height_value ?? 6.6) }}">
+                                                <div class="col-12 col-md-3 mb-1">
+                                                    <div class="admit-seat-layout-field">
+                                                    <label class="admit-seat-layout-label" for="admitSeatCardWidth" data-toggle="tooltip" data-placement="top" title="Width of each rendered card." aria-label="Width of each rendered card.">Card Width</label>
+                                                    <input type="number" name="card_width_value" id="admitSeatCardWidth" class="csm-input csm-typography-control form-control form-control-sm admit-seat-layout-control" min="0.1" step="0.1" value="{{ old('card_width_value', $cardSettings?->card_width_value ?? 9.4) }}">
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-12 col-sm-6 col-md-4 col-xl-2 mb-2">
-                                                <div class="form-group mb-0">
-                                                    <label class="d-block mb-1 small font-weight-bold text-dark">Unit</label>
-                                                    <select name="card_dimension_unit" class="csm-input csm-select form-control form-control-sm">
+                                                <div class="col-12 col-md-3 mb-1">
+                                                    <div class="admit-seat-layout-field">
+                                                    <label class="admit-seat-layout-label" for="admitSeatCardHeight" data-toggle="tooltip" data-placement="top" title="Height of each rendered card." aria-label="Height of each rendered card.">Card Height</label>
+                                                    <input type="number" name="card_height_value" id="admitSeatCardHeight" class="csm-input csm-typography-control form-control form-control-sm admit-seat-layout-control" min="0.1" step="0.1" value="{{ old('card_height_value', $cardSettings?->card_height_value ?? 6.6) }}">
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-3 mb-1">
+                                                    <div class="admit-seat-layout-field">
+                                                    <label class="admit-seat-layout-label" for="admitSeatDimensionUnit" data-toggle="tooltip" data-placement="top" title="Controls all layout measurements." aria-label="Controls all layout measurements.">Unit</label>
+                                                    <select name="card_dimension_unit" id="admitSeatDimensionUnit" class="csm-input csm-select form-control form-control-sm admit-seat-layout-control">
                                                         <option value="cm" {{ old('card_dimension_unit', $cardSettings?->card_dimension_unit ?? 'cm') === 'cm' ? 'selected' : '' }}>Centimeter (cm)</option>
                                                         <option value="px" {{ old('card_dimension_unit', $cardSettings?->card_dimension_unit ?? 'cm') === 'px' ? 'selected' : '' }}>Pixel (px)</option>
                                                     </select>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-
-                                        <hr class="my-2">
-
-                                        <div class="row">
-                                            <div class="col-12 col-md-6 col-xl-3 mb-2">
-                                                <div class="form-group mb-0">
-                                                    <label class="d-block mb-1 small font-weight-bold text-dark">Front Alignment</label>
-                                                    <select name="card_front_alignment" id="admitSeatFrontAlignment" class="csm-input csm-select form-control form-control-sm">
+                                                <div class="col-12 col-md-3 mb-1">
+                                                    <div class="admit-seat-layout-field">
+                                                    <label class="admit-seat-layout-label" for="admitSeatFrontAlignment" data-toggle="tooltip" data-placement="top" title="Controls the front card content alignment." aria-label="Controls the front card content alignment.">Front Alignment</label>
+                                                    <select name="card_front_alignment" id="admitSeatFrontAlignment" class="csm-input csm-select form-control form-control-sm admit-seat-layout-control">
                                                         <option value="left" {{ old('card_front_alignment', $cardSettings?->card_front_alignment ?? 'center') === 'left' ? 'selected' : '' }}>Left</option>
                                                         <option value="center" {{ old('card_front_alignment', $cardSettings?->card_front_alignment ?? 'center') === 'center' ? 'selected' : '' }}>Center</option>
                                                         <option value="right" {{ old('card_front_alignment', $cardSettings?->card_front_alignment ?? 'center') === 'right' ? 'selected' : '' }}>Right</option>
                                                     </select>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-12 col-md-6 col-xl-3 mb-2">
-                                                <div class="form-group mb-0">
-                                                    <label class="d-block mb-1 small font-weight-bold text-dark">Back Alignment</label>
-                                                    <select name="card_back_alignment" id="admitSeatBackAlignment" class="csm-input csm-select form-control form-control-sm">
+                                                <div class="col-12 col-md-3 mb-1">
+                                                    <div class="admit-seat-layout-field">
+                                                    <label class="admit-seat-layout-label" for="admitSeatBackAlignment" data-toggle="tooltip" data-placement="top" title="Controls the back card content alignment." aria-label="Controls the back card content alignment.">Back Alignment</label>
+                                                    <select name="card_back_alignment" id="admitSeatBackAlignment" class="csm-input csm-select form-control form-control-sm admit-seat-layout-control">
                                                         <option value="left" {{ old('card_back_alignment', $cardSettings?->card_back_alignment ?? 'center') === 'left' ? 'selected' : '' }}>Left</option>
                                                         <option value="center" {{ old('card_back_alignment', $cardSettings?->card_back_alignment ?? 'center') === 'center' ? 'selected' : '' }}>Center</option>
                                                         <option value="right" {{ old('card_back_alignment', $cardSettings?->card_back_alignment ?? 'center') === 'right' ? 'selected' : '' }}>Right</option>
                                                     </select>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-12 col-md-6 col-xl-3 mb-2">
-                                                <div class="form-group mb-0">
-                                                    <label class="d-block mb-1 small font-weight-bold text-dark">Front Padding</label>
-                                                    <input type="number" name="card_front_padding_value" id="admitSeatFrontPadding" class="csm-input form-control form-control-sm" min="0" step="0.1" value="{{ old('card_front_padding_value', $cardSettings?->card_front_padding_value ?? 0.8) }}">
+                                                <div class="col-12 col-md-3 mb-1">
+                                                    <div class="admit-seat-layout-field">
+                                                    <label class="admit-seat-layout-label" for="admitSeatFrontPadding" data-toggle="tooltip" data-placement="top" title="Inner spacing inside the front card." aria-label="Inner spacing inside the front card.">Front Padding</label>
+                                                    <input type="number" name="card_front_padding_value" id="admitSeatFrontPadding" class="csm-input csm-typography-control form-control form-control-sm admit-seat-layout-control" min="0" step="0.1" value="{{ old('card_front_padding_value', $cardSettings?->card_front_padding_value ?? 0.8) }}">
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-12 col-md-6 col-xl-3 mb-2">
-                                                <div class="form-group mb-0">
-                                                    <label class="d-block mb-1 small font-weight-bold text-dark">Back Padding</label>
-                                                    <input type="number" name="card_back_padding_value" id="admitSeatBackPadding" class="csm-input form-control form-control-sm" min="0" step="0.1" value="{{ old('card_back_padding_value', $cardSettings?->card_back_padding_value ?? 0.8) }}">
+                                                <div class="col-12 col-md-3 mb-1">
+                                                    <div class="admit-seat-layout-field">
+                                                    <label class="admit-seat-layout-label" for="admitSeatBackPadding" data-toggle="tooltip" data-placement="top" title="Inner spacing inside the back card." aria-label="Inner spacing inside the back card.">Back Padding</label>
+                                                    <input type="number" name="card_back_padding_value" id="admitSeatBackPadding" class="csm-input csm-typography-control form-control form-control-sm admit-seat-layout-control" min="0" step="0.1" value="{{ old('card_back_padding_value', $cardSettings?->card_back_padding_value ?? 0.8) }}">
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
                                     </div>
                                 </div>
 
@@ -479,21 +784,18 @@
                                                         <div class="form-group mb-0">
                                                             <label class="d-block mb-1 small font-weight-bold text-dark">Photo Width</label>
                                                             <input type="number" name="card_photo_width_value" id="admitSeatPhotoWidth" class="csm-input form-control form-control-sm" min="0.1" step="0.1" value="{{ old('card_photo_width_value', $cardSettings?->card_photo_width_value ?? 1.8) }}">
-                                                            <span class="small text-muted d-block mt-1">In selected unit</span>
                                                         </div>
                                                     </div>
                                                     <div class="col-12 col-md-4 mb-2">
                                                         <div class="form-group mb-0">
                                                             <label class="d-block mb-1 small font-weight-bold text-dark">Photo Height</label>
                                                             <input type="number" name="card_photo_height_value" id="admitSeatPhotoHeight" class="csm-input form-control form-control-sm" min="0.1" step="0.1" value="{{ old('card_photo_height_value', $cardSettings?->card_photo_height_value ?? 2.7) }}">
-                                                            <span class="small text-muted d-block mt-1">In selected unit</span>
                                                         </div>
                                                     </div>
                                                     <div class="col-12 col-md-4 mb-2">
                                                         <div class="form-group mb-0">
                                                             <label class="d-block mb-1 small font-weight-bold text-dark">Logo Size</label>
                                                             <input type="number" name="card_logo_size_value" id="admitSeatLogoSize" class="csm-input form-control form-control-sm" min="0.1" step="0.1" value="{{ old('card_logo_size_value', $cardSettings?->card_logo_size_value ?? 0.8) }}">
-                                                            <span class="small text-muted d-block mt-1">In selected unit</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -514,10 +816,8 @@
                                                                 <input type="file" name="card_logo" id="admitSeatCardLogoInput" class="d-none" accept="image">
                                                                 <div class="dz-message needsclick text-center py-3">
                                                                     <div class="font-weight-bold">Drop logo here or click to browse</div>
-                                                                    <small class="text-muted">PNG, JPG, SVG supported</small>
                                                                 </div>
                                                             </div>
-                                                            <span class="small text-muted d-block mt-1">Leave blank to use the school logo</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -526,109 +826,126 @@
                                 </div>
 
                                 <div class="tab-pane fade" id="admitSeatTypographyPane" role="tabpanel" aria-labelledby="admitSeatTypographyTab">
-                                    <div class="card mb-2 shadow-sm">
-                                            <div class="card-header py-2 bg-light d-flex align-items-center justify-content-between">
+                                    <div class="card mb-2 shadow-sm admit-seat-typography-card">
+                                            <div class="card-header py-2 d-flex align-items-center justify-content-between admit-seat-typography-header">
                                                 <div class="d-flex align-items-center">
-                                                    <span class="badge badge-primary mr-2"><i class="fas fa-font"></i></span>
-                                                    <h6 class="mb-0 font-weight-bold">Typography &amp; Colors</h6>
+                                                    <span class="badge badge-primary mr-2" style="width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;"><i class="fas fa-font"></i></span>
+                                                    <div>
+                                                        <h6 class="mb-0 font-weight-bold" style="letter-spacing:-0.01em;">Typography &amp; Colors</h6>
+                                                        <small class="text-muted">Fine-tune font scale and color tone for the card face.</small>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="card-body p-2">
-                                                <div class="row align-items-center mb-2">
+                                            <div class="card-body admit-seat-typography-body">
+                                                <div class="row align-items-center admit-seat-typography-row">
                                                     <div class="col-12 col-md-4 mb-1 mb-md-0">
                                                         <strong class="csm-tc-name d-block">School Name</strong>
                                                     </div>
                                                     <div class="col-12 col-md-3 mb-1 mb-md-0">
-                                                        <input type="number" name="card_school_name_font_size" id="admitSeatSchoolNameFontSize" class="csm-input form-control form-control-sm" min="1" step="0.1" value="{{ old('card_school_name_font_size', $cardSettings?->card_school_name_font_size ?? 7.2) }}">
+                                                        <input type="number" name="card_school_name_font_size" id="admitSeatSchoolNameFontSize" class="csm-input csm-typography-control form-control form-control-sm" min="1" step="0.1" value="{{ old('card_school_name_font_size', $cardSettings?->card_school_name_font_size ?? 7.2) }}">
                                                     </div>
                                                     <div class="col-12 col-md-5">
-                                                        <div class="d-flex align-items-center">
+                                                        <div class="csm-color-row">
                                                             <input type="color" name="card_school_name_text_color" id="admitSeatSchoolNameColor" class="csm-color-native" value="{{ old('card_school_name_text_color', $cardSettings?->card_school_name_text_color ?? '#ffffff') }}">
-                                                            <span id="admitSeatSchoolNameColorPreview" class="d-inline-block ml-2" style="width:18px;height:18px;border-radius:50%;border:1px solid #d1d5db;vertical-align:middle;"></span>
+                                                            <span id="admitSeatSchoolNameColorPreview" class="d-inline-block rounded ml-2" style="width:32px;height:32px;border:1px solid #d1d5db;vertical-align:middle;"></span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row align-items-center mb-2">
+                                                <div class="row align-items-center admit-seat-typography-row">
                                                     <div class="col-12 col-md-4 mb-1 mb-md-0">
                                                         <strong class="csm-tc-name d-block">School Details</strong>
                                                     </div>
                                                     <div class="col-12 col-md-3 mb-1 mb-md-0">
-                                                        <input type="number" name="card_school_detail_font_size" id="admitSeatSchoolDetailFontSize" class="csm-input form-control form-control-sm" min="1" step="0.1" value="{{ old('card_school_detail_font_size', $cardSettings?->card_school_detail_font_size ?? 5.4) }}">
+                                                        <input type="number" name="card_school_detail_font_size" id="admitSeatSchoolDetailFontSize" class="csm-input csm-typography-control form-control form-control-sm" min="1" step="0.1" value="{{ old('card_school_detail_font_size', $cardSettings?->card_school_detail_font_size ?? 5.4) }}">
                                                     </div>
                                                     <div class="col-12 col-md-5">
-                                                        <div class="d-flex align-items-center">
+                                                        <div class="csm-color-row">
                                                             <input type="color" name="card_school_detail_text_color" id="admitSeatSchoolDetailColor" class="csm-color-native" value="{{ old('card_school_detail_text_color', $cardSettings?->card_school_detail_text_color ?? '#e5e7eb') }}">
-                                                            <span id="admitSeatSchoolDetailColorPreview" class="d-inline-block ml-2" style="width:18px;height:18px;border-radius:50%;border:1px solid #d1d5db;vertical-align:middle;"></span>
+                                                            <span id="admitSeatSchoolDetailColorPreview" class="d-inline-block rounded ml-2" style="width:32px;height:32px;border:1px solid #d1d5db;vertical-align:middle;"></span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row align-items-center mb-2">
+                                                <div class="row align-items-center admit-seat-typography-row">
                                                     <div class="col-12 col-md-4 mb-1 mb-md-0">
                                                         <strong class="csm-tc-name d-block">Slogan</strong>
                                                     </div>
                                                     <div class="col-12 col-md-3 mb-1 mb-md-0">
-                                                        <input type="number" name="card_slogan_font_size" id="admitSeatSloganFontSize" class="csm-input form-control form-control-sm" min="1" step="0.1" value="{{ old('card_slogan_font_size', $cardSettings?->card_slogan_font_size ?? 4.8) }}">
+                                                        <input type="number" name="card_slogan_font_size" id="admitSeatSloganFontSize" class="csm-input csm-typography-control form-control form-control-sm" min="1" step="0.1" value="{{ old('card_slogan_font_size', $cardSettings?->card_slogan_font_size ?? 4.8) }}">
                                                     </div>
                                                     <div class="col-12 col-md-5">
-                                                        <div class="d-flex align-items-center">
+                                                        <div class="csm-color-row">
                                                             <input type="color" name="card_slogan_text_color" id="admitSeatSloganColor" class="csm-color-native" value="{{ old('card_slogan_text_color', $cardSettings?->card_slogan_text_color ?? '#e5e7eb') }}">
-                                                            <span id="admitSeatSloganColorPreview" class="d-inline-block ml-2" style="width:18px;height:18px;border-radius:50%;border:1px solid #d1d5db;vertical-align:middle;"></span>
+                                                            <span id="admitSeatSloganColorPreview" class="d-inline-block rounded ml-2" style="width:32px;height:32px;border:1px solid #d1d5db;vertical-align:middle;"></span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row align-items-center mb-2">
+                                                <div class="row align-items-center admit-seat-typography-row">
                                                     <div class="col-12 col-md-4 mb-1 mb-md-0">
                                                         <strong class="csm-tc-name d-block">Card Title</strong>
                                                     </div>
                                                     <div class="col-12 col-md-3 mb-1 mb-md-0">
-                                                        <input type="number" name="card_title_font_size" id="admitSeatTitleFontSize" class="csm-input form-control form-control-sm" min="1" step="0.1" value="{{ old('card_title_font_size', $cardSettings?->card_title_font_size ?? 4.7) }}">
+                                                        <input type="number" name="card_title_font_size" id="admitSeatTitleFontSize" class="csm-input csm-typography-control form-control form-control-sm" min="1" step="0.1" value="{{ old('card_title_font_size', $cardSettings?->card_title_font_size ?? 4.7) }}">
                                                     </div>
                                                     <div class="col-12 col-md-5">
-                                                        <div class="d-flex align-items-center">
+                                                        <div class="csm-color-row">
                                                             <input type="color" name="card_title_text_color" id="admitSeatTitleColor" class="csm-color-native" value="{{ old('card_title_text_color', $cardSettings?->card_title_text_color ?? '#ffffff') }}">
-                                                            <span id="admitSeatTitleColorPreview" class="d-inline-block ml-2" style="width:18px;height:18px;border-radius:50%;border:1px solid #d1d5db;vertical-align:middle;"></span>
+                                                            <span id="admitSeatTitleColorPreview" class="d-inline-block rounded ml-2" style="width:32px;height:32px;border:1px solid #d1d5db;vertical-align:middle;"></span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row align-items-center mb-2">
+                                                <div class="row align-items-center admit-seat-typography-row">
+                                                    <div class="col-12 col-md-4 mb-1 mb-md-0">
+                                                        <strong class="csm-tc-name d-block">Student Name</strong>
+                                                    </div>
+                                                    <div class="col-12 col-md-3 mb-1 mb-md-0">
+                                                        <input type="number" name="card_name_font_size" id="admitSeatNameFontSize" class="csm-input csm-typography-control form-control form-control-sm" min="1" step="0.1" value="{{ old('card_name_font_size', $cardSettings?->card_name_font_size ?? 7.2) }}">
+                                                    </div>
+                                                    <div class="col-12 col-md-5">
+                                                        <div class="csm-color-row">
+                                                            <input type="color" name="card_name_text_color" id="admitSeatNameColor" class="csm-color-native" value="{{ old('card_name_text_color', $cardSettings?->card_name_text_color ?? '#111827') }}">
+                                                            <span id="admitSeatNameColorPreview" class="d-inline-block rounded ml-2" style="width:32px;height:32px;border:1px solid #d1d5db;vertical-align:middle;"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row align-items-center admit-seat-typography-row">
                                                     <div class="col-12 col-md-4 mb-1 mb-md-0">
                                                         <strong class="csm-tc-name d-block">Exam Type</strong>
                                                     </div>
                                                     <div class="col-12 col-md-3 mb-1 mb-md-0">
-                                                        <input type="number" name="card_exam_type_font_size" id="admitSeatExamTypeFontSize" class="csm-input form-control form-control-sm" min="1" step="0.1" value="{{ old('card_exam_type_font_size', $cardSettings?->card_exam_type_font_size ?? 7.4) }}">
+                                                        <input type="number" name="card_exam_type_font_size" id="admitSeatExamTypeFontSize" class="csm-input csm-typography-control form-control form-control-sm" min="1" step="0.1" value="{{ old('card_exam_type_font_size', $cardSettings?->card_exam_type_font_size ?? 7.4) }}">
                                                     </div>
                                                     <div class="col-12 col-md-5">
-                                                        <div class="d-flex align-items-center">
+                                                        <div class="csm-color-row">
                                                             <input type="color" name="card_exam_type_text_color" id="admitSeatExamTypeColor" class="csm-color-native" value="{{ old('card_exam_type_text_color', $cardSettings?->card_exam_type_text_color ?? '#ffffff') }}">
-                                                            <span id="admitSeatExamTypeColorPreview" class="d-inline-block ml-2" style="width:18px;height:18px;border-radius:50%;border:1px solid #d1d5db;vertical-align:middle;"></span>
+                                                            <span id="admitSeatExamTypeColorPreview" class="d-inline-block rounded ml-2" style="width:32px;height:32px;border:1px solid #d1d5db;vertical-align:middle;"></span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row align-items-center mb-2">
+                                                <div class="row align-items-center admit-seat-typography-row">
                                                     <div class="col-12 col-md-4 mb-1 mb-md-0">
                                                         <strong class="csm-tc-name d-block">Exam Name</strong>
                                                     </div>
                                                     <div class="col-12 col-md-3 mb-1 mb-md-0">
-                                                        <input type="number" name="card_exam_name_font_size" id="admitSeatExamNameFontSize" class="csm-input form-control form-control-sm" min="1" step="0.1" value="{{ old('card_exam_name_font_size', $cardSettings?->card_exam_name_font_size ?? 6.8) }}">
+                                                        <input type="number" name="card_exam_name_font_size" id="admitSeatExamNameFontSize" class="csm-input csm-typography-control form-control form-control-sm" min="1" step="0.1" value="{{ old('card_exam_name_font_size', $cardSettings?->card_exam_name_font_size ?? 6.8) }}">
                                                     </div>
                                                     <div class="col-12 col-md-5">
-                                                        <div class="d-flex align-items-center">
+                                                        <div class="csm-color-row">
                                                             <input type="color" name="card_exam_name_text_color" id="admitSeatExamNameColor" class="csm-color-native" value="{{ old('card_exam_name_text_color', $cardSettings?->card_exam_name_text_color ?? '#e5e7eb') }}">
-                                                            <span id="admitSeatExamNameColorPreview" class="d-inline-block ml-2" style="width:18px;height:18px;border-radius:50%;border:1px solid #d1d5db;vertical-align:middle;"></span>
+                                                            <span id="admitSeatExamNameColorPreview" class="d-inline-block rounded ml-2" style="width:32px;height:32px;border:1px solid #d1d5db;vertical-align:middle;"></span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row align-items-center">
+                                                <div class="row align-items-center admit-seat-typography-row mb-0">
                                                     <div class="col-12 col-md-4 mb-1 mb-md-0">
                                                         <strong class="csm-tc-name d-block">Student Detail</strong>
                                                     </div>
                                                     <div class="col-12 col-md-3 mb-1 mb-md-0">
-                                                        <input type="number" name="card_student_detail_font_size" id="admitSeatStudentDetailFontSize" class="csm-input form-control form-control-sm" min="1" step="0.1" value="{{ old('card_student_detail_font_size', $cardSettings?->card_student_detail_font_size ?? 8.5) }}">
+                                                        <input type="number" name="card_student_detail_font_size" id="admitSeatStudentDetailFontSize" class="csm-input csm-typography-control form-control form-control-sm" min="1" step="0.1" value="{{ old('card_student_detail_font_size', $cardSettings?->card_student_detail_font_size ?? 8.5) }}">
                                                     </div>
                                                     <div class="col-12 col-md-5">
-                                                        <div class="d-flex align-items-center">
+                                                        <div class="csm-color-row">
                                                             <input type="color" name="card_student_detail_text_color" id="admitSeatStudentDetailColor" class="csm-color-native" value="{{ old('card_student_detail_text_color', $cardSettings?->card_student_detail_text_color ?? '#111827') }}">
-                                                            <span id="admitSeatStudentDetailColorPreview" class="d-inline-block ml-2" style="width:18px;height:18px;border-radius:50%;border:1px solid #d1d5db;vertical-align:middle;"></span>
+                                                            <span id="admitSeatStudentDetailColorPreview" class="d-inline-block rounded ml-2" style="width:32px;height:32px;border:1px solid #d1d5db;vertical-align:middle;"></span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -687,7 +1004,7 @@
                                                             <label class="d-block mb-1 small font-weight-bold text-dark">Gradient Start</label>
                                                             <span class="csm-color-swatch-input csm-color-swatch-input-block d-flex align-items-center">
                                                                 <input type="color" name="card_color_gradient_1" id="admitSeatCardColorGradient1" class="csm-color-native" value="{{ old('card_color_gradient_1', $cardSettings?->card_color_gradient_1 ?? '#1e3a5f') }}">
-                                                                <span id="admitSeatCardColorGradient1Preview" class="d-inline-block ml-2" style="width:18px;height:18px;border-radius:50%;border:1px solid #d1d5db;vertical-align:middle;"></span>
+                                                                <span id="admitSeatCardColorGradient1Preview" class="d-inline-block rounded ml-2" style="width:32px;height:32px;border:1px solid #d1d5db;vertical-align:middle;"></span>
                                                             </span>
                                                         </div>
                                                     </div>
@@ -696,7 +1013,7 @@
                                                             <label class="d-block mb-1 small font-weight-bold text-dark">Gradient End</label>
                                                             <span class="csm-color-swatch-input csm-color-swatch-input-block d-flex align-items-center">
                                                                 <input type="color" name="card_color_gradient_2" id="admitSeatCardColorGradient2" class="csm-color-native" value="{{ old('card_color_gradient_2', $cardSettings?->card_color_gradient_2 ?? '#2563eb') }}">
-                                                                <span id="admitSeatCardColorGradient2Preview" class="d-inline-block ml-2" style="width:18px;height:18px;border-radius:50%;border:1px solid #d1d5db;vertical-align:middle;"></span>
+                                                                <span id="admitSeatCardColorGradient2Preview" class="d-inline-block rounded ml-2" style="width:32px;height:32px;border:1px solid #d1d5db;vertical-align:middle;"></span>
                                                             </span>
                                                         </div>
                                                     </div>
@@ -705,7 +1022,7 @@
                                                             <label class="d-block mb-1 small font-weight-bold text-dark">Solid Color</label>
                                                             <span class="csm-color-swatch-input csm-color-swatch-input-block d-flex align-items-center">
                                                                 <input type="color" name="card_solid_color" id="admitSeatCardSolidColor" class="csm-color-native" value="{{ old('card_solid_color', $cardSettings?->card_solid_color ?? '#1e3a5f') }}">
-                                                                <span id="admitSeatCardSolidColorPreview" class="d-inline-block ml-2" style="width:18px;height:18px;border-radius:50%;border:1px solid #d1d5db;vertical-align:middle;"></span>
+                                                                <span id="admitSeatCardSolidColorPreview" class="d-inline-block rounded ml-2" style="width:32px;height:32px;border:1px solid #d1d5db;vertical-align:middle;"></span>
                                                             </span>
                                                         </div>
                                                     </div>
@@ -740,6 +1057,12 @@
                                                     <div class="custom-control custom-switch">
                                                         <input type="checkbox" class="custom-control-input" name="card_show_logo_back" id="admitSeatShowLogoBack" {{ old('card_show_logo_back', $cardSettings?->card_show_logo_back ?? true) ? 'checked' : '' }}>
                                                         <label class="custom-control-label" for="admitSeatShowLogoBack">Back Logo</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-6 col-lg-4 mb-2">
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input" name="card_show_photo_front" id="admitSeatShowPhotoFront" {{ old('card_show_photo_front', $cardSettings?->card_show_photo_front ?? true) ? 'checked' : '' }}>
+                                                        <label class="custom-control-label" for="admitSeatShowPhotoFront">Photo</label>
                                                     </div>
                                                 </div>
                                                 <div class="col-12 col-sm-6 col-lg-4 mb-2">
@@ -825,6 +1148,7 @@
                 'card_slogan_text_color' => $setting->card_slogan_text_color,
                 'card_title_font_size' => $setting->card_title_font_size,
                 'card_name_font_size' => $setting->card_name_font_size,
+                'card_name_text_color' => $setting->card_name_text_color,
                 'card_exam_type_font_size' => $setting->card_exam_type_font_size,
                 'card_exam_name_font_size' => $setting->card_exam_name_font_size,
                 'card_student_detail_alignment' => $setting->card_student_detail_alignment,
@@ -841,8 +1165,11 @@
                 'card_exam_type_text_color' => $setting->card_exam_type_text_color,
                 'card_exam_name_text_color' => $setting->card_exam_name_text_color,
                 'card_show_school_detail_front' => $setting->card_show_school_detail_front,
+                'card_show_school_detail_back' => $setting->card_show_school_detail_back,
                 'card_show_slogan_front' => $setting->card_show_slogan_front,
+                'card_show_slogan_back' => $setting->card_show_slogan_back,
                 'card_show_title_front' => $setting->card_show_title_front,
+                'card_show_title_back' => $setting->card_show_title_back,
                 'card_show_logo_front' => $setting->card_show_logo_front,
                 'card_show_logo_back' => $setting->card_show_logo_back,
                 'card_show_photo_front' => $setting->card_show_photo_front,
@@ -858,7 +1185,6 @@
 @endphp
 
 <script src="{{ asset('assets/plugins/dropzone/min/dropzone.min.js') }}"></script>
-
 <script>
 if (typeof Dropzone !== 'undefined') {
     // Disable auto-discovery before DOMContentLoaded so it cannot attach
@@ -872,6 +1198,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const cardTypeSelect = document.querySelector('#filterForm select[name="card_type"]');
     const cardSettingsModal = document.getElementById('cardSettingsModal');
     const cardSettingsForm = cardSettingsModal?.querySelector('form');
+    const cardSettingsModalTitle = document.getElementById('cardSettingsModalLabel');
     const cardSettingsTypeLabel = document.getElementById('cardSettingsModalTypeLabel');
     const dirtyBadge = document.getElementById('cardSettingsDirtyBadge');
     const admitSeatCardIsTransparent = document.getElementById('admitSeatCardIsTransparent');
@@ -891,6 +1218,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const admitSeatSloganFontSize = document.getElementById('admitSeatSloganFontSize');
     const admitSeatSloganColor = document.getElementById('admitSeatSloganColor');
     const admitSeatTitleFontSize = document.getElementById('admitSeatTitleFontSize');
+    const admitSeatNameFontSize = document.getElementById('admitSeatNameFontSize');
+    const admitSeatNameColor = document.getElementById('admitSeatNameColor');
     const admitSeatExamTypeFontSize = document.getElementById('admitSeatExamTypeFontSize');
     const admitSeatExamNameFontSize = document.getElementById('admitSeatExamNameFontSize');
     const admitSeatStudentDetailAlignment = document.getElementById('admitSeatStudentDetailAlignment');
@@ -899,10 +1228,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const admitSeatCardColorGradient1Preview = document.getElementById('admitSeatCardColorGradient1Preview');
     const admitSeatCardColorGradient2Preview = document.getElementById('admitSeatCardColorGradient2Preview');
     const admitSeatCardSolidColorPreview = document.getElementById('admitSeatCardSolidColorPreview');
+    let modalScrollY = 0;
     const admitSeatSchoolNameColorPreview = document.getElementById('admitSeatSchoolNameColorPreview');
     const admitSeatSchoolDetailColorPreview = document.getElementById('admitSeatSchoolDetailColorPreview');
     const admitSeatSloganColorPreview = document.getElementById('admitSeatSloganColorPreview');
     const admitSeatTitleColorPreview = document.getElementById('admitSeatTitleColorPreview');
+    const admitSeatNameColorPreview = document.getElementById('admitSeatNameColorPreview');
     const admitSeatExamTypeColorPreview = document.getElementById('admitSeatExamTypeColorPreview');
     const admitSeatExamNameColorPreview = document.getElementById('admitSeatExamNameColorPreview');
     const admitSeatStudentDetailColorPreview = document.getElementById('admitSeatStudentDetailColorPreview');
@@ -921,6 +1252,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const admitSeatCardWidth = cardSettingsForm?.elements.namedItem('card_width_value');
     const admitSeatCardHeight = cardSettingsForm?.elements.namedItem('card_height_value');
     const admitSeatCardDimensionUnit = cardSettingsForm?.elements.namedItem('card_dimension_unit');
+    const admitSeatFrontAlignment = cardSettingsForm?.elements.namedItem('card_front_alignment');
     const admitSeatPhotoWidth = document.getElementById('admitSeatPhotoWidth');
     const admitSeatPhotoHeight = document.getElementById('admitSeatPhotoHeight');
     const admitSeatLogoSize = document.getElementById('admitSeatLogoSize');
@@ -948,14 +1280,18 @@ document.addEventListener('DOMContentLoaded', function () {
         card_slogan_text_color: '#e5e7eb',
         card_title_font_size: 4.7,
         card_name_font_size: 7.2,
+        card_name_text_color: '#111827',
         card_exam_type_font_size: 7.4,
         card_exam_name_font_size: 6.8,
         card_student_detail_alignment: 'left',
         card_student_detail_font_size: 8.5,
         card_student_detail_text_color: '#111827',
         card_show_school_detail_front: true,
+        card_show_school_detail_back: true,
         card_show_slogan_front: true,
+        card_show_slogan_back: true,
         card_show_title_front: true,
+        card_show_title_back: true,
         card_color_gradient_1: '#1e3a5f',
         card_color_gradient_2: '#2563eb',
         card_solid_color: '#1e3a5f',
@@ -1023,6 +1359,68 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!admitSeatLivePreview) return;
         admitSeatLivePreview.querySelectorAll(selector).forEach((element) => {
             element.classList.toggle('d-none', !isVisible);
+        });
+    }
+
+    function lockPageScroll() {
+        modalScrollY = window.scrollY || window.pageYOffset || 0;
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${modalScrollY}px`;
+        document.body.style.width = '100%';
+    }
+
+    function unlockPageScroll() {
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, modalScrollY || 0);
+    }
+
+    function normalizeTooltipText(value) {
+        return (value || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function getTooltipTextFromLabel($label) {
+        const explicit = normalizeTooltipText($label.attr('data-tooltip-content'));
+        if (explicit) {
+            return explicit;
+        }
+
+        const $hint = $label.nextAll('.admit-seat-layout-hint, .text-muted.d-block, .small.text-muted, small.text-muted').first();
+        const hintText = normalizeTooltipText($hint.text());
+        const existingTitle = normalizeTooltipText($label.attr('title'));
+        const labelText = normalizeTooltipText($label.text());
+
+        return hintText || existingTitle || labelText;
+    }
+
+    function initializeLayoutTooltips(context) {
+        const root = context ? (context.jquery ? context : $(context)) : $('#cardSettingsModal');
+        const $labels = root.find('label');
+        if (!$labels.length || typeof $labels.tooltip !== 'function') return;
+
+        $labels.each(function () {
+            const $label = $(this);
+            const tooltipText = getTooltipTextFromLabel($label);
+
+            if (!tooltipText) {
+                return;
+            }
+
+            $label.attr('title', tooltipText);
+
+            $label.attr('data-toggle', 'tooltip');
+            $label.attr('data-placement', $label.attr('data-placement') || 'top');
+        });
+
+        $labels.tooltip('dispose');
+        $labels.tooltip({
+            container: 'body',
+            trigger: 'hover focus',
         });
     }
 
@@ -1197,6 +1595,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'card_slogan_text_color',
             'card_title_font_size',
             'card_name_font_size',
+            'card_name_text_color',
             'card_exam_type_font_size',
             'card_exam_name_font_size',
             'card_student_detail_alignment',
@@ -1214,8 +1613,11 @@ document.addEventListener('DOMContentLoaded', function () {
             'card_exam_type_text_color',
             'card_exam_name_text_color',
             'card_show_school_detail_front',
+            'card_show_school_detail_back',
             'card_show_slogan_front',
+            'card_show_slogan_back',
             'card_show_title_front',
+            'card_show_title_back',
             'card_show_logo_front',
             'card_show_logo_back',
             'card_show_photo_front',
@@ -1223,6 +1625,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'card_show_footer_back',
             'card_show_exam_type_front',
             'card_show_exam_name_front',
+            'card_show_back_notice',
         ];
         fields.forEach((field) => {
             const input = cardSettingsForm.elements.namedItem(field);
@@ -1245,8 +1648,8 @@ document.addEventListener('DOMContentLoaded', function () {
             cardTypeInput.value = normalizedCardType;
         }
 
-        if (cardSettingsTypeLabel) {
-            cardSettingsTypeLabel.textContent = settingLabelFromCardType(normalizedCardType);
+        if (cardSettingsModalTitle) {
+            cardSettingsModalTitle.textContent = settingLabelFromCardType(normalizedCardType);
         }
 
         if (admitSeatPreviewLabel) {
@@ -1324,6 +1727,10 @@ document.addEventListener('DOMContentLoaded', function () {
             admitSeatTitleColorPreview.style.background = admitSeatTitleColor?.value || '#ffffff';
         }
 
+        if (admitSeatNameColorPreview) {
+            admitSeatNameColorPreview.style.background = admitSeatNameColor?.value || '#111827';
+        }
+
         if (admitSeatExamTypeColorPreview) {
             admitSeatExamTypeColorPreview.style.background = admitSeatExamTypeColor?.value || '#ffffff';
         }
@@ -1367,12 +1774,13 @@ document.addEventListener('DOMContentLoaded', function () {
             admitSeatLivePreview.style.setProperty('--admit-card-school-detail-color', admitSeatSchoolDetailColor?.value || '#e5e7eb');
             admitSeatLivePreview.style.setProperty('--admit-card-slogan-color', admitSeatSloganColor?.value || admitSeatSchoolDetailColor?.value || '#e5e7eb');
             admitSeatLivePreview.style.setProperty('--admit-card-title-color', admitSeatTitleColor?.value || '#ffffff');
+            admitSeatLivePreview.style.setProperty('--admit-card-name-color', admitSeatNameColor?.value || '#111827');
             admitSeatLivePreview.style.setProperty('--admit-card-exam-type-color', admitSeatExamTypeColor?.value || '#ffffff');
             admitSeatLivePreview.style.setProperty('--admit-card-exam-name-color', admitSeatExamNameColor?.value || '#e5e7eb');
             admitSeatLivePreview.style.setProperty('--admit-card-student-detail-align', admitSeatStudentDetailAlignment?.value || 'left');
             admitSeatLivePreview.style.setProperty('--admit-card-student-detail-font-size', `${admitSeatStudentDetailFontSize?.value || 8.5}pt`);
             admitSeatLivePreview.style.setProperty('--admit-card-student-detail-color', admitSeatStudentDetailColor?.value || '#111827');
-            admitSeatLivePreview.style.setProperty('--admit-card-front-align', admitSeatStudentDetailAlignment?.value || 'left');
+            admitSeatLivePreview.style.setProperty('--admit-card-front-align', admitSeatFrontAlignment?.value || 'center');
 
             const unit = admitSeatCardDimensionUnit?.value || 'cm';
             const cardWidthValue = parseFloat(admitSeatCardWidth?.value || '9.4') || 9.4;
@@ -1380,24 +1788,22 @@ document.addEventListener('DOMContentLoaded', function () {
             const widthValue = parseFloat(admitSeatPhotoWidth?.value || '1.8') || 1.8;
             const heightValue = parseFloat(admitSeatPhotoHeight?.value || '2.7') || 2.7;
             const logoSizeValue = parseFloat(admitSeatLogoSize?.value || '0.8') || 0.8;
-            const pxPerUnit = unit === 'px' ? 1 : 37.7952755906;
-            const cardWidthPx = Math.max(180, Math.round(cardWidthValue * pxPerUnit));
-            const cardHeightPx = Math.max(180, Math.round(cardHeightValue * pxPerUnit));
-            admitSeatLivePreview.style.setProperty('--preview-card-width', `${cardWidthPx}px`);
-            admitSeatLivePreview.style.setProperty('--preview-card-height', `${cardHeightPx}px`);
-            admitSeatLivePreview.style.setProperty('--preview-card-ratio', `${(cardWidthPx / cardHeightPx).toFixed(4)}`);
-            admitSeatLivePreview.style.setProperty('--preview-photo-width', `${Math.max(36, Math.round(widthValue * pxPerUnit))}px`);
-            admitSeatLivePreview.style.setProperty('--preview-photo-height', `${Math.max(44, Math.round(heightValue * pxPerUnit))}px`);
-            admitSeatLivePreview.style.setProperty('--preview-logo-size', `${Math.max(28, Math.round(logoSizeValue * pxPerUnit))}px`);
-            admitSeatLivePreview.style.setProperty('--admit-card-front-padding', `${parseFloat(cardSettingsForm?.elements.namedItem('card_front_padding_value')?.value || '0.8') || 0.8}${unit === 'px' ? 'px' : 'cm'}`);
-            admitSeatLivePreview.style.setProperty('--admit-card-photo-width', `${widthValue}${unit === 'px' ? 'px' : 'cm'}`);
-            admitSeatLivePreview.style.setProperty('--admit-card-photo-height', `${heightValue}${unit === 'px' ? 'px' : 'cm'}`);
-            admitSeatLivePreview.style.setProperty('--admit-card-logo-size', `${logoSizeValue}${unit === 'px' ? 'px' : 'cm'}`);
+            const frontPaddingRaw = parseFloat(cardSettingsForm?.elements.namedItem('card_front_padding_value')?.value || '0.8');
+            const frontPaddingMm = Number.isFinite(frontPaddingRaw) ? frontPaddingRaw : 0.8;
+            const cardWidthMm = unit === 'px' ? (cardWidthValue / 96) * 25.4 : cardWidthValue * 10;
+            const cardHeightMm = unit === 'px' ? (cardHeightValue / 96) * 25.4 : cardHeightValue * 10;
+            admitSeatLivePreview.style.setProperty('--admit-card-preview-width', `${cardWidthMm}mm`);
+            admitSeatLivePreview.style.setProperty('--admit-card-preview-height', `${cardHeightMm}mm`);
+            admitSeatLivePreview.style.setProperty('--preview-card-ratio', `${(cardWidthMm / cardHeightMm).toFixed(4)}`);
+            admitSeatLivePreview.style.setProperty('--admit-card-front-padding', `${frontPaddingMm}mm`);
+            admitSeatLivePreview.style.setProperty('--admit-card-photo-width', `${widthValue}cm`);
+            admitSeatLivePreview.style.setProperty('--admit-card-photo-height', `${heightValue}cm`);
+            admitSeatLivePreview.style.setProperty('--admit-card-logo-size', `${logoSizeValue}cm`);
             admitSeatLivePreview.style.setProperty('--admit-card-school-name-font-size', `${parseFloat(admitSeatSchoolNameFontSize?.value || '7.2') || 7.2}pt`);
             admitSeatLivePreview.style.setProperty('--admit-card-school-detail-font-size', `${parseFloat(admitSeatSchoolDetailFontSize?.value || '5.4') || 5.4}pt`);
             admitSeatLivePreview.style.setProperty('--admit-card-slogan-font-size', `${parseFloat(admitSeatSloganFontSize?.value || '4.8') || 4.8}pt`);
             admitSeatLivePreview.style.setProperty('--admit-card-title-font-size', `${parseFloat(admitSeatTitleFontSize?.value || '4.7') || 4.7}pt`);
-            admitSeatLivePreview.style.setProperty('--admit-card-name-font-size', `${parseFloat(admitSeatStudentDetailFontSize?.value || '12') || 12}pt`);
+            admitSeatLivePreview.style.setProperty('--admit-card-name-font-size', `${parseFloat(admitSeatNameFontSize?.value || '7.2') || 7.2}pt`);
             admitSeatLivePreview.style.setProperty('--admit-card-exam-type-font-size', `${parseFloat(admitSeatExamTypeFontSize?.value || '7.4') || 7.4}pt`);
             admitSeatLivePreview.style.setProperty('--admit-card-exam-name-font-size', `${parseFloat(admitSeatExamNameFontSize?.value || '6.8') || 6.8}pt`);
 
@@ -1509,7 +1915,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $(document).on('input change', '#admitSeatPhotoWidth, #admitSeatPhotoHeight, #admitSeatLogoSize, select[name="card_dimension_unit"]', refreshCardThemeControls);
 
-    $(document).on('change', '#admitSeatCardIsTransparent, input[name="card_color_type"], #admitSeatCardColorGradient1, #admitSeatCardColorGradient2, #admitSeatCardSolidColor, #admitSeatSchoolNameColor, #admitSeatSchoolDetailColor, #admitSeatTitleColor, #admitSeatExamTypeColor, #admitSeatExamNameColor, #admitSeatStudentDetailAlignment, #admitSeatStudentDetailFontSize, #admitSeatStudentDetailColor', function () {
+    $(document).on('change', '#admitSeatCardIsTransparent, input[name="card_color_type"], #admitSeatCardColorGradient1, #admitSeatCardColorGradient2, #admitSeatCardSolidColor, #admitSeatSchoolNameColor, #admitSeatSchoolDetailColor, #admitSeatTitleColor, #admitSeatNameColor, #admitSeatExamTypeColor, #admitSeatExamNameColor, #admitSeatStudentDetailAlignment, #admitSeatStudentDetailFontSize, #admitSeatStudentDetailColor', function () {
         if (this && this.name === 'card_color_type') {
             $(this).closest('.btn-group-toggle').find('label').removeClass('active');
             $(this).closest('label').addClass('active');
@@ -1541,11 +1947,18 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!hasValidationErrors) {
             applyCardSettings(cardTypeSelect?.value || defaultCardType);
         }
+        lockPageScroll();
         setDirtyState(false);
     });
 
     $('#cardSettingsModal').on('shown.bs.modal', function () {
+        initializeLayoutTooltips(this);
         refreshCardThemeControls();
+    });
+
+    $('#cardSettingsModal').on('hidden.bs.modal', function () {
+        $(this).find('label').tooltip('dispose');
+        unlockPageScroll();
     });
 
     @if($errors->any())

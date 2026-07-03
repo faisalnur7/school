@@ -128,7 +128,7 @@
 }
 
 .admit-card__school {
-    font-size: var(--admit-card-school-name-font-size, 9.8pt);
+    font-size: var(--admit-card-school-name-font-size, 7.2pt);
     font-weight: 900;
     line-height: 1.0;
     text-transform: uppercase;
@@ -138,7 +138,7 @@
 
 .admit-card__address {
     margin-top: 0.55mm;
-    font-size: var(--admit-card-school-detail-font-size, 6.4pt);
+    font-size: var(--admit-card-school-detail-font-size, 5.4pt);
     line-height: 1.15;
     color: var(--admit-card-school-detail-color, rgba(255, 255, 255, 0.82));
     font-weight: 600;
@@ -153,7 +153,7 @@
     display: inline-block;
     border: 0.3mm solid var(--admit-card-title-color, rgba(255, 255, 255, 0.55));
     padding: 0.75mm 2.2mm;
-    font-size: var(--admit-card-title-font-size, 5.4pt);
+    font-size: var(--admit-card-title-font-size, 4.7pt);
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -227,12 +227,12 @@
 }
 
 .admit-card__name {
-    font-size: var(--admit-card-student-detail-font-size, 12pt);
+    font-size: var(--admit-card-name-font-size, 7.2pt);
     font-weight: 900;
     line-height: 1.0;
     text-align: inherit;
     word-break: break-word;
-    color: var(--admit-card-student-detail-color, #111111);
+    color: var(--admit-card-name-color, var(--admit-card-student-detail-color, #111111));
 }
 
 .admit-card__rows {

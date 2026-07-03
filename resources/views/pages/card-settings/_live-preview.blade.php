@@ -103,6 +103,7 @@
         --admit-card-slogan-color:#e5e7eb;
         --admit-card-slogan-font-size:4.8pt;
         --admit-card-title-color:#ffffff;
+        --admit-card-name-color:#111827;
         --admit-card-exam-type-color:#ffffff;
         --admit-card-exam-name-color:#e5e7eb;
         --admit-card-student-detail-align:left;
@@ -113,10 +114,10 @@
         --admit-card-photo-width:20mm;
         --admit-card-photo-height:30mm;
         --admit-card-logo-size:8mm;
-        --admit-card-school-name-font-size:9.8pt;
-        --admit-card-school-detail-font-size:6.4pt;
-        --admit-card-title-font-size:5.4pt;
-        --admit-card-name-font-size:12pt;
+        --admit-card-school-name-font-size:7.2pt;
+        --admit-card-school-detail-font-size:5.4pt;
+        --admit-card-title-font-size:4.7pt;
+        --admit-card-name-font-size:7.2pt;
         --admit-card-exam-type-font-size:7.4pt;
         --admit-card-exam-name-font-size:6.8pt;
     "
@@ -316,14 +317,14 @@
                     <div
                         id="{{ $prefix }}LivePreviewFront"
                         class="admit-card"
-                        style="width: {{ $previewCardWidthCss }}; height: {{ $previewCardHeightCss }};"
+                        style="width: var(--admit-card-preview-width, {{ $previewCardWidthCss }}); height: var(--admit-card-preview-height, {{ $previewCardHeightCss }});"
                     >
                         <div class="admit-card__header">
                             <div class="admit-card__brand">
                                 @if($showLogoFront)
                                     <div class="card-preview-clickable" data-preview-focus-target="{{ $focusFor('logo') }}">
                                         @if($logoUrl)
-                                            <img id="{{ $prefix }}LivePreviewLogoFront" src="{{ $logoUrl }}" alt="Logo preview" class="admit-card__logo" style="width: {{ $previewLogoSizeValue }}{{ $previewCardUnit }}; height: {{ $previewLogoSizeValue }}{{ $previewCardUnit }};">
+                                            <img id="{{ $prefix }}LivePreviewLogoFront" src="{{ $logoUrl }}" alt="Logo preview" class="admit-card__logo">
                                         @else
                                             <span class="small font-weight-bold text-white">LOGO</span>
                                         @endif
@@ -356,7 +357,7 @@
 
                         <div class="admit-card__body">
                             <div class="admit-card__info">
-                                <div class="admit-card__name card-preview-clickable" data-preview-focus-target="{{ $focusFor('student_detail_font_size') }}">Student Name</div>
+                                <div class="admit-card__name card-preview-clickable" data-preview-focus-target="{{ $focusFor('name') }}">Student Name</div>
 
                                 <div class="admit-card__rows card-preview-clickable" data-preview-focus-target="{{ $focusFor('student_detail_color') }}">
                                     <div class="admit-card__row">
