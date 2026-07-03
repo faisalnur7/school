@@ -16,12 +16,41 @@
     grid-template-columns: repeat(2, 1fr);
     justify-content: center;
     gap: 8.5mm 8.5mm;
+    padding-top: 4mm;
     page-break-after: always;
     break-after: page;
     page-break-inside: avoid;
     break-inside: avoid;
     align-content: start;
     justify-items: stretch;
+}
+
+.admit-card-page__header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4mm;
+    padding: 0 0 2.5mm;
+    margin-bottom: 1mm;
+    border-bottom: 0.35mm solid #cbd5e1;
+    color: #0f172a;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.admit-card-page__header-label {
+    font-size: 8pt;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #475569;
+}
+
+.admit-card-page__header-value {
+    font-size: 10pt;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 .admit-card-page:last-child {
@@ -58,19 +87,19 @@
 }
 
 .admit-card__watermark-logo {
-    width: 84%;
-    max-width: 56mm;
-    max-height: 56mm;
+    width: 64%;
+    max-width: 42mm;
+    max-height: 42mm;
     object-fit: contain;
-    opacity: 0.18;
+    opacity: 0.08;
     filter: grayscale(1) contrast(1);
-    transform: translateY(1mm);
+    transform: translateY(0.5mm);
     mix-blend-mode: multiply;
 }
 
 .admit-card__header {
-    padding: 1.7mm 1.8mm 1.3mm;
-    text-align: center;
+    padding: var(--admit-card-front-padding, 1.7mm);
+    text-align: var(--admit-card-front-align, center);
     border-bottom: 0.3mm solid var(--admit-card-theme-accent, #d1d5db);
     background: var(--admit-card-theme-bg, #ffffff);
     position: relative;
@@ -86,8 +115,8 @@
 }
 
 .admit-card__logo {
-    width: 8mm;
-    height: 8mm;
+    width: var(--admit-card-logo-size, 8mm);
+    height: var(--admit-card-logo-size, 8mm);
     object-fit: contain;
     filter: grayscale(1);
     flex-shrink: 0;
@@ -99,7 +128,7 @@
 }
 
 .admit-card__school {
-    font-size: 9.8pt;
+    font-size: var(--admit-card-school-name-font-size, 7.2pt);
     font-weight: 900;
     line-height: 1.0;
     text-transform: uppercase;
@@ -109,7 +138,7 @@
 
 .admit-card__address {
     margin-top: 0.55mm;
-    font-size: 6.4pt;
+    font-size: var(--admit-card-school-detail-font-size, 5.4pt);
     line-height: 1.15;
     color: var(--admit-card-school-detail-color, rgba(255, 255, 255, 0.82));
     font-weight: 600;
@@ -124,7 +153,7 @@
     display: inline-block;
     border: 0.3mm solid var(--admit-card-title-color, rgba(255, 255, 255, 0.55));
     padding: 0.75mm 2.2mm;
-    font-size: 5.4pt;
+    font-size: var(--admit-card-title-font-size, 4.7pt);
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -135,7 +164,7 @@
 
 .admit-card__exam-type {
     margin-top: 0.6mm;
-    font-size: 7.4pt;
+    font-size: var(--admit-card-exam-type-font-size, 7.4pt);
     font-weight: 900;
     line-height: 1.05;
     color: var(--admit-card-exam-type-color, #ffffff);
@@ -145,7 +174,7 @@
 
 .admit-card__exam-name {
     margin-top: 0.35mm;
-    font-size: 6.8pt;
+    font-size: var(--admit-card-exam-name-font-size, 6.8pt);
     font-weight: 700;
     line-height: 1.08;
     color: var(--admit-card-exam-name-color, rgba(255, 255, 255, 0.86));
@@ -153,24 +182,35 @@
 
 .admit-card__body {
     flex: 1;
-    display: flex;
-    padding: 2mm 1.7mm 2.2mm;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--admit-card-photo-width, 20mm);
+    grid-template-rows: minmax(0, 1fr) auto;
+    padding: var(--admit-card-front-padding, 2mm);
     gap: 2mm;
-    align-items: flex-start;
+    align-items: start;
+    text-align: var(--admit-card-front-align, center);
     position: relative;
     z-index: 1;
 }
 
 .admit-card__photo-wrap {
-    flex: 0 0 20mm;
+    height: 100%;
+    min-height: 100%;
+    width: var(--admit-card-photo-width, 20mm);
+    min-width: var(--admit-card-photo-width, 20mm);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    justify-self: end;
+    flex-direction: column;
+    gap: 1.5mm;
+    position: relative;
+    z-index: 2;
 }
 
 .admit-card__photo {
-    width: 20mm;
-    height: 30mm;
+    width: var(--admit-card-photo-width, 20mm);
+    height: var(--admit-card-photo-height, 30mm);
     object-fit: cover;
     border: 0.35mm solid #111111;
     border-radius: 1.4mm;
@@ -179,20 +219,20 @@
 }
 
 .admit-card__info {
-    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 1.3mm;
-    min-width: 0;
+    text-align: var(--admit-card-student-detail-align, left);
 }
 
 .admit-card__name {
-    font-size: 12pt;
+    font-size: var(--admit-card-name-font-size, 7.2pt);
     font-weight: 900;
     line-height: 1.0;
-    text-align: left;
+    text-align: inherit;
     word-break: break-word;
-    color: #111111;
+    color: var(--admit-card-name-color, var(--admit-card-student-detail-color, #111111));
 }
 
 .admit-card__rows {
@@ -206,28 +246,54 @@
     gap: 2mm;
     align-items: flex-start;
     line-height: 1.08;
-    font-size: 8.5pt;
+    font-size: var(--admit-card-student-detail-font-size, 8.5pt);
 }
 
 .admit-card__lbl {
     min-width: 14mm;
     font-weight: 800;
     text-transform: uppercase;
-    color: #666666;
+    color: var(--admit-card-student-detail-color, #666666);
     flex-shrink: 0;
     letter-spacing: 0.04em;
 }
 
 .admit-card__val {
     font-weight: 700;
-    color: #111111;
+    color: var(--admit-card-student-detail-color, #111111);
     word-break: break-word;
-    font-size: 8.5pt;
+    font-size: var(--admit-card-student-detail-font-size, 8.5pt);
+}
+
+.admit-card__signature {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: min(100%, 44mm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8mm;
+    margin-top: 1mm;
+    padding-top: 0;
+    z-index: 1;
+}
+
+.admit-card__signature-line {
+    width: 100%;
+    border-top: 0.35mm solid #525252;
+}
+
+.admit-card__signature-label {
+    font-size: 5.2pt;
+    font-weight: 700;
+    color: #3f3f46;
+    text-transform: capitalize;
+    line-height: 1;
 }
 
 .admit-card__footer {
     border-top: 0.3mm solid var(--admit-card-theme-accent, #d1d5db);
-    padding: 0.9mm 1.5mm;
+    padding: 0.7mm 1.5mm;
     font-size: 4.5pt;
     line-height: 1.05;
     display: flex;
@@ -237,6 +303,7 @@
     background: #fafafa;
     position: relative;
     z-index: 1;
+    text-align: var(--admit-card-back-align, center);
 }
 
 .admit-card__footer span {

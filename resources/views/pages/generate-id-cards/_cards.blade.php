@@ -4,9 +4,9 @@
     $cardsPerPage = max(1, min(12, (int) ($layout['cardsPerPage'] ?? 4)));
     $cardsPerRow = max(1, min($cardsPerPage, (int) ($layout['cardsPerRow'] ?? 2)));
     $pageRows = max(1, (int) ($layout['pageRows'] ?? ceil($cardsPerPage / $cardsPerRow)));
-    $cardWidthMm = $layout['cardWidthMm'] ?? 54;
-    $cardHeightMm = $layout['cardHeightMm'] ?? 84;
-    $gapMm = $layout['gridGapMm'] ?? 5;
+    $cardWidthCm = $layout['cardWidthCm'] ?? 5.4;
+    $cardHeightCm = $layout['cardHeightCm'] ?? 8.4;
+    $gapCm = $layout['gridGapCm'] ?? 0.5;
 
     $studentPages = $students->chunk($cardsPerPage);
     $cardType = $cardType ?? 'id_card';
@@ -34,6 +34,18 @@
     $cardBackNoticeColor = $cardSettings?->card_back_notice_text_color ?? '#94a3b8';
     $cardFooterColor = $cardSettings?->card_footer_text_color ?? '#e5e7eb';
     $cardTitleColor = $cardSettings?->card_title_text_color ?? '#ffffff';
+    $cardFrontAlignment = in_array($cardSettings?->card_front_alignment ?? 'center', ['left', 'center', 'right'], true) ? $cardSettings?->card_front_alignment : 'center';
+    $cardBackAlignment = in_array($cardSettings?->card_back_alignment ?? 'center', ['left', 'center', 'right'], true) ? $cardSettings?->card_back_alignment : 'center';
+    $cardFrontPadding = $cardSettings?->card_front_padding_value ?? 0.8;
+    $cardBackPadding = $cardSettings?->card_back_padding_value ?? 0.8;
+    $cardPhotoWidth = $cardSettings?->card_photo_width_value ?? 1.8;
+    $cardPhotoHeight = $cardSettings?->card_photo_height_value ?? 2.7;
+    $cardLogoSize = $cardSettings?->card_logo_size_value ?? 0.8;
+    $cardSchoolNameFontSize = $cardSettings?->card_school_name_font_size ?? 7.2;
+    $cardSchoolDetailFontSize = $cardSettings?->card_school_detail_font_size ?? 5.4;
+    $cardSloganFontSize = $cardSettings?->card_slogan_font_size ?? 4.8;
+    $cardTitleFontSize = $cardSettings?->card_title_font_size ?? 4.7;
+    $cardNameFontSize = $cardSettings?->card_name_font_size ?? 7.2;
     $frontTitle = match ($cardType) {
         'library_card' => 'LIBRARY CARD',
         'admit_card' => 'ADMIT CARD',
@@ -64,9 +76,9 @@
     }
 @endphp
 
-<div class="id-card-pages" style="--id-card-width: {{ $cardWidthMm }}mm; --id-card-height: {{ $cardHeightMm }}mm; --id-card-gap: {{ $gapMm }}mm; --card-theme-bg: {{ $cardThemeBackground }}; --card-theme-accent: {{ $cardThemeAccent }}; --id-card-school-name-color: {{ $cardSchoolNameColor }}; --id-card-school-detail-color: {{ $cardSchoolDetailColor }}; --id-card-slogan-color: {{ $cardSloganColor }}; --id-card-back-notice-color: {{ $cardBackNoticeColor }}; --id-card-footer-color: {{ $cardFooterColor }}; --id-card-title-color: {{ $cardTitleColor }};">
+<div class="id-card-pages" style="--id-card-width: {{ $cardWidthCm }}cm; --id-card-height: {{ $cardHeightCm }}cm; --id-card-gap: {{ $gapCm }}cm; --card-theme-bg: {{ $cardThemeBackground }}; --card-theme-accent: {{ $cardThemeAccent }}; --id-card-school-name-color: {{ $cardSchoolNameColor }}; --id-card-school-detail-color: {{ $cardSchoolDetailColor }}; --id-card-slogan-color: {{ $cardSloganColor }}; --id-card-back-notice-color: {{ $cardBackNoticeColor }}; --id-card-footer-color: {{ $cardFooterColor }}; --id-card-title-color: {{ $cardTitleColor }}; --id-card-front-align: {{ $cardFrontAlignment }}; --id-card-back-align: {{ $cardBackAlignment }}; --id-card-front-padding: {{ $cardFrontPadding }}cm; --id-card-back-padding: {{ $cardBackPadding }}cm; --id-card-photo-width: {{ $cardPhotoWidth }}cm; --id-card-photo-height: {{ $cardPhotoHeight }}cm; --id-card-logo-size: {{ $cardLogoSize }}cm; --id-card-school-name-font-size: {{ $cardSchoolNameFontSize }}pt; --id-card-school-detail-font-size: {{ $cardSchoolDetailFontSize }}pt; --id-card-slogan-font-size: {{ $cardSloganFontSize }}pt; --id-card-title-font-size: {{ $cardTitleFontSize }}pt; --id-card-name-font-size: {{ $cardNameFontSize }}pt;">
     @foreach($studentPages as $pageIndex => $pageStudents)
-        <div class="id-card-page" style="grid-template-columns: repeat({{ $cardsPerRow }}, max-content); gap: {{ $gapMm }}mm {{ $gapMm }}mm;">
+        <div class="id-card-page" style="grid-template-columns: repeat({{ $cardsPerRow }}, max-content); gap: {{ $gapCm }}cm {{ $gapCm }}cm;">
             @foreach($pageStudents as $student)
                 @php
                     $ai = $student->academicInformations->first();
@@ -83,21 +95,25 @@
                     }
                 @endphp
 
-                <div class="id-card-pair" style="gap: {{ $gapMm }}mm;">
-                    <div class="id-card" style="width: {{ $cardWidthMm }}mm; height: {{ $cardHeightMm }}mm;">
+                <div class="id-card-pair" style="gap: {{ $gapCm }}cm;">
+                    <div class="id-card" style="width: {{ $cardWidthCm }}cm; height: {{ $cardHeightCm }}cm;">
                         <div class="id-card__header id-card__header--front">
-                            @if($logoPath)
-                                <img src="{{ $logoPath }}" class="id-card__logo" alt="Logo">
+                            @if(($cardSettings?->card_show_logo_front ?? true) && $logoPath)
+                                <img src="{{ $logoPath }}" class="id-card__logo" alt="Logo" style="width: {{ $cardLogoSize }}cm; height: {{ $cardLogoSize }}cm;">
                             @endif
                             <div class="id-card__school-name">{{ $setting?->name ?? 'School Name' }}</div>
-                            @if($setting?->slogan)
+                            @if(($cardSettings?->card_show_slogan_front ?? true) && $setting?->slogan)
                                 <div class="id-card__slogan">{{ $setting->slogan }}</div>
                             @endif
-                            <div class="id-card__label-badge">{{ $frontTitle }}</div>
+                            @if($cardSettings?->card_show_title_front ?? true)
+                                <div class="id-card__label-badge">{{ $frontTitle }}</div>
+                            @endif
                         </div>
 
                         <div class="id-card__front-body">
-                            <img src="{{ $photoPath }}" class="id-card__photo" alt="{{ $student->full_name_en }}">
+                            @if($cardSettings?->card_show_photo_front ?? true)
+                                <img src="{{ $photoPath }}" class="id-card__photo" alt="{{ $student->full_name_en }}">
+                            @endif
 
                             <div class="id-card__info">
                                 <div class="id-card__name">{{ $student->full_name_en }}</div>
@@ -151,25 +167,30 @@
                         </div>
 
                         <div class="id-card__footer id-card__footer--front">
-                            @if($setting?->contact_number_1)
+                            @if(($cardSettings?->card_show_footer_front ?? true) && $setting?->contact_number_1)
                                 <span>📞 {{ $setting->contact_number_1 }}</span>
                             @endif
-                            @if($setting?->contact_number_2)
+                            @if(($cardSettings?->card_show_footer_front ?? true) && $setting?->contact_number_2)
                                 <span>📞 {{ $setting->contact_number_2 }}</span>
                             @endif
-                            @if($setting?->website)
+                            @if(($cardSettings?->card_show_footer_front ?? true) && $setting?->website)
                                 <span>🌐 {{ $setting->website }}</span>
                             @endif
                         </div>
                     </div>
 
-                    <div class="id-card id-card--back" style="width: {{ $cardWidthMm }}mm; height: {{ $cardHeightMm }}mm;">
+                    <div class="id-card id-card--back" style="width: {{ $cardWidthCm }}cm; height: {{ $cardHeightCm }}cm;">
                         <div class="id-card__header id-card__header--back">
+                            @if(($cardSettings?->card_show_logo_back ?? true) && $logoPath)
+                                <img src="{{ $logoPath }}" class="id-card__logo" alt="Logo" style="width: {{ $cardLogoSize }}cm; height: {{ $cardLogoSize }}cm;">
+                            @endif
                             <div class="id-card__school-name">{{ $setting?->name ?? 'School Name' }}</div>
-                            @if($setting?->slogan)
+                            @if(($cardSettings?->card_show_slogan_back ?? true) && $setting?->slogan)
                                 <div class="id-card__slogan">{{ $setting->slogan }}</div>
                             @endif
-                            <div class="id-card__label-badge">{{ $backBadge }}</div>
+                            @if($cardSettings?->card_show_title_back ?? true)
+                                <div class="id-card__label-badge">{{ $backBadge }}</div>
+                            @endif
                         </div>
 
                         <div class="id-card__back-body">
@@ -278,11 +299,13 @@
                                 </div>
                             @endif
 
-                            <div class="id-card__back-notice">If found, please return to the school.</div>
+                            @if($cardSettings?->card_show_back_notice ?? true)
+                                <div class="id-card__back-notice">If found, please return to the school.</div>
+                            @endif
                         </div>
 
                         <div class="id-card__footer id-card__footer--back">
-                            @if($setting?->whatsapp_number)
+                            @if(($cardSettings?->card_show_footer_back ?? true) && $setting?->whatsapp_number)
                                 <span>📱 {{ $setting->whatsapp_number }}</span>
                             @endif
                         </div>
