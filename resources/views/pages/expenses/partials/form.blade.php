@@ -1,0 +1,271 @@
+@php
+    $isEdit = isset($expense);
+    $expenseData = $isEdit ? $expense : null;
+    $pageTitle = $pageTitle ?? ($isEdit ? 'Edit Expense' : 'Record Expense');
+    $pageIcon = $pageIcon ?? ($isEdit ? 'fa-edit' : 'fa-plus-circle');
+    $submitLabel = $submitLabel ?? ($isEdit ? 'Update Expense' : 'Save Expense');
+    $submitIcon = $submitIcon ?? 'fa-save';
+    $backRoute = $backRoute ?? route('expenses.index');
+    $methodValue = old('payment_method', data_get($expenseData, 'payment_method', 'Cash'));
+    $selectedAccountId = old('account_id', data_get($expenseData, 'account_id', ''));
+    $referenceValue = old('reference_no', data_get($expenseData, 'reference_no', 'Auto-generated on save'));
+    $expenseDateValue = old('expense_date', $isEdit ? $expense->expense_date->format('d/m/Y') : '');
+    $currentAttachmentUrl = $isEdit && filled($expense->attachment_url) ? $expense->attachment_url : null;
+    $currentAttachmentName = $isEdit && filled($expense->attachment) ? basename($expense->attachment) : 'expense-attachment';
+@endphp
+
+<div class="container-fluid expense-form-shell">
+    <div class="expense-form-hero">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <div class="badge mb-2">
+                    <i class="fas {{ $pageIcon }} mr-1"></i>{{ $isEdit ? 'Modify existing expense' : 'Create a new expense entry' }}
+                </div>
+                <h3 class="mb-1 font-weight-bold text-white">{{ $pageTitle }}</h3>
+                <div style="color:#e5e7eb;font-size:0.92rem">
+                    Capture expense details, payment channel, and attachment in one consistent layout.
+                </div>
+            </div>
+            <a href="{{ $backRoute }}" class="btn btn-light btn-sm">
+                <i class="fas fa-arrow-left mr-1"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ $formAction }}" id="modernForm" enctype="multipart/form-data">
+        @csrf
+        @if($formMethod !== 'POST')
+            @method($formMethod)
+        @endif
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card expense-form-card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <h4 class="card-title mb-0 font-weight-bold text-white">
+                                    <i class="fas {{ $pageIcon }} mr-2"></i>{{ $pageTitle }}
+                                </h4>
+                                <div style="color:rgba(255,255,255,0.78);font-size:0.85rem">
+                                    Use the same layout for create and edit.
+                                </div>
+                            </div>
+                            <span class="badge">
+                                <i class="fas fa-receipt mr-1"></i>Expense Entry
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        @if($errors->any())
+                            <div class="alert alert-danger alert-dismissible fade show border-0 mb-3" role="alert">
+                                <i class="fas fa-exclamation-circle mr-1"></i><strong>Errors:</strong>
+                                <ul class="mb-0 mt-1 ml-4 small">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                                <button type="button" class="close" data-dismiss="alert">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                        @endif
+
+                        <div class="expense-section">
+                            <div class="expense-section-title">
+                                <i class="fas fa-layer-group"></i>
+                                <span>Expense Details</span>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group mb-2">
+                                        <label class="small mb-1">Category</label>
+                                        <select name="expense_category_id" class="form-control form-control-sm @error('expense_category_id') is-invalid @enderror" required>
+                                            <option value="">Select Category</option>
+                                            @foreach ($categories as $category)
+                                                <option value="{{ $category->id }}" {{ old('expense_category_id', data_get($expenseData, 'expense_category_id', '')) == $category->id ? 'selected' : '' }}>
+                                                    {{ $category->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('expense_category_id')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group mb-2">
+                                        <label class="small mb-1">Title</label>
+                                        <input type="text" name="title" class="form-control form-control-sm @error('title') is-invalid @enderror" value="{{ old('title', data_get($expenseData, 'title', '')) }}" required>
+                                        @error('title')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group mb-2">
+                                        <label class="small mb-1">Amount (BDT)</label>
+                                        <input type="number" name="amount" step="0.01" min="0" class="form-control form-control-sm @error('amount') is-invalid @enderror" value="{{ old('amount', data_get($expenseData, 'amount', '')) }}" required>
+                                        @error('amount')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group mb-2">
+                                        <label class="small mb-1">Expense Date</label>
+                                        <input type="text" name="expense_date" class="form-control form-control-sm datepicker @error('expense_date') is-invalid @enderror" value="{{ $expenseDateValue }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
+                                        @error('expense_date')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group mb-2">
+                                        <label class="small mb-1">Payment Method</label>
+                                        <select id="expensePaymentMethod" name="payment_method" class="form-control form-control-sm @error('payment_method') is-invalid @enderror" required>
+                                            @foreach (['Cash', 'Bank Transfer', 'Cheque', 'Mobile Banking', 'Other'] as $method)
+                                                <option value="{{ $method }}" {{ $methodValue == $method ? 'selected' : '' }}>{{ $method }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('payment_method')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group mb-2">
+                                        <label class="small mb-1">Reference No</label>
+                                        <input type="text" class="form-control form-control-sm" value="{{ $referenceValue }}" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="expense-section">
+                            <div class="expense-section-title">
+                                <i class="fas fa-wallet"></i>
+                                <span>Account & Notes</span>
+                            </div>
+                            <input type="hidden" name="account_type" id="expenseAccountType" value="{{ old('account_type', data_get($expenseData, 'account_type', '')) }}">
+
+                            <div class="row">
+                                <div class="col-md-4" id="expenseAccountWrapper" style="display: none;">
+                                    <div class="form-group mb-2">
+                                        <label class="small mb-1">Account <span class="text-muted">(optional)</span></label>
+                                        <select name="account_id" id="expenseAccountSelect" class="form-control form-control-sm @error('account_id') is-invalid @enderror" data-selected="{{ $selectedAccountId }}">
+                                            <option value="">Select Account</option>
+                                        </select>
+                                        @error('account_id')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="form-group mb-2">
+                                        <label class="small mb-1">Description <span class="text-muted">(optional)</span></label>
+                                        <textarea name="description" class="form-control form-control-sm @error('description') is-invalid @enderror" rows="4" placeholder="Add any note or details">{{ old('description', data_get($expenseData, 'description', '')) }}</textarea>
+                                        @error('description')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="expense-actions">
+                            <a href="{{ $backRoute }}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-times mr-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas {{ $submitIcon }} mr-1"></i>{{ $submitLabel }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="expense-side-card">
+                    <div class="side-head">
+                        <div class="d-flex align-items-center justify-content-between gap-2">
+                            <div>
+                                <div class="text-muted" style="font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:700">Attachment</div>
+                                <h5 class="mb-0" style="font-size:1rem;font-weight:700;color:#111827">Upload supporting file</h5>
+                            </div>
+                            <span class="badge" style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa">
+                                JPG, PNG, PDF
+                            </span>
+                        </div>
+                    </div>
+                    <div class="side-body">
+                        <div class="expense-upload mb-3">
+                            @if($currentAttachmentUrl)
+                                <div class="current-attachment">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div>
+                                            <div class="text-muted mb-1" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:700">Current File</div>
+                                            <a href="{{ $currentAttachmentUrl }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                                <i class="fas fa-paperclip mr-1"></i>View Attachment
+                                            </a>
+                                        </div>
+                                        <i class="fas fa-file-alt" style="font-size:1.25rem;color:#94a3b8"></i>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <label class="small mb-1">Attachment</label>
+                            <div
+                                id="expenseAttachmentDropzone"
+                                class="attachment-dropzone dropzone"
+                                data-attachment-dropzone="1"
+                                data-input-id="expenseAttachmentInput"
+                                data-error-id="expenseAttachmentValidationError"
+                                data-message="Drop attachment here or click to browse"
+                                data-accepted-files=".jpg,.jpeg,.png,.pdf"
+                                @if($currentAttachmentUrl)
+                                    data-existing-url="{{ $currentAttachmentUrl }}"
+                                    data-existing-name="{{ $currentAttachmentName }}"
+                                @endif
+                            >
+                                <div class="dz-message needsclick">
+                                    <div class="text-base font-semibold text-slate-700">Drop attachment here or click to browse</div>
+                                    <div class="mt-1 text-sm text-slate-500">Allowed: JPG, PNG, PDF up to 100 KB.</div>
+                                </div>
+                            </div>
+                            <input type="file" id="expenseAttachmentInput" name="attachment" class="d-none" accept=".jpg,.jpeg,.png,.pdf">
+                            <div id="expenseAttachmentValidationError" class="mt-2 text-sm text-danger"></div>
+                            @error('attachment')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="expense-summary-list">
+                            <div class="expense-summary-item">
+                                <div class="label">Payment method</div>
+                                <div class="value">{{ $methodValue }}</div>
+                            </div>
+                            <div class="expense-summary-item">
+                                <div class="label">Reference</div>
+                                <div class="value">{{ $referenceValue }}</div>
+                            </div>
+                            <div class="expense-summary-item">
+                                <div class="label">Mode</div>
+                                <div class="value">{{ $isEdit ? 'Editing existing record' : 'Creating new record' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
