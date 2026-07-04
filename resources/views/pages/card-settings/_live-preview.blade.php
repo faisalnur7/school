@@ -34,6 +34,8 @@
     $showBackNotice = $showBackNotice ?? true;
     $showFooterFront = $showFooterFront ?? true;
     $showFooterBack = $showFooterBack ?? true;
+    $principalLabel = $setting?->principal_designation ?: 'Principal';
+    $principalSignatureUrl = $principalSignatureUrl ?? null;
     $focusTargets = $focusTargets ?? [];
     $previewLabel = $previewLabel ?? null;
     $frontTitleId = $prefix . 'LivePreviewTitleFront';
@@ -305,6 +307,12 @@
                                     @if($showBackNotice)
                                         <div class="id-card__back-notice card-preview-clickable" data-preview-focus-target="{{ $focusFor('back_notice') }}">{{ $backNotice }}</div>
                                     @endif
+
+                                    <div class="id-card__signature{{ $principalSignatureUrl ? ' id-card__signature--image' : '' }} card-preview-clickable" data-preview-focus-target="{{ $focusFor('principal_signature') }}">
+                                        <img id="{{ $prefix }}LivePreviewSignatureBack" src="{{ $principalSignatureUrl ?? '' }}" alt="Principal signature preview" class="id-card__signature-image {{ $principalSignatureUrl ? '' : 'd-none' }}">
+                                        <div class="id-card__signature-line"></div>
+                                        <div class="id-card__signature-label">{{ $principalLabel }}</div>
+                                    </div>
                                 </div>
 
                                 @if($showFooterBack)
@@ -340,6 +348,8 @@
                         'photoPath' => asset('assets/img/male-placeholder.png'),
                         'photoAlt' => 'Student photo preview',
                         'principalLabel' => 'Principal',
+                        'principalSignaturePath' => $principalSignatureUrl,
+                        'principalSignatureId' => $prefix . 'LivePreviewSignatureFront',
                         'showLogoFront' => $showLogoFront,
                         'showSchoolDetailFront' => $showSchoolDetailFront,
                         'showSloganFront' => $showSloganFront,

@@ -16,10 +16,10 @@ class GenerateIdCardController extends Controller
 {
     public function index(Request $request)
     {
-        [$sessions, $classes, $sections, $groups, $students, $setting, $cardType, $cardSettingsMap, $cardSettings, $layout, $schoolLogoUrl, $currentCardLogoUrl, $cardSettingsPayload] = $this->buildData($request);
+        [$sessions, $classes, $sections, $groups, $students, $setting, $cardType, $cardSettingsMap, $cardSettings, $layout, $schoolLogoUrl, $currentCardLogoUrl, $currentCardPrincipalSignatureUrl, $cardSettingsPayload] = $this->buildData($request);
 
         return view('pages.generate-id-cards.index', compact(
-            'sessions', 'classes', 'sections', 'groups', 'students', 'setting', 'cardType', 'cardSettingsMap', 'cardSettings', 'layout', 'schoolLogoUrl', 'currentCardLogoUrl', 'cardSettingsPayload'
+            'sessions', 'classes', 'sections', 'groups', 'students', 'setting', 'cardType', 'cardSettingsMap', 'cardSettings', 'layout', 'schoolLogoUrl', 'currentCardLogoUrl', 'currentCardPrincipalSignatureUrl', 'cardSettingsPayload'
         ));
     }
 
@@ -74,6 +74,7 @@ class GenerateIdCardController extends Controller
         $layout = $this->buildLayout($cardSettings);
         $schoolLogoUrl = $this->resolveLogoUrl($setting?->logo ?? null);
         $currentCardLogoUrl = $this->resolveLogoUrl($cardSettings?->card_logo ?? null) ?: $schoolLogoUrl;
+        $currentCardPrincipalSignatureUrl = $this->resolveLogoUrl($cardSettings?->card_principal_signature ?? null);
         $cardSettingsPayload = $cardSettingsMap->mapWithKeys(function ($setting) use ($schoolLogoUrl) {
             return [
                 (string) $setting->card_type => [
@@ -121,6 +122,7 @@ class GenerateIdCardController extends Controller
                     'card_show_footer_back' => $setting->card_show_footer_back,
                     'card_show_back_notice' => $setting->card_show_back_notice,
                     'card_logo_url' => $this->resolveLogoUrl($setting->card_logo ?? null) ?: $schoolLogoUrl,
+                    'card_principal_signature_url' => $this->resolveLogoUrl($setting->card_principal_signature ?? null),
                 ],
             ];
         })->toArray();
@@ -152,7 +154,7 @@ class GenerateIdCardController extends Controller
                 ->get();
         }
 
-        return [$sessions, $classes, $sections, $groups, $students, $setting, $cardType, $cardSettingsMap, $cardSettings, $layout, $schoolLogoUrl, $currentCardLogoUrl, $cardSettingsPayload];
+        return [$sessions, $classes, $sections, $groups, $students, $setting, $cardType, $cardSettingsMap, $cardSettings, $layout, $schoolLogoUrl, $currentCardLogoUrl, $currentCardPrincipalSignatureUrl, $cardSettingsPayload];
     }
 
     private function normalizeCardType(?string $cardType): string
@@ -211,6 +213,7 @@ class GenerateIdCardController extends Controller
             'card_exam_type_text_color' => ['nullable', 'string', 'max:20'],
             'card_exam_name_text_color' => ['nullable', 'string', 'max:20'],
             'card_logo' => ['nullable', 'image', 'max:100'],
+            'card_principal_signature' => ['nullable', 'file', 'mimes:png,jpg,jpeg', 'max:100'],
         ]);
 
         $isTransparent = $request->boolean('card_is_transparent');
@@ -278,6 +281,19 @@ class GenerateIdCardController extends Controller
             $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
             $image->move($directory, $filename);
             $payload['card_logo'] = 'uploads/card_settings/' . $filename;
+        }
+
+        if ($request->hasFile('card_principal_signature')) {
+            $image = $request->file('card_principal_signature');
+            $directory = public_path('uploads/card_settings');
+
+            if (!is_dir($directory)) {
+                mkdir($directory, 0755, true);
+            }
+
+            $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->move($directory, $filename);
+            $payload['card_principal_signature'] = 'uploads/card_settings/' . $filename;
         }
 
         AdmitSeatCardSetting::current($cardTypeId)->fill($payload)->save();

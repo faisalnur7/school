@@ -18,6 +18,8 @@
     $photoAlt = $photoAlt ?? $studentName;
     $logoPath = $logoPath ?? null;
     $principalLabel = $principalLabel ?? 'Principal';
+    $principalSignaturePath = $principalSignaturePath ?? null;
+    $principalSignatureId = $principalSignatureId ?? null;
     $footerLines = array_values(array_filter($footerLines ?? [], function ($line) {
         return filled($line);
     }));
@@ -112,6 +114,9 @@
         </div>
 
         <div class="admit-card__signature">
+            @if($principalSignaturePath)
+                <img @if(!empty($principalSignatureId)) id="{{ $principalSignatureId }}" @endif src="{{ $principalSignaturePath }}" alt="Principal signature" class="admit-card__signature-image">
+            @endif
             <div class="admit-card__signature-line"></div>
             <div class="admit-card__signature-label">{{ $principalLabel }}</div>
         </div>

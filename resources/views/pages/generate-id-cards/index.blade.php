@@ -160,6 +160,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const cardTitleColor = document.getElementById('cardTitleColor');
     const cardLogoInput = document.getElementById('cardLogoInput');
     const cardLogoPreview = document.getElementById('cardLogoPreview');
+    const cardPrincipalSignatureInput = document.getElementById('cardPrincipalSignatureInput');
+    const cardPrincipalSignaturePreview = document.getElementById('cardPrincipalSignaturePreview');
     const cardColorGradient1Preview = document.getElementById('cardColorGradient1Preview');
     const cardColorGradient2Preview = document.getElementById('cardColorGradient2Preview');
     const cardSolidColorPreview = document.getElementById('cardSolidColorPreview');
@@ -175,6 +177,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const idCardLivePreviewBack = document.getElementById('idCardLivePreviewBack');
     const idCardLivePreviewLogoFront = document.getElementById('idCardLivePreviewLogoFront');
     const idCardLivePreviewLogoBack = document.getElementById('idCardLivePreviewLogoBack');
+    const idCardLivePreviewSignatureBack = document.getElementById('idCardLivePreviewSignatureBack');
     const idCardLivePreviewTitleFront = document.getElementById('idCardLivePreviewTitleFront');
     const idCardLivePreviewTitleBack = document.getElementById('idCardLivePreviewTitleBack');
     const cardPhotoWidth = document.getElementById('cardPhotoWidth');
@@ -192,7 +195,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const defaultCardType = @json($cardType ?? 'id_card');
     let activeCardSettings = {};
     let previewLogoUrl = null;
+    let previewPrincipalSignatureUrl = null;
     let modalScrollY = 0;
+    const initialCardLogoPreviewSrc = cardLogoPreview?.getAttribute('src') || '';
+    const initialCardPrincipalSignaturePreviewSrc = cardPrincipalSignaturePreview?.getAttribute('src') || '';
     const defaultThemeSettings = {
         card_is_transparent: false,
         card_color_type: 'gradient',
@@ -334,6 +340,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const settings = cardSettingsMap[key] || cardSettingsMap['3'] || {};
         activeCardSettings = settings;
         previewLogoUrl = null;
+        previewPrincipalSignatureUrl = null;
 
         ['cards_per_page', 'cards_per_row', 'card_width_value', 'card_height_value', 'grid_gap_value', 'card_dimension_unit', 'card_front_alignment', 'card_back_alignment', 'card_front_padding_value', 'card_back_padding_value', 'card_photo_width_value', 'card_photo_height_value', 'card_logo_size_value', 'card_school_name_font_size', 'card_school_detail_font_size', 'card_slogan_font_size', 'card_title_font_size', 'card_name_font_size', 'card_student_detail_alignment', 'card_is_transparent', 'card_color_type', 'card_color_gradient_1', 'card_color_gradient_2', 'card_solid_color', 'card_school_name_text_color', 'card_school_detail_text_color', 'card_slogan_text_color', 'card_name_text_color', 'card_back_notice_text_color', 'card_footer_text_color', 'card_title_text_color', 'card_show_school_detail_front', 'card_show_school_detail_back', 'card_show_slogan_front', 'card_show_slogan_back', 'card_show_title_front', 'card_show_title_back', 'card_show_logo_front', 'card_show_logo_back', 'card_show_photo_front', 'card_show_footer_front', 'card_show_footer_back', 'card_show_back_notice'].forEach((field) => {
             const input = settingsForm.elements.namedItem(field);
@@ -460,9 +467,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (cardLogoPreview) {
-            const logoUrl = previewLogoUrl || activeCardSettings.card_logo_url || fallbackSchoolLogo || '';
+            const logoUrl = previewLogoUrl || activeCardSettings.card_logo_url || initialCardLogoPreviewSrc || fallbackSchoolLogo || '';
             cardLogoPreview.src = logoUrl;
             cardLogoPreview.classList.toggle('d-none', !logoUrl);
+        }
+
+        if (cardPrincipalSignaturePreview) {
+            const signatureUrl = previewPrincipalSignatureUrl || activeCardSettings.card_principal_signature_url || initialCardPrincipalSignaturePreviewSrc || '';
+            cardPrincipalSignaturePreview.src = signatureUrl;
+            cardPrincipalSignaturePreview.classList.toggle('d-none', !signatureUrl);
         }
 
         if (idCardLivePreview) {
@@ -541,6 +554,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const logoUrl = previewLogoUrl || activeCardSettings.card_logo_url || fallbackSchoolLogo || '';
             idCardLivePreviewLogoBack.src = logoUrl;
             idCardLivePreviewLogoBack.classList.toggle('d-none', !logoUrl);
+        }
+
+        if (idCardLivePreviewSignatureBack) {
+            const signatureUrl = previewPrincipalSignatureUrl || activeCardSettings.card_principal_signature_url || initialCardPrincipalSignaturePreviewSrc || '';
+            idCardLivePreviewSignatureBack.src = signatureUrl;
+            idCardLivePreviewSignatureBack.classList.toggle('d-none', !signatureUrl);
         }
     }
 
@@ -690,7 +709,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const file = this.files && this.files[0];
             if (!file) {
                 previewLogoUrl = null;
-                const logoUrl = activeCardSettings.card_logo_url || fallbackSchoolLogo || '';
+                const logoUrl = activeCardSettings.card_logo_url || initialCardLogoPreviewSrc || fallbackSchoolLogo || '';
                 cardLogoPreview.src = logoUrl;
                 cardLogoPreview.classList.toggle('d-none', !logoUrl);
                 if (idCardLivePreviewLogoFront) {
@@ -709,6 +728,37 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (idCardLivePreviewLogoFront) {
                     idCardLivePreviewLogoFront.src = event.target.result;
                     idCardLivePreviewLogoFront.classList.remove('d-none');
+                }
+                refreshCardColorControls();
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    if (cardPrincipalSignatureInput && cardPrincipalSignaturePreview) {
+        cardPrincipalSignatureInput.addEventListener('change', function () {
+            const file = this.files && this.files[0];
+            if (!file) {
+                previewPrincipalSignatureUrl = null;
+                const signatureUrl = activeCardSettings.card_principal_signature_url || initialCardPrincipalSignaturePreviewSrc || '';
+                cardPrincipalSignaturePreview.src = signatureUrl;
+                cardPrincipalSignaturePreview.classList.toggle('d-none', !signatureUrl);
+                if (idCardLivePreviewSignatureBack) {
+                    idCardLivePreviewSignatureBack.src = signatureUrl;
+                    idCardLivePreviewSignatureBack.classList.toggle('d-none', !signatureUrl);
+                }
+                refreshCardColorControls();
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                previewPrincipalSignatureUrl = event.target.result;
+                cardPrincipalSignaturePreview.src = event.target.result;
+                cardPrincipalSignaturePreview.classList.remove('d-none');
+                if (idCardLivePreviewSignatureBack) {
+                    idCardLivePreviewSignatureBack.src = event.target.result;
+                    idCardLivePreviewSignatureBack.classList.remove('d-none');
                 }
                 refreshCardColorControls();
             };

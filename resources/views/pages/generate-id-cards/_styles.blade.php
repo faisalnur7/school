@@ -265,6 +265,55 @@
     color: var(--id-card-back-notice-color, #94a3b8);
 }
 
+.id-card__signature {
+    position: relative;
+    width: min(100%, 4.4cm);
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 1.35cm;
+    padding-top: 0.2cm;
+    flex-shrink: 0;
+}
+
+.id-card__signature--image {
+    padding-top: 0.15cm;
+}
+
+.id-card__signature-line {
+    width: 100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.38cm;
+    border-top: 0.025cm solid #525252;
+}
+
+.id-card__signature-image {
+    position: absolute;
+    left: 50%;
+    bottom: 0.16cm;
+    transform: translateX(-50%);
+    width: 100%;
+    max-height: 0.85cm;
+    object-fit: contain;
+    display: block;
+    z-index: 2;
+}
+
+.id-card__signature-label {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    font-size: 4.5pt;
+    font-weight: 700;
+    color: #3f3f46;
+    text-transform: capitalize;
+    line-height: 1;
+}
+
 .id-card__qr {
     width: 1.1cm;
     height: 1.1cm;

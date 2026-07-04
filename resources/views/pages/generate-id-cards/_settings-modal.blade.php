@@ -14,6 +14,7 @@
 
     $schoolLogoUrl = $resolveLogoUrl($setting?->logo ?? null);
     $currentCardLogoUrl = $resolveLogoUrl($cardSettings?->card_logo ?? null) ?: $schoolLogoUrl;
+    $currentCardPrincipalSignatureUrl = $resolveLogoUrl($cardSettings?->card_principal_signature ?? null);
     $previewLabel = $isLibraryCard ? 'Library Card Preview' : 'ID Card Preview';
     $frontTitle = $isLibraryCard ? 'LIBRARY CARD' : 'STUDENT ID';
     $cardTypeLabel = $isLibraryCard ? 'Library Card Settings' : 'ID Card Settings';
@@ -79,6 +80,7 @@
                                     'backNotice' => 'If found, please return to the school.',
                                     'footerLine' => $setting?->whatsapp_number ?? $setting?->contact_number_1 ?? 'Contact',
                                     'logoUrl' => $currentCardLogoUrl,
+                                    'principalSignatureUrl' => $currentCardPrincipalSignatureUrl,
                                     'schoolContactLine1' => $setting?->contact_number_1 ?? null,
                                     'schoolContactLine2' => $setting?->contact_number_2 ?? null,
                                     'schoolWhatsapp' => $setting?->whatsapp_number ?? null,
@@ -113,6 +115,7 @@
                                         'back_notice' => 'cardBackNoticeColor',
                                         'footer' => 'cardFooterColor',
                                         'photo' => 'cardPhotoWidth',
+                                        'principal_signature' => 'cardPrincipalSignatureInput',
                                     ],
                                 ])
                             </div>
@@ -267,6 +270,20 @@
                                                         <label class="id-card-settings-label d-block mb-2">Logo Preview</label>
                                                         <img id="cardLogoPreview" src="{{ $currentCardLogoUrl ?? '' }}" alt="Logo preview" class="img-fluid {{ $currentCardLogoUrl ? '' : 'd-none' }}" style="max-height: 96px; object-fit: contain;">
                                                         <div class="small text-muted {{ $currentCardLogoUrl ? 'd-none' : '' }}">No custom logo uploaded.</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-6 mb-2">
+                                                    <div class="id-card-upload-box">
+                                                        <label class="id-card-settings-label d-block mb-2" for="cardPrincipalSignatureInput">Principal Signature</label>
+                                                        <input type="file" name="card_principal_signature" id="cardPrincipalSignatureInput" class="form-control form-control-sm" accept="image/png,image/jpeg">
+                                                        <small class="text-muted d-block mt-2">Upload PNG, JPG, or JPEG for the principal signature image.</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-6 mb-2">
+                                                    <div class="id-card-upload-preview text-center">
+                                                        <label class="id-card-settings-label d-block mb-2">Signature Preview</label>
+                                                        <img id="cardPrincipalSignaturePreview" src="{{ $currentCardPrincipalSignatureUrl ?? '' }}" alt="Principal signature preview" class="img-fluid {{ $currentCardPrincipalSignatureUrl ? '' : 'd-none' }}" style="max-height: 96px; object-fit: contain;">
+                                                        <div class="small text-muted {{ $currentCardPrincipalSignatureUrl ? 'd-none' : '' }}">No principal signature uploaded.</div>
                                                     </div>
                                                 </div>
                                             </div>

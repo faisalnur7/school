@@ -181,6 +181,7 @@ class AdmitSeatCardController extends Controller
             'card_exam_type_text_color' => ['nullable', 'string', 'max:20'],
             'card_exam_name_text_color' => ['nullable', 'string', 'max:20'],
             'card_logo' => ['nullable', 'image', 'max:100'],
+            'card_principal_signature' => ['nullable', 'file', 'mimes:png,jpg,jpeg', 'max:100'],
         ]);
 
         $isTransparent = $request->boolean('card_is_transparent');
@@ -249,6 +250,19 @@ class AdmitSeatCardController extends Controller
             $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
             $image->move($directory, $filename);
             $payload['card_logo'] = 'uploads/card_settings/' . $filename;
+        }
+
+        if ($request->hasFile('card_principal_signature')) {
+            $image = $request->file('card_principal_signature');
+            $directory = public_path('uploads/card_settings');
+
+            if (!is_dir($directory)) {
+                mkdir($directory, 0755, true);
+            }
+
+            $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->move($directory, $filename);
+            $payload['card_principal_signature'] = 'uploads/card_settings/' . $filename;
         }
 
         AdmitSeatCardSetting::current($cardTypeId)->fill($payload)->save();
