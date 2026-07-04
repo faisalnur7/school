@@ -16,10 +16,10 @@ class GenerateIdCardController extends Controller
 {
     public function index(Request $request)
     {
-        [$sessions, $classes, $sections, $groups, $students, $setting, $cardType, $cardSettingsMap, $cardSettings, $layout] = $this->buildData($request);
+        [$sessions, $classes, $sections, $groups, $students, $setting, $cardType, $cardSettingsMap, $cardSettings, $layout, $schoolLogoUrl, $currentCardLogoUrl, $cardSettingsPayload] = $this->buildData($request);
 
         return view('pages.generate-id-cards.index', compact(
-            'sessions', 'classes', 'sections', 'groups', 'students', 'setting', 'cardType', 'cardSettingsMap', 'cardSettings', 'layout'
+            'sessions', 'classes', 'sections', 'groups', 'students', 'setting', 'cardType', 'cardSettingsMap', 'cardSettings', 'layout', 'schoolLogoUrl', 'currentCardLogoUrl', 'cardSettingsPayload'
         ));
     }
 
@@ -72,6 +72,58 @@ class GenerateIdCardController extends Controller
         $cardSettingsMap->put(4, $cardSettingsMap->get(4) ?? AdmitSeatCardSetting::current(4));
         $cardSettings = $this->applyCardThemeDefaults($cardSettingsMap->get($cardTypeId));
         $layout = $this->buildLayout($cardSettings);
+        $schoolLogoUrl = $this->resolveLogoUrl($setting?->logo ?? null);
+        $currentCardLogoUrl = $this->resolveLogoUrl($cardSettings?->card_logo ?? null) ?: $schoolLogoUrl;
+        $cardSettingsPayload = $cardSettingsMap->mapWithKeys(function ($setting) use ($schoolLogoUrl) {
+            return [
+                (string) $setting->card_type => [
+                    'cards_per_page' => $setting->cards_per_page,
+                    'cards_per_row' => $setting->cards_per_row,
+                    'card_width_value' => $setting->card_width_value,
+                    'card_height_value' => $setting->card_height_value,
+                    'grid_gap_value' => $setting->grid_gap_value,
+                    'card_dimension_unit' => $setting->card_dimension_unit,
+                    'card_front_alignment' => $setting->card_front_alignment,
+                    'card_back_alignment' => $setting->card_back_alignment,
+                    'card_front_padding_value' => $setting->card_front_padding_value,
+                    'card_back_padding_value' => $setting->card_back_padding_value,
+                    'card_photo_width_value' => $setting->card_photo_width_value,
+                    'card_photo_height_value' => $setting->card_photo_height_value,
+                    'card_logo_size_value' => $setting->card_logo_size_value,
+                    'card_school_name_font_size' => $setting->card_school_name_font_size,
+                    'card_school_detail_font_size' => $setting->card_school_detail_font_size,
+                    'card_slogan_font_size' => $setting->card_slogan_font_size,
+                    'card_title_font_size' => $setting->card_title_font_size,
+                    'card_name_font_size' => $setting->card_name_font_size,
+                    'card_student_detail_alignment' => $setting->card_student_detail_alignment,
+                    'card_is_transparent' => $setting->card_is_transparent,
+                    'card_color_type' => $setting->card_color_type,
+                    'card_color_gradient_1' => $setting->card_color_gradient_1,
+                    'card_color_gradient_2' => $setting->card_color_gradient_2,
+                    'card_solid_color' => $setting->card_solid_color,
+                    'card_school_name_text_color' => $setting->card_school_name_text_color,
+                    'card_school_detail_text_color' => $setting->card_school_detail_text_color,
+                    'card_slogan_text_color' => $setting->card_slogan_text_color,
+                    'card_name_text_color' => $setting->card_name_text_color,
+                    'card_back_notice_text_color' => $setting->card_back_notice_text_color,
+                    'card_footer_text_color' => $setting->card_footer_text_color,
+                    'card_title_text_color' => $setting->card_title_text_color,
+                    'card_show_school_detail_front' => $setting->card_show_school_detail_front,
+                    'card_show_school_detail_back' => $setting->card_show_school_detail_back,
+                    'card_show_slogan_front' => $setting->card_show_slogan_front,
+                    'card_show_slogan_back' => $setting->card_show_slogan_back,
+                    'card_show_title_front' => $setting->card_show_title_front,
+                    'card_show_title_back' => $setting->card_show_title_back,
+                    'card_show_logo_front' => $setting->card_show_logo_front,
+                    'card_show_logo_back' => $setting->card_show_logo_back,
+                    'card_show_photo_front' => $setting->card_show_photo_front,
+                    'card_show_footer_front' => $setting->card_show_footer_front,
+                    'card_show_footer_back' => $setting->card_show_footer_back,
+                    'card_show_back_notice' => $setting->card_show_back_notice,
+                    'card_logo_url' => $this->resolveLogoUrl($setting->card_logo ?? null) ?: $schoolLogoUrl,
+                ],
+            ];
+        })->toArray();
 
         $academicInfoConstraint = function ($query) use ($request) {
             $query->when($request->filled('session_id'), fn ($q) => $q->where('academic_session_id', $request->session_id))
@@ -100,12 +152,21 @@ class GenerateIdCardController extends Controller
                 ->get();
         }
 
-        return [$sessions, $classes, $sections, $groups, $students, $setting, $cardType, $cardSettingsMap, $cardSettings, $layout];
+        return [$sessions, $classes, $sections, $groups, $students, $setting, $cardType, $cardSettingsMap, $cardSettings, $layout, $schoolLogoUrl, $currentCardLogoUrl, $cardSettingsPayload];
     }
 
     private function normalizeCardType(?string $cardType): string
     {
         return in_array($cardType, ['id_card', 'library_card'], true) ? $cardType : 'id_card';
+    }
+
+    private function resolveLogoUrl(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+
+        return file_exists(public_path($path)) ? asset($path) : null;
     }
 
     public function saveSettings(Request $request)
@@ -133,6 +194,7 @@ class GenerateIdCardController extends Controller
             'card_slogan_font_size' => ['nullable', 'numeric', 'min:1'],
             'card_title_font_size' => ['nullable', 'numeric', 'min:1'],
             'card_name_font_size' => ['nullable', 'numeric', 'min:1'],
+            'card_student_detail_alignment' => ['nullable', 'in:left,center,right'],
             'card_exam_type_font_size' => ['nullable', 'numeric', 'min:1'],
             'card_exam_name_font_size' => ['nullable', 'numeric', 'min:1'],
             'card_is_transparent' => ['nullable', 'boolean'],
@@ -173,6 +235,7 @@ class GenerateIdCardController extends Controller
             'card_slogan_font_size' => data_get($validated, 'card_slogan_font_size', 4.8),
             'card_title_font_size' => data_get($validated, 'card_title_font_size', 4.7),
             'card_name_font_size' => data_get($validated, 'card_name_font_size', 7.2),
+            'card_student_detail_alignment' => data_get($validated, 'card_student_detail_alignment', 'left'),
             'card_exam_type_font_size' => data_get($validated, 'card_exam_type_font_size', 7.4),
             'card_exam_name_font_size' => data_get($validated, 'card_exam_name_font_size', 6.8),
             'card_is_transparent' => $isTransparent,

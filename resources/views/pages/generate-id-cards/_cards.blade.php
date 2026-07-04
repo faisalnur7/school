@@ -34,6 +34,10 @@
     $cardBackNoticeColor = $cardSettings?->card_back_notice_text_color ?? '#94a3b8';
     $cardFooterColor = $cardSettings?->card_footer_text_color ?? '#e5e7eb';
     $cardTitleColor = $cardSettings?->card_title_text_color ?? '#ffffff';
+    $cardStudentDetailAlignment = in_array($cardSettings?->card_student_detail_alignment ?? 'left', ['left', 'center', 'right'], true) ? $cardSettings?->card_student_detail_alignment : 'left';
+    $cardStudentDetailAlignCss = $cardStudentDetailAlignment === 'center'
+        ? 'center'
+        : ($cardStudentDetailAlignment === 'right' ? 'flex-end' : 'flex-start');
     $cardFrontAlignment = in_array($cardSettings?->card_front_alignment ?? 'center', ['left', 'center', 'right'], true) ? $cardSettings?->card_front_alignment : 'center';
     $cardBackAlignment = in_array($cardSettings?->card_back_alignment ?? 'center', ['left', 'center', 'right'], true) ? $cardSettings?->card_back_alignment : 'center';
     $cardFrontPadding = $cardSettings?->card_front_padding_value ?? 0.8;
@@ -76,7 +80,7 @@
     }
 @endphp
 
-<div class="id-card-pages" style="--id-card-width: {{ $cardWidthCm }}cm; --id-card-height: {{ $cardHeightCm }}cm; --id-card-gap: {{ $gapCm }}cm; --card-theme-bg: {{ $cardThemeBackground }}; --card-theme-accent: {{ $cardThemeAccent }}; --id-card-school-name-color: {{ $cardSchoolNameColor }}; --id-card-school-detail-color: {{ $cardSchoolDetailColor }}; --id-card-slogan-color: {{ $cardSloganColor }}; --id-card-back-notice-color: {{ $cardBackNoticeColor }}; --id-card-footer-color: {{ $cardFooterColor }}; --id-card-title-color: {{ $cardTitleColor }}; --id-card-front-align: {{ $cardFrontAlignment }}; --id-card-back-align: {{ $cardBackAlignment }}; --id-card-front-padding: {{ $cardFrontPadding }}cm; --id-card-back-padding: {{ $cardBackPadding }}cm; --id-card-photo-width: {{ $cardPhotoWidth }}cm; --id-card-photo-height: {{ $cardPhotoHeight }}cm; --id-card-logo-size: {{ $cardLogoSize }}cm; --id-card-school-name-font-size: {{ $cardSchoolNameFontSize }}pt; --id-card-school-detail-font-size: {{ $cardSchoolDetailFontSize }}pt; --id-card-slogan-font-size: {{ $cardSloganFontSize }}pt; --id-card-title-font-size: {{ $cardTitleFontSize }}pt; --id-card-name-font-size: {{ $cardNameFontSize }}pt;">
+<div class="id-card-pages" style="--id-card-width: {{ $cardWidthCm }}cm; --id-card-height: {{ $cardHeightCm }}cm; --id-card-gap: {{ $gapCm }}cm; --card-theme-bg: {{ $cardThemeBackground }}; --card-theme-accent: {{ $cardThemeAccent }}; --id-card-school-name-color: {{ $cardSchoolNameColor }}; --id-card-school-detail-color: {{ $cardSchoolDetailColor }}; --id-card-slogan-color: {{ $cardSloganColor }}; --id-card-back-notice-color: {{ $cardBackNoticeColor }}; --id-card-footer-color: {{ $cardFooterColor }}; --id-card-title-color: {{ $cardTitleColor }}; --id-card-student-detail-align: {{ $cardStudentDetailAlignCss }}; --id-card-student-detail-text-align: {{ $cardStudentDetailAlignment }}; --id-card-front-align: {{ $cardFrontAlignment }}; --id-card-back-align: {{ $cardBackAlignment }}; --id-card-front-padding: {{ $cardFrontPadding }}cm; --id-card-back-padding: {{ $cardBackPadding }}cm; --id-card-photo-width: {{ $cardPhotoWidth }}cm; --id-card-photo-height: {{ $cardPhotoHeight }}cm; --id-card-logo-size: {{ $cardLogoSize }}cm; --id-card-school-name-font-size: {{ $cardSchoolNameFontSize }}pt; --id-card-school-detail-font-size: {{ $cardSchoolDetailFontSize }}pt; --id-card-slogan-font-size: {{ $cardSloganFontSize }}pt; --id-card-title-font-size: {{ $cardTitleFontSize }}pt; --id-card-name-font-size: {{ $cardNameFontSize }}pt;">
     @foreach($studentPages as $pageIndex => $pageStudents)
         <div class="id-card-page" style="grid-template-columns: repeat({{ $cardsPerRow }}, max-content); gap: {{ $gapCm }}cm {{ $gapCm }}cm;">
             @foreach($pageStudents as $student)

@@ -14,6 +14,10 @@
     $schoolQrUrl = $schoolQrUrl ?? null;
     $backNotice = $backNotice ?? 'If found, please return to the school.';
     $footerLine = $footerLine ?? 'Contact';
+    $footerLines = $footerLines ?? (($footerLine ?? null) ? [$footerLine] : []);
+    $cardLabel = $cardLabel ?? ($previewType === 'admit' ? 'ADMIT CARD' : 'SEAT CARD');
+    $examTypeLabel = $examTypeLabel ?? null;
+    $examName = $examName ?? null;
     $logoUrl = $logoUrl ?? null;
     $showBack = $showBack ?? true;
     $showSchoolDetailFront = $showSchoolDetailFront ?? true;
@@ -81,6 +85,9 @@
         --id-card-school-detail-color:#e5e7eb;
         --id-card-slogan-color:#e5e7eb;
         --id-card-title-color:#ffffff;
+        --id-card-name-color:#1e3a5f;
+        --id-card-student-detail-align:flex-start;
+        --id-card-student-detail-text-align:left;
         --id-card-back-notice-color:#94a3b8;
         --id-card-footer-color:#e5e7eb;
         --id-card-school-name-font-size:7.2pt;
@@ -133,15 +140,14 @@
             @endif
             @if($isIdPreview && $showBack)
                 <div class="btn-group btn-group-sm card-preview-shell__switcher" role="group" aria-label="Preview side selector">
-                    <button type="button" class="btn btn-outline-secondary js-card-preview-side" data-preview-target="{{ $prefix }}" data-preview-side="front">Front</button>
-                    <button type="button" class="btn btn-outline-secondary js-card-preview-side active" data-preview-target="{{ $prefix }}" data-preview-side="both">Both</button>
+                    <button type="button" class="btn btn-outline-secondary js-card-preview-side active btn-secondary" data-preview-target="{{ $prefix }}" data-preview-side="front">Front</button>
                     <button type="button" class="btn btn-outline-secondary js-card-preview-side" data-preview-target="{{ $prefix }}" data-preview-side="back">Back</button>
                 </div>
             @endif
         </div>
     </div>
 
-    <div class="card-preview-shell__grid {{ $isIdPreview && $showBack ? '' : 'card-preview-shell__grid--single' }}">
+    <div class="card-preview-shell__grid card-preview-shell__grid--single">
         @if($isIdPreview)
             <div class="card-preview-stage card-preview-stage--pair">
                 <div class="card-preview-card card-preview-card--pair">
@@ -188,7 +194,7 @@
                                 @endif
 
                                 <div class="id-card__info">
-                                    <div class="id-card__name card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_name') }}">Student Name</div>
+                                    <div class="id-card__name card-preview-clickable" data-preview-focus-target="{{ $focusFor('name') }}">Student Name</div>
                                     <div class="id-card__divider"></div>
                                     <div class="id-card__rows">
                                         <div class="id-card__row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">
@@ -233,7 +239,7 @@
                         @if($showBack)
                             <div
                                 id="{{ $prefix }}LivePreviewBack"
-                                class="id-card id-card--back"
+                                class="id-card id-card--back {{ $showBack ? 'd-none' : '' }}"
                                 style="width: {{ $previewCardWidthCss }}; height: {{ $previewCardHeightCss }};"
                             >
                                 <div class="id-card__header id-card__header--back card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_name') }}" style="background: var(--card-theme-bg);">
@@ -314,102 +320,38 @@
         @else
             <div class="card-preview-stage card-preview-stage--admit">
                 <div class="card-preview-card card-preview-card--admit">
-                    <div
-                        id="{{ $prefix }}LivePreviewFront"
-                        class="admit-card"
-                        style="width: var(--admit-card-preview-width, {{ $previewCardWidthCss }}); height: var(--admit-card-preview-height, {{ $previewCardHeightCss }});"
-                    >
-                        <div class="admit-card__header">
-                            <div class="admit-card__brand">
-                                @if($showLogoFront)
-                                    <div class="card-preview-clickable" data-preview-focus-target="{{ $focusFor('logo') }}">
-                                        @if($logoUrl)
-                                            <img id="{{ $prefix }}LivePreviewLogoFront" src="{{ $logoUrl }}" alt="Logo preview" class="admit-card__logo">
-                                        @else
-                                            <span class="small font-weight-bold text-white">LOGO</span>
-                                        @endif
-                                    </div>
-                                @endif
-
-                                <div class="admit-card__brand-text">
-                                    <div class="admit-card__school card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_name') }}">{{ $schoolName }}</div>
-                                    @if($showSchoolDetailFront && $schoolDetailLine)
-                                        <div class="admit-card__address card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">{{ $schoolDetailLine }}</div>
-                                    @endif
-                                    @if($showSloganFront && $slogan)
-                                        <div class="admit-card__slogan card-preview-clickable" data-preview-focus-target="{{ $focusFor('slogan') }}">{{ $slogan }}</div>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <div class="admit-card__exam">
-                                @if($showTitleFront && $frontTitle)
-                                    <div id="{{ $frontTitleId }}" class="admit-card__exam-label card-preview-clickable" data-preview-focus-target="{{ $focusFor('title') }}">{{ $frontTitle }}</div>
-                                @endif
-                                @if($showExamTypeFront)
-                                    <div class="admit-card__exam-type card-preview-clickable" data-preview-focus-target="{{ $focusFor('exam_type') }}">Tutorial Exam</div>
-                                @endif
-                                @if($showExamNameFront)
-                                    <div class="admit-card__exam-name card-preview-clickable" data-preview-focus-target="{{ $focusFor('exam_name') }}">Half Yearly Exam</div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="admit-card__body">
-                            <div class="admit-card__info">
-                                <div class="admit-card__name card-preview-clickable" data-preview-focus-target="{{ $focusFor('name') }}">Student Name</div>
-
-                                <div class="admit-card__rows card-preview-clickable" data-preview-focus-target="{{ $focusFor('student_detail_color') }}">
-                                    <div class="admit-card__row">
-                                        <span class="admit-card__lbl">ID</span>
-                                        <span class="admit-card__val">0001</span>
-                                    </div>
-                                    <div class="admit-card__row">
-                                        <span class="admit-card__lbl">Roll</span>
-                                        <span class="admit-card__val">12</span>
-                                    </div>
-                                    <div class="admit-card__row">
-                                        <span class="admit-card__lbl">Class</span>
-                                        <span class="admit-card__val">One</span>
-                                    </div>
-                                    <div class="admit-card__row">
-                                        <span class="admit-card__lbl">Section</span>
-                                        <span class="admit-card__val">A</span>
-                                    </div>
-                                    <div class="admit-card__row">
-                                        <span class="admit-card__lbl">Session</span>
-                                        <span class="admit-card__val">2025-2026</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="admit-card__photo-wrap">
-                                @if($showPhotoFront)
-                                    <div
-                                        id="{{ $prefix }}LivePreviewPhoto"
-                                        class="admit-card__photo card-preview-clickable"
-                                        data-preview-focus-target="{{ $focusFor('logo') }}"
-                                        style="display:flex;align-items:center;justify-content:center;background:#eef2f7;color:#94a3b8;"
-                                    >
-                                        <i class="fas fa-user fa-2x" aria-hidden="true"></i>
-                                    </div>
-                                @endif
-                            </div>
-
-                            <div class="admit-card__signature">
-                                <div class="admit-card__signature-line"></div>
-                                <div class="admit-card__signature-label">Principal</div>
-                            </div>
-                        </div>
-
-                        @if($showFooterFront)
-                            <div class="admit-card__footer card-preview-clickable" data-preview-focus-target="{{ $focusFor('footer') }}">
-                                @if($footerLine)
-                                    <span>{{ $footerLine }}</span>
-                                @endif
-                            </div>
-                        @endif
-                    </div>
+                    @include('pages.admit-seat-cards._card', [
+                        'cardWidthStyle' => 'var(--admit-card-preview-width, ' . $previewCardWidthCss . ')',
+                        'cardHeightStyle' => 'var(--admit-card-preview-height, ' . $previewCardHeightCss . ')',
+                        'cardLabel' => $cardLabel,
+                        'schoolName' => $schoolName,
+                        'schoolAddress' => $schoolDetailLine,
+                        'slogan' => $slogan,
+                        'examTypeLabel' => $examTypeLabel,
+                        'examName' => $examName,
+                        'studentName' => 'Student Name',
+                        'studentCid' => '0001',
+                        'studentRoll' => '12',
+                        'studentClass' => 'One',
+                        'studentSection' => 'A',
+                        'studentSession' => '2025-2026',
+                        'logoPath' => $logoUrl,
+                        'logoId' => $prefix . 'LivePreviewLogoFront',
+                        'photoPath' => asset('assets/img/male-placeholder.png'),
+                        'photoAlt' => 'Student photo preview',
+                        'principalLabel' => 'Principal',
+                        'showLogoFront' => $showLogoFront,
+                        'showSchoolDetailFront' => $showSchoolDetailFront,
+                        'showSloganFront' => $showSloganFront,
+                        'showTitleFront' => $showTitleFront,
+                        'showPhotoFront' => $showPhotoFront,
+                        'showExamTypeFront' => $showExamTypeFront,
+                        'showExamNameFront' => $showExamNameFront,
+                        'showFooterFront' => $showFooterFront,
+                        'footerLines' => $footerLines,
+                        'focusTargets' => $focusTargets,
+                        'frontTitleId' => $frontTitleId,
+                    ])
                 </div>
             </div>
         @endif
@@ -467,6 +409,22 @@
     font-weight: 800;
     letter-spacing: 0.05em;
     text-transform: uppercase;
+}
+
+.card-preview-shell__switcher .btn {
+    color: #111827 !important;
+    border-color: #cbd5e1;
+    background: #ffffff;
+}
+
+.card-preview-shell__switcher .btn:hover,
+.card-preview-shell__switcher .btn:focus,
+.card-preview-shell__switcher .btn.active,
+.card-preview-shell__switcher .btn.btn-secondary {
+    color: #ffffff !important;
+    background: #6b7280;
+    border-color: #6b7280;
+    box-shadow: none;
 }
 
 .card-preview-shell__grid {

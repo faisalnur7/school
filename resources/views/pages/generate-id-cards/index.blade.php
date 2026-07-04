@@ -133,497 +133,7 @@
     @endif
 </div>
 
-<div class="modal fade" id="idCardSettingsModal" tabindex="-1" role="dialog" aria-labelledby="idCardSettingsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered id-card-settings-modal-dialog" role="document">
-        <div class="modal-content id-card-settings-modal-content">
-            <form method="POST" action="{{ route('students.id-cards.settings') }}" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-header id-card-settings-modal-header">
-                    <div>
-                        <h5 class="modal-title mb-1" id="idCardSettingsModalLabel">Card Settings</h5>
-                        <small class="text-muted d-block" id="idCardSettingsModalTypeLabel">{{ (old('card_type', $cardType ?? 'id_card') === 'library_card') ? 'Library Card Settings' : 'ID Card Settings' }}</small>
-                        <small class="text-muted d-block">Save a single layout profile for search, print, and PDF output.</small>
-                    </div>
-                    <div class="btn-group btn-group-sm id-card-settings-type-switcher" role="group" aria-label="Card type selector">
-                        <button type="button" class="btn btn-outline-primary js-card-type-switch {{ (old('card_type', $cardType ?? 'id_card') === 'id_card') ? 'active' : '' }}" data-card-type="id_card" data-card-label="ID Card Settings">ID Card</button>
-                        <button type="button" class="btn btn-outline-primary js-card-type-switch {{ (old('card_type', $cardType ?? 'id_card') === 'library_card') ? 'active' : '' }}" data-card-type="library_card" data-card-label="Library Card Settings">Library Card</button>
-                    </div>
-                    <span id="idCardSettingsDirtyBadge" class="badge badge-warning align-self-center d-none">Unsaved changes</span>
-                    <button type="button" class="close id-card-settings-modal-close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body id-card-settings-modal-body">
-                    <input type="hidden" name="card_type" value="{{ old('card_type', $cardType ?? 'id_card') }}">
-                    @php
-                        $selectedTransparent = old('card_is_transparent', $cardSettings?->card_is_transparent ?? false);
-                        $resolveLogoUrl = function (?string $path) {
-                            if (!$path) {
-                                return null;
-                            }
-
-                            return file_exists(public_path($path)) ? asset($path) : null;
-                        };
-                        $schoolLogoUrl = $resolveLogoUrl($setting?->logo ?? null);
-                        $currentCardLogoUrl = $resolveLogoUrl($cardSettings?->card_logo ?? null) ?: $schoolLogoUrl;
-                    @endphp
-                    <div class="row align-items-stretch">
-                        <div class="col-12 col-lg-5 mb-3">
-                            @include('pages.card-settings._live-preview', [
-                                'prefix' => 'idCard',
-                                'previewType' => 'id',
-                                'previewLabel' => ($cardType ?? 'id_card') === 'library_card' ? 'Library Card Preview' : 'ID Card Preview',
-                                'schoolName' => $setting?->name ?? 'School Name',
-                                'schoolDetailLine' => $setting?->address ?? '',
-                                'schoolContactLine1' => $setting?->contact_number_1 ?? null,
-                                'schoolContactLine2' => $setting?->contact_number_2 ?? null,
-                                'schoolWhatsapp' => $setting?->whatsapp_number ?? null,
-                                'schoolEmail' => $setting?->email ?? null,
-                                'schoolWebsite' => $setting?->website ?? null,
-                                'schoolQrUrl' => (!empty($setting?->whatsapp_qr) && file_exists(public_path($setting->whatsapp_qr))) ? asset($setting->whatsapp_qr) : null,
-                                'slogan' => $setting?->slogan ?? 'Stay Green, Be Bright',
-                                'frontTitle' => 'STUDENT ID',
-                                'backTitle' => 'BACK',
-                                'backNotice' => 'If found, please return to the school.',
-                                'footerLine' => $setting?->whatsapp_number ?: ($setting?->contact_number_1 ?? '+880 1886-780641'),
-                                'logoUrl' => $currentCardLogoUrl,
-                                'showSchoolDetailFront' => $cardSettings?->card_show_school_detail_front ?? true,
-                                'showSchoolDetailBack' => $cardSettings?->card_show_school_detail_back ?? true,
-                                'showSloganFront' => $cardSettings?->card_show_slogan_front ?? true,
-                                'showSloganBack' => $cardSettings?->card_show_slogan_back ?? true,
-                                'showTitleFront' => $cardSettings?->card_show_title_front ?? true,
-                                'showTitleBack' => $cardSettings?->card_show_title_back ?? true,
-                                'showLogoFront' => $cardSettings?->card_show_logo_front ?? true,
-                                'showLogoBack' => $cardSettings?->card_show_logo_back ?? true,
-                                'showPhotoFront' => $cardSettings?->card_show_photo_front ?? true,
-                                'showBackNotice' => $cardSettings?->card_show_back_notice ?? true,
-                                'showFooterFront' => $cardSettings?->card_show_footer_front ?? true,
-                                'showFooterBack' => $cardSettings?->card_show_footer_back ?? true,
-                                'previewCardWidthValue' => $cardSettings?->card_width_value ?? 5.4,
-                                'previewCardHeightValue' => $cardSettings?->card_height_value ?? 8.4,
-                                'previewCardDimensionUnit' => $cardSettings?->card_dimension_unit ?? 'cm',
-                                'focusTargets' => [
-                                    'logo' => 'cardLogoInput',
-                                    'school_name' => 'cardSchoolNameColor',
-                                    'school_detail' => 'cardSchoolDetailColor',
-                                    'slogan' => 'cardSloganColor',
-                                    'title' => 'cardTitleColor',
-                                    'back_notice' => 'cardBackNoticeColor',
-                                    'footer' => 'cardFooterColor',
-                                ],
-                            ])
-                        </div>
-                        <div class="col-12 col-lg-7">
-                            <div class="row">
-                                <div class="col-12 col-md-4 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Cards / Page</label>
-                                        <input type="number" name="cards_per_page" class="form-control form-control-sm id-card-filter-input" min="1" max="12" value="{{ old('cards_per_page', $cardSettings?->cards_per_page ?? 4) }}">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-4 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Cards / Row</label>
-                                        <input type="number" name="cards_per_row" class="form-control form-control-sm id-card-filter-input" min="1" max="10" value="{{ old('cards_per_row', $cardSettings?->cards_per_row ?? 2) }}">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-4 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Card Width</label>
-                                        <input type="number" name="card_width_value" class="form-control form-control-sm id-card-filter-input" min="0.1" step="0.1" value="{{ old('card_width_value', $cardSettings?->card_width_value ?? 5.4) }}">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-4 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Card Height</label>
-                                        <input type="number" name="card_height_value" class="form-control form-control-sm id-card-filter-input" min="0.1" step="0.1" value="{{ old('card_height_value', $cardSettings?->card_height_value ?? 8.4) }}">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-4 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Unit</label>
-                                        <select name="card_dimension_unit" class="form-control form-control-sm id-card-filter-input">
-                                            <option value="cm" {{ old('card_dimension_unit', $cardSettings?->card_dimension_unit ?? 'cm') === 'cm' ? 'selected' : '' }}>Centimeter (cm)</option>
-                                            <option value="px" {{ old('card_dimension_unit', $cardSettings?->card_dimension_unit ?? 'cm') === 'px' ? 'selected' : '' }}>Pixel (px)</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-4 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Grid Gap</label>
-                                        <input type="number" name="grid_gap_value" class="form-control form-control-sm id-card-filter-input" min="0.1" step="0.1" value="{{ old('grid_gap_value', $cardSettings?->grid_gap_value ?? 0.5) }}">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-4 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Front Alignment</label>
-                                        <select name="card_front_alignment" id="cardFrontAlignment" class="form-control form-control-sm id-card-filter-input">
-                                            <option value="left" {{ old('card_front_alignment', $cardSettings?->card_front_alignment ?? 'center') === 'left' ? 'selected' : '' }}>Left</option>
-                                            <option value="center" {{ old('card_front_alignment', $cardSettings?->card_front_alignment ?? 'center') === 'center' ? 'selected' : '' }}>Center</option>
-                                            <option value="right" {{ old('card_front_alignment', $cardSettings?->card_front_alignment ?? 'center') === 'right' ? 'selected' : '' }}>Right</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-4 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Back Alignment</label>
-                                        <select name="card_back_alignment" id="cardBackAlignment" class="form-control form-control-sm id-card-filter-input">
-                                            <option value="left" {{ old('card_back_alignment', $cardSettings?->card_back_alignment ?? 'center') === 'left' ? 'selected' : '' }}>Left</option>
-                                            <option value="center" {{ old('card_back_alignment', $cardSettings?->card_back_alignment ?? 'center') === 'center' ? 'selected' : '' }}>Center</option>
-                                            <option value="right" {{ old('card_back_alignment', $cardSettings?->card_back_alignment ?? 'center') === 'right' ? 'selected' : '' }}>Right</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-4 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Front Padding</label>
-                                        <input type="number" name="card_front_padding_value" id="cardFrontPadding" class="form-control form-control-sm id-card-filter-input" min="0" step="0.1" value="{{ old('card_front_padding_value', $cardSettings?->card_front_padding_value ?? 0.8) }}">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-4 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Back Padding</label>
-                                        <input type="number" name="card_back_padding_value" id="cardBackPadding" class="form-control form-control-sm id-card-filter-input" min="0" step="0.1" value="{{ old('card_back_padding_value', $cardSettings?->card_back_padding_value ?? 0.8) }}">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-4 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Photo Width</label>
-                                        <input type="number" name="card_photo_width_value" id="cardPhotoWidth" class="form-control form-control-sm id-card-filter-input" min="0.1" step="0.1" value="{{ old('card_photo_width_value', $cardSettings?->card_photo_width_value ?? 1.8) }}">
-                                        <small class="text-muted d-block mt-1">Uses the selected unit above.</small>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-4 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Photo Height</label>
-                                        <input type="number" name="card_photo_height_value" id="cardPhotoHeight" class="form-control form-control-sm id-card-filter-input" min="0.1" step="0.1" value="{{ old('card_photo_height_value', $cardSettings?->card_photo_height_value ?? 2.7) }}">
-                                        <small class="text-muted d-block mt-1">Uses the selected unit above.</small>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-4 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Logo Size</label>
-                                        <input type="number" name="card_logo_size_value" id="cardLogoSize" class="form-control form-control-sm id-card-filter-input" min="0.1" step="0.1" value="{{ old('card_logo_size_value', $cardSettings?->card_logo_size_value ?? 0.8) }}">
-                                        <small class="text-muted d-block mt-1">Uses the selected unit above.</small>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Card Logo</label>
-                                        <input type="file" name="card_logo" id="cardLogoInput" class="form-control form-control-sm id-card-filter-input" accept="image/*">
-                                        <small class="text-muted d-block mt-2">Leave blank to use the school logo.</small>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Logo Preview</label>
-                                        <div class="d-flex align-items-center" style="gap:10px">
-                                            <img
-                                                id="cardLogoPreview"
-                                                src="{{ $currentCardLogoUrl ?: '' }}"
-                                                alt="Card logo preview"
-                                                class="rounded"
-                                                style="width:52px;height:52px;object-fit:contain;border:1px solid #dbe4ee;background:#fff;padding:4px;">
-                                            <span class="text-muted small">Current logo used by this card type.</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="id-card-settings-help">These settings are saved once and used by search and PDF output.</div>
-
-                            <div class="row mt-2">
-                                <div class="col-12 col-md-3 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Transparent</label>
-                                        <select name="card_is_transparent" id="cardIsTransparent" class="form-control form-control-sm id-card-filter-input">
-                                            <option value="0" {{ !$selectedTransparent ? 'selected' : '' }}>No</option>
-                                            <option value="1" {{ $selectedTransparent ? 'selected' : '' }}>Yes</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-3 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">School Name Color</label>
-                                        <div class="d-flex align-items-center" style="gap:10px">
-                                            <input type="color" name="card_school_name_text_color" id="cardSchoolNameColor"
-                                                class="form-control form-control-color p-1"
-                                                style="width:48px;height:38px;cursor:pointer"
-                                                value="{{ old('card_school_name_text_color', $cardSettings?->card_school_name_text_color ?? '#ffffff') }}">
-                                            <div id="cardSchoolNameColorPreview" class="rounded"
-                                                style="width:32px;height:32px;border:1px solid #ddd;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-3 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">School Details Color</label>
-                                        <div class="d-flex align-items-center" style="gap:10px">
-                                            <input type="color" name="card_school_detail_text_color" id="cardSchoolDetailColor"
-                                                class="form-control form-control-color p-1"
-                                                style="width:48px;height:38px;cursor:pointer"
-                                                value="{{ old('card_school_detail_text_color', $cardSettings?->card_school_detail_text_color ?? '#e5e7eb') }}">
-                                            <div id="cardSchoolDetailColorPreview" class="rounded"
-                                                style="width:32px;height:32px;border:1px solid #ddd;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-3 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Slogan Color</label>
-                                        <div class="d-flex align-items-center" style="gap:10px">
-                                            <input type="color" name="card_slogan_text_color" id="cardSloganColor"
-                                                class="form-control form-control-color p-1"
-                                                style="width:48px;height:38px;cursor:pointer"
-                                                value="{{ old('card_slogan_text_color', $cardSettings?->card_slogan_text_color ?? '#e5e7eb') }}">
-                                            <div id="cardSloganColorPreview" class="rounded"
-                                                style="width:32px;height:32px;border:1px solid #ddd;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-3 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Back Notice Color</label>
-                                        <div class="d-flex align-items-center" style="gap:10px">
-                                            <input type="color" name="card_back_notice_text_color" id="cardBackNoticeColor"
-                                                class="form-control form-control-color p-1"
-                                                style="width:48px;height:38px;cursor:pointer"
-                                                value="{{ old('card_back_notice_text_color', $cardSettings?->card_back_notice_text_color ?? '#94a3b8') }}">
-                                            <div id="cardBackNoticeColorPreview" class="rounded"
-                                                style="width:32px;height:32px;border:1px solid #ddd;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-3 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Footer Color</label>
-                                        <div class="d-flex align-items-center" style="gap:10px">
-                                            <input type="color" name="card_footer_text_color" id="cardFooterColor"
-                                                class="form-control form-control-color p-1"
-                                                style="width:48px;height:38px;cursor:pointer"
-                                                value="{{ old('card_footer_text_color', $cardSettings?->card_footer_text_color ?? '#e5e7eb') }}">
-                                            <div id="cardFooterColorPreview" class="rounded"
-                                                style="width:32px;height:32px;border:1px solid #ddd;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-3 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Card Title Color</label>
-                                        <div class="d-flex align-items-center" style="gap:10px">
-                                            <input type="color" name="card_title_text_color" id="cardTitleColor"
-                                                class="form-control form-control-color p-1"
-                                                style="width:48px;height:38px;cursor:pointer"
-                                                value="{{ old('card_title_text_color', $cardSettings?->card_title_text_color ?? '#ffffff') }}">
-                                            <div id="cardTitleColorPreview" class="rounded"
-                                                style="width:32px;height:32px;border:1px solid #ddd;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-3 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">School Font Size</label>
-                                        <input type="number" name="card_school_name_font_size" id="cardSchoolNameFontSize" class="form-control form-control-sm id-card-filter-input" min="1" step="0.1" value="{{ old('card_school_name_font_size', $cardSettings?->card_school_name_font_size ?? 7.2) }}">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-3 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Detail Font Size</label>
-                                        <input type="number" name="card_school_detail_font_size" id="cardSchoolDetailFontSize" class="form-control form-control-sm id-card-filter-input" min="1" step="0.1" value="{{ old('card_school_detail_font_size', $cardSettings?->card_school_detail_font_size ?? 5.4) }}">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-3 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Slogan Font Size</label>
-                                        <input type="number" name="card_slogan_font_size" id="cardSloganFontSize" class="form-control form-control-sm id-card-filter-input" min="1" step="0.1" value="{{ old('card_slogan_font_size', $cardSettings?->card_slogan_font_size ?? 4.8) }}">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-3 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Title Font Size</label>
-                                        <input type="number" name="card_title_font_size" id="cardTitleFontSize" class="form-control form-control-sm id-card-filter-input" min="1" step="0.1" value="{{ old('card_title_font_size', $cardSettings?->card_title_font_size ?? 4.7) }}">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-3 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Name Font Size</label>
-                                        <input type="number" name="card_name_font_size" id="cardNameFontSize" class="form-control form-control-sm id-card-filter-input" min="1" step="0.1" value="{{ old('card_name_font_size', $cardSettings?->card_name_font_size ?? 7.2) }}">
-                                    </div>
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <div class="id-card-settings-field mb-0">
-                                        <label class="font-weight-bold id-card-filter-label">Visibility</label>
-                                        <div class="d-flex flex-wrap" style="gap:12px">
-                                            <label class="d-inline-flex align-items-center" style="gap:6px">
-                                                <input type="checkbox" name="card_show_photo_front" id="cardShowPhotoFront" {{ old('card_show_photo_front', $cardSettings?->card_show_photo_front ?? true) ? 'checked' : '' }}> Photo
-                                            </label>
-                                            <label class="d-inline-flex align-items-center" style="gap:6px">
-                                                <input type="checkbox" name="card_show_logo_front" id="cardShowLogoFront" {{ old('card_show_logo_front', $cardSettings?->card_show_logo_front ?? true) ? 'checked' : '' }}> Front Logo
-                                            </label>
-                                            <label class="d-inline-flex align-items-center" style="gap:6px">
-                                                <input type="checkbox" name="card_show_logo_back" id="cardShowLogoBack" {{ old('card_show_logo_back', $cardSettings?->card_show_logo_back ?? true) ? 'checked' : '' }}> Back Logo
-                                            </label>
-                                            <label class="d-inline-flex align-items-center" style="gap:6px">
-                                                <input type="checkbox" name="card_show_school_detail_front" id="cardShowSchoolDetailFront" {{ old('card_show_school_detail_front', $cardSettings?->card_show_school_detail_front ?? true) ? 'checked' : '' }}> Front Details
-                                            </label>
-                                            <label class="d-inline-flex align-items-center" style="gap:6px">
-                                                <input type="checkbox" name="card_show_school_detail_back" id="cardShowSchoolDetailBack" {{ old('card_show_school_detail_back', $cardSettings?->card_show_school_detail_back ?? true) ? 'checked' : '' }}> Back Details
-                                            </label>
-                                            <label class="d-inline-flex align-items-center" style="gap:6px">
-                                                <input type="checkbox" name="card_show_slogan_front" id="cardShowSloganFront" {{ old('card_show_slogan_front', $cardSettings?->card_show_slogan_front ?? true) ? 'checked' : '' }}> Front Slogan
-                                            </label>
-                                            <label class="d-inline-flex align-items-center" style="gap:6px">
-                                                <input type="checkbox" name="card_show_slogan_back" id="cardShowSloganBack" {{ old('card_show_slogan_back', $cardSettings?->card_show_slogan_back ?? true) ? 'checked' : '' }}> Back Slogan
-                                            </label>
-                                            <label class="d-inline-flex align-items-center" style="gap:6px">
-                                                <input type="checkbox" name="card_show_title_front" id="cardShowTitleFront" {{ old('card_show_title_front', $cardSettings?->card_show_title_front ?? true) ? 'checked' : '' }}> Front Title
-                                            </label>
-                                            <label class="d-inline-flex align-items-center" style="gap:6px">
-                                                <input type="checkbox" name="card_show_title_back" id="cardShowTitleBack" {{ old('card_show_title_back', $cardSettings?->card_show_title_back ?? true) ? 'checked' : '' }}> Back Title
-                                            </label>
-                                            <label class="d-inline-flex align-items-center" style="gap:6px">
-                                                <input type="checkbox" name="card_show_footer_front" id="cardShowFooterFront" {{ old('card_show_footer_front', $cardSettings?->card_show_footer_front ?? true) ? 'checked' : '' }}> Front Footer
-                                            </label>
-                                            <label class="d-inline-flex align-items-center" style="gap:6px">
-                                                <input type="checkbox" name="card_show_footer_back" id="cardShowFooterBack" {{ old('card_show_footer_back', $cardSettings?->card_show_footer_back ?? true) ? 'checked' : '' }}> Back Footer
-                                            </label>
-                                            <label class="d-inline-flex align-items-center" style="gap:6px">
-                                                <input type="checkbox" name="card_show_back_notice" id="cardShowBackNotice" {{ old('card_show_back_notice', $cardSettings?->card_show_back_notice ?? true) ? 'checked' : '' }}> Back Notice
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="id-card-background-settings mt-2">
-                                <label class="font-weight-bold id-card-filter-label mb-2">Background Settings</label>
-                                <div class="row">
-                                    <div class="col-12 col-md-4 mb-3">
-                                        <div class="id-card-settings-field mb-0">
-                                            <label class="font-weight-bold id-card-filter-label">Background Type</label>
-                                            @php
-                                                $cardColorTypeValue = old('card_color_type', $cardSettings?->card_color_type ?? 'gradient');
-                                            @endphp
-                                            <div class="d-flex flex-column" style="gap:8px">
-                                                <label class="d-inline-flex align-items-center" style="gap:8px;margin-bottom:0;">
-                                                    <input type="radio" name="card_color_type" value="gradient" {{ $cardColorTypeValue === 'gradient' ? 'checked' : '' }}>
-                                                    <span>Gradient</span>
-                                                </label>
-                                                <label class="d-inline-flex align-items-center" style="gap:8px;margin-bottom:0;">
-                                                    <input type="radio" name="card_color_type" value="solid" {{ $cardColorTypeValue === 'solid' ? 'checked' : '' }}>
-                                                    <span>Solid</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-4 mb-3 card-color-gradient-field">
-                                        <div class="id-card-settings-field mb-0">
-                                            <label class="font-weight-bold id-card-filter-label">Background Gradient 1</label>
-                                            <div class="d-flex align-items-center" style="gap:10px">
-                                                <input type="color" name="card_color_gradient_1" id="cardColorGradient1"
-                                                    class="form-control form-control-color p-1"
-                                                    style="width:48px;height:38px;cursor:pointer"
-                                                    value="{{ old('card_color_gradient_1', $cardSettings?->card_color_gradient_1 ?? '#1e3a5f') }}">
-                                                <div id="cardColorGradient1Preview" class="rounded"
-                                                    style="width:32px;height:32px;border:1px solid #ddd;"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-4 mb-3 card-color-gradient-field">
-                                        <div class="id-card-settings-field mb-0">
-                                            <label class="font-weight-bold id-card-filter-label">Background Gradient 2</label>
-                                            <div class="d-flex align-items-center" style="gap:10px">
-                                                <input type="color" name="card_color_gradient_2" id="cardColorGradient2"
-                                                    class="form-control form-control-color p-1"
-                                                    style="width:48px;height:38px;cursor:pointer"
-                                                    value="{{ old('card_color_gradient_2', $cardSettings?->card_color_gradient_2 ?? '#2563eb') }}">
-                                                <div id="cardColorGradient2Preview" class="rounded"
-                                                    style="width:32px;height:32px;border:1px solid #ddd;"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-4 mb-3 card-color-solid-field">
-                                        <div class="id-card-settings-field mb-0">
-                                            <label class="font-weight-bold id-card-filter-label">Background Solid Color</label>
-                                            <div class="d-flex align-items-center" style="gap:10px">
-                                                <input type="color" name="card_solid_color" id="cardSolidColor"
-                                                    class="form-control form-control-color p-1"
-                                                    style="width:48px;height:38px;cursor:pointer"
-                                                    value="{{ old('card_solid_color', $cardSettings?->card_solid_color ?? '#1e3a5f') }}">
-                                                <div id="cardSolidColorPreview" class="rounded"
-                                                    style="width:32px;height:32px;border:1px solid #ddd;"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-8 mb-3">
-                                        <div class="id-card-settings-field mb-0">
-                                            <label class="font-weight-bold id-card-filter-label">Background Preview</label>
-                                            <div id="cardThemePreview" class="rounded" style="height:44px;border:1px solid #dbe4ee;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <div class="modal-footer id-card-settings-modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save Settings</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-@php
-    $cardSettingsPayload = $cardSettingsMap->mapWithKeys(function ($setting) use ($resolveLogoUrl, $schoolLogoUrl) {
-        return [
-            (string) $setting->card_type => [
-                'cards_per_page' => $setting->cards_per_page,
-                'cards_per_row' => $setting->cards_per_row,
-                'card_width_value' => $setting->card_width_value,
-                'card_height_value' => $setting->card_height_value,
-                'grid_gap_value' => $setting->grid_gap_value,
-                'card_dimension_unit' => $setting->card_dimension_unit,
-                'card_front_alignment' => $setting->card_front_alignment,
-                'card_back_alignment' => $setting->card_back_alignment,
-                'card_front_padding_value' => $setting->card_front_padding_value,
-                'card_back_padding_value' => $setting->card_back_padding_value,
-                'card_photo_width_value' => $setting->card_photo_width_value,
-                'card_photo_height_value' => $setting->card_photo_height_value,
-                'card_logo_size_value' => $setting->card_logo_size_value,
-                'card_school_name_font_size' => $setting->card_school_name_font_size,
-                'card_school_detail_font_size' => $setting->card_school_detail_font_size,
-                'card_slogan_font_size' => $setting->card_slogan_font_size,
-                'card_title_font_size' => $setting->card_title_font_size,
-                'card_name_font_size' => $setting->card_name_font_size,
-                'card_is_transparent' => $setting->card_is_transparent,
-                'card_color_type' => $setting->card_color_type,
-                'card_color_gradient_1' => $setting->card_color_gradient_1,
-                'card_color_gradient_2' => $setting->card_color_gradient_2,
-                'card_solid_color' => $setting->card_solid_color,
-                'card_school_name_text_color' => $setting->card_school_name_text_color,
-                'card_school_detail_text_color' => $setting->card_school_detail_text_color,
-                'card_slogan_text_color' => $setting->card_slogan_text_color,
-                'card_back_notice_text_color' => $setting->card_back_notice_text_color,
-                'card_footer_text_color' => $setting->card_footer_text_color,
-                'card_title_text_color' => $setting->card_title_text_color,
-                'card_show_school_detail_front' => $setting->card_show_school_detail_front,
-                'card_show_school_detail_back' => $setting->card_show_school_detail_back,
-                'card_show_slogan_front' => $setting->card_show_slogan_front,
-                'card_show_slogan_back' => $setting->card_show_slogan_back,
-                'card_show_title_front' => $setting->card_show_title_front,
-                'card_show_title_back' => $setting->card_show_title_back,
-                'card_show_logo_front' => $setting->card_show_logo_front,
-                'card_show_logo_back' => $setting->card_show_logo_back,
-                'card_show_photo_front' => $setting->card_show_photo_front,
-                'card_show_footer_front' => $setting->card_show_footer_front,
-                'card_show_footer_back' => $setting->card_show_footer_back,
-                'card_show_back_notice' => $setting->card_show_back_notice,
-                'card_logo_url' => $resolveLogoUrl($setting->card_logo ?? null) ?: $schoolLogoUrl,
-            ],
-        ];
-    })->toArray();
-@endphp
+@include('pages.generate-id-cards._settings-modal')
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -634,14 +144,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const settingsForm = settingsModal?.querySelector('form');
     const settingsTypeLabel = document.getElementById('idCardSettingsModalTypeLabel');
     const dirtyBadge = document.getElementById('idCardSettingsDirtyBadge');
+    const idCardPreviewLabel = document.getElementById('idCardPreviewLabel');
     const cardThemePreview = document.getElementById('cardThemePreview');
-    const cardIsTransparent = document.getElementById('cardIsTransparent');
+    const cardIsTransparent = document.querySelector('#idCardSettingsModal input[name="card_is_transparent"]');
+    const cardStudentDetailAlignment = document.getElementById('cardStudentDetailAlignment');
     const cardColorGradient1 = document.getElementById('cardColorGradient1');
     const cardColorGradient2 = document.getElementById('cardColorGradient2');
     const cardSolidColor = document.getElementById('cardSolidColor');
     const cardSchoolNameColor = document.getElementById('cardSchoolNameColor');
     const cardSchoolDetailColor = document.getElementById('cardSchoolDetailColor');
     const cardSloganColor = document.getElementById('cardSloganColor');
+    const cardNameColor = document.getElementById('cardNameColor');
     const cardBackNoticeColor = document.getElementById('cardBackNoticeColor');
     const cardFooterColor = document.getElementById('cardFooterColor');
     const cardTitleColor = document.getElementById('cardTitleColor');
@@ -653,6 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const cardSchoolNameColorPreview = document.getElementById('cardSchoolNameColorPreview');
     const cardSchoolDetailColorPreview = document.getElementById('cardSchoolDetailColorPreview');
     const cardSloganColorPreview = document.getElementById('cardSloganColorPreview');
+    const cardNameColorPreview = document.getElementById('cardNameColorPreview');
     const cardBackNoticeColorPreview = document.getElementById('cardBackNoticeColorPreview');
     const cardFooterColorPreview = document.getElementById('cardFooterColorPreview');
     const cardTitleColorPreview = document.getElementById('cardTitleColorPreview');
@@ -678,6 +192,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const defaultCardType = @json($cardType ?? 'id_card');
     let activeCardSettings = {};
     let previewLogoUrl = null;
+    let modalScrollY = 0;
     const defaultThemeSettings = {
         card_is_transparent: false,
         card_color_type: 'gradient',
@@ -693,6 +208,8 @@ document.addEventListener('DOMContentLoaded', function () {
         card_slogan_font_size: 4.8,
         card_title_font_size: 4.7,
         card_name_font_size: 7.2,
+        card_name_text_color: '#1e3a5f',
+        card_student_detail_alignment: 'left',
         card_color_gradient_1: '#1e3a5f',
         card_color_gradient_2: '#2563eb',
         card_solid_color: '#1e3a5f',
@@ -748,6 +265,64 @@ document.addEventListener('DOMContentLoaded', function () {
         dirtyBadge.classList.toggle('d-none', !isDirty);
     }
 
+    function normalizeTooltipText(value) {
+        return (value || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function getTooltipTextFromLabel($label) {
+        const explicit = normalizeTooltipText($label.attr('data-tooltip-content'));
+        if (explicit) {
+            return explicit;
+        }
+
+        const $hint = $label.nextAll('.id-card-layout-hint, .text-muted.d-block, .small.text-muted, small.text-muted').first();
+        const hintText = normalizeTooltipText($hint.text());
+        const existingTitle = normalizeTooltipText($label.attr('title'));
+        const labelText = normalizeTooltipText($label.text());
+
+        return hintText || existingTitle || labelText;
+    }
+
+    function initializeSettingTooltips(context) {
+        const root = context ? (context.jquery ? context : $(context)) : $('#idCardSettingsModal');
+        const $labels = root.find('label');
+        if (!$labels.length || typeof $labels.tooltip !== 'function') return;
+
+        $labels.each(function () {
+            const $label = $(this);
+            const tooltipText = getTooltipTextFromLabel($label);
+            if (!tooltipText) return;
+
+            $label.attr('title', tooltipText);
+            $label.attr('data-toggle', 'tooltip');
+            $label.attr('data-placement', $label.attr('data-placement') || 'top');
+        });
+
+        $labels.tooltip('dispose');
+        $labels.tooltip({
+            container: 'body',
+            trigger: 'hover focus',
+        });
+    }
+
+    function lockPageScroll() {
+        modalScrollY = window.scrollY || window.pageYOffset || 0;
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${modalScrollY}px`;
+        document.body.style.width = '100%';
+    }
+
+    function unlockPageScroll() {
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, modalScrollY || 0);
+    }
+
     function getSelectedCardColorType() {
         return settingsForm?.querySelector('input[name="card_color_type"]:checked')?.value || 'gradient';
     }
@@ -760,7 +335,7 @@ document.addEventListener('DOMContentLoaded', function () {
         activeCardSettings = settings;
         previewLogoUrl = null;
 
-        ['cards_per_page', 'cards_per_row', 'card_width_value', 'card_height_value', 'grid_gap_value', 'card_dimension_unit', 'card_front_alignment', 'card_back_alignment', 'card_front_padding_value', 'card_back_padding_value', 'card_photo_width_value', 'card_photo_height_value', 'card_logo_size_value', 'card_school_name_font_size', 'card_school_detail_font_size', 'card_slogan_font_size', 'card_title_font_size', 'card_name_font_size', 'card_is_transparent', 'card_color_type', 'card_color_gradient_1', 'card_color_gradient_2', 'card_solid_color', 'card_school_name_text_color', 'card_school_detail_text_color', 'card_slogan_text_color', 'card_back_notice_text_color', 'card_footer_text_color', 'card_title_text_color', 'card_show_school_detail_front', 'card_show_school_detail_back', 'card_show_slogan_front', 'card_show_slogan_back', 'card_show_title_front', 'card_show_title_back', 'card_show_logo_front', 'card_show_logo_back', 'card_show_photo_front', 'card_show_footer_front', 'card_show_footer_back', 'card_show_back_notice'].forEach((field) => {
+        ['cards_per_page', 'cards_per_row', 'card_width_value', 'card_height_value', 'grid_gap_value', 'card_dimension_unit', 'card_front_alignment', 'card_back_alignment', 'card_front_padding_value', 'card_back_padding_value', 'card_photo_width_value', 'card_photo_height_value', 'card_logo_size_value', 'card_school_name_font_size', 'card_school_detail_font_size', 'card_slogan_font_size', 'card_title_font_size', 'card_name_font_size', 'card_student_detail_alignment', 'card_is_transparent', 'card_color_type', 'card_color_gradient_1', 'card_color_gradient_2', 'card_solid_color', 'card_school_name_text_color', 'card_school_detail_text_color', 'card_slogan_text_color', 'card_name_text_color', 'card_back_notice_text_color', 'card_footer_text_color', 'card_title_text_color', 'card_show_school_detail_front', 'card_show_school_detail_back', 'card_show_slogan_front', 'card_show_slogan_back', 'card_show_title_front', 'card_show_title_back', 'card_show_logo_front', 'card_show_logo_back', 'card_show_photo_front', 'card_show_footer_front', 'card_show_footer_back', 'card_show_back_notice'].forEach((field) => {
             const input = settingsForm.elements.namedItem(field);
             const value = field === 'card_is_transparent'
                 ? ((settings[field] ?? defaultThemeSettings[field]) ? '1' : '0')
@@ -788,6 +363,12 @@ document.addEventListener('DOMContentLoaded', function () {
             settingsTypeLabel.textContent = settingLabelFromCardType(cardType || defaultCardType);
         }
 
+        if (idCardPreviewLabel) {
+            idCardPreviewLabel.textContent = cardType === 'library_card'
+                ? 'Library Card Preview'
+                : 'ID Card Preview';
+        }
+
         if (idCardLivePreviewTitleFront) {
             idCardLivePreviewTitleFront.textContent = previewTitleFromCardType(cardType || defaultCardType);
         }
@@ -805,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function refreshCardColorControls() {
         if (!settingsForm) return;
 
-        const isTransparent = cardIsTransparent?.value === '1' || cardIsTransparent?.value === 'true' || cardIsTransparent?.checked === true;
+        const isTransparent = cardIsTransparent?.checked === true;
         const colorType = getSelectedCardColorType();
         const gradient1 = cardColorGradient1?.value || '#1e3a5f';
         const gradient2 = cardColorGradient2?.value || '#2563eb';
@@ -825,13 +406,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (cardTitleColor && cardTitleColor.value === '#ffffff') cardTitleColor.value = '#111827';
         }
 
-        $('.id-card-background-settings').show();
         if (colorType === 'solid') {
-            $('.card-color-gradient-field').hide();
-            $('.card-color-solid-field').show();
+            $('.card-color-gradient-field').addClass('d-none');
+            $('.card-color-solid-field').removeClass('d-none');
         } else {
-            $('.card-color-gradient-field').show();
-            $('.card-color-solid-field').hide();
+            $('.card-color-gradient-field').removeClass('d-none');
+            $('.card-color-solid-field').addClass('d-none');
         }
 
         if (cardSchoolNameColorPreview) {
@@ -844,6 +424,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (cardSloganColorPreview) {
             cardSloganColorPreview.style.background = cardSloganColor?.value || '#e5e7eb';
+        }
+
+        if (cardNameColorPreview) {
+            cardNameColorPreview.style.background = cardNameColor?.value || '#1e3a5f';
         }
 
         if (cardBackNoticeColorPreview) {
@@ -885,6 +469,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const themeAccent = isTransparent
                 ? 'transparent'
                 : (colorType === 'solid' ? solid : gradient1);
+            const studentDetailAlignment = cardStudentDetailAlignment?.value || 'left';
+            const studentDetailAlignCss = studentDetailAlignment === 'center'
+                ? 'center'
+                : (studentDetailAlignment === 'right' ? 'flex-end' : 'flex-start');
             idCardLivePreview.style.setProperty('--preview-bg', theme);
             idCardLivePreview.style.setProperty('--preview-school-name-color', cardSchoolNameColor?.value || '#ffffff');
             idCardLivePreview.style.setProperty('--preview-school-detail-color', cardSchoolDetailColor?.value || '#e5e7eb');
@@ -897,6 +485,9 @@ document.addEventListener('DOMContentLoaded', function () {
             idCardLivePreview.style.setProperty('--id-card-school-name-color', cardSchoolNameColor?.value || '#ffffff');
             idCardLivePreview.style.setProperty('--id-card-school-detail-color', cardSchoolDetailColor?.value || '#e5e7eb');
             idCardLivePreview.style.setProperty('--id-card-slogan-color', cardSloganColor?.value || '#e5e7eb');
+            idCardLivePreview.style.setProperty('--id-card-name-color', cardNameColor?.value || '#1e3a5f');
+            idCardLivePreview.style.setProperty('--id-card-student-detail-align', studentDetailAlignCss);
+            idCardLivePreview.style.setProperty('--id-card-student-detail-text-align', studentDetailAlignment);
             idCardLivePreview.style.setProperty('--id-card-back-notice-color', cardBackNoticeColor?.value || '#94a3b8');
             idCardLivePreview.style.setProperty('--id-card-footer-color', cardFooterColor?.value || '#e5e7eb');
             idCardLivePreview.style.setProperty('--id-card-title-color', cardTitleColor?.value || '#ffffff');
@@ -1053,27 +644,29 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    $(document).on('click', '.js-card-preview-side', function () {
-        const target = $(this).data('preview-target');
-        const side = $(this).data('preview-side');
+    function setPreviewSide(target, side) {
+        const normalized = side === 'back' ? 'back' : 'front';
         const $preview = $(`#${target}LivePreview`);
         if (!$preview.length) return;
 
         $preview.find('.js-card-preview-side').removeClass('active btn-secondary').addClass('btn-outline-secondary');
-        $(this).addClass('active btn-secondary').removeClass('btn-outline-secondary');
+        $preview.find(`.js-card-preview-side[data-preview-side="${normalized}"]`).addClass('active btn-secondary').removeClass('btn-outline-secondary');
 
         const $front = $(`#${target}LivePreviewFront`);
         const $back = $(`#${target}LivePreviewBack`);
-        if (side === 'front') {
-            $front.show();
-            $back.hide();
-        } else if (side === 'back') {
-            $front.hide();
-            $back.show();
+        if (!$front.length || !$back.length) return;
+
+        if (normalized === 'back') {
+            $front.addClass('d-none');
+            $back.removeClass('d-none');
         } else {
-            $front.show();
-            $back.show();
+            $front.removeClass('d-none');
+            $back.addClass('d-none');
         }
+    }
+
+    $(document).on('click', '.js-card-preview-side', function () {
+        setPreviewSide($(this).data('preview-target'), $(this).data('preview-side'));
     });
 
     if (settingsForm) {
@@ -1135,11 +728,19 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             refreshCardColorControls();
         }
+        lockPageScroll();
         setDirtyState(false);
     });
 
     $('#idCardSettingsModal').on('shown.bs.modal', function () {
+        initializeSettingTooltips(this);
+        setPreviewSide('idCard', 'front');
         refreshCardColorControls();
+    });
+
+    $('#idCardSettingsModal').on('hidden.bs.modal', function () {
+        $(this).find('label').tooltip('dispose');
+        unlockPageScroll();
     });
 
     @if($errors->any())
@@ -1207,9 +808,8 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 
 .id-card-settings-modal-dialog {
-    max-width: none;
-    width: calc(100vw - 16px);
-    margin: 8px auto;
+    max-width: 1140px;
+    margin: 1.75rem auto;
 }
 
 .id-card-settings-modal-content {
@@ -1295,6 +895,228 @@ document.addEventListener('DOMContentLoaded', function () {
     color: #64748b;
     font-size: 0.88rem;
     border: 1px solid #e5e7eb;
+}
+
+.id-card-settings-tabs,
+.id-card-settings-modal-content .csm-section-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+    padding: 0.25rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.88);
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+.id-card-settings-tabs .nav-item,
+.id-card-settings-modal-content .csm-section-tabs .nav-item {
+    margin-bottom: 0;
+    flex: 0 0 auto;
+}
+
+.id-card-settings-tabs .nav-link,
+.id-card-settings-modal-content .csm-section-tabs .nav-link {
+    border: 0;
+    border-radius: 12px;
+    padding: 0.44rem 0.72rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #475569;
+    background: transparent;
+    white-space: nowrap;
+    transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.id-card-settings-tabs .nav-link:hover,
+.id-card-settings-modal-content .csm-section-tabs .nav-link:hover {
+    color: #0f172a;
+    background: rgba(226, 232, 240, 0.6);
+}
+
+.id-card-settings-tabs .nav-link.active,
+.id-card-settings-modal-content .csm-section-tabs .nav-link.active {
+    color: #fff;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+}
+
+.id-card-settings-panel > .tab-pane > .card,
+.id-card-settings-modal-content .admit-seat-cards-settings-panel > .tab-pane > .card {
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+}
+
+.id-card-settings-panel > .tab-pane > .card > .card-header,
+.id-card-settings-modal-content .admit-seat-cards-settings-panel > .tab-pane > .card > .card-header {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+}
+
+.id-card-settings-panel > .tab-pane > .card > .card-body,
+.id-card-settings-modal-content .admit-seat-cards-settings-panel > .tab-pane > .card > .card-body {
+    padding: 1rem;
+}
+
+.id-card-settings-section-header .badge {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.id-card-settings-section-header h6 {
+    letter-spacing: -0.01em;
+}
+
+.id-card-settings-field {
+    height: 100%;
+    padding: 0.95rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%);
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.03);
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.id-card-settings-field:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+}
+
+.id-card-settings-label {
+    margin: 0;
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.id-card-settings-label[data-toggle="tooltip"] {
+    cursor: help;
+}
+
+.id-card-settings-control {
+    width: 100%;
+    min-height: 42px;
+    border-radius: 12px;
+    border-color: #cbd5e1;
+    box-shadow: none;
+}
+
+.id-card-settings-control:focus {
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 4px rgba(148, 163, 184, 0.16);
+}
+
+.id-card-settings-color-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: nowrap;
+}
+
+.id-card-settings-color-native {
+    width: 54px !important;
+    min-width: 54px !important;
+    max-width: 54px !important;
+    height: 38px !important;
+    padding: 0.18rem !important;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    cursor: pointer;
+    flex: 0 0 54px;
+}
+
+.id-card-settings-color-native::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.id-card-settings-color-native::-webkit-color-swatch {
+    border: 0;
+    border-radius: 8px;
+}
+
+.id-card-settings-color-preview {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+}
+
+.id-card-settings-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.85rem;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid #dbe4ee;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.8);
+    color: #475569;
+    font-size: 0.78rem;
+    font-weight: 700;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+}
+
+.id-card-settings-modal-content .csm-bg-toggle {
+    display: flex;
+    gap: 0.35rem;
+    padding: 0.35rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.85);
+    overflow: hidden;
+}
+
+.id-card-settings-modal-content .csm-bg-toggle .btn {
+    border: 0;
+    border-radius: 12px;
+    padding: 0.68rem 0.95rem;
+    font-weight: 700;
+    color: #475569;
+    background: transparent;
+    box-shadow: none;
+    transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.id-card-settings-modal-content .csm-bg-toggle .btn:hover {
+    color: #0f172a;
+    background: rgba(226, 232, 240, 0.6);
+}
+
+.id-card-settings-modal-content .csm-bg-toggle .btn.active {
+    color: #fff;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+}
+
+.id-card-upload-box {
+    padding: 0.95rem 1rem;
+    border: 1px dashed #cbd5e1;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%);
+}
+
+.id-card-upload-preview {
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #ffffff;
 }
 
 .id-card-settings-modal-footer {
@@ -1492,5 +1314,7 @@ html[data-theme='dark'] .id-card-filter-shell .no-print p {
         padding: 0;
     }
 }
+
+@include('pages.admit-seat-cards._styles')
 </style>
 @endsection

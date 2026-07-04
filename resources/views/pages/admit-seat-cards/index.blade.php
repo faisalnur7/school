@@ -3,32 +3,55 @@
 @section('styles')
     <style>
         @include('pages.admit-seat-cards._styles')
+        .admit-seat-cards-page {
+            --asc-primary: #2563eb;
+            --asc-primary-dark: #1d4ed8;
+            --asc-primary-soft: rgba(37, 99, 235, 0.08);
+            --asc-surface: #ffffff;
+            --asc-surface-alt: #f8fafc;
+            --asc-border: #dbe4ee;
+            --asc-border-strong: #cbd5e1;
+            --asc-text: #0f172a;
+            --asc-muted: #475569;
+            --asc-muted-2: #64748b;
+            --asc-radius-xl: 18px;
+            --asc-radius-lg: 14px;
+            --asc-radius-md: 12px;
+            --asc-shadow-sm: 0 6px 16px rgba(15, 23, 42, 0.04);
+            --asc-shadow-md: 0 10px 24px rgba(15, 23, 42, 0.05);
+            --asc-shadow-lg: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+
         .admit-seat-cards-page .admit-seat-typography-card {
-            border: 1px solid #e2e8f0;
-            border-radius: 18px;
-            background: linear-gradient(180deg, rgba(248, 250, 252, 0.96) 0%, rgba(255, 255, 255, 0.98) 100%);
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+            border: 1px solid var(--asc-border);
+            border-radius: var(--asc-radius-xl);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%);
+            box-shadow: var(--asc-shadow-lg);
             overflow: hidden;
         }
 
         .admit-seat-cards-page .admit-seat-typography-header {
             background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
             border-bottom: 1px solid #e5e7eb;
-            padding: 0.9rem 1rem;
+            padding: 0.95rem 1rem;
         }
 
         .admit-seat-cards-page .admit-seat-typography-body {
             padding: 1rem;
         }
 
+        .modal-header .close{
+            margin:0 !important;
+        }
+
         .admit-seat-cards-page .admit-seat-typography-row {
             margin-left: 0 !important;
             margin-right: 0 !important;
-            margin-bottom: 0.8rem;
-            padding: 0.9rem 0.95rem;
+            margin-bottom: 0.75rem;
+            padding: 0.88rem 0.95rem;
             border: 1px solid #e5e7eb;
-            border-radius: 14px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.9) 100%);
+            border-radius: var(--asc-radius-lg);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.94) 100%);
             box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
             align-items: center;
         }
@@ -43,15 +66,15 @@
         }
 
         .admit-seat-cards-page .admit-seat-layout-card {
-            border: 1px solid #e2e8f0;
-            border-radius: 18px;
-            background: linear-gradient(180deg, rgba(248, 250, 252, 0.96) 0%, rgba(255, 255, 255, 0.98) 100%);
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+            border: 1px solid var(--asc-border);
+            border-radius: var(--asc-radius-xl);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%);
+            box-shadow: var(--asc-shadow-lg);
             overflow: hidden;
         }
 
         .admit-seat-cards-page .admit-seat-layout-header {
-            padding: 1rem 1rem 0.85rem;
+            padding: 0.95rem 1rem 0.9rem;
             border-bottom: 1px solid #e5e7eb;
             background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
         }
@@ -78,40 +101,41 @@
             align-items: center;
             gap: 0.45rem;
             margin-bottom: 0.85rem;
-            padding: 0.55rem 0.75rem;
-            border: 1px solid #dbe4ee;
+            padding: 0.56rem 0.78rem;
+            border: 1px solid var(--asc-border);
             border-radius: 999px;
-            background: rgba(255, 255, 255, 0.8);
-            color: #475569;
+            background: rgba(255, 255, 255, 0.92);
+            color: var(--asc-muted);
             font-size: 0.78rem;
             font-weight: 700;
-            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+            box-shadow: var(--asc-shadow-sm);
         }
 
         .admit-seat-cards-page .admit-seat-layout-field {
             height: 100%;
-            padding: 0.95rem 1rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%);
+            padding: 0.88rem 0.95rem;
+            border: 1px solid var(--asc-border);
+            border-radius: var(--asc-radius-lg);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.95) 100%);
             box-shadow: 0 3px 12px rgba(15, 23, 42, 0.03);
             display: flex;
             flex-direction: column;
-            gap: 0.55rem;
+            gap: 0.45rem;
         }
 
         .admit-seat-cards-page .admit-seat-layout-field:hover {
-            border-color: #cbd5e1;
+            border-color: var(--asc-border-strong);
             box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
         }
 
         .admit-seat-cards-page .admit-seat-layout-label {
             margin: 0;
-            font-size: 0.76rem;
+            font-size: 0.72rem;
             font-weight: 800;
-            color: #475569;
+            color: var(--asc-muted);
             text-transform: uppercase;
             letter-spacing: 0.04em;
+            line-height: 1.25;
         }
 
         .admit-seat-cards-page .card-settings-modal-content label[data-toggle="tooltip"] {
@@ -120,7 +144,8 @@
 
         .admit-seat-cards-page .admit-seat-layout-control {
             width: 100%;
-            min-height: 42px;
+            min-height: 38px;
+            border-radius: var(--asc-radius-md);
         }
 
         .admit-seat-cards-page .csm-color-row {
@@ -132,9 +157,11 @@
 
         .admit-seat-cards-page .csm-typography-control {
             min-height: 38px;
-            border-radius: 12px;
-            border-color: #cbd5e1;
+            border-radius: var(--asc-radius-md);
+            border-color: var(--asc-border-strong);
             box-shadow: none;
+            background: #fff;
+            color: var(--asc-text);
         }
 
         .admit-seat-cards-page .csm-typography-control:focus {
@@ -148,8 +175,8 @@
             max-width: 54px !important;
             height: 38px !important;
             padding: 0.18rem !important;
-            border-radius: 12px;
-            border: 1px solid #cbd5e1;
+            border-radius: var(--asc-radius-md);
+            border: 1px solid var(--asc-border-strong);
             background: #ffffff;
             cursor: pointer;
             flex: 0 0 54px;
@@ -169,82 +196,94 @@
             height: 32px;
             flex: 0 0 32px;
             border: 1px solid #d1d5db;
-            border-radius: 12px;
+            border-radius: var(--asc-radius-md);
             box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
         }
 
         .admit-seat-cards-page .card-settings-modal-content {
-            border: 1px solid #dbe4ee;
+            border: 1px solid var(--asc-border);
             border-radius: 24px;
             overflow: hidden;
-            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 42%);
-            box-shadow: 0 30px 80px rgba(15, 23, 42, 0.18);
+            background: linear-gradient(180deg, #fbfdff 0%, #ffffff 42%);
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.14);
         }
 
         .admit-seat-cards-page .card-settings-modal-header {
-            padding: 1rem 1.2rem;
+            padding: 0.95rem 1.15rem;
             border-bottom: 1px solid #e2e8f0;
             background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
         }
 
         .admit-seat-cards-page .card-settings-modal-body {
-            padding: 1rem 1.2rem 1.2rem;
+            padding: 0.95rem 1.15rem 1.1rem;
             background: linear-gradient(180deg, #f8fafc 0%, #ffffff 18%);
         }
 
         .admit-seat-cards-page .card-settings-modal-footer {
-            padding: 1rem 1.2rem;
+            padding: 0.95rem 1.15rem;
             border-top: 1px solid #e2e8f0;
             background: #ffffff;
         }
-
-        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs {
+        
+        .admit-seat-tabs {
             display: flex;
+            flex-wrap: nowrap;
             gap: 0.35rem;
-            padding: 0.35rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.85);
+            padding: 0.32rem;
+            border: 1px solid var(--asc-border);
+            border-radius: 20px;
+            background: #ffffff;
+            box-shadow: var(--asc-shadow-sm);
             overflow-x: auto;
             overflow-y: hidden;
-        }
-
-        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs .nav-item {
-            margin-bottom: 0;
-        }
-
-        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs .nav-link {
-            border: 0;
-            border-radius: 12px;
-            padding: 0.68rem 0.95rem;
-            font-weight: 700;
-            color: #475569;
-            background: transparent;
             white-space: nowrap;
+        }
+
+        .admit-seat-tabs .nav-item {
+            margin-bottom: 0;
+            flex: 1 1 0;
+            min-width: 0;
+        }
+
+        .admit-seat-tabs .nav-link {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 0 !important;
+            border-radius: 999px;
+            padding: 0.46rem 0.82rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--asc-muted);
+            background: transparent !important;
+            white-space: nowrap;
+            text-align: center;
+            line-height: 1.1;
             transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
         }
 
-        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs .nav-link:hover {
-            color: #0f172a;
-            background: rgba(226, 232, 240, 0.6);
+        .admit-seat-tabs .nav-link:hover {
+            color: var(--asc-text);
+            background: rgba(226, 232, 240, 0.55);
         }
 
-        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs .nav-link.active {
-            color: #fff;
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+        .admit-seat-tabs .nav-link.active {
+            color: #fff !important;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18) !important;
         }
 
         .admit-seat-cards-page .admit-seat-cards-settings-panel > .tab-pane > .card {
-            border: 1px solid #e2e8f0;
-            border-radius: 18px;
+            border: 1px solid var(--asc-border);
+            border-radius: var(--asc-radius-xl);
             background: #ffffff;
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+            box-shadow: var(--asc-shadow-md);
             overflow: hidden;
         }
 
         .admit-seat-cards-page .admit-seat-cards-settings-panel > .tab-pane > .card > .card-header {
-            padding: 0.85rem 1rem;
+            padding: 0.9rem 1rem;
             border-bottom: 1px solid #e5e7eb;
             background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
         }
@@ -257,11 +296,11 @@
         .admit-seat-cards-page .card-settings-modal-content .custom-select,
         .admit-seat-cards-page .card-settings-modal-content select.form-control,
         .admit-seat-cards-page .card-settings-modal-content textarea.form-control {
-            min-height: 42px;
-            border-radius: 12px;
-            border: 1px solid #cbd5e1;
+            min-height: 38px;
+            border-radius: var(--asc-radius-md);
+            border: 1px solid var(--asc-border-strong);
             background-color: #fff;
-            color: #0f172a;
+            color: var(--asc-text);
             box-shadow: none;
             transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
         }
@@ -279,17 +318,17 @@
         }
 
         .admit-seat-cards-page .card-settings-modal-content .btn-group-toggle .btn {
-            border-radius: 12px;
-            border-color: #cbd5e1;
+            border-radius: var(--asc-radius-md);
+            border-color: var(--asc-border-strong);
             background: #fff;
-            color: #475569;
+            color: var(--asc-muted);
             font-weight: 700;
             box-shadow: none;
         }
 
         .admit-seat-cards-page .card-settings-modal-content .btn-group-toggle .btn.active {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            border-color: #1d4ed8;
+            background: linear-gradient(135deg, var(--asc-primary), var(--asc-primary-dark));
+            border-color: var(--asc-primary-dark);
             color: #fff;
             box-shadow: 0 10px 18px rgba(37, 99, 235, 0.18);
         }
@@ -581,7 +620,7 @@
                         <small class="text-muted d-block" id="cardSettingsModalTypeLabel">Switch between admit and seat card presets.</small>
                         <small class="text-muted d-block">Save a single layout profile for search, print, and PDF output.</small>
                     </div>
-                    <div class="btn-group btn-group-sm csm-type-switcher" role="group" aria-label="Card type selector">
+                    <div class="ml-auto btn-group btn-group-sm csm-type-switcher" role="group" aria-label="Card type selector">
                         <button type="button" class="btn btn-outline-primary js-card-type-switch {{ (old('card_type', $cardType ?? 'admit_card') === 'admit_card') ? 'active' : '' }}" data-card-type="admit_card" data-card-label="Admit Card Settings">Admit Card</button>
                         <button type="button" class="btn btn-outline-primary js-card-type-switch {{ (old('card_type', $cardType ?? 'admit_card') === 'seat_card') ? 'active' : '' }}" data-card-type="seat_card" data-card-label="Seat Card Settings">Seat Card</button>
                     </div>
@@ -610,7 +649,7 @@
                         $currentCardLogoUrl = $resolveLogoUrl($cardSettings?->card_logo ?? null) ?: $schoolLogoUrl;
                     @endphp
                     <div class="row align-items-stretch admit-seat-cards-modal-layout">
-                        <div class="col-12 col-lg-5 mb-3 admit-seat-cards-modal-preview">
+                        <div class="col-12 col-lg-4 mb-3 admit-seat-cards-modal-preview">
                             <div class="csm-preview-sticky">
                                 @include('pages.card-settings._live-preview', [
                                     'prefix' => 'admitSeat',
@@ -620,10 +659,15 @@
                                     'schoolName' => $setting?->name ?? 'School Name',
                                     'schoolDetailLine' => $setting?->address ?? '',
                                     'slogan' => $setting?->slogan ?? 'Stay Green, Be Bright',
-                                    'frontTitle' => $cardType === 'seat_card' ? 'SEAT CARD' : 'ADMIT CARD',
+                                    'cardLabel' => $cardType === 'seat_card' ? 'SEAT CARD' : 'ADMIT CARD',
                                     'backTitle' => 'BACK',
                                     'backNotice' => 'If found, please return to the school.',
-                                    'footerLine' => $setting?->whatsapp_number ?: ($setting?->contact_number_1 ?? '+880 1886-780641'),
+                                    'examTypeLabel' => $examType ? (strtolower($examType) === 'term' ? 'Terminal Exam' : 'Tutorial Exam') : null,
+                                    'examName' => $selectedExam?->name,
+                                    'footerLines' => array_values(array_filter([
+                                        $setting?->contact_number_1,
+                                        $setting?->whatsapp_number,
+                                    ])),
                                     'logoUrl' => $currentCardLogoUrl,
                                     'showSchoolDetailFront' => $cardSettings?->card_show_school_detail_front ?? true,
                                     'showSloganFront' => $cardSettings?->card_show_slogan_front ?? true,
@@ -653,8 +697,8 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-lg-7 admit-seat-cards-modal-settings">
-                            <ul class="nav nav-tabs csm-section-tabs mb-2" id="admitSeatSettingsTabs" role="tablist">
+                        <div class="col-12 col-lg-8 admit-seat-cards-modal-settings">
+                            <ul class="nav admit-seat-tabs csm-section-tabs mb-2" id="admitSeatSettingsTabs" role="tablist">
                                 <li class="nav-item">
                                     <a class="nav-link active" id="admitSeatLayoutTab" data-toggle="tab" href="#admitSeatLayoutPane" role="tab" aria-controls="admitSeatLayoutPane" aria-selected="true">Layout &amp; Grid</a>
                                 </li>
@@ -1890,27 +1934,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    $(document).on('click', '.js-card-preview-side', function () {
-        const target = $(this).data('preview-target');
-        const side = $(this).data('preview-side');
+    function setPreviewSide(target, side) {
+        const normalized = side === 'back' ? 'back' : 'front';
         const $preview = $(`#${target}LivePreview`);
         if (!$preview.length) return;
 
         $preview.find('.js-card-preview-side').removeClass('active btn-secondary').addClass('btn-outline-secondary');
-        $(this).addClass('active btn-secondary').removeClass('btn-outline-secondary');
+        $preview.find(`.js-card-preview-side[data-preview-side="${normalized}"]`).addClass('active btn-secondary').removeClass('btn-outline-secondary');
 
         const $front = $(`#${target}LivePreviewFront`);
         const $back = $(`#${target}LivePreviewBack`);
-        if (side === 'front') {
-            $front.show();
-            $back.hide();
-        } else if (side === 'back') {
-            $front.hide();
-            $back.show();
+        if (!$front.length || !$back.length) return;
+
+        if (normalized === 'back') {
+            $front.addClass('d-none');
+            $back.removeClass('d-none');
         } else {
-            $front.show();
-            $back.show();
+            $front.removeClass('d-none');
+            $back.addClass('d-none');
         }
+    }
+
+    $(document).on('click', '.js-card-preview-side', function () {
+        setPreviewSide($(this).data('preview-target'), $(this).data('preview-side'));
     });
 
     $(document).on('input change', '#admitSeatPhotoWidth, #admitSeatPhotoHeight, #admitSeatLogoSize, select[name="card_dimension_unit"]', refreshCardThemeControls);
