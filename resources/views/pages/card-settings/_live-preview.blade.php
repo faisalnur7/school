@@ -16,6 +16,11 @@
     $footerLine = $footerLine ?? 'Contact';
     $footerLines = $footerLines ?? (($footerLine ?? null) ? [$footerLine] : []);
     $cardLabel = $cardLabel ?? ($previewType === 'admit' ? 'ADMIT CARD' : 'SEAT CARD');
+    $cardType = $cardType ?? ($previewType === 'admit' ? 'admit_card' : 'id_card');
+    $isLibraryCard = $cardType === 'library_card';
+    $isAdmitOrSeatCard = in_array($cardType, ['admit_card', 'seat_card'], true);
+    $backSectionTitle = $isLibraryCard || $isAdmitOrSeatCard ? 'Student Details' : 'Parent / Guardian';
+    $backContactTitle = $isLibraryCard ? 'Library / School Contact' : ($isAdmitOrSeatCard ? 'School / Exam Contact' : 'School Contact');
     $examTypeLabel = $examTypeLabel ?? null;
     $examName = $examName ?? null;
     $logoUrl = $logoUrl ?? null;
@@ -54,6 +59,70 @@
     $previewBackPaddingValue = (float) 0.17;
     $previewGapValue = (float) 0.14;
     $isIdPreview = $previewType === 'id';
+    $fitTextSize = function ($value, float $base, float $min, int $threshold = 22, float $step = 0.08): float {
+        $values = is_array($value) ? $value : [$value];
+        $longest = 0;
+
+        foreach ($values as $item) {
+            $clean = trim(strip_tags((string) $item));
+            $longest = max($longest, mb_strlen($clean));
+        }
+
+        if ($longest <= $threshold) {
+            return $base;
+        }
+
+        $reduction = min(($longest - $threshold) * $step, $base - $min);
+
+        return round(max($min, $base - $reduction), 2);
+    };
+    $showBackStudentDetails = $showBackStudentDetails ?? true;
+    $showBackSchoolContact = $showBackSchoolContact ?? true;
+    $showBackQr = $showBackQr ?? true;
+    $showBackSignature = $showBackSignature ?? true;
+    $cardPhotoFit = in_array($cardPhotoFit ?? 'cover', ['cover', 'contain'], true) ? ($cardPhotoFit ?? 'cover') : 'cover';
+    $cardLogoFit = in_array($cardLogoFit ?? 'contain', ['cover', 'contain'], true) ? ($cardLogoFit ?? 'contain') : 'contain';
+    $studentName = $studentName ?? 'Student Name';
+    $studentCid = $studentCid ?? '0001';
+    $studentRoll = $studentRoll ?? '12';
+    $studentClass = $studentClass ?? 'One';
+    $studentSection = $studentSection ?? 'A';
+    $studentSession = $studentSession ?? '2025-2026';
+    $studentDob = $studentDob ?? '29 Jun 2010';
+    $studentFatherName = $studentFatherName ?? 'Mohammad Javed';
+    $studentMotherName = $studentMotherName ?? 'Hasina Khanom';
+    $studentContactLine = $studentContactLine ?? '01712 345678, 01871 567890';
+    $studentAddress = $studentAddress ?? 'CIP Tower, Hazari Dighi Par, Dohazari, Chandanaish, Chattogram';
+    $previewSchoolNameFontSize = $fitTextSize($schoolName, 7.2, 5.2, 20, 0.08);
+    $previewSchoolDetailFontSize = $fitTextSize($schoolDetailLine ?: $slogan, 5.4, 4.1, 30, 0.05);
+    $previewSloganFontSize = $fitTextSize($slogan, 4.8, 3.8, 26, 0.04);
+    $previewTitleFontSize = $fitTextSize($frontTitle, 4.7, 4.0, 14, 0.05);
+    $previewNameFontSize = $fitTextSize($studentName, 7.2, 5.4, 20, 0.08);
+    $previewBackTitleFontSize = $fitTextSize([$backSectionTitle, $backContactTitle], 4.7, 4.0, 18, 0.04);
+    $previewBackValues = $isLibraryCard || $isAdmitOrSeatCard
+        ? [
+            $studentName,
+            $studentCid,
+            $studentClass . ($studentSection ? ' / ' . $studentSection : ''),
+            $studentSection,
+            $studentRoll,
+            $studentSession,
+        ]
+        : [
+            $studentFatherName,
+            $studentMotherName,
+            $studentContactLine,
+            $studentAddress,
+        ];
+
+    $previewBackValues = array_merge($previewBackValues, [
+        $schoolDetailLine,
+        implode(', ', array_filter([$schoolContactLine1, $schoolContactLine2])),
+        $schoolWhatsapp,
+        $schoolEmail,
+        $schoolWebsite,
+    ]);
+    $previewBackValueFontSize = $fitTextSize($previewBackValues, 5.4, 3.6, 26, 0.05);
     $focusFor = function (string $key) use ($focusTargets) {
         return $focusTargets[$key] ?? null;
     };
@@ -92,11 +161,13 @@
         --id-card-student-detail-text-align:left;
         --id-card-back-notice-color:#94a3b8;
         --id-card-footer-color:#e5e7eb;
-        --id-card-school-name-font-size:7.2pt;
-        --id-card-school-detail-font-size:5.4pt;
-        --id-card-slogan-font-size:4.8pt;
-        --id-card-title-font-size:4.7pt;
-        --id-card-name-font-size:7.2pt;
+        --id-card-school-name-font-size:{{ $previewSchoolNameFontSize }}pt;
+        --id-card-school-detail-font-size:{{ $previewSchoolDetailFontSize }}pt;
+        --id-card-slogan-font-size:{{ $previewSloganFontSize }}pt;
+        --id-card-title-font-size:{{ $previewTitleFontSize }}pt;
+        --id-card-back-title-font-size:{{ $previewBackTitleFontSize }}pt;
+        --id-card-back-value-font-size:{{ $previewBackValueFontSize }}pt;
+        --id-card-name-font-size:{{ $previewNameFontSize }}pt;
         --id-card-width:{{ $previewCardWidthCss }};
         --id-card-height:{{ $previewCardHeightCss }};
         --id-card-gap:{{ $previewGapValue }}{{ $previewCardUnit }};
@@ -104,7 +175,9 @@
         --id-card-back-padding:{{ $previewBackPaddingValue }}{{ $previewCardUnit }};
         --id-card-photo-width:{{ $previewPhotoWidthValue }}{{ $previewCardUnit }};
         --id-card-photo-height:{{ $previewPhotoHeightValue }}{{ $previewCardUnit }};
+        --id-card-photo-fit:{{ $cardPhotoFit }};
         --id-card-logo-size:{{ $previewLogoSizeValue }}{{ $previewCardUnit }};
+        --id-card-logo-fit:{{ $cardLogoFit }};
         --admit-card-theme-bg: linear-gradient(135deg, #1e3a5f, #2563eb);
         --admit-card-theme-accent: #1e3a5f;
         --admit-card-school-name-color:#ffffff;
@@ -122,6 +195,7 @@
         --admit-card-front-padding:0.8mm;
         --admit-card-photo-width:20mm;
         --admit-card-photo-height:30mm;
+        --admit-card-photo-fit:{{ $cardPhotoFit }};
         --admit-card-logo-size:8mm;
         --admit-card-school-name-font-size:7.2pt;
         --admit-card-school-detail-font-size:5.4pt;
@@ -264,8 +338,58 @@
                                 </div>
 
                                 <div class="id-card__back-body">
-                                    <div class="id-card__back-section">
-                                        <div class="id-card__back-title card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">School Contact</div>
+                                    @if($showBackStudentDetails)
+                                    <div class="id-card__back-section id-card__back-section--student-details">
+                                        <div class="id-card__back-title card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">{{ $backSectionTitle }}</div>
+                                        @if($isLibraryCard || $isAdmitOrSeatCard)
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('name') }}">
+                                                <span class="id-card__lbl">Name</span>
+                                                <span class="id-card__val">{{ $studentName }}</span>
+                                            </div>
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('name') }}">
+                                                <span class="id-card__lbl">ID</span>
+                                                <span class="id-card__val">{{ $studentCid }}</span>
+                                            </div>
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">
+                                                <span class="id-card__lbl">Class</span>
+                                                <span class="id-card__val">{{ $studentClass }}@if($studentSection) / {{ $studentSection }}@endif</span>
+                                            </div>
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">
+                                                <span class="id-card__lbl">Section</span>
+                                                <span class="id-card__val">{{ $studentSection }}</span>
+                                            </div>
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">
+                                                <span class="id-card__lbl">Roll</span>
+                                                <span class="id-card__val">{{ $studentRoll }}</span>
+                                            </div>
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">
+                                                <span class="id-card__lbl">Session</span>
+                                                <span class="id-card__val">{{ $studentSession }}</span>
+                                            </div>
+                                        @else
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('name') }}">
+                                                <span class="id-card__lbl">Father</span>
+                                                <span class="id-card__val">{{ $studentFatherName }}</span>
+                                            </div>
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('name') }}">
+                                                <span class="id-card__lbl">Mother</span>
+                                                <span class="id-card__val">{{ $studentMotherName }}</span>
+                                            </div>
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('footer') }}">
+                                                <span class="id-card__lbl">Contact</span>
+                                                <span class="id-card__val">{{ $studentContactLine }}</span>
+                                            </div>
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">
+                                                <span class="id-card__lbl">Address</span>
+                                                <span class="id-card__val">{{ $studentAddress }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    @endif
+
+                                    @if($showBackSchoolContact)
+                                    <div class="id-card__back-section id-card__back-section--school-contact">
+                                        <div class="id-card__back-title card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">{{ $backContactTitle }}</div>
                                         @if($showSchoolDetailBack && $schoolDetailLine)
                                             <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">
                                                 <span class="id-card__lbl">Address</span>
@@ -297,8 +421,9 @@
                                             </div>
                                         @endif
                                     </div>
+                                    @endif
 
-                                    @if($schoolQrUrl)
+                                    @if($showBackQr && $schoolQrUrl)
                                         <div style="display:flex;justify-content:center;">
                                             <img src="{{ $schoolQrUrl }}" class="id-card__qr" alt="WhatsApp QR">
                                         </div>
@@ -308,11 +433,13 @@
                                         <div class="id-card__back-notice card-preview-clickable" data-preview-focus-target="{{ $focusFor('back_notice') }}">{{ $backNotice }}</div>
                                     @endif
 
-                                    <div class="id-card__signature{{ $principalSignatureUrl ? ' id-card__signature--image' : '' }} card-preview-clickable" data-preview-focus-target="{{ $focusFor('principal_signature') }}">
-                                        <img id="{{ $prefix }}LivePreviewSignatureBack" src="{{ $principalSignatureUrl ?? '' }}" alt="Principal signature preview" class="id-card__signature-image {{ $principalSignatureUrl ? '' : 'd-none' }}">
-                                        <div class="id-card__signature-line"></div>
-                                        <div class="id-card__signature-label">{{ $principalLabel }}</div>
-                                    </div>
+                                    @if($showBackSignature)
+                                        <div class="id-card__signature{{ $principalSignatureUrl ? ' id-card__signature--image' : '' }} card-preview-clickable" data-preview-focus-target="{{ $focusFor('principal_signature') }}">
+                                            <img id="{{ $prefix }}LivePreviewSignatureBack" src="{{ $principalSignatureUrl ?? '' }}" alt="Principal signature preview" class="id-card__signature-image {{ $principalSignatureUrl ? '' : 'd-none' }}">
+                                            <div class="id-card__signature-line"></div>
+                                            <div class="id-card__signature-label">{{ $principalLabel }}</div>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 @if($showFooterBack)

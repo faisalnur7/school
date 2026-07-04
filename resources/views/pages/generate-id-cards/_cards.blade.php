@@ -72,8 +72,39 @@
         return $renderForPdf ? public_path($path) : asset($path);
     };
 
+    $fitTextSize = function ($value, float $base, float $min, int $threshold = 22, float $step = 0.08): float {
+        $values = is_array($value) ? $value : [$value];
+        $longest = 0;
+
+        foreach ($values as $item) {
+            $clean = trim(strip_tags((string) $item));
+            $longest = max($longest, mb_strlen($clean));
+        }
+
+        if ($longest <= $threshold) {
+            return $base;
+        }
+
+        $reduction = min(($longest - $threshold) * $step, $base - $min);
+
+        return round(max($min, $base - $reduction), 2);
+    };
+
     $principalLabel = $setting?->principal_designation ?: 'Principal';
     $showPrincipalSignature = in_array($cardType, ['id_card', 'library_card'], true);
+    $showBackStudentDetails = $cardSettings?->card_show_back_student_details ?? true;
+    $showBackSchoolContact = $cardSettings?->card_show_back_school_contact ?? true;
+    $showBackQr = $cardSettings?->card_show_back_qr ?? true;
+    $showBackSignature = $cardSettings?->card_show_back_signature ?? true;
+    $photoFit = in_array($cardSettings?->card_photo_fit ?? 'cover', ['cover', 'contain'], true) ? ($cardSettings?->card_photo_fit ?? 'cover') : 'cover';
+    $logoFit = in_array($cardSettings?->card_logo_fit ?? 'contain', ['cover', 'contain'], true) ? ($cardSettings?->card_logo_fit ?? 'contain') : 'contain';
+    $frontSchoolNameFontSize = $fitTextSize($setting?->name ?? 'School Name', (float) $cardSchoolNameFontSize, 5.2, 20, 0.08);
+    $frontSchoolDetailFontSize = $fitTextSize($setting?->address ?? ($setting?->slogan ?? ''), (float) $cardSchoolDetailFontSize, 4.1, 30, 0.05);
+    $frontSloganFontSize = $fitTextSize($setting?->slogan ?? '', (float) $cardSloganFontSize, 3.8, 26, 0.04);
+    $frontTitleFontSize = $fitTextSize($frontTitle, (float) $cardTitleFontSize, 4.0, 14, 0.05);
+    $backTitleFontSize = $fitTextSize([$backSectionTitle, $backBadge], (float) $cardTitleFontSize, 4.0, 18, 0.04);
+    $frontNameFontSize = (float) $cardNameFontSize;
+    $backValueFontSize = (float) $cardSchoolDetailFontSize;
     $logoPath = $resolveImagePath($cardSettings?->card_logo ?? null)
         ?? $resolveImagePath($setting?->logo ?? null);
     $principalSignaturePath = $resolveImagePath($cardSettings?->card_principal_signature ?? null);
@@ -83,7 +114,7 @@
     }
 @endphp
 
-<div class="id-card-pages" style="--id-card-width: {{ $cardWidthCm }}cm; --id-card-height: {{ $cardHeightCm }}cm; --id-card-gap: {{ $gapCm }}cm; --card-theme-bg: {{ $cardThemeBackground }}; --card-theme-accent: {{ $cardThemeAccent }}; --id-card-school-name-color: {{ $cardSchoolNameColor }}; --id-card-school-detail-color: {{ $cardSchoolDetailColor }}; --id-card-slogan-color: {{ $cardSloganColor }}; --id-card-back-notice-color: {{ $cardBackNoticeColor }}; --id-card-footer-color: {{ $cardFooterColor }}; --id-card-title-color: {{ $cardTitleColor }}; --id-card-student-detail-align: {{ $cardStudentDetailAlignCss }}; --id-card-student-detail-text-align: {{ $cardStudentDetailAlignment }}; --id-card-front-align: {{ $cardFrontAlignment }}; --id-card-back-align: {{ $cardBackAlignment }}; --id-card-front-padding: {{ $cardFrontPadding }}cm; --id-card-back-padding: {{ $cardBackPadding }}cm; --id-card-photo-width: {{ $cardPhotoWidth }}cm; --id-card-photo-height: {{ $cardPhotoHeight }}cm; --id-card-logo-size: {{ $cardLogoSize }}cm; --id-card-school-name-font-size: {{ $cardSchoolNameFontSize }}pt; --id-card-school-detail-font-size: {{ $cardSchoolDetailFontSize }}pt; --id-card-slogan-font-size: {{ $cardSloganFontSize }}pt; --id-card-title-font-size: {{ $cardTitleFontSize }}pt; --id-card-name-font-size: {{ $cardNameFontSize }}pt;">
+<div class="id-card-pages" style="--id-card-width: {{ $cardWidthCm }}cm; --id-card-height: {{ $cardHeightCm }}cm; --id-card-gap: {{ $gapCm }}cm; --card-theme-bg: {{ $cardThemeBackground }}; --card-theme-accent: {{ $cardThemeAccent }}; --id-card-school-name-color: {{ $cardSchoolNameColor }}; --id-card-school-detail-color: {{ $cardSchoolDetailColor }}; --id-card-slogan-color: {{ $cardSloganColor }}; --id-card-back-notice-color: {{ $cardBackNoticeColor }}; --id-card-footer-color: {{ $cardFooterColor }}; --id-card-title-color: {{ $cardTitleColor }}; --id-card-student-detail-align: {{ $cardStudentDetailAlignCss }}; --id-card-student-detail-text-align: {{ $cardStudentDetailAlignment }}; --id-card-front-align: {{ $cardFrontAlignment }}; --id-card-back-align: {{ $cardBackAlignment }}; --id-card-front-padding: {{ $cardFrontPadding }}cm; --id-card-back-padding: {{ $cardBackPadding }}cm; --id-card-photo-width: {{ $cardPhotoWidth }}cm; --id-card-photo-height: {{ $cardPhotoHeight }}cm; --id-card-photo-fit: {{ $photoFit }}; --id-card-logo-size: {{ $cardLogoSize }}cm; --id-card-logo-fit: {{ $logoFit }}; --id-card-school-name-font-size: {{ $frontSchoolNameFontSize }}pt; --id-card-school-detail-font-size: {{ $frontSchoolDetailFontSize }}pt; --id-card-slogan-font-size: {{ $frontSloganFontSize }}pt; --id-card-title-font-size: {{ $frontTitleFontSize }}pt; --id-card-back-title-font-size: {{ $backTitleFontSize }}pt; --id-card-back-value-font-size: {{ $backValueFontSize }}pt; --id-card-name-font-size: {{ $frontNameFontSize }}pt;">
     @foreach($studentPages as $pageIndex => $pageStudents)
         <div class="id-card-page" style="grid-template-columns: repeat({{ $cardsPerRow }}, max-content); gap: {{ $gapCm }}cm {{ $gapCm }}cm;">
             @foreach($pageStudents as $student)
@@ -100,9 +131,41 @@
                     } else {
                         $photoPath = $renderForPdf ? public_path($placeholder) : asset($placeholder);
                     }
+
+                    $frontNameFontSize = $fitTextSize($student->full_name_en ?? 'Student Name', (float) $cardNameFontSize, 5.4, 20, 0.08);
+                    $frontSchoolNameFontSize = $fitTextSize($setting?->name ?? 'School Name', (float) $cardSchoolNameFontSize, 5.2, 20, 0.08);
+                    $frontSchoolDetailFontSize = $fitTextSize($setting?->address ?? ($setting?->slogan ?? ''), (float) $cardSchoolDetailFontSize, 4.1, 30, 0.05);
+                    $frontSloganFontSize = $fitTextSize($setting?->slogan ?? '', (float) $cardSloganFontSize, 3.8, 26, 0.04);
+                    $frontTitleFontSize = $fitTextSize($frontTitle, (float) $cardTitleFontSize, 4.0, 14, 0.05);
+                    $backTitleFontSize = $fitTextSize([$backSectionTitle, $backBadge], (float) $cardTitleFontSize, 4.0, 18, 0.04);
+
+                    $backValues = [];
+                    if ($showBackStudentDetails) {
+                        $backValues = array_merge($backValues, [
+                            $student->full_name_en ?? '',
+                            $student->student_cid ?? '',
+                            $ai?->schoolClass?->name_en ?? '',
+                            $ai?->section?->name_en ?? '',
+                            $ai?->roll ?? '',
+                            $ai?->academicSession?->name_en ?? '',
+                            $student->present_address ?? '',
+                        ]);
+                    }
+
+                    if ($showBackSchoolContact) {
+                        $backValues = array_merge($backValues, [
+                            $setting?->address ?? '',
+                            implode(', ', array_filter([$setting?->contact_number_1, $setting?->contact_number_2])),
+                            $setting?->whatsapp_number ?? '',
+                            $setting?->email ?? '',
+                            $setting?->website ?? '',
+                        ]);
+                    }
+
+                    $backValueFontSize = $fitTextSize($backValues, (float) $cardSchoolDetailFontSize, 3.6, 26, 0.05);
                 @endphp
 
-                <div class="id-card-pair" style="gap: {{ $gapCm }}cm;">
+                <div class="id-card-pair" style="gap: {{ $gapCm }}cm; --id-card-school-name-font-size: {{ $frontSchoolNameFontSize }}pt; --id-card-school-detail-font-size: {{ $frontSchoolDetailFontSize }}pt; --id-card-slogan-font-size: {{ $frontSloganFontSize }}pt; --id-card-title-font-size: {{ $frontTitleFontSize }}pt; --id-card-back-title-font-size: {{ $backTitleFontSize }}pt; --id-card-back-value-font-size: {{ $backValueFontSize }}pt; --id-card-name-font-size: {{ $frontNameFontSize }}pt;">
                     <div class="id-card" style="width: {{ $cardWidthCm }}cm; height: {{ $cardHeightCm }}cm;">
                         <div class="id-card__header id-card__header--front">
                             @if(($cardSettings?->card_show_logo_front ?? true) && $logoPath)
@@ -201,7 +264,8 @@
                         </div>
 
                         <div class="id-card__back-body">
-                            <div class="id-card__back-section">
+                            @if($showBackStudentDetails)
+                            <div class="id-card__back-section id-card__back-section--student-details">
                                 <div class="id-card__back-title">{{ $backSectionTitle }}</div>
                                 @if($isLibraryCard || $isAdmitOrSeatCard)
                                     <div class="id-card__back-row">
@@ -265,8 +329,10 @@
                                     @endif
                                 @endif
                             </div>
+                            @endif
 
-                            <div class="id-card__back-section">
+                            @if($showBackSchoolContact)
+                            <div class="id-card__back-section id-card__back-section--school-contact">
                                 <div class="id-card__back-title">{{ $isLibraryCard ? 'Library / School Contact' : ($isAdmitOrSeatCard ? 'School / Exam Contact' : 'School Contact') }}</div>
                                 @if($setting?->address)
                                     <div class="id-card__back-row">
@@ -299,8 +365,9 @@
                                     </div>
                                 @endif
                             </div>
+                            @endif
 
-                            @if($setting?->whatsapp_qr && file_exists(public_path($setting->whatsapp_qr)))
+                            @if($showBackQr && $setting?->whatsapp_qr && file_exists(public_path($setting->whatsapp_qr)))
                                 <div style="display:flex;justify-content:center;">
                                     <img src="{{ $renderForPdf ? public_path($setting->whatsapp_qr) : asset($setting->whatsapp_qr) }}" class="id-card__qr" alt="WhatsApp QR">
                                 </div>
@@ -310,7 +377,7 @@
                                 <div class="id-card__back-notice">If found, please return to the school.</div>
                             @endif
 
-                            @if($showPrincipalSignature)
+                            @if($showBackSignature && $showPrincipalSignature)
                                 <div class="id-card__signature{{ $principalSignaturePath ? ' id-card__signature--image' : '' }}">
                                     @if($principalSignaturePath)
                                         <img src="{{ $principalSignaturePath }}" alt="Principal signature" class="id-card__signature-image">

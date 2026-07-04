@@ -182,7 +182,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const idCardLivePreviewTitleBack = document.getElementById('idCardLivePreviewTitleBack');
     const cardPhotoWidth = document.getElementById('cardPhotoWidth');
     const cardPhotoHeight = document.getElementById('cardPhotoHeight');
+    const cardPhotoFit = document.getElementById('cardPhotoFit');
     const cardLogoSize = document.getElementById('cardLogoSize');
+    const cardLogoFit = document.getElementById('cardLogoFit');
     const cardFrontPadding = document.getElementById('cardFrontPadding');
     const cardBackPadding = document.getElementById('cardBackPadding');
     const cardGridGap = settingsForm?.elements.namedItem('grid_gap_value');
@@ -208,7 +210,9 @@ document.addEventListener('DOMContentLoaded', function () {
         card_back_padding_value: 0.8,
         card_photo_width_value: 1.8,
         card_photo_height_value: 2.7,
+        card_photo_fit: 'cover',
         card_logo_size_value: 0.8,
+        card_logo_fit: 'contain',
         card_school_name_font_size: 7.2,
         card_school_detail_font_size: 5.4,
         card_slogan_font_size: 4.8,
@@ -236,6 +240,10 @@ document.addEventListener('DOMContentLoaded', function () {
         card_show_photo_front: true,
         card_show_footer_front: true,
         card_show_footer_back: true,
+        card_show_back_student_details: true,
+        card_show_back_school_contact: true,
+        card_show_back_qr: true,
+        card_show_back_signature: true,
         card_show_back_notice: true,
     };
     const fallbackSchoolLogo = @json($schoolLogoUrl);
@@ -333,6 +341,16 @@ document.addEventListener('DOMContentLoaded', function () {
         return settingsForm?.querySelector('input[name="card_color_type"]:checked')?.value || 'gradient';
     }
 
+    function setPreviewElementVisible(selector, isVisible) {
+        if (!idCardLivePreview) {
+            return;
+        }
+
+        idCardLivePreview.querySelectorAll(selector).forEach((element) => {
+            element.classList.toggle('d-none', !isVisible);
+        });
+    }
+
     function applyCardSettings(cardType) {
         if (!settingsForm) return;
 
@@ -342,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function () {
         previewLogoUrl = null;
         previewPrincipalSignatureUrl = null;
 
-        ['cards_per_page', 'cards_per_row', 'card_width_value', 'card_height_value', 'grid_gap_value', 'card_dimension_unit', 'card_front_alignment', 'card_back_alignment', 'card_front_padding_value', 'card_back_padding_value', 'card_photo_width_value', 'card_photo_height_value', 'card_logo_size_value', 'card_school_name_font_size', 'card_school_detail_font_size', 'card_slogan_font_size', 'card_title_font_size', 'card_name_font_size', 'card_student_detail_alignment', 'card_is_transparent', 'card_color_type', 'card_color_gradient_1', 'card_color_gradient_2', 'card_solid_color', 'card_school_name_text_color', 'card_school_detail_text_color', 'card_slogan_text_color', 'card_name_text_color', 'card_back_notice_text_color', 'card_footer_text_color', 'card_title_text_color', 'card_show_school_detail_front', 'card_show_school_detail_back', 'card_show_slogan_front', 'card_show_slogan_back', 'card_show_title_front', 'card_show_title_back', 'card_show_logo_front', 'card_show_logo_back', 'card_show_photo_front', 'card_show_footer_front', 'card_show_footer_back', 'card_show_back_notice'].forEach((field) => {
+        ['cards_per_page', 'cards_per_row', 'card_width_value', 'card_height_value', 'grid_gap_value', 'card_dimension_unit', 'card_front_alignment', 'card_back_alignment', 'card_front_padding_value', 'card_back_padding_value', 'card_photo_width_value', 'card_photo_height_value', 'card_photo_fit', 'card_logo_size_value', 'card_logo_fit', 'card_school_name_font_size', 'card_school_detail_font_size', 'card_slogan_font_size', 'card_title_font_size', 'card_name_font_size', 'card_student_detail_alignment', 'card_is_transparent', 'card_color_type', 'card_color_gradient_1', 'card_color_gradient_2', 'card_solid_color', 'card_school_name_text_color', 'card_school_detail_text_color', 'card_slogan_text_color', 'card_name_text_color', 'card_back_notice_text_color', 'card_footer_text_color', 'card_title_text_color', 'card_show_school_detail_front', 'card_show_school_detail_back', 'card_show_slogan_front', 'card_show_slogan_back', 'card_show_title_front', 'card_show_title_back', 'card_show_logo_front', 'card_show_logo_back', 'card_show_photo_front', 'card_show_footer_front', 'card_show_footer_back', 'card_show_back_student_details', 'card_show_back_school_contact', 'card_show_back_qr', 'card_show_back_signature', 'card_show_back_notice'].forEach((field) => {
             const input = settingsForm.elements.namedItem(field);
             const value = field === 'card_is_transparent'
                 ? ((settings[field] ?? defaultThemeSettings[field]) ? '1' : '0')
@@ -510,7 +528,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const cardHeightValue = parseFloat(cardHeight?.value || '8.4') || 8.4;
             const widthValue = parseFloat(cardPhotoWidth?.value || '1.8') || 1.8;
             const heightValue = parseFloat(cardPhotoHeight?.value || '2.7') || 2.7;
+            const photoFitValue = cardPhotoFit?.value || 'cover';
             const logoSizeValue = parseFloat(cardLogoSize?.value || '0.8') || 0.8;
+            const logoFitValue = cardLogoFit?.value || 'contain';
             const frontPaddingValue = parseFloat(cardFrontPadding?.value || '0.8') || 0.8;
             const backPaddingValue = parseFloat(cardBackPadding?.value || '0.8') || 0.8;
             const gapValue = parseFloat(cardGridGap?.value || '0.5') || 0.5;
@@ -536,24 +556,45 @@ document.addEventListener('DOMContentLoaded', function () {
             idCardLivePreview.style.setProperty('--id-card-back-padding', `${backPaddingValue}${unitSuffix}`);
             idCardLivePreview.style.setProperty('--id-card-photo-width', `${widthValue}${unitSuffix}`);
             idCardLivePreview.style.setProperty('--id-card-photo-height', `${heightValue}${unitSuffix}`);
+            idCardLivePreview.style.setProperty('--id-card-photo-fit', photoFitValue);
             idCardLivePreview.style.setProperty('--id-card-logo-size', `${logoSizeValue}${unitSuffix}`);
+            idCardLivePreview.style.setProperty('--id-card-logo-fit', logoFitValue);
             idCardLivePreview.style.setProperty('--id-card-school-name-font-size', `${schoolNameFontSizeValue}pt`);
             idCardLivePreview.style.setProperty('--id-card-school-detail-font-size', `${schoolDetailFontSizeValue}pt`);
             idCardLivePreview.style.setProperty('--id-card-slogan-font-size', `${sloganFontSizeValue}pt`);
             idCardLivePreview.style.setProperty('--id-card-title-font-size', `${titleFontSizeValue}pt`);
             idCardLivePreview.style.setProperty('--id-card-name-font-size', `${nameFontSizeValue}pt`);
+            idCardLivePreview.style.setProperty('--id-card-back-title-font-size', `${titleFontSizeValue}pt`);
+            idCardLivePreview.style.setProperty('--id-card-back-value-font-size', `${Math.max(3.6, schoolDetailFontSizeValue * 0.9)}pt`);
+
+            setPreviewElementVisible('.id-card__header--front .id-card__logo', !!(settingsForm.elements.namedItem('card_show_logo_front')?.checked ?? true));
+            setPreviewElementVisible('.id-card__header--back .id-card__logo', !!(settingsForm.elements.namedItem('card_show_logo_back')?.checked ?? true));
+            setPreviewElementVisible('.id-card__header--front .id-card__slogan', !!(settingsForm.elements.namedItem('card_show_slogan_front')?.checked ?? true));
+            setPreviewElementVisible('.id-card__header--back .id-card__slogan', !!(settingsForm.elements.namedItem('card_show_slogan_back')?.checked ?? true));
+            setPreviewElementVisible('.id-card__header--front .id-card__label-badge', !!(settingsForm.elements.namedItem('card_show_title_front')?.checked ?? true));
+            setPreviewElementVisible('.id-card__header--back .id-card__label-badge', !!(settingsForm.elements.namedItem('card_show_title_back')?.checked ?? true));
+            setPreviewElementVisible('.id-card__photo', !!(settingsForm.elements.namedItem('card_show_photo_front')?.checked ?? true));
+            setPreviewElementVisible('.id-card__footer--front', !!(settingsForm.elements.namedItem('card_show_footer_front')?.checked ?? true));
+            setPreviewElementVisible('.id-card__back-section--student-details', !!(settingsForm.elements.namedItem('card_show_back_student_details')?.checked ?? true));
+            setPreviewElementVisible('.id-card__back-section--school-contact', !!(settingsForm.elements.namedItem('card_show_back_school_contact')?.checked ?? true));
+            setPreviewElementVisible('.id-card__qr', !!(settingsForm.elements.namedItem('card_show_back_qr')?.checked ?? true));
+            setPreviewElementVisible('.id-card__back-notice', !!(settingsForm.elements.namedItem('card_show_back_notice')?.checked ?? true));
+            setPreviewElementVisible('.id-card__signature', !!(settingsForm.elements.namedItem('card_show_back_signature')?.checked ?? true));
+            setPreviewElementVisible('.id-card__footer--back', !!(settingsForm.elements.namedItem('card_show_footer_back')?.checked ?? true));
         }
 
         if (idCardLivePreviewLogoFront) {
             const logoUrl = previewLogoUrl || activeCardSettings.card_logo_url || fallbackSchoolLogo || '';
             idCardLivePreviewLogoFront.src = logoUrl;
             idCardLivePreviewLogoFront.classList.toggle('d-none', !logoUrl);
+            idCardLivePreviewLogoFront.style.objectFit = cardLogoFit?.value || 'contain';
         }
 
         if (idCardLivePreviewLogoBack) {
             const logoUrl = previewLogoUrl || activeCardSettings.card_logo_url || fallbackSchoolLogo || '';
             idCardLivePreviewLogoBack.src = logoUrl;
             idCardLivePreviewLogoBack.classList.toggle('d-none', !logoUrl);
+            idCardLivePreviewLogoBack.style.objectFit = cardLogoFit?.value || 'contain';
         }
 
         if (idCardLivePreviewSignatureBack) {
@@ -1322,6 +1363,93 @@ html[data-theme='dark'] .id-card-filter-shell .btn-success {
 
     .id-card-filter-actions-row {
         justify-content: flex-start;
+    }
+
+    .id-card-settings-modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100vw - 1rem);
+    }
+
+    .id-card-settings-modal-content {
+        border-radius: 14px;
+    }
+
+    .id-card-settings-modal-header {
+        padding: 0.75rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.55rem;
+    }
+
+    .id-card-settings-modal-header > div:first-child {
+        flex-basis: 100%;
+    }
+
+    .id-card-settings-type-switcher {
+        width: 100%;
+        display: flex;
+    }
+
+    .id-card-settings-type-switcher .btn {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 0.45rem 0.6rem;
+    }
+
+    .id-card-settings-modal-close {
+        align-self: flex-end;
+        margin-top: -0.1rem;
+    }
+
+    .id-card-settings-modal-body {
+        padding: 0.75rem;
+    }
+
+    .id-card-settings-modal-body .form-control,
+    .id-card-settings-modal-body .custom-select,
+    .id-card-settings-modal-body .custom-file-input,
+    .id-card-settings-modal-body .custom-file-label {
+        min-height: 38px;
+        font-size: 0.9rem;
+    }
+
+    .id-card-settings-modal-content .csm-section-tabs {
+        gap: 0.25rem;
+        padding: 0.2rem;
+        border-radius: 14px;
+    }
+
+    .id-card-settings-modal-content .csm-section-tabs .nav-link {
+        padding: 0.38rem 0.55rem;
+        font-size: 0.78rem;
+    }
+
+    .id-card-settings-modal-content .admit-seat-cards-settings-panel > .tab-pane > .card > .card-header {
+        padding: 0.78rem 0.85rem;
+    }
+
+    .id-card-settings-modal-content .admit-seat-cards-settings-panel > .tab-pane > .card > .card-body {
+        padding: 0.85rem;
+    }
+
+    .id-card-settings-field,
+    .id-card-upload-box,
+    .id-card-upload-preview {
+        padding: 0.7rem;
+        border-radius: 14px;
+    }
+
+    .id-card-settings-help {
+        padding: 0.75rem 0.85rem;
+        font-size: 0.84rem;
+    }
+
+    .csm-preview-sticky {
+        position: static;
+    }
+
+    .admit-seat-cards-modal-preview {
+        margin-bottom: 0.75rem;
     }
 }
 

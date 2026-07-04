@@ -211,7 +211,7 @@
 .admit-card__photo {
     width: var(--admit-card-photo-width, 20mm);
     height: var(--admit-card-photo-height, 30mm);
-    object-fit: cover;
+    object-fit: var(--admit-card-photo-fit, cover);
     border: 0.35mm solid #111111;
     border-radius: 1.4mm;
     {{-- filter: grayscale(1); --}}
