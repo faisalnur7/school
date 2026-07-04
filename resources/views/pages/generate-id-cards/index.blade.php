@@ -341,6 +341,23 @@ document.addEventListener('DOMContentLoaded', function () {
         return settingsForm?.querySelector('input[name="card_color_type"]:checked')?.value || 'gradient';
     }
 
+    function normalizeBooleanSetting(value, fallback = false) {
+        if (value === undefined || value === null || value === '') {
+            return fallback;
+        }
+
+        if (typeof value === 'boolean') {
+            return value;
+        }
+
+        if (typeof value === 'number') {
+            return value === 1;
+        }
+
+        const normalized = String(value).trim().toLowerCase();
+        return ['1', 'true', 'yes', 'on'].includes(normalized);
+    }
+
     function setPreviewElementVisible(selector, isVisible) {
         if (!idCardLivePreview) {
             return;
@@ -362,9 +379,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         ['cards_per_page', 'cards_per_row', 'card_width_value', 'card_height_value', 'grid_gap_value', 'card_dimension_unit', 'card_front_alignment', 'card_back_alignment', 'card_front_padding_value', 'card_back_padding_value', 'card_photo_width_value', 'card_photo_height_value', 'card_photo_fit', 'card_logo_size_value', 'card_logo_fit', 'card_school_name_font_size', 'card_school_detail_font_size', 'card_slogan_font_size', 'card_title_font_size', 'card_name_font_size', 'card_student_detail_alignment', 'card_is_transparent', 'card_color_type', 'card_color_gradient_1', 'card_color_gradient_2', 'card_solid_color', 'card_school_name_text_color', 'card_school_detail_text_color', 'card_slogan_text_color', 'card_name_text_color', 'card_back_notice_text_color', 'card_footer_text_color', 'card_title_text_color', 'card_show_school_detail_front', 'card_show_school_detail_back', 'card_show_slogan_front', 'card_show_slogan_back', 'card_show_title_front', 'card_show_title_back', 'card_show_logo_front', 'card_show_logo_back', 'card_show_photo_front', 'card_show_footer_front', 'card_show_footer_back', 'card_show_back_student_details', 'card_show_back_school_contact', 'card_show_back_qr', 'card_show_back_signature', 'card_show_back_notice'].forEach((field) => {
             const input = settingsForm.elements.namedItem(field);
+            const rawValue = settings[field] ?? defaultThemeSettings[field];
             const value = field === 'card_is_transparent'
-                ? ((settings[field] ?? defaultThemeSettings[field]) ? '1' : '0')
-                : (settings[field] ?? defaultThemeSettings[field]);
+                ? (normalizeBooleanSetting(rawValue, defaultThemeSettings[field]) ? '1' : '0')
+                : rawValue;
             if (field === 'card_color_type') {
                 settingsForm.querySelectorAll('input[name="card_color_type"]').forEach((radio) => {
                     radio.checked = radio.value === value;
@@ -374,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (input && value !== undefined && value !== null) {
                 if (input.type === 'checkbox') {
-                    input.checked = !!value && value !== '0' && value !== 'false';
+                    input.checked = normalizeBooleanSetting(value);
                 } else {
                     input.value = value;
                 }
