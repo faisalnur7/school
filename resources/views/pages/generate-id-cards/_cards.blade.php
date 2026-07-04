@@ -72,8 +72,11 @@
         return $renderForPdf ? public_path($path) : asset($path);
     };
 
+    $principalLabel = $setting?->principal_designation ?: 'Principal';
+    $showPrincipalSignature = in_array($cardType, ['id_card', 'library_card'], true);
     $logoPath = $resolveImagePath($cardSettings?->card_logo ?? null)
         ?? $resolveImagePath($setting?->logo ?? null);
+    $principalSignaturePath = $resolveImagePath($cardSettings?->card_principal_signature ?? null);
 
     if (!$logoPath) {
         $logoPath = null;
@@ -305,6 +308,16 @@
 
                             @if($cardSettings?->card_show_back_notice ?? true)
                                 <div class="id-card__back-notice">If found, please return to the school.</div>
+                            @endif
+
+                            @if($showPrincipalSignature)
+                                <div class="id-card__signature{{ $principalSignaturePath ? ' id-card__signature--image' : '' }}">
+                                    @if($principalSignaturePath)
+                                        <img src="{{ $principalSignaturePath }}" alt="Principal signature" class="id-card__signature-image">
+                                    @endif
+                                    <div class="id-card__signature-line"></div>
+                                    <div class="id-card__signature-label">{{ $principalLabel }}</div>
+                                </div>
                             @endif
                         </div>
 

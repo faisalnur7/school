@@ -52,7 +52,6 @@
     $cardExamNameFontSize = $cardSettings?->card_exam_name_font_size ?? 6.8;
     $cardStudentDetailFontSize = $cardSettings?->card_student_detail_font_size ?? 8.5;
     $cardStudentDetailColor = $cardSettings?->card_student_detail_text_color ?? '#111827';
-    $principalLabel = $setting?->principal_designation ?: 'Principal';
 
     $resolveImagePath = function (?string $path) use ($renderForPdf) {
         if (!$path || !file_exists(public_path($path))) {
@@ -61,6 +60,9 @@
 
         return $renderForPdf ? public_path($path) : asset($path);
     };
+
+    $principalLabel = $setting?->principal_designation ?: 'Principal';
+    $principalSignaturePath = $resolveImagePath($cardSettings?->card_principal_signature ?? null);
 
     $logoPath = $resolveImagePath($cardSettings?->card_logo ?? null)
         ?? $resolveImagePath($setting?->logo ?? null);
@@ -114,6 +116,7 @@
                     'photoPath' => $photoPath,
                     'photoAlt' => $student->full_name_en,
                     'principalLabel' => $principalLabel,
+                    'principalSignaturePath' => $principalSignaturePath,
                     'showLogoFront' => $cardSettings?->card_show_logo_front ?? true,
                     'showSchoolDetailFront' => $cardSettings?->card_show_school_detail_front ?? true,
                     'showSloganFront' => $cardSettings?->card_show_slogan_front ?? true,

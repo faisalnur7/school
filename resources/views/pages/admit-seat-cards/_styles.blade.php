@@ -110,7 +110,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 2.2mm;
+    gap: 0;
     width: 100%;
 }
 
@@ -146,7 +146,7 @@
 }
 
 .admit-card__exam {
-    margin-top: 1mm;
+    margin-top: 0;
 }
 
 .admit-card__exam-label {
@@ -200,10 +200,10 @@
     min-width: var(--admit-card-photo-width, 20mm);
     display: flex;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: start;
     justify-self: end;
     flex-direction: column;
-    gap: 1.5mm;
+    gap: 0;
     position: relative;
     z-index: 2;
 }
@@ -214,7 +214,7 @@
     object-fit: cover;
     border: 0.35mm solid #111111;
     border-radius: 1.4mm;
-    filter: grayscale(1);
+    {{-- filter: grayscale(1); --}}
     box-shadow: 0 0.3mm 1mm rgba(15, 23, 42, 0.12);
 }
 
@@ -266,24 +266,46 @@
 }
 
 .admit-card__signature {
+    position: absolute;
     grid-column: 1 / -1;
     justify-self: center;
     width: min(100%, 44mm);
+    min-height: 12mm;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.8mm;
-    margin-top: 1mm;
+    margin-top: 0;
     padding-top: 0;
     z-index: 1;
+    bottom: 0;
 }
 
 .admit-card__signature-line {
     width: 100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 4.8mm;
     border-top: 0.35mm solid #525252;
 }
 
+.admit-card__signature-image {
+    position: absolute;
+    left: 50%;
+    bottom: 4mm;
+    transform: translateX(-50%);
+    width: 100%;
+    max-height: 8mm;
+    object-fit: contain;
+    display: block;
+    z-index: 2;
+}
+
 .admit-card__signature-label {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
     font-size: 5.2pt;
     font-weight: 700;
     color: #3f3f46;

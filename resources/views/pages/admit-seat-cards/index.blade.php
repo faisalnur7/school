@@ -647,6 +647,7 @@
                         };
                         $schoolLogoUrl = $resolveLogoUrl($setting?->logo ?? null);
                         $currentCardLogoUrl = $resolveLogoUrl($cardSettings?->card_logo ?? null) ?: $schoolLogoUrl;
+                        $currentCardPrincipalSignatureUrl = $resolveLogoUrl($cardSettings?->card_principal_signature ?? null);
                     @endphp
                     <div class="row align-items-stretch admit-seat-cards-modal-layout">
                         <div class="col-12 col-lg-4 mb-3 admit-seat-cards-modal-preview">
@@ -669,6 +670,7 @@
                                         $setting?->whatsapp_number,
                                     ])),
                                     'logoUrl' => $currentCardLogoUrl,
+                                    'principalSignatureUrl' => $currentCardPrincipalSignatureUrl,
                                     'showSchoolDetailFront' => $cardSettings?->card_show_school_detail_front ?? true,
                                     'showSloganFront' => $cardSettings?->card_show_slogan_front ?? true,
                                     'showTitleFront' => $cardSettings?->card_show_title_front ?? true,
@@ -692,6 +694,7 @@
                                         'exam_type' => 'admitSeatExamTypeColor',
                                         'exam_name' => 'admitSeatExamNameColor',
                                         'footer' => 'admitSeatExamNameColor',
+                                        'principal_signature' => 'admitSeatPrincipalSignatureInput',
                                     ],
                                 ])
                             </div>
@@ -847,9 +850,9 @@
                                                 <hr class="my-2">
 
                                             <div class="row align-items-end">
-                                                    <div class="col-12 col-md-9 mb-2">
-                                                        <div class="form-group mb-0">
-                                                            <label class="d-block mb-1 small font-weight-bold text-dark">Card Logo</label>
+                                                <div class="col-12 col-md-9 mb-2">
+                                                    <div class="form-group mb-0">
+                                                        <label class="d-block mb-1 small font-weight-bold text-dark">Card Logo</label>
                                                             <div
                                                                 id="admitSeatCardLogoDropzone"
                                                                 class="dropzone rounded border bg-white p-2"
@@ -863,6 +866,26 @@
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-9 mb-2">
+                                                    <div class="form-group mb-0">
+                                                        <label class="d-block mb-1 small font-weight-bold text-dark">Principal Signature</label>
+                                                        <input
+                                                            type="file"
+                                                            name="card_principal_signature"
+                                                            id="admitSeatPrincipalSignatureInput"
+                                                            class="form-control form-control-sm"
+                                                            accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+                                                        >
+                                                        <small class="text-muted d-block mt-2">Upload PNG, JPG, or JPEG for the principal signature image.</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-3 mb-2">
+                                                    <div class="id-card-upload-preview text-center">
+                                                        <label class="d-block mb-2 small font-weight-bold text-dark">Signature Preview</label>
+                                                        <img id="admitSeatPrincipalSignaturePreview" src="{{ $currentCardPrincipalSignatureUrl ?? '' }}" alt="Principal signature preview" class="img-fluid {{ $currentCardPrincipalSignatureUrl ? '' : 'd-none' }}" style="max-height: 96px; object-fit: contain;">
+                                                        <div class="small text-muted {{ $currentCardPrincipalSignatureUrl ? 'd-none' : '' }}">No principal signature uploaded.</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1223,6 +1246,7 @@
                 'card_show_exam_name_front' => $setting->card_show_exam_name_front,
                 'card_show_back_notice' => $setting->card_show_back_notice,
                 'card_logo_url' => ($setting->card_logo && file_exists(public_path($setting->card_logo))) ? asset($setting->card_logo) : null,
+                'card_principal_signature_url' => ($setting->card_principal_signature && file_exists(public_path($setting->card_principal_signature))) ? asset($setting->card_principal_signature) : null,
             ],
         ];
     })->toArray();
@@ -1291,8 +1315,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const admitSeatShowExamNameFront = document.getElementById('admitSeatShowExamNameFront');
     const admitSeatCardLogoDropzone = document.getElementById('admitSeatCardLogoDropzone');
     const admitSeatCardLogoInput = document.getElementById('admitSeatCardLogoInput');
+    const admitSeatCardPrincipalSignatureInput = document.getElementById('admitSeatPrincipalSignatureInput');
+    const admitSeatCardPrincipalSignaturePreview = document.getElementById('admitSeatPrincipalSignaturePreview');
     const admitSeatLivePreview = document.getElementById('admitSeatLivePreview');
     const admitSeatLivePreviewLogoFront = document.getElementById('admitSeatLivePreviewLogoFront');
+    const admitSeatLivePreviewSignatureFront = document.getElementById('admitSeatLivePreviewSignatureFront');
     const admitSeatCardWidth = cardSettingsForm?.elements.namedItem('card_width_value');
     const admitSeatCardHeight = cardSettingsForm?.elements.namedItem('card_height_value');
     const admitSeatCardDimensionUnit = cardSettingsForm?.elements.namedItem('card_dimension_unit');
@@ -1307,7 +1334,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const fallbackSchoolLogo = @json($schoolLogoUrl);
     let activeCardSettings = {};
     let previewLogoUrl = null;
+    let previewPrincipalSignatureUrl = null;
     let admitSeatCardLogoDropzoneInstance = null;
+    const initialCardPrincipalSignaturePreviewSrc = admitSeatCardPrincipalSignaturePreview?.getAttribute('src') || '';
     const defaultThemeSettings = {
         card_is_transparent: false,
         card_color_type: 'gradient',
@@ -1618,6 +1647,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const settings = cardSettingsMap[key] || cardSettingsMap['1'] || {};
         activeCardSettings = settings;
         previewLogoUrl = null;
+        previewPrincipalSignatureUrl = null;
 
         const fields = [
             'cards_per_page',
@@ -1706,6 +1736,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         syncCardTypeSwitcher(normalizedCardType);
         resetLogoDropzonePreview();
+        if (admitSeatCardPrincipalSignatureInput) {
+            admitSeatCardPrincipalSignatureInput.value = '';
+        }
         setDirtyState(false);
 
         refreshCardThemeControls();
@@ -1866,6 +1899,18 @@ document.addEventListener('DOMContentLoaded', function () {
             admitSeatLivePreviewLogoFront.src = logoUrl;
             admitSeatLivePreviewLogoFront.classList.toggle('d-none', !logoUrl);
         }
+
+        if (admitSeatCardPrincipalSignaturePreview) {
+            const signatureUrl = previewPrincipalSignatureUrl || activeCardSettings.card_principal_signature_url || initialCardPrincipalSignaturePreviewSrc || '';
+            admitSeatCardPrincipalSignaturePreview.src = signatureUrl;
+            admitSeatCardPrincipalSignaturePreview.classList.toggle('d-none', !signatureUrl);
+        }
+
+        if (admitSeatLivePreviewSignatureFront) {
+            const signatureUrl = previewPrincipalSignatureUrl || activeCardSettings.card_principal_signature_url || initialCardPrincipalSignaturePreviewSrc || '';
+            admitSeatLivePreviewSignatureFront.src = signatureUrl;
+            admitSeatLivePreviewSignatureFront.classList.toggle('d-none', !signatureUrl);
+        }
     }
 
     function loadSections(classId, selectedSectionId = null) {
@@ -1984,6 +2029,37 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     initializeLogoDropzone();
+
+    if (admitSeatCardPrincipalSignatureInput && admitSeatCardPrincipalSignaturePreview) {
+        admitSeatCardPrincipalSignatureInput.addEventListener('change', function () {
+            const file = this.files && this.files[0];
+            if (!file) {
+                previewPrincipalSignatureUrl = null;
+                const signatureUrl = activeCardSettings.card_principal_signature_url || initialCardPrincipalSignaturePreviewSrc || '';
+                admitSeatCardPrincipalSignaturePreview.src = signatureUrl;
+                admitSeatCardPrincipalSignaturePreview.classList.toggle('d-none', !signatureUrl);
+                if (admitSeatLivePreviewSignatureFront) {
+                    admitSeatLivePreviewSignatureFront.src = signatureUrl;
+                    admitSeatLivePreviewSignatureFront.classList.toggle('d-none', !signatureUrl);
+                }
+                refreshCardThemeControls();
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                previewPrincipalSignatureUrl = event.target.result;
+                admitSeatCardPrincipalSignaturePreview.src = event.target.result;
+                admitSeatCardPrincipalSignaturePreview.classList.remove('d-none');
+                if (admitSeatLivePreviewSignatureFront) {
+                    admitSeatLivePreviewSignatureFront.src = event.target.result;
+                    admitSeatLivePreviewSignatureFront.classList.remove('d-none');
+                }
+                refreshCardThemeControls();
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     if (classSelect && classSelect.value) {
         loadSections(classSelect.value, selectedSection);
