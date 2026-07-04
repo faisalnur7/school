@@ -82,7 +82,7 @@
 .id-card__logo {
     width: var(--id-card-logo-size, 0.8cm);
     height: var(--id-card-logo-size, 0.8cm);
-    object-fit: contain;
+    object-fit: var(--id-card-logo-fit, contain);
 }
 
 .id-card__school-name {
@@ -128,7 +128,7 @@
 .id-card__photo {
     width: var(--id-card-photo-width, 1.8cm);
     height: var(--id-card-photo-height, 2.7cm);
-    object-fit: cover;
+    object-fit: var(--id-card-photo-fit, cover);
     border-radius: 0.18cm;
     border: 0.03cm solid #e2e8f0;
     box-shadow: 0 0.06cm 0.18cm rgba(15, 23, 42, 0.12);
@@ -237,7 +237,7 @@
 }
 
 .id-card__back-title {
-    font-size: var(--id-card-title-font-size, 4.9pt);
+    font-size: var(--id-card-back-title-font-size, var(--id-card-title-font-size, 4.9pt));
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -252,7 +252,7 @@
 }
 
 .id-card__back-row .id-card__val {
-    font-size: var(--id-card-school-detail-font-size, 4.25pt);
+    font-size: var(--id-card-back-value-font-size, var(--id-card-school-detail-font-size, 4.25pt));
 }
 
 .id-card__back-notice {

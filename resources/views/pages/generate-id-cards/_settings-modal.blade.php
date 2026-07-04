@@ -15,6 +15,8 @@
     $schoolLogoUrl = $resolveLogoUrl($setting?->logo ?? null);
     $currentCardLogoUrl = $resolveLogoUrl($cardSettings?->card_logo ?? null) ?: $schoolLogoUrl;
     $currentCardPrincipalSignatureUrl = $resolveLogoUrl($cardSettings?->card_principal_signature ?? null);
+    $currentCardPhotoFit = old('card_photo_fit', $cardSettings?->card_photo_fit ?? 'cover');
+    $currentCardLogoFit = old('card_logo_fit', $cardSettings?->card_logo_fit ?? 'contain');
     $previewLabel = $isLibraryCard ? 'Library Card Preview' : 'ID Card Preview';
     $frontTitle = $isLibraryCard ? 'LIBRARY CARD' : 'STUDENT ID';
     $cardTypeLabel = $isLibraryCard ? 'Library Card Settings' : 'ID Card Settings';
@@ -30,6 +32,10 @@
         ['name' => 'card_show_title_back', 'id' => 'idCardShowTitleBack', 'label' => 'Back Title'],
         ['name' => 'card_show_footer_front', 'id' => 'idCardShowFooterFront', 'label' => 'Front Footer'],
         ['name' => 'card_show_footer_back', 'id' => 'idCardShowFooterBack', 'label' => 'Back Footer'],
+        ['name' => 'card_show_back_student_details', 'id' => 'idCardShowBackStudentDetails', 'label' => 'Back Student Details'],
+        ['name' => 'card_show_back_school_contact', 'id' => 'idCardShowBackSchoolContact', 'label' => 'Back School Contact'],
+        ['name' => 'card_show_back_qr', 'id' => 'idCardShowBackQr', 'label' => 'Back QR'],
+        ['name' => 'card_show_back_signature', 'id' => 'idCardShowBackSignature', 'label' => 'Back Signature'],
         ['name' => 'card_show_back_notice', 'id' => 'idCardShowBackNotice', 'label' => 'Back Notice'],
     ];
 @endphp
@@ -65,11 +71,12 @@
                     <input type="hidden" name="card_show_exam_name_front" value="{{ old('card_show_exam_name_front', $cardSettings?->card_show_exam_name_front ?? true) ? 1 : 0 }}">
 
                     <div class="row align-items-stretch admit-seat-cards-modal-layout">
-                        <div class="col-12 col-lg-5 mb-3 admit-seat-cards-modal-preview">
+                        <div class="col-12 col-lg-3 mb-3 admit-seat-cards-modal-preview">
                             <div class="csm-preview-sticky">
                                 @include('pages.card-settings._live-preview', [
                                     'prefix' => 'idCard',
                                     'previewType' => 'id',
+                                    'cardType' => $selectedCardType,
                                     'showBack' => true,
                                     'previewLabel' => $previewLabel,
                                     'schoolName' => $setting?->name ?? 'School Name',
@@ -80,6 +87,8 @@
                                     'backNotice' => 'If found, please return to the school.',
                                     'footerLine' => $setting?->whatsapp_number ?? $setting?->contact_number_1 ?? 'Contact',
                                     'logoUrl' => $currentCardLogoUrl,
+                                    'cardPhotoFit' => $currentCardPhotoFit,
+                                    'cardLogoFit' => $currentCardLogoFit,
                                     'principalSignatureUrl' => $currentCardPrincipalSignatureUrl,
                                     'schoolContactLine1' => $setting?->contact_number_1 ?? null,
                                     'schoolContactLine2' => $setting?->contact_number_2 ?? null,
@@ -97,6 +106,10 @@
                                     'showLogoBack' => $cardSettings?->card_show_logo_back ?? true,
                                     'showPhotoFront' => $cardSettings?->card_show_photo_front ?? true,
                                     'showBackNotice' => $cardSettings?->card_show_back_notice ?? true,
+                                    'showBackStudentDetails' => $cardSettings?->card_show_back_student_details ?? true,
+                                    'showBackSchoolContact' => $cardSettings?->card_show_back_school_contact ?? true,
+                                    'showBackQr' => $cardSettings?->card_show_back_qr ?? true,
+                                    'showBackSignature' => $cardSettings?->card_show_back_signature ?? true,
                                     'showFooterFront' => $cardSettings?->card_show_footer_front ?? true,
                                     'showFooterBack' => $cardSettings?->card_show_footer_back ?? true,
                                     'previewCardWidthValue' => $cardSettings?->card_width_value ?? 5.4,
@@ -116,12 +129,14 @@
                                         'footer' => 'cardFooterColor',
                                         'photo' => 'cardPhotoWidth',
                                         'principal_signature' => 'cardPrincipalSignatureInput',
+                                        'photo_fit' => 'cardPhotoFit',
+                                        'logo_fit' => 'cardLogoFit',
                                     ],
                                 ])
                             </div>
                         </div>
 
-                        <div class="col-12 col-lg-7 admit-seat-cards-modal-settings">
+                        <div class="col-12 col-lg-9 admit-seat-cards-modal-settings">
                             <ul class="nav nav-tabs csm-section-tabs mb-2" id="idCardSettingsTabs" role="tablist">
                                 <li class="nav-item">
                                     <a class="nav-link active" id="idCardLayoutTab" data-toggle="tab" href="#idCardLayoutPane" role="tab" aria-controls="idCardLayoutPane" aria-selected="true">Layout &amp; Grid</a>
@@ -147,7 +162,7 @@
                                             <div class="d-flex align-items-center">
                                                 <span class="badge badge-primary mr-2"><i class="fas fa-vector-square"></i></span>
                                                 <div>
-                                                    <h6 class="mb-0 font-weight-bold">Layout &amp; Grid</h6>
+                                                        <h6 class="mb-0 font-weight-bold" style="font-size:12px;">Layout &amp; Grid</h6>
                                                     <small class="text-muted d-block">Tune the card grid, spacing, and page alignment.</small>
                                                 </div>
                                             </div>
@@ -284,6 +299,24 @@
                                                         <label class="id-card-settings-label d-block mb-2">Signature Preview</label>
                                                         <img id="cardPrincipalSignaturePreview" src="{{ $currentCardPrincipalSignatureUrl ?? '' }}" alt="Principal signature preview" class="img-fluid {{ $currentCardPrincipalSignatureUrl ? '' : 'd-none' }}" style="max-height: 96px; object-fit: contain;">
                                                         <div class="small text-muted {{ $currentCardPrincipalSignatureUrl ? 'd-none' : '' }}">No principal signature uploaded.</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-4 mb-2">
+                                                    <div class="id-card-settings-field">
+                                                        <label class="id-card-settings-label" for="cardPhotoFit">Photo Fit</label>
+                                                        <select name="card_photo_fit" id="cardPhotoFit" class="form-control form-control-sm id-card-settings-control csm-select">
+                                                            <option value="cover" {{ $currentCardPhotoFit === 'cover' ? 'selected' : '' }}>Cover</option>
+                                                            <option value="contain" {{ $currentCardPhotoFit === 'contain' ? 'selected' : '' }}>Contain</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-4 mb-2">
+                                                    <div class="id-card-settings-field">
+                                                        <label class="id-card-settings-label" for="cardLogoFit">Logo Fit</label>
+                                                        <select name="card_logo_fit" id="cardLogoFit" class="form-control form-control-sm id-card-settings-control csm-select">
+                                                            <option value="contain" {{ $currentCardLogoFit === 'contain' ? 'selected' : '' }}>Contain</option>
+                                                            <option value="cover" {{ $currentCardLogoFit === 'cover' ? 'selected' : '' }}>Cover</option>
+                                                        </select>
                                                     </div>
                                                 </div>
                                             </div>
