@@ -198,41 +198,53 @@
             background: #ffffff;
         }
 
-        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs {
+        .admit-seat-cards-page .admit-seat-cards-modal-settings .admit-seat-tabs {
             display: flex;
+            flex-wrap: nowrap;
             gap: 0.35rem;
-            padding: 0.35rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.85);
+            padding: 0.28rem;
+            border: 1px solid #dbe4ee;
+            border-radius: 18px;
+            background: #ffffff;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
             overflow-x: auto;
             overflow-y: hidden;
+            white-space: nowrap;
         }
 
-        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs .nav-item {
+        .admit-seat-cards-page .admit-seat-cards-modal-settings .admit-seat-tabs .nav-item {
             margin-bottom: 0;
+            flex: 1 1 0;
+            min-width: 0;
         }
 
-        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs .nav-link {
-            border: 0;
-            border-radius: 12px;
-            padding: 0.68rem 0.95rem;
+        .admit-seat-cards-page .admit-seat-cards-modal-settings .admit-seat-tabs .nav-link {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 0 !important;
+            border-radius: 999px;
+            padding: 0.42rem 0.78rem;
+            font-size: 0.82rem;
             font-weight: 700;
             color: #475569;
-            background: transparent;
+            background: transparent !important;
             white-space: nowrap;
+            text-align: center;
+            line-height: 1.1;
             transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
         }
 
-        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs .nav-link:hover {
+        .admit-seat-cards-page .admit-seat-cards-modal-settings .admit-seat-tabs .nav-link:hover {
             color: #0f172a;
-            background: rgba(226, 232, 240, 0.6);
+            background: rgba(226, 232, 240, 0.55);
         }
 
-        .admit-seat-cards-page .admit-seat-cards-modal-settings .csm-section-tabs .nav-link.active {
+        .admit-seat-cards-page .admit-seat-cards-modal-settings .admit-seat-tabs .nav-link.active {
             color: #fff;
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+            background: #2563eb !important;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
         }
 
         .admit-seat-cards-page .admit-seat-cards-settings-panel > .tab-pane > .card {
@@ -620,10 +632,15 @@
                                     'schoolName' => $setting?->name ?? 'School Name',
                                     'schoolDetailLine' => $setting?->address ?? '',
                                     'slogan' => $setting?->slogan ?? 'Stay Green, Be Bright',
-                                    'frontTitle' => $cardType === 'seat_card' ? 'SEAT CARD' : 'ADMIT CARD',
+                                    'cardLabel' => $cardType === 'seat_card' ? 'SEAT CARD' : 'ADMIT CARD',
                                     'backTitle' => 'BACK',
                                     'backNotice' => 'If found, please return to the school.',
-                                    'footerLine' => $setting?->whatsapp_number ?: ($setting?->contact_number_1 ?? '+880 1886-780641'),
+                                    'examTypeLabel' => $examType ? (strtolower($examType) === 'term' ? 'Terminal Exam' : 'Tutorial Exam') : null,
+                                    'examName' => $selectedExam?->name,
+                                    'footerLines' => array_values(array_filter([
+                                        $setting?->contact_number_1,
+                                        $setting?->whatsapp_number,
+                                    ])),
                                     'logoUrl' => $currentCardLogoUrl,
                                     'showSchoolDetailFront' => $cardSettings?->card_show_school_detail_front ?? true,
                                     'showSloganFront' => $cardSettings?->card_show_slogan_front ?? true,
@@ -654,7 +671,7 @@
                         </div>
 
                         <div class="col-12 col-lg-7 admit-seat-cards-modal-settings">
-                            <ul class="nav nav-tabs csm-section-tabs mb-2" id="admitSeatSettingsTabs" role="tablist">
+                            <ul class="nav admit-seat-tabs csm-section-tabs mb-2" id="admitSeatSettingsTabs" role="tablist">
                                 <li class="nav-item">
                                     <a class="nav-link active" id="admitSeatLayoutTab" data-toggle="tab" href="#admitSeatLayoutPane" role="tab" aria-controls="admitSeatLayoutPane" aria-selected="true">Layout &amp; Grid</a>
                                 </li>
@@ -1890,27 +1907,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    $(document).on('click', '.js-card-preview-side', function () {
-        const target = $(this).data('preview-target');
-        const side = $(this).data('preview-side');
+    function setPreviewSide(target, side) {
+        const normalized = side === 'back' ? 'back' : 'front';
         const $preview = $(`#${target}LivePreview`);
         if (!$preview.length) return;
 
         $preview.find('.js-card-preview-side').removeClass('active btn-secondary').addClass('btn-outline-secondary');
-        $(this).addClass('active btn-secondary').removeClass('btn-outline-secondary');
+        $preview.find(`.js-card-preview-side[data-preview-side="${normalized}"]`).addClass('active btn-secondary').removeClass('btn-outline-secondary');
 
         const $front = $(`#${target}LivePreviewFront`);
         const $back = $(`#${target}LivePreviewBack`);
-        if (side === 'front') {
-            $front.show();
-            $back.hide();
-        } else if (side === 'back') {
-            $front.hide();
-            $back.show();
+        if (!$front.length || !$back.length) return;
+
+        if (normalized === 'back') {
+            $front.addClass('d-none');
+            $back.removeClass('d-none');
         } else {
-            $front.show();
-            $back.show();
+            $front.removeClass('d-none');
+            $back.addClass('d-none');
         }
+    }
+
+    $(document).on('click', '.js-card-preview-side', function () {
+        setPreviewSide($(this).data('preview-target'), $(this).data('preview-side'));
     });
 
     $(document).on('input change', '#admitSeatPhotoWidth, #admitSeatPhotoHeight, #admitSeatLogoSize, select[name="card_dimension_unit"]', refreshCardThemeControls);

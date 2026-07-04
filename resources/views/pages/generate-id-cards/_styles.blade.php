@@ -58,7 +58,7 @@
     padding: var(--id-card-front-padding, 0.22cm);
     display: flex;
     align-items: center;
-    gap: 0.18cm;
+    gap: 0.1cm;
 }
 
 .id-card__header--front {
@@ -66,7 +66,7 @@
     flex-direction: column;
     text-align: var(--id-card-front-align, center);
     justify-content: center;
-    min-height: 1.9cm;
+    min-height: 2cm;
     align-items: center;
 }
 
@@ -143,7 +143,7 @@
     text-align: center;
     font-size: var(--id-card-name-font-size, 7.2pt);
     font-weight: 800;
-    color: var(--card-theme-accent, #1e3a5f);
+    color: var(--id-card-name-color, var(--card-theme-accent, #1e3a5f));
     line-height: 1.15;
     word-break: break-word;
 }
@@ -168,6 +168,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.06cm;
+    align-items: var(--id-card-student-detail-align, flex-start);
+    text-align: var(--id-card-student-detail-text-align, left);
 }
 
 .id-card__row,
@@ -230,6 +232,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.07cm;
+    align-items: var(--id-card-student-detail-align, flex-start);
+    text-align: var(--id-card-student-detail-text-align, left);
 }
 
 .id-card__back-title {

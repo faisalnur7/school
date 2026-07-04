@@ -93,89 +93,40 @@
                     }
                 @endphp
 
-                <div class="admit-card" style="width: {{ $cardWidthMm }}mm; height: {{ $cardHeightMm }}mm;">
-                    @if($logoPath)
-                        <div class="admit-card__watermark">
-                            <img src="{{ $logoPath }}" alt="" class="admit-card__watermark-logo">
-                        </div>
-                    @endif
-                    <div class="admit-card__header">
-                        <div class="admit-card__brand">
-                            @if(($cardSettings?->card_show_logo_front ?? true) && $logoPath)
-                                <img src="{{ $logoPath }}" alt="Logo" class="admit-card__logo" style="width: {{ $cardLogoSize }}cm; height: {{ $cardLogoSize }}cm;">
-                            @endif
-                            <div class="admit-card__brand-text">
-                                <div class="admit-card__school">{{ $setting?->name ?? 'School Name' }}</div>
-                                @if(($cardSettings?->card_show_school_detail_front ?? true) && $schoolAddress)
-                                    <div class="admit-card__address">{{ $schoolAddress }}</div>
-                                @endif
-                                @if(($cardSettings?->card_show_slogan_front ?? true) && $setting?->slogan)
-                                    <div class="admit-card__slogan">{{ $setting->slogan }}</div>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="admit-card__exam">
-                            @if($cardSettings?->card_show_title_front ?? true)
-                                <div class="admit-card__exam-label">{{ $cardLabel }}</div>
-                            @endif
-                            @if(($cardSettings?->card_show_exam_type_front ?? true) && $examTypeLabel)
-                                <div class="admit-card__exam-type">{{ $examTypeLabel }}</div>
-                            @endif
-                            @if(($cardSettings?->card_show_exam_name_front ?? true) && $examName)
-                                <div class="admit-card__exam-name">{{ $examName }}</div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="admit-card__body">
-                        <div class="admit-card__info">
-                            <div class="admit-card__name">{{ $student->full_name_en }}</div>
-
-                            <div class="admit-card__rows">
-                                <div class="admit-card__row">
-                                    <span class="admit-card__lbl">ID</span>
-                                    <span class="admit-card__val">{{ $student->student_cid }}</span>
-                                </div>
-                                @if($ai?->roll)
-                                    <div class="admit-card__row">
-                                        <span class="admit-card__lbl">Roll</span>
-                                        <span class="admit-card__val">{{ $ai->roll }}</span>
-                                    </div>
-                                @endif
-                                <div class="admit-card__row">
-                                    <span class="admit-card__lbl">Class</span>
-                                    <span class="admit-card__val">{{ $ai?->schoolClass?->name_en ?? '—' }}</span>
-                                </div>
-                                <div class="admit-card__row">
-                                    <span class="admit-card__lbl">Section</span>
-                                    <span class="admit-card__val">{{ $ai?->section?->name_en ?? '—' }}</span>
-                                </div>
-                                <div class="admit-card__row">
-                                    <span class="admit-card__lbl">Session</span>
-                                    <span class="admit-card__val">{{ $ai?->academicSession?->name_en ?? '—' }}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="admit-card__photo-wrap">
-                            <img src="{{ $photoPath }}" class="admit-card__photo" alt="{{ $student->full_name_en }}">
-                        </div>
-
-                        <div class="admit-card__signature">
-                            <div class="admit-card__signature-line"></div>
-                            <div class="admit-card__signature-label">{{ $principalLabel }}</div>
-                        </div>
-                    </div>
-
-                    <div class="admit-card__footer">
-                        @if(($cardSettings?->card_show_footer_front ?? true) && $setting?->contact_number_1)
-                            <span>{{ $setting->contact_number_1 }}</span>
-                        @endif
-                        @if(($cardSettings?->card_show_footer_front ?? true) && $setting?->whatsapp_number)
-                            <span>{{ $setting->whatsapp_number }}</span>
-                        @endif
-                    </div>
-                </div>
+                @include('pages.admit-seat-cards._card', [
+                    'cardWidthMm' => $cardWidthMm,
+                    'cardHeightMm' => $cardHeightMm,
+                    'cardWidthStyle' => $cardWidthMm . 'mm',
+                    'cardHeightStyle' => $cardHeightMm . 'mm',
+                    'cardLabel' => $cardLabel,
+                    'schoolName' => $setting?->name ?? 'School Name',
+                    'schoolAddress' => $schoolAddress,
+                    'slogan' => $setting?->slogan,
+                    'examTypeLabel' => $examTypeLabel,
+                    'examName' => $examName,
+                    'studentName' => $student->full_name_en,
+                    'studentCid' => $student->student_cid,
+                    'studentRoll' => $ai?->roll,
+                    'studentClass' => $ai?->schoolClass?->name_en ?? '—',
+                    'studentSection' => $ai?->section?->name_en ?? '—',
+                    'studentSession' => $ai?->academicSession?->name_en ?? '—',
+                    'logoPath' => $logoPath,
+                    'photoPath' => $photoPath,
+                    'photoAlt' => $student->full_name_en,
+                    'principalLabel' => $principalLabel,
+                    'showLogoFront' => $cardSettings?->card_show_logo_front ?? true,
+                    'showSchoolDetailFront' => $cardSettings?->card_show_school_detail_front ?? true,
+                    'showSloganFront' => $cardSettings?->card_show_slogan_front ?? true,
+                    'showTitleFront' => $cardSettings?->card_show_title_front ?? true,
+                    'showPhotoFront' => $cardSettings?->card_show_photo_front ?? true,
+                    'showExamTypeFront' => $cardSettings?->card_show_exam_type_front ?? true,
+                    'showExamNameFront' => $cardSettings?->card_show_exam_name_front ?? true,
+                    'showFooterFront' => $cardSettings?->card_show_footer_front ?? true,
+                    'footerLines' => array_values(array_filter([
+                        $setting?->contact_number_1,
+                        $setting?->whatsapp_number,
+                    ])),
+                ])
             @endforeach
         </div>
     @endforeach
