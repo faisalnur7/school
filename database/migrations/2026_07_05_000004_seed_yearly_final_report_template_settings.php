@@ -11,10 +11,10 @@ return new class extends Migration
 
         $payload = [
             'paper_orientation' => 'landscape',
-            'margin_top_mm' => 8,
-            'margin_right_mm' => 8,
-            'margin_bottom_mm' => 8,
-            'margin_left_mm' => 8,
+            'margin_top_mm' => 0.8,
+            'margin_right_mm' => 0.8,
+            'margin_bottom_mm' => 0.8,
+            'margin_left_mm' => 0.8,
             'show_watermark' => true,
             'watermark_opacity' => 0.14,
             'watermark_scale' => 96,

@@ -27,83 +27,81 @@
                 <h4 class="card-title mb-0 font-weight-bold text-white">
                     <i class="fas fa-file-alt mr-2"></i>Yearly Final Report
                 </h4>
-                <a href="{{ route('results.hub') }}" class="btn btn-light btn-sm">
-                    <i class="fas fa-arrow-left mr-1"></i>Back to Hub
-                </a>
-                <a href="{{ route('result.yearly-final-report.template-settings.edit') }}" class="btn btn-outline-light btn-sm">
-                    <i class="fas fa-sliders-h mr-1"></i>Template Settings
-                </a>
+                <div class="d-flex gap-2 flex-wrap" role="group" aria-label="Yearly report actions">
+                    <a href="{{ route('results.hub') }}" class="btn btn-light">
+                        <i class="fas fa-arrow-left mr-1"></i>Back to Hub
+                    </a>
+                    <a href="{{ route('result.yearly-final-report.template-settings.edit') }}" class="btn btn-outline-light">
+                        <i class="fas fa-sliders-h mr-1"></i>Template Settings
+                    </a>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div class="card-body p-3">
-            <form method="POST" action="{{ route('result.yearly-final-report.show') }}">
-                @csrf
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Academic Session</label>
-                            <select name="session_id" class="form-control" required>
-                                <option value="">Select Session</option>
-                                @foreach($sessions as $sessionItem)
-                                <option value="{{ $sessionItem->id }}" {{ ($filters['session_id'] ?? null) == $sessionItem->id ? 'selected' : '' }}>
+    <div class="card shadow-sm border-0 mb-4 no-print progress-report-toolbar yearly-report-toolbar">
+        <div class="card-body p-3 yearly-report-toolbar__body">
+            <form method="GET" action="{{ route('result.yearly-final-report.show') }}" class="progress-report-filter-form">
+                <div class="progress-report-filter-row yearly-report-filter-row">
+                    <div class="progress-report-filter-group yearly-report-filter-group">
+                        <label for="yearlySessionSelect">Academic Session <span class="text-danger">*</span></label>
+                        <select name="session_id" id="yearlySessionSelect" class="form-control progress-report-filter-select yearly-report-filter-select" required>
+                            <option value="">— Select Session —</option>
+                            @foreach($sessions as $sessionItem)
+                                <option value="{{ $sessionItem->id }}" {{ (string) ($filters['session_id'] ?? '') === (string) $sessionItem->id ? 'selected' : '' }}>
                                     {{ $sessionItem->name_en ?? $sessionItem->name_bn }}
                                 </option>
-                                @endforeach
-                            </select>
-                        </div>
+                            @endforeach
+                        </select>
                     </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Class</label>
-                            <select name="class_id" id="classSelect" class="form-control" required>
-                                <option value="">Select Class</option>
-                                @foreach($classes as $classItem)
-                                <option value="{{ $classItem->id }}" {{ ($filters['class_id'] ?? null) == $classItem->id ? 'selected' : '' }}>
+                    <div class="progress-report-filter-group yearly-report-filter-group">
+                        <label for="yearlyClassSelect">Class <span class="text-danger">*</span></label>
+                        <select name="class_id" id="classSelect" class="form-control progress-report-filter-select yearly-report-filter-select" required>
+                            <option value="">— Select Class —</option>
+                            @foreach($classes as $classItem)
+                                <option value="{{ $classItem->id }}" {{ (string) ($filters['class_id'] ?? '') === (string) $classItem->id ? 'selected' : '' }}>
                                     {{ $classItem->name_en ?? $classItem->name_bn }}
                                 </option>
-                                @endforeach
-                            </select>
-                        </div>
+                            @endforeach
+                        </select>
                     </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Section</label>
-                            <select name="section_id" class="form-control" id="sectionSelect">
-                                <option value="">All Sections</option>
-                                @foreach(App\Models\Section::where('school_class_id', $filters['class_id'] ?? null)->get() as $sectionItem)
-                                <option value="{{ $sectionItem->id }}" {{ ($filters['section_id'] ?? null) == $sectionItem->id ? 'selected' : '' }}>
+                    <div class="progress-report-filter-group yearly-report-filter-group">
+                        <label for="yearlySectionSelect">Section <span class="text-danger">*</span></label>
+                        <select name="section_id" id="sectionSelect" class="form-control progress-report-filter-select yearly-report-filter-select" required>
+                            <option value="">— Select Section —</option>
+                            @foreach(App\Models\Section::where('school_class_id', $filters['class_id'] ?? null)->get() as $sectionItem)
+                                <option value="{{ $sectionItem->id }}" {{ (string) ($filters['section_id'] ?? '') === (string) $sectionItem->id ? 'selected' : '' }}>
                                     {{ $sectionItem->name_en ?? $sectionItem->name_bn }}
                                 </option>
-                                @endforeach
-                            </select>
-                        </div>
+                            @endforeach
+                        </select>
                     </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Student ID</label>
-                            <input type="text" name="student_id" class="form-control"
-                                value="{{ $filters['student_id'] ?? '' }}" placeholder="Optional">
-                        </div>
+                    <div class="progress-report-filter-group yearly-report-filter-group">
+                        <label for="yearlyStudentInput">Student ID <small class="text-muted">(optional)</small></label>
+                        <input type="text" name="student_id" id="yearlyStudentInput" class="form-control progress-report-filter-input yearly-report-filter-input"
+                            value="{{ $filters['student_id'] ?? '' }}" placeholder="Leave blank for all students">
                     </div>
-                </div>
 
-                <div class="d-flex justify-content-end gap-2">
-                    <button type="submit" class="btn btn-primary btn-sm">
-                        <i class="fas fa-search mr-1"></i>Generate Report
-                    </button>
-                    @if(!empty($rows))
-                    <button type="button" onclick="window.print()" class="btn btn-dark btn-sm">
-                        <i class="fas fa-print mr-1"></i>Print
-                    </button>
-                    @endif
+                    <div class="progress-report-filter-actions yearly-report-filter-actions">
+                        <button type="submit" class="btn progress-report-action-btn progress-report-action-btn--primary yearly-report-action-btn yearly-report-action-btn--primary" title="View Report" aria-label="View Report">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        @if(!empty($rows))
+                            <button type="button" onclick="window.print()" class="btn btn-danger progress-report-action-btn yearly-report-action-btn" title="Print" aria-label="Print">
+                                <i class="fas fa-file-pdf"></i>
+                            </button>
+                        @endif
+                        <a href="{{ route('result.yearly-final-report.index') }}" class="btn progress-report-action-btn progress-report-action-btn--ghost yearly-report-action-btn yearly-report-action-btn--ghost" title="Reset" aria-label="Reset">
+                            <i class="fas fa-undo-alt"></i>
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
     @endunless
 
-    @if(!empty($rows))
+    @if(count($rows ?? []) > 0)
 @foreach($rows as $row)
     @include('pages.yearly-final-report._report-card', [
         'row' => $row,
@@ -120,6 +118,13 @@
         'pairWeights' => $pairWeights,
     ])
 @endforeach
+    @else
+    @unless($isPreview ?? false)
+    <div class="card card-body text-center text-muted py-5 no-print">
+        <i class="fas fa-filter fa-3x mb-3 text-success"></i>
+        <p class="mb-0">Choose the filters above to view the report.</p>
+    </div>
+    @endunless
     @endif
 </div>
 @endsection
@@ -130,15 +135,128 @@
         background: linear-gradient(90deg, #1d4ed8, #1e3a8a) !important;
     }
 
+    .yearly-report-toolbar {
+        background: #ffffff;
+        border: 1px solid #e7e5e4;
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    }
+
+    .yearly-report-toolbar__body {
+        background: #fff;
+        border-bottom-left-radius: 18px;
+        border-bottom-right-radius: 18px;
+    }
+
+    .yearly-report-filter-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+        gap: 0.75rem;
+        align-items: end;
+    }
+
+    .yearly-report-filter-group label {
+        display: block;
+        margin-bottom: 0.35rem;
+        font-size: 0.77rem;
+        font-weight: 700;
+        color: #6b7280;
+    }
+
+    .yearly-report-filter-select,
+    .yearly-report-filter-input {
+        width: 100%;
+        min-height: 46px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        color: #111827;
+        font-size: 0.92rem;
+        box-shadow: none;
+    }
+
+    .yearly-report-filter-select:focus,
+    .yearly-report-filter-input:focus {
+        border-color: #cbd5e1;
+        box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.05);
+    }
+
+    .yearly-report-filter-actions {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.65rem;
+        flex-wrap: wrap;
+    }
+
+    .yearly-report-action-btn {
+        min-width: 46px;
+        min-height: 46px;
+        border-radius: 12px;
+    }
+
+    .yearly-report-action-btn--primary {
+        background: #111827;
+        border-color: #111827;
+        color: #fff;
+    }
+
+    .yearly-report-action-btn--primary:hover {
+        background: #0f172a;
+        border-color: #0f172a;
+        color: #fff;
+    }
+
+    .yearly-report-action-btn--ghost {
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        color: #374151;
+    }
+
+    .yearly-report-action-btn--ghost:hover {
+        background: #f8fafc;
+        color: #111827;
+    }
+
+    @media (max-width: 1280px) {
+        .yearly-report-filter-row {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .yearly-report-filter-actions {
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .yearly-report-filter-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
+        .yearly-report-page {
+            padding-top: 0 !important;
+        }
+
+        .report-card {
+            margin-bottom: 4mm !important;
+        }
+    }
+
     .report-card {
         background: #fff;
-        border: 1px solid #d1d5db;
+        border: 1px solid {{ $templateSettings->table_border_color }};
         padding: 14px 16px 12px;
         position: relative;
         width: 100%;
-        max-width: 281mm;
-        min-height: 194mm;
-        margin: 0 auto 0px;
+        max-width: 28.1cm;
+        min-height: 19.4cm;
+        margin: 0 auto 1.25rem;
         break-after: page;
         page-break-after: always;
     }
@@ -146,6 +264,7 @@
     .report-card:last-child {
         break-after: auto;
         page-break-after: auto;
+        margin-bottom: 0;
     }
 
     .report-card__top {
@@ -165,12 +284,12 @@
         justify-content: center;
         pointer-events: none;
         z-index: 0;
-        opacity: 0.14;
+        opacity: {{ $templateSettings->watermark_opacity }};
     }
 
     .report-card__watermark img {
-        width: 680px;
-        max-width: 96%;
+        width: {{ $templateSettings->watermark_scale }}%;
+        max-width: {{ $templateSettings->watermark_scale }}%;
         max-height: 96%;
         object-fit: contain;
         filter: grayscale(100%);
@@ -218,7 +337,7 @@
     }
 
     .report-card__school-name {
-        color: #5b8f42;
+        color: {{ $templateSettings->school_name_color }};
         font-size: 24px;
         font-weight: 800;
         letter-spacing: .3px;
@@ -227,7 +346,7 @@
     }
 
     .report-card__school-address {
-        color: #5b8f42;
+        color: {{ $templateSettings->school_address_color }};
         font-size: 12px;
         font-weight: 700;
         text-align: center;
@@ -244,7 +363,7 @@
 
     .report-card__grades th,
     .report-card__grades td {
-        border: 1px solid #7b7b7b;
+        border: 1px solid {{ $templateSettings->grade_border_color }};
         padding: 2px 4px;
         text-align: center;
         line-height: 1.1;
@@ -261,7 +380,7 @@
         font-style: italic;
         letter-spacing: .5px;
         margin: 6px 0 8px;
-        color: #2f2f2f;
+        color: {{ $templateSettings->report_title_color }};
     }
 
     .report-card__meta {
@@ -273,7 +392,7 @@
         font-size: 18px;
         font-weight: 800;
         text-decoration: underline;
-        color: #333;
+        color: {{ $templateSettings->annual_report_color }};
         margin-bottom: 12px;
     }
 
@@ -307,7 +426,7 @@
 
     .report-card__table th,
     .report-card__table td {
-        border: 1px solid #7b7b7b;
+        border: 1px solid {{ $templateSettings->table_border_color }};
         padding: 5px 4px;
         text-align: center;
         vertical-align: middle;
@@ -336,6 +455,16 @@
         font-weight: 800;
     }
 
+    .report-card__table thead th {
+        background: {{ $templateSettings->table_header_bg_color }};
+        color: {{ $templateSettings->table_header_text_color }};
+    }
+
+    .report-card__table tbody {
+        background: {{ $templateSettings->table_body_bg_color }};
+        color: {{ $templateSettings->table_body_text_color }};
+    }
+
     .report-card__summary {
         display: flex;
         justify-content: space-between;
@@ -347,16 +476,16 @@
     .report-card__position-box {
         display: inline-flex;
         align-items: center;
-        border: 1px solid #8ca06e;
+        border: 1px solid {{ $templateSettings->position_border_color }};
     }
 
     .report-card__position-label {
-        background: #9ccf63;
-        color: #1f3a1d;
+        background: {{ $templateSettings->position_label_bg_color }};
+        color: {{ $templateSettings->position_label_text_color }};
         padding: 2px 10px;
         font-weight: 800;
         font-size: 14px;
-        border-right: 1px solid #8ca06e;
+        border-right: 1px solid {{ $templateSettings->position_border_color }};
     }
 
     .report-card__position-value {
@@ -365,13 +494,13 @@
         font-weight: 800;
         min-width: 52px;
         text-align: center;
-        color: #243524;
+        color: {{ $templateSettings->position_value_text_color }};
     }
 
     .report-card__promo-box {
-        background: #7fbf3a;
-        color: #17310e;
-        border: 1px solid #557f27;
+        background: {{ $templateSettings->promo_box_bg_color }};
+        color: {{ $templateSettings->promo_box_text_color }};
+        border: 1px solid {{ $templateSettings->promo_box_text_color }};
         padding: 4px 28px;
         font-size: 22px;
         font-weight: 800;
@@ -400,18 +529,18 @@
         font-size: 15px;
         font-weight: 800;
         text-decoration: underline;
-        color: #444;
+        color: {{ $templateSettings->remarks_title_color }};
     }
 
     .report-card__remarks-list {
         font-size: 12px;
         line-height: 1.55;
-        color: #3f3f3f;
+        color: {{ $templateSettings->remarks_text_color }};
     }
 
     .report-card__remarks-list .is-active {
         display: inline-block;
-        background: #9ccf63;
+        background: {{ $templateSettings->position_label_bg_color }};
         padding: 0 4px;
         font-weight: 800;
     }
@@ -420,16 +549,16 @@
         margin-top: 6px;
         font-size: 13px;
         font-weight: 700;
-        color: #1f4d1a;
+        color: {{ $templateSettings->remarks_note_color }};
     }
 
     .report-card__comments {
         margin-top: 10px;
-        border: 1px solid #a3a3a3;
+        border: 1px solid {{ $templateSettings->comments_border_color }};
         min-height: 56px;
         padding: 10px 16px;
         font-size: 12px;
-        color: #333;
+        color: {{ $templateSettings->comments_text_color }};
     }
 
     .report-card__comments ul {
@@ -470,7 +599,7 @@
     }
 
     .report-card__signature-line {
-        border-top: 1px solid #111;
+        border-top: 1px solid {{ $templateSettings->signature_line_color }};
         width: 110px;
         margin-bottom: 4px;
     }
@@ -486,7 +615,7 @@
     @media print {
         @page {
             size: A4 landscape;
-            margin: 8mm;
+            margin: {{ $templateSettings->margin_top_mm }}cm {{ $templateSettings->margin_right_mm }}cm {{ $templateSettings->margin_bottom_mm }}cm {{ $templateSettings->margin_left_mm }}cm;
         }
 
         body {
@@ -507,17 +636,17 @@
 
         .report-card {
             box-shadow: none !important;
-            border: 1px solid #000;
-            width: 281mm;
-            max-width: 281mm;
-            min-height: 194mm;
+            border: 1px solid {{ $templateSettings->table_border_color }};
+            width: 28.1cm;
+            max-width: 28.1cm;
+            min-height: 19.4cm;
             margin: 0 auto;
             break-inside: avoid;
             page-break-inside: avoid;
         }
 
         .report-card__promo-box {
-            color: #17310e !important;
+            color: {{ $templateSettings->promo_box_text_color }} !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }

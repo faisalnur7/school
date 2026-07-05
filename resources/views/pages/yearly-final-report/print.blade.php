@@ -10,21 +10,25 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 11px; color: #222; background: #fff; }
-        @page { size: A4 {{ $templateSettings->paper_orientation }}; margin: {{ $templateSettings->margin_top_mm }}mm {{ $templateSettings->margin_right_mm }}mm {{ $templateSettings->margin_bottom_mm }}mm {{ $templateSettings->margin_left_mm }}mm; }
+        @page {
+            size: A4 {{ $templateSettings->paper_orientation }};
+            margin: {{ $templateSettings->margin_top_mm }}cm {{ $templateSettings->margin_right_mm }}cm {{ $templateSettings->margin_bottom_mm }}cm {{ $templateSettings->margin_left_mm }}cm;
+        }
 
         .report-card {
             background: #fff;
             border: 1px solid {{ $templateSettings->table_border_color }};
-            padding: 14px 16px 12px;
-            width: 281mm;
-            max-width: 281mm;
-            min-height: 194mm;
-            margin: 0 auto;
+            padding: 12px 16px 12px;
+            width: 28.1cm;
+            max-width: 28.1cm;
+            min-height: 19.4cm;
+            margin: 0.2cm auto 4mm;
             page-break-after: always;
             break-after: page;
         }
 
         .report-card:last-child {
+            margin-bottom: 0;
             page-break-after: auto;
             break-after: auto;
         }

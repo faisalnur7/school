@@ -105,10 +105,10 @@ class YearlyFinalReportController extends Controller
         $mpdf = new \Mpdf\Mpdf([
             'format' => 'A4',
             'orientation' => $templateSettings->paper_orientation === 'landscape' ? 'L' : 'P',
-            'margin_top' => $templateSettings->margin_top_mm,
-            'margin_bottom' => $templateSettings->margin_bottom_mm,
-            'margin_left' => $templateSettings->margin_left_mm,
-            'margin_right' => $templateSettings->margin_right_mm,
+            'margin_top' => max(0, (float) $templateSettings->margin_top_mm * 10),
+            'margin_bottom' => max(0, (float) $templateSettings->margin_bottom_mm * 10),
+            'margin_left' => max(0, (float) $templateSettings->margin_left_mm * 10),
+            'margin_right' => max(0, (float) $templateSettings->margin_right_mm * 10),
         ]);
         $mpdf->WriteHTML($html);
 

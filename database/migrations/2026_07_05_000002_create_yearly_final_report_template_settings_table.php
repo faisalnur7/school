@@ -11,10 +11,10 @@ return new class extends Migration
         Schema::create('yearly_final_report_template_settings', function (Blueprint $table) {
             $table->id();
             $table->string('paper_orientation')->default('landscape');
-            $table->decimal('margin_top_mm', 6, 2)->default(8);
-            $table->decimal('margin_right_mm', 6, 2)->default(8);
-            $table->decimal('margin_bottom_mm', 6, 2)->default(8);
-            $table->decimal('margin_left_mm', 6, 2)->default(8);
+            $table->decimal('margin_top_mm', 6, 2)->default(0.8);
+            $table->decimal('margin_right_mm', 6, 2)->default(0.8);
+            $table->decimal('margin_bottom_mm', 6, 2)->default(0.8);
+            $table->decimal('margin_left_mm', 6, 2)->default(0.8);
             $table->boolean('show_watermark')->default(true);
             $table->decimal('watermark_opacity', 6, 3)->default(0.14);
             $table->decimal('watermark_scale', 6, 2)->default(96);

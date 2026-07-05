@@ -45,10 +45,10 @@ class YearlyFinalReportTemplateSettingController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'margin_top_mm' => ['required', 'numeric', 'min:0', 'max:50'],
-            'margin_right_mm' => ['required', 'numeric', 'min:0', 'max:50'],
-            'margin_bottom_mm' => ['required', 'numeric', 'min:0', 'max:50'],
-            'margin_left_mm' => ['required', 'numeric', 'min:0', 'max:50'],
+            'margin_top_mm' => ['required', 'numeric', 'min:0', 'max:5'],
+            'margin_right_mm' => ['required', 'numeric', 'min:0', 'max:5'],
+            'margin_bottom_mm' => ['required', 'numeric', 'min:0', 'max:5'],
+            'margin_left_mm' => ['required', 'numeric', 'min:0', 'max:5'],
             'show_watermark' => ['nullable', 'boolean'],
             'watermark_opacity' => ['required', 'numeric', 'min:0', 'max:1'],
             'watermark_scale' => ['required', 'numeric', 'min:10', 'max:100'],

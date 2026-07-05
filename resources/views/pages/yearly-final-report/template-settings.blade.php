@@ -149,20 +149,20 @@
                             <div class="card-body">
                                 <div class="form-row">
                                     <div class="form-group col-md-3">
-                                        <label>Margin Top</label>
-                                        <input type="number" step="0.1" min="0" max="50" name="margin_top_mm" class="form-control" value="{{ old('margin_top_mm', $setting->margin_top_mm) }}">
+                                        <label>Margin Top (cm)</label>
+                                        <input type="number" step="0.1" min="0" max="5" name="margin_top_mm" class="form-control" value="{{ old('margin_top_mm', $setting->margin_top_mm) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Margin Right</label>
-                                        <input type="number" step="0.1" min="0" max="50" name="margin_right_mm" class="form-control" value="{{ old('margin_right_mm', $setting->margin_right_mm) }}">
+                                        <label>Margin Right (cm)</label>
+                                        <input type="number" step="0.1" min="0" max="5" name="margin_right_mm" class="form-control" value="{{ old('margin_right_mm', $setting->margin_right_mm) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Margin Bottom</label>
-                                        <input type="number" step="0.1" min="0" max="50" name="margin_bottom_mm" class="form-control" value="{{ old('margin_bottom_mm', $setting->margin_bottom_mm) }}">
+                                        <label>Margin Bottom (cm)</label>
+                                        <input type="number" step="0.1" min="0" max="5" name="margin_bottom_mm" class="form-control" value="{{ old('margin_bottom_mm', $setting->margin_bottom_mm) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Margin Left</label>
-                                        <input type="number" step="0.1" min="0" max="50" name="margin_left_mm" class="form-control" value="{{ old('margin_left_mm', $setting->margin_left_mm) }}">
+                                        <label>Margin Left (cm)</label>
+                                        <input type="number" step="0.1" min="0" max="5" name="margin_left_mm" class="form-control" value="{{ old('margin_left_mm', $setting->margin_left_mm) }}">
                                     </div>
                                 </div>
 
@@ -227,10 +227,6 @@
                                     <div class="form-group yearly-col-md-20">
                                         <label>Annual Label</label>
                                         <input type="color" name="annual_report_color" class="form-control form-control-color" value="{{ old('annual_report_color', $setting->annual_report_color) }}">
-                                    </div>
-                                    <div class="form-group yearly-col-md-20">
-                                        <label>Grade Border</label>
-                                        <input type="color" name="grade_border_color" class="form-control form-control-color" value="{{ old('grade_border_color', $setting->grade_border_color) }}">
                                     </div>
                                 </div>
                             </div>
@@ -568,8 +564,8 @@
         padding: 14px 16px 12px;
         position: relative;
         width: 100%;
-        max-width: 281mm;
-        min-height: 194mm;
+        max-width: 28.1cm;
+        min-height: 19.4cm;
         margin: 0 auto 18px;
         break-after: page;
         page-break-after: always;

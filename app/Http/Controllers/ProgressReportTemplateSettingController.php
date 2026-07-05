@@ -67,6 +67,9 @@ class ProgressReportTemplateSettingController extends Controller
             'grade' => 'A',
         ];
 
+        $attendancePresent = 156;
+        $attendanceTotal = 180;
+
         return view('pages.progress-report.template-settings', compact(
             'setting',
             'school',
@@ -74,6 +77,8 @@ class ProgressReportTemplateSettingController extends Controller
             'gradeScale',
             'sampleRows',
             'summary',
+            'attendancePresent',
+            'attendanceTotal',
             'previewUrl'
         ));
     }

@@ -482,13 +482,13 @@
             <div class="report-card__remarks">
                 <div class="report-card__remarks-title">Remarks:</div>
                 @if($summary['gpa'] >= 4.0)
-                    <div>{{ $templateSettings->remark_excellent_text }}</div>
+                    <div style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_excellent_text }}</div>
                 @elseif($summary['gpa'] >= 3.0)
-                    <div>{{ $templateSettings->remark_good_text }}</div>
+                    <div style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_good_text }}</div>
                 @elseif($summary['gpa'] >= 2.0)
-                    <div>{{ $templateSettings->remark_satisfactory_text }}</div>
+                    <div style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_satisfactory_text }}</div>
                 @else
-                    <div>{{ $templateSettings->remark_improve_text }}</div>
+                    <div style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_improve_text }}</div>
                 @endif
             </div>
             @endif

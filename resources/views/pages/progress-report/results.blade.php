@@ -267,13 +267,13 @@
                     <h4 class="font-bold underline mb-2" style="color: {{ $templateSettings->remarks_title_color }};">Remarks:</h4>
                     <div class="space-y-1">
                         @if ($summary['gpa'] >= 4.0)
-                            <p class="inline-block bg-green-200 px-2 rounded">{{ $templateSettings->remark_excellent_text }}</p>
+                            <p class="inline-block bg-green-200 px-2 rounded" style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_excellent_text }}</p>
                         @elseif($summary['gpa'] >= 3.0)
-                            <p class="inline-block bg-green-200 px-2 rounded">{{ $templateSettings->remark_good_text }}</p>
+                            <p class="inline-block bg-green-200 px-2 rounded" style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_good_text }}</p>
                         @elseif($summary['gpa'] >= 2.0)
-                            <p>{{ $templateSettings->remark_satisfactory_text }}</p>
+                            <p style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_satisfactory_text }}</p>
                         @else
-                            <p>{{ $templateSettings->remark_improve_text }}</p>
+                            <p style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_improve_text }}</p>
                         @endif
                     </div>
                 </div>
