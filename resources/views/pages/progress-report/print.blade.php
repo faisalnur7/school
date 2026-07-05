@@ -5,8 +5,8 @@
     <title>Terminal Progress Report</title>
     <style>
         @page {
-            size: A4 portrait;
-            margin: 8mm;
+            size: A4 {{ $templateSettings->paper_orientation }};
+            margin: {{ $templateSettings->margin_top_mm }}mm {{ $templateSettings->margin_right_mm }}mm {{ $templateSettings->margin_bottom_mm }}mm {{ $templateSettings->margin_left_mm }}mm;
         }
 
         * {
@@ -43,14 +43,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0.08;
+            opacity: {{ $templateSettings->watermark_opacity }};
             pointer-events: none;
             z-index: 0;
         }
 
         .report-card__watermark img {
-            width: 170mm;
-            max-width: 82%;
+            width: {{ $templateSettings->watermark_scale }}%;
+            max-width: {{ $templateSettings->watermark_scale }}%;
             max-height: 82%;
             object-fit: contain;
             filter: grayscale(100%);
@@ -123,10 +123,10 @@
         }
 
         .report-card__school-name {
-            font-size: 16px;
+            font-size: {{ $templateSettings->school_name_font_size }}px;
             line-height: 1.08;
             font-weight: 800;
-            color: #5b8f42;
+            color: {{ $templateSettings->school_name_color }};
             text-transform: uppercase;
             letter-spacing: .2px;
             overflow-wrap: anywhere;
@@ -135,17 +135,17 @@
 
         .report-card__school-address {
             margin-top: 1.5mm;
-            font-size: 8.5px;
+            font-size: {{ $templateSettings->school_address_font_size }}px;
             font-weight: 700;
-            color: #5b8f42;
+            color: {{ $templateSettings->school_address_color }};
             line-height: 1.25;
         }
 
         .report-card__title {
-            font-size: 17px;
+            font-size: {{ $templateSettings->report_title_font_size }}px;
             font-weight: 800;
             font-style: italic;
-            color: #d97706;
+            color: {{ $templateSettings->report_title_color }};
             text-transform: uppercase;
             margin: 2mm 0 3mm;
             text-align: center;
@@ -160,7 +160,7 @@
 
         .report-card__scale th,
         .report-card__scale td {
-            border: 1px solid #555;
+            border: 1px solid {{ $templateSettings->table_border_color }};
             padding: 1mm 1.5mm;
             text-align: center;
             line-height: 1.1;
@@ -200,6 +200,7 @@
         .report-card__student td:first-child {
             font-weight: 700;
             width: 16mm;
+            color: {{ $templateSettings->student_label_color }};
         }
 
         .report-card__table {
@@ -209,9 +210,18 @@
             font-size: 9px;
         }
 
+        .report-card__table thead tr {
+            background: {{ $templateSettings->table_header_bg_color }};
+            color: {{ $templateSettings->table_header_text_color }};
+        }
+
+        .report-card__table tbody tr:nth-child(even) {
+            background: {{ $templateSettings->table_row_alt_bg_color }};
+        }
+
         .report-card__table th,
         .report-card__table td {
-            border: 1px solid #555;
+            border: 1px solid {{ $templateSettings->table_border_color }};
             padding: 1.2mm 1mm;
             text-align: center;
             vertical-align: middle;
@@ -233,10 +243,15 @@
 
         .report-card__summary-table th,
         .report-card__summary-table td {
-            border: 1px solid #555;
+            border: 1px solid {{ $templateSettings->table_border_color }};
             padding: 1.2mm 1mm;
             text-align: center;
             line-height: 1.1;
+        }
+
+        .report-card__summary-table thead tr {
+            background: {{ $templateSettings->summary_bg_color }};
+            color: {{ $templateSettings->summary_text_color }};
         }
 
         .report-card__remarks {
@@ -249,11 +264,12 @@
             font-weight: 800;
             text-decoration: underline;
             margin-bottom: 1.5mm;
+            color: {{ $templateSettings->remarks_title_color }};
         }
 
         .report-card__comments {
             margin-top: 4mm;
-            border: 1px solid #555;
+            border: 1px solid {{ $templateSettings->table_border_color }};
             padding: 3mm;
             font-size: 9px;
         }
@@ -289,7 +305,7 @@
         }
 
         .report-card__signature-line {
-            border-top: 1px solid #111;
+            border-top: 1px solid {{ $templateSettings->signature_line_color }};
             width: 40mm;
             margin-bottom: 2mm;
         }
@@ -305,6 +321,8 @@
     $schoolAddress = $school->address ?? 'CIP Tower, Hazari-digir-phar, Dohajari, Chandanish, Chattogram';
     $logoPath = !empty($school->logo) ? public_path($school->logo) : null;
     $hasLogo = $logoPath && file_exists($logoPath);
+    $templateSettings = $templateSettings ?? \App\Models\ProgressReportTemplateSetting::current();
+    $subjectWidths = $templateSettings->subject_column_widths ?? [];
 @endphp
 
 @foreach($studentsData as $data)
@@ -317,8 +335,8 @@
         $attendanceTotal = $data['attendanceTotal'];
     @endphp
 
-    <div class="report-card">
-        @if($hasLogo)
+    <div class="report-card" style="border-color: {{ $templateSettings->card_border_color }}; border-top-color: {{ $templateSettings->header_border_color }};">
+        @if($templateSettings->show_watermark && $hasLogo)
             <div class="report-card__watermark">
                 <img src="{{ $logoPath }}" alt="">
             </div>
@@ -342,6 +360,7 @@
                             </div>
                         </div>
                     </div>
+                    @if($templateSettings->show_grade_scale)
                     <div class="report-card__scale-cell">
                         <table class="report-card__scale">
                             <thead>
@@ -360,11 +379,13 @@
                             </tbody>
                         </table>
                     </div>
+                    @endif
                 </div>
             </div>
 
-            <div class="report-card__title">Progress Report</div>
+            <div class="report-card__title">{{ $templateSettings->report_title_text }}</div>
 
+            @if($templateSettings->show_student_info)
             <div class="report-card__section">
                 <div class="report-card__exam">{{ $exam->name }}</div>
                 <table class="report-card__student">
@@ -385,18 +406,19 @@
                     </tr>
                 </table>
             </div>
+            @endif
 
             <div class="report-card__section">
                 <table class="report-card__table">
                     <thead>
                         <tr>
-                            <th style="width: 30%;">Subjects</th>
-                            <th style="width: 10%;">Full Marks</th>
-                            <th style="width: 12%;">Obtained Marks</th>
-                            <th style="width: 12%;">Highest Marks</th>
-                            <th style="width: 12%;">Total Marks</th>
-                            <th style="width: 12%;">Letter Grade</th>
-                            <th style="width: 12%;">Grade Point</th>
+                            <th style="width: {{ $subjectWidths['subject'] ?? 30 }}%;">Subjects</th>
+                            <th style="width: {{ $subjectWidths['full_marks'] ?? 10 }}%;">Full Marks</th>
+                            <th style="width: {{ $subjectWidths['obtained_marks'] ?? 12 }}%;">Obtained Marks</th>
+                            <th style="width: {{ $subjectWidths['highest_marks'] ?? 12 }}%;">Highest Marks</th>
+                            <th style="width: {{ $subjectWidths['total_marks'] ?? 12 }}%;">Total Marks</th>
+                            <th style="width: {{ $subjectWidths['letter_grade'] ?? 12 }}%;">Letter Grade</th>
+                            <th style="width: {{ $subjectWidths['grade_point'] ?? 12 }}%;">Grade Point</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -431,6 +453,7 @@
                 </table>
             </div>
 
+            @if($templateSettings->show_summary)
             <div class="report-card__section">
                 <table class="report-card__summary-table">
                     <thead>
@@ -453,48 +476,61 @@
                     </tbody>
                 </table>
             </div>
+            @endif
 
+            @if($templateSettings->show_remarks)
             <div class="report-card__remarks">
                 <div class="report-card__remarks-title">Remarks:</div>
                 @if($summary['gpa'] >= 4.0)
-                    <div>(i) Excellent</div>
+                    <div>{{ $templateSettings->remark_excellent_text }}</div>
                 @elseif($summary['gpa'] >= 3.0)
-                    <div>(ii) Good</div>
+                    <div>{{ $templateSettings->remark_good_text }}</div>
                 @elseif($summary['gpa'] >= 2.0)
-                    <div>(iii) Satisfactory</div>
+                    <div>{{ $templateSettings->remark_satisfactory_text }}</div>
                 @else
-                    <div>(iv) Need to be improved</div>
+                    <div>{{ $templateSettings->remark_improve_text }}</div>
                 @endif
             </div>
+            @endif
 
+            @if($templateSettings->show_comments)
             <div class="report-card__comments">
                 <ul>
                     <li>{{ $student->full_name_en }} was present {{ $attendancePresent }} days out of {{ $attendanceTotal }} days.</li>
                     @if($summary['gpa'] >= 4.0)
-                        <li>Excellent results! You faithfully perform classroom tasks.</li>
+                        <li>{{ $templateSettings->comments_excellent_text }}</li>
                     @elseif($summary['gpa'] >= 3.0)
-                        <li>Good results! Keep up the good work.</li>
+                        <li>{{ $templateSettings->comments_good_text }}</li>
                     @else
-                        <li>Need to improve performance.</li>
+                        <li>{{ $templateSettings->comments_default_text }}</li>
                     @endif
                 </ul>
             </div>
+            @endif
 
+            @if($templateSettings->show_signature || $templateSettings->show_print_date)
             <div class="report-card__footer">
                 <div class="report-card__footer-left">
-                    <div class="report-card__published">Published Date: {{ now()->format('d-m-Y') }}</div>
-                    <div class="report-card__signature">
-                        <div class="report-card__signature-line"></div>
-                        <div>Class Teacher</div>
-                    </div>
+                    @if($templateSettings->show_print_date)
+                        <div class="report-card__published">Published Date: {{ now()->format('d-m-Y') }}</div>
+                    @endif
+                    @if($templateSettings->show_signature)
+                        <div class="report-card__signature">
+                            <div class="report-card__signature-line" style="border-top-color: {{ $templateSettings->signature_line_color }};"></div>
+                            <div>Class Teacher</div>
+                        </div>
+                    @endif
                 </div>
-                <div class="report-card__footer-right">
-                    <div class="report-card__signature">
-                        <div class="report-card__signature-line" style="margin-left:auto;"></div>
-                        <div>Principal</div>
+                @if($templateSettings->show_signature)
+                    <div class="report-card__footer-right">
+                        <div class="report-card__signature">
+                            <div class="report-card__signature-line" style="margin-left:auto; border-top-color: {{ $templateSettings->signature_line_color }};"></div>
+                            <div>Principal</div>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
+            @endif
         </div>
     </div>
 @endforeach

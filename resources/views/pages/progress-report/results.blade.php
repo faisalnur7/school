@@ -5,6 +5,8 @@
     $schoolName = $school->name ?? 'Green Chartered School & College';
     $schoolAddress = $school->address ?? 'CIP Tower, Hazari-digir-phar, Dohajari, Chandanish, Chattogram';
     $logoUrl = !empty($school->logo) ? asset($school->logo) : null;
+    $templateSettings = $templateSettings ?? \App\Models\ProgressReportTemplateSetting::current();
+    $subjectWidths = $templateSettings->subject_column_widths ?? [];
 @endphp
     <div class="col-12">
         @include('pages.progress-report._filter')
@@ -31,6 +33,9 @@
                 </button>
                 <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary btn-sm no-print result-filter-icon-btn" title="Back" aria-label="Back">
                     <i class="fas fa-arrow-left"></i>
+                </a>
+                <a href="{{ route('result.progress-report.template-settings.edit') }}" class="btn btn-outline-light btn-sm no-print result-filter-icon-btn" title="Template Settings" aria-label="Template Settings">
+                    <i class="fas fa-sliders-h"></i>
                 </a>
             </div>
         </div>
@@ -93,10 +98,17 @@
             {{-- ╔══════════════════════════════════════════════╗
          ║  CLASSIC DESIGN (design-a)                  ║
          ╚══════════════════════════════════════════════╝ --}}
-            <div class="design-a report-card-classic">
-                @if(!empty($logoUrl))
+            <div class="design-a report-card-classic" style="
+                border-color: {{ $templateSettings->card_border_color }};
+                border-top-color: {{ $templateSettings->header_border_color }};
+                --pr-header-border-color: {{ $templateSettings->header_border_color }};
+                --pr-table-border: {{ $templateSettings->table_border_color }};
+                --pr-watermark-opacity: {{ $templateSettings->watermark_opacity }};
+                --pr-watermark-scale: {{ $templateSettings->watermark_scale }}%;
+            ">
+                @if($templateSettings->show_watermark && !empty($logoUrl))
                     <div class="report-card-watermark">
-                        <img src="{{ $logoUrl }}" alt="" class="report-card-watermark__img">
+                        <img src="{{ $logoUrl }}" alt="" class="report-card-watermark__img" style="opacity: {{ $templateSettings->watermark_opacity }}; width: {{ $templateSettings->watermark_scale }}%;">
                     </div>
                 @endif
 
@@ -105,22 +117,23 @@
                         <div class="classic-header-brand">
                             @if(!empty($logoUrl))
                                 <div class="classic-header-logo">
-                                    <img src="{{ $logoUrl }}" alt="{{ $schoolName }} logo">
+                                    <img src="{{ $logoUrl }}" alt="{{ $schoolName }} logo" style="max-width: {{ $templateSettings->school_logo_max_width_mm }}mm;">
                                 </div>
                             @endif
                             <div class="classic-header-copy">
-                                <h1 class="text-3xl font-bold text-green-700 uppercase tracking-wide mb-0">
+                                <h1 class="text-3xl font-bold uppercase tracking-wide mb-0" style="font-size: {{ $templateSettings->school_name_font_size }}px; color: {{ $templateSettings->school_name_color }};">
                                     {{ $schoolName }}
                                 </h1>
-                                <p class="text-sm text-gray-700 mt-1 mb-0">
+                                <p class="text-sm mt-1 mb-0" style="font-size: {{ $templateSettings->school_address_font_size }}px; color: {{ $templateSettings->school_address_color }};">
                                     {{ $schoolAddress }}
                                 </p>
                             </div>
                         </div>
 
+                        @if($templateSettings->show_grade_scale)
                         <div class="classic-grade-table">
-                            <table class="text-xs border border-gray-700">
-                                <thead class="bg-gray-100">
+                            <table class="text-xs border border-gray-700" style="border-color: {{ $templateSettings->table_border_color }};">
+                                <thead style="background: {{ $templateSettings->table_header_bg_color }}; color: {{ $templateSettings->table_header_text_color }};">
                                     <tr>
                                         <th class="px-3 py-1 text-center">Range</th>
                                         <th class="px-1 py-1 text-center">Grade</th>
@@ -138,25 +151,28 @@
                                 </tbody>
                             </table>
                         </div>
+                        @endif
                     </div>
-                    <h2 class="text-2xl font-bold text-orange-700 italic mt-5 uppercase text-center">
-                        Progress Report
+                    <h2 class="text-2xl font-bold italic mt-5 uppercase text-center" style="font-size: {{ $templateSettings->report_title_font_size }}px; color: {{ $templateSettings->report_title_color }};">
+                        {{ $templateSettings->report_title_text }}
                     </h2>
                 </div>
 
+                @if($templateSettings->show_student_info)
                 <div class="mt-6 flex justify-between items-start">
                     <div>
-                        <h3 class="font-bold text-xl underline">{{ $exam->name }}</h3>
+                        <h3 class="font-bold text-xl underline" style="color: {{ $templateSettings->student_value_color }};">{{ $exam->name }}</h3>
                         <div class="mt-4 space-y-1 text-sm">
-                            <p><span class="font-semibold">Name</span> : {{ $student->full_name_en }}</p>
-                            <p><span class="font-semibold">Class</span> : {{ $info?->schoolClass?->name_en ?? '—' }}</p>
-                            <p><span class="font-semibold">ID</span> : {{ $student->student_cid ?? $student->id }}</p>
+                            <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">Name</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $student->full_name_en }}</span></p>
+                            <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">Class</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $info?->schoolClass?->name_en ?? '—' }}</span></p>
+                            <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">ID</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $student->student_cid ?? $student->id }}</span></p>
                         </div>
                     </div>
                 </div>
+                @endif
 
                 <div class="mt-6 overflow-x-auto">
-                    <table class="w-full text-sm border border-gray-700">
+                    <table class="w-full text-sm border border-gray-700" style="border-color: {{ $templateSettings->table_border_color }};">
                         <thead class="bg-gray-100 text-center">
                             <tr>
                                 <th class="px-3 py-2 text-left">Subjects</th>
@@ -212,9 +228,10 @@
                     </table>
                 </div>
 
+                @if($templateSettings->show_summary)
                 <div class="mt-6">
-                    <table class="w-full text-sm border border-gray-700">
-                        <thead class="bg-gray-100">
+                    <table class="w-full text-sm border border-gray-700" style="border-color: {{ $templateSettings->table_border_color }};">
+                        <thead style="background: {{ $templateSettings->summary_bg_color }}; color: {{ $templateSettings->summary_text_color }};">
                             <tr>
                                 <th class="px-3 py-2">Summary</th>
                                 <th class="px-3 py-2">Total Exam Marks</th>
@@ -235,49 +252,62 @@
                         </tbody>
                     </table>
                 </div>
+                @endif
 
+                @if($templateSettings->show_remarks)
                 <div class="mt-6 text-sm">
-                    <h4 class="font-bold underline mb-2">Remarks:</h4>
+                    <h4 class="font-bold underline mb-2" style="color: {{ $templateSettings->remarks_title_color }};">Remarks:</h4>
                     <div class="space-y-1">
                         @if ($summary['gpa'] >= 4.0)
-                            <p class="inline-block bg-green-200 px-2 rounded">Excellent</p>
+                            <p class="inline-block bg-green-200 px-2 rounded">{{ $templateSettings->remark_excellent_text }}</p>
                         @elseif($summary['gpa'] >= 3.0)
-                            <p class="inline-block bg-green-200 px-2 rounded">Good</p>
+                            <p class="inline-block bg-green-200 px-2 rounded">{{ $templateSettings->remark_good_text }}</p>
                         @elseif($summary['gpa'] >= 2.0)
-                            <p>Satisfactory</p>
+                            <p>{{ $templateSettings->remark_satisfactory_text }}</p>
                         @else
-                            <p>Need to be improved</p>
+                            <p>{{ $templateSettings->remark_improve_text }}</p>
                         @endif
                     </div>
                 </div>
+                @endif
 
+                @if($templateSettings->show_comments)
                 <div class="mt-6 border border-gray-400 p-4 text-sm">
                     <ul class="list-disc pl-5 space-y-2">
                         <li>{{ $student->full_name_en }} was present {{ $attendancePresent }} days out of
                             {{ $attendanceTotal }} days.</li>
                         @if ($summary['gpa'] >= 4.0)
-                            <li>Excellent results! You faithfully perform classroom tasks.</li>
+                            <li>{{ $templateSettings->comments_excellent_text }}</li>
                         @elseif($summary['gpa'] >= 3.0)
-                            <li>Good results! Keep up the good work.</li>
+                            <li>{{ $templateSettings->comments_good_text }}</li>
                         @else
-                            <li>Need to improve performance.</li>
+                            <li>{{ $templateSettings->comments_default_text }}</li>
                         @endif
                     </ul>
                 </div>
+                @endif
 
+                @if($templateSettings->show_signature || $templateSettings->show_print_date)
                 <div class="mt-10 flex justify-between items-end text-sm">
                     <div>
-                        <p class="font-semibold">Published Date: {{ now()->format('d-m-Y') }}</p>
-                        <div class="mt-12">
-                            <div class="border-t border-black w-40"></div>
-                            <p>Class Teacher</p>
+                        @if($templateSettings->show_print_date)
+                            <p class="font-semibold">Published Date: {{ now()->format('d-m-Y') }}</p>
+                        @endif
+                        @if($templateSettings->show_signature)
+                            <div class="mt-12">
+                                <div class="border-t w-40" style="border-top-color: {{ $templateSettings->signature_line_color }};"></div>
+                                <p>Class Teacher</p>
+                            </div>
+                        @endif
+                    </div>
+                    @if($templateSettings->show_signature)
+                        <div class="text-right">
+                            <div class="border-t w-40 ml-auto" style="border-top-color: {{ $templateSettings->signature_line_color }};"></div>
+                            <p>Principal</p>
                         </div>
-                    </div>
-                    <div class="text-right">
-                        <div class="border-t border-black w-40 ml-auto"></div>
-                        <p>Principal</p>
-                    </div>
+                    @endif
                 </div>
+                @endif
 
             </div>
 
@@ -669,7 +699,7 @@
 
         .classic-header-inner {
             position: relative;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--pr-header-border-color, #e5e7eb);
             padding-bottom: 1rem;
         }
 
@@ -741,6 +771,7 @@
             line-height: 1.05;
             white-space: nowrap;
             word-break: normal;
+            border-color: var(--pr-table-border, #555);
         }
 
         .classic-grade-table th:nth-child(1),
@@ -759,13 +790,13 @@
             justify-content: center;
             pointer-events: none;
             z-index: 0;
-            opacity: 0.08;
+            opacity: var(--pr-watermark-opacity, 0.08);
         }
 
         .report-card-watermark__img,
         .rc-watermark__img {
-            width: min(560px, 78%);
-            max-width: 78%;
+            width: min(560px, var(--pr-watermark-scale, 78%));
+            max-width: var(--pr-watermark-scale, 78%);
             max-height: 78%;
             object-fit: contain;
             filter: grayscale(100%);

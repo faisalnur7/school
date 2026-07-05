@@ -670,6 +670,8 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
     Route::get('/results', [\App\Http\Controllers\ProgressReportController::class, 'show'])->name('show');
     Route::get('/pdf', [\App\Http\Controllers\ProgressReportController::class, 'pdf'])->name('pdf');
     Route::post('/send-email', [\App\Http\Controllers\ProgressReportController::class, 'sendEmail'])->name('email');
+    Route::get('/template-settings', [\App\Http\Controllers\ProgressReportTemplateSettingController::class, 'edit'])->name('template-settings.edit');
+    Route::post('/template-settings', [\App\Http\Controllers\ProgressReportTemplateSettingController::class, 'update'])->name('template-settings.update');
 });
 
     Route::middleware('permission:view_card_yearly_final_report')->prefix('result/yearly-final-report')->name('result.yearly-final-report.')->group(function () {
