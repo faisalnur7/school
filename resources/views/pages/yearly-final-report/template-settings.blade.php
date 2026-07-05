@@ -118,51 +118,78 @@
             <form method="POST" action="{{ route('result.yearly-final-report.template-settings.update') }}">
                 @csrf
 
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header font-weight-bold bg-dark text-white">Layout</div>
-                    <div class="card-body">
-                        <div class="form-row">
-                            <div class="form-group col-md-3">
-                                <label>Margin Top</label>
-                                <input type="number" step="0.1" min="0" max="50" name="margin_top_mm" class="form-control" value="{{ old('margin_top_mm', $setting->margin_top_mm) }}">
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label>Margin Right</label>
-                                <input type="number" step="0.1" min="0" max="50" name="margin_right_mm" class="form-control" value="{{ old('margin_right_mm', $setting->margin_right_mm) }}">
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label>Margin Bottom</label>
-                                <input type="number" step="0.1" min="0" max="50" name="margin_bottom_mm" class="form-control" value="{{ old('margin_bottom_mm', $setting->margin_bottom_mm) }}">
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label>Margin Left</label>
-                                <input type="number" step="0.1" min="0" max="50" name="margin_left_mm" class="form-control" value="{{ old('margin_left_mm', $setting->margin_left_mm) }}">
-                            </div>
-                        </div>
+                <ul class="nav nav-tabs mb-4 yearly-template-tabs" id="yearlyTemplateSettingsTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="yearlyTemplateLayoutTab" data-toggle="tab" href="#yearlyTemplateLayoutPane" role="tab" aria-controls="yearlyTemplateLayoutPane" aria-selected="true">Layout</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="yearlyTemplateHeaderTab" data-toggle="tab" href="#yearlyTemplateHeaderPane" role="tab" aria-controls="yearlyTemplateHeaderPane" aria-selected="false">Header</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="yearlyTemplateTableTab" data-toggle="tab" href="#yearlyTemplateTablePane" role="tab" aria-controls="yearlyTemplateTablePane" aria-selected="false">Table Colors</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="yearlyTemplateVisibilityTab" data-toggle="tab" href="#yearlyTemplateVisibilityPane" role="tab" aria-controls="yearlyTemplateVisibilityPane" aria-selected="false">Visibility</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="yearlyTemplateLabelsTab" data-toggle="tab" href="#yearlyTemplateLabelsPane" role="tab" aria-controls="yearlyTemplateLabelsPane" aria-selected="false">Labels and Text</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="yearlyTemplateAccentTab" data-toggle="tab" href="#yearlyTemplateAccentPane" role="tab" aria-controls="yearlyTemplateAccentPane" aria-selected="false">Accent Colors</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="yearlyTemplateWidthsTab" data-toggle="tab" href="#yearlyTemplateWidthsPane" role="tab" aria-controls="yearlyTemplateWidthsPane" aria-selected="false">Subject Column Widths</a>
+                    </li>
+                </ul>
 
-                        <div class="form-row">
-                            <div class="form-group col-md-3">
-                                <label>Watermark Opacity</label>
-                                <input type="number" step="0.01" min="0" max="1" name="watermark_opacity" class="form-control" value="{{ old('watermark_opacity', $setting->watermark_opacity) }}">
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label>Watermark Scale %</label>
-                                <input type="number" step="0.1" min="10" max="100" name="watermark_scale" class="form-control" value="{{ old('watermark_scale', $setting->watermark_scale) }}">
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label>School Name Size</label>
-                                <input type="number" step="0.1" min="8" max="40" name="school_name_font_size" class="form-control" value="{{ old('school_name_font_size', $setting->school_name_font_size) }}">
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label>School Address Size</label>
-                                <input type="number" step="0.1" min="6" max="28" name="school_address_font_size" class="form-control" value="{{ old('school_address_font_size', $setting->school_address_font_size) }}">
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="yearlyTemplateLayoutPane" role="tabpanel" aria-labelledby="yearlyTemplateLayoutTab">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header font-weight-bold bg-dark text-white">Layout</div>
+                            <div class="card-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label>Margin Top</label>
+                                        <input type="number" step="0.1" min="0" max="50" name="margin_top_mm" class="form-control" value="{{ old('margin_top_mm', $setting->margin_top_mm) }}">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Margin Right</label>
+                                        <input type="number" step="0.1" min="0" max="50" name="margin_right_mm" class="form-control" value="{{ old('margin_right_mm', $setting->margin_right_mm) }}">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Margin Bottom</label>
+                                        <input type="number" step="0.1" min="0" max="50" name="margin_bottom_mm" class="form-control" value="{{ old('margin_bottom_mm', $setting->margin_bottom_mm) }}">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Margin Left</label>
+                                        <input type="number" step="0.1" min="0" max="50" name="margin_left_mm" class="form-control" value="{{ old('margin_left_mm', $setting->margin_left_mm) }}">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label>Watermark Opacity</label>
+                                        <input type="number" step="0.01" min="0" max="1" name="watermark_opacity" class="form-control" value="{{ old('watermark_opacity', $setting->watermark_opacity) }}">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Watermark Scale %</label>
+                                        <input type="number" step="0.1" min="10" max="100" name="watermark_scale" class="form-control" value="{{ old('watermark_scale', $setting->watermark_scale) }}">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>School Name Size</label>
+                                        <input type="number" step="0.1" min="8" max="40" name="school_name_font_size" class="form-control" value="{{ old('school_name_font_size', $setting->school_name_font_size) }}">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>School Address Size</label>
+                                        <input type="number" step="0.1" min="6" max="28" name="school_address_font_size" class="form-control" value="{{ old('school_address_font_size', $setting->school_address_font_size) }}">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-6 col-12 mb-4">
-                        <div class="card shadow-sm h-100">
+
+                    <div class="tab-pane fade" id="yearlyTemplateHeaderPane" role="tabpanel" aria-labelledby="yearlyTemplateHeaderTab">
+                        <div class="card shadow-sm mb-4">
                             <div class="card-header font-weight-bold bg-dark text-white">Header</div>
                             <div class="card-body">
                                 <div class="form-row">
@@ -210,8 +237,8 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-6 col-12 mb-4">
-                        <div class="card shadow-sm h-100">
+                    <div class="tab-pane fade" id="yearlyTemplateTablePane" role="tabpanel" aria-labelledby="yearlyTemplateTableTab">
+                        <div class="card shadow-sm mb-4">
                             <div class="card-header font-weight-bold bg-dark text-white">Table Colors</div>
                             <div class="card-body">
                                 <div class="form-row">
@@ -246,11 +273,85 @@
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-lg-6 col-12 mb-4">
-                        <div class="card shadow-sm h-100">
+                    <div class="tab-pane fade" id="yearlyTemplateVisibilityPane" role="tabpanel" aria-labelledby="yearlyTemplateVisibilityTab">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header font-weight-bold bg-dark text-white">Visibility</div>
+                            <div class="card-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="showWatermark" name="show_watermark" value="1" @checked(old('show_watermark', $setting->show_watermark))>
+                                            <label class="custom-control-label" for="showWatermark">Show Watermark</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="showGradeScale" name="show_grade_scale" value="1" @checked(old('show_grade_scale', $setting->show_grade_scale))>
+                                            <label class="custom-control-label" for="showGradeScale">Show Grade Scale</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="showStudentInfo" name="show_student_info" value="1" @checked(old('show_student_info', $setting->show_student_info))>
+                                            <label class="custom-control-label" for="showStudentInfo">Show Student Info</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="showTable" name="show_table" value="1" @checked(old('show_table', $setting->show_table))>
+                                            <label class="custom-control-label" for="showTable">Show Table</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="showSummary" name="show_summary" value="1" @checked(old('show_summary', $setting->show_summary))>
+                                            <label class="custom-control-label" for="showSummary">Show Summary</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="showPosition" name="show_position" value="1" @checked(old('show_position', $setting->show_position))>
+                                            <label class="custom-control-label" for="showPosition">Show Position</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="showRemarks" name="show_remarks" value="1" @checked(old('show_remarks', $setting->show_remarks))>
+                                            <label class="custom-control-label" for="showRemarks">Show Remarks</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="showComments" name="show_comments" value="1" @checked(old('show_comments', $setting->show_comments))>
+                                            <label class="custom-control-label" for="showComments">Show Comments</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="showSignature" name="show_signature" value="1" @checked(old('show_signature', $setting->show_signature))>
+                                            <label class="custom-control-label" for="showSignature">Show Signature</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="showPrintDate" name="show_print_date" value="1" @checked(old('show_print_date', $setting->show_print_date))>
+                                            <label class="custom-control-label" for="showPrintDate">Show Print Date</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="yearlyTemplateLabelsPane" role="tabpanel" aria-labelledby="yearlyTemplateLabelsTab">
+                        <div class="card shadow-sm mb-4">
                             <div class="card-header font-weight-bold bg-dark text-white">Labels and Text</div>
                             <div class="card-body">
                                 <div class="form-row">
@@ -332,86 +433,8 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-6 col-12 mb-4">
-                        <div class="card shadow-sm h-100">
-                            <div class="card-header font-weight-bold bg-dark text-white">Visibility</div>
-                            <div class="card-body">
-                                <div class="form-row">
-                                    <div class="form-group col-md-3">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="showWatermark" name="show_watermark" value="1" @checked(old('show_watermark', $setting->show_watermark))>
-                                            <label class="custom-control-label" for="showWatermark">Show Watermark</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="showGradeScale" name="show_grade_scale" value="1" @checked(old('show_grade_scale', $setting->show_grade_scale))>
-                                            <label class="custom-control-label" for="showGradeScale">Show Grade Scale</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="showStudentInfo" name="show_student_info" value="1" @checked(old('show_student_info', $setting->show_student_info))>
-                                            <label class="custom-control-label" for="showStudentInfo">Show Student Info</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="showTable" name="show_table" value="1" @checked(old('show_table', $setting->show_table))>
-                                            <label class="custom-control-label" for="showTable">Show Table</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group col-md-3">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="showSummary" name="show_summary" value="1" @checked(old('show_summary', $setting->show_summary))>
-                                            <label class="custom-control-label" for="showSummary">Show Summary</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="showPosition" name="show_position" value="1" @checked(old('show_position', $setting->show_position))>
-                                            <label class="custom-control-label" for="showPosition">Show Position</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="showRemarks" name="show_remarks" value="1" @checked(old('show_remarks', $setting->show_remarks))>
-                                            <label class="custom-control-label" for="showRemarks">Show Remarks</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="showComments" name="show_comments" value="1" @checked(old('show_comments', $setting->show_comments))>
-                                            <label class="custom-control-label" for="showComments">Show Comments</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group col-md-3">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="showSignature" name="show_signature" value="1" @checked(old('show_signature', $setting->show_signature))>
-                                            <label class="custom-control-label" for="showSignature">Show Signature</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-md-3">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="showPrintDate" name="show_print_date" value="1" @checked(old('show_print_date', $setting->show_print_date))>
-                                            <label class="custom-control-label" for="showPrintDate">Show Print Date</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6 col-12 mb-4">
-                        <div class="card shadow-sm h-100">
+                    <div class="tab-pane fade" id="yearlyTemplateAccentPane" role="tabpanel" aria-labelledby="yearlyTemplateAccentTab">
+                        <div class="card shadow-sm mb-4">
                             <div class="card-header font-weight-bold bg-dark text-white">Accent Colors</div>
                             <div class="card-body">
                                 <div class="form-row">
@@ -471,8 +494,8 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-6 col-12 mb-4">
-                        <div class="card shadow-sm h-100">
+                    <div class="tab-pane fade" id="yearlyTemplateWidthsPane" role="tabpanel" aria-labelledby="yearlyTemplateWidthsTab">
+                        <div class="card shadow-sm mb-4">
                             <div class="card-header font-weight-bold bg-dark text-white">Subject Column Widths</div>
                             <div class="card-body">
                                 <div class="form-row">
