@@ -679,6 +679,8 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
         Route::post('/', [\App\Http\Controllers\YearlyFinalReportController::class, 'show'])->name('show');
         Route::get('/pdf', [\App\Http\Controllers\YearlyFinalReportController::class, 'pdf'])->name('pdf');
         Route::post('/send-email', [\App\Http\Controllers\YearlyFinalReportController::class, 'sendEmail'])->name('email');
+        Route::get('/template-settings', [\App\Http\Controllers\YearlyFinalReportTemplateSettingController::class, 'edit'])->name('template-settings.edit');
+        Route::post('/template-settings', [\App\Http\Controllers\YearlyFinalReportTemplateSettingController::class, 'update'])->name('template-settings.update');
     });
 
     Route::middleware('permission:view_results')->prefix('result/tutorial-report')->name('result.tutorial-report.')->group(function () {

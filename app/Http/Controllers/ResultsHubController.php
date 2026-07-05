@@ -13,6 +13,7 @@ class ResultsHubController extends Controller
             ['icon' => 'fa-file-invoice',  'title' => 'Terminal Report',     'subtitle' => 'Student progress reports',     'route' => 'result.progress-report.index', 'permission' => 'view_card_terminal_report', 'from' => '#7c3aed', 'to' => '#4f46e5'],
             ['icon' => 'fa-sliders-h',     'title' => 'Report Template',     'subtitle' => 'Customize terminal result layout', 'route' => 'result.progress-report.template-settings.edit', 'permission' => 'view_results', 'from' => '#111827', 'to' => '#374151'],
             ['icon' => 'fa-chart-line',   'title' => 'Yearly Final Report', 'subtitle' => 'Annual pair-based summary', 'route' => 'result.yearly-final-report.index', 'permission' => 'view_card_yearly_final_report', 'from' => '#059669', 'to' => '#047857'],
+            ['icon' => 'fa-paint-brush',  'title' => 'Yearly Report Template', 'subtitle' => 'Customize yearly final layout', 'route' => 'result.yearly-final-report.template-settings.edit', 'permission' => 'view_card_yearly_final_report', 'from' => '#0f172a', 'to' => '#334155'],
             ['icon' => 'fa-clipboard-list','title' => 'Tutorial Exam Report','subtitle' => 'Obtained marks only',          'route' => 'result.tutorial-report.index', 'permission' => 'view_card_tutorial_exam_report', 'from' => '#0891b2', 'to' => '#0e7490'],
         ];
         $cards = array_values(array_filter($cards, fn ($card) => auth()->user()?->hasPermission($card['permission'])));

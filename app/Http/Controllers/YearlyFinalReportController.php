@@ -8,6 +8,7 @@ use App\Models\AcademicSession;
 use App\Models\ResultEmailStatus;
 use App\Models\SchoolClass;
 use App\Models\Student;
+use App\Models\YearlyFinalReportTemplateSetting;
 use App\Services\YearlyFinalReportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -23,6 +24,7 @@ class YearlyFinalReportController extends Controller
             'pairWeights'  => [],
             'highest'      => 0,
             'filters'      => [],
+            'templateSettings' => YearlyFinalReportTemplateSetting::current(),
         ]);
     }
 
@@ -46,6 +48,7 @@ class YearlyFinalReportController extends Controller
             'sessions' => AcademicSession::orderByDesc('id')->get(),
             'classes'  => SchoolClass::where('status', 1)->orderBy('id')->get(),
             'filters'  => $filters,
+            'templateSettings' => YearlyFinalReportTemplateSetting::current(),
         ]));
     }
 
@@ -67,9 +70,18 @@ class YearlyFinalReportController extends Controller
 
         $html = view('pages.yearly-final-report.print', array_merge($report, [
             'filters' => $filters,
+            'templateSettings' => YearlyFinalReportTemplateSetting::current(),
         ]))->render();
 
-        $mpdf = new \Mpdf\Mpdf(['format' => 'A4', 'margin_top' => 15, 'margin_bottom' => 15, 'margin_left' => 15, 'margin_right' => 15]);
+        $templateSettings = YearlyFinalReportTemplateSetting::current();
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => 'A4',
+            'orientation' => $templateSettings->paper_orientation === 'landscape' ? 'L' : 'P',
+            'margin_top' => $templateSettings->margin_top_mm,
+            'margin_bottom' => $templateSettings->margin_bottom_mm,
+            'margin_left' => $templateSettings->margin_left_mm,
+            'margin_right' => $templateSettings->margin_right_mm,
+        ]);
         $mpdf->WriteHTML($html);
 
         return response($mpdf->Output('', 'S'))->header('Content-Type', 'application/pdf');

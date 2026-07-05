@@ -6,7 +6,7 @@
     <style>
         @page {
             size: A4 {{ $templateSettings->paper_orientation }};
-            margin: {{ $templateSettings->margin_top_mm }}mm {{ $templateSettings->margin_right_mm }}mm {{ $templateSettings->margin_bottom_mm }}mm {{ $templateSettings->margin_left_mm }}mm;
+            margin: {{ $templateSettings->margin_top_mm }}cm {{ $templateSettings->margin_right_mm }}cm {{ $templateSettings->margin_bottom_mm }}cm {{ $templateSettings->margin_left_mm }}cm;
         }
 
         * {
@@ -24,8 +24,8 @@
         .report-card {
             position: relative;
             width: 100%;
-            min-height: 280mm;
-            padding: 10mm 10mm 8mm;
+            min-height: 28cm;
+            padding: 1cm 1cm 0.8cm;
             border: 1px solid #111;
             overflow: hidden;
             page-break-after: always;
@@ -82,7 +82,7 @@
 
         .report-card__identity {
             width: 74%;
-            padding-right: 5mm;
+            padding-right: 0.5cm;
         }
 
         .report-card__scale-cell { width: 26%; }
@@ -95,15 +95,15 @@
 
         .report-card__logo-cell {
             display: table-cell;
-            width: 18mm;
+            width: 1.8cm;
             vertical-align: middle;
         }
 
         .report-card__logo {
-            width: 16mm;
-            height: 16mm;
+            width: 1.6cm;
+            height: 1.6cm;
             border: 1px solid #cbd5e1;
-            border-radius: 2mm;
+            border-radius: 0.2cm;
             overflow: hidden;
             background: #fff;
             text-align: center;
@@ -118,7 +118,7 @@
         .report-card__school-cell {
             display: table-cell;
             vertical-align: middle;
-            padding-left: 3mm;
+            padding-left: 0.3cm;
             min-width: 0;
         }
 
@@ -134,7 +134,7 @@
         }
 
         .report-card__school-address {
-            margin-top: 1.5mm;
+            margin-top: 0.15cm;
             font-size: {{ $templateSettings->school_address_font_size }}px;
             font-weight: 700;
             color: {{ $templateSettings->school_address_color }};
@@ -147,7 +147,7 @@
             font-style: italic;
             color: {{ $templateSettings->report_title_color }};
             text-transform: uppercase;
-            margin: 2mm 0 3mm;
+            margin: 0.2cm 0 0.3cm;
             text-align: center;
         }
 
@@ -161,7 +161,7 @@
         .report-card__scale th,
         .report-card__scale td {
             border: 1px solid {{ $templateSettings->table_border_color }};
-            padding: 1mm 1.5mm;
+            padding: 0.1cm 0.15cm;
             text-align: center;
             line-height: 1.1;
             white-space: nowrap;
@@ -176,14 +176,14 @@
         .report-card__scale td:nth-child(3) { width: 28%; }
 
         .report-card__section {
-            margin-top: 4mm;
+            margin-top: 0.4cm;
         }
 
         .report-card__exam {
             font-size: 14px;
             font-weight: 800;
             text-decoration: underline;
-            margin-bottom: 3mm;
+            margin-bottom: 0.3cm;
         }
 
         .report-card__student {
@@ -193,13 +193,13 @@
 
         .report-card__student td {
             border: 0;
-            padding: 1mm 2mm 1mm 0;
+            padding: 0.1cm 0.2cm 0.1cm 0;
             white-space: nowrap;
         }
 
         .report-card__student td:first-child {
             font-weight: 700;
-            width: 16mm;
+            width: 1.6cm;
             color: {{ $templateSettings->student_label_color }};
         }
 
@@ -222,7 +222,7 @@
         .report-card__table th,
         .report-card__table td {
             border: 1px solid {{ $templateSettings->table_border_color }};
-            padding: 1.2mm 1mm;
+            padding: 0.12cm 0.1cm;
             text-align: center;
             vertical-align: middle;
             line-height: 1.08;
@@ -244,7 +244,7 @@
         .report-card__summary-table th,
         .report-card__summary-table td {
             border: 1px solid {{ $templateSettings->table_border_color }};
-            padding: 1.2mm 1mm;
+            padding: 0.12cm 0.1cm;
             text-align: center;
             line-height: 1.1;
         }
@@ -255,7 +255,7 @@
         }
 
         .report-card__remarks {
-            margin-top: 4mm;
+            margin-top: 0.4cm;
             font-size: 9.5px;
         }
 
@@ -263,28 +263,28 @@
             font-size: 12px;
             font-weight: 800;
             text-decoration: underline;
-            margin-bottom: 1.5mm;
+            margin-bottom: 0.15cm;
             color: {{ $templateSettings->remarks_title_color }};
         }
 
         .report-card__comments {
-            margin-top: 4mm;
+            margin-top: 0.4cm;
             border: 1px solid {{ $templateSettings->table_border_color }};
-            padding: 3mm;
+            padding: 0.3cm;
             font-size: 9px;
         }
 
         .report-card__comments ul {
             margin: 0;
-            padding-left: 4.5mm;
+            padding-left: 0.45cm;
         }
 
         .report-card__comments li + li {
-            margin-top: 1.5mm;
+            margin-top: 0.15cm;
         }
 
         .report-card__footer {
-            margin-top: 7mm;
+            margin-top: 0.7cm;
             display: table;
             width: 100%;
         }
@@ -301,13 +301,13 @@
         }
 
         .report-card__signature {
-            margin-top: 16mm;
+            margin-top: 1.6cm;
         }
 
         .report-card__signature-line {
             border-top: 1px solid {{ $templateSettings->signature_line_color }};
-            width: 40mm;
-            margin-bottom: 2mm;
+            width: 4cm;
+            margin-bottom: 0.2cm;
         }
 
         .report-card__published {

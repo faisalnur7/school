@@ -10,8 +10,8 @@
     <div class="bg-white rounded-2xl shadow p-5 mb-4">
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
             <div>
-                <h3 class="mb-1 font-weight-bold text-slate-900">Terminal Result Template Settings</h3>
-                <p class="mb-0 text-muted">Customize the classic terminal result layout, then use the saved settings in print and PDF output.</p>
+                <h3 class="mb-1 font-weight-bold text-slate-900">Progress Report Template Settings</h3>
+                <p class="mb-0 text-muted">Customize the classic progress report layout, then use the saved settings in print and PDF output.</p>
             </div>
             <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left mr-1"></i> Back to Report
@@ -33,8 +33,20 @@
         </div>
     @endif
 
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white font-weight-bold">Live Preview</div>
+        <div class="card-body p-0" style="background: #f8fafc;">
+            <iframe
+                src="{{ $previewUrl }}"
+                title="Progress Report Preview"
+                class="progress-template-preview-iframe"
+                loading="lazy"
+            ></iframe>
+        </div>
+    </div>
+
     <div class="row">
-        <div class="col-12 col-xl-7">
+        <div class="col-12">
             <form method="POST" action="{{ route('result.progress-report.template-settings.update') }}">
                 @csrf
 
@@ -50,19 +62,19 @@
                                 </select>
                             </div>
                             <div class="form-group col-md-2">
-                                <label>Margin Top</label>
+                                <label>Margin Top (cm)</label>
                                 <input type="number" step="0.1" name="margin_top_mm" class="form-control" value="{{ old('margin_top_mm', $setting->margin_top_mm) }}">
                             </div>
                             <div class="form-group col-md-2">
-                                <label>Margin Right</label>
+                                <label>Margin Right (cm)</label>
                                 <input type="number" step="0.1" name="margin_right_mm" class="form-control" value="{{ old('margin_right_mm', $setting->margin_right_mm) }}">
                             </div>
                             <div class="form-group col-md-2">
-                                <label>Margin Bottom</label>
+                                <label>Margin Bottom (cm)</label>
                                 <input type="number" step="0.1" name="margin_bottom_mm" class="form-control" value="{{ old('margin_bottom_mm', $setting->margin_bottom_mm) }}">
                             </div>
                             <div class="form-group col-md-2">
-                                <label>Margin Left</label>
+                                <label>Margin Left (cm)</label>
                                 <input type="number" step="0.1" name="margin_left_mm" class="form-control" value="{{ old('margin_left_mm', $setting->margin_left_mm) }}">
                             </div>
                         </div>
@@ -77,8 +89,8 @@
                                 <input type="number" step="0.1" min="10" max="100" name="watermark_scale" class="form-control" value="{{ old('watermark_scale', $setting->watermark_scale) }}">
                             </div>
                             <div class="form-group col-md-3">
-                                <label>Logo Max Width (mm)</label>
-                                <input type="number" step="0.1" min="8" max="40" name="school_logo_max_width_mm" class="form-control" value="{{ old('school_logo_max_width_mm', $setting->school_logo_max_width_mm) }}">
+                                <label>Logo Max Width (cm)</label>
+                                <input type="number" step="0.1" min="0.8" max="4" name="school_logo_max_width_mm" class="form-control" value="{{ old('school_logo_max_width_mm', $setting->school_logo_max_width_mm) }}">
                             </div>
                             <div class="form-group col-md-3 d-flex align-items-end">
                                 <div class="custom-control custom-checkbox mr-3">
@@ -324,126 +336,24 @@
             </form>
         </div>
 
-        <div class="col-12 col-xl-5">
-            <div class="card shadow-sm sticky-top" style="top: 1rem;">
-                <div class="card-header bg-white font-weight-bold">Live Preview</div>
-                <div class="card-body" id="progressTemplatePreview" style="background: #f8fafc;">
-                    <div class="border rounded-lg p-3 bg-white" style="border-color: {{ $setting->card_border_color }};">
-                        <div class="d-flex justify-content-between align-items-start mb-3" style="border-bottom: 1px solid {{ $setting->header_border_color }}; padding-bottom: .75rem;">
-                            <div class="d-flex align-items-center" style="gap:12px;">
-                                @if($logoUrl)
-                                    <img src="{{ $logoUrl }}" alt="Logo" style="width: {{ $setting->school_logo_max_width_mm }}mm; height: auto; object-fit: contain;">
-                                @endif
-                                <div>
-                                    <div style="font-size: {{ $setting->school_name_font_size }}px; color: {{ $setting->school_name_color }}; font-weight: 800; text-transform: uppercase;">
-                                        {{ $school->name ?? 'School Name' }}
-                                    </div>
-                                    <div style="font-size: {{ $setting->school_address_font_size }}px; color: {{ $setting->school_address_color }};">
-                                        {{ $school->address ?? 'School Address' }}
-                                    </div>
-                                </div>
-                            </div>
-                            @if($setting->show_grade_scale)
-                                <table class="table table-bordered table-sm mb-0" style="width: 160px; font-size: 10px;">
-                                    <thead style="background: {{ $setting->table_header_bg_color }}; color: {{ $setting->table_header_text_color }};">
-                                        <tr><th>Range</th><th>Grade</th><th>Point</th></tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($gradeScale as $grade)
-                                            <tr>
-                                                <td>{{ $grade['min'] }}-{{ $grade['max'] }}</td>
-                                                <td>{{ $grade['letter'] }}</td>
-                                                <td>{{ number_format($grade['gpa'], 1) }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            @endif
-                        </div>
-
-                        <div class="text-center font-italic font-weight-bold mb-3" style="font-size: {{ $setting->report_title_font_size }}px; color: {{ $setting->report_title_color }};">
-                            {{ $previewTitle }}
-                        </div>
-
-                        @if($setting->show_student_info)
-                            <div class="mb-3">
-                                <div><strong style="color: {{ $setting->student_label_color }};">Name</strong> : <span style="color: {{ $setting->student_value_color }};">{{ $previewStudent['full_name_en'] }}</span></div>
-                                <div><strong style="color: {{ $setting->student_label_color }};">Class</strong> : <span style="color: {{ $setting->student_value_color }};">{{ $previewStudent['class_name'] }}</span></div>
-                                <div><strong style="color: {{ $setting->student_label_color }};">ID</strong> : <span style="color: {{ $setting->student_value_color }};">{{ $previewStudent['student_cid'] }}</span></div>
-                            </div>
-                        @endif
-
-                        <table class="table table-bordered table-sm mb-3" style="font-size: 10px;">
-                            <thead style="background: {{ $setting->table_header_bg_color }}; color: {{ $setting->table_header_text_color }};">
-                                <tr>
-                                    <th>Subject</th>
-                                    <th>Full</th>
-                                    <th>Obt.</th>
-                                    <th>High</th>
-                                    <th>Total</th>
-                                    <th>Grade</th>
-                                    <th>GP</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($sampleRows as $row)
-                                    <tr>
-                                        <td>{{ $row['subject_name'] }}</td>
-                                        <td>{{ $row['full_marks'] }}</td>
-                                        <td>{{ $row['obtained'] }}</td>
-                                        <td>{{ $row['highest'] }}</td>
-                                        <td>{{ $row['obtained'] }}</td>
-                                        <td>{{ $row['grade'] }}</td>
-                                        <td>{{ $row['gpa'] }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-
-                        @if($setting->show_summary)
-                            <div class="p-2 mb-3 text-white text-center" style="background: {{ $setting->summary_bg_color }};">
-                                Summary: {{ $summary['obtained'] }}/{{ $summary['fullMarks'] }} | {{ number_format($summary['percentage'], 2) }}% | GPA {{ number_format($summary['gpa'], 2) }}
-                            </div>
-                        @endif
-
-                        @if($setting->show_remarks)
-                            <div class="mb-2">
-                                <strong style="color: {{ $setting->remarks_title_color }};">Remarks:</strong>
-                                <div style="color: {{ $setting->remarks_text_color }};">
-                                    {{ $setting->remark_good_text }}
-                                </div>
-                            </div>
-                        @endif
-
-                        @if($setting->show_comments)
-                            <ul class="mb-3 pl-3" style="color: {{ $setting->remarks_text_color }};">
-                                <li>{{ $setting->comments_good_text }}</li>
-                            </ul>
-                        @endif
-
-                        @if($setting->show_signature || $setting->show_print_date)
-                            <div class="d-flex justify-content-between align-items-end">
-                                <div>
-                                    @if($setting->show_print_date)
-                                        <div class="font-weight-bold">Published Date: {{ now()->format('d-m-Y') }}</div>
-                                    @endif
-                                    @if($setting->show_signature)
-                                        <div class="mt-4 border-top" style="border-top-color: {{ $setting->signature_line_color }}; width: 120px;"></div>
-                                        <div>Class Teacher</div>
-                                    @endif
-                                </div>
-                                @if($setting->show_signature)
-                                    <div class="text-right">
-                                        <div class="border-top ml-auto" style="border-top-color: {{ $setting->signature_line_color }}; width: 120px;"></div>
-                                        <div>Principal</div>
-                                    </div>
-                                @endif
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
+@endsection
+
+@section('styles')
+<style>
+    .progress-template-preview-iframe {
+        width: 100%;
+        min-height: 1800px;
+        border: 0;
+        display: block;
+        background: #fff;
+    }
+
+    @media (max-width: 991.98px) {
+        .progress-template-preview-iframe {
+            min-height: 2000px;
+        }
+    }
+</style>
 @endsection

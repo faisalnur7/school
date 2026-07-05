@@ -9,60 +9,66 @@
     $subjectWidths = $templateSettings->subject_column_widths ?? [];
 @endphp
     <div class="col-12">
+        @unless($isPreview ?? false)
         @include('pages.progress-report._filter')
+        @endunless
 
-        {{-- ══ Top Action Bar ══ --}}
-        <div class="d-flex justify-content-between align-items-center mb-4 no-print">
-            <div class="d-flex align-items-center gap-3">
-                <div class="rounded-circle d-flex align-items-center justify-content-center shadow"
-                    style="width:52px;height:52px;background:linear-gradient(135deg,#1a6b3c,#2d9e5f);flex-shrink:0">
-                    <i class="fas fa-file-invoice text-white fa-lg"></i>
+        @unless($isPreview ?? false)
+            {{-- ══ Top Action Bar ══ --}}
+            <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center shadow"
+                        style="width:52px;height:52px;background:linear-gradient(135deg,#1a6b3c,#2d9e5f);flex-shrink:0">
+                        <i class="fas fa-file-invoice text-white fa-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 font-weight-bold text-white">Progress Report</h4>
+                        <small class="text-muted">{{ $exam->name }} &mdash;
+                            {{ $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? '') }}</small>
+                    </div>
                 </div>
-                <div>
-                    <h4 class="mb-0 font-weight-bold text-white">Progress Report</h4>
-                    <small class="text-muted">{{ $exam->name }} &mdash;
-                        {{ $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? '') }}</small>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('result.progress-report.pdf', $filters) }}" target="_blank" class="btn btn-danger btn-sm result-filter-icon-btn" title="PDF" aria-label="PDF">
+                        <i class="fas fa-file-pdf"></i>
+                    </a>
+                    <button onclick="window.print()" class="btn btn-info btn-sm no-print result-filter-icon-btn" title="Print" aria-label="Print">
+                        <i class="fas fa-print"></i>
+                    </button>
+                    <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary btn-sm no-print result-filter-icon-btn" title="Back" aria-label="Back">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <a href="{{ route('result.progress-report.template-settings.edit') }}" class="btn btn-outline-light btn-sm no-print result-filter-icon-btn" title="Template Settings" aria-label="Template Settings">
+                        <i class="fas fa-sliders-h"></i>
+                    </a>
                 </div>
             </div>
-            <div class="d-flex gap-2">
-                <a href="{{ route('result.progress-report.pdf', $filters) }}" target="_blank" class="btn btn-danger btn-sm result-filter-icon-btn" title="PDF" aria-label="PDF">
-                    <i class="fas fa-file-pdf"></i>
-                </a>
-                <button onclick="window.print()" class="btn btn-info btn-sm no-print result-filter-icon-btn" title="Print" aria-label="Print">
-                    <i class="fas fa-print"></i>
-                </button>
-                <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary btn-sm no-print result-filter-icon-btn" title="Back" aria-label="Back">
-                    <i class="fas fa-arrow-left"></i>
-                </a>
-                <a href="{{ route('result.progress-report.template-settings.edit') }}" class="btn btn-outline-light btn-sm no-print result-filter-icon-btn" title="Template Settings" aria-label="Template Settings">
-                    <i class="fas fa-sliders-h"></i>
-                </a>
-            </div>
-        </div>
+        @endunless
 
         {{-- ══ Alert + Design Toggle Row ══ --}}
-        <div class="d-flex justify-content-between align-items-center mb-3 no-print">
-            <div class="alert alert-success d-flex align-items-center mb-0" style="flex:1">
-                <i class="fas fa-users mr-2"></i>
-                Showing <strong class="mx-1">{{ count($studentsData) }}</strong> student report(s)
-            </div>
+        @unless($isPreview ?? false)
+            <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+                <div class="alert alert-success d-flex align-items-center mb-0" style="flex:1">
+                    <i class="fas fa-users mr-2"></i>
+                    Showing <strong class="mx-1">{{ count($studentsData) }}</strong> student report(s)
+                </div>
 
-            {{-- DESIGN TOGGLE SWITCH --}}
-            <div class="ds-toggle-wrap" id="designToggleWrap">
-                <span class="ds-toggle-label" id="dsLabelClassic">
-                    <i class="fas fa-scroll"></i> Classic
-                </span>
-                <label class="ds-switch" title="Switch design">
-                    <input type="checkbox" id="designToggle" onchange="switchDesign(this.checked)">
-                    <span class="ds-slider">
-                        <span class="ds-knob"></span>
+                {{-- DESIGN TOGGLE SWITCH --}}
+                <div class="ds-toggle-wrap" id="designToggleWrap">
+                    <span class="ds-toggle-label" id="dsLabelClassic">
+                        <i class="fas fa-scroll"></i> Classic
                     </span>
-                </label>
-                <span class="ds-toggle-label" id="dsLabelModern">
-                    <i class="fas fa-layer-group"></i> Modern
-                </span>
+                    <label class="ds-switch" title="Switch design">
+                        <input type="checkbox" id="designToggle" onchange="switchDesign(this.checked)">
+                        <span class="ds-slider">
+                            <span class="ds-knob"></span>
+                        </span>
+                    </label>
+                    <span class="ds-toggle-label" id="dsLabelModern">
+                        <i class="fas fa-layer-group"></i> Modern
+                    </span>
+                </div>
             </div>
-        </div>
+        @endunless
 
         {{-- ═══════════════════════════════════════════════════════
          REPORTS LOOP
@@ -77,6 +83,7 @@
                 $attendanceTotal = $data['attendanceTotal'];
             @endphp
 
+            @unless($isPreview ?? false)
             <div class="d-flex justify-content-end mb-2 no-print">
                 {{-- <span class="badge mr-2 js-email-status {{ !empty($statusMap[$student->id]) ? 'badge-success' : 'badge-secondary' }}"
                     id="progress-email-status-{{ $student->id }}">
@@ -94,6 +101,7 @@
                     <i class="fas fa-envelope mr-1"></i> Send to Parents
                 </button> --}}
             </div>
+            @endunless
 
             {{-- ╔══════════════════════════════════════════════╗
          ║  CLASSIC DESIGN (design-a)                  ║
@@ -117,7 +125,7 @@
                         <div class="classic-header-brand">
                             @if(!empty($logoUrl))
                                 <div class="classic-header-logo">
-                                    <img src="{{ $logoUrl }}" alt="{{ $schoolName }} logo" style="max-width: {{ $templateSettings->school_logo_max_width_mm }}mm;">
+                                    <img src="{{ $logoUrl }}" alt="{{ $schoolName }} logo" style="max-width: {{ $templateSettings->school_logo_max_width_mm }}cm;">
                                 </div>
                             @endif
                             <div class="classic-header-copy">
@@ -767,7 +775,7 @@
 
         .classic-grade-table th,
         .classic-grade-table td {
-            padding: 2px 4px;
+            padding: 1px 3px !important;
             line-height: 1.05;
             white-space: nowrap;
             word-break: normal;

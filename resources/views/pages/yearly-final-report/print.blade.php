@@ -3,14 +3,18 @@
 <head>
     <meta charset="utf-8">
     <title>Yearly Final Report</title>
+@php
+    $templateSettings = $templateSettings ?? \App\Models\YearlyFinalReportTemplateSetting::current();
+    $columnWidths = $templateSettings->subject_column_widths ?? [];
+@endphp
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 11px; color: #222; background: #fff; }
-        @page { size: A4 landscape; margin: 8mm; }
+        @page { size: A4 {{ $templateSettings->paper_orientation }}; margin: {{ $templateSettings->margin_top_mm }}mm {{ $templateSettings->margin_right_mm }}mm {{ $templateSettings->margin_bottom_mm }}mm {{ $templateSettings->margin_left_mm }}mm; }
 
         .report-card {
             background: #fff;
-            border: 1px solid #000;
+            border: 1px solid {{ $templateSettings->table_border_color }};
             padding: 14px 16px 12px;
             width: 281mm;
             max-width: 281mm;
@@ -42,12 +46,12 @@
             justify-content: center;
             pointer-events: none;
             z-index: 0;
-            opacity: 0.14;
+            opacity: {{ $templateSettings->watermark_opacity }};
         }
 
         .report-card__watermark img {
-            width: 680px;
-            max-width: 96%;
+            width: {{ $templateSettings->watermark_scale }}%;
+            max-width: {{ $templateSettings->watermark_scale }}%;
             max-height: 96%;
             object-fit: contain;
             filter: grayscale(100%);
@@ -83,8 +87,8 @@
         }
 
         .report-card__school-name {
-            color: #5b8f42;
-            font-size: 24px;
+            color: {{ $templateSettings->school_name_color }};
+            font-size: {{ $templateSettings->school_name_font_size }}px;
             font-weight: 800;
             letter-spacing: .3px;
             line-height: 1.1;
@@ -93,8 +97,8 @@
         }
 
         .report-card__school-address {
-            color: #5b8f42;
-            font-size: 12px;
+            color: {{ $templateSettings->school_address_color }};
+            font-size: {{ $templateSettings->school_address_font_size }}px;
             font-weight: 700;
             text-align: center;
         }
@@ -117,7 +121,7 @@
 
         .report-card__grades th,
         .report-card__grades td {
-            border: 1px solid #7b7b7b;
+            border: 1px solid {{ $templateSettings->grade_border_color }};
             padding: 2px 4px;
             text-align: center;
             line-height: 1.1;
@@ -131,7 +135,8 @@
             font-style: italic;
             letter-spacing: .5px;
             margin: 6px 0 8px;
-            color: #2f2f2f;
+            color: {{ $templateSettings->report_title_color }};
+            font-size: {{ $templateSettings->report_title_font_size }}px;
         }
         .report-card__meta {
             display: block;
@@ -141,7 +146,7 @@
             font-size: 18px;
             font-weight: 800;
             text-decoration: underline;
-            color: #333;
+            color: {{ $templateSettings->annual_report_color }};
             margin-bottom: 12px;
         }
         .report-card__student { border-collapse: collapse; font-size: 11px; margin-right: auto; }
@@ -151,7 +156,7 @@
         .report-card__table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 11px; }
         .report-card__table th,
         .report-card__table td {
-            border: 1px solid #7b7b7b;
+            border: 1px solid {{ $templateSettings->table_border_color }};
             padding: 5px 4px;
             text-align: center;
             vertical-align: middle;
@@ -170,10 +175,10 @@
             gap: 14px;
             margin-top: 10px;
         }
-        .report-card__position-box { display: inline-flex; align-items: center; border: 1px solid #8ca06e; }
+        .report-card__position-box { display: inline-flex; align-items: center; border: 1px solid {{ $templateSettings->position_border_color }}; }
         .report-card__position-label {
-            background: #9ccf63;
-            color: #1f3a1d;
+            background: {{ $templateSettings->position_label_bg_color }};
+            color: {{ $templateSettings->position_label_text_color }};
             padding: 2px 10px;
             font-weight: 800;
             font-size: 14px;
@@ -185,12 +190,12 @@
             font-weight: 800;
             min-width: 52px;
             text-align: center;
-            color: #243524;
+            color: {{ $templateSettings->position_value_text_color }};
         }
         .report-card__promo-box {
-            background: #7fbf3a;
-            color: #17310e;
-            border: 1px solid #557f27;
+            background: {{ $templateSettings->promo_box_bg_color }};
+            color: {{ $templateSettings->promo_box_text_color }};
+            border: 1px solid {{ $templateSettings->promo_box_text_color }};
             padding: 4px 28px;
             font-size: 22px;
             font-weight: 800;
@@ -212,18 +217,18 @@
             width: 150px;
             padding-right: 12px;
         }
-        .report-card__remarks-title { font-size: 15px; font-weight: 800; text-decoration: underline; color: #444; }
-        .report-card__remarks-list { font-size: 12px; line-height: 1.55; color: #3f3f3f; }
-        .report-card__remarks-list .is-active { display: inline-block; background: #9ccf63; padding: 0 4px; font-weight: 800; }
-        .report-card__remarks-note { margin-top: 6px; font-size: 13px; font-weight: 700; color: #1f4d1a; }
+        .report-card__remarks-title { font-size: 15px; font-weight: 800; text-decoration: underline; color: {{ $templateSettings->remarks_title_color }}; }
+        .report-card__remarks-list { font-size: 12px; line-height: 1.55; color: {{ $templateSettings->remarks_text_color }}; }
+        .report-card__remarks-list .is-active { display: inline-block; background: {{ $templateSettings->position_label_bg_color }}; padding: 0 4px; font-weight: 800; }
+        .report-card__remarks-note { margin-top: 6px; font-size: 13px; font-weight: 700; color: {{ $templateSettings->remarks_note_color }}; }
 
         .report-card__comments {
             margin-top: 10px;
-            border: 1px solid #a3a3a3;
+            border: 1px solid {{ $templateSettings->comments_border_color }};
             min-height: 56px;
             padding: 10px 16px;
             font-size: 12px;
-            color: #333;
+            color: {{ $templateSettings->comments_text_color }};
         }
         .report-card__comments ul { margin: 0; padding-left: 20px; }
         .report-card__comments li { margin-bottom: 5px; }
@@ -242,7 +247,7 @@
         }
         .report-card__signatures { display: flex; gap: 44px; align-items: flex-end; padding-top: 30px; }
         .report-card__signature { text-align: center; min-width: 110px; font-size: 12px; color: #333; }
-        .report-card__signature-line { border-top: 1px solid #111; width: 110px; margin-bottom: 4px; }
+        .report-card__signature-line { border-top: 1px solid {{ $templateSettings->signature_line_color }}; width: 110px; margin-bottom: 4px; }
         .report-card__signature--principal { min-width: 120px; }
         .report-card__signature--principal .report-card__signature-line { width: 120px; }
     </style>
@@ -286,17 +291,21 @@
         $highestTotal = $highest ?: 1;
         $rankRatio = $grandTotal / $highestTotal;
         if ($rankRatio >= 0.9) {
-            $remarkLabel = 'Excellent';
+            $remarkKey = 'excellent';
+            $remarkLabel = $templateSettings->remark_excellent_text;
         } elseif ($rankRatio >= 0.75) {
-            $remarkLabel = 'Good';
+            $remarkKey = 'good';
+            $remarkLabel = $templateSettings->remark_good_text;
         } elseif ($rankRatio >= 0.6) {
-            $remarkLabel = 'Satisfactory';
+            $remarkKey = 'satisfactory';
+            $remarkLabel = $templateSettings->remark_satisfactory_text;
         } else {
-            $remarkLabel = 'Need to be improved';
+            $remarkKey = 'improve';
+            $remarkLabel = $templateSettings->remark_improve_text;
         }
     @endphp
     <div class="report-card">
-        @if(!empty($logoPath))
+        @if($templateSettings->show_watermark && !empty($logoPath))
             <div class="report-card__watermark">
                 <img src="{{ $logoPath }}" alt="Watermark">
             </div>
@@ -318,9 +327,9 @@
 
             <table class="report-card__grades">
                 <thead>
-                    <tr><th colspan="3">Letter Grade</th></tr>
+                    <tr><th colspan="3">{{ $templateSettings->grade_scale_title }}</th></tr>
                 </thead>
-                <tbody>
+                <tbody style="background: {{ $templateSettings->table_body_bg_color }}; color: {{ $templateSettings->table_body_text_color }};">
                     <tr><td>0-32</td><td>F</td><td>0.0</td></tr>
                     <tr><td>33-39</td><td>D</td><td>1.0</td></tr>
                     <tr><td>40-49</td><td>C</td><td>2.0</td></tr>
@@ -332,11 +341,12 @@
             </table>
         </div>
 
-        <div class="report-card__title">PROGRESS REPORT</div>
+        <div class="report-card__title">{{ $templateSettings->report_title_text }}</div>
 
         <div class="report-card__meta">
             <div>
-                <div class="report-card__annual">Annual Report: {{ $sessionLabel }}</div>
+                <div class="report-card__annual">{{ $templateSettings->annual_report_label }}: {{ $sessionLabel }}</div>
+                @if($templateSettings->show_student_info)
                 <table class="report-card__student">
                     <tr>
                         <td>Name</td><td>:</td><td>{{ $row['student']->full_name_en ?? $row['student']->full_name_bn }}</td>
@@ -351,34 +361,35 @@
                         <td>Section</td><td>:</td><td>{{ $sectionLabel }}</td>
                     </tr>
                 </table>
+                @endif
             </div>
         </div>
 
         <table class="report-card__table">
             <thead>
                 <tr class="group-row">
-                    <th colspan="4">1<sup>st</sup> Terminal</th>
-                    <th colspan="4">2<sup>nd</sup> Terminal</th>
-                    <th colspan="4">3<sup>rd</sup> Terminal</th>
-                    <th rowspan="2" style="width:95px;">Grand Total<br><span>(20%+20%+60%)</span></th>
-                    <th rowspan="2" style="width:80px;">Highest<br>Marks</th>
+                    <th colspan="4">{{ $templateSettings->pair_heading_1 }}</th>
+                    <th colspan="4">{{ $templateSettings->pair_heading_2 }}</th>
+                    <th colspan="4">{{ $templateSettings->pair_heading_3 }}</th>
+                    <th rowspan="2" style="width:{{ $columnWidths['grand_total'] ?? 8 }}%;">{{ $templateSettings->grand_total_label }}<br><span>(20%+20%+60%)</span></th>
+                    <th rowspan="2" style="width:{{ $columnWidths['highest'] ?? 7 }}%;">{{ $templateSettings->highest_total_label }}</th>
                 </tr>
                 <tr class="sub-row">
-                    <th>1<sup>st</sup><br>Tutorial</th>
-                    <th>1<sup>st</sup><br>Term</th>
-                    <th>Total</th>
-                    <th>{{ data_get($pair1, 'weight', data_get($pairWeights, 1, 0)) }}%</th>
-                    <th>2<sup>nd</sup><br>Tutorial</th>
-                    <th>2<sup>nd</sup><br>Term</th>
-                    <th>Total</th>
-                    <th>{{ data_get($pair2, 'weight', data_get($pairWeights, 2, 0)) }}%</th>
-                    <th>3<sup>rd</sup><br>Tutorial</th>
-                    <th>3<sup>rd</sup><br>Term</th>
-                    <th>Total</th>
-                    <th>{{ data_get($pair3, 'weight', data_get($pairWeights, 3, 0)) }}%</th>
+                    <th style="width:{{ $columnWidths['pair1_tutorial'] ?? 8 }}%;">1<sup>st</sup><br>Tutorial</th>
+                    <th style="width:{{ $columnWidths['pair1_terminal'] ?? 8 }}%;">1<sup>st</sup><br>Term</th>
+                    <th style="width:{{ $columnWidths['pair1_total'] ?? 6 }}%;">Total</th>
+                    <th style="width:{{ $columnWidths['pair1_weight'] ?? 6 }}%;">{{ data_get($pair1, 'weight', data_get($pairWeights, 1, 0)) }}%</th>
+                    <th style="width:{{ $columnWidths['pair2_tutorial'] ?? 8 }}%;">2<sup>nd</sup><br>Tutorial</th>
+                    <th style="width:{{ $columnWidths['pair2_terminal'] ?? 8 }}%;">2<sup>nd</sup><br>Term</th>
+                    <th style="width:{{ $columnWidths['pair2_total'] ?? 6 }}%;">Total</th>
+                    <th style="width:{{ $columnWidths['pair2_weight'] ?? 6 }}%;">{{ data_get($pair2, 'weight', data_get($pairWeights, 2, 0)) }}%</th>
+                    <th style="width:{{ $columnWidths['pair3_tutorial'] ?? 8 }}%;">3<sup>rd</sup><br>Tutorial</th>
+                    <th style="width:{{ $columnWidths['pair3_terminal'] ?? 8 }}%;">3<sup>rd</sup><br>Term</th>
+                    <th style="width:{{ $columnWidths['pair3_total'] ?? 6 }}%;">Total</th>
+                    <th style="width:{{ $columnWidths['pair3_weight'] ?? 6 }}%;">{{ data_get($pair3, 'weight', data_get($pairWeights, 3, 0)) }}%</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody style="background: {{ $templateSettings->table_body_bg_color }}; color: {{ $templateSettings->table_body_text_color }};">
                 <tr>
                     <td>{{ number_format($tutorial1, 0) }}</td>
                     <td>{{ number_format($terminal1, 0) }}</td>
@@ -398,47 +409,71 @@
             </tbody>
         </table>
 
+        @if($templateSettings->show_summary)
         <div class="report-card__summary">
+            @if($templateSettings->show_position)
             <div class="report-card__position-box">
-                <div class="report-card__position-label">POSITION</div>
+                <div class="report-card__position-label">{{ $templateSettings->position_label_text }}</div>
                 <div class="report-card__position-value">{{ $position }}</div>
             </div>
-            <div class="report-card__promo-box">Promoted</div>
+            @endif
+            <div class="report-card__promo-box">{{ $templateSettings->promoted_text }}</div>
         </div>
+        @endif
 
+        @if($templateSettings->show_remarks)
         <div class="report-card__remarks">
             <div>
                 <div class="report-card__remarks-title">REMARKS:</div>
                 <div class="report-card__remarks-list">
-                    <div class="{{ $remarkLabel === 'Excellent' ? 'is-active' : '' }}">(i) Excellent</div>
-                    <div class="{{ $remarkLabel === 'Good' ? 'is-active' : '' }}">(ii) Good</div>
-                    <div class="{{ $remarkLabel === 'Satisfactory' ? 'is-active' : '' }}">(iii) Satisfactory</div>
-                    <div class="{{ $remarkLabel === 'Need to be improved' ? 'is-active' : '' }}">(iv) Need to be improved</div>
+                    <div class="{{ $remarkKey === 'excellent' ? 'is-active' : '' }}">(i) {{ $templateSettings->remark_excellent_text }}</div>
+                    <div class="{{ $remarkKey === 'good' ? 'is-active' : '' }}">(ii) {{ $templateSettings->remark_good_text }}</div>
+                    <div class="{{ $remarkKey === 'satisfactory' ? 'is-active' : '' }}">(iii) {{ $templateSettings->remark_satisfactory_text }}</div>
+                    <div class="{{ $remarkKey === 'improve' ? 'is-active' : '' }}">(iv) {{ $templateSettings->remark_improve_text }}</div>
                 </div>
             </div>
             <div class="report-card__remarks-note">{{ $remarkLabel }}</div>
         </div>
+        @endif
 
+        @if($templateSettings->show_comments)
         <div class="report-card__comments">
+            @php
+                $commentLine1 = match ($remarkKey) {
+                    'excellent' => $templateSettings->comments_excellent_text,
+                    'good' => $templateSettings->comments_good_text,
+                    default => $templateSettings->comments_default_text,
+                };
+            @endphp
             <ul>
+                <li>{{ $commentLine1 }}</li>
                 <li>{{ $row['student']->full_name_en ?? $row['student']->full_name_bn }} ranked {{ $position }} out of {{ count($rows) }} students.</li>
                 <li>Grand total: {{ number_format($grandTotal, 2) }} out of {{ number_format($highest, 2) }} highest.</li>
             </ul>
         </div>
+        @endif
 
+        @if($templateSettings->show_signature || $templateSettings->show_print_date)
         <div class="report-card__footer">
-            <div class="report-card__published">Published Date: {{ now()->format('d-m-Y') }}</div>
+            <div class="report-card__published">
+                @if($templateSettings->show_print_date)
+                    Published Date: {{ now()->format('d-m-Y') }}
+                @endif
+            </div>
+            @if($templateSettings->show_signature)
             <div class="report-card__signatures">
                 <div class="report-card__signature">
                     <div class="report-card__signature-line"></div>
-                    <div>Class Teacher</div>
+                    <div>{{ $templateSettings->class_teacher_label }}</div>
                 </div>
                 <div class="report-card__signature report-card__signature--principal">
                     <div class="report-card__signature-line"></div>
-                    <div>Principal</div>
+                    <div>{{ $templateSettings->principal_label }}</div>
                 </div>
             </div>
+            @endif
         </div>
+        @endif
     </div>
 @endforeach
 </body>

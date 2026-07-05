@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AcademicSession;
+use App\Models\Exam;
+use App\Models\SchoolClass;
 use App\Models\ProgressReportTemplateSetting;
 use App\Models\SchoolSetting;
+use App\Models\Section;
 use Illuminate\Http\Request;
 
 class ProgressReportTemplateSettingController extends Controller
@@ -12,6 +16,22 @@ class ProgressReportTemplateSettingController extends Controller
     {
         $setting = ProgressReportTemplateSetting::current();
         $school = SchoolSetting::current();
+        $previewExam = Exam::where('type', Exam::TYPE_TERMINAL)->latest('id')->first();
+        $previewSessionId = $previewExam?->academic_session_id ?? AcademicSession::latest('id')->value('id');
+        $previewClassId = SchoolClass::where('status', 1)->value('id');
+        $previewSectionId = !empty($previewClassId)
+            ? Section::where('school_class_id', $previewClassId)->value('id')
+            : null;
+        $previewExamId = $previewExam?->id;
+        $previewFilters = array_filter([
+            'session_id' => $previewSessionId,
+            'class_id' => $previewClassId,
+            'section_id' => $previewSectionId,
+            'exam_id' => $previewExamId,
+        ], fn ($value) => !is_null($value) && $value !== '');
+        $previewUrl = !empty($previewFilters)
+            ? route('result.progress-report.show', array_merge($previewFilters, ['preview' => 1]))
+            : route('result.progress-report.show', ['preview' => 1]);
 
         $previewStudent = [
             'full_name_en' => 'Student Name',
@@ -53,7 +73,8 @@ class ProgressReportTemplateSettingController extends Controller
             'previewStudent',
             'gradeScale',
             'sampleRows',
-            'summary'
+            'summary',
+            'previewUrl'
         ));
     }
 
@@ -61,10 +82,10 @@ class ProgressReportTemplateSettingController extends Controller
     {
         $validated = $request->validate([
             'paper_orientation' => ['required', 'in:portrait,landscape'],
-            'margin_top_mm' => ['required', 'numeric', 'min:0', 'max:50'],
-            'margin_right_mm' => ['required', 'numeric', 'min:0', 'max:50'],
-            'margin_bottom_mm' => ['required', 'numeric', 'min:0', 'max:50'],
-            'margin_left_mm' => ['required', 'numeric', 'min:0', 'max:50'],
+            'margin_top_mm' => ['required', 'numeric', 'min:0', 'max:5'],
+            'margin_right_mm' => ['required', 'numeric', 'min:0', 'max:5'],
+            'margin_bottom_mm' => ['required', 'numeric', 'min:0', 'max:5'],
+            'margin_left_mm' => ['required', 'numeric', 'min:0', 'max:5'],
             'show_watermark' => ['nullable', 'boolean'],
             'watermark_opacity' => ['required', 'numeric', 'min:0', 'max:1'],
             'watermark_scale' => ['required', 'numeric', 'min:10', 'max:100'],
@@ -102,7 +123,7 @@ class ProgressReportTemplateSettingController extends Controller
             'comments_excellent_text' => ['required', 'string', 'max:500'],
             'comments_good_text' => ['required', 'string', 'max:500'],
             'comments_default_text' => ['required', 'string', 'max:500'],
-            'school_logo_max_width_mm' => ['required', 'numeric', 'min:8', 'max:40'],
+            'school_logo_max_width_mm' => ['required', 'numeric', 'min:0.8', 'max:4'],
             'subject_column_widths' => ['nullable', 'array'],
             'subject_column_widths.subject' => ['nullable', 'numeric', 'min:5', 'max:50'],
             'subject_column_widths.full_marks' => ['nullable', 'numeric', 'min:5', 'max:50'],
@@ -130,6 +151,12 @@ class ProgressReportTemplateSettingController extends Controller
                 $subjectColumnWidths[$key] = (float) $value;
             }
         }
+
+        $validated['margin_top_mm'] = (float) $validated['margin_top_mm'];
+        $validated['margin_right_mm'] = (float) $validated['margin_right_mm'];
+        $validated['margin_bottom_mm'] = (float) $validated['margin_bottom_mm'];
+        $validated['margin_left_mm'] = (float) $validated['margin_left_mm'];
+        $validated['school_logo_max_width_mm'] = (float) $validated['school_logo_max_width_mm'];
 
         $setting->fill(array_merge($validated, [
             'show_watermark' => $request->boolean('show_watermark'),

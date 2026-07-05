@@ -77,12 +77,12 @@ class ProgressReportTemplateSetting extends Model
 
     public static function current(): self
     {
-        return static::firstOrNew(['id' => 1])->fill([
+        $defaults = [
             'paper_orientation' => 'portrait',
-            'margin_top_mm' => 8,
-            'margin_right_mm' => 8,
-            'margin_bottom_mm' => 8,
-            'margin_left_mm' => 8,
+            'margin_top_mm' => 0.8,
+            'margin_right_mm' => 0.8,
+            'margin_bottom_mm' => 0.8,
+            'margin_left_mm' => 0.8,
             'show_watermark' => true,
             'watermark_opacity' => 0.08,
             'watermark_scale' => 78,
@@ -120,7 +120,7 @@ class ProgressReportTemplateSetting extends Model
             'comments_excellent_text' => 'Excellent results! You faithfully perform classroom tasks.',
             'comments_good_text' => 'Good results! Keep up the good work.',
             'comments_default_text' => 'Need to improve performance.',
-            'school_logo_max_width_mm' => 16,
+            'school_logo_max_width_mm' => 1.6,
             'subject_column_widths' => [
                 'subject' => 30,
                 'full_marks' => 10,
@@ -130,6 +130,10 @@ class ProgressReportTemplateSetting extends Model
                 'letter_grade' => 12,
                 'grade_point' => 12,
             ],
-        ]);
+        ];
+
+        $setting = static::firstOrNew(['id' => 1]);
+
+        return $setting->forceFill(array_merge($defaults, $setting->getAttributes()));
     }
 }
