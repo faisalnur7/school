@@ -1,102 +1,15 @@
 <?php
 
-namespace App\Models;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-use Illuminate\Database\Eloquent\Model;
-
-class YearlyFinalReportTemplateSetting extends Model
+return new class extends Migration
 {
-    protected $fillable = [
-        'paper_orientation',
-        'margin_top_mm',
-        'margin_right_mm',
-        'margin_bottom_mm',
-        'margin_left_mm',
-        'show_watermark',
-        'watermark_opacity',
-        'watermark_scale',
-        'show_grade_scale',
-        'show_student_info',
-        'show_table',
-        'show_summary',
-        'show_position',
-        'show_remarks',
-        'show_comments',
-        'show_signature',
-        'show_print_date',
-        'school_name_font_size',
-        'school_address_font_size',
-        'report_title_text',
-        'report_title_font_size',
-        'annual_report_label',
-        'school_name_color',
-        'school_address_color',
-        'report_title_color',
-        'annual_report_color',
-        'table_border_color',
-        'table_header_bg_color',
-        'table_header_text_color',
-        'table_body_bg_color',
-        'table_body_text_color',
-        'grade_border_color',
-        'position_border_color',
-        'position_label_bg_color',
-        'position_label_text_color',
-        'position_value_text_color',
-        'promo_box_bg_color',
-        'promo_box_text_color',
-        'remarks_title_color',
-        'remarks_text_color',
-        'remarks_note_color',
-        'comments_border_color',
-        'comments_text_color',
-        'signature_line_color',
-        'grade_scale_title',
-        'pair_heading_1',
-        'pair_heading_2',
-        'pair_heading_3',
-        'grand_total_label',
-        'highest_total_label',
-        'position_label_text',
-        'promoted_text',
-        'class_teacher_label',
-        'principal_label',
-        'remark_excellent_text',
-        'remark_good_text',
-        'remark_satisfactory_text',
-        'remark_improve_text',
-        'comments_excellent_text',
-        'comments_good_text',
-        'comments_default_text',
-        'subject_column_widths',
-    ];
-
-    protected $casts = [
-        'show_watermark' => 'boolean',
-        'show_grade_scale' => 'boolean',
-        'show_student_info' => 'boolean',
-        'show_table' => 'boolean',
-        'show_summary' => 'boolean',
-        'show_position' => 'boolean',
-        'show_remarks' => 'boolean',
-        'show_comments' => 'boolean',
-        'show_signature' => 'boolean',
-        'show_print_date' => 'boolean',
-        'watermark_opacity' => 'float',
-        'watermark_scale' => 'float',
-        'margin_top_mm' => 'float',
-        'margin_right_mm' => 'float',
-        'margin_bottom_mm' => 'float',
-        'margin_left_mm' => 'float',
-        'school_name_font_size' => 'float',
-        'school_address_font_size' => 'float',
-        'report_title_font_size' => 'float',
-        'subject_column_widths' => 'array',
-    ];
-
-    public static function current(): self
+    public function up(): void
     {
-        $defaults = [
+        $now = now()->toDateTimeString();
+
+        $payload = [
             'paper_orientation' => 'landscape',
             'margin_top_mm' => 8,
             'margin_right_mm' => 8,
@@ -132,9 +45,9 @@ class YearlyFinalReportTemplateSetting extends Model
             'position_border_color' => '#9bb66e',
             'position_label_bg_color' => '#b6dd68',
             'position_label_text_color' => '#1f3a1d',
-            'position_value_text_color' => '#1f2937',
+            'position_value_text_color' => '#1f3a1d',
             'promo_box_bg_color' => '#8bc34a',
-            'promo_box_text_color' => '#1f2937',
+            'promo_box_text_color' => '#1f3a1d',
             'remarks_title_color' => '#2f2f2f',
             'remarks_text_color' => '#374151',
             'remarks_note_color' => '#1f4d1a',
@@ -158,7 +71,7 @@ class YearlyFinalReportTemplateSetting extends Model
             'comments_excellent_text' => 'Excellent results! You faithfully perform classroom tasks.',
             'comments_good_text' => 'Good results! Keep up the good work.',
             'comments_default_text' => 'Need to improve performance.',
-            'subject_column_widths' => [
+            'subject_column_widths' => json_encode([
                 'pair1_tutorial' => 8,
                 'pair1_terminal' => 8,
                 'pair1_total' => 6,
@@ -173,11 +86,21 @@ class YearlyFinalReportTemplateSetting extends Model
                 'pair3_weight' => 6,
                 'grand_total' => 8,
                 'highest' => 7,
-            ],
+            ]),
+            'created_at' => $now,
+            'updated_at' => $now,
         ];
 
-        $setting = static::firstOrNew(['id' => 1]);
+        if (DB::table('yearly_final_report_template_settings')->where('id', 1)->exists()) {
+            DB::table('yearly_final_report_template_settings')->where('id', 1)->update($payload);
+            return;
+        }
 
-        return $setting->forceFill(array_merge($defaults, $setting->getAttributes()));
+        DB::table('yearly_final_report_template_settings')->insert(array_merge(['id' => 1], $payload));
     }
-}
+
+    public function down(): void
+    {
+        DB::table('yearly_final_report_template_settings')->where('id', 1)->delete();
+    }
+};

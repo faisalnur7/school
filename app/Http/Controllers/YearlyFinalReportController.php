@@ -52,6 +52,34 @@ class YearlyFinalReportController extends Controller
         ]));
     }
 
+    public function preview(Request $request, YearlyFinalReportService $service)
+    {
+        $filters = $request->validate([
+            'session_id' => ['required', 'exists:academic_sessions,id'],
+            'class_id'   => ['required', 'exists:school_classes,id'],
+            'section_id' => ['nullable', 'exists:sections,id'],
+            'student_id' => ['nullable'],
+        ]);
+
+        $report = $service->buildReport(
+            $filters['session_id'],
+            $filters['class_id'],
+            $filters['section_id'] ?? null,
+            $filters['student_id'] ?? null,
+        );
+
+        $rows = collect($report['rows'] ?? [])->take(1)->values()->all();
+
+        return view('pages.yearly-final-report.index', array_merge($report, [
+            'rows' => $rows,
+            'sessions' => AcademicSession::orderByDesc('id')->get(),
+            'classes'  => SchoolClass::where('status', 1)->orderBy('id')->get(),
+            'filters'  => $filters,
+            'templateSettings' => YearlyFinalReportTemplateSetting::current(),
+            'isPreview' => true,
+        ]));
+    }
+
     public function pdf(Request $request, YearlyFinalReportService $service)
     {
         $filters = $request->validate([

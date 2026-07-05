@@ -5,24 +5,39 @@ namespace App\Http\Controllers;
 use App\Models\AcademicSession;
 use App\Models\SchoolClass;
 use App\Models\SchoolSetting;
+use App\Models\Section;
 use App\Models\YearlyFinalReportTemplateSetting;
-use App\Services\YearlyFinalReportService;
 use Illuminate\Http\Request;
 
 class YearlyFinalReportTemplateSettingController extends Controller
 {
-    public function edit(YearlyFinalReportService $service)
+    public function edit()
     {
         $setting = YearlyFinalReportTemplateSetting::current();
         $school = SchoolSetting::current();
         $sessions = AcademicSession::orderByDesc('id')->get();
         $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
-        $previewReport = $service->buildReport(
-            (int) (AcademicSession::latest('id')->value('id') ?? 0),
-            (int) (SchoolClass::where('status', 1)->value('id') ?? 0),
-            null,
-            null
-        );
+        $previewReport = [
+            'highest' => 495.10,
+            'rows' => [
+                [
+                    'student' => (object) [
+                        'full_name_en' => 'Aynun Jariya',
+                        'full_name_bn' => 'Aynun Jariya',
+                        'student_cid' => '0309',
+                        'class_name' => 'Play',
+                        'section_name' => 'A',
+                    ],
+                    'totals' => [
+                        1 => ['tutorial' => 87, 'terminal' => 395, 'total' => 482, 'weight' => 20, 'weighted' => 96.4],
+                        2 => ['tutorial' => 89, 'terminal' => 384, 'total' => 473, 'weight' => 20, 'weighted' => 94.6],
+                        3 => ['tutorial' => 93, 'terminal' => 414, 'total' => 507, 'weight' => 60, 'weighted' => 304.2],
+                    ],
+                    'grand_total' => 495.10,
+                    'position' => 1,
+                ],
+            ],
+        ];
 
         return view('pages.yearly-final-report.template-settings', compact('setting', 'school', 'sessions', 'classes', 'previewReport'));
     }
@@ -30,7 +45,6 @@ class YearlyFinalReportTemplateSettingController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'paper_orientation' => ['required', 'in:portrait,landscape'],
             'margin_top_mm' => ['required', 'numeric', 'min:0', 'max:50'],
             'margin_right_mm' => ['required', 'numeric', 'min:0', 'max:50'],
             'margin_bottom_mm' => ['required', 'numeric', 'min:0', 'max:50'],
@@ -134,6 +148,7 @@ class YearlyFinalReportTemplateSettingController extends Controller
         }
 
         $setting->fill(array_merge($validated, [
+            'paper_orientation' => 'landscape',
             'show_watermark' => $request->boolean('show_watermark'),
             'show_grade_scale' => $request->boolean('show_grade_scale'),
             'show_student_info' => $request->boolean('show_student_info'),
