@@ -15,6 +15,7 @@ use App\Models\AcademicSession;
 use App\Models\Attendance;
 use App\Models\AttendanceItem;
 use App\Models\SchoolSetting;
+use App\Models\ProgressReportTemplateSetting;
 use App\Models\StudentAcademicInformation;
 use App\Services\GradingService;
 use Illuminate\Support\Facades\Mail;
@@ -38,21 +39,27 @@ class ProgressReportController extends Controller
             'section_id' => ['required', 'exists:sections,id'],
             'exam_id'    => ['required', 'exists:exams,id'],
             'student_id' => ['nullable'],
+            'preview'    => ['nullable'],
         ]);
 
         $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id']);
+        $isPreview = $request->boolean('preview');
         $exam     = Exam::with('academicSession')
             ->where('type', Exam::TYPE_TERMINAL)
             ->findOrFail($filters['exam_id']);
         $school   = SchoolSetting::current();
+        $templateSettings = ProgressReportTemplateSetting::current();
         $gradeScale = GradingService::allGrades();
         $sections = Section::where('school_class_id', $filters['class_id'])->get();
 
         $students = $this->getStudents($filters);
+        if ($isPreview) {
+            $students = $students->take(1);
+        }
         $studentsData = $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters));
         $statusMap = $this->buildStatusMap($studentsData->pluck('student.id')->all(), (int) $filters['exam_id']);
 
-        return view('pages.progress-report.results', compact('studentsData', 'exam', 'school', 'gradeScale', 'filters', 'statusMap', 'sections'))
+        return view('pages.progress-report.results', compact('studentsData', 'exam', 'school', 'gradeScale', 'filters', 'statusMap', 'sections', 'templateSettings', 'isPreview'))
             ->with([
                 'sessions' => AcademicSession::orderByDesc('id')->get(),
                 'classes'  => SchoolClass::all(),
@@ -75,14 +82,21 @@ class ProgressReportController extends Controller
             ->where('type', Exam::TYPE_TERMINAL)
             ->findOrFail($filters['exam_id']);
         $school   = SchoolSetting::current();
+        $templateSettings = ProgressReportTemplateSetting::current();
         $gradeScale = GradingService::allGrades();
 
         $students = $this->getStudents($filters);
         $studentsData = $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters));
 
-        $html = view('pages.progress-report.print', compact('studentsData', 'exam', 'school', 'gradeScale', 'filters'))->render();
+        $html = view('pages.progress-report.print', compact('studentsData', 'exam', 'school', 'gradeScale', 'filters', 'templateSettings'))->render();
 
-        $mpdf = new \Mpdf\Mpdf(['format' => 'A4', 'margin_top' => 15, 'margin_bottom' => 15, 'margin_left' => 15, 'margin_right' => 15]);
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => 'A4',
+            'margin_top' => $templateSettings->margin_top_mm * 10,
+            'margin_bottom' => $templateSettings->margin_bottom_mm * 10,
+            'margin_left' => $templateSettings->margin_left_mm * 10,
+            'margin_right' => $templateSettings->margin_right_mm * 10,
+        ]);
         $mpdf->WriteHTML($html);
 
         return response($mpdf->Output('', 'S'))->header('Content-Type', 'application/pdf');

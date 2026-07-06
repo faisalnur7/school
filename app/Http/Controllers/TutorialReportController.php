@@ -16,12 +16,17 @@ use Illuminate\Support\Facades\Mail;
 
 class TutorialReportController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        if ($this->hasCompleteFilters($request)) {
+            return $this->show($request);
+        }
+
         return view('pages.tutorial-report.index', [
             'sessions' => AcademicSession::orderByDesc('id')->get(),
             'classes'  => SchoolClass::all(),
             'exams'    => Exam::where('type', Exam::TYPE_TUTORIAL)->orderByDesc('id')->get(),
+            'filters'  => $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id']),
         ]);
     }
 
@@ -236,6 +241,14 @@ class TutorialReportController extends Controller
             'class' => $class?->name_en ?? ($class?->name_bn ?? '—'),
             'section' => $section?->name_en ?? ($section?->name_bn ?? '—'),
         ];
+    }
+
+    private function hasCompleteFilters(Request $request): bool
+    {
+        return $request->filled('session_id')
+            && $request->filled('class_id')
+            && $request->filled('section_id')
+            && $request->filled('exam_id');
     }
 
     private function buildStatusMap(array $studentIds, int $examId): array

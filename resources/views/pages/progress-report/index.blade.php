@@ -2,14 +2,21 @@
 
 @section('contents')
 <div class="col-12 progress-report-page">
-    <div class="d-flex align-items-center mb-4 gap-3">
-        <div class="rounded-circle d-flex align-items-center justify-content-center shadow"
-             style="width:52px;height:52px;background:linear-gradient(135deg,#1a6b3c,#2d9e5f);flex-shrink:0">
-            <i class="fas fa-file-invoice text-white fa-lg"></i>
-        </div>
-        <div>
-            <h4 class="mb-0 font-weight-bold">Terminal Report</h4>
-            <small class="text-muted">Generate student progress reports by terminal exam, class, and section</small>
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h4 class="card-title mb-0 font-weight-bold text-white">
+                    <i class="fas fa-file-invoice mr-2"></i>Terminal Report
+                </h4>
+                <div class="d-flex gap-2 flex-wrap" role="group" aria-label="Terminal report actions">
+                    <a href="{{ route('results.hub') }}" class="btn btn-light">
+                        <i class="fas fa-arrow-left mr-1"></i>Back to Hub
+                    </a>
+                    <a href="{{ route('result.progress-report.template-settings.edit') }}" class="btn btn-outline-light">
+                        <i class="fas fa-sliders-h mr-1"></i>Template Settings
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
