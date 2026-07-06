@@ -7,6 +7,47 @@
     $logoUrl = !empty($school->logo) ? asset($school->logo) : null;
     $templateSettings = $templateSettings ?? \App\Models\ProgressReportTemplateSetting::current();
     $subjectWidths = $templateSettings->subject_column_widths ?? [];
+    $mixColor = static function (string $hex, string $mix = '#ffffff', float $ratio = 0.8): string {
+        $normalize = static function (string $color): string {
+            $color = ltrim(trim($color), '#');
+            if (strlen($color) === 3) {
+                $color = $color[0] . $color[0] . $color[1] . $color[1] . $color[2] . $color[2];
+            }
+
+            return preg_match('/^[0-9a-fA-F]{6}$/', $color) ? strtolower($color) : '000000';
+        };
+
+        $hex = $normalize($hex);
+        $mix = $normalize($mix);
+        $ratio = max(0, min(1, $ratio));
+        $inverse = 1 - $ratio;
+
+        [$r1, $g1, $b1] = array_map('hexdec', str_split($hex, 2));
+        [$r2, $g2, $b2] = array_map('hexdec', str_split($mix, 2));
+
+        $r = (int) round(($r1 * $ratio) + ($r2 * $inverse));
+        $g = (int) round(($g1 * $ratio) + ($g2 * $inverse));
+        $b = (int) round(($b1 * $ratio) + ($b2 * $inverse));
+
+        return sprintf('#%02x%02x%02x', $r, $g, $b);
+    };
+
+    $modernPalette = [
+        'green' => $templateSettings->school_name_color,
+        'green_light' => $mixColor($templateSettings->school_name_color, '#ffffff', 0.84),
+        'green_dark' => $mixColor($templateSettings->school_name_color, '#000000', 0.78),
+        'amber' => $templateSettings->report_title_color,
+        'amber_light' => $mixColor($templateSettings->report_title_color, '#ffffff', 0.84),
+        'red' => $templateSettings->remarks_title_color,
+        'red_light' => $mixColor($templateSettings->remarks_title_color, '#ffffff', 0.84),
+        'blue' => $templateSettings->student_label_color,
+        'blue_light' => $mixColor($templateSettings->student_label_color, '#ffffff', 0.84),
+        'ink' => $templateSettings->summary_bg_color,
+        'muted' => $templateSettings->remarks_text_color,
+        'border' => $templateSettings->table_border_color,
+        'surface' => $templateSettings->table_body_bg_color,
+        'white' => $templateSettings->table_body_bg_color,
+    ];
 @endphp
     <div class="col-12">
         @unless($isPreview ?? false)
@@ -333,7 +374,7 @@
             {{-- ╔══════════════════════════════════════════════╗
      ║  MODERN DESIGN (design-b)                   ║
      ╚══════════════════════════════════════════════╝ --}}
-            <div class="design-b rc-wrap" style="display:none">
+            <div class="design-b rc-wrap" style="display:none; --rc-green: {{ $modernPalette['green'] }}; --rc-green-light: {{ $modernPalette['green_light'] }}; --rc-green-dark: {{ $modernPalette['green_dark'] }}; --rc-amber: {{ $modernPalette['amber'] }}; --rc-amber-light: {{ $modernPalette['amber_light'] }}; --rc-red: {{ $modernPalette['red'] }}; --rc-red-light: {{ $modernPalette['red_light'] }}; --rc-blue: {{ $modernPalette['blue'] }}; --rc-blue-light: {{ $modernPalette['blue_light'] }}; --rc-ink: {{ $modernPalette['ink'] }}; --rc-muted: {{ $modernPalette['muted'] }}; --rc-border: {{ $modernPalette['border'] }}; --rc-surface: {{ $modernPalette['surface'] }}; --rc-white: {{ $modernPalette['white'] }};">
                 @if(!empty($logoUrl))
                     <div class="rc-watermark">
                         <img src="{{ $logoUrl }}" alt="" class="rc-watermark__img">
@@ -829,8 +870,8 @@
             align-items: center;
             gap: 1.5rem;
             padding: 1.5rem 2rem;
-            background: linear-gradient(135deg, #0f4023 0%, #1a6b3c 55%, #22863d 100%);
-            color: #fff;
+            background: linear-gradient(135deg, var(--rc-green-dark) 0%, var(--rc-green) 55%, var(--rc-green-light) 100%);
+            color: var(--rc-white);
         }
 
         .rc-header-identity {
@@ -866,6 +907,7 @@
             font-weight: 700;
             line-height: 1.2;
             letter-spacing: .02em;
+            color: var(--rc-white);
         }
 
         .rc-school-addr {
@@ -873,6 +915,7 @@
             opacity: .75;
             margin-top: 3px;
             line-height: 1.4;
+            color: var(--rc-white);
         }
 
         .rc-header-title {
@@ -886,13 +929,14 @@
             text-transform: uppercase;
             opacity: .7;
             margin-bottom: 4px;
+            color: var(--rc-white);
         }
 
         .rc-title-main {
             font-family: var(--rc-ff-display);
             font-size: 26px;
             font-weight: 700;
-            color: #fbbf24;
+            color: var(--rc-amber);
             line-height: 1;
         }
 
@@ -901,6 +945,7 @@
             opacity: .85;
             margin-top: 5px;
             font-weight: 500;
+            color: var(--rc-white);
         }
 
         .rc-grade-scale {
@@ -919,27 +964,29 @@
         .rc-scale-table {
             border-collapse: collapse;
             font-size: 10.5px;
-            background: rgba(255, 255, 255, .1);
+            background: var(--rc-white);
             border-radius: 6px;
             overflow: hidden;
+            border: 1px solid var(--rc-border);
         }
 
         .rc-scale-table th,
         .rc-scale-table td {
             padding: 3px 9px;
-            border: 1px solid rgba(255, 255, 255, .15);
+            border: 1px solid var(--rc-border);
             text-align: center;
         }
 
         .rc-scale-table th {
-            background: rgba(255, 255, 255, .18);
+            background: var(--rc-ink);
             font-weight: 600;
             font-size: 9.5px;
+            color: var(--rc-white);
         }
 
         .rc-scale-letter {
             font-weight: 700;
-            color: #fbbf24;
+            color: var(--rc-amber);
         }
 
         .rc-student-strip {
@@ -948,7 +995,7 @@
             gap: 1.5rem;
             padding: 1.25rem 2rem;
             background: var(--rc-green-light);
-            border-bottom: 1px solid #c6e8d5;
+            border-bottom: 1px solid var(--rc-border);
         }
 
         .rc-student-avatar {
@@ -956,7 +1003,7 @@
             height: 52px;
             border-radius: 50%;
             background: var(--rc-green);
-            color: #fff;
+            color: var(--rc-white);
             font-family: var(--rc-ff-display);
             font-size: 22px;
             font-weight: 700;
@@ -1004,7 +1051,7 @@
             align-items: center;
             gap: 10px;
             background: var(--rc-white);
-            border: 1px solid #c6e8d5;
+            border: 1px solid var(--rc-border);
             border-radius: 40px;
             padding: 8px 16px 8px 8px;
             flex-shrink: 0;
@@ -1024,7 +1071,7 @@
 
         .rc-att-track {
             fill: none;
-            stroke: #d1fae5;
+            stroke: var(--rc-green-light);
             stroke-width: 4;
         }
 
@@ -1080,7 +1127,7 @@
 
         .rc-table thead tr {
             background: var(--rc-ink);
-            color: #fff;
+            color: var(--rc-white);
         }
 
         .rc-table th {
@@ -1107,7 +1154,7 @@
         }
 
         .rc-table tbody tr:hover {
-            background: #f0fdf4;
+            background: var(--rc-green-light);
         }
 
         .rc-table tbody tr.rc-row-fail {
@@ -1215,7 +1262,7 @@
             background: var(--rc-ink);
             border-radius: 10px;
             padding: 1rem 1.5rem;
-            color: #fff;
+            color: var(--rc-white);
         }
 
         .rc-summary-label {
@@ -1244,7 +1291,7 @@
         .rc-stat-sep {
             width: 1px;
             height: 36px;
-            background: rgba(255, 255, 255, .15);
+            background: var(--rc-border);
             flex-shrink: 0;
         }
 
@@ -1253,7 +1300,7 @@
             font-size: 22px;
             font-weight: 500;
             line-height: 1;
-            color: #fff;
+            color: var(--rc-white);
         }
 
         .rc-stat-lbl {
@@ -1265,13 +1312,13 @@
         }
 
         .rc-stat--highlight .rc-stat-val {
-            color: #fbbf24;
+            color: var(--rc-amber);
         }
 
         .rc-stat--grade .rc-stat-val {
             font-family: var(--rc-ff-display);
             font-size: 26px;
-            color: #6ee7b7;
+            color: var(--rc-green);
         }
 
         .rc-bottom-row {
@@ -1310,8 +1357,8 @@
         }
 
         .rc-remark-excellent {
-            background: #dcfce7;
-            color: #166534;
+            background: var(--rc-green-light);
+            color: var(--rc-green);
         }
 
         .rc-remark-good {
@@ -1345,7 +1392,7 @@
 
         .rc-comments-list li {
             font-size: 13px;
-            color: var(--rc-ink);
+            color: var(--rc-muted);
             line-height: 1.5;
             display: flex;
             align-items: flex-start;
@@ -1707,14 +1754,14 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: .08em;
-            color: #6b7280;
+            color: var(--rc-muted);
             font-weight: 600;
         }
 
         .rc-att-count {
             font-size: 13px;
             font-weight: 600;
-            color: #111827;
+            color: var(--rc-ink);
         }
 
         /* ── Subjects table ─────────────────────────── */
@@ -1730,8 +1777,8 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
         }
 
         .rc-table thead tr {
-            background: #1f2937;
-            color: #fff;
+            background: var(--rc-ink);
+            color: var(--rc-white);
         }
 
         .rc-table th {
@@ -1742,7 +1789,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             text-transform: uppercase;
             text-align: center;
             border: none;
-            color: #f9fafb;
+            color: var(--rc-white);
         }
 
         .rc-th-left {
@@ -1750,33 +1797,33 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
         }
 
         .rc-table tbody tr {
-            border-bottom: 1px solid #f3f4f6;
+            border-bottom: 1px solid var(--rc-border);
             transition: background .15s;
         }
 
         .rc-table tbody tr:nth-child(even) {
-            background: #f9fafb;
+            background: var(--rc-surface);
         }
 
         .rc-table tbody tr:hover {
-            background: #f0fdf4;
+            background: var(--rc-green-light);
         }
 
         .rc-table tbody tr.rc-row-fail {
-            background: #fef2f2 !important;
+            background: var(--rc-red-light) !important;
         }
 
         .rc-table td {
             padding: 10px 14px;
             border: none;
             vertical-align: middle;
-            color: #111827;
+            color: var(--rc-ink);
         }
 
         .rc-td-subject {
             font-weight: 500;
             padding-left: 14px;
-            color: #111827;
+            color: var(--rc-ink);
         }
 
         .rc-fail-dot {
@@ -1791,12 +1838,12 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
 
         .rc-td-num {
             text-align: center;
-            color: #6b7280;
+            color: var(--rc-muted);
         }
 
         .rc-td-obtained {
             font-weight: 600;
-            color: #111827 !important;
+            color: var(--rc-ink) !important;
         }
 
         .rc-td-total {
@@ -1807,7 +1854,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
         .rc-td-gp {
             font-family: var(--rc-ff-mono);
             font-weight: 600;
-            color: #111827 !important;
+            color: var(--rc-ink) !important;
         }
 
         .rc-td-grade {
@@ -1826,40 +1873,40 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
 
         .rc-grade-a-plus,
         .rc-grade-a {
-            background: #dcfce7;
-            color: #166534;
+            background: var(--rc-green-light);
+            color: var(--rc-green);
         }
 
         .rc-grade-a-minus {
-            background: #d1fae5;
-            color: #065f46;
+            background: var(--rc-green-light);
+            color: var(--rc-green);
         }
 
         .rc-grade-b-plus,
         .rc-grade-b {
-            background: #eff6ff;
-            color: #1d4ed8;
+            background: var(--rc-blue-light);
+            color: var(--rc-blue);
         }
 
         .rc-grade-b-minus {
-            background: #e0e7ff;
-            color: #3730a3;
+            background: var(--rc-blue-light);
+            color: var(--rc-blue);
         }
 
         .rc-grade-c-plus,
         .rc-grade-c {
-            background: #fef3c7;
-            color: #d97706;
+            background: var(--rc-amber-light);
+            color: var(--rc-amber);
         }
 
         .rc-grade-d {
-            background: #fee2e2;
-            color: #991b1b;
+            background: var(--rc-red-light);
+            color: var(--rc-red);
         }
 
         .rc-grade-f {
-            background: #fecaca;
-            color: #dc2626;
+            background: var(--rc-red-light);
+            color: var(--rc-red);
         }
 
         /* ── Summary bar (was dark/black, now light) ── */
@@ -1868,11 +1915,11 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             align-items: center;
             gap: 1.5rem;
             margin: 1.25rem 2rem;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
+            background: var(--rc-surface);
+            border: 1px solid var(--rc-border);
             border-radius: 10px;
             padding: 1rem 1.5rem;
-            color: #111827;
+            color: var(--rc-ink);
         }
 
         .rc-summary-label {
@@ -1880,7 +1927,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             font-weight: 700;
             letter-spacing: .12em;
             text-transform: uppercase;
-            color: #9ca3af;
+            color: var(--rc-muted);
             writing-mode: vertical-rl;
             transform: rotate(180deg);
             flex-shrink: 0;
@@ -1901,7 +1948,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
         .rc-stat-sep {
             width: 1px;
             height: 36px;
-            background: #e5e7eb;
+            background: var(--rc-border);
             flex-shrink: 0;
         }
 
@@ -1910,14 +1957,14 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             font-size: 22px;
             font-weight: 500;
             line-height: 1;
-            color: #111827;
+            color: var(--rc-ink);
         }
 
         .rc-stat-lbl {
             font-size: 10px;
             letter-spacing: .08em;
             text-transform: uppercase;
-            color: #9ca3af;
+            color: var(--rc-muted);
             margin-top: 4px;
         }
 
@@ -1942,8 +1989,8 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
         .rc-remarks-block,
         .rc-comments-block {
             flex: 1;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
+            background: var(--rc-surface);
+            border: 1px solid var(--rc-border);
             border-radius: 10px;
             padding: 1rem 1.25rem;
         }
@@ -1953,7 +2000,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             font-weight: 700;
             letter-spacing: .12em;
             text-transform: uppercase;
-            color: #9ca3af;
+            color: var(--rc-muted);
             margin-bottom: 10px;
         }
 
@@ -1969,28 +2016,28 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
         }
 
         .rc-remark-excellent {
-            background: #dcfce7;
-            color: #166534;
+            background: var(--rc-green-light);
+            color: var(--rc-green);
         }
 
         .rc-remark-good {
-            background: #eff6ff;
-            color: #1d4ed8;
+            background: var(--rc-blue-light);
+            color: var(--rc-blue);
         }
 
         .rc-remark-satisfactory {
-            background: #fef3c7;
-            color: #d97706;
+            background: var(--rc-amber-light);
+            color: var(--rc-amber);
         }
 
         .rc-remark-improve {
-            background: #fef2f2;
-            color: #dc2626;
+            background: var(--rc-red-light);
+            color: var(--rc-red);
         }
 
         .rc-remark-desc {
             font-size: 12px;
-            color: #6b7280;
+            color: var(--rc-muted);
             line-height: 1.5;
             margin: 0;
         }
@@ -2005,7 +2052,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
 
         .rc-comments-list li {
             font-size: 13px;
-            color: #374151;
+            color: var(--rc-muted);
             line-height: 1.5;
             display: flex;
             align-items: flex-start;
@@ -2025,12 +2072,12 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             justify-content: space-between;
             align-items: flex-end;
             padding: 1rem 2rem 1.5rem;
-            border-top: 1px solid #e5e7eb;
+            border-top: 1px solid var(--rc-border);
         }
 
         .rc-published {
             font-size: 12px;
-            color: #6b7280;
+            color: var(--rc-muted);
             display: flex;
             align-items: center;
             gap: 6px;
@@ -2165,7 +2212,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
 
         .rc-sig-line {
             width: 130px;
-            border-top: 1.5px solid #374151;
+            border-top: 1.5px solid var(--rc-border);
             margin-bottom: 5px;
         }
 
@@ -2174,7 +2221,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             font-weight: 600;
             letter-spacing: .06em;
             text-transform: uppercase;
-            color: #6b7280;
+            color: var(--rc-muted);
         }
 
         /* ════ PRINT ════════════════════════════════════ */

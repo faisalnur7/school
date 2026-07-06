@@ -36,21 +36,53 @@
     @endif
 
     <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white font-weight-bold">Live Preview</div>
+        <div class="card-header bg-white font-weight-bold d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <span>Live Preview</span>
+            <div class="preview-switch-wrap">
+                <span class="preview-switch-label active" id="previewLabelClassic">
+                    <i class="fas fa-scroll mr-1"></i>Classic
+                </span>
+                <label class="preview-switch" title="Switch preview">
+                    <input type="checkbox" id="templatePreviewToggle" onchange="switchTemplatePreview(this.checked)">
+                    <span class="preview-switch-slider">
+                        <span class="preview-switch-knob"></span>
+                    </span>
+                </label>
+                <span class="preview-switch-label" id="previewLabelModern">
+                    <i class="fas fa-layer-group mr-1"></i>Modern
+                </span>
+            </div>
+        </div>
         <div class="card-body" style="background: #f8fafc;">
             <div class="progress-template-preview-shell">
-                @include('pages.progress-report._classic-preview', [
-                    'schoolName' => $schoolName,
-                    'schoolAddress' => $schoolAddress,
-                    'logoUrl' => $logoUrl,
-                    'templateSettings' => $setting,
-                    'gradeScale' => $gradeScale,
-                    'previewStudent' => $previewStudent,
-                    'sampleRows' => $sampleRows,
-                    'summary' => $summary,
-                    'attendancePresent' => $attendancePresent,
-                    'attendanceTotal' => $attendanceTotal,
-                ])
+                <div class="progress-template-preview-panel progress-template-preview-panel--classic is-active" data-preview-panel="classic">
+                    @include('pages.progress-report._classic-preview', [
+                        'schoolName' => $schoolName,
+                        'schoolAddress' => $schoolAddress,
+                        'logoUrl' => $logoUrl,
+                        'templateSettings' => $setting,
+                        'gradeScale' => $gradeScale,
+                        'previewStudent' => $previewStudent,
+                        'sampleRows' => $sampleRows,
+                        'summary' => $summary,
+                        'attendancePresent' => $attendancePresent,
+                        'attendanceTotal' => $attendanceTotal,
+                    ])
+                </div>
+                <div class="progress-template-preview-panel progress-template-preview-panel--modern" data-preview-panel="modern" style="display:none;">
+                    @include('pages.progress-report._modern-preview', [
+                        'schoolName' => $schoolName,
+                        'schoolAddress' => $schoolAddress,
+                        'logoUrl' => $logoUrl,
+                        'templateSettings' => $setting,
+                        'gradeScale' => $gradeScale,
+                        'previewStudent' => $previewStudent,
+                        'sampleRows' => $sampleRows,
+                        'summary' => $summary,
+                        'attendancePresent' => $attendancePresent,
+                        'attendanceTotal' => $attendanceTotal,
+                    ])
+                </div>
             </div>
         </div>
     </div>
@@ -401,6 +433,79 @@
         background: #fff;
     }
 
+    .progress-template-preview-panel.is-active {
+        display: block;
+    }
+
+    .preview-switch-wrap {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 999px;
+        padding: 8px 16px;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+        user-select: none;
+    }
+
+    .preview-switch-label {
+        font-size: 14px;
+        font-weight: 700;
+        color: #9ca3af;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: color .25s ease;
+    }
+
+    .preview-switch-label.active {
+        color: #166534;
+    }
+
+    .preview-switch {
+        position: relative;
+        display: inline-block;
+        width: 52px;
+        height: 28px;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .preview-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .preview-switch-slider {
+        position: absolute;
+        inset: 0;
+        background: #e5e7eb;
+        border-radius: 999px;
+        transition: background .25s ease;
+    }
+
+    .preview-switch-knob {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, .18);
+        transition: transform .25s ease;
+    }
+
+    .preview-switch input:checked ~ .preview-switch-slider {
+        background: #16a34a;
+    }
+
+    .preview-switch input:checked ~ .preview-switch-slider .preview-switch-knob {
+        transform: translateX(24px);
+    }
+
     .yearly-template-tabs {
         position: sticky;
         top: 0;
@@ -522,4 +627,50 @@
         filter: grayscale(100%);
     }
 </style>
+@endsection
+
+@section('scripts')
+<script>
+    (function () {
+        const STORAGE_KEY = 'progress-template-preview';
+
+        function setPreviewMode(useModern) {
+            const classicPanel = document.querySelector('[data-preview-panel="classic"]');
+            const modernPanel = document.querySelector('[data-preview-panel="modern"]');
+            const labelClassic = document.getElementById('previewLabelClassic');
+            const labelModern = document.getElementById('previewLabelModern');
+            const toggle = document.getElementById('templatePreviewToggle');
+
+            if (!classicPanel || !modernPanel || !labelClassic || !labelModern || !toggle) {
+                return;
+            }
+
+            classicPanel.style.display = useModern ? 'none' : 'block';
+            modernPanel.style.display = useModern ? 'block' : 'none';
+            labelClassic.classList.toggle('active', !useModern);
+            labelModern.classList.toggle('active', useModern);
+            toggle.checked = useModern;
+
+            try {
+                localStorage.setItem(STORAGE_KEY, useModern ? 'modern' : 'classic');
+            } catch (e) {
+                // ignore storage failures
+            }
+        }
+
+        window.switchTemplatePreview = function (checked) {
+            setPreviewMode(checked);
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let pref = 'classic';
+            try {
+                pref = localStorage.getItem(STORAGE_KEY) || 'classic';
+            } catch (e) {
+                pref = 'classic';
+            }
+            setPreviewMode(pref === 'modern');
+        });
+    })();
+</script>
 @endsection
