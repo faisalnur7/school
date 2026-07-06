@@ -5,59 +5,111 @@
     $schoolName = $school->name ?? 'Green Chartered School & College';
     $schoolAddress = $school->address ?? 'CIP Tower, Hazari-digir-phar, Dohajari, Chandanish, Chattogram';
     $logoUrl = !empty($school->logo) ? asset($school->logo) : null;
+    $templateSettings = $templateSettings ?? \App\Models\ProgressReportTemplateSetting::current();
+    $subjectWidths = $templateSettings->subject_column_widths ?? [];
+    $mixColor = static function (string $hex, string $mix = '#ffffff', float $ratio = 0.8): string {
+        $normalize = static function (string $color): string {
+            $color = ltrim(trim($color), '#');
+            if (strlen($color) === 3) {
+                $color = $color[0] . $color[0] . $color[1] . $color[1] . $color[2] . $color[2];
+            }
+
+            return preg_match('/^[0-9a-fA-F]{6}$/', $color) ? strtolower($color) : '000000';
+        };
+
+        $hex = $normalize($hex);
+        $mix = $normalize($mix);
+        $ratio = max(0, min(1, $ratio));
+        $inverse = 1 - $ratio;
+
+        [$r1, $g1, $b1] = array_map('hexdec', str_split($hex, 2));
+        [$r2, $g2, $b2] = array_map('hexdec', str_split($mix, 2));
+
+        $r = (int) round(($r1 * $ratio) + ($r2 * $inverse));
+        $g = (int) round(($g1 * $ratio) + ($g2 * $inverse));
+        $b = (int) round(($b1 * $ratio) + ($b2 * $inverse));
+
+        return sprintf('#%02x%02x%02x', $r, $g, $b);
+    };
+
+    $modernPalette = [
+        'green' => $templateSettings->school_name_color,
+        'green_light' => $mixColor($templateSettings->school_name_color, '#ffffff', 0.84),
+        'green_dark' => $mixColor($templateSettings->school_name_color, '#000000', 0.78),
+        'amber' => $templateSettings->report_title_color,
+        'amber_light' => $mixColor($templateSettings->report_title_color, '#ffffff', 0.84),
+        'red' => $templateSettings->remarks_title_color,
+        'red_light' => $mixColor($templateSettings->remarks_title_color, '#ffffff', 0.84),
+        'blue' => $templateSettings->student_label_color,
+        'blue_light' => $mixColor($templateSettings->student_label_color, '#ffffff', 0.84),
+        'ink' => $templateSettings->summary_bg_color,
+        'muted' => $templateSettings->remarks_text_color,
+        'border' => $templateSettings->table_border_color,
+        'surface' => $templateSettings->table_body_bg_color,
+        'white' => $templateSettings->table_body_bg_color,
+    ];
 @endphp
     <div class="col-12">
+        @unless($isPreview ?? false)
         @include('pages.progress-report._filter')
+        @endunless
 
-        {{-- ══ Top Action Bar ══ --}}
-        <div class="d-flex justify-content-between align-items-center mb-4 no-print">
-            <div class="d-flex align-items-center gap-3">
-                <div class="rounded-circle d-flex align-items-center justify-content-center shadow"
-                    style="width:52px;height:52px;background:linear-gradient(135deg,#1a6b3c,#2d9e5f);flex-shrink:0">
-                    <i class="fas fa-file-invoice text-white fa-lg"></i>
+        @unless($isPreview ?? false)
+            {{-- ══ Top Action Bar ══ --}}
+            <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center shadow"
+                        style="width:52px;height:52px;background:linear-gradient(135deg,#1a6b3c,#2d9e5f);flex-shrink:0">
+                        <i class="fas fa-file-invoice text-white fa-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 font-weight-bold text-white">Progress Report</h4>
+                        <small class="text-muted">{{ $exam->name }} &mdash;
+                            {{ $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? '') }}</small>
+                    </div>
                 </div>
-                <div>
-                    <h4 class="mb-0 font-weight-bold text-white">Progress Report</h4>
-                    <small class="text-muted">{{ $exam->name }} &mdash;
-                        {{ $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? '') }}</small>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('result.progress-report.pdf', $filters) }}" target="_blank" class="btn btn-danger btn-sm result-filter-icon-btn" title="PDF" aria-label="PDF">
+                        <i class="fas fa-file-pdf"></i>
+                    </a>
+                    <button onclick="window.print()" class="btn btn-info btn-sm no-print result-filter-icon-btn" title="Print" aria-label="Print">
+                        <i class="fas fa-print"></i>
+                    </button>
+                    <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary btn-sm no-print result-filter-icon-btn" title="Back" aria-label="Back">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <a href="{{ route('result.progress-report.template-settings.edit') }}" class="btn btn-outline-light btn-sm no-print result-filter-icon-btn" title="Template Settings" aria-label="Template Settings">
+                        <i class="fas fa-sliders-h"></i>
+                    </a>
                 </div>
             </div>
-            <div class="d-flex gap-2">
-                <a href="{{ route('result.progress-report.pdf', $filters) }}" target="_blank" class="btn btn-danger btn-sm result-filter-icon-btn" title="PDF" aria-label="PDF">
-                    <i class="fas fa-file-pdf"></i>
-                </a>
-                <button onclick="window.print()" class="btn btn-info btn-sm no-print result-filter-icon-btn" title="Print" aria-label="Print">
-                    <i class="fas fa-print"></i>
-                </button>
-                <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary btn-sm no-print result-filter-icon-btn" title="Back" aria-label="Back">
-                    <i class="fas fa-arrow-left"></i>
-                </a>
-            </div>
-        </div>
+        @endunless
 
         {{-- ══ Alert + Design Toggle Row ══ --}}
-        <div class="d-flex justify-content-between align-items-center mb-3 no-print">
-            <div class="alert alert-success d-flex align-items-center mb-0" style="flex:1">
-                <i class="fas fa-users mr-2"></i>
-                Showing <strong class="mx-1">{{ count($studentsData) }}</strong> student report(s)
-            </div>
+        @unless($isPreview ?? false)
+            <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+                <div class="alert alert-success d-flex align-items-center mb-0" style="flex:1">
+                    <i class="fas fa-users mr-2"></i>
+                    Showing <strong class="mx-1">{{ count($studentsData) }}</strong> student report(s)
+                </div>
 
-            {{-- DESIGN TOGGLE SWITCH --}}
-            <div class="ds-toggle-wrap" id="designToggleWrap">
-                <span class="ds-toggle-label" id="dsLabelClassic">
-                    <i class="fas fa-scroll"></i> Classic
-                </span>
-                <label class="ds-switch" title="Switch design">
-                    <input type="checkbox" id="designToggle" onchange="switchDesign(this.checked)">
-                    <span class="ds-slider">
-                        <span class="ds-knob"></span>
+                {{-- DESIGN TOGGLE SWITCH --}}
+                <div class="ds-toggle-wrap" id="designToggleWrap">
+                    <span class="ds-toggle-label" id="dsLabelClassic">
+                        <i class="fas fa-scroll"></i> Classic
                     </span>
-                </label>
-                <span class="ds-toggle-label" id="dsLabelModern">
-                    <i class="fas fa-layer-group"></i> Modern
-                </span>
+                    <label class="ds-switch" title="Switch design">
+                        <input type="checkbox" id="designToggle" onchange="switchDesign(this.checked)">
+                        <span class="ds-slider">
+                            <span class="ds-knob"></span>
+                        </span>
+                    </label>
+                    <span class="ds-toggle-label" id="dsLabelModern">
+                        <i class="fas fa-layer-group"></i> Modern
+                    </span>
+                </div>
             </div>
-        </div>
+        @endunless
 
         {{-- ═══════════════════════════════════════════════════════
          REPORTS LOOP
@@ -72,6 +124,7 @@
                 $attendanceTotal = $data['attendanceTotal'];
             @endphp
 
+            @unless($isPreview ?? false)
             <div class="d-flex justify-content-end mb-2 no-print">
                 {{-- <span class="badge mr-2 js-email-status {{ !empty($statusMap[$student->id]) ? 'badge-success' : 'badge-secondary' }}"
                     id="progress-email-status-{{ $student->id }}">
@@ -89,14 +142,22 @@
                     <i class="fas fa-envelope mr-1"></i> Send to Parents
                 </button> --}}
             </div>
+            @endunless
 
             {{-- ╔══════════════════════════════════════════════╗
          ║  CLASSIC DESIGN (design-a)                  ║
          ╚══════════════════════════════════════════════╝ --}}
-            <div class="design-a report-card-classic">
-                @if(!empty($logoUrl))
+            <div class="design-a report-card-classic" style="
+                border-color: {{ $templateSettings->card_border_color }};
+                border-top-color: {{ $templateSettings->header_border_color }};
+                --pr-header-border-color: {{ $templateSettings->header_border_color }};
+                --pr-table-border: {{ $templateSettings->table_border_color }};
+                --pr-watermark-opacity: {{ $templateSettings->watermark_opacity }};
+                --pr-watermark-scale: {{ $templateSettings->watermark_scale }}%;
+            ">
+                @if($templateSettings->show_watermark && !empty($logoUrl))
                     <div class="report-card-watermark">
-                        <img src="{{ $logoUrl }}" alt="" class="report-card-watermark__img">
+                        <img src="{{ $logoUrl }}" alt="" class="report-card-watermark__img" style="opacity: {{ $templateSettings->watermark_opacity }}; width: {{ $templateSettings->watermark_scale }}%;">
                     </div>
                 @endif
 
@@ -105,22 +166,23 @@
                         <div class="classic-header-brand">
                             @if(!empty($logoUrl))
                                 <div class="classic-header-logo">
-                                    <img src="{{ $logoUrl }}" alt="{{ $schoolName }} logo">
+                                    <img src="{{ $logoUrl }}" alt="{{ $schoolName }} logo" style="max-width: {{ $templateSettings->school_logo_max_width_mm }}cm;">
                                 </div>
                             @endif
                             <div class="classic-header-copy">
-                                <h1 class="text-3xl font-bold text-green-700 uppercase tracking-wide mb-0">
+                                <h1 class="text-3xl font-bold uppercase tracking-wide mb-0" style="font-size: {{ $templateSettings->school_name_font_size }}px; color: {{ $templateSettings->school_name_color }};">
                                     {{ $schoolName }}
                                 </h1>
-                                <p class="text-sm text-gray-700 mt-1 mb-0">
+                                <p class="text-sm mt-1 mb-0" style="font-size: {{ $templateSettings->school_address_font_size }}px; color: {{ $templateSettings->school_address_color }};">
                                     {{ $schoolAddress }}
                                 </p>
                             </div>
                         </div>
 
+                        @if($templateSettings->show_grade_scale)
                         <div class="classic-grade-table">
-                            <table class="text-xs border border-gray-700">
-                                <thead class="bg-gray-100">
+                            <table class="text-xs border border-gray-700" style="border-color: {{ $templateSettings->table_border_color }};">
+                                <thead style="background: {{ $templateSettings->table_header_bg_color }}; color: {{ $templateSettings->table_header_text_color }};">
                                     <tr>
                                         <th class="px-3 py-1 text-center">Range</th>
                                         <th class="px-1 py-1 text-center">Grade</th>
@@ -138,25 +200,28 @@
                                 </tbody>
                             </table>
                         </div>
+                        @endif
                     </div>
-                    <h2 class="text-2xl font-bold text-orange-700 italic mt-5 uppercase text-center">
-                        Progress Report
+                    <h2 class="text-2xl font-bold italic mt-5 uppercase text-center" style="font-size: {{ $templateSettings->report_title_font_size }}px; color: {{ $templateSettings->report_title_color }};">
+                        {{ $templateSettings->report_title_text }}
                     </h2>
                 </div>
 
+                @if($templateSettings->show_student_info)
                 <div class="mt-6 flex justify-between items-start">
                     <div>
-                        <h3 class="font-bold text-xl underline">{{ $exam->name }}</h3>
+                        <h3 class="font-bold text-xl underline" style="color: {{ $templateSettings->student_value_color }};">{{ $exam->name }}</h3>
                         <div class="mt-4 space-y-1 text-sm">
-                            <p><span class="font-semibold">Name</span> : {{ $student->full_name_en }}</p>
-                            <p><span class="font-semibold">Class</span> : {{ $info?->schoolClass?->name_en ?? '—' }}</p>
-                            <p><span class="font-semibold">ID</span> : {{ $student->student_cid ?? $student->id }}</p>
+                            <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">Name</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $student->full_name_en }}</span></p>
+                            <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">Class</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $info?->schoolClass?->name_en ?? '—' }}</span></p>
+                            <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">ID</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $student->student_cid ?? $student->id }}</span></p>
                         </div>
                     </div>
                 </div>
+                @endif
 
                 <div class="mt-6 overflow-x-auto">
-                    <table class="w-full text-sm border border-gray-700">
+                    <table class="w-full text-sm border border-gray-700" style="border-color: {{ $templateSettings->table_border_color }};">
                         <thead class="bg-gray-100 text-center">
                             <tr>
                                 <th class="px-3 py-2 text-left">Subjects</th>
@@ -212,9 +277,10 @@
                     </table>
                 </div>
 
+                @if($templateSettings->show_summary)
                 <div class="mt-6">
-                    <table class="w-full text-sm border border-gray-700">
-                        <thead class="bg-gray-100">
+                    <table class="w-full text-sm border border-gray-700" style="border-color: {{ $templateSettings->table_border_color }};">
+                        <thead style="background: {{ $templateSettings->summary_bg_color }}; color: {{ $templateSettings->summary_text_color }};">
                             <tr>
                                 <th class="px-3 py-2">Summary</th>
                                 <th class="px-3 py-2">Total Exam Marks</th>
@@ -235,49 +301,62 @@
                         </tbody>
                     </table>
                 </div>
+                @endif
 
+                @if($templateSettings->show_remarks)
                 <div class="mt-6 text-sm">
-                    <h4 class="font-bold underline mb-2">Remarks:</h4>
+                    <h4 class="font-bold underline mb-2" style="color: {{ $templateSettings->remarks_title_color }};">Remarks:</h4>
                     <div class="space-y-1">
                         @if ($summary['gpa'] >= 4.0)
-                            <p class="inline-block bg-green-200 px-2 rounded">Excellent</p>
+                            <p class="inline-block bg-green-200 px-2 rounded" style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_excellent_text }}</p>
                         @elseif($summary['gpa'] >= 3.0)
-                            <p class="inline-block bg-green-200 px-2 rounded">Good</p>
+                            <p class="inline-block bg-green-200 px-2 rounded" style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_good_text }}</p>
                         @elseif($summary['gpa'] >= 2.0)
-                            <p>Satisfactory</p>
+                            <p style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_satisfactory_text }}</p>
                         @else
-                            <p>Need to be improved</p>
+                            <p style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_improve_text }}</p>
                         @endif
                     </div>
                 </div>
+                @endif
 
+                @if($templateSettings->show_comments)
                 <div class="mt-6 border border-gray-400 p-4 text-sm">
                     <ul class="list-disc pl-5 space-y-2">
                         <li>{{ $student->full_name_en }} was present {{ $attendancePresent }} days out of
                             {{ $attendanceTotal }} days.</li>
                         @if ($summary['gpa'] >= 4.0)
-                            <li>Excellent results! You faithfully perform classroom tasks.</li>
+                            <li>{{ $templateSettings->comments_excellent_text }}</li>
                         @elseif($summary['gpa'] >= 3.0)
-                            <li>Good results! Keep up the good work.</li>
+                            <li>{{ $templateSettings->comments_good_text }}</li>
                         @else
-                            <li>Need to improve performance.</li>
+                            <li>{{ $templateSettings->comments_default_text }}</li>
                         @endif
                     </ul>
                 </div>
+                @endif
 
+                @if($templateSettings->show_signature || $templateSettings->show_print_date)
                 <div class="mt-10 flex justify-between items-end text-sm">
                     <div>
-                        <p class="font-semibold">Published Date: {{ now()->format('d-m-Y') }}</p>
-                        <div class="mt-12">
-                            <div class="border-t border-black w-40"></div>
-                            <p>Class Teacher</p>
+                        @if($templateSettings->show_print_date)
+                            <p class="font-semibold">Published Date: {{ now()->format('d-m-Y') }}</p>
+                        @endif
+                        @if($templateSettings->show_signature)
+                            <div class="mt-12">
+                                <div class="border-t w-40" style="border-top-color: {{ $templateSettings->signature_line_color }};"></div>
+                                <p>Class Teacher</p>
+                            </div>
+                        @endif
+                    </div>
+                    @if($templateSettings->show_signature)
+                        <div class="text-right">
+                            <div class="border-t w-40 ml-auto" style="border-top-color: {{ $templateSettings->signature_line_color }};"></div>
+                            <p>Principal</p>
                         </div>
-                    </div>
-                    <div class="text-right">
-                        <div class="border-t border-black w-40 ml-auto"></div>
-                        <p>Principal</p>
-                    </div>
+                    @endif
                 </div>
+                @endif
 
             </div>
 
@@ -295,7 +374,7 @@
             {{-- ╔══════════════════════════════════════════════╗
      ║  MODERN DESIGN (design-b)                   ║
      ╚══════════════════════════════════════════════╝ --}}
-            <div class="design-b rc-wrap" style="display:none">
+            <div class="design-b rc-wrap" style="display:none; --rc-green: {{ $modernPalette['green'] }}; --rc-green-light: {{ $modernPalette['green_light'] }}; --rc-green-dark: {{ $modernPalette['green_dark'] }}; --rc-amber: {{ $modernPalette['amber'] }}; --rc-amber-light: {{ $modernPalette['amber_light'] }}; --rc-red: {{ $modernPalette['red'] }}; --rc-red-light: {{ $modernPalette['red_light'] }}; --rc-blue: {{ $modernPalette['blue'] }}; --rc-blue-light: {{ $modernPalette['blue_light'] }}; --rc-ink: {{ $modernPalette['ink'] }}; --rc-muted: {{ $modernPalette['muted'] }}; --rc-border: {{ $modernPalette['border'] }}; --rc-surface: {{ $modernPalette['surface'] }}; --rc-white: {{ $modernPalette['white'] }};">
                 @if(!empty($logoUrl))
                     <div class="rc-watermark">
                         <img src="{{ $logoUrl }}" alt="" class="rc-watermark__img">
@@ -669,7 +748,7 @@
 
         .classic-header-inner {
             position: relative;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--pr-header-border-color, #e5e7eb);
             padding-bottom: 1rem;
         }
 
@@ -737,10 +816,11 @@
 
         .classic-grade-table th,
         .classic-grade-table td {
-            padding: 2px 4px;
+            padding: 1px 3px !important;
             line-height: 1.05;
             white-space: nowrap;
             word-break: normal;
+            border-color: var(--pr-table-border, #555);
         }
 
         .classic-grade-table th:nth-child(1),
@@ -759,13 +839,13 @@
             justify-content: center;
             pointer-events: none;
             z-index: 0;
-            opacity: 0.08;
+            opacity: var(--pr-watermark-opacity, 0.08);
         }
 
         .report-card-watermark__img,
         .rc-watermark__img {
-            width: min(560px, 78%);
-            max-width: 78%;
+            width: min(560px, var(--pr-watermark-scale, 78%));
+            max-width: var(--pr-watermark-scale, 78%);
             max-height: 78%;
             object-fit: contain;
             filter: grayscale(100%);
@@ -790,8 +870,8 @@
             align-items: center;
             gap: 1.5rem;
             padding: 1.5rem 2rem;
-            background: linear-gradient(135deg, #0f4023 0%, #1a6b3c 55%, #22863d 100%);
-            color: #fff;
+            background: linear-gradient(135deg, var(--rc-green-dark) 0%, var(--rc-green) 55%, var(--rc-green-light) 100%);
+            color: var(--rc-white);
         }
 
         .rc-header-identity {
@@ -827,6 +907,7 @@
             font-weight: 700;
             line-height: 1.2;
             letter-spacing: .02em;
+            color: var(--rc-white);
         }
 
         .rc-school-addr {
@@ -834,6 +915,7 @@
             opacity: .75;
             margin-top: 3px;
             line-height: 1.4;
+            color: var(--rc-white);
         }
 
         .rc-header-title {
@@ -847,13 +929,14 @@
             text-transform: uppercase;
             opacity: .7;
             margin-bottom: 4px;
+            color: var(--rc-white);
         }
 
         .rc-title-main {
             font-family: var(--rc-ff-display);
             font-size: 26px;
             font-weight: 700;
-            color: #fbbf24;
+            color: var(--rc-amber);
             line-height: 1;
         }
 
@@ -862,6 +945,7 @@
             opacity: .85;
             margin-top: 5px;
             font-weight: 500;
+            color: var(--rc-white);
         }
 
         .rc-grade-scale {
@@ -880,27 +964,29 @@
         .rc-scale-table {
             border-collapse: collapse;
             font-size: 10.5px;
-            background: rgba(255, 255, 255, .1);
+            background: var(--rc-white);
             border-radius: 6px;
             overflow: hidden;
+            border: 1px solid var(--rc-border);
         }
 
         .rc-scale-table th,
         .rc-scale-table td {
             padding: 3px 9px;
-            border: 1px solid rgba(255, 255, 255, .15);
+            border: 1px solid var(--rc-border);
             text-align: center;
         }
 
         .rc-scale-table th {
-            background: rgba(255, 255, 255, .18);
+            background: var(--rc-ink);
             font-weight: 600;
             font-size: 9.5px;
+            color: var(--rc-white);
         }
 
         .rc-scale-letter {
             font-weight: 700;
-            color: #fbbf24;
+            color: var(--rc-amber);
         }
 
         .rc-student-strip {
@@ -909,7 +995,7 @@
             gap: 1.5rem;
             padding: 1.25rem 2rem;
             background: var(--rc-green-light);
-            border-bottom: 1px solid #c6e8d5;
+            border-bottom: 1px solid var(--rc-border);
         }
 
         .rc-student-avatar {
@@ -917,7 +1003,7 @@
             height: 52px;
             border-radius: 50%;
             background: var(--rc-green);
-            color: #fff;
+            color: var(--rc-white);
             font-family: var(--rc-ff-display);
             font-size: 22px;
             font-weight: 700;
@@ -965,7 +1051,7 @@
             align-items: center;
             gap: 10px;
             background: var(--rc-white);
-            border: 1px solid #c6e8d5;
+            border: 1px solid var(--rc-border);
             border-radius: 40px;
             padding: 8px 16px 8px 8px;
             flex-shrink: 0;
@@ -985,7 +1071,7 @@
 
         .rc-att-track {
             fill: none;
-            stroke: #d1fae5;
+            stroke: var(--rc-green-light);
             stroke-width: 4;
         }
 
@@ -1041,7 +1127,7 @@
 
         .rc-table thead tr {
             background: var(--rc-ink);
-            color: #fff;
+            color: var(--rc-white);
         }
 
         .rc-table th {
@@ -1068,7 +1154,7 @@
         }
 
         .rc-table tbody tr:hover {
-            background: #f0fdf4;
+            background: var(--rc-green-light);
         }
 
         .rc-table tbody tr.rc-row-fail {
@@ -1176,7 +1262,7 @@
             background: var(--rc-ink);
             border-radius: 10px;
             padding: 1rem 1.5rem;
-            color: #fff;
+            color: var(--rc-white);
         }
 
         .rc-summary-label {
@@ -1205,7 +1291,7 @@
         .rc-stat-sep {
             width: 1px;
             height: 36px;
-            background: rgba(255, 255, 255, .15);
+            background: var(--rc-border);
             flex-shrink: 0;
         }
 
@@ -1214,7 +1300,7 @@
             font-size: 22px;
             font-weight: 500;
             line-height: 1;
-            color: #fff;
+            color: var(--rc-white);
         }
 
         .rc-stat-lbl {
@@ -1226,13 +1312,13 @@
         }
 
         .rc-stat--highlight .rc-stat-val {
-            color: #fbbf24;
+            color: var(--rc-amber);
         }
 
         .rc-stat--grade .rc-stat-val {
             font-family: var(--rc-ff-display);
             font-size: 26px;
-            color: #6ee7b7;
+            color: var(--rc-green);
         }
 
         .rc-bottom-row {
@@ -1271,8 +1357,8 @@
         }
 
         .rc-remark-excellent {
-            background: #dcfce7;
-            color: #166534;
+            background: var(--rc-green-light);
+            color: var(--rc-green);
         }
 
         .rc-remark-good {
@@ -1306,7 +1392,7 @@
 
         .rc-comments-list li {
             font-size: 13px;
-            color: var(--rc-ink);
+            color: var(--rc-muted);
             line-height: 1.5;
             display: flex;
             align-items: flex-start;
@@ -1668,14 +1754,14 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: .08em;
-            color: #6b7280;
+            color: var(--rc-muted);
             font-weight: 600;
         }
 
         .rc-att-count {
             font-size: 13px;
             font-weight: 600;
-            color: #111827;
+            color: var(--rc-ink);
         }
 
         /* ── Subjects table ─────────────────────────── */
@@ -1691,8 +1777,8 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
         }
 
         .rc-table thead tr {
-            background: #1f2937;
-            color: #fff;
+            background: var(--rc-ink);
+            color: var(--rc-white);
         }
 
         .rc-table th {
@@ -1703,7 +1789,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             text-transform: uppercase;
             text-align: center;
             border: none;
-            color: #f9fafb;
+            color: var(--rc-white);
         }
 
         .rc-th-left {
@@ -1711,33 +1797,33 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
         }
 
         .rc-table tbody tr {
-            border-bottom: 1px solid #f3f4f6;
+            border-bottom: 1px solid var(--rc-border);
             transition: background .15s;
         }
 
         .rc-table tbody tr:nth-child(even) {
-            background: #f9fafb;
+            background: var(--rc-surface);
         }
 
         .rc-table tbody tr:hover {
-            background: #f0fdf4;
+            background: var(--rc-green-light);
         }
 
         .rc-table tbody tr.rc-row-fail {
-            background: #fef2f2 !important;
+            background: var(--rc-red-light) !important;
         }
 
         .rc-table td {
             padding: 10px 14px;
             border: none;
             vertical-align: middle;
-            color: #111827;
+            color: var(--rc-ink);
         }
 
         .rc-td-subject {
             font-weight: 500;
             padding-left: 14px;
-            color: #111827;
+            color: var(--rc-ink);
         }
 
         .rc-fail-dot {
@@ -1752,12 +1838,12 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
 
         .rc-td-num {
             text-align: center;
-            color: #6b7280;
+            color: var(--rc-muted);
         }
 
         .rc-td-obtained {
             font-weight: 600;
-            color: #111827 !important;
+            color: var(--rc-ink) !important;
         }
 
         .rc-td-total {
@@ -1768,7 +1854,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
         .rc-td-gp {
             font-family: var(--rc-ff-mono);
             font-weight: 600;
-            color: #111827 !important;
+            color: var(--rc-ink) !important;
         }
 
         .rc-td-grade {
@@ -1787,40 +1873,40 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
 
         .rc-grade-a-plus,
         .rc-grade-a {
-            background: #dcfce7;
-            color: #166534;
+            background: var(--rc-green-light);
+            color: var(--rc-green);
         }
 
         .rc-grade-a-minus {
-            background: #d1fae5;
-            color: #065f46;
+            background: var(--rc-green-light);
+            color: var(--rc-green);
         }
 
         .rc-grade-b-plus,
         .rc-grade-b {
-            background: #eff6ff;
-            color: #1d4ed8;
+            background: var(--rc-blue-light);
+            color: var(--rc-blue);
         }
 
         .rc-grade-b-minus {
-            background: #e0e7ff;
-            color: #3730a3;
+            background: var(--rc-blue-light);
+            color: var(--rc-blue);
         }
 
         .rc-grade-c-plus,
         .rc-grade-c {
-            background: #fef3c7;
-            color: #d97706;
+            background: var(--rc-amber-light);
+            color: var(--rc-amber);
         }
 
         .rc-grade-d {
-            background: #fee2e2;
-            color: #991b1b;
+            background: var(--rc-red-light);
+            color: var(--rc-red);
         }
 
         .rc-grade-f {
-            background: #fecaca;
-            color: #dc2626;
+            background: var(--rc-red-light);
+            color: var(--rc-red);
         }
 
         /* ── Summary bar (was dark/black, now light) ── */
@@ -1829,11 +1915,11 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             align-items: center;
             gap: 1.5rem;
             margin: 1.25rem 2rem;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
+            background: var(--rc-surface);
+            border: 1px solid var(--rc-border);
             border-radius: 10px;
             padding: 1rem 1.5rem;
-            color: #111827;
+            color: var(--rc-ink);
         }
 
         .rc-summary-label {
@@ -1841,7 +1927,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             font-weight: 700;
             letter-spacing: .12em;
             text-transform: uppercase;
-            color: #9ca3af;
+            color: var(--rc-muted);
             writing-mode: vertical-rl;
             transform: rotate(180deg);
             flex-shrink: 0;
@@ -1862,7 +1948,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
         .rc-stat-sep {
             width: 1px;
             height: 36px;
-            background: #e5e7eb;
+            background: var(--rc-border);
             flex-shrink: 0;
         }
 
@@ -1871,14 +1957,14 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             font-size: 22px;
             font-weight: 500;
             line-height: 1;
-            color: #111827;
+            color: var(--rc-ink);
         }
 
         .rc-stat-lbl {
             font-size: 10px;
             letter-spacing: .08em;
             text-transform: uppercase;
-            color: #9ca3af;
+            color: var(--rc-muted);
             margin-top: 4px;
         }
 
@@ -1903,8 +1989,8 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
         .rc-remarks-block,
         .rc-comments-block {
             flex: 1;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
+            background: var(--rc-surface);
+            border: 1px solid var(--rc-border);
             border-radius: 10px;
             padding: 1rem 1.25rem;
         }
@@ -1914,7 +2000,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             font-weight: 700;
             letter-spacing: .12em;
             text-transform: uppercase;
-            color: #9ca3af;
+            color: var(--rc-muted);
             margin-bottom: 10px;
         }
 
@@ -1930,28 +2016,28 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
         }
 
         .rc-remark-excellent {
-            background: #dcfce7;
-            color: #166534;
+            background: var(--rc-green-light);
+            color: var(--rc-green);
         }
 
         .rc-remark-good {
-            background: #eff6ff;
-            color: #1d4ed8;
+            background: var(--rc-blue-light);
+            color: var(--rc-blue);
         }
 
         .rc-remark-satisfactory {
-            background: #fef3c7;
-            color: #d97706;
+            background: var(--rc-amber-light);
+            color: var(--rc-amber);
         }
 
         .rc-remark-improve {
-            background: #fef2f2;
-            color: #dc2626;
+            background: var(--rc-red-light);
+            color: var(--rc-red);
         }
 
         .rc-remark-desc {
             font-size: 12px;
-            color: #6b7280;
+            color: var(--rc-muted);
             line-height: 1.5;
             margin: 0;
         }
@@ -1966,7 +2052,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
 
         .rc-comments-list li {
             font-size: 13px;
-            color: #374151;
+            color: var(--rc-muted);
             line-height: 1.5;
             display: flex;
             align-items: flex-start;
@@ -1986,12 +2072,12 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             justify-content: space-between;
             align-items: flex-end;
             padding: 1rem 2rem 1.5rem;
-            border-top: 1px solid #e5e7eb;
+            border-top: 1px solid var(--rc-border);
         }
 
         .rc-published {
             font-size: 12px;
-            color: #6b7280;
+            color: var(--rc-muted);
             display: flex;
             align-items: center;
             gap: 6px;
@@ -2126,7 +2212,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
 
         .rc-sig-line {
             width: 130px;
-            border-top: 1.5px solid #374151;
+            border-top: 1.5px solid var(--rc-border);
             margin-bottom: 5px;
         }
 
@@ -2135,7 +2221,7 @@ replacing all rules from "/* ════ MODERN DESIGN (design-b)" through "tab
             font-weight: 600;
             letter-spacing: .06em;
             text-transform: uppercase;
-            color: #6b7280;
+            color: var(--rc-muted);
         }
 
         /* ════ PRINT ════════════════════════════════════ */

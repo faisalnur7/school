@@ -5,8 +5,8 @@
     <title>Terminal Progress Report</title>
     <style>
         @page {
-            size: A4 portrait;
-            margin: 8mm;
+            size: A4 {{ $templateSettings->paper_orientation }};
+            margin: {{ $templateSettings->margin_top_mm }}cm {{ $templateSettings->margin_right_mm }}cm {{ $templateSettings->margin_bottom_mm }}cm {{ $templateSettings->margin_left_mm }}cm;
         }
 
         * {
@@ -24,8 +24,8 @@
         .report-card {
             position: relative;
             width: 100%;
-            min-height: 280mm;
-            padding: 10mm 10mm 8mm;
+            min-height: 28cm;
+            padding: 1cm 1cm 0.8cm;
             border: 1px solid #111;
             overflow: hidden;
             page-break-after: always;
@@ -43,14 +43,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0.08;
+            opacity: {{ $templateSettings->watermark_opacity }};
             pointer-events: none;
             z-index: 0;
         }
 
         .report-card__watermark img {
-            width: 170mm;
-            max-width: 82%;
+            width: {{ $templateSettings->watermark_scale }}%;
+            max-width: {{ $templateSettings->watermark_scale }}%;
             max-height: 82%;
             object-fit: contain;
             filter: grayscale(100%);
@@ -82,7 +82,7 @@
 
         .report-card__identity {
             width: 74%;
-            padding-right: 5mm;
+            padding-right: 0.5cm;
         }
 
         .report-card__scale-cell { width: 26%; }
@@ -95,15 +95,15 @@
 
         .report-card__logo-cell {
             display: table-cell;
-            width: 18mm;
+            width: 1.8cm;
             vertical-align: middle;
         }
 
         .report-card__logo {
-            width: 16mm;
-            height: 16mm;
+            width: 1.6cm;
+            height: 1.6cm;
             border: 1px solid #cbd5e1;
-            border-radius: 2mm;
+            border-radius: 0.2cm;
             overflow: hidden;
             background: #fff;
             text-align: center;
@@ -118,15 +118,15 @@
         .report-card__school-cell {
             display: table-cell;
             vertical-align: middle;
-            padding-left: 3mm;
+            padding-left: 0.3cm;
             min-width: 0;
         }
 
         .report-card__school-name {
-            font-size: 16px;
+            font-size: {{ $templateSettings->school_name_font_size }}px;
             line-height: 1.08;
             font-weight: 800;
-            color: #5b8f42;
+            color: {{ $templateSettings->school_name_color }};
             text-transform: uppercase;
             letter-spacing: .2px;
             overflow-wrap: anywhere;
@@ -134,20 +134,20 @@
         }
 
         .report-card__school-address {
-            margin-top: 1.5mm;
-            font-size: 8.5px;
+            margin-top: 0.15cm;
+            font-size: {{ $templateSettings->school_address_font_size }}px;
             font-weight: 700;
-            color: #5b8f42;
+            color: {{ $templateSettings->school_address_color }};
             line-height: 1.25;
         }
 
         .report-card__title {
-            font-size: 17px;
+            font-size: {{ $templateSettings->report_title_font_size }}px;
             font-weight: 800;
             font-style: italic;
-            color: #d97706;
+            color: {{ $templateSettings->report_title_color }};
             text-transform: uppercase;
-            margin: 2mm 0 3mm;
+            margin: 0.2cm 0 0.3cm;
             text-align: center;
         }
 
@@ -160,8 +160,8 @@
 
         .report-card__scale th,
         .report-card__scale td {
-            border: 1px solid #555;
-            padding: 1mm 1.5mm;
+            border: 1px solid {{ $templateSettings->table_border_color }};
+            padding: 0.1cm 0.15cm;
             text-align: center;
             line-height: 1.1;
             white-space: nowrap;
@@ -176,14 +176,14 @@
         .report-card__scale td:nth-child(3) { width: 28%; }
 
         .report-card__section {
-            margin-top: 4mm;
+            margin-top: 0.4cm;
         }
 
         .report-card__exam {
             font-size: 14px;
             font-weight: 800;
             text-decoration: underline;
-            margin-bottom: 3mm;
+            margin-bottom: 0.3cm;
         }
 
         .report-card__student {
@@ -193,13 +193,14 @@
 
         .report-card__student td {
             border: 0;
-            padding: 1mm 2mm 1mm 0;
+            padding: 0.1cm 0.2cm 0.1cm 0;
             white-space: nowrap;
         }
 
         .report-card__student td:first-child {
             font-weight: 700;
-            width: 16mm;
+            width: 1.6cm;
+            color: {{ $templateSettings->student_label_color }};
         }
 
         .report-card__table {
@@ -209,10 +210,19 @@
             font-size: 9px;
         }
 
+        .report-card__table thead tr {
+            background: {{ $templateSettings->table_header_bg_color }};
+            color: {{ $templateSettings->table_header_text_color }};
+        }
+
+        .report-card__table tbody tr:nth-child(even) {
+            background: {{ $templateSettings->table_row_alt_bg_color }};
+        }
+
         .report-card__table th,
         .report-card__table td {
-            border: 1px solid #555;
-            padding: 1.2mm 1mm;
+            border: 1px solid {{ $templateSettings->table_border_color }};
+            padding: 0.12cm 0.1cm;
             text-align: center;
             vertical-align: middle;
             line-height: 1.08;
@@ -233,14 +243,19 @@
 
         .report-card__summary-table th,
         .report-card__summary-table td {
-            border: 1px solid #555;
-            padding: 1.2mm 1mm;
+            border: 1px solid {{ $templateSettings->table_border_color }};
+            padding: 0.12cm 0.1cm;
             text-align: center;
             line-height: 1.1;
         }
 
+        .report-card__summary-table thead tr {
+            background: {{ $templateSettings->summary_bg_color }};
+            color: {{ $templateSettings->summary_text_color }};
+        }
+
         .report-card__remarks {
-            margin-top: 4mm;
+            margin-top: 0.4cm;
             font-size: 9.5px;
         }
 
@@ -248,27 +263,28 @@
             font-size: 12px;
             font-weight: 800;
             text-decoration: underline;
-            margin-bottom: 1.5mm;
+            margin-bottom: 0.15cm;
+            color: {{ $templateSettings->remarks_title_color }};
         }
 
         .report-card__comments {
-            margin-top: 4mm;
-            border: 1px solid #555;
-            padding: 3mm;
+            margin-top: 0.4cm;
+            border: 1px solid {{ $templateSettings->table_border_color }};
+            padding: 0.3cm;
             font-size: 9px;
         }
 
         .report-card__comments ul {
             margin: 0;
-            padding-left: 4.5mm;
+            padding-left: 0.45cm;
         }
 
         .report-card__comments li + li {
-            margin-top: 1.5mm;
+            margin-top: 0.15cm;
         }
 
         .report-card__footer {
-            margin-top: 7mm;
+            margin-top: 0.7cm;
             display: table;
             width: 100%;
         }
@@ -285,13 +301,13 @@
         }
 
         .report-card__signature {
-            margin-top: 16mm;
+            margin-top: 1.6cm;
         }
 
         .report-card__signature-line {
-            border-top: 1px solid #111;
-            width: 40mm;
-            margin-bottom: 2mm;
+            border-top: 1px solid {{ $templateSettings->signature_line_color }};
+            width: 4cm;
+            margin-bottom: 0.2cm;
         }
 
         .report-card__published {
@@ -305,6 +321,8 @@
     $schoolAddress = $school->address ?? 'CIP Tower, Hazari-digir-phar, Dohajari, Chandanish, Chattogram';
     $logoPath = !empty($school->logo) ? public_path($school->logo) : null;
     $hasLogo = $logoPath && file_exists($logoPath);
+    $templateSettings = $templateSettings ?? \App\Models\ProgressReportTemplateSetting::current();
+    $subjectWidths = $templateSettings->subject_column_widths ?? [];
 @endphp
 
 @foreach($studentsData as $data)
@@ -317,8 +335,8 @@
         $attendanceTotal = $data['attendanceTotal'];
     @endphp
 
-    <div class="report-card">
-        @if($hasLogo)
+    <div class="report-card" style="border-color: {{ $templateSettings->card_border_color }}; border-top-color: {{ $templateSettings->header_border_color }};">
+        @if($templateSettings->show_watermark && $hasLogo)
             <div class="report-card__watermark">
                 <img src="{{ $logoPath }}" alt="">
             </div>
@@ -342,6 +360,7 @@
                             </div>
                         </div>
                     </div>
+                    @if($templateSettings->show_grade_scale)
                     <div class="report-card__scale-cell">
                         <table class="report-card__scale">
                             <thead>
@@ -360,11 +379,13 @@
                             </tbody>
                         </table>
                     </div>
+                    @endif
                 </div>
             </div>
 
-            <div class="report-card__title">Progress Report</div>
+            <div class="report-card__title">{{ $templateSettings->report_title_text }}</div>
 
+            @if($templateSettings->show_student_info)
             <div class="report-card__section">
                 <div class="report-card__exam">{{ $exam->name }}</div>
                 <table class="report-card__student">
@@ -385,18 +406,19 @@
                     </tr>
                 </table>
             </div>
+            @endif
 
             <div class="report-card__section">
                 <table class="report-card__table">
                     <thead>
                         <tr>
-                            <th style="width: 30%;">Subjects</th>
-                            <th style="width: 10%;">Full Marks</th>
-                            <th style="width: 12%;">Obtained Marks</th>
-                            <th style="width: 12%;">Highest Marks</th>
-                            <th style="width: 12%;">Total Marks</th>
-                            <th style="width: 12%;">Letter Grade</th>
-                            <th style="width: 12%;">Grade Point</th>
+                            <th style="width: {{ $subjectWidths['subject'] ?? 30 }}%;">Subjects</th>
+                            <th style="width: {{ $subjectWidths['full_marks'] ?? 10 }}%;">Full Marks</th>
+                            <th style="width: {{ $subjectWidths['obtained_marks'] ?? 12 }}%;">Obtained Marks</th>
+                            <th style="width: {{ $subjectWidths['highest_marks'] ?? 12 }}%;">Highest Marks</th>
+                            <th style="width: {{ $subjectWidths['total_marks'] ?? 12 }}%;">Total Marks</th>
+                            <th style="width: {{ $subjectWidths['letter_grade'] ?? 12 }}%;">Letter Grade</th>
+                            <th style="width: {{ $subjectWidths['grade_point'] ?? 12 }}%;">Grade Point</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -431,6 +453,7 @@
                 </table>
             </div>
 
+            @if($templateSettings->show_summary)
             <div class="report-card__section">
                 <table class="report-card__summary-table">
                     <thead>
@@ -453,48 +476,61 @@
                     </tbody>
                 </table>
             </div>
+            @endif
 
+            @if($templateSettings->show_remarks)
             <div class="report-card__remarks">
                 <div class="report-card__remarks-title">Remarks:</div>
                 @if($summary['gpa'] >= 4.0)
-                    <div>(i) Excellent</div>
+                    <div style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_excellent_text }}</div>
                 @elseif($summary['gpa'] >= 3.0)
-                    <div>(ii) Good</div>
+                    <div style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_good_text }}</div>
                 @elseif($summary['gpa'] >= 2.0)
-                    <div>(iii) Satisfactory</div>
+                    <div style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_satisfactory_text }}</div>
                 @else
-                    <div>(iv) Need to be improved</div>
+                    <div style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_improve_text }}</div>
                 @endif
             </div>
+            @endif
 
+            @if($templateSettings->show_comments)
             <div class="report-card__comments">
                 <ul>
                     <li>{{ $student->full_name_en }} was present {{ $attendancePresent }} days out of {{ $attendanceTotal }} days.</li>
                     @if($summary['gpa'] >= 4.0)
-                        <li>Excellent results! You faithfully perform classroom tasks.</li>
+                        <li>{{ $templateSettings->comments_excellent_text }}</li>
                     @elseif($summary['gpa'] >= 3.0)
-                        <li>Good results! Keep up the good work.</li>
+                        <li>{{ $templateSettings->comments_good_text }}</li>
                     @else
-                        <li>Need to improve performance.</li>
+                        <li>{{ $templateSettings->comments_default_text }}</li>
                     @endif
                 </ul>
             </div>
+            @endif
 
+            @if($templateSettings->show_signature || $templateSettings->show_print_date)
             <div class="report-card__footer">
                 <div class="report-card__footer-left">
-                    <div class="report-card__published">Published Date: {{ now()->format('d-m-Y') }}</div>
-                    <div class="report-card__signature">
-                        <div class="report-card__signature-line"></div>
-                        <div>Class Teacher</div>
-                    </div>
+                    @if($templateSettings->show_print_date)
+                        <div class="report-card__published">Published Date: {{ now()->format('d-m-Y') }}</div>
+                    @endif
+                    @if($templateSettings->show_signature)
+                        <div class="report-card__signature">
+                            <div class="report-card__signature-line" style="border-top-color: {{ $templateSettings->signature_line_color }};"></div>
+                            <div>Class Teacher</div>
+                        </div>
+                    @endif
                 </div>
-                <div class="report-card__footer-right">
-                    <div class="report-card__signature">
-                        <div class="report-card__signature-line" style="margin-left:auto;"></div>
-                        <div>Principal</div>
+                @if($templateSettings->show_signature)
+                    <div class="report-card__footer-right">
+                        <div class="report-card__signature">
+                            <div class="report-card__signature-line" style="margin-left:auto; border-top-color: {{ $templateSettings->signature_line_color }};"></div>
+                            <div>Principal</div>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
+            @endif
         </div>
     </div>
 @endforeach

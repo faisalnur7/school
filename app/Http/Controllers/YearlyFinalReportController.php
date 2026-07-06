@@ -8,6 +8,7 @@ use App\Models\AcademicSession;
 use App\Models\ResultEmailStatus;
 use App\Models\SchoolClass;
 use App\Models\Student;
+use App\Models\YearlyFinalReportTemplateSetting;
 use App\Services\YearlyFinalReportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -23,6 +24,7 @@ class YearlyFinalReportController extends Controller
             'pairWeights'  => [],
             'highest'      => 0,
             'filters'      => [],
+            'templateSettings' => YearlyFinalReportTemplateSetting::current(),
         ]);
     }
 
@@ -46,6 +48,35 @@ class YearlyFinalReportController extends Controller
             'sessions' => AcademicSession::orderByDesc('id')->get(),
             'classes'  => SchoolClass::where('status', 1)->orderBy('id')->get(),
             'filters'  => $filters,
+            'templateSettings' => YearlyFinalReportTemplateSetting::current(),
+        ]));
+    }
+
+    public function preview(Request $request, YearlyFinalReportService $service)
+    {
+        $filters = $request->validate([
+            'session_id' => ['required', 'exists:academic_sessions,id'],
+            'class_id'   => ['required', 'exists:school_classes,id'],
+            'section_id' => ['nullable', 'exists:sections,id'],
+            'student_id' => ['nullable'],
+        ]);
+
+        $report = $service->buildReport(
+            $filters['session_id'],
+            $filters['class_id'],
+            $filters['section_id'] ?? null,
+            $filters['student_id'] ?? null,
+        );
+
+        $rows = collect($report['rows'] ?? [])->take(1)->values()->all();
+
+        return view('pages.yearly-final-report.index', array_merge($report, [
+            'rows' => $rows,
+            'sessions' => AcademicSession::orderByDesc('id')->get(),
+            'classes'  => SchoolClass::where('status', 1)->orderBy('id')->get(),
+            'filters'  => $filters,
+            'templateSettings' => YearlyFinalReportTemplateSetting::current(),
+            'isPreview' => true,
         ]));
     }
 
@@ -67,9 +98,18 @@ class YearlyFinalReportController extends Controller
 
         $html = view('pages.yearly-final-report.print', array_merge($report, [
             'filters' => $filters,
+            'templateSettings' => YearlyFinalReportTemplateSetting::current(),
         ]))->render();
 
-        $mpdf = new \Mpdf\Mpdf(['format' => 'A4', 'margin_top' => 15, 'margin_bottom' => 15, 'margin_left' => 15, 'margin_right' => 15]);
+        $templateSettings = YearlyFinalReportTemplateSetting::current();
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => 'A4',
+            'orientation' => $templateSettings->paper_orientation === 'landscape' ? 'L' : 'P',
+            'margin_top' => max(0, (float) $templateSettings->margin_top_mm * 10),
+            'margin_bottom' => max(0, (float) $templateSettings->margin_bottom_mm * 10),
+            'margin_left' => max(0, (float) $templateSettings->margin_left_mm * 10),
+            'margin_right' => max(0, (float) $templateSettings->margin_right_mm * 10),
+        ]);
         $mpdf->WriteHTML($html);
 
         return response($mpdf->Output('', 'S'))->header('Content-Type', 'application/pdf');
