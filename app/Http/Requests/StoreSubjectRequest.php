@@ -15,7 +15,7 @@ class StoreSubjectRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:subjects,code',
+            'code' => 'nullable|string|max:50|unique:subjects,code',
             'type' => 'required|in:mandatory,optional',
             'has_multiple_papers' => 'nullable|boolean',
             'combine_papers_for_result' => 'nullable|boolean',
