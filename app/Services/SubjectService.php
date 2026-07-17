@@ -63,6 +63,9 @@ class SubjectService
         ]);
 
         return DB::transaction(function () use ($subject, $data) {
+            $hasPapersData = array_key_exists('papers', $data);
+            $hasClassConfigsData = array_key_exists('class_configs', $data);
+
             // Extract papers if present
             $papersData = $data['papers'] ?? [];
             $classConfigsData = $data['class_configs'] ?? [];
@@ -74,7 +77,7 @@ class SubjectService
             $subject->update($data);
             
             // Handle papers - delete old ones and recreate (simple strategy)
-            if (array_key_exists('papers', $data) || isset($data['papers'])) {
+            if ($hasPapersData) {
                 $subject->papers()->delete();
                 if (!empty($papersData)) {
                     foreach ($papersData as $paperData) {
@@ -88,7 +91,7 @@ class SubjectService
             }
             
             // Handle class configs - replace all
-            if (array_key_exists('class_configs', $data) || isset($data['class_configs'])) {
+            if ($hasClassConfigsData) {
                 $subject->classConfigs()->delete();
                 if (!empty($classConfigsData)) {
                     foreach ($classConfigsData as $configData) {
