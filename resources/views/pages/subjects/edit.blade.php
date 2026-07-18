@@ -409,6 +409,16 @@
 @section('scripts')
 <script>
     $(function () {
+        const $assignToClass = $('#assign_to_class');
+        const $classAssignmentFields = $('#class_assignment_fields');
+
+        function syncClassAssignmentFields() {
+            $classAssignmentFields.toggle($assignToClass.is(':checked'));
+        }
+
+        $assignToClass.on('change', syncClassAssignmentFields);
+        syncClassAssignmentFields();
+
         if ($('.is-invalid').length > 0) {
             $('html, body').animate({
                 scrollTop: $('.is-invalid').first().offset().top - 50

@@ -43,7 +43,7 @@ class SubjectService
             // Create class configs if any
             if (!empty($classConfigsData)) {
                 foreach ($classConfigsData as $configData) {
-                    $subject->classConfigs()->create($configData);
+                    $subject->classConfigs()->create($this->normalizeClassConfigData($configData));
                 }
             }
             
@@ -95,7 +95,7 @@ class SubjectService
                 $subject->classConfigs()->delete();
                 if (!empty($classConfigsData)) {
                     foreach ($classConfigsData as $configData) {
-                        $subject->classConfigs()->create($configData);
+                        $subject->classConfigs()->create($this->normalizeClassConfigData($configData));
                     }
                 }
             }
@@ -650,7 +650,7 @@ class SubjectService
      */
     public function createClassConfig(array $data): SubjectClassConfig
     {
-        return SubjectClassConfig::create($data);
+        return SubjectClassConfig::create($this->normalizeClassConfigData($data));
     }
 
     /**
@@ -658,7 +658,7 @@ class SubjectService
      */
     public function updateClassConfig(SubjectClassConfig $config, array $data): SubjectClassConfig
     {
-        $config->update($data);
+        $config->update($this->normalizeClassConfigData($data));
         return $config;
     }
 
@@ -668,5 +668,19 @@ class SubjectService
     public function deleteClassConfig(SubjectClassConfig $config): bool
     {
         return $config->delete();
+    }
+
+    /**
+     * Normalize class config payload from form field names to DB column names.
+     */
+    private function normalizeClassConfigData(array $data): array
+    {
+        if (array_key_exists('class_id', $data) && ! array_key_exists('school_class_id', $data)) {
+            $data['school_class_id'] = $data['class_id'];
+        }
+
+        unset($data['class_id']);
+
+        return $data;
     }
 }

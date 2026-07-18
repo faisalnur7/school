@@ -192,7 +192,7 @@ class SubjectController extends Controller
             'studentSubjects.student',
             'papers',
             'classConfigs.schoolClass'
-        ]);
+        ])->loadCount(['papers', 'classAssignments', 'classConfigs']);
 
         return view('pages.subjects.show', compact('subject'));
     }
