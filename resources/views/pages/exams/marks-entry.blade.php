@@ -157,9 +157,8 @@
                                         <table class="table table-bordered table-sm mb-0">
                                             <thead class="thead-dark">
                                                 <tr>
-                                                    <th class="text-center" style="width:40px">#</th>
+                                                    <th class="text-center" style="width:90px; min-width:90px;">Roll</th>
                                                     <th>Student Name</th>
-                                                    <th class="text-center" style="width:55px">Roll</th>
                                                     <th class="text-center" style="width:70px">Section</th>
                                                     @if ($isTutorial)
                                                         <th class="text-center" style="width:110px">Tutorial<br><small class="text-warning">/{{ $fullMarks }}</small></th>
@@ -178,9 +177,6 @@
                                                         @endif
                                                     @endif
                                                     <th class="text-center" style="width:75px">Total</th>
-                                                    @if (! $isTutorial)
-                                                        <th class="text-center" style="width:65px">Grade</th>
-                                                    @endif
                                                     <th class="text-center" style="width:65px">Absent</th>
                                                 </tr>
                                             </thead>
@@ -195,7 +191,7 @@
                                                         $rowKey = "marks.$i";
                                                     @endphp
                                                     <tr class="mark-row {{ $isAbsent ? 'table-secondary' : '' }}" data-student="{{ $student->id }}">
-                                                        <td class="text-center text-muted">{{ $i + 1 }}</td>
+                                                        <td class="text-center" style="width:90px; min-width:90px;">{{ $roll }}</td>
                                                         <td>
                                                             <strong>{{ $student->full_name_en }}</strong>
                                                             @if ($student->full_name_bn)
@@ -203,7 +199,6 @@
                                                             @endif
                                                             <input type="hidden" name="marks[{{ $i }}][student_id]" value="{{ $student->id }}">
                                                         </td>
-                                                        <td class="text-center">{{ $roll }}</td>
                                                         <td class="text-center"><small>{{ $section }}</small></td>
                                                         @if ($isTutorial)
                                                             <td class="p-1">
@@ -236,20 +231,13 @@
                                                                 {{ $mark && ! $isAbsent ? number_format($mark->total, 1) : ($isAbsent ? 'AB' : '—') }}
                                                             </strong>
                                                         </td>
-                                                        @if (! $isTutorial)
-                                                            <td class="text-center">
-                                                                <span class="grade-badge badge badge-{{ $mark && ! $isAbsent ? ($mark->letter_grade === 'F' ? 'danger' : 'success') : 'secondary' }}">
-                                                                    {{ $mark ? ($isAbsent ? 'AB' : $mark->letter_grade) : '—' }}
-                                                                </span>
-                                                            </td>
-                                                        @endif
                                                         <td class="text-center">
                                                             <input type="checkbox" name="marks[{{ $i }}][is_absent]" class="absent-checkbox" value="1" {{ old($rowKey.'.is_absent', $isAbsent) ? 'checked' : '' }}>
                                                         </td>
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="12" class="text-center text-muted py-4">No students found for this cohort.</td>
+                                                        <td colspan="11" class="text-center text-muted py-4">No students found for this cohort.</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
