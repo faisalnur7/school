@@ -14,6 +14,7 @@ class InventoryItem extends Model
         'name',
         'description',
         'purchase_price',
+        'average_cost',
         'selling_price',
         'is_flexible_price',
         'stock_type',
@@ -27,6 +28,7 @@ class InventoryItem extends Model
 
     protected $casts = [
         'purchase_price' => 'decimal:2',
+        'average_cost' => 'decimal:2',
         'selling_price' => 'decimal:2',
         'is_flexible_price' => 'boolean',
         'is_active' => 'boolean',
@@ -60,5 +62,27 @@ class InventoryItem extends Model
     public function isMadeToOrder(): bool
     {
         return ($this->stock_type ?? 'stocked') === 'made_to_order';
+    }
+
+    public function stockValue(): float
+    {
+        $cost = (float) ($this->average_cost ?? $this->purchase_price ?? 0);
+
+        return round(((int) $this->current_stock) * $cost, 2);
+    }
+
+    public function weightedAverageCostAfterInflow(int $quantityAdded, float $unitCost): float
+    {
+        $currentQuantity = max(0, (int) $this->current_stock);
+        $currentAverage = max(0, (float) ($this->average_cost ?? 0));
+        $newQuantity = $currentQuantity + max(0, $quantityAdded);
+
+        if ($newQuantity <= 0) {
+            return 0;
+        }
+
+        $newAverage = (($currentQuantity * $currentAverage) + ($quantityAdded * $unitCost)) / $newQuantity;
+
+        return round($newAverage, 2);
     }
 }

@@ -30,6 +30,10 @@
             return '#';
         }
 
+        if (!\Illuminate\Support\Facades\Route::has($routeName)) {
+            return '#';
+        }
+
         return route($routeName, $card['params'] ?? []);
     };
 @endphp

@@ -18,10 +18,14 @@ class SchoolClassSeeder extends Seeder
         $groupClasses = ['Nine', 'Ten'];
         $groups = ['Business Studies', 'Science','Humanities'];
 
-        foreach ($classes as $className) {
-            $class = SchoolClass::firstOrCreate(['name_en' => $className], [
-                'name_bn' => $className
-            ]);
+        foreach ($classes as $index => $className) {
+            $class = SchoolClass::updateOrCreate(
+                ['name_en' => $className],
+                [
+                    'name_bn' => $className,
+                    'order' => $index + 1,
+                ]
+            );
 
             foreach (['A'] as $section) {
                 Section::firstOrCreate([

@@ -16,13 +16,15 @@ class FeeSet extends Model
         'school_class_id',
         'group_id',
         'frequency',
+        'due_date',
+        'month',
         'description',
         'status',
-        'month'
     ];
 
     protected $casts = [
         'months' => 'array',
+        'due_date' => 'date',
     ];
 
     public function schoolClass()

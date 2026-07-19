@@ -7,6 +7,8 @@ use App\Models\Fee;
 use App\Models\FeeCategory;
 use App\Models\FeeSet;
 use App\Models\FeeSetItem;
+use App\Models\SchoolClass;
+use App\Models\Section;
 use App\Models\Student;
 use App\Models\StudentAcademicInformation;
 use App\Models\User;
@@ -89,7 +91,7 @@ class FeeCategoryStudentTypeTest extends TestCase
             'due_date'   => now()->addDays(30),
         ]);
 
-        $response = $this->actingAs($user)->get(route('fees.collect_payment', $student->id));
+        $response = $this->actingAs($user)->get(route('fees.collect_payment', ['student_id' => $student->id]));
         $response->assertOk();
 
         $pendingFees = $response->viewData('pendingFees');
@@ -100,11 +102,29 @@ class FeeCategoryStudentTypeTest extends TestCase
     {
         $user    = User::factory()->create();
         $session = AcademicSession::create(['name_en' => '2026-B', 'name_bn' => '২০২৬-বি', 'status' => 1]);
+        $class = SchoolClass::create(['name_en' => 'Class 1', 'name_bn' => 'Class 1', 'status' => 1]);
+        $section = Section::create(['school_class_id' => $class->id, 'name_en' => 'A', 'name_bn' => 'A', 'status' => 1]);
 
         // Old student (2 academic info entries)
         $student = Student::create(['full_name_en' => 'Old Kid', 'student_cid' => 'STU-OLD-001', 'status' => 1]);
-        StudentAcademicInformation::create(['student_id' => $student->id, 'academic_session_id' => $session->id]);
-        StudentAcademicInformation::create(['student_id' => $student->id, 'academic_session_id' => $session->id]);
+        StudentAcademicInformation::create([
+            'student_id' => $student->id,
+            'academic_session_id' => $session->id,
+            'school_class_id' => $class->id,
+            'section_id' => $section->id,
+            'roll' => '1',
+            'academic_status' => 'active',
+            'is_current' => true,
+        ]);
+        StudentAcademicInformation::create([
+            'student_id' => $student->id,
+            'academic_session_id' => null,
+            'school_class_id' => $class->id,
+            'section_id' => $section->id,
+            'roll' => '2',
+            'academic_status' => 'active',
+            'is_current' => false,
+        ]);
 
         // Category for both
         $category = FeeCategory::create(['name' => 'Monthly Fee', 'bn_name' => 'মাসিক ফি', 'student_type' => 'both', 'status' => 1]);
@@ -122,7 +142,7 @@ class FeeCategoryStudentTypeTest extends TestCase
             'due_date'   => now()->addDays(30),
         ]);
 
-        $response = $this->actingAs($user)->get(route('fees.collect_payment', $student->id));
+        $response = $this->actingAs($user)->get(route('fees.collect_payment', ['student_id' => $student->id]));
         $response->assertOk();
 
         $pendingFees = $response->viewData('pendingFees');

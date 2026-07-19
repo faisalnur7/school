@@ -440,7 +440,7 @@ class StudentController extends Controller
             if ($applicableAmount <= 0) continue;
 
             // Generate due dates
-            $dueDates = $this->generateDueDates($feeSet->frequency);
+            $dueDates = $this->generateDueDates($feeSet->frequency, [], null, $feeSet->due_date);
 
             foreach ($dueDates as $dueDate) {
                 Fee::create([
@@ -795,7 +795,7 @@ class StudentController extends Controller
         ];
     }
 
-    private function generateDueDates($frequency, $months = [], $year = null)
+    private function generateDueDates($frequency, $months = [], $year = null, $dueDate = null)
     {
         // dd($frequency, $months, $year);
         $year = $year ?? now()->year;
@@ -810,7 +810,7 @@ class StudentController extends Controller
                 break;
 
             case 'yearly':
-                $dates[] = Carbon::create($year, 12, 31);
+                $dates[] = $dueDate ? Carbon::parse($dueDate) : Carbon::create($year, 12, 31);
                 break;
 
             case 'others':

@@ -132,9 +132,17 @@ class PurchaseOrderController extends Controller
                 ]);
 
                 $product = InventoryItem::lockForUpdate()->findOrFail($row['inventory_item_id']);
+                $existingQuantity = (int) $product->current_stock;
+                $existingAverage = (float) ($product->average_cost ?? 0);
+                $newQuantity = $existingQuantity + (int) $row['quantity'];
+                $newAverage = $newQuantity > 0
+                    ? (($existingQuantity * $existingAverage) + ((int) $row['quantity'] * (float) $row['unit_price'])) / $newQuantity
+                    : (float) $row['unit_price'];
+
                 $product->update([
-                    'current_stock' => (int)$product->current_stock + (int)$row['quantity'],
+                    'current_stock' => $newQuantity,
                     'purchase_price' => $row['unit_price'],
+                    'average_cost' => round($newAverage, 2),
                 ]);
 
                 StockMovement::create([

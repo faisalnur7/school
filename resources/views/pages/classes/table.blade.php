@@ -13,6 +13,7 @@
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>Order</th>
                         <th>Name (EN)</th>
                         <th>Name (BN)</th>
                         <th class="text-center">Status</th>
@@ -23,6 +24,7 @@
                     @foreach ($classes as $class)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
+                            <td>{{ $class->order }}</td>
                             <td>{{ $class->name_en }}</td>
                             <td>{{ $class->name_bn }}</td>
                             <td class="text-center">
@@ -56,7 +58,7 @@
 
                     @if($classes->isEmpty())
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-4">
+                            <td colspan="6" class="text-center text-muted py-4">
                                 No Class found
                             </td>
                         </tr>

@@ -67,21 +67,6 @@
                 </li>
                 @endif
 
-                <!-- Attendance -->
-                @if(auth()->user()?->hasPermission('view_attendance'))
-                <li class="nav-item-modern">
-                    <a href="{{ route('attendance.hub') }}"
-                       class="nav-link-modern {{ request()->routeIs('attendance.hub', 'attendance.*') ? 'active' : '' }}">
-                        <span class="nav-icon"><i class="fas fa-clipboard-check"></i></span>
-                        <span class="nav-text">Attendance</span>
-                        
-                        @if(request()->routeIs('attendance.hub', 'attendance.*'))
-                        <span class="nav-indicator"></span>
-                        @endif
-                    </a>
-                </li>
-                @endif
-
                 <!-- Students -->
                 @if(auth()->user()?->hasPermission('view_students'))
                 <li class="nav-item-modern">
@@ -97,7 +82,37 @@
                 </li>
                 @endif
 
-                <!-- Fees & Accounts -->
+                <!-- Result Management -->
+                @if(auth()->user()?->hasPermission('view_results'))
+                <li class="nav-item-modern">
+                    <a href="{{ route('results.hub') }}"
+                       class="nav-link-modern {{ request()->routeIs('results.hub', 'exams.*', 'student-subjects.*','result.*') ? 'active' : '' }}">
+                        <span class="nav-icon"><i class="fas fa-poll"></i></span>
+                        <span class="nav-text">Result Management</span>
+                        
+                        @if(request()->routeIs('results.hub', 'exams.*', 'student-subjects.*','result.*'))
+                        <span class="nav-indicator"></span>
+                        @endif
+                    </a>
+                </li>
+                @endif
+
+                <!-- Attendance -->
+                @if(auth()->user()?->hasPermission('view_attendance'))
+                <li class="nav-item-modern">
+                    <a href="{{ route('attendance.hub') }}"
+                       class="nav-link-modern {{ request()->routeIs('attendance.hub', 'attendance.*') ? 'active' : '' }}">
+                        <span class="nav-icon"><i class="fas fa-clipboard-check"></i></span>
+                        <span class="nav-text">Attendance</span>
+                        
+                        @if(request()->routeIs('attendance.hub', 'attendance.*'))
+                        <span class="nav-indicator"></span>
+                        @endif
+                    </a>
+                </li>
+                @endif
+
+                <!-- Fee Collection -->
                 @if(auth()->user()?->hasPermission('view_fees'))
                 <li class="nav-item-modern">
                     <a href="{{ route('fees.hub') }}"
@@ -106,6 +121,36 @@
                         <span class="nav-text">Fee Collection</span>
                         
                         @if(request()->routeIs('fees.hub', 'fee-categories.*', 'fee-sets.*', 'scholarships.*', 'free-studentships.*', 'transports.*', 'fees.*', 'payments.*', 'fees.payment-report', 'fees.payment-report.pdf'))
+                        <span class="nav-indicator"></span>
+                        @endif
+                    </a>
+                </li>
+                @endif
+
+                <!-- Accounts -->
+                @if(auth()->user()?->hasPermission('view_accounts'))
+                <li class="nav-item-modern">
+                    <a href="{{ route('accounts.hub') }}"
+                       class="nav-link-modern {{ request()->routeIs('accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*') ? 'active' : '' }}">
+                        <span class="nav-icon"><i class="fas fa-book"></i></span>
+                        <span class="nav-text">Accounts</span>
+                        
+                        @if(request()->routeIs('accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*'))
+                        <span class="nav-indicator"></span>
+                        @endif
+                    </a>
+                </li>
+                @endif
+
+                <!-- Inventory -->
+                @if(auth()->user()?->hasPermission('view_inventory'))
+                <li class="nav-item-modern">
+                    <a href="{{ route('inventory.hub') }}"
+                       class="nav-link-modern {{ request()->routeIs('inventory.hub', 'inventory.*') ? 'active' : '' }}">
+                        <span class="nav-icon"><i class="fas fa-boxes"></i></span>
+                        <span class="nav-text">Inventory</span>
+                        
+                        @if(request()->routeIs('inventory.hub', 'inventory.*'))
                         <span class="nav-indicator"></span>
                         @endif
                     </a>
@@ -121,21 +166,6 @@
                         <span class="nav-text">Financials</span>
                         
                         @if(request()->routeIs('financials.hub', 'incomes.*', 'expenses.*', 'transactions.*', 'income-categories.*', 'expense-categories.*', 'shareholder-transactions.*'))
-                        <span class="nav-indicator"></span>
-                        @endif
-                    </a>
-                </li>
-                @endif
-
-                <!-- Result Management -->
-                @if(auth()->user()?->hasPermission('view_results'))
-                <li class="nav-item-modern">
-                    <a href="{{ route('results.hub') }}"
-                       class="nav-link-modern {{ request()->routeIs('results.hub', 'exams.*', 'student-subjects.*','result.*') ? 'active' : '' }}">
-                        <span class="nav-icon"><i class="fas fa-poll"></i></span>
-                        <span class="nav-text">Result Management</span>
-                        
-                        @if(request()->routeIs('results.hub', 'exams.*', 'student-subjects.*','result.*'))
                         <span class="nav-indicator"></span>
                         @endif
                     </a>
@@ -172,21 +202,6 @@
                 </li>
                 @endif
 
-                <!-- Accounts -->
-                @if(auth()->user()?->hasPermission('view_accounts'))
-                <li class="nav-item-modern">
-                    <a href="{{ route('accounts.hub') }}"
-                       class="nav-link-modern {{ request()->routeIs('accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*') ? 'active' : '' }}">
-                        <span class="nav-icon"><i class="fas fa-book"></i></span>
-                        <span class="nav-text">Accounts</span>
-                        
-                        @if(request()->routeIs('accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*'))
-                        <span class="nav-indicator"></span>
-                        @endif
-                    </a>
-                </li>
-                @endif
-
                 <!-- Assets -->
                 @if(auth()->user()?->hasPermission('view_assets'))
                 <li class="nav-item-modern">
@@ -196,21 +211,6 @@
                         <span class="nav-text">Assets</span>
                         
                         @if(request()->routeIs('assets.hub', 'assets.*', 'asset-categories.*', 'asset-purchases.*', 'asset-issues.*'))
-                        <span class="nav-indicator"></span>
-                        @endif
-                    </a>
-                </li>
-                @endif
-
-                <!-- Inventory -->
-                @if(auth()->user()?->hasPermission('view_inventory'))
-                <li class="nav-item-modern">
-                    <a href="{{ route('inventory.hub') }}"
-                       class="nav-link-modern {{ request()->routeIs('inventory.hub', 'inventory.*') ? 'active' : '' }}">
-                        <span class="nav-icon"><i class="fas fa-boxes"></i></span>
-                        <span class="nav-text">Inventory</span>
-                        
-                        @if(request()->routeIs('inventory.hub', 'inventory.*'))
                         <span class="nav-indicator"></span>
                         @endif
                     </a>
@@ -260,7 +260,10 @@
                         @endif
                     </a>
                 </li>
+                @endif
 
+                <!-- Audit Trail -->
+                @if(auth()->user()?->hasPermission('view_audit_trail'))
                 <li class="nav-item-modern">
                     <a href="{{ route('audit-trails.index') }}"
                        class="nav-link-modern {{ request()->routeIs('audit-trails.*') ? 'active' : '' }}">

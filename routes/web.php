@@ -76,6 +76,7 @@ use App\Http\Controllers\{
     InventoryCategoryController,
     SupplierController,
     StockController,
+    OpeningStockController,
     PurchaseOrderController,
     IdCardController,
     CertificateController,
@@ -270,6 +271,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/', [RoutineController::class, 'index'])->name('routines.index');
         Route::get('/create', [RoutineController::class, 'create'])->name('routines.create');
         Route::post('/store', [RoutineController::class, 'store'])->name('routines.store');
+        Route::get('/{id}', [RoutineController::class, 'show'])->name('routines.show');
         Route::get('/{id}/edit', [RoutineController::class, 'edit'])->name('routines.edit');
         Route::post('/{id}/update', [RoutineController::class, 'update'])->name('routines.update');
         Route::delete('/{id}/delete', [RoutineController::class, 'destroy'])->name('routines.delete');
@@ -491,6 +493,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/{id}/edit', [FeeController::class, 'edit'])->name('fees.edit');
         Route::post('/{id}/update', [FeeController::class, 'update'])->name('fees.update');
         Route::post('/{id}/toggle-status', [FeeController::class, 'toggleStatus'])->name('fees.toggle-status');
+        Route::post('/bulk-toggle-status', [FeeController::class, 'bulkToggleStatus'])->name('fees.bulk-toggle-status');
         Route::delete('/{id}/delete', [FeeController::class, 'destroy'])->name('fees.delete');
     });
 
@@ -964,6 +967,11 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
                 Route::get('/purchases/{id}', [PurchaseOrderController::class, 'show'])->name('inventory.purchases.show');
                 Route::post('/purchases/{id}/payments', [PurchaseOrderController::class, 'storePayment'])->name('inventory.purchases.payments.store');
                 Route::get('/purchases/{id}/voucher', [PurchaseOrderController::class, 'voucher'])->name('inventory.purchases.voucher');
+            });
+
+            Route::middleware('permission:manage_inventory_products')->group(function () {
+                Route::get('/opening-stock', [OpeningStockController::class, 'create'])->name('inventory.opening-stock.create');
+                Route::post('/opening-stock', [OpeningStockController::class, 'store'])->name('inventory.opening-stock.store');
             });
 
             Route::middleware('permission:view_inventory_reports')->group(function () {

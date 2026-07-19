@@ -199,7 +199,7 @@ class ExamController extends Controller
                     }
 
                     $subject = $subjectId ? $subjects->firstWhere('id', $subjectId) : null;
-                    $students = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId);
+                    $students = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId);
 
                     if ($subject) {
                         ExamMark::where('exam_id', $exam->id)
@@ -250,7 +250,7 @@ class ExamController extends Controller
             ->map(fn ($id) => (int) $id)
             ->values()
             ->all();
-        $allowedStudentIds = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId)
+        $allowedStudentIds = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId)
             ->pluck('id')
             ->all();
 
@@ -354,7 +354,7 @@ class ExamController extends Controller
                         $config = $subject->getEffectiveMarksForClass($classId);
                         $passMark = (float) ($config['pass_mark'] ?? 33);
 
-                        $studentIds = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId)->pluck('id');
+                        $studentIds = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId)->pluck('id');
 
                         $marks = ExamMark::where('exam_id', $exam->id)
                             ->where('subject_id', $subjectId)
@@ -415,7 +415,7 @@ class ExamController extends Controller
             $selectedGroup = $groupId ? $groups->firstWhere('id', $groupId) : null;
             $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id);
 
-            $students = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId);
+            $students = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId);
             $studentIds = $students->pluck('id');
 
             $allMarks = ExamMark::where('exam_id', $exam->id)
@@ -554,7 +554,7 @@ class ExamController extends Controller
         $selectedGroup = $groupId ? $groups->firstWhere('id', $groupId) : null;
         $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id);
 
-        $students   = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId);
+        $students   = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId);
         $studentIds = $students->pluck('id');
 
         $allMarks = ExamMark::where('exam_id', $exam->id)
@@ -691,9 +691,15 @@ class ExamController extends Controller
         return $subjects->unique('id')->values();
     }
 
-    private function getStudentsForClass(Exam $exam, int $classId, ?int $sectionId = null, ?int $groupId = null)
+    private function getStudentsForClass(
+        Exam $exam,
+        int $classId,
+        ?int $sectionId = null,
+        ?int $groupId = null,
+        ?int $subjectId = null
+    )
     {
-        return Student::where('status', 1)
+        $students = Student::where('status', 1)
             ->whereHas('academicInformations', function ($q) use ($exam, $classId, $sectionId, $groupId) {
                 $q->where('school_class_id', $classId);
                 if ($exam->academic_session_id) {
@@ -712,5 +718,86 @@ class ExamController extends Controller
                 ->with(['section', 'group'])])
             ->orderBy('full_name_en')
             ->get();
+
+        if (! $subjectId) {
+            return $students;
+        }
+
+        $assignments = SubjectClassAssignment::query()
+            ->where('subject_id', $subjectId)
+            ->where('school_class_id', $classId)
+            ->where('is_active', true)
+            ->when($groupId, fn ($query) => $query->where(function ($subQuery) use ($groupId) {
+                $subQuery->whereNull('group_id')->orWhere('group_id', $groupId);
+            }), fn ($query) => $query->whereNull('group_id'))
+            ->get();
+
+        if ($assignments->isEmpty()) {
+            return collect();
+        }
+
+        return $students->filter(function (Student $student) use ($assignments, $classId, $sectionId, $groupId) {
+            $academicInfo = $student->academicInformations->first(function (StudentAcademicInformation $info) use ($classId, $sectionId, $groupId) {
+                if ((int) $info->school_class_id !== $classId) {
+                    return false;
+                }
+
+                if ($sectionId && (int) $info->section_id !== $sectionId) {
+                    return false;
+                }
+
+                if ($groupId && (int) $info->group_id !== $groupId) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            if (! $academicInfo) {
+                return false;
+            }
+
+            foreach ($assignments as $assignment) {
+                if ($this->studentMatchesSubjectAssignment($student, $academicInfo, $assignment)) {
+                    return true;
+                }
+            }
+
+            return false;
+        })->values();
+    }
+
+    private function studentMatchesSubjectAssignment(
+        Student $student,
+        StudentAcademicInformation $academicInfo,
+        SubjectClassAssignment $assignment
+    ): bool {
+        if ($assignment->group_id && (int) $academicInfo->group_id !== (int) $assignment->group_id) {
+            return false;
+        }
+
+        if ($assignment->gender !== 'all') {
+            $expectedGender = $assignment->gender === 'male' ? Student::MALE : Student::FEMALE;
+
+            if ((int) $student->gender !== $expectedGender) {
+                return false;
+            }
+        }
+
+        if ($assignment->religion !== 'all') {
+            $expectedReligion = match ($assignment->religion) {
+                'islam' => Student::ISLAM,
+                'hindu' => Student::HINDU,
+                'christian' => Student::CHRISTIAN,
+                'buddhist' => Student::BUDDHIST,
+                default => null,
+            };
+
+            if ($expectedReligion === null || (int) $student->religion !== $expectedReligion) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

@@ -31,14 +31,48 @@ class FeeController extends Controller
     public function toggleStatus($id)
     {
         $fee = Fee::findOrFail($id);
-        $fee->is_active = !$fee->is_active;
 
-        // keep status as is, but if you also want to set pending/paid when deactivating:
-        // $fee->status = $fee->is_active ? 'pending' : 'pending';
+        if ($this->isPaidFee($fee)) {
+            return back()->with('error', 'Paid fees cannot be toggled.');
+        }
+
+        $fee->is_active = !$fee->is_active;
 
         $fee->save();
 
         return redirect()->back()->with('success', 'Fee active status updated successfully.');
+    }
+
+    public function bulkToggleStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'student_id' => ['required', 'exists:students,id'],
+            'active_fee_ids' => ['nullable', 'array'],
+            'active_fee_ids.*' => ['integer', 'exists:fees,id'],
+        ]);
+
+        $activeFeeIds = collect($validated['active_fee_ids'] ?? [])
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        $fees = Fee::where('student_id', $validated['student_id'])->get();
+
+        foreach ($fees as $fee) {
+            if ($this->isPaidFee($fee)) {
+                continue;
+            }
+
+            $fee->is_active = $activeFeeIds->contains((int) $fee->id);
+            $fee->save();
+        }
+
+        return back()->with('success', 'Fee activation settings updated successfully.');
+    }
+
+    private function isPaidFee(Fee $fee): bool
+    {
+        return (string) $fee->status === 'paid';
     }
 
     public function destroy($id)
@@ -49,4 +83,3 @@ class FeeController extends Controller
         return redirect()->back()->with('success', 'Fee deleted successfully.');
     }
 }
-

@@ -15,6 +15,7 @@ class FreeStudentship extends Model
         'percentage',
         'academic_session_id',
         'fee_category_id',
+        'permitted_by',
         'status',
         'remarks',
     ];

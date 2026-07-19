@@ -185,6 +185,7 @@ class FeeCollectionController extends Controller
                 'student' => null,
                 'payments' => collect(),
                 'pendingFees' => collect(),
+                'assignedFees' => collect(),
                 'inventoryCategories' => collect(),
                 'inventoryDueItems' => collect(),
                 'classes' => $classes,
@@ -199,6 +200,9 @@ class FeeCollectionController extends Controller
             'academicInformations.section',
             'academicInformations.group',
             'academicInformations.academicSession',
+            'fees' => function ($query) {
+                $query->with(['feeSet.items.category', 'scholarship']);
+            },
             'payments' => function ($query) {
                 $query->orderByDesc('payment_date')->orderByDesc('id');
             },
@@ -233,6 +237,28 @@ class FeeCollectionController extends Controller
                 in_array($item->category->student_type ?? 'both', ['both', $studentType])
             );
         })->values();
+
+        $assignedFees = Fee::with(['feeSet.items.category', 'scholarship'])
+            ->where('student_id', $student->id)
+            ->when($sessionId, function ($q) use ($sessionId) {
+                $q->whereHas('feeSet', function ($subQ) use ($sessionId) {
+                    $subQ->where('academic_session_id', $sessionId);
+                });
+            })
+            ->orderBy('due_date')
+            ->orderBy('id')
+            ->get()
+            ->filter(function ($fee) use ($studentType) {
+                $items = $fee->feeSet->items;
+                if ($items->isEmpty()) {
+                    return true;
+                }
+
+                return $items->contains(fn ($item) =>
+                    in_array($item->category->student_type ?? 'both', ['both', $studentType])
+                );
+            })
+            ->values();
 
         // Get active scholarships for this student
         $scholarships = Scholarship::where('student_id', $student->id)
@@ -383,6 +409,7 @@ class FeeCollectionController extends Controller
 
         return view('pages.fees.collect_fee', compact(
             'pendingFees',
+            'assignedFees',
             'student',
             'payments',
             'inventoryCategories',

@@ -112,6 +112,7 @@
                                 <th>Fee Category</th>
                                 <th>Type</th>
                                 <th>Value</th>
+                                <th>Permitted By</th>
                                 <th>Session</th>
                                 <th>Status</th>
                                 <th class="text-center">Actions</th>
@@ -142,6 +143,7 @@
                                             {{ $freeStudentship->percentage }}%
                                         @endif
                                     </td>
+                                    <td>{{ $freeStudentship->permitted_by ?? '—' }}</td>
                                     <td>{{ $freeStudentship->academicSession->name_en ?? '—' }}</td>
                                     <td>
                                         <span
@@ -160,7 +162,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="13" class="text-center text-muted py-4">No free studentships found.</td>
+                                    <td colspan="14" class="text-center text-muted py-4">No free studentships found.</td>
                                 </tr>
                             @endforelse
                         </tbody>

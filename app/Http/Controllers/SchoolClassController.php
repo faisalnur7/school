@@ -9,27 +9,28 @@ class SchoolClassController extends Controller
 {
     public function index()
     {
-        $data['classes'] = SchoolClass::latest()->get();
-        $data['classes'] = SchoolClass::latest()->get();
+        $data['classes'] = SchoolClass::orderBy('order')->orderBy('id')->get();
         return view('pages.classes.index', $data);
     }
 
     public function create()
     {
-        $data['classes'] = SchoolClass::latest()->get();
+        $data['classes'] = SchoolClass::orderBy('order')->orderBy('id')->get();
         return view('pages.classes.create', $data);
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'name_en' => 'required|unique:school_classes,name_en',
             'name_bn' => 'required|unique:school_classes,name_bn',
+            'order' => ['required', 'integer', 'min:0'],
+            'status' => ['nullable', 'boolean'],
         ]);
 
-        $request->status = $request->status ?? 0;
+        $data['status'] = $request->boolean('status');
 
-        SchoolClass::create($request->all());
+        SchoolClass::create($data);
 
         return redirect()->route('classes.index')
             ->with('success', 'Class created successfully');
@@ -37,21 +38,23 @@ class SchoolClassController extends Controller
 
     public function edit($id)
     {
-        $data['classes'] = SchoolClass::latest()->get();
+        $data['classes'] = SchoolClass::orderBy('order')->orderBy('id')->get();
         $data['class'] = SchoolClass::findOrFail($id);
         return view('pages.classes.edit', $data);
     }
 
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $data = $request->validate([
             'name_en' => 'required|unique:school_classes,name_en,' . $id,
             'name_bn' => 'required|unique:school_classes,name_bn,' . $id,
+            'order' => ['required', 'integer', 'min:0'],
+            'status' => ['nullable', 'boolean'],
         ]);
 
         $class = SchoolClass::findOrFail($id);
-        $class->status = $request->status ?? 0;
-        $class->update($request->all());
+        $data['status'] = $request->boolean('status');
+        $class->update($data);
 
         return redirect()->route('classes.index')
             ->with('success', 'Class updated successfully');

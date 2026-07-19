@@ -155,6 +155,7 @@ class FreeStudentshipController extends Controller
                 'existing_type' => $existingFreeStudentship?->type,
                 'existing_amount' => $existingFreeStudentship?->amount,
                 'existing_percentage' => $existingFreeStudentship?->percentage,
+                'existing_permitted_by' => $existingFreeStudentship?->permitted_by,
             ];
         });
 
@@ -173,6 +174,7 @@ class FreeStudentshipController extends Controller
             'students.*.type' => 'required|in:fixed,percentage',
             'students.*.amount' => 'required_if:students.*.type,fixed|nullable|numeric|min:0',
             'students.*.percentage' => 'required_if:students.*.type,percentage|nullable|numeric|min:0|max:100',
+            'students.*.permitted_by' => 'nullable|string|max:255',
         ]);
 
         DB::beginTransaction();
@@ -196,6 +198,7 @@ class FreeStudentshipController extends Controller
                         'type' => $studentData['type'],
                         'amount' => $studentData['type'] === 'fixed' ? $studentData['amount'] : null,
                         'percentage' => $studentData['type'] === 'percentage' ? $studentData['percentage'] : null,
+                        'permitted_by' => $studentData['permitted_by'] ?? null,
                         'status' => 'active',
                     ]
                 );
