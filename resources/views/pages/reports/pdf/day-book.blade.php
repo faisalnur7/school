@@ -7,22 +7,49 @@
 </table>
 <table>
     <thead>
-        <tr><th>Date</th><th>Reference</th><th>Description</th><th>Type</th><th>Debit Account</th><th>Credit Account</th><th class="text-right">Amount</th></tr>
+        <tr>
+            @if($reportType === 'summary')
+                <th>Category / Head</th><th class="text-right">Debit</th><th class="text-right">Credit</th>
+            @else
+                <th>Date</th><th>Reference</th><th>Type</th><th>Description</th><th class="text-right">Debit</th><th class="text-right">Credit</th>
+            @endif
+        </tr>
     </thead>
     <tbody>
-        @forelse($transactions as $txn)
-        <tr>
-            <td style="color:#64748b">{{ $txn->created_at->format('d/m/Y') }}</td>
-            <td style="font-size:10px">{{ $txn->reference_no }}</td>
-            <td>{{ $txn->description ?? '—' }}</td>
-            <td>{{ ucfirst($txn->type) }}</td>
-            <td class="red">{{ $txn->debit_account_name }}</td>
-            <td class="green">{{ $txn->credit_account_name }}</td>
-            <td class="text-right bold">{{ number_format($txn->amount, 2) }}</td>
-        </tr>
-        @empty
-        <tr><td colspan="6" class="text-center muted">No transactions on this date</td></tr>
-        @endforelse
+        @if($reportType === 'summary')
+            <tr style="background:#eff6ff;font-weight:700">
+                <td>Opening Balance</td>
+                <td class="text-right">{{ number_format(abs($openingBalance), 2) }}</td>
+                <td class="text-right">{{ number_format(abs($openingBalance), 2) }}</td>
+            </tr>
+            @forelse($summaryRows as $group)
+                <tr>
+                    <td>{{ $group['label'] }}</td>
+                    <td class="text-right">{{ number_format($group['totalDebit'], 2) }}</td>
+                    <td class="text-right">{{ number_format($group['totalCredit'], 2) }}</td>
+                </tr>
+            @empty
+                <tr><td colspan="3" class="text-center muted">No transactions on this date</td></tr>
+            @endforelse
+            <tr style="background:#eff6ff;font-weight:700">
+                <td>Closing Balance</td>
+                <td class="text-right">{{ number_format(abs($closingBalance), 2) }}</td>
+                <td class="text-right">{{ number_format(abs($closingBalance), 2) }}</td>
+            </tr>
+        @else
+            @forelse($transactions as $transaction)
+                <tr>
+                    <td>{{ $transaction->transaction_date?->format('d/m/Y') }}</td>
+                    <td>{{ $transaction->reference_no ?? '-' }}</td>
+                    <td>{{ ucfirst($transaction->type) }}</td>
+                    <td>{{ $transaction->description ?: '-' }}</td>
+                    <td class="text-right">{{ in_array($transaction->type, ['expense', 'withdrawal']) ? number_format($transaction->amount, 2) : '0.00' }}</td>
+                    <td class="text-right">{{ in_array($transaction->type, ['income', 'capital']) ? number_format($transaction->amount, 2) : '0.00' }}</td>
+                </tr>
+            @empty
+                <tr><td colspan="6" class="text-center muted">No transactions on this date</td></tr>
+            @endforelse
+        @endif
     </tbody>
 </table>
 @php $content = ob_get_clean(); @endphp

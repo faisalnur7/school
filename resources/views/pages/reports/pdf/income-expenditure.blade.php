@@ -84,5 +84,5 @@
 @php $content = ob_get_clean(); @endphp
 @include('pages.reports.pdf.layout', [
     'title' => 'Income & Expenditure Statement',
-    'subtitle' => 'Year: ' . $year,
+    'subtitle' => $from->format('d/m/Y') . ' — ' . $to->format('d/m/Y'),
 ])

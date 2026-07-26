@@ -21,8 +21,13 @@
 
             {{-- Filters --}}
             <form method="GET" action="{{ route('transactions.index') }}" class="px-3 pt-3 pb-2">
-                <div class="row g-2 align-items-end">
-                    <div class="col-md-2">
+                <div class="row g-2 align-items-end flex-nowrap overflow-auto">
+                    <div class="col" style="min-width:220px">
+                        <label class="form-label mb-1" style="font-size:12px">Search</label>
+                        <input type="text" name="search" class="form-control form-control-sm"
+                               value="{{ request('search') }}" placeholder="Ref / description...">
+                    </div>
+                    <div class="col" style="min-width:150px">
                         <label class="form-label mb-1" style="font-size:12px">Type</label>
                         <select name="type" class="form-control form-control-sm">
                             <option value="">All Types</option>
@@ -31,16 +36,14 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label mb-1" style="font-size:12px">Payment Method</label>
-                        <select name="payment_method" class="form-control form-control-sm">
-                            <option value="">All Methods</option>
-                            @foreach($paymentMethods as $m)
-                                <option value="{{ $m }}" {{ request('payment_method') === $m ? 'selected' : '' }}>{{ $m }}</option>
-                            @endforeach
+                    <div class="col" style="min-width:150px">
+                        <label class="form-label mb-1" style="font-size:12px">View Type</label>
+                        <select name="view_type" class="form-control form-control-sm">
+                            <option value="detailed" {{ request('view_type', 'detailed') === 'detailed' ? 'selected' : '' }}>Detailed</option>
+                            <option value="summary" {{ request('view_type') === 'summary' ? 'selected' : '' }}>Summary</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col" style="min-width:170px">
                         <label class="form-label mb-1" style="font-size:12px">Shareholder</label>
                         <select name="shareholder_id" class="form-control form-control-sm">
                             <option value="">All</option>
@@ -49,7 +52,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col" style="min-width:180px">
                         <label class="form-label mb-1" style="font-size:12px">Category</label>
                         <select name="category_id" class="form-control form-control-sm">
                             <option value="">All Categories</option>
@@ -65,26 +68,17 @@
                             </optgroup>
                         </select>
                     </div>
-                    <div class="col-md-1">
+                    <div class="col" style="min-width:140px">
                         <label class="form-label mb-1" style="font-size:12px">From</label>
                         <input type="text" name="from" datepicker datepicker-format="dd/mm/yyyy"
                                class="form-control form-control-sm" value="{{ request('from') }}" placeholder="dd/mm/yyyy" autocomplete="off">
                     </div>
-                    <div class="col-md-1">
+                    <div class="col" style="min-width:140px">
                         <label class="form-label mb-1" style="font-size:12px">To</label>
                         <input type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
                                class="form-control form-control-sm" value="{{ request('to') }}" placeholder="dd/mm/yyyy" autocomplete="off">
                     </div>
-                    <div class="col-md-2 d-flex gap-2">
-                        <div class="flex-grow-1">
-                            <label class="form-label mb-1" style="font-size:12px">Search</label>
-                            <input type="text" name="search" class="form-control form-control-sm"
-                                   value="{{ request('search') }}" placeholder="Ref / description...">
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-md-12 d-flex gap-2">
+                    <div class="col-auto d-flex gap-2 align-items-end">
                         <button type="submit" class="btn btn-sm btn-dark" title="Filter" aria-label="Filter">
                             <i class="fas fa-search"></i>
                         </button>
@@ -117,6 +111,7 @@
 
             {{-- Table --}}
             <div class="table-responsive">
+                @php $showDescription = $viewType === 'detailed'; @endphp
                 <table class="table table-hover align-middle mb-0" style="font-size:13px">
                     <thead style="background:#f8fafc">
                         <tr>
@@ -125,7 +120,9 @@
                             <th>Reference</th>
                             <th>Type</th>
                             <th>Category / Shareholder</th>
-                            <th>Description</th>
+                            @if($showDescription)
+                                <th style="width:220px; max-width:220px;">Description</th>
+                            @endif
                             <th>Method</th>
                             <th class="text-right">Debit</th>
                             <th class="text-right">Credit</th>
@@ -133,66 +130,89 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($transactions as $txn)
-                        @php
-                            $isCredit = in_array($txn->type, ['income', 'capital']);
-                            $badgeColor = match($txn->type) {
-                                'income'     => 'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0',
-                                'expense'    => 'background:#fff1f2;color:#e11d48;border:1px solid #fecdd3',
-                                'capital'    => 'background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe',
-                                'withdrawal' => 'background:#fefce8;color:#ca8a04;border:1px solid #fde68a',
-                                default      => 'background:#f1f5f9;color:#475569',
-                            };
-                        @endphp
-                        <tr>
-                            <td>{{ $transactions->firstItem() + $loop->index }}</td>
-                            <td style="white-space:nowrap;color:#64748b">{{ $txn->transaction_date->format('d/m/Y') }}</td>
-                            <td style="font-family:monospace;font-size:11px;color:#475569">{{ $txn->reference_no ?? '—' }}</td>
-                            <td>
-                                <span class="badge" style="{{ $badgeColor }};font-size:10px;padding:3px 7px">
-                                    {{ ucfirst($txn->type) }}
-                                </span>
-                            </td>
-                            <td>
-                                @if($txn->type === 'income')     {{ $txn->incomeCategory?->name ?? '—' }}
-                                @elseif($txn->type === 'expense') {{ $txn->expenseCategory?->name ?? '—' }}
-                                @else                             {{ $txn->shareholder?->name ?? '—' }}
-                                @endif
-                            </td>
-                            <td style="color:#334155">{{ $txn->description ?? '—' }}</td>
-                            <td>
-                                <span class="badge" style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;font-size:10px;padding:3px 7px">
-                                    {{ $txn->payment_method ?? '—' }}
-                                </span>
-                            </td>
-                            <td class="text-right" style="color:#e11d48;font-family:monospace">
-                                {{ !$isCredit ? number_format($txn->amount, 2) : '—' }}
-                            </td>
-                            <td class="text-right" style="color:#16a34a;font-family:monospace">
-                                {{ $isCredit ? number_format($txn->amount, 2) : '—' }}
-                            </td>
-                            <td style="font-size:12px;color:#64748b">{{ $txn->recorder?->name ?? '—' }}</td>
-                        </tr>
+                        @php $rowNumber = $transactions->firstItem() ? $transactions->firstItem() - 1 : 0; @endphp
+                        @forelse($transactionGroups as $group)
+                            @php
+                                $badgeColor = match($group['type']) {
+                                    'income'     => 'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0',
+                                    'expense'    => 'background:#fff1f2;color:#e11d48;border:1px solid #fecdd3',
+                                    'capital'    => 'background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe',
+                                    'withdrawal' => 'background:#fefce8;color:#ca8a04;border:1px solid #fde68a',
+                                    default      => 'background:#f1f5f9;color:#475569',
+                                };
+                            @endphp
+                            <tr>
+                                <td colspan="{{ $showDescription ? 10 : 9 }}" style="background:#eef2ff;color:#1e293b;font-weight:700">
+                                    <span class="badge" style="{{ $badgeColor }};font-size:13px;padding:4px 10px;margin-right:8px">
+                                        {{ $group['label'] }}
+                                    </span>
+                                </td>
+                            </tr>
+                            @foreach($group['rows'] as $txn)
+                                @php
+                                    $rowNumber++;
+                                    $isCredit = in_array($txn->type, ['income', 'capital']);
+                                @endphp
+                                <tr>
+                                    <td>{{ $rowNumber }}</td>
+                                    <td style="white-space:nowrap;color:#64748b">{{ $txn->transaction_date->format('d/m/Y') }}</td>
+                                    <td style="font-family:monospace;font-size:11px;color:#475569">{{ $txn->reference_no ?? '—' }}</td>
+                                    <td>
+                                        <span class="badge" style="{{ $badgeColor }};font-size:10px;padding:3px 7px">
+                                            {{ ucfirst($txn->type) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if($txn->type === 'income')     {{ $txn->incomeCategory?->name ?? '—' }}
+                                        @elseif($txn->type === 'expense') {{ $txn->expenseCategory?->name ?? '—' }}
+                                        @else                             {{ $txn->shareholder?->name ?? '—' }}
+                                        @endif
+                                    </td>
+                                    @if($showDescription)
+                                        <td style="color:#334155; width:220px; max-width:220px; word-break:break-word;">{{ $txn->description ?? '—' }}</td>
+                                    @endif
+                                    <td>
+                                        <span class="badge" style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;font-size:10px;padding:3px 7px">
+                                            {{ $txn->payment_method ?? '—' }}
+                                        </span>
+                                    </td>
+                                    <td class="text-right" style="color:#e11d48;font-family:monospace">
+                                        {{ !$isCredit ? number_format($txn->amount, 2) : '—' }}
+                                    </td>
+                                    <td class="text-right" style="color:#16a34a;font-family:monospace">
+                                        {{ $isCredit ? number_format($txn->amount, 2) : '—' }}
+                                    </td>
+                                    <td style="font-size:12px;color:#64748b">{{ $txn->recorder?->name ?? '—' }}</td>
+                                </tr>
+                            @endforeach
+                            <tr>
+                                <td colspan="{{ $showDescription ? 7 : 6 }}" style="background:#f8fafc;font-weight:700;padding:6px 8px">Total</td>
+                                <td class="text-right" style="background:#f8fafc;font-weight:700">{{ number_format($group['totalDebit'], 2) }}</td>
+                                <td class="text-right" style="background:#f8fafc;font-weight:700">{{ number_format($group['totalCredit'], 2) }}</td>
+                                <td style="background:#f8fafc"></td>
+                            </tr>
                         @empty
-                        <tr><td colspan="10" class="text-center text-muted py-5">No transactions found</td></tr>
+                            <tr><td colspan="{{ $showDescription ? 10 : 9 }}" class="text-center text-muted py-5">No transactions found</td></tr>
                         @endforelse
                     </tbody>
                     @if($transactions->count())
-                    <tfoot style="background:#f8fafc;font-weight:700">
-                        <tr>
-                            <td colspan="7">Total ({{ $transactions->total() }} records)</td>
-                            <td class="text-right" style="color:#e11d48">{{ number_format($totalExpense + $totalWithdrawal, 2) }}</td>
-                            <td class="text-right" style="color:#16a34a">{{ number_format($totalIncome + $totalCapital, 2) }}</td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
+                        <tfoot style="background:#f8fafc;font-weight:700">
+                            <tr>
+                                <td colspan="{{ $showDescription ? 7 : 6 }}">Total ({{ $transactions->total() }} records)</td>
+                                <td class="text-right" style="color:#e11d48">{{ number_format($totalExpense + $totalWithdrawal, 2) }}</td>
+                                <td class="text-right" style="color:#16a34a">{{ number_format($totalIncome + $totalCapital, 2) }}</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
                     @endif
                 </table>
             </div>
 
-            <div class="p-3">
-                {{ $transactions->links() }}
-            </div>
+            @if($transactions->hasPages())
+                <div class="p-3">
+                    {{ $transactions->links() }}
+                </div>
+            @endif
 
         </div>
     </div>

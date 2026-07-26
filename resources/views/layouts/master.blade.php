@@ -12,6 +12,15 @@
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
             @include('layouts.partials._header')
+            @if (!empty($hubRoute) && !empty($routeName ?? null) && ($routeName ?? null) !== $hubRoute)
+                <div class="container-fluid px-3 pt-2">
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ route($hubRoute) }}" class="btn btn-outline-primary btn-sm rounded-pill shadow-sm">
+                            <i class="fas fa-arrow-left mr-1"></i> Back to Hub
+                        </a>
+                    </div>
+                </div>
+            @endif
             <!-- Main content -->
             <section class="content">
                 <div class="container-fluid m-1">
@@ -182,7 +191,7 @@
             }).trigger('resize'); // Trigger on load to set initial state
 
             // Datepicker init
-            $('.datepicker').datepicker({
+            $('.datepicker, [datepicker]').datepicker({
                 format: 'dd/mm/yyyy',
                 autoclose: true,
                 todayHighlight: true,
