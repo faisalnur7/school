@@ -3,6 +3,7 @@
     $studentCid = data_get($previewStudent, 'student_cid', '0001');
     $studentClass = data_get($previewStudent, 'class_name', 'Class Name');
     $studentRoll = data_get($previewStudent, 'roll', '12');
+    $studentRank = data_get($previewStudent, 'rank', '—');
     $studentSession = data_get($previewStudent, 'session', now()->format('Y') . '-' . (now()->format('Y') + 1));
     $studentDob = data_get($previewStudent, 'dob', '20-05-2010');
     $remarksText = $summary['gpa'] >= 4.0
@@ -304,6 +305,7 @@
             <div><strong>Name</strong> : <span>{{ $studentName }}</span></div>
             <div><strong>Class</strong> : <span>{{ $studentClass }}</span></div>
             <div><strong>ID</strong> : <span>{{ $studentCid }}</span></div>
+            <div><strong>Rank</strong> : <span>{{ $studentRank }}</span></div>
             <div><strong>Roll</strong> : <span>{{ $studentRoll }}</span></div>
         </div>
         <div class="progress-modern-preview__meta text-right">
@@ -356,6 +358,13 @@
             <span class="progress-modern-preview__summary-label">Letter Grade</span>
         </div>
     </div>
+
+    @if (! is_null(data_get($previewStudent, 'rank')))
+    <div class="progress-modern-preview__position" style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin: 0 0 18px; padding: 12px 16px; border-radius: 14px; border: 1px solid {{ $templateSettings->table_border_color }}; background: {{ $templateSettings->table_body_bg_color }};">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: .12em; font-weight: 800; color: {{ $templateSettings->student_label_color }};">Position</div>
+        <div style="font-size: 24px; font-weight: 800; color: {{ $templateSettings->student_value_color }};">#{{ data_get($previewStudent, 'rank') }}</div>
+    </div>
+    @endif
 
     <div class="progress-modern-preview__content">
         <div class="progress-modern-preview__panel">

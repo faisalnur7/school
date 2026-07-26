@@ -12,6 +12,15 @@
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
             @include('layouts.partials._header')
+            @if (!empty($hubRoute) && !empty($routeName ?? null) && ($routeName ?? null) !== $hubRoute)
+                <div class="container-fluid px-3 pt-2">
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ route($hubRoute) }}" class="btn btn-outline-primary btn-sm rounded-pill shadow-sm">
+                            <i class="fas fa-arrow-left mr-1"></i> Back to Hub
+                        </a>
+                    </div>
+                </div>
+            @endif
             <!-- Main content -->
             <section class="content">
                 <div class="container-fluid m-1">
@@ -182,7 +191,7 @@
             }).trigger('resize'); // Trigger on load to set initial state
 
             // Datepicker init
-            $('.datepicker').datepicker({
+            $('.datepicker, [datepicker]').datepicker({
                 format: 'dd/mm/yyyy',
                 autoclose: true,
                 todayHighlight: true,
@@ -191,18 +200,64 @@
 
             // Select2 init
             function initSelect2(context) {
+                function formatCheckboxOption(data) {
+                    if (!data.id) {
+                        return data.text;
+                    }
+
+                    const isSelected = data.element ? $(data.element).prop('selected') : false;
+                    return $('<span class="select2-checkbox-option"></span>')
+                        .append(
+                            $('<span class="select2-checkbox-option__box"></span>')
+                                .toggleClass('is-checked', isSelected)
+                                .html(isSelected ? '<i class="fas fa-check"></i>' : '')
+                        )
+                        .append($('<span class="select2-checkbox-option__label"></span>').text(data.text));
+                }
+
                 $('select:not(.no-select2)', context).each(function() {
                     const $select = $(this);
                     if ($select.hasClass('select2-hidden-accessible')) return;
+                    const isMultiple = $select.prop('multiple');
+                    const hasEmptyOption = $select.find('option[value=""]').length > 0;
                     const isSm = $select.hasClass('form-control-sm') || $select.hasClass('select2-sm');
                     const $modal = $select.closest('.modal');
-                    $select.select2({
+                    const useCheckboxes = isMultiple && ($select.data('select2Checkboxes') !== undefined || $select.hasClass('select2-checkboxes'));
+                    const placeholder = $select.data('placeholder') || (hasEmptyOption
+                        ? $select.find('option[value=""]').first().text()
+                        : (isMultiple ? 'Search and select options' : 'Select...'));
+                    const select2Options = {
                         width: '100%',
-                        allowClear: true,
+                        allowClear: !isMultiple && hasEmptyOption,
+                        closeOnSelect: !isMultiple,
                         dropdownParent: $modal.length ? $modal : $(document.body),
-                        placeholder: $select.find('option[value=""]').first().text() || 'Select...'
-                    });
+                        placeholder: placeholder
+                    };
+                    if (useCheckboxes) {
+                        select2Options.closeOnSelect = false;
+                        select2Options.templateResult = formatCheckboxOption;
+                    }
+                    if ($select.data('select2ContainerClass')) {
+                        select2Options.containerCssClass = $select.data('select2ContainerClass');
+                    }
+                    if ($select.data('select2DropdownClass')) {
+                        select2Options.dropdownCssClass = $select.data('select2DropdownClass');
+                    }
+                    $select.select2(select2Options);
                     if (isSm) $select.data('select2').$container.addClass('select2-sm');
+
+                    if (isMultiple) {
+                        const $container = $select.data('select2').$container;
+                        $container.off('click.select2ChoiceToggle').on('click.select2ChoiceToggle', '.select2-selection__choice', function(event) {
+                            if ($(event.target).closest('.select2-selection__choice__remove').length) {
+                                return;
+                            }
+
+                            event.preventDefault();
+                            event.stopPropagation();
+                            $(this).find('.select2-selection__choice__remove').first().trigger('click');
+                        });
+                    }
                 });
             }
 

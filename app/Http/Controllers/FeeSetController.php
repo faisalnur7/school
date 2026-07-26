@@ -57,6 +57,7 @@ class FeeSetController extends Controller
             'school_class_id'    => 'nullable|exists:school_classes,id',
             'group_id'           => 'nullable|exists:groups,id',
             'frequency'          => 'required|in:monthly,yearly,others',
+            'due_date'           => 'required_if:frequency,yearly|nullable|date',
             'month'              => 'nullable|integer|between:1,12',
             'description'        => 'nullable|string',
 
@@ -79,6 +80,7 @@ class FeeSetController extends Controller
                 'school_class_id'     => $request->school_class_id,
                 'group_id'            => $request->group_id,
                 'frequency'           => $request->frequency,
+                'due_date'            => $request->frequency === 'yearly' ? $request->due_date : null,
                 'month'               => $request->frequency === 'others' ? $request->month : null,
                 'description'         => $request->description,
             ]);
@@ -106,7 +108,7 @@ class FeeSetController extends Controller
                                     ->get();
 
                 $items      = $feeSet->items()->with('category')->get();
-                $dueDates   = $this->generateDueDates($feeSet->frequency, $feeSet->month);
+                $dueDates   = $this->generateDueDates($feeSet->frequency, $feeSet->month, $feeSet->due_date);
 
                 // Count academic infos per student to determine new/old
                 $entryCounts = StudentAcademicInformation::whereIn('student_id', $academicInfos->pluck('student_id'))
@@ -182,6 +184,7 @@ class FeeSetController extends Controller
             'school_class_id'    => 'nullable|exists:school_classes,id',
             'group_id'           => 'nullable|exists:groups,id',
             'frequency'          => 'required|in:monthly,yearly,others',
+            'due_date'           => 'required_if:frequency,yearly|nullable|date',
             'month'              => 'nullable|integer|between:1,12',
             'description'        => 'nullable|string',
 
@@ -206,6 +209,7 @@ class FeeSetController extends Controller
                 'school_class_id'     => $request->school_class_id,
                 'group_id'            => $request->group_id ?? null,
                 'frequency'           => $request->frequency,
+                'due_date'            => $request->frequency === 'yearly' ? $request->due_date : null,
                 'month'               => $request->frequency === 'others' ? $request->month : null,
                 'description'         => $request->description,
             ]);
@@ -235,7 +239,7 @@ class FeeSetController extends Controller
                                     ->get();
 
                 $items    = $feeSet->items()->with('category')->get();
-                $dueDates = $this->generateDueDates($feeSet->frequency, $feeSet->month);
+                $dueDates = $this->generateDueDates($feeSet->frequency, $feeSet->month, $feeSet->due_date);
 
                 // Count academic infos per student to determine new/old
                 $entryCounts = StudentAcademicInformation::whereIn('student_id', $academicInfos->pluck('student_id'))
@@ -294,10 +298,10 @@ class FeeSetController extends Controller
      * Generate Due Dates based on frequency
      * 
      * monthly: 12 due dates (one per month, end of month)
-     * yearly: 1 due date (end of academic year - Dec 31)
+     * yearly: 1 due date (stored due_date, fallback Dec 31)
      * others: 1 due date (specific month of academic year, end of month)
      */
-    private function generateDueDates($frequency, $month = null)
+    private function generateDueDates($frequency, $month = null, $dueDate = null)
     {
         $currentYear = now()->year;
         $dates = [];
@@ -312,8 +316,10 @@ class FeeSetController extends Controller
                 break;
 
             case 'yearly':
-                // Generate 1 due date (end of academic year - Dec 31)
-                $dates[] = Carbon::create($currentYear, 12, 31)->format('Y-m-d');
+                // Generate 1 due date from the saved yearly due date when available.
+                $dates[] = $dueDate
+                    ? Carbon::parse($dueDate)->format('Y-m-d')
+                    : Carbon::create($currentYear, 12, 31)->format('Y-m-d');
                 break;
 
             case 'others':

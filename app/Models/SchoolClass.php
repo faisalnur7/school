@@ -10,7 +10,13 @@ class SchoolClass extends Model
     protected $fillable = [
         'name_en',
         'name_bn',
+        'order',
         'status',
+    ];
+
+    protected $casts = [
+        'order' => 'integer',
+        'status' => 'integer',
     ];
 
     public function subjects(): BelongsToMany

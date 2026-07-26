@@ -519,6 +519,281 @@
             background: #ede9fe;
             color: #5b21b6;
         }
+
+        /* Modern multiple select skin */
+        .select2-container--default .select2-selection--multiple {
+            height: 40px;
+            min-height: 40px;
+            border: 1.5px solid #d6dee9;
+            border-radius: 14px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 28px rgba(15, 23, 42, 0.06);
+            padding: 0 0.55rem;
+            transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .select2-container--default .select2-selection--multiple:hover {
+            border-color: #8aa0c4;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--multiple,
+        .select2-container--default.select2-container--open .select2-selection--multiple {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12), 0 16px 30px rgba(15, 23, 42, 0.08);
+            background: #fff;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            line-height: 38px;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0.5rem 0.35rem 0.5rem 0;
+            padding: 0.18rem 0.72rem;
+            border: 0;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #667eea 0%, #4f46e5 100%);
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 600;
+            line-height: 1.2;
+            box-shadow: 0 8px 18px rgba(79, 70, 229, 0.18);
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            order: 2;
+            margin-left: 0.35rem;
+            margin-right: 0;
+            color: rgba(255, 255, 255, 0.88);
+            font-weight: 700;
+            border: 0;
+            background: transparent;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            color: #fff;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-search--inline {
+            display: inline-block;
+            margin: 0;
+            vertical-align: middle;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
+            margin: 0;
+            padding: 0;
+            min-width: 8rem;
+            font-size: 0.875rem;
+            color: #0f172a;
+            height: 38px;
+            line-height: 38px;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__placeholder {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-search__field::placeholder {
+            color: #94a3b8;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__clear {
+            color: #94a3b8;
+            margin-right: 0.2rem;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__clear:hover {
+            color: #475569;
+        }
+
+        html[data-theme='dark'] .select2-container--default .select2-selection--multiple {
+            border-color: #334155;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.94));
+            box-shadow: 0 1px 2px rgba(2, 6, 23, 0.25), 0 12px 28px rgba(2, 6, 23, 0.24);
+        }
+
+        html[data-theme='dark'] .select2-container--default .select2-selection--multiple:hover {
+            border-color: #64748b;
+        }
+
+        html[data-theme='dark'] .select2-container--default.select2-container--focus .select2-selection--multiple,
+        html[data-theme='dark'] .select2-container--default.select2-container--open .select2-selection--multiple {
+            border-color: #818cf8;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.18), 0 16px 30px rgba(2, 6, 23, 0.3);
+            background: #0f172a;
+        }
+
+        html[data-theme='dark'] .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+            box-shadow: 0 8px 18px rgba(99, 102, 241, 0.24);
+        }
+
+        html[data-theme='dark'] .select2-container--default .select2-selection--multiple .select2-selection__choice__remove,
+        html[data-theme='dark'] .select2-container--default .select2-selection--multiple .select2-selection__placeholder,
+        html[data-theme='dark'] .select2-container--default .select2-selection--multiple .select2-selection__clear {
+            color: #cbd5e1;
+        }
+
+        html[data-theme='dark'] .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
+            color: #e2e8f0;
+            background: transparent;
+        }
+
+        .select2-checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            width: 100%;
+        }
+
+        .select2-checkbox-option__box {
+            width: 1rem;
+            height: 1rem;
+            border: 1.5px solid #94a3b8;
+            border-radius: 0.28rem;
+            background: #fff;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 1rem;
+            font-size: 0.64rem;
+            line-height: 1;
+            transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+        }
+
+        .select2-checkbox-option__box.is-checked {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #4f46e5 100%);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.18);
+        }
+
+        .select2-results__option--highlighted .select2-checkbox-option__box {
+            border-color: rgba(255, 255, 255, 0.88);
+        }
+
+        .select2-results__option--selected .select2-checkbox-option__box {
+            border-color: #667eea;
+        }
+
+        .select2-checkbox-option__label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        html[data-theme='dark'] .select2-checkbox-option__box {
+            border-color: #64748b;
+            background: #0f172a;
+        }
+
+        html[data-theme='dark'] .select2-checkbox-option__box.is-checked {
+            border-color: #818cf8;
+            background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+        }
+
+        .subject-class-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.65rem 1rem;
+            margin-top: 0.25rem;
+        }
+
+        .subject-class-item {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin: 0;
+            padding: 0.35rem 0.25rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .subject-class-item input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .subject-class-item__icon {
+            width: 1.05rem;
+            height: 1.05rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: #111827;
+            color: #fff;
+            flex: 0 0 1.05rem;
+            font-size: 0.62rem;
+            line-height: 1;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.14);
+            transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+        }
+
+        .subject-class-item__label {
+            color: #111827;
+            font-size: 0.93rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .subject-class-item:hover .subject-class-item__icon {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.18);
+        }
+
+        .subject-class-item input:not(:checked) + .subject-class-item__icon {
+            background: #d1d5db;
+            color: transparent;
+        }
+
+        .subject-class-item input:focus-visible + .subject-class-item__icon {
+            outline: 3px solid rgba(102, 126, 234, 0.18);
+            outline-offset: 2px;
+        }
+
+        .subject-class-item input:not(:checked) ~ .subject-class-item__label {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        html[data-theme='dark'] .subject-class-item__icon {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        html[data-theme='dark'] .subject-class-item input:not(:checked) + .subject-class-item__icon {
+            background: #475569;
+            color: transparent;
+        }
+
+        html[data-theme='dark'] .subject-class-item__label {
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .subject-class-item input:not(:checked) ~ .subject-class-item__label {
+            color: #cbd5e1;
+        }
+
+        html[data-theme='dark'] .subject-class-item:hover .subject-class-item__icon {
+            box-shadow: 0 4px 10px rgba(2, 6, 23, 0.35);
+        }
         /* Clear button */
         .select2-container--default .select2-selection--single .select2-selection__clear {
             margin-right: 16px;

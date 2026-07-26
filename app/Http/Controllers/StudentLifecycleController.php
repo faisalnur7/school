@@ -535,7 +535,7 @@ class StudentLifecycleController extends Controller
                 continue;
             }
 
-            foreach ($this->generateFeeDueDates($feeSet->frequency, $feeSet->month) as $dueDate) {
+            foreach ($this->generateFeeDueDates($feeSet->frequency, $feeSet->month, $feeSet->due_date) as $dueDate) {
                 Fee::updateOrCreate(
                     [
                         'student_id' => $student->id,
@@ -607,7 +607,7 @@ class StudentLifecycleController extends Controller
         }
     }
 
-    private function generateFeeDueDates(string $frequency, $month = null): array
+    private function generateFeeDueDates(string $frequency, $month = null, $dueDate = null): array
     {
         $year = now()->year;
         $dates = [];
@@ -619,7 +619,7 @@ class StudentLifecycleController extends Controller
                 }
                 break;
             case 'yearly':
-                $dates[] = Carbon::create($year, 12, 31)->toDateString();
+                $dates[] = $dueDate ? Carbon::parse($dueDate)->toDateString() : Carbon::create($year, 12, 31)->toDateString();
                 break;
             case 'others':
                 if (! empty($month)) {

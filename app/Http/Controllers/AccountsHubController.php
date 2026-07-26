@@ -8,6 +8,7 @@ class AccountsHubController extends Controller
     {
         $sections = [
             'Reports' => [
+                ['icon' => 'fa-exchange-alt',   'title' => 'Transactions',        'subtitle' => 'View all transactions',        'route' => 'transactions.index', 'permission' => 'view_card_transactions', 'from' => '#4f46e5', 'to' => '#7c3aed'],
                 ['icon' => 'fa-book',           'title' => 'Ledger',               'subtitle' => 'View account ledger',          'route' => 'ledger.index', 'permission' => 'view_card_ledger', 'from' => '#d97706', 'to' => '#b45309'],
                 ['icon' => 'fa-balance-scale',  'title' => 'Trial Balance',        'subtitle' => 'View trial balance',           'route' => 'reports.trial-balance', 'permission' => 'view_card_trial_balance', 'from' => '#dc2626', 'to' => '#b91c1c'],
                 ['icon' => 'fa-list-alt',        'title' => 'Detailed Trial Balance','subtitle' => 'Category-wise breakdown of all transactions', 'route' => 'reports.details-trial-balance', 'permission' => 'view_card_detailed_trial_balance', 'from' => '#7c3aed', 'to' => '#6d28d9'],

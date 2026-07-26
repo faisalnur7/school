@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AcademicSession;
 use App\Models\Fee;
+use App\Models\FeeSet;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use Carbon\Carbon;
@@ -14,16 +15,16 @@ class StudentReceivableReportController extends Controller
 {
     public function index(Request $request)
     {
-        [$sessions, $classes, $sections, $rows, $months, $categories, $totals, $fromDate, $toDate] = $this->buildData($request);
+        [$sessions, $classes, $sections, $rows, $months, $categories, $availableCategories, $totals, $fromDate, $toDate, $selectedCategoryKeys] = $this->buildData($request);
 
         return view('pages.student-receivable-report.index', compact(
-            'sessions', 'classes', 'sections', 'rows', 'months', 'categories', 'totals', 'fromDate', 'toDate'
+            'sessions', 'classes', 'sections', 'rows', 'months', 'categories', 'availableCategories', 'totals', 'fromDate', 'toDate', 'selectedCategoryKeys'
         ));
     }
 
     public function pdf(Request $request)
     {
-        [, , , $rows, $months, $categories, $totals, $fromDate, $toDate] = $this->buildData($request);
+        [, , , $rows, $months, $categories, , $totals, $fromDate, $toDate] = $this->buildData($request);
 
         $html = view('pages.student-receivable-report.pdf', compact(
             'rows', 'months', 'categories', 'totals', 'fromDate', 'toDate'
@@ -45,13 +46,15 @@ class StudentReceivableReportController extends Controller
         $rows       = collect();
         $months     = [];
         $categories = collect();
+        $availableCategories = collect();
+        $selectedCategoryKeys = [];
         $totals     = ['months' => [], 'categories' => [], 'total' => 0.0];
         $fromDate   = $request->filled('from_date') ? Carbon::parse($request->from_date) : null;
         $toDate     = $request->filled('to_date')   ? Carbon::parse($request->to_date)   : null;
 
         if (!$fromDate || !$toDate) {
-            return [$sessions, $classes, $sections, $rows, $months, $categories, $totals,
-                $fromDate?->toDateString(), $toDate?->toDateString()];
+            return [$sessions, $classes, $sections, $rows, $months, $categories, $availableCategories, $totals,
+                $fromDate?->toDateString(), $toDate?->toDateString(), $selectedCategoryKeys];
         }
 
         if ($toDate->lt($fromDate)) {
@@ -69,9 +72,33 @@ class StudentReceivableReportController extends Controller
         }
 
         if (empty($months)) {
-            return [$sessions, $classes, $sections, $rows, $months, $categories, $totals,
-                $fromDate->toDateString(), $toDate->toDateString()];
+            return [$sessions, $classes, $sections, $rows, $months, $categories, $availableCategories, $totals,
+                $fromDate->toDateString(), $toDate->toDateString(), $selectedCategoryKeys];
         }
+
+        // Collect all fee categories defined for the selected scope.
+        $categoryQuery = FeeSet::with('items.category');
+        if ($request->filled('session_id')) {
+            $categoryQuery->where('academic_session_id', $request->session_id);
+        }
+        if ($request->filled('class_id')) {
+            $categoryQuery->where('school_class_id', $request->class_id);
+        }
+
+        $allCategories = collect();
+        foreach ($categoryQuery->get() as $feeSet) {
+            foreach ($feeSet->items as $item) {
+                if ($item->category && $item->category->status) {
+                    $allCategories->put($item->category->id, $item->category);
+                }
+            }
+        }
+        $availableCategories = $allCategories->sortBy('name')->values();
+        $selectedCategoryKeys = $this->resolveSelectedReceivableReportColumns($request, $availableCategories);
+        $selectedCategoryLookup = array_flip($selectedCategoryKeys);
+        $categories = $availableCategories
+            ->filter(fn ($category) => isset($selectedCategoryLookup[$category->id]))
+            ->values();
 
         // Query active fees with due_date in range
         $feesQuery = Fee::with([
@@ -97,17 +124,6 @@ class StudentReceivableReportController extends Controller
         }
 
         $fees = $feesQuery->get();
-
-        // Collect all categories used
-        $allCategories = collect();
-        foreach ($fees as $fee) {
-            foreach ($fee->feeSet->items as $item) {
-                if ($item->category && $item->category->status) {
-                    $allCategories->put($item->category->id, $item->category);
-                }
-            }
-        }
-        $categories = $allCategories->sortBy('name');
 
         // Init category totals
         foreach ($categories as $cat) {
@@ -155,6 +171,7 @@ class StudentReceivableReportController extends Controller
                 $studentType = $cat->student_type ?? 'both';
                 if ($isNewStudent && $studentType === 'old') continue;
                 if (!$isNewStudent && $studentType === 'new') continue;
+                if (!isset($selectedCategoryLookup[(string) $cat->id])) continue;
 
                 $baseAmount = (float) $item->amount;
                 if ($baseAmount <= 0) {
@@ -201,15 +218,17 @@ class StudentReceivableReportController extends Controller
                     'student_name'  => $student->full_name_en,
                     'class_name'    => $academicInfo?->schoolClass?->name_en ?? '—',
                     'section_name'  => $academicInfo?->section?->name_en ?? '—',
-                    'is_new'        => $isNewStudent,
-                    'months'        => array_fill_keys(array_keys($months), 0.0),
-                    'paidMonths'    => array_fill_keys(array_keys($months), 0.0),
-                    'dueMonths'     => array_fill_keys(array_keys($months), 0.0),
-                    'categories'    => [],
-                    'total'         => 0.0,
-                    'paid_total'    => 0.0,
-                    'due_total'     => 0.0,
-                ];
+                'is_new'        => $isNewStudent,
+                'months'        => array_fill_keys(array_keys($months), 0.0),
+                'paidMonths'    => array_fill_keys(array_keys($months), 0.0),
+                'dueMonths'     => array_fill_keys(array_keys($months), 0.0),
+            'categories'    => collect($categories)->mapWithKeys(
+                    fn ($cat) => [$cat->id => array_fill_keys(array_keys($months), 0.0)]
+                )->all(),
+                'total'         => 0.0,
+                'paid_total'    => 0.0,
+                'due_total'     => 0.0,
+            ];
             }
 
             foreach ($adjustedLines as $line) {
@@ -219,10 +238,6 @@ class StudentReceivableReportController extends Controller
                 $share = $netTotal > 0 ? ($amount / $netTotal) : 0;
                 $paidAmount = $paidTotal * $share;
                 $dueAmount = max(0, $amount - $paidAmount);
-
-                if (!isset($studentMap[$sid]['categories'][$catId])) {
-                    $studentMap[$sid]['categories'][$catId] = array_fill_keys(array_keys($months), 0.0);
-                }
 
                 $studentMap[$sid]['categories'][$catId][$monthKey]  += $amount;
                 $studentMap[$sid]['months'][$monthKey]               += $amount;
@@ -242,7 +257,28 @@ class StudentReceivableReportController extends Controller
             ->sortBy('student_name')
             ->values();
 
-        return [$sessions, $classes, $sections, $rows, $months, $categories, $totals,
-            $fromDate->toDateString(), $toDate->toDateString()];
+        return [$sessions, $classes, $sections, $rows, $months, $categories, $availableCategories, $totals,
+            $fromDate->toDateString(), $toDate->toDateString(), $selectedCategoryKeys];
+    }
+
+    private function resolveSelectedReceivableReportColumns(Request $request, $availableCategories): array
+    {
+        $selectionWasSubmitted = $request->has('columns_present');
+        $selected = array_values(array_filter((array) $request->input('columns', []), function ($value) {
+            return is_numeric($value) || (is_string($value) && $value !== '');
+        }));
+
+        $validKeys = $availableCategories->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $selected = array_values(array_unique(array_values(array_filter(array_map(function ($value) use ($validKeys) {
+            $mapped = (string) $value;
+
+            return in_array($mapped, $validKeys, true) ? $mapped : null;
+        }, $selected)))));
+
+        if (! $selectionWasSubmitted && empty($selected)) {
+            return $validKeys;
+        }
+
+        return $selected;
     }
 }

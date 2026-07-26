@@ -20,6 +20,7 @@ use App\Models\Payroll;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Mpdf\Mpdf;
 
 class ReportsController extends Controller
@@ -115,25 +116,23 @@ class ReportsController extends Controller
     // ── Cash Book ──────────────────────────────────────────────
     public function cashBook(Request $request)
     {
-        $from = $request->filled('from')
-            ? Carbon::createFromFormat('d/m/Y', $request->from)
-            : now()->startOfMonth();
-        $to = $request->filled('to')
-            ? Carbon::createFromFormat('d/m/Y', $request->to)
-            : now();
+        [$transactions, $totalIn, $totalOut, $from, $to, $incomeCategories, $expenseCategories, $selectedCategoryId, $selectedCategoryLabel, $summaryRows, $reportType, $openingBalance, $closingBalance] = $this->buildCashBookData($request);
 
-        $transactions = Transaction::with(['incomeCategory', 'expenseCategory', 'shareholder', 'transactionable'])
-            ->where('payment_method', 'Cash')
-            ->whereBetween('transaction_date', [$from, $to])
-            ->orderByDesc('transaction_date')
-            ->orderByDesc('created_at')
-            ->orderByDesc('id')
-            ->get();
-
-        $totalIn  = $transactions->whereIn('type', ['income', 'capital'])->sum('amount');
-        $totalOut = $transactions->whereIn('type', ['expense', 'withdrawal'])->sum('amount');
-
-        return view('pages.reports.cash-book', compact('transactions', 'totalIn', 'totalOut', 'from', 'to'));
+        return view('pages.reports.cash-book', compact(
+            'transactions',
+            'totalIn',
+            'totalOut',
+            'from',
+            'to',
+            'incomeCategories',
+            'expenseCategories',
+            'selectedCategoryId',
+            'selectedCategoryLabel',
+            'summaryRows',
+            'reportType',
+            'openingBalance',
+            'closingBalance'
+        ));
     }
 
     // ── Day Book ───────────────────────────────────────────────
@@ -142,6 +141,8 @@ class ReportsController extends Controller
         $date = $request->filled('date')
             ? Carbon::createFromFormat('d/m/Y', $request->date)
             : now();
+        $reportType = $request->input('report_type', $request->input('view_mode', 'summary'));
+        $reportType = $reportType === 'grouped' ? 'summary' : $reportType;
 
         $transactions = Transaction::with(['incomeCategory', 'expenseCategory', 'shareholder', 'transactionable'])
             ->whereDate('transaction_date', $date)
@@ -151,8 +152,11 @@ class ReportsController extends Controller
 
         $totalDebit  = $transactions->whereIn('type', ['expense', 'withdrawal'])->sum('amount');
         $totalCredit = $transactions->whereIn('type', ['income', 'capital'])->sum('amount');
+        $openingBalance = $this->openingBalanceBefore($date);
+        $closingBalance = $openingBalance + ($totalCredit - $totalDebit);
+        $summaryRows = $reportType === 'summary' ? $this->groupCashSummaryRows($transactions) : collect();
 
-        return view('pages.reports.day-book', compact('transactions', 'totalDebit', 'totalCredit', 'date'));
+        return view('pages.reports.day-book', compact('transactions', 'totalDebit', 'totalCredit', 'date', 'reportType', 'summaryRows', 'openingBalance', 'closingBalance'));
     }
 
     // ── Cash Summary ───────────────────────────────────────────
@@ -443,10 +447,15 @@ class ReportsController extends Controller
     // ── Income & Expenditure ───────────────────────────────────
     public function incomeExpenditure(Request $request)
     {
-        $year = $request->get('year', now()->year);
+        $from = $this->parseReportDate($request->get('from'), now()->startOfYear())->startOfDay();
+        $to   = $this->parseReportDate($request->get('to'), now()->endOfYear())->endOfDay();
+
+        if ($from->gt($to)) {
+            [$from, $to] = [$to->copy()->startOfDay(), $from->copy()->endOfDay()];
+        }
 
         $incomeByCategory = Income::with('category')
-            ->whereYear('income_date', $year)
+            ->whereBetween('income_date', [$from, $to])
             ->get()
             ->groupBy('income_category_id')
             ->map(fn($rows) => [
@@ -455,7 +464,7 @@ class ReportsController extends Controller
             ])->values();
 
         $expenseByCategory = Expense::with('category')
-            ->whereYear('expense_date', $year)
+            ->whereBetween('expense_date', [$from, $to])
             ->get()
             ->groupBy('expense_category_id')
             ->map(fn($rows) => [
@@ -473,7 +482,8 @@ class ReportsController extends Controller
             'totalIncome',
             'totalExpense',
             'surplus',
-            'year'
+            'from',
+            'to'
         ));
     }
 
@@ -667,23 +677,198 @@ class ReportsController extends Controller
 
     public function cashBookPdf(Request $request)
     {
-        $from = $request->filled('from') ? Carbon::createFromFormat('d/m/Y', $request->from) : now()->startOfMonth();
-        $to   = $request->filled('to')   ? Carbon::createFromFormat('d/m/Y', $request->to)   : now();
+        [$transactions, $totalIn, $totalOut, $from, $to, , , , $selectedCategoryLabel, $summaryRows, $reportType, $openingBalance, $closingBalance] = $this->buildCashBookData($request);
+
+        $subtitle = $from->format('d/m/Y') . ' — ' . $to->format('d/m/Y');
+        if ($selectedCategoryLabel) {
+            $subtitle .= ' | Category: ' . $selectedCategoryLabel;
+        }
+
+        $this->makePdf(
+            'pages.reports.pdf.cash-book',
+            compact('transactions', 'totalIn', 'totalOut', 'from', 'to', 'subtitle', 'summaryRows', 'reportType', 'openingBalance', 'closingBalance'),
+            'cash-book-' . $from->format('Ymd') . '-' . $to->format('Ymd'),
+            'P'
+        );
+    }
+
+    private function buildCashBookData(Request $request): array
+    {
+        $from = $request->filled('from')
+            ? Carbon::createFromFormat('d/m/Y', $request->from)
+            : now()->startOfMonth();
+        $to = $request->filled('to')
+            ? Carbon::createFromFormat('d/m/Y', $request->to)
+            : now();
+
+        $incomeCategories = IncomeCategory::orderBy('name')->get();
+        $expenseCategories = ExpenseCategory::orderBy('name')->get();
+        [$selectedCategoryType, $selectedCategoryId] = $this->parseCashBookCategoryFilter($request->input('category_id'));
+        $reportType = $request->input('report_type', $request->input('view_mode', 'summary'));
+        $reportType = $reportType === 'grouped' ? 'summary' : $reportType;
+
         $transactions = Transaction::with(['incomeCategory', 'expenseCategory', 'shareholder', 'transactionable'])
             ->where('payment_method', 'Cash')
             ->whereBetween('transaction_date', [$from, $to])
+            ->when($selectedCategoryId, function ($query) use ($selectedCategoryId, $selectedCategoryType) {
+                if ($selectedCategoryType === 'income') {
+                    $query->where('type', 'income')->where('income_category_id', $selectedCategoryId);
+                    return;
+                }
+
+                if ($selectedCategoryType === 'expense') {
+                    $query->where('type', 'expense')->where('expense_category_id', $selectedCategoryId);
+                    return;
+                }
+
+                $query->where(function ($categoryQuery) use ($selectedCategoryId) {
+                    $categoryQuery->where(function ($incomeQuery) use ($selectedCategoryId) {
+                        $incomeQuery->where('type', 'income')
+                            ->where('income_category_id', $selectedCategoryId);
+                    })->orWhere(function ($expenseQuery) use ($selectedCategoryId) {
+                        $expenseQuery->where('type', 'expense')
+                            ->where('expense_category_id', $selectedCategoryId);
+                    });
+                });
+            })
             ->orderByDesc('transaction_date')
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->get();
+
         $totalIn  = $transactions->whereIn('type', ['income', 'capital'])->sum('amount');
         $totalOut = $transactions->whereIn('type', ['expense', 'withdrawal'])->sum('amount');
-        $this->makePdf('pages.reports.pdf.cash-book', compact('transactions', 'totalIn', 'totalOut', 'from', 'to'), 'cash-book-' . $from->format('Ymd') . '-' . $to->format('Ymd'), 'L');
+        $openingBalance = $this->openingBalanceBefore($from, true, $selectedCategoryType, $selectedCategoryId);
+        $closingBalance = $openingBalance + ($totalIn - $totalOut);
+        $summaryRows = $reportType === 'summary' ? $this->groupCashSummaryRows($transactions) : collect();
+
+        $selectedCategoryLabel = null;
+        if ($selectedCategoryId) {
+            $selectedCategoryLabel = match ($selectedCategoryType) {
+                'income'  => $incomeCategories->firstWhere('id', $selectedCategoryId)?->name,
+                'expense' => $expenseCategories->firstWhere('id', $selectedCategoryId)?->name,
+                default   => $incomeCategories->firstWhere('id', $selectedCategoryId)?->name
+                    ?? $expenseCategories->firstWhere('id', $selectedCategoryId)?->name,
+            };
+        }
+
+        return [$transactions, $totalIn, $totalOut, $from, $to, $incomeCategories, $expenseCategories, $selectedCategoryId, $selectedCategoryLabel, $summaryRows, $reportType, $openingBalance, $closingBalance];
+    }
+
+    private function groupCashSummaryRows(Collection $transactions): Collection
+    {
+        return $transactions
+            ->groupBy(fn (Transaction $txn) => $this->cashBookGroupKey($txn))
+            ->map(function ($rows) {
+                $first = $rows->first();
+
+                $totalIn = $rows->whereIn('type', ['income', 'capital'])->sum('amount');
+                $totalOut = $rows->whereIn('type', ['expense', 'withdrawal'])->sum('amount');
+
+                return [
+                    'label'        => $this->cashBookGroupLabel($first),
+                    'transactions' => $rows,
+                    'totalIn'      => $totalIn,
+                    'totalOut'     => $totalOut,
+                    'totalDebit'   => $totalOut,
+                    'totalCredit'  => $totalIn,
+                ];
+            })
+            ->sortBy(fn (array $group) => $this->cashBookGroupSortKey($group))
+            ->values();
+    }
+
+    private function openingBalanceBefore(Carbon $date, bool $cashOnly = false, ?string $categoryType = null, ?int $categoryId = null): float
+    {
+        $query = Transaction::query();
+
+        if ($cashOnly) {
+            $query->where('payment_method', 'Cash');
+        }
+
+        if ($categoryId) {
+            if ($categoryType === 'income') {
+                $query->where('type', 'income')->where('income_category_id', $categoryId);
+            } elseif ($categoryType === 'expense') {
+                $query->where('type', 'expense')->where('expense_category_id', $categoryId);
+            } else {
+                $query->where(function ($sub) use ($categoryId) {
+                    $sub->where(function ($incomeQuery) use ($categoryId) {
+                        $incomeQuery->where('type', 'income')->where('income_category_id', $categoryId);
+                    })->orWhere(function ($expenseQuery) use ($categoryId) {
+                        $expenseQuery->where('type', 'expense')->where('expense_category_id', $categoryId);
+                    });
+                });
+            }
+        }
+
+        $before = (clone $query)
+            ->whereDate('transaction_date', '<', $date->toDateString())
+            ->get();
+
+        $credit = $before->whereIn('type', ['income', 'capital'])->sum('amount');
+        $debit  = $before->whereIn('type', ['expense', 'withdrawal'])->sum('amount');
+
+        return $credit - $debit;
+    }
+
+    private function cashBookGroupKey(Transaction $txn): string
+    {
+        return match ($txn->type) {
+            'income'     => 'income:' . ($txn->incomeCategory?->id ?? 'uncategorised'),
+            'expense'    => 'expense:' . ($txn->expenseCategory?->id ?? 'uncategorised'),
+            'capital'    => 'capital:' . ($txn->shareholder?->id ?? 'uncategorised'),
+            'withdrawal' => 'withdrawal:' . ($txn->shareholder?->id ?? 'uncategorised'),
+            default      => 'other:uncategorised',
+        };
+    }
+
+    private function cashBookGroupLabel(Transaction $txn): string
+    {
+        return match ($txn->type) {
+            'income'     => 'Income - ' . ($txn->incomeCategory?->name ?? 'Uncategorised'),
+            'expense'    => 'Expense - ' . ($txn->expenseCategory?->name ?? 'Uncategorised'),
+            'capital'    => 'Capital - ' . ($txn->shareholder?->name ?? 'Uncategorised'),
+            'withdrawal' => 'Withdrawal - ' . ($txn->shareholder?->name ?? 'Uncategorised'),
+            default      => ucfirst($txn->type),
+        };
+    }
+
+    private function cashBookGroupSortKey(array $group): string
+    {
+        $order = match (strtok($group['label'], ' ')) {
+            'Income'     => 1,
+            'Expense'    => 2,
+            'Capital'    => 3,
+            'Withdrawal' => 4,
+            default      => 9,
+        };
+
+        return str_pad((string) $order, 2, '0', STR_PAD_LEFT) . '|' . strtolower($group['label']);
+    }
+
+    private function parseCashBookCategoryFilter(?string $value): array
+    {
+        if (blank($value)) {
+            return [null, null];
+        }
+
+        if (str_contains($value, ':')) {
+            [$type, $id] = array_pad(explode(':', $value, 2), 2, null);
+            $type = in_array($type, ['income', 'expense'], true) ? $type : null;
+            $id = is_numeric($id) ? (int) $id : null;
+
+            return [$type, $id];
+        }
+
+        return [null, is_numeric($value) ? (int) $value : null];
     }
 
     public function dayBookPdf(Request $request)
     {
         $date = $request->filled('date') ? Carbon::createFromFormat('d/m/Y', $request->date) : now();
+        $reportType = $request->input('report_type', $request->input('view_mode', 'summary'));
+        $reportType = $reportType === 'grouped' ? 'summary' : $reportType;
         $transactions = Transaction::with(['incomeCategory', 'expenseCategory', 'shareholder', 'transactionable'])
             ->whereDate('transaction_date', $date)
             ->orderByDesc('created_at')
@@ -691,22 +876,35 @@ class ReportsController extends Controller
             ->get();
         $totalDebit  = $transactions->whereIn('type', ['expense', 'withdrawal'])->sum('amount');
         $totalCredit = $transactions->whereIn('type', ['income', 'capital'])->sum('amount');
-        $this->makePdf('pages.reports.pdf.day-book', compact('transactions', 'totalDebit', 'totalCredit', 'date'), 'day-book-' . $date->format('Ymd'), 'L');
+        $openingBalance = $this->openingBalanceBefore($date);
+        $closingBalance = $openingBalance + ($totalCredit - $totalDebit);
+        $summaryRows = $reportType === 'summary' ? $this->groupCashSummaryRows($transactions) : collect();
+        $this->makePdf('pages.reports.pdf.day-book', compact('transactions', 'totalDebit', 'totalCredit', 'date', 'reportType', 'summaryRows', 'openingBalance', 'closingBalance'), 'day-book-' . $date->format('Ymd'), 'P');
     }
 
     public function incomeExpenditurePdf(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $incomeByCategory = Income::with('category')->whereYear('income_date', $year)->get()
+        $from = $this->parseReportDate($request->get('from'), now()->startOfYear())->startOfDay();
+        $to   = $this->parseReportDate($request->get('to'), now()->endOfYear())->endOfDay();
+
+        if ($from->gt($to)) {
+            [$from, $to] = [$to->copy()->startOfDay(), $from->copy()->endOfDay()];
+        }
+
+        $incomeByCategory = Income::with('category')->whereBetween('income_date', [$from, $to])->get()
             ->groupBy('income_category_id')
             ->map(fn($rows) => ['name' => $rows->first()->category?->name ?? 'Uncategorised', 'amount' => $rows->sum('amount')])->values();
-        $expenseByCategory = Expense::with('category')->whereYear('expense_date', $year)->get()
+        $expenseByCategory = Expense::with('category')->whereBetween('expense_date', [$from, $to])->get()
             ->groupBy('expense_category_id')
             ->map(fn($rows) => ['name' => $rows->first()->category?->name ?? 'Uncategorised', 'amount' => $rows->sum('amount')])->values();
         $totalIncome  = $incomeByCategory->sum('amount');
         $totalExpense = $expenseByCategory->sum('amount');
         $surplus      = $totalIncome - $totalExpense;
-        $this->makePdf('pages.reports.pdf.income-expenditure', compact('incomeByCategory', 'expenseByCategory', 'totalIncome', 'totalExpense', 'surplus', 'year'), 'income-expenditure-' . $year);
+        $this->makePdf(
+            'pages.reports.pdf.income-expenditure',
+            compact('incomeByCategory', 'expenseByCategory', 'totalIncome', 'totalExpense', 'surplus', 'from', 'to'),
+            'income-expenditure-' . $from->format('Ymd') . '-' . $to->format('Ymd')
+        );
     }
 
     public function cashSummaryPdf(Request $request)

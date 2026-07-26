@@ -32,6 +32,14 @@
             </div>
         </div>
         <div class="card-body">
+            <div class="alert alert-primary border-0 mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <strong>Total Inventory Value:</strong>
+                    <span class="ml-1">৳{{ number_format((float) $totalInventoryValue, 2) }}</span>
+                </div>
+                <div class="text-muted small">Based on current stock and average cost</div>
+            </div>
+
             <form method="GET" class="mb-3 inventory-filter-panel">
                 <div class="row g-2 align-items-end">
                     <div class="col-md-6">
@@ -58,6 +66,8 @@
                              <th>Category</th>
                              <th>Product</th>
                              <th class="text-right">Stock</th>
+                             <th class="text-right">Avg Cost</th>
+                             <th class="text-right">Stock Value</th>
                              <th class="text-right">Min Alert</th>
                              <th class="text-right">Purchase Price</th>
                              <th>Low Stock</th>
@@ -73,6 +83,8 @@
                                  <td>{{ $item->category?->name }}</td>
                                  <td>{{ $item->name }}</td>
                                  <td class="text-right">{{ $item->current_stock }}</td>
+                                 <td class="text-right">{{ number_format((float) ($item->average_cost ?? $item->purchase_price), 2) }}</td>
+                                 <td class="text-right">{{ number_format((float) $item->stockValue(), 2) }}</td>
                                  <td class="text-right">{{ $item->minimum_stock_alert }}</td>
                                  <td class="text-right">{{ number_format((float)$item->purchase_price, 2) }}</td>
                                  <td>
@@ -83,8 +95,8 @@
                                      @endif
                                  </td>
                              </tr>
-                         @empty
-                             <tr><td colspan="7" class="text-center text-muted">No data.</td></tr>
+                             @empty
+                             <tr><td colspan="9" class="text-center text-muted">No data.</td></tr>
                          @endforelse
                      </tbody>
                 </table>

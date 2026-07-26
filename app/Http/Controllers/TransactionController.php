@@ -8,41 +8,64 @@ use App\Models\Shareholder;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Mpdf\Mpdf;
 
 class TransactionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = $this->buildQuery($request);
-
-        $transactions = (clone $query)->latest('transaction_date')->paginate(20)->withQueryString();
-
-        [$totalIncome, $totalExpense, $totalCapital, $totalWithdrawal] = $this->totals($query);
-
         return view('pages.transactions.index', array_merge(
-            compact('transactions', 'totalIncome', 'totalExpense', 'totalCapital', 'totalWithdrawal'),
+            $this->reportData($request),
             $this->filterData()
         ));
     }
 
     public function pdf(Request $request)
     {
-        $query        = $this->buildQuery($request);
-        $transactions = (clone $query)->latest('transaction_date')->get();
+        $html = view('pages.transactions.pdf', $this->reportData($request, true))->render();
 
-        [$totalIncome, $totalExpense, $totalCapital, $totalWithdrawal] = $this->totals($query);
-
-        $html = view('pages.transactions.pdf', compact(
-            'transactions', 'totalIncome', 'totalExpense', 'totalCapital', 'totalWithdrawal'
-        ))->render();
-
-        $mpdf = new Mpdf(['orientation' => 'L', 'margin_top' => 8, 'margin_bottom' => 8, 'margin_left' => 10, 'margin_right' => 10]);
+        $mpdf = new Mpdf(['orientation' => 'P', 'margin_top' => 8, 'margin_bottom' => 8, 'margin_left' => 10, 'margin_right' => 10]);
         $mpdf->WriteHTML($html);
         $mpdf->Output('transactions-' . now()->format('Ymd') . '.pdf', 'D');
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────
+
+    private function reportData(Request $request, bool $forPdf = false): array
+    {
+        $viewType = $this->normalizeViewType($request->input('view_type', 'detailed'));
+        $pdfDescriptionTypes = $this->normalizePdfDescriptionTypes($request);
+        $query = $this->buildQuery($request);
+
+        [$totalIncome, $totalExpense, $totalCapital, $totalWithdrawal] = $this->totals($query);
+
+        $transactions = $forPdf
+            ? $this->orderedQuery(clone $query)->get()
+            : $this->orderedQuery(clone $query)->paginate(20)->withQueryString();
+        $transactionCollection = $forPdf ? $transactions : $transactions->getCollection();
+        $transactionGroups = $this->groupTransactions($transactionCollection, true);
+
+        return [
+            'viewType'          => $viewType,
+            'pdfDescriptionTypes' => $pdfDescriptionTypes,
+            'transactions'      => $transactions,
+            'transactionGroups' => $transactionGroups,
+            'totalIncome'       => $totalIncome,
+            'totalExpense'      => $totalExpense,
+            'totalCapital'      => $totalCapital,
+            'totalWithdrawal'   => $totalWithdrawal,
+        ];
+    }
+
+    private function normalizeViewType(?string $viewType): string
+    {
+        return match ($viewType) {
+            'summary', 'categorized_detailed_no_description', 'categorized_summary' => 'summary',
+            'detailed', 'categorized_detailed' => 'detailed',
+            default => 'detailed',
+        };
+    }
 
     private function buildQuery(Request $request)
     {
@@ -50,7 +73,6 @@ class TransactionController extends Controller
             ->whereIn('type', ['income', 'expense', 'capital', 'withdrawal']);
 
         if ($request->filled('type'))           { $query->where('type', $request->type); }
-        if ($request->filled('payment_method')) { $query->where('payment_method', $request->payment_method); }
         if ($request->filled('shareholder_id')) { $query->where('shareholder_id', $request->shareholder_id); }
         if ($request->filled('category_id')) {
             $query->where(fn($q) => $q->where('income_category_id', $request->category_id)
@@ -70,6 +92,96 @@ class TransactionController extends Controller
         return $query;
     }
 
+    private function normalizePdfDescriptionTypes(Request $request): array
+    {
+        $allTypes = ['income', 'expense', 'capital', 'withdrawal'];
+
+        if (! $request->boolean('pdf_desc_custom')) {
+            return $allTypes;
+        }
+
+        $selected = array_values(array_intersect(
+            $allTypes,
+            (array) $request->input('pdf_description_types', [])
+        ));
+
+        return $selected;
+    }
+
+    private function orderedQuery($query)
+    {
+        return $query
+            ->orderByRaw("CASE type WHEN 'income' THEN 1 WHEN 'expense' THEN 2 WHEN 'capital' THEN 3 WHEN 'withdrawal' THEN 4 ELSE 9 END")
+            ->orderByRaw("CASE
+                WHEN type = 'income' THEN COALESCE(income_category_id, 0)
+                WHEN type = 'expense' THEN COALESCE(expense_category_id, 0)
+                WHEN type IN ('capital', 'withdrawal') THEN COALESCE(shareholder_id, 0)
+                ELSE 0
+            END")
+            ->orderBy('transaction_date')
+            ->orderBy('id');
+    }
+
+    private function groupTransactions(Collection $transactions, bool $withRows = true): Collection
+    {
+        return $transactions
+            ->groupBy(fn (Transaction $txn) => $this->groupKey($txn))
+            ->map(function (Collection $rows) use ($withRows) {
+                $first = $rows->first();
+
+                $group = [
+                    'label'       => $this->groupLabel($first),
+                    'type'        => $first->type,
+                    'count'       => $rows->count(),
+                    'totalDebit'  => $rows->whereIn('type', ['expense', 'withdrawal'])->sum('amount'),
+                    'totalCredit' => $rows->whereIn('type', ['income', 'capital'])->sum('amount'),
+                ];
+
+                if ($withRows) {
+                    $group['rows'] = $rows->values();
+                }
+
+                return $group;
+            })
+            ->sortBy(fn (array $group) => $this->groupSortKey($group))
+            ->values();
+    }
+
+    private function groupKey(Transaction $txn): string
+    {
+        return match ($txn->type) {
+            'income'     => 'income:' . ($txn->incomeCategory?->id ?? 'uncategorised'),
+            'expense'    => 'expense:' . ($txn->expenseCategory?->id ?? 'uncategorised'),
+            'capital'    => 'capital:' . ($txn->shareholder?->id ?? 'uncategorised'),
+            'withdrawal' => 'withdrawal:' . ($txn->shareholder?->id ?? 'uncategorised'),
+            default      => 'other:uncategorised',
+        };
+    }
+
+    private function groupLabel(Transaction $txn): string
+    {
+        return match ($txn->type) {
+            'income'     => 'Income - ' . ($txn->incomeCategory?->name ?? 'Uncategorised'),
+            'expense'    => 'Expense - ' . ($txn->expenseCategory?->name ?? 'Uncategorised'),
+            'capital'    => 'Capital - ' . ($txn->shareholder?->name ?? 'Uncategorised'),
+            'withdrawal' => 'Withdrawal - ' . ($txn->shareholder?->name ?? 'Uncategorised'),
+            default      => ucfirst($txn->type),
+        };
+    }
+
+    private function groupSortKey(array $group): string
+    {
+        $order = match ($group['type']) {
+            'income'     => 1,
+            'expense'    => 2,
+            'capital'    => 3,
+            'withdrawal' => 4,
+            default      => 9,
+        };
+
+        return str_pad((string) $order, 2, '0', STR_PAD_LEFT) . '|' . strtolower($group['label']);
+    }
+
     private function totals($query): array
     {
         return [
@@ -86,7 +198,6 @@ class TransactionController extends Controller
             'shareholders'      => Shareholder::orderBy('name')->get(),
             'incomeCategories'  => IncomeCategory::orderBy('name')->get(),
             'expenseCategories' => ExpenseCategory::orderBy('name')->get(),
-            'paymentMethods'    => ['Cash', 'Bank Transfer', 'Cheque', 'Mobile Banking', 'Other'],
         ];
     }
 }

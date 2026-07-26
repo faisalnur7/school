@@ -171,8 +171,33 @@
             white-space: nowrap;
         }
 
+        .fees-report-category-card {
+            border: 1px dashed #d1d5db;
+            background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
+        }
+
+        .fees-report-category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.7rem 1rem;
+        }
+
+        .fees-report-category-option .form-check-input {
+            margin-top: 0.25rem;
+        }
+
         .fees-report-print-total {
             display: none;
+        }
+
+        html[data-theme='dark'] .fees-report-page .fees-report-category-card {
+            background: rgba(15, 23, 42, 0.96);
+            border-color: rgba(148, 163, 184, 0.18);
+        }
+
+        html[data-theme='dark'] .fees-report-page .fees-report-category-option .form-check-label,
+        html[data-theme='dark'] .fees-report-page .fees-report-category-card .text-muted {
+            color: #e2e8f0 !important;
         }
     </style>
 @endsection
@@ -181,11 +206,17 @@
 <div class="container-fluid fees-report-page">
     @php
         $reportTitle = 'Student Receivable Report';
+        $selectedCategoryKeys = $selectedCategoryKeys ?? ($availableCategories->pluck('id')->map(fn ($id) => (string) $id)->all() ?? []);
+        $reportPdfQuery = array_merge(request()->query(), [
+            'columns_present' => 1,
+            'columns' => $selectedCategoryKeys,
+        ]);
     @endphp
     @include('partials.report-header')
     <div class="fees-report-shell">
         <div class="fees-report-card fees-report-filter-card">
             <form method="GET" action="{{ route('fees.student-receivable-report') }}" class="fees-report-form">
+                <input type="hidden" name="columns_present" value="1">
                 <div class="fees-report-grid fees-report-grid--primary">
                     <div class="fees-report-field">
                         <label class="font-weight-bold">Student ID</label>
@@ -231,10 +262,42 @@
                         <a href="{{ route('fees.student-receivable-report') }}" class="btn btn-outline-secondary fees-report-action-btn" title="Reset"><i class="fas fa-times"></i></a>
                         @if(request('from_date') && request('to_date') && $rows->isNotEmpty())
                             <button type="button" class="btn btn-success fees-report-action-btn" onclick="window.print()" title="Print"><i class="fas fa-print"></i></button>
-                            <a href="{{ route('fees.student-receivable-report.pdf', request()->query()) }}" class="btn btn-danger fees-report-action-btn" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
+                            <a href="{{ route('fees.student-receivable-report.pdf', $reportPdfQuery) }}" class="btn btn-danger fees-report-action-btn" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
                         @endif
                     </div>
                 </div>
+
+                @if($availableCategories->isNotEmpty())
+                    <div class="fees-report-card fees-report-category-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap" style="gap: .75rem;">
+                            <div>
+                                <p class="mb-0 font-weight-bold">PDF Column Selection</p>
+                                <small class="text-muted">Choose which fee categories should appear in the receivable report and PDF.</small>
+                            </div>
+                            <div class="form-check mb-0">
+                                <input class="form-check-input" type="checkbox" id="receivable-report-toggle-all" {{ count($selectedCategoryKeys) === count($availableCategories) ? 'checked' : '' }}>
+                                <label class="form-check-label font-weight-bold" for="receivable-report-toggle-all">Select all</label>
+                            </div>
+                        </div>
+                        <div class="fees-report-category-grid">
+                            @foreach($availableCategories as $category)
+                                <div class="form-check fees-report-category-option">
+                                    <input
+                                        class="form-check-input receivable-report-column-checkbox"
+                                        type="checkbox"
+                                        name="columns[]"
+                                        value="{{ $category->id }}"
+                                        id="receivable-report-column-{{ $category->id }}"
+                                        {{ in_array((string) $category->id, $selectedCategoryKeys, true) ? 'checked' : '' }}
+                                    >
+                                    <label class="form-check-label font-weight-bold" for="receivable-report-column-{{ $category->id }}">
+                                        {{ $category->name }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </form>
         </div>
 
@@ -306,15 +369,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                                @foreach($rows as $index => $student)
+                                    @foreach($rows as $index => $student)
                                     @php
-                                        $visibleCats = $categories->filter(
-                                            fn($c) => isset($student->categories[$c->id]) && array_sum($student->categories[$c->id]) > 0
-                                        )->values();
+                                        $visibleCats = $categories->values();
                                         $rowspan = $visibleCats->count() + 3;
                                         $firstCatId = $visibleCats->first()?->id;
                                     @endphp
-                                    @if($visibleCats->isEmpty()) @continue @endif
                                     @foreach($visibleCats as $cat)
                                     @php
                                         $catMonths = $student->categories[$cat->id];
@@ -414,7 +474,6 @@
                             <tbody>
                                 @foreach($categories as $cat)
                                     @php $catTotal = array_sum($totals['categories'][$cat->id] ?? []); @endphp
-                                    @if($catTotal <= 0) @continue @endif
                                     <tr>
                                         <td>{{ $cat->name }}</td>
                                         @foreach($months as $monthKey => $monthLabel)
@@ -544,6 +603,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const classSelect = document.getElementById('classSelect');
     const sectionSelect = document.getElementById('sectionSelect');
     const selectedSection = @json(request('section_id'));
+    const toggleAll = document.getElementById('receivable-report-toggle-all');
+    const checks = Array.from(document.querySelectorAll('.receivable-report-column-checkbox'));
 
     function refreshSectionSelect() {
         if (!sectionSelect) return;
@@ -588,6 +649,21 @@ document.addEventListener('DOMContentLoaded', function () {
     $(document).on('change', '#classSelect', function () {
         loadSections(this.value);
     });
+
+    if (toggleAll && checks.length) {
+        const syncToggle = () => {
+            toggleAll.checked = checks.every(cb => cb.checked);
+        };
+
+        toggleAll.addEventListener('change', function () {
+            checks.forEach(cb => {
+                cb.checked = this.checked;
+            });
+        });
+
+        checks.forEach(cb => cb.addEventListener('change', syncToggle));
+        syncToggle();
+    }
 
     if (classSelect && classSelect.value) {
         loadSections(classSelect.value, selectedSection);

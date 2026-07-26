@@ -59,8 +59,18 @@
                                                                 </td>
                                                                 <td>{{ $subject->papers_count }}</td>
                                                                 <td>
-                                                                    <a href="{{ route('subjects.show', $subject->id) }}" class="btn btn-xs btn-info">View</a>
-                                                                    <a href="{{ route('subjects.edit', $subject->id) }}" class="btn btn-xs btn-warning">Edit</a>
+                                                                    <div class="d-inline-flex align-items-center gap-1">
+                                                                        <a href="{{ route('subjects.show', $subject->id) }}"
+                                                                            class="btn btn-info btn-xs p-1 d-inline-flex align-items-center justify-content-center"
+                                                                            title="View" aria-label="View subject">
+                                                                            <i class="fas fa-eye"></i>
+                                                                        </a>
+                                                                        <a href="{{ route('subjects.edit', $subject->id) }}"
+                                                                            class="btn btn-warning btn-xs p-1 d-inline-flex align-items-center justify-content-center"
+                                                                            title="Edit" aria-label="Edit subject">
+                                                                            <i class="fas fa-pen"></i>
+                                                                        </a>
+                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                         @empty

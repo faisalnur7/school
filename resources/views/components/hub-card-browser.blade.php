@@ -30,6 +30,10 @@
             return '#';
         }
 
+        if (!\Illuminate\Support\Facades\Route::has($routeName)) {
+            return '#';
+        }
+
         return route($routeName, $card['params'] ?? []);
     };
 @endphp
@@ -497,30 +501,86 @@
             color: #94a3b8;
         }
 
-        @media (max-width: 767.98px) {
+        @media (max-width: 575.98px) {
+            .hub-browser {
+                --hub-media-height: auto;
+            }
+
             .hub-browser__toolbar {
                 justify-content: stretch;
             }
 
             .hub-browser__switcher {
                 width: 100%;
-                padding: .35rem;
-                gap: .3rem;
+                padding: .3rem;
+                gap: .25rem;
             }
 
             .hub-browser__switcher-label {
-                flex: 0 0 auto;
-                padding: .4rem .6rem;
-                font-size: .68rem;
+                display: none;
             }
 
             .hub-browser__button {
-                padding: .45rem .65rem;
+                flex: 1 1 0;
+                justify-content: center;
+                padding: .45rem .35rem;
+                font-size: .72rem;
+                min-width: 0;
+            }
+
+            .hub-browser__button span {
+                display: none;
+            }
+
+            .hub-browser__grid {
+                gap: .65rem;
+            }
+
+            .hub-browser__card {
+                max-width: none;
+                min-height: 10rem;
+                aspect-ratio: auto;
+            }
+
+            .hub-browser[data-view="small"] .hub-browser__grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .hub-browser[data-view="medium"] .hub-browser__grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .hub-browser[data-view="large"] .hub-browser__grid,
+            .hub-browser[data-view="list"] .hub-browser__grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hub-browser[data-view="small"] .hub-browser__media,
+            .hub-browser[data-view="medium"] .hub-browser__media,
+            .hub-browser[data-view="large"] .hub-browser__media {
+                flex: 1 1 50%;
+                min-height: 0;
+                height: auto;
+                padding: .55rem;
+            }
+
+            .hub-browser[data-view="small"] .hub-browser__body,
+            .hub-browser[data-view="medium"] .hub-browser__body,
+            .hub-browser[data-view="large"] .hub-browser__body {
+                flex: 1 1 50%;
+                justify-content: center;
+                padding: .45rem .45rem .55rem;
+            }
+
+            .hub-browser[data-view="small"] .hub-browser__title {
+                font-size: .72rem;
+            }
+
+            .hub-browser[data-view="medium"] .hub-browser__title,
+            .hub-browser[data-view="large"] .hub-browser__title {
                 font-size: .8rem;
             }
-        }
 
-        @media (max-width: 575.98px) {
             .hub-browser__button {
                 padding: .4rem .6rem;
                 font-size: .76rem;
@@ -651,8 +711,17 @@
                 return;
             }
 
-            var storageKey = 'hub-view-mode';
             var modes = ['small', 'medium', 'large', 'list'];
+            var mobileQuery = window.matchMedia ? window.matchMedia('(max-width: 575.98px)') : null;
+
+            function isMobile() {
+                return !!(mobileQuery && mobileQuery.matches);
+            }
+
+            function getStorageKey(container) {
+                var baseKey = container.dataset.hubStorageKey || 'hub';
+                return 'hub-view-mode:' + baseKey + ':' + (isMobile() ? 'mobile' : 'desktop');
+            }
 
             containers.forEach(function (container) {
                 var defaultView = modes.indexOf(container.dataset.hubDefaultView) >= 0
@@ -660,18 +729,17 @@
                     : 'medium';
                 var buttons = container.querySelectorAll('[data-hub-view-option]');
                 var storedView = null;
+                var currentStorageKey = getStorageKey(container);
 
                 try {
-                    storedView = window.localStorage.getItem(storageKey);
+                    storedView = window.localStorage.getItem(currentStorageKey);
                 } catch (error) {
                     storedView = null;
                 }
 
-                var initialView = modes.indexOf(storedView) >= 0 ? storedView : defaultView;
-
-                if (!storedView && initialView === 'medium' && window.matchMedia && window.matchMedia('(max-width: 767.98px)').matches) {
-                    initialView = 'small';
-                }
+                var initialView = modes.indexOf(storedView) >= 0
+                    ? storedView
+                    : (isMobile() ? 'small' : defaultView);
 
                 function setView(view) {
                     if (modes.indexOf(view) === -1) {
@@ -687,10 +755,27 @@
                     });
 
                     try {
-                        window.localStorage.setItem(storageKey, view);
+                        window.localStorage.setItem(currentStorageKey, view);
                     } catch (error) {
                         // Ignore storage failures in private browsing modes.
                     }
+                }
+
+                function refreshForViewportChange() {
+                    var nextStorageKey = getStorageKey(container);
+                    if (nextStorageKey === currentStorageKey) {
+                        return;
+                    }
+
+                    currentStorageKey = nextStorageKey;
+
+                    try {
+                        storedView = window.localStorage.getItem(currentStorageKey);
+                    } catch (error) {
+                        storedView = null;
+                    }
+
+                    setView(modes.indexOf(storedView) >= 0 ? storedView : (isMobile() ? 'small' : defaultView));
                 }
 
                 buttons.forEach(function (button) {
@@ -700,14 +785,25 @@
                 });
 
                 setView(initialView);
+
+                if (mobileQuery && typeof mobileQuery.addEventListener === 'function') {
+                    mobileQuery.addEventListener('change', function () {
+                        refreshForViewportChange();
+                    });
+                } else if (mobileQuery && typeof mobileQuery.addListener === 'function') {
+                    mobileQuery.addListener(function () {
+                        refreshForViewportChange();
+                    });
+                }
             });
 
             window.addEventListener('storage', function (event) {
-                if (event.key !== storageKey || modes.indexOf(event.newValue) === -1) {
-                    return;
-                }
-
                 document.querySelectorAll('[data-hub-browser]').forEach(function (container) {
+                    var currentStorageKey = getStorageKey(container);
+                    if (event.key !== currentStorageKey || modes.indexOf(event.newValue) === -1) {
+                        return;
+                    }
+
                     var buttons = container.querySelectorAll('[data-hub-view-option]');
                     container.dataset.view = event.newValue;
 

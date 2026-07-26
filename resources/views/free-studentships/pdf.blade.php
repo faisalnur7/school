@@ -88,6 +88,7 @@
                 <th>Fee Category</th>
                 <th>Type</th>
                 <th>Value</th>
+                <th>Permitted By</th>
                 <th>Session</th>
                 <th>Status</th>
             </tr>
@@ -116,6 +117,7 @@
                             {{ $freeStudentship->percentage }}%
                         @endif
                     </td>
+                    <td>{{ $freeStudentship->permitted_by ?? '—' }}</td>
                     <td>{{ $freeStudentship->academicSession->name_en ?? '—' }}</td>
                     <td>
                         <span class="badge badge-{{ $freeStudentship->status === 'active' ? 'success' : 'secondary' }}">
@@ -125,7 +127,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="12" style="text-align: center; color: #999;">No free studentships found.</td>
+                    <td colspan="13" style="text-align: center; color: #999;">No free studentships found.</td>
                 </tr>
             @endforelse
         </tbody>

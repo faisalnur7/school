@@ -33,24 +33,29 @@
                     </div>
                 @endif
 
-<div class="form-group">
-                                <label>Name (English)</label>
-                                <input type="text" name="name_en" class="form-control" required>
-                            </div>
+                <div class="form-group">
+                    <label>Order</label>
+                    <input type="number" name="order" class="form-control" min="0" step="1" value="{{ old('order', 0) }}" required>
+                </div>
 
-                            <div class="form-group">
-                                <label>Name (Bangla)</label>
-                                <input type="text" name="name_bn" class="form-control" required>
-                            </div>
+                <div class="form-group">
+                    <label>Name (English)</label>
+                    <input type="text" name="name_en" class="form-control" required>
+                </div>
 
-                            <div class="form-group">
-                                <label>Status</label>
-                                <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="statusSwitch" name="status"
-                                        value="1" checked>
-                                    <label class="custom-control-label" for="statusSwitch">Active</label>
-                                </div>
-                            </div>
+                <div class="form-group">
+                    <label>Name (Bangla)</label>
+                    <input type="text" name="name_bn" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="statusSwitch" name="status"
+                            value="1" checked>
+                        <label class="custom-control-label" for="statusSwitch">Active</label>
+                    </div>
+                </div>
             </div>
 
             <div class="card-footer bg-light border-top py-2 px-3">

@@ -1,6 +1,9 @@
 @extends('layouts.master')
 
 @section('contents')
+    @php
+        $selectedClassIds = array_map('strval', (array) old('school_class_ids', []));
+    @endphp
     <div class="container-fluid px-3 py-3">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-gradient-primary text-white py-3">
@@ -222,13 +225,19 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="school_class_ids">Select Classes</label>
-                                    <select name="school_class_ids[]" id="school_class_ids" class="form-control"
-                                        multiple>
+                                    <div class="subject-class-grid" role="group" aria-label="Select classes">
                                         @foreach ($classes as $id => $name)
-                                            <option value="{{ $id }}">{{ $name }}</option>
+                                            <label class="subject-class-item">
+                                                <input type="checkbox" name="school_class_ids[]" value="{{ $id }}"
+                                                    {{ in_array((string) $id, $selectedClassIds, true) ? 'checked' : '' }}>
+                                                <span class="subject-class-item__icon">
+                                                    <i class="fas fa-check"></i>
+                                                </span>
+                                                <span class="subject-class-item__label">{{ $name }}</span>
+                                            </label>
                                         @endforeach
-                                    </select>
-                                    <small class="text-muted">Hold Ctrl/Cmd to select multiple</small>
+                                    </div>
+                                    <small class="text-muted">Choose one or more classes from the checklist.</small>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -324,7 +333,8 @@
             const $classAssignmentFields = $('#class_assignment_fields');
 
             function syncClassAssignmentFields() {
-                $classAssignmentFields.toggle($assignToClass.is(':checked'));
+                const isVisible = $assignToClass.is(':checked');
+                $classAssignmentFields.toggle(isVisible);
             }
 
             $assignToClass.on('change', syncClassAssignmentFields);

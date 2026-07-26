@@ -74,7 +74,7 @@
             </div>
         </div>
 
-        <div class="students-advanced-filters hidden" id="filterCollapse">
+        <div class="students-advanced-filters" id="filterCollapse">
             <div class="students-advanced-grid">
                 <div class="students-filter-group">
                     <label for="groupSelect">Group</label>

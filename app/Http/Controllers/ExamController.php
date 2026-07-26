@@ -199,7 +199,7 @@ class ExamController extends Controller
                     }
 
                     $subject = $subjectId ? $subjects->firstWhere('id', $subjectId) : null;
-                    $students = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId);
+                    $students = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId);
 
                     if ($subject) {
                         ExamMark::where('exam_id', $exam->id)
@@ -250,7 +250,7 @@ class ExamController extends Controller
             ->map(fn ($id) => (int) $id)
             ->values()
             ->all();
-        $allowedStudentIds = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId)
+        $allowedStudentIds = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId)
             ->pluck('id')
             ->all();
 
@@ -354,7 +354,7 @@ class ExamController extends Controller
                         $config = $subject->getEffectiveMarksForClass($classId);
                         $passMark = (float) ($config['pass_mark'] ?? 33);
 
-                        $studentIds = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId)->pluck('id');
+                        $studentIds = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId)->pluck('id');
 
                         $marks = ExamMark::where('exam_id', $exam->id)
                             ->where('subject_id', $subjectId)
@@ -397,6 +397,7 @@ class ExamController extends Controller
         $classId = $request->integer('class_id') ?: null;
         $sectionId = $request->integer('section_id') ?: null;
         $groupId = $request->integer('group_id') ?: null;
+        $subjectId = null;
         $filter = $request->filter ?? 'all';
         $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
         $selectedClass = $classId ? SchoolClass::find($classId) : null;
@@ -415,7 +416,7 @@ class ExamController extends Controller
             $selectedGroup = $groupId ? $groups->firstWhere('id', $groupId) : null;
             $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id);
 
-            $students = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId);
+            $students = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId);
             $studentIds = $students->pluck('id');
 
             $allMarks = ExamMark::where('exam_id', $exam->id)
@@ -429,7 +430,7 @@ class ExamController extends Controller
                 $totalObtained = 0;
                 $totalFull = 0;
                 $gpas = [];
-                $hasFailed = false;
+                $failedSubjectCount = 0;
 
                 foreach ($subjects as $subject) {
                     $config = $subject->getEffectiveMarksForClass($classId);
@@ -439,9 +440,10 @@ class ExamController extends Controller
                     $obtained = $mark ? (float) $mark->total : 0;
                     $isAbsent = $mark ? $mark->is_absent : false;
                     $grade = GradingService::getGrade($obtained, $fullMarks);
+                    $passed = ! $isAbsent && $obtained >= $passMark;
 
-                    if ($grade['letter'] === 'F' || $isAbsent) {
-                        $hasFailed = true;
+                    if (! $passed) {
+                        $failedSubjectCount++;
                     }
 
                     $subjectResults[$subject->id] = [
@@ -451,7 +453,7 @@ class ExamController extends Controller
                         'letter_grade' => $isAbsent ? 'AB' : $grade['letter'],
                         'gpa'          => $isAbsent ? 0 : $grade['gpa'],
                         'is_absent'    => $isAbsent,
-                        'passed'       => ! $isAbsent && $obtained >= $passMark,
+                        'passed'       => $passed,
                     ];
 
                     $totalObtained += $obtained;
@@ -469,24 +471,40 @@ class ExamController extends Controller
                     'percentage'      => $totalFull > 0 ? round(($totalObtained / $totalFull) * 100, 2) : 0,
                     'gpa'             => $avgGpa,
                     'gpa_label'       => GradingService::getGpaLabel($avgGpa),
-                    'has_failed'      => $hasFailed,
-                    'status'          => $hasFailed ? 'Failed' : 'Passed',
+                    'failed_subject_count' => $failedSubjectCount,
+                    'has_failed'      => $failedSubjectCount > 0,
+                    'status'          => $failedSubjectCount > 0 ? 'Failed' : 'Passed',
                 ];
             }
 
-            // Sort by total descending and assign rank
-            uasort($results, fn($a, $b) => $b['total_obtained'] <=> $a['total_obtained']);
+            // Merit order: all-passed students first, then 1 failed subject, 2 failed subjects, etc.
+            uasort($results, function ($a, $b) {
+                $failedCompare = ($a['failed_subject_count'] ?? 0) <=> ($b['failed_subject_count'] ?? 0);
+                if ($failedCompare !== 0) {
+                    return $failedCompare;
+                }
+
+                $totalCompare = ($b['total_obtained'] ?? 0) <=> ($a['total_obtained'] ?? 0);
+                if ($totalCompare !== 0) {
+                    return $totalCompare;
+                }
+
+                return ($b['percentage'] ?? 0) <=> ($a['percentage'] ?? 0);
+            });
             $rank = 1;
+            $prevFailedCount = null;
             $prevTotal = null;
-            $sameCount = 0;
             foreach ($results as &$row) {
-                if ($prevTotal !== null && $row['total_obtained'] === $prevTotal) {
-                    $row['rank'] = $rank - $sameCount;
-                    $sameCount++;
+                if (
+                    $prevFailedCount !== null
+                    && (int) $row['failed_subject_count'] === (int) $prevFailedCount
+                    && (float) $row['total_obtained'] === (float) $prevTotal
+                ) {
+                    $row['rank'] = $rank - 1;
                 } else {
                     $row['rank'] = $rank;
-                    $sameCount = 1;
                 }
+                $prevFailedCount = $row['failed_subject_count'];
                 $prevTotal = $row['total_obtained'];
                 $rank++;
             }
@@ -544,6 +562,7 @@ class ExamController extends Controller
         $classId  = $request->integer('class_id') ?: null;
         $sectionId = $request->integer('section_id') ?: null;
         $groupId = $request->integer('group_id') ?: null;
+        $subjectId = null;
         $exam->load(['academicSession']);
 
         $selectedClass = SchoolClass::find($classId);
@@ -554,7 +573,7 @@ class ExamController extends Controller
         $selectedGroup = $groupId ? $groups->firstWhere('id', $groupId) : null;
         $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id);
 
-        $students   = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId);
+        $students   = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId);
         $studentIds = $students->pluck('id');
 
         $allMarks = ExamMark::where('exam_id', $exam->id)
@@ -569,7 +588,7 @@ class ExamController extends Controller
             $totalObtained  = 0;
             $totalFull      = 0;
             $gpas           = [];
-            $hasFailed      = false;
+            $failedSubjectCount = 0;
 
             foreach ($subjects as $subject) {
                 $config    = $subject->getEffectiveMarksForClass($classId);
@@ -579,8 +598,11 @@ class ExamController extends Controller
                 $obtained  = $mark ? (float) $mark->total : 0;
                 $isAbsent  = $mark ? $mark->is_absent : false;
                 $grade     = GradingService::getGrade($obtained, $fullMarks);
+                $passed    = ! $isAbsent && $obtained >= $passMark;
 
-                if ($grade['letter'] === 'F' || $isAbsent) $hasFailed = true;
+                if (! $passed) {
+                    $failedSubjectCount++;
+                }
 
                 $subjectResults[$subject->id] = [
                     'obtained'     => $obtained,
@@ -588,7 +610,7 @@ class ExamController extends Controller
                     'letter_grade' => $isAbsent ? 'AB' : $grade['letter'],
                     'gpa'          => $isAbsent ? 0 : $grade['gpa'],
                     'is_absent'    => $isAbsent,
-                    'passed'       => ! $isAbsent && $obtained >= $passMark,
+                    'passed'       => $passed,
                 ];
 
                 $totalObtained += $obtained;
@@ -605,14 +627,42 @@ class ExamController extends Controller
                 'percentage'      => $totalFull > 0 ? round(($totalObtained / $totalFull) * 100, 2) : 0,
                 'gpa'             => $avgGpa,
                 'gpa_label'       => GradingService::getGpaLabel($avgGpa),
-                'has_failed'      => $hasFailed,
-                'status'          => $hasFailed ? 'Failed' : 'Passed',
+                'failed_subject_count' => $failedSubjectCount,
+                'has_failed'      => $failedSubjectCount > 0,
+                'status'          => $failedSubjectCount > 0 ? 'Failed' : 'Passed',
             ];
         }
 
-        uasort($results, fn($a, $b) => $b['total_obtained'] <=> $a['total_obtained']);
+        uasort($results, function ($a, $b) {
+            $failedCompare = ($a['failed_subject_count'] ?? 0) <=> ($b['failed_subject_count'] ?? 0);
+            if ($failedCompare !== 0) {
+                return $failedCompare;
+            }
+
+            $totalCompare = ($b['total_obtained'] ?? 0) <=> ($a['total_obtained'] ?? 0);
+            if ($totalCompare !== 0) {
+                return $totalCompare;
+            }
+
+            return ($b['percentage'] ?? 0) <=> ($a['percentage'] ?? 0);
+        });
         $rank = 1;
-        foreach ($results as &$row) { $row['rank'] = $rank++; }
+        $prevFailedCount = null;
+        $prevTotal = null;
+        foreach ($results as &$row) {
+            if (
+                $prevFailedCount !== null
+                && (int) $row['failed_subject_count'] === (int) $prevFailedCount
+                && (float) $row['total_obtained'] === (float) $prevTotal
+            ) {
+                $row['rank'] = $rank - 1;
+            } else {
+                $row['rank'] = $rank;
+            }
+            $prevFailedCount = $row['failed_subject_count'];
+            $prevTotal = $row['total_obtained'];
+            $rank++;
+        }
         unset($row);
 
         $mpdf = new \Mpdf\Mpdf(['orientation' => 'L', 'margin_top' => 15, 'margin_bottom' => 15]);
@@ -691,9 +741,15 @@ class ExamController extends Controller
         return $subjects->unique('id')->values();
     }
 
-    private function getStudentsForClass(Exam $exam, int $classId, ?int $sectionId = null, ?int $groupId = null)
+    private function getStudentsForClass(
+        Exam $exam,
+        int $classId,
+        ?int $sectionId = null,
+        ?int $groupId = null,
+        ?int $subjectId = null
+    )
     {
-        return Student::where('status', 1)
+        $students = Student::where('status', 1)
             ->whereHas('academicInformations', function ($q) use ($exam, $classId, $sectionId, $groupId) {
                 $q->where('school_class_id', $classId);
                 if ($exam->academic_session_id) {
@@ -712,5 +768,86 @@ class ExamController extends Controller
                 ->with(['section', 'group'])])
             ->orderBy('full_name_en')
             ->get();
+
+        if (! $subjectId) {
+            return $students;
+        }
+
+        $assignments = SubjectClassAssignment::query()
+            ->where('subject_id', $subjectId)
+            ->where('school_class_id', $classId)
+            ->where('is_active', true)
+            ->when($groupId, fn ($query) => $query->where(function ($subQuery) use ($groupId) {
+                $subQuery->whereNull('group_id')->orWhere('group_id', $groupId);
+            }), fn ($query) => $query->whereNull('group_id'))
+            ->get();
+
+        if ($assignments->isEmpty()) {
+            return collect();
+        }
+
+        return $students->filter(function (Student $student) use ($assignments, $classId, $sectionId, $groupId) {
+            $academicInfo = $student->academicInformations->first(function (StudentAcademicInformation $info) use ($classId, $sectionId, $groupId) {
+                if ((int) $info->school_class_id !== $classId) {
+                    return false;
+                }
+
+                if ($sectionId && (int) $info->section_id !== $sectionId) {
+                    return false;
+                }
+
+                if ($groupId && (int) $info->group_id !== $groupId) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            if (! $academicInfo) {
+                return false;
+            }
+
+            foreach ($assignments as $assignment) {
+                if ($this->studentMatchesSubjectAssignment($student, $academicInfo, $assignment)) {
+                    return true;
+                }
+            }
+
+            return false;
+        })->values();
+    }
+
+    private function studentMatchesSubjectAssignment(
+        Student $student,
+        StudentAcademicInformation $academicInfo,
+        SubjectClassAssignment $assignment
+    ): bool {
+        if ($assignment->group_id && (int) $academicInfo->group_id !== (int) $assignment->group_id) {
+            return false;
+        }
+
+        if ($assignment->gender !== 'all') {
+            $expectedGender = $assignment->gender === 'male' ? Student::MALE : Student::FEMALE;
+
+            if ((int) $student->gender !== $expectedGender) {
+                return false;
+            }
+        }
+
+        if ($assignment->religion !== 'all') {
+            $expectedReligion = match ($assignment->religion) {
+                'islam' => Student::ISLAM,
+                'hindu' => Student::HINDU,
+                'christian' => Student::CHRISTIAN,
+                'buddhist' => Student::BUDDHIST,
+                default => null,
+            };
+
+            if ($expectedReligion === null || (int) $student->religion !== $expectedReligion) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

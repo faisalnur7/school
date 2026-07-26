@@ -63,6 +63,10 @@
             align-items: center;
         }
 
+        .students-directory .students-filter-row > * {
+            min-width: 0;
+        }
+
         .students-directory .students-search-field {
             position: relative;
         }
@@ -158,8 +162,12 @@
 
         .students-directory .students-advanced-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 0.75rem;
+        }
+
+        .students-directory .students-advanced-grid > * {
+            min-width: 0;
         }
 
         .students-directory .students-filter-group label {
@@ -647,27 +655,52 @@
         }
 
         .students-directory .student-icon-btn {
-            width: 38px;
-            height: 38px;
+            width: 42px;
+            height: 42px;
             border-radius: 12px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #dbe4f0;
             background: #fff;
-            color: #374151;
-            transition: all 0.2s ease;
+            color: #1f2937;
+            box-shadow: none;
+            transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+            flex: 0 0 auto;
         }
 
         .students-directory .student-icon-btn:hover {
             transform: translateY(-1px);
+            background: #f8fafc;
+            border-color: #cbd5e1;
             color: #111827;
-            border-color: #d1d5db;
-            background: #f9fafb;
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.05);
+        }
+
+        .students-directory .student-icon-btn--view {
+            color: #2563eb;
+            border-color: #bfdbfe;
+        }
+
+        .students-directory .student-icon-btn--view:hover {
+            color: #1d4ed8;
+            border-color: #93c5fd;
+            background: #eff6ff;
+        }
+
+        .students-directory .student-icon-btn--edit {
+            color: #374151;
+            border-color: #dbe4f0;
+        }
+
+        .students-directory .student-icon-btn--edit:hover {
+            color: #111827;
+            border-color: #cbd5e1;
+            background: #f8fafc;
         }
 
         .students-directory .student-icon-btn--danger {
-            color: #dc2626;
+            color: #ef4444;
             border-color: #fecaca;
             background: #fff;
         }
@@ -675,7 +708,12 @@
         .students-directory .student-icon-btn--danger:hover {
             background: #fef2f2;
             border-color: #fca5a5;
-            color: #b91c1c;
+            color: #dc2626;
+        }
+
+        .students-directory .student-icon-btn i {
+            font-size: 0.98rem;
+            line-height: 1;
         }
 
         .students-directory .students-empty {
@@ -745,6 +783,40 @@
         }
 
         @media (max-width: 767.98px) {
+            .students-directory .students-card-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.85rem;
+            }
+
+            .students-directory .students-card-copy {
+                width: 100%;
+            }
+
+            .students-directory .students-card-actions {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                width: 100%;
+                flex-wrap: nowrap !important;
+                gap: 0.5rem;
+            }
+
+            .students-directory .students-card-actions .students-pdf-action {
+                flex: 0 0 44px;
+                min-width: 44px;
+                min-height: 44px;
+                padding: 0;
+            }
+
+            .students-directory .students-card-actions .students-add-student-btn {
+                flex: 1 1 auto;
+                min-width: 0;
+                min-height: 44px;
+                white-space: nowrap;
+            }
+
             .students-directory .students-page-header,
             .students-directory .students-table-header,
             .students-directory .students-footer,
@@ -1013,6 +1085,16 @@
             background: rgba(15, 23, 42, 0.96);
             border-color: rgba(148, 163, 184, 0.2);
             color: #cbd5e1;
+        }
+
+        html[data-theme='dark'] .students-directory .student-icon-btn--view {
+            color: #93c5fd;
+            border-color: rgba(96, 165, 250, 0.35);
+        }
+
+        html[data-theme='dark'] .students-directory .student-icon-btn--edit {
+            color: #e2e8f0;
+            border-color: rgba(148, 163, 184, 0.2);
         }
 
         html[data-theme='dark'] .students-directory .student-icon-btn:hover {

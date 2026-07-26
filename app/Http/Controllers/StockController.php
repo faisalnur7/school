@@ -19,6 +19,9 @@ class StockController extends Controller
         $query = InventoryItem::with('category')
             ->where('stock_type', '!=', 'made_to_order')
             ->orderBy('name');
+        $totalInventoryValue = (float) InventoryItem::where('stock_type', '!=', 'made_to_order')
+            ->selectRaw('COALESCE(SUM(current_stock * COALESCE(average_cost, purchase_price)), 0) as total_value')
+            ->value('total_value');
 
         if ($request->filled('q')) {
             $q = trim((string)$request->get('q'));
@@ -28,7 +31,7 @@ class StockController extends Controller
         }
 
         $items = $query->paginate(25)->withQueryString();
-        return view('pages.inventory.reports.stock', compact('items'));
+        return view('pages.inventory.reports.stock', compact('items', 'totalInventoryValue'));
     }
 
     public function lowStock(Request $request)

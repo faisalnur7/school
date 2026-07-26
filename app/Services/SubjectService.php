@@ -134,62 +134,69 @@ class SubjectService
      */
     public function assignToClass(array $data, bool $autoAssignStudents = true): SubjectClassAssignment
     {
-        \Log::info('assignToClass CALLED', $data);
+        return DB::transaction(function () use ($data, $autoAssignStudents) {
+            \Log::info('assignToClass CALLED', $data);
 
-        // Check for duplicate assignment
-        $existingAssignment = SubjectClassAssignment::where('subject_id', $data['subject_id'])
-            ->where('school_class_id', $data['school_class_id'])
-            ->where(function ($query) use ($data) {
-                $query->whereNull('group_id')
-                    ->orWhere('group_id', $data['group_id'] ?? null);
-            })
-            ->where('gender', $data['gender'] ?? 'all')
-            ->where('religion', $data['religion'] ?? 'all')
-            ->first();
+            $groupId = $data['group_id'] ?? null;
 
-        \Log::info('Duplicate check complete', [
-            'existing_assignment_id' => $existingAssignment?->id,
-        ]);
+            $assignmentQuery = SubjectClassAssignment::where('subject_id', $data['subject_id'])
+                ->where('school_class_id', $data['school_class_id']);
 
-        if ($existingAssignment) {
-            \Log::info('Updating existing assignment', [
-                'assignment_id' => $existingAssignment->id,
-            ]);
-
-            // Update existing assignment
-            $existingAssignment->update($data);
-
-            // Re-assign students if compulsory
-            if ($autoAssignStudents && ($data['is_compulsory'] ?? true)) {
-                \Log::info('Re-assigning students (compulsory)', [
-                    'assignment_id' => $existingAssignment->id,
-                ]);
-                $this->assignStudentsToSubject($existingAssignment);
+            if ($groupId === null || $groupId === '') {
+                $assignmentQuery->whereNull('group_id');
+            } else {
+                $assignmentQuery->where('group_id', $groupId);
             }
 
-            return $existingAssignment;
-        }
+            $assignments = $assignmentQuery->orderBy('id')->get();
+            $existingAssignment = $assignments->first();
 
-        // Validate exclusive group rule for Science
-        if (! empty($data['exclusive_group_key'])) {
-            $this->validateExclusiveGroupRule($data);
-        }
-
-        $assignment = SubjectClassAssignment::create($data);
-
-        \Log::info('New assignment created', [
-            'assignment_id' => $assignment->id,
-        ]);
-
-        // Auto-assign to students if it's compulsory
-        if ($autoAssignStudents && ($data['is_compulsory'] ?? true)) {
-            \Log::info('Auto-assigning students (compulsory)', [
-                'assignment_id' => $assignment->id,
+            \Log::info('Existing assignment lookup complete', [
+                'existing_assignment_id' => $existingAssignment?->id,
+                'duplicates_found' => $assignments->count(),
             ]);
-            $this->assignStudentsToSubject($assignment);
-        }
 
-        return $assignment;
+            if ($existingAssignment) {
+                \Log::info('Updating existing assignment', [
+                    'assignment_id' => $existingAssignment->id,
+                ]);
+
+                $existingAssignment->update($data);
+
+                if ($assignments->count() > 1) {
+                    $duplicateIds = $assignments->slice(1)->pluck('id')->all();
+
+                    SubjectClassAssignment::whereIn('id', $duplicateIds)->delete();
+
+                    \Log::info('Removed duplicate assignments after update', [
+                        'assignment_ids' => $duplicateIds,
+                    ]);
+                }
+
+                $assignment = $existingAssignment->fresh();
+            } else {
+                // Validate exclusive group rule for Science
+                if (! empty($data['exclusive_group_key'])) {
+                    $this->validateExclusiveGroupRule($data);
+                }
+
+                $assignment = SubjectClassAssignment::create($data);
+
+                \Log::info('New assignment created', [
+                    'assignment_id' => $assignment->id,
+                ]);
+            }
+
+            // Auto-assign to students if it's compulsory
+            if ($autoAssignStudents && ($data['is_compulsory'] ?? true)) {
+                \Log::info('Auto-assigning students (compulsory)', [
+                    'assignment_id' => $assignment->id,
+                ]);
+                $this->assignStudentsToSubject($assignment);
+            }
+
+            return $assignment;
+        });
     }
 
     /**
@@ -476,7 +483,8 @@ class SubjectService
     public function getSubjectsByClass(int $classId): \Illuminate\Database\Eloquent\Collection
     {
         return SubjectClassAssignment::where('school_class_id', $classId)
-            ->with(['subject', 'group'])
+            ->whereHas('subject', fn ($q) => $q->active())
+            ->with(['subject' => fn ($q) => $q->active(), 'group'])
             ->active()
             ->get();
     }

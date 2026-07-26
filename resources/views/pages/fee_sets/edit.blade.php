@@ -101,6 +101,12 @@
                             @error('frequency')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
 
+                        <div class="form-group" id="yearlyDueDateSelector" style="display:none;">
+                            <label class="form-label small font-weight-600 mb-1">Yearly Due Date <span class="text-danger">*</span></label>
+                            <input type="date" name="due_date" class="form-control form-control-sm @error('due_date') is-invalid @enderror" value="{{ old('due_date', optional($feeSet->due_date)->format('Y-m-d')) }}">
+                            @error('due_date')<small class="text-danger">{{ $message }}</small>@enderror
+                        </div>
+
                         <div class="form-group" id="monthSelector" style="display:none;">
                             <label class="form-label small font-weight-600 mb-1">Select Month <span class="text-danger">*</span></label>
                             @php
@@ -219,6 +225,7 @@
             
             // Show month selector only for 'others' frequency
             $('#monthSelector').toggle(freq === 'others');
+            $('#yearlyDueDateSelector').toggle(freq === 'yearly');
         }).trigger('change');
 
         // Add row functionality

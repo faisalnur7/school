@@ -35,6 +35,7 @@
                                 <th width="10%">Fee Amount</th>
                                 <th width="27%">Type</th>
                                 <th width="10%">Value</th>
+                                <th width="14%">Permitted By</th>
                                 <th width="10%">Current Free Studentship</th>
                             </tr>
                         </thead>
@@ -59,17 +60,23 @@
 $(document).ready(function() {
     let studentsData = [];
 
+    function notify(message, type = 'info') {
+        if (window.toastr && typeof window.toastr[type] === 'function') {
+            window.toastr[type](message);
+        }
+    }
+
     $('#loadStudents').click(function() {
         const sessionId = $('#academic_session_id').val();
         const feeCategoryId = $('#fee_category_id').val();
         
         if (!sessionId) {
-            alert('Please select Academic Session');
+            notify('Please select Academic Session', 'warning');
             return;
         }
         
         if (!feeCategoryId) {
-            alert('Please select Fee Category');
+            notify('Please select Fee Category', 'warning');
             return;
         }
 
@@ -90,7 +97,7 @@ $(document).ready(function() {
                 $('#studentListContainer').show();
             },
             error: function() {
-                alert('Error loading students');
+                notify('Error loading students', 'error');
             }
         });
     });
@@ -99,7 +106,7 @@ $(document).ready(function() {
         let html = '';
         students.forEach(function(student) {
             const existingInfo = student.existing_type 
-                ? `${student.existing_type === 'fixed' ? '৳' + student.existing_amount : student.existing_percentage + '%'}`
+                ? `${student.existing_type === 'fixed' ? '৳' + student.existing_amount : student.existing_percentage + '%'}${student.existing_permitted_by ? ' · By ' + student.existing_permitted_by : ''}`
                 : 'None';
             
             const feeAmount = student.fee_category_amount ? '৳' + parseFloat(student.fee_category_amount).toFixed(2) : 'N/A';
@@ -135,6 +142,13 @@ $(document).ready(function() {
                                value="${student.existing_type === 'fixed' ? student.existing_amount : (student.existing_type === 'percentage' ? student.existing_percentage : '')}"
                                step="0.01" min="0">
                     </td>
+                    <td>
+                        <input type="text"
+                               class="form-control free-studentship-permitted-by"
+                               placeholder="Enter permitted by"
+                               value="${student.existing_permitted_by || ''}"
+                               maxlength="255">
+                    </td>
                     <td class="text-center">${existingInfo}</td>
                 </tr>
             `;
@@ -147,7 +161,7 @@ $(document).ready(function() {
         const feeCategoryId = $('#fee_category_id').val();
 
         if (!sessionId || !feeCategoryId) {
-            alert('Please fill required fields');
+            notify('Please fill required fields', 'warning');
             return;
         }
 
@@ -157,6 +171,7 @@ $(document).ready(function() {
             const academicInfoId = $(this).data('academic-info-id');
             const type = $(this).find('.free-studentship-type').val();
             const value = $(this).find('.free-studentship-value').val();
+            const permittedBy = $(this).find('.free-studentship-permitted-by').val();
 
             if (type && value) {
                 freeStudentships.push({
@@ -164,13 +179,14 @@ $(document).ready(function() {
                     academic_info_id: academicInfoId,
                     type: type,
                     amount: type === 'fixed' ? value : null,
-                    percentage: type === 'percentage' ? value : null
+                    percentage: type === 'percentage' ? value : null,
+                    permitted_by: permittedBy || null
                 });
             }
         });
 
         if (freeStudentships.length === 0) {
-            alert('Please assign at least one free studentship');
+            notify('Please assign at least one free studentship', 'warning');
             return;
         }
 
@@ -184,11 +200,11 @@ $(document).ready(function() {
                 students: freeStudentships
             },
             success: function(response) {
-                alert(response.message);
+                notify(response.message, 'success');
                 window.location.href = '{{ route("free-studentships.index") }}';
             },
             error: function(xhr) {
-                alert('Error: ' + (xhr.responseJSON?.message || 'Something went wrong'));
+                notify('Error: ' + (xhr.responseJSON?.message || 'Something went wrong'), 'error');
             }
         });
     });

@@ -1501,6 +1501,18 @@ html[data-theme='dark'] .id-card-filter-shell .no-print p {
 }
 
 @media print {
+    @page {
+        size: 297mm 210mm;
+        margin: 1cm 0.8cm 0.8cm 0.8cm;
+    }
+
+    html,
+    body {
+        width: 297mm !important;
+        height: 210mm !important;
+        overflow: visible !important;
+    }
+
     .card {
         border: none;
         box-shadow: none;
@@ -1512,5 +1524,19 @@ html[data-theme='dark'] .id-card-filter-shell .no-print p {
 }
 
 @include('pages.admit-seat-cards._styles')
+
+@media print {
+    @page {
+        size: 297mm 210mm;
+        margin: 1cm 0.8cm 0.8cm 0.8cm;
+    }
+
+    html,
+    body {
+        width: 297mm !important;
+        height: 210mm !important;
+        overflow: visible !important;
+    }
+}
 </style>
 @endsection

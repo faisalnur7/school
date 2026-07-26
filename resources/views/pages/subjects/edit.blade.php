@@ -1,8 +1,17 @@
 @extends('layouts.master')
 
 @section('contents')
-<div class="container-fluid px-3 py-3">
-    <div class="card shadow-sm border-0">
+    @php
+        $selectedClassIds = array_map('strval', (array) old('school_class_ids', $subject->classAssignments->pluck('school_class_id')->all()));
+        $currentAssignment = $subject->classAssignments->first();
+        $selectedGroupId = old('group_id', $currentAssignment?->group_id);
+        $selectedGender = old('gender', $currentAssignment?->gender ?? 'all');
+        $selectedReligion = old('religion', $currentAssignment?->religion ?? 'all');
+        $selectedIsOptional = old('is_optional', $currentAssignment?->is_optional);
+        $selectedExclusiveGroupKey = old('exclusive_group_key', $currentAssignment?->exclusive_group_key);
+    @endphp
+    <div class="container-fluid px-3 py-3">
+        <div class="card shadow-sm border-0">
         <div class="card-header bg-gradient-primary text-white py-3">
             <div class="d-flex justify-content-between align-items-center">
                 <h4 class="card-title mb-0 font-weight-bold text-white">
@@ -314,12 +323,19 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="school_class_ids">Select Classes</label>
-                                        <select name="school_class_ids[]" id="school_class_ids" class="form-control" multiple>
+                                        <div class="subject-class-grid" role="group" aria-label="Select classes">
                                             @foreach($classes as $id => $name)
-                                                <option value="{{ $id }}">{{ $name }}</option>
+                                                <label class="subject-class-item">
+                                                    <input type="checkbox" name="school_class_ids[]" value="{{ $id }}"
+                                                        {{ in_array((string) $id, $selectedClassIds, true) ? 'checked' : '' }}>
+                                                    <span class="subject-class-item__icon">
+                                                        <i class="fas fa-check"></i>
+                                                    </span>
+                                                    <span class="subject-class-item__label">{{ $name }}</span>
+                                                </label>
                                             @endforeach
-                                        </select>
-                                        <small class="text-muted">Hold Ctrl/Cmd to select multiple</small>
+                                        </div>
+                                        <small class="text-muted">Choose one or more classes from the checklist.</small>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -328,7 +344,9 @@
                                         <select name="group_id" id="group_id" class="form-control">
                                             <option value="">All Groups</option>
                                             @foreach($groups as $id => $name)
-                                                <option value="{{ $id }}">{{ $name }}</option>
+                                                <option value="{{ $id }}" {{ (string) $selectedGroupId === (string) $id ? 'selected' : '' }}>
+                                                    {{ $name }}
+                                                </option>
                                             @endforeach
                                         </select>
                                         <small class="text-muted">Applies selected group filter to all selected classes</small>
@@ -341,9 +359,9 @@
                                     <div class="form-group">
                                         <label for="gender">Gender Filter</label>
                                         <select name="gender" id="gender" class="form-control">
-                                            <option value="all" {{ ($subject->classAssignments->first()->gender ?? '') == 'all' ? 'selected' : '' }}>All Students</option>
-                                            <option value="male" {{ ($subject->classAssignments->first()->gender ?? '') == 'male' ? 'selected' : '' }}>Male Only</option>
-                                            <option value="female" {{ ($subject->classAssignments->first()->gender ?? '') == 'female' ? 'selected' : '' }}>Female Only</option>
+                                            <option value="all" {{ $selectedGender === 'all' ? 'selected' : '' }}>All Students</option>
+                                            <option value="male" {{ $selectedGender === 'male' ? 'selected' : '' }}>Male Only</option>
+                                            <option value="female" {{ $selectedGender === 'female' ? 'selected' : '' }}>Female Only</option>
                                         </select>
                                     </div>
                                 </div>
@@ -351,12 +369,12 @@
                                     <div class="form-group">
                                         <label for="religion">Religion Filter</label>
                                         <select name="religion" id="religion" class="form-control">
-                                            <option value="all" {{ ($subject->classAssignments->first()->religion ?? '') == 'all' ? 'selected' : '' }}>All Religions</option>
-                                            <option value="islam" {{ ($subject->classAssignments->first()->religion ?? '') == 'islam' ? 'selected' : '' }}>Islam</option>
-                                            <option value="hindu" {{ ($subject->classAssignments->first()->religion ?? '') == 'hindu' ? 'selected' : '' }}>Hindu</option>
-                                            <option value="christian" {{ ($subject->classAssignments->first()->religion ?? '') == 'christian' ? 'selected' : '' }}>Christian</option>
-                                            <option value="buddhist" {{ ($subject->classAssignments->first()->religion ?? '') == 'buddhist' ? 'selected' : '' }}>Buddhist</option>
-                                            <option value="other" {{ ($subject->classAssignments->first()->religion ?? '') == 'other' ? 'selected' : '' }}>Other</option>
+                                            <option value="all" {{ $selectedReligion === 'all' ? 'selected' : '' }}>All Religions</option>
+                                            <option value="islam" {{ $selectedReligion === 'islam' ? 'selected' : '' }}>Islam</option>
+                                            <option value="hindu" {{ $selectedReligion === 'hindu' ? 'selected' : '' }}>Hindu</option>
+                                            <option value="christian" {{ $selectedReligion === 'christian' ? 'selected' : '' }}>Christian</option>
+                                            <option value="buddhist" {{ $selectedReligion === 'buddhist' ? 'selected' : '' }}>Buddhist</option>
+                                            <option value="other" {{ $selectedReligion === 'other' ? 'selected' : '' }}>Other</option>
                                         </select>
                                     </div>
                                 </div>
@@ -365,7 +383,7 @@
                                         <label>&nbsp;</label>
                                         <div class="form-check mt-2">
                                             <input type="checkbox" name="is_optional" id="is_optional" 
-                                                class="form-check-input" value="1" {{ ($subject->classAssignments->first()->is_optional ?? false) ? 'checked' : '' }}>
+                                                class="form-check-input" value="1" {{ $selectedIsOptional ? 'checked' : '' }}>
                                             <label class="form-check-label" for="is_optional">
                                                 Optional Subject
                                             </label>
@@ -379,7 +397,7 @@
                                     <div class="form-group">
                                         <label for="exclusive_group_key">Exclusive Group Key (Optional)</label>
                                         <input type="text" name="exclusive_group_key" id="exclusive_group_key" class="form-control"
-                                            value="{{ old('exclusive_group_key', $subject->classAssignments->first()->exclusive_group_key ?? '') }}" placeholder="e.g., science_core_choice">
+                                            value="{{ $selectedExclusiveGroupKey }}" placeholder="e.g., science_core_choice">
                                         <small class="text-muted">Used for mutually exclusive subject groups (e.g., Biology vs Higher Math)</small>
                                     </div>
                                 </div>
@@ -413,7 +431,8 @@
         const $classAssignmentFields = $('#class_assignment_fields');
 
         function syncClassAssignmentFields() {
-            $classAssignmentFields.toggle($assignToClass.is(':checked'));
+            const isVisible = $assignToClass.is(':checked');
+            $classAssignmentFields.toggle(isVisible);
         }
 
         $assignToClass.on('change', syncClassAssignmentFields);

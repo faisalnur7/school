@@ -130,6 +130,7 @@
                                     <th rowspan="2">Student</th>
                                     <th class="text-center" rowspan="2">Section</th>
                                     @foreach ($subjects as $subject)
+                                        @php $cfg = $subject->getEffectiveMarksForClass($classId); @endphp
                                         <th class="text-center" style="min-width:65px">
                                             <small>{{ Str::limit($subject->name, 10) }}</small>
                                         </th>
@@ -143,8 +144,9 @@
                                 <tr>
                                     @foreach ($subjects as $subject)
                                         @php $cfg = $subject->getEffectiveMarksForClass($classId); @endphp
-                                        <th class="text-center text-warning" style="font-size:10px">
-                                            /{{ $cfg['total_marks'] }}</th>
+                                        <th class="text-center text-warning" style="font-size:10px; line-height:1.15;">
+                                            /{{ $cfg['total_marks'] }} <span class="text-muted">| PM {{ $cfg['pass_mark'] }}</span>
+                                        </th>
                                     @endforeach
                                 </tr>
                             </thead>

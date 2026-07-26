@@ -120,6 +120,7 @@
                 $info = $data['academicInfo'];
                 $subjectRows = $data['subjectRows'];
                 $summary = $data['summary'];
+                $rank = $data['rank'] ?? null;
                 $attendancePresent = $data['attendancePresent'];
                 $attendanceTotal = $data['attendanceTotal'];
             @endphp
@@ -303,6 +304,13 @@
                 </div>
                 @endif
 
+                @if(!is_null($rank))
+                    <div class="mt-4 mb-4 px-4 py-3 rounded-lg d-flex justify-content-between align-items-center" style="border:1px solid var(--rc-border, #d1d5db); background:#f8fafc;">
+                        <div style="font-size:.85rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color: var(--rc-green, #1a6b3c);">Position</div>
+                        <div style="font-size:1.4rem; font-weight:800; color: var(--rc-ink, #111827);">#{{ $rank }}</div>
+                    </div>
+                @endif
+
                 @if($templateSettings->show_remarks)
                 <div class="mt-6 text-sm">
                     <h4 class="font-bold underline mb-2" style="color: {{ $templateSettings->remarks_title_color }};">Remarks:</h4>
@@ -438,6 +446,10 @@
                             <span class="rc-field-label">Student ID</span>
                             <span class="rc-field-value rc-mono">{{ $student->student_cid ?? $student->id }}</span>
                         </div>
+                        <div class="rc-field">
+                            <span class="rc-field-label">Rank</span>
+                            <span class="rc-field-value">{{ $rank ? '#'.$rank : '—' }}</span>
+                        </div>
                     </div>
                     <div class="rc-attendance-pill">
                         <div class="rc-att-ring">
@@ -559,6 +571,13 @@
                         </div>
                     </div>
                 </div>
+
+                @if(!is_null($rank))
+                    <div class="rc-position-strip" style="margin: 0 0 1rem; padding: 0.9rem 1.1rem; border: 1px solid var(--rc-border, #d1d5db); border-radius: 14px; background: #f8fafc; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+                        <div style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--rc-green, #1a6b3c);">Position</div>
+                        <div style="font-size: 1.35rem; font-weight: 800; color: var(--rc-ink, #111827);">#{{ $rank }}</div>
+                    </div>
+                @endif
 
                 <div class="rc-bottom-row">
                     <div class="rc-remarks-block">

@@ -813,6 +813,7 @@
                                                                 <th>Paid</th>
                                                                 <th>Due</th>
                                                                 <th>Due Date</th>
+                                                                <th>Active</th>
                                                                 <th>Status</th>
                                                             </tr>
                                                         </thead>
@@ -825,6 +826,25 @@
                                                                     <td class="text-success">৳{{ number_format($fee->paid_amount, 2) }}</td>
                                                                     <td class="text-danger">৳{{ number_format($fee->due_amount, 2) }}</td>
                                                                     <td>{{ optional($fee->due_date)->format('d M, Y') ?? 'N/A' }}</td>
+                                                                    <td>
+                                                                        @if ($fee->status !== 'paid')
+                                                                            <form action="{{ route('fees.toggle-status', $fee->id) }}" method="POST">
+                                                                                @csrf
+                                                                                <div class="custom-control custom-switch">
+                                                                                    <input
+                                                                                        type="checkbox"
+                                                                                        class="custom-control-input"
+                                                                                        id="regularFeeSwitch{{ $fee->id }}"
+                                                                                        onchange="this.form.submit()"
+                                                                                        {{ $fee->is_active ? 'checked' : '' }}
+                                                                                    >
+                                                                                    <label class="custom-control-label" for="regularFeeSwitch{{ $fee->id }}"></label>
+                                                                                </div>
+                                                                            </form>
+                                                                        @else
+                                                                            <span class="student-profile-badge student-profile-badge--success">Locked</span>
+                                                                        @endif
+                                                                    </td>
                                                                     <td>
                                                                         <span class="student-profile-badge {{ $fee->status === 'paid' ? 'student-profile-badge--success' : 'student-profile-badge--warning' }}">
                                                                             {{ ucfirst($fee->status) }}

@@ -1,6 +1,32 @@
 @extends('layouts.master')
 
 @section('contents')
+@php
+    $total_students = $total_students ?? 0;
+    $total_teachers = $total_teachers ?? 0;
+    $total_staff = $total_staff ?? 0;
+    $total_classes = $total_classes ?? 0;
+    $today_present = $today_present ?? 0;
+    $today_absent = $today_absent ?? 0;
+    $today_leave = $today_leave ?? 0;
+    $attendance_percentage = $attendance_percentage ?? 0;
+    $total_fees_due = $total_fees_due ?? 0;
+    $total_fees_paid = $total_fees_paid ?? 0;
+    $total_fees_pending = $total_fees_pending ?? 0;
+    $fee_collection_rate = $fee_collection_rate ?? 0;
+    $total_income = $total_income ?? 0;
+    $total_expense = $total_expense ?? 0;
+    $net_balance = $net_balance ?? 0;
+    $total_assets = $total_assets ?? 0;
+    $classwise_attendance = $classwise_attendance ?? [];
+    $recent_exams = $recent_exams ?? collect();
+    $recent_notices = $recent_notices ?? collect();
+    $monthly_attendance = $monthly_attendance ?? ['days' => [], 'percentages' => []];
+    $fee_trend = $fee_trend ?? ['months' => [], 'amounts' => []];
+    $income_expense = $income_expense ?? ['months' => [], 'incomes' => [], 'expenses' => []];
+    $student_distribution = $student_distribution ?? [];
+    $monthly_fee_collection = $monthly_fee_collection ?? [];
+@endphp
 <div class="dashboard-modern">
     <!-- Quick Actions Bar -->
     <div class="quick-actions-section mb-5">

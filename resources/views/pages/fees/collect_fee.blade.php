@@ -1730,6 +1730,15 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link fw-semibold" href="#tabAssignedFees">
+                    🧾 Assigned Fees
+                    <span class="badge rounded-pill ms-1"
+                        style="font-size:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
+                        {{ isset($assignedFees) ? $assignedFees->count() : 0 }}
+                    </span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link fw-semibold" href="#tabHistory">
                     🧾 Payment History
                     <span class="badge rounded-pill ms-1"
@@ -2146,6 +2155,101 @@
 
                 </div>
                 <div class="mobile-cart-backdrop" id="mobileCartBackdrop"></div>
+            </div>
+
+            {{-- ══════════════════════════════════════
+                 TAB 2 — ASSIGNED FEES
+            ══════════════════════════════════════ --}}
+            <div class="tab-pane fade" id="tabAssignedFees">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white border-bottom py-3 px-4" style="border-color:#f1f5f9!important">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span class="fs-5">🧾</span>
+                            <span class="panel-eyebrow">Assigned Fees</span>
+                            <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
+                                <button type="button" class="btn btn-sm btn-outline-success js-set-all-fees" data-state="1">
+                                    Activate All
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary js-set-all-fees" data-state="0">
+                                    Deactivate All
+                                </button>
+                                <button type="submit" class="btn btn-sm btn-primary" form="feeActivationForm">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                        <div class="small text-muted mt-2">
+                            Paid fees stay locked. Inactive fees will not appear as dues in Collect Payment.
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (($assignedFees ?? collect())->isEmpty())
+                            <div class="p-4 text-center text-muted">
+                                No assigned fees found for this student.
+                            </div>
+                        @else
+                            <form id="feeActivationForm" action="{{ route('fees.bulk-toggle-status') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="student_id" value="{{ $student->id }}">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0 align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width:64px;">#</th>
+                                                <th>Fee Set</th>
+                                                <th>Due Date</th>
+                                                <th class="text-end">Amount</th>
+                                                <th class="text-end">Paid</th>
+                                                <th class="text-end">Due</th>
+                                                <th>Status</th>
+                                                <th>Active</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($assignedFees as $fee)
+                                                <tr>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>
+                                                        <div class="fw-semibold">{{ $fee->feeSet->name ?? 'N/A' }}</div>
+                                                        <div class="small text-muted">{{ $fee->remarks ?? 'Fee assigned to this student' }}</div>
+                                                    </td>
+                                                    <td>{{ optional($fee->due_date)->format('d M, Y') ?? 'N/A' }}</td>
+                                                    <td class="text-end">৳{{ number_format($fee->amount ?? 0, 2) }}</td>
+                                                    <td class="text-end text-success">৳{{ number_format($fee->paid_amount ?? 0, 2) }}</td>
+                                                    <td class="text-end text-danger">
+                                                        ৳{{ number_format($fee->due_amount ?? max(0, (float) ($fee->amount ?? 0) - (float) ($fee->paid_amount ?? 0)), 2) }}
+                                                    </td>
+                                                    <td>
+                                                        <span class="student-profile-badge {{ $fee->status === 'paid' ? 'student-profile-badge--success' : 'student-profile-badge--warning' }}">
+                                                            {{ ucfirst($fee->status ?? 'pending') }}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        @if ($fee->status === 'paid')
+                                                            <span class="student-profile-badge student-profile-badge--success">Locked</span>
+                                                        @else
+                                                            <div class="custom-control custom-switch">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    class="custom-control-input js-fee-active-toggle"
+                                                                    id="assignedFeeSwitch{{ $fee->id }}"
+                                                                    name="active_fee_ids[]"
+                                                                    value="{{ $fee->id }}"
+                                                                    {{ $fee->is_active ? 'checked' : '' }}
+                                                                >
+                                                                <label class="custom-control-label" for="assignedFeeSwitch{{ $fee->id }}"></label>
+                                                            </div>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </form>
+                        @endif
+                    </div>
+                </div>
             </div>
 
 
@@ -3415,6 +3519,11 @@
                         $btn.prop('disabled', false).html('✓ &nbsp;COLLECT PAYMENT');
                     }
                 });
+            });
+
+            $(document).on('click', '.js-set-all-fees', function() {
+                const shouldActivate = String($(this).data('state')) === '1';
+                $('#feeActivationForm .js-fee-active-toggle').not(':disabled').prop('checked', shouldActivate);
             });
 
             // Tab switching without Bootstrap

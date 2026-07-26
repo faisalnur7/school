@@ -15,6 +15,13 @@
                     <label class="form-label mb-1" style="font-size:12px">Date</label>
                     <input type="text" name="date" class="form-control datepicker" value="{{ request('date', $date->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
                 </div>
+                <div class="col-md-3">
+                    <label class="form-label mb-1" style="font-size:12px">Report Type</label>
+                    <select name="report_type" class="form-control">
+                        <option value="summary" {{ request('report_type', 'summary') === 'summary' ? 'selected' : '' }}>Summary</option>
+                        <option value="detailed" {{ request('report_type') === 'detailed' ? 'selected' : '' }}>Detailed</option>
+                    </select>
+                </div>
                 <div class="col-md-3 d-flex gap-2">
                     <button type="submit" class="btn btn-dark" title="Filter" aria-label="Filter">
                         <i class="fas fa-search"></i>
@@ -38,32 +45,52 @@
 
         <div class="card-body">
             <div class="px-0 pb-0 pt-0">
-                <div class="px-3 pt-3 pb-2 d-flex gap-2">
-                    <span class="badge" style="background:#fff1f2;color:#e11d48;border:1px solid #fecdd3;font-size:12px;padding:6px 14px">Total Debit: {{ number_format($totalDebit, 2) }}</span>
-                    <span class="badge" style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;font-size:12px;padding:6px 14px">Total Credit: {{ number_format($totalCredit, 2) }}</span>
-                </div>
                 <div class="table-responsive">
                     <table class="table table-hover mb-0" style="font-size:13px">
                         <thead style="background:#f8fafc">
-                            <tr><th>Date</th><th>Reference</th><th>Description</th><th>Type</th><th>Debit Account</th><th>Credit Account</th><th class="text-right">Amount</th></tr>
+                            <tr>
+                                @if($reportType === 'summary')
+                                    <th>Category / Head</th><th class="text-right">Debit</th><th class="text-right">Credit</th>
+                                @else
+                                    <th>Date</th><th>Reference</th><th>Type</th><th>Description</th><th class="text-right">Debit</th><th class="text-right">Credit</th>
+                                @endif
+                            </tr>
                         </thead>
                         <tbody>
-                            @forelse($transactions as $txn)
-                            <tr>
-                                <td style="font-size:11px;color:#64748b">{{ $txn->created_at->format('d/m/Y') }}</td>
-                                <td style="font-family:monospace;font-size:11px">{{ $txn->reference_no }}</td>
-                                <td>{{ $txn->description ?? '—' }}</td>
-                                <td>
-                                    @php $sc = match($txn->type){ 'income'=>'success','expense'=>'danger','capital'=>'primary','withdrawal'=>'warning',default=>'secondary' }; @endphp
-                                    <span class="badge badge-{{ $sc }}">{{ ucfirst($txn->type) }}</span>
-                                </td>
-                                <td style="color:#b91c1c">{{ $txn->debit_account_name }}</td>
-                                <td style="color:#15803d">{{ $txn->credit_account_name }}</td>
-                                <td class="text-right fw-bold">{{ number_format($txn->amount, 2) }}</td>
-                            </tr>
-                            @empty
-                            <tr><td colspan="7" class="text-center text-muted py-4">No transactions on this date</td></tr>
-                            @endforelse
+                            @if($reportType === 'summary')
+                                <tr style="background:#eff6ff;font-weight:700">
+                                    <td>Opening Balance</td>
+                                    <td class="text-right">{{ number_format(abs($openingBalance), 2) }}</td>
+                                    <td class="text-right">{{ number_format(abs($openingBalance), 2) }}</td>
+                                </tr>
+                                @forelse($summaryRows as $group)
+                                    <tr>
+                                        <td>{{ $group['label'] }}</td>
+                                        <td class="text-right">{{ number_format($group['totalDebit'], 2) }}</td>
+                                        <td class="text-right">{{ number_format($group['totalCredit'], 2) }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="3" class="text-center text-muted py-4">No transactions on this date</td></tr>
+                                @endforelse
+                                <tr style="background:#eff6ff;font-weight:700">
+                                    <td>Closing Balance</td>
+                                    <td class="text-right">{{ number_format(abs($closingBalance), 2) }}</td>
+                                    <td class="text-right">{{ number_format(abs($closingBalance), 2) }}</td>
+                                </tr>
+                            @else
+                                @forelse($transactions as $transaction)
+                                    <tr>
+                                        <td>{{ $transaction->transaction_date?->format('d/m/Y') }}</td>
+                                        <td>{{ $transaction->reference_no ?? '-' }}</td>
+                                        <td>{{ ucfirst($transaction->type) }}</td>
+                                        <td>{{ $transaction->description ?: '-' }}</td>
+                                        <td class="text-right">{{ in_array($transaction->type, ['expense', 'withdrawal']) ? number_format($transaction->amount, 2) : '0.00' }}</td>
+                                        <td class="text-right">{{ in_array($transaction->type, ['income', 'capital']) ? number_format($transaction->amount, 2) : '0.00' }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="6" class="text-center text-muted py-4">No transactions on this date</td></tr>
+                                @endforelse
+                            @endif
                         </tbody>
                     </table>
                 </div>
