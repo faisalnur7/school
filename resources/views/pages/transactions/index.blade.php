@@ -5,7 +5,7 @@
         .transactions-report .transactions-pdf-panel {
             margin-top: 0.35rem;
             border: 1px solid #dbe4f0;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 1rem 1rem 1.1rem;
             background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
             box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
@@ -57,7 +57,7 @@
         .transactions-report .transactions-pdf-checks {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 0.95rem 1rem;
+            gap: 0.85rem 1rem;
         }
 
         .transactions-report .transactions-pdf-option {
@@ -66,6 +66,7 @@
             gap: 0.55rem;
             margin: 0;
             min-width: 0;
+            padding-left: 0;
         }
 
         .transactions-report .transactions-pdf-option .form-check-input {
@@ -108,25 +109,33 @@
 
         .transactions-report .transactions-pdf-option .form-check-label {
             display: inline-block;
-            margin-bottom: 0;
+            margin: 0 0 0 0.15rem;
+            margin-left: 2rem;
             font-size: 0.88rem;
             font-weight: 600;
             color: #1f2937;
-            margin-left: 2rem;
+        }
+
+        .transactions-report .transactions-filter-form {
+            border: 1px solid #dbe4f0;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+            padding: 1rem;
         }
 
         .transactions-report .transactions-filter-row {
             display: grid;
             grid-template-columns:
-                minmax(240px, 2.4fr)
+                minmax(280px, 2.3fr)
                 minmax(130px, 1fr)
                 minmax(130px, 1fr)
-                minmax(140px, 1.1fr)
-                minmax(150px, 1.2fr)
-                minmax(120px, 0.8fr)
-                minmax(120px, 0.8fr)
+                minmax(140px, 1fr)
+                minmax(150px, 1.15fr)
+                minmax(112px, 0.8fr)
+                minmax(112px, 0.8fr)
                 auto;
-            gap: 0.75rem;
+            gap: 0.85rem;
             align-items: end;
             width: 100%;
         }
@@ -147,13 +156,58 @@
             grid-column: 1 / -1;
         }
 
+        .transactions-report .transactions-summary-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin: 0 0 0.65rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .transactions-report .transactions-mobile-filter-toggle {
+            display: none;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            border: 1px solid #dbe4f0;
+            border-radius: 14px;
+            background: #fff;
+            color: #111827;
+            font-size: 0.92rem;
+            font-weight: 700;
+            padding: 0.85rem 1rem;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+        }
+
+        .transactions-report .transactions-mobile-filter-toggle i {
+            color: #334155;
+        }
+
         @media (max-width: 1199.98px) {
+            .transactions-report .transactions-filter-form {
+                padding: 0.9rem;
+            }
+
             .transactions-report .transactions-filter-row {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
+            .transactions-report .transactions-filter-row .transactions-filter-actions {
+                grid-column: 1 / -1;
+                justify-content: flex-start;
+            }
+
             .transactions-report .transactions-filter-row .transactions-pdf-panel {
                 grid-column: 1 / -1;
+            }
+
+            .transactions-report .transactions-pdf-header {
+                align-items: center;
             }
 
             .transactions-report .transactions-pdf-checks {
@@ -162,6 +216,24 @@
         }
 
         @media (max-width: 767.98px) {
+            .transactions-report .transactions-filter-form {
+                padding: 0.85rem;
+                border-radius: 16px;
+            }
+
+            .transactions-report .transactions-mobile-filter-toggle {
+                display: inline-flex;
+                margin-bottom: 0.75rem;
+            }
+
+            .transactions-report .transactions-filter-collapse {
+                display: none;
+            }
+
+            .transactions-report .transactions-filter-collapse.is-open {
+                display: block;
+            }
+
             .transactions-report .transactions-filter-row {
                 grid-template-columns: 1fr;
             }
@@ -169,6 +241,19 @@
             .transactions-report .transactions-pdf-header {
                 flex-direction: column;
                 align-items: stretch;
+            }
+
+            .transactions-report .transactions-filter-row .transactions-filter-actions {
+                justify-content: stretch;
+                flex-wrap: nowrap;
+            }
+
+            .transactions-report .transactions-filter-row .transactions-filter-actions > * {
+                flex: 1 1 0;
+            }
+
+            .transactions-report .transactions-pdf-toggle {
+                white-space: normal;
             }
 
             .transactions-report .transactions-pdf-checks {
@@ -199,14 +284,33 @@
             @endif
 
             {{-- Filters --}}
-            <form method="GET" action="{{ route('transactions.index') }}" class="px-3 pt-3 pb-2">
+            @php
+                $mobileFilterActive = request()->hasAny([
+                    'search',
+                    'type',
+                    'view_type',
+                    'shareholder_id',
+                    'category_id',
+                    'from',
+                    'to',
+                    'pdf_desc_custom',
+                    'pdf_description_types',
+                ]);
+            @endphp
+            <button type="button" class="transactions-mobile-filter-toggle" id="transactions-mobile-filter-toggle" aria-expanded="{{ $mobileFilterActive ? 'true' : 'false' }}">
+                <span><i class="fas fa-sliders-h mr-2"></i> Filters</span>
+                <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            </button>
+
+            <form method="GET" action="{{ route('transactions.index') }}" class="transactions-filter-form">
                 @php
                     $allPdfTypes = ['income', 'expense', 'capital', 'withdrawal'];
                     $selectedPdfTypes = request()->boolean('pdf_desc_custom')
                         ? (array) request('pdf_description_types', [])
                         : $allPdfTypes;
                 @endphp
-                <div class="transactions-filter-row">
+                <div class="transactions-filter-collapse {{ $mobileFilterActive ? 'is-open' : '' }}" id="transactions-filter-collapse">
+                    <div class="transactions-filter-row">
                     <div>
                         <label class="form-label mb-1" style="font-size:12px">Search</label>
                         <input type="text" name="search" class="form-control form-control-sm"
@@ -299,11 +403,14 @@
                             </div>
                         </div>
                     </div>
+                    </div>
                 </div>
             </form>
 
             {{-- Summary Badges --}}
-            <div class="px-3 pb-3 d-flex flex-wrap gap-2">
+            <div class="px-3 pb-3">
+                <div class="transactions-summary-label">Summary</div>
+                <div class="d-flex flex-wrap gap-2">
                 @php $net = ($totalIncome + $totalCapital) - ($totalExpense + $totalWithdrawal); @endphp
                 <span class="badge" style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;font-size:12px;padding:6px 14px">
                     Income: {{ number_format($totalIncome, 2) }}
@@ -320,6 +427,7 @@
                 <span class="badge" style="background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;font-size:12px;padding:6px 14px">
                     Net: <strong style="color:{{ $net >= 0 ? '#16a34a' : '#e11d48' }}">{{ number_format($net, 2) }}</strong>
                 </span>
+                </div>
             </div>
 
             {{-- Table --}}
@@ -435,28 +543,47 @@
 @section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const filterToggle = document.getElementById('transactions-mobile-filter-toggle');
+            const filterCollapse = document.getElementById('transactions-filter-collapse');
             const toggleAll = document.getElementById('pdf-description-toggle-all');
             const checkboxes = Array.from(document.querySelectorAll('.pdf-description-checkbox'));
 
-            if (!toggleAll || !checkboxes.length) {
-                return;
+            if (filterToggle && filterCollapse) {
+                const isMobile = window.matchMedia('(max-width: 767.98px)').matches;
+
+                const syncFilterState = (open) => {
+                    filterCollapse.classList.toggle('is-open', open);
+                    filterToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                };
+
+                if (isMobile && !filterCollapse.classList.contains('is-open')) {
+                    syncFilterState(false);
+                } else {
+                    syncFilterState(true);
+                }
+
+                filterToggle.addEventListener('click', function () {
+                    syncFilterState(!filterCollapse.classList.contains('is-open'));
+                });
             }
 
-            const syncToggleState = () => {
-                toggleAll.checked = checkboxes.every((checkbox) => checkbox.checked);
-            };
+            if (toggleAll && checkboxes.length) {
+                const syncToggleState = () => {
+                    toggleAll.checked = checkboxes.every((checkbox) => checkbox.checked);
+                };
 
-            toggleAll.addEventListener('change', function () {
-                checkboxes.forEach((checkbox) => {
-                    checkbox.checked = toggleAll.checked;
+                toggleAll.addEventListener('change', function () {
+                    checkboxes.forEach((checkbox) => {
+                        checkbox.checked = toggleAll.checked;
+                    });
                 });
-            });
 
-            checkboxes.forEach((checkbox) => {
-                checkbox.addEventListener('change', syncToggleState);
-            });
+                checkboxes.forEach((checkbox) => {
+                    checkbox.addEventListener('change', syncToggleState);
+                });
 
-            syncToggleState();
+                syncToggleState();
+            }
         });
     </script>
 @endsection
