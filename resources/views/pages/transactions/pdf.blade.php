@@ -49,6 +49,9 @@
     $logoPath = !empty($school->logo) ? public_path($school->logo) : null;
     $hasLogo = $logoPath && file_exists($logoPath);
     $showDescription = $viewType === 'detailed';
+    $showDescriptionForType = function (string $type) use ($showDescription, $pdfDescriptionTypes) {
+        return $showDescription && in_array($type, $pdfDescriptionTypes ?? [], true);
+    };
 @endphp
 
 <div class="school-header-wrap">
@@ -117,8 +120,8 @@
                     default      => 'background:#f1f5f9',
                 };
             @endphp
-            <tr>
-                <td colspan="{{ $showDescription ? 6 : 5 }}" style="background:#eef2ff;color:#000;font-weight:700;padding:6px 8px">
+                <tr>
+                    <td colspan="{{ $showDescription ? 6 : 5 }}" style="background:#eef2ff;color:#000;font-weight:700;padding:6px 8px">
                     <span class="badge" style="{{ $badgeColor }};font-size:12px;padding:4px 8px;margin-right:8px">
                         <strong>{{ $group['label'] }}</strong>
                     </span>
@@ -133,7 +136,11 @@
                     <td class="muted">{{ $txn->transaction_date->format('d/m/Y') }}</td>
                     <td class="mono">{{ $txn->reference_no ?? '—' }}</td>
                     @if($showDescription)
-                        <td style="width:220px; max-width:220px; word-break:break-word;"><div class="muted">{{ $txn->description ?? '—' }}</div></td>
+                        <td style="width:220px; max-width:220px; word-break:break-word;">
+                            <div class="muted">
+                                {{ $showDescriptionForType($txn->type) ? ($txn->description ?? '—') : '—' }}
+                            </div>
+                        </td>
                     @endif
                     <td class="text-right">{{ !$isCredit ? number_format($txn->amount, 2) : '—' }}</td>
                     <td class="text-right">{{ $isCredit ? number_format($txn->amount, 2) : '—' }}</td>

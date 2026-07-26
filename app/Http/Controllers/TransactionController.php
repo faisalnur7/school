@@ -35,6 +35,7 @@ class TransactionController extends Controller
     private function reportData(Request $request, bool $forPdf = false): array
     {
         $viewType = $this->normalizeViewType($request->input('view_type', 'detailed'));
+        $pdfDescriptionTypes = $this->normalizePdfDescriptionTypes($request);
         $query = $this->buildQuery($request);
 
         [$totalIncome, $totalExpense, $totalCapital, $totalWithdrawal] = $this->totals($query);
@@ -47,6 +48,7 @@ class TransactionController extends Controller
 
         return [
             'viewType'          => $viewType,
+            'pdfDescriptionTypes' => $pdfDescriptionTypes,
             'transactions'      => $transactions,
             'transactionGroups' => $transactionGroups,
             'totalIncome'       => $totalIncome,
@@ -71,7 +73,6 @@ class TransactionController extends Controller
             ->whereIn('type', ['income', 'expense', 'capital', 'withdrawal']);
 
         if ($request->filled('type'))           { $query->where('type', $request->type); }
-        if ($request->filled('payment_method')) { $query->where('payment_method', $request->payment_method); }
         if ($request->filled('shareholder_id')) { $query->where('shareholder_id', $request->shareholder_id); }
         if ($request->filled('category_id')) {
             $query->where(fn($q) => $q->where('income_category_id', $request->category_id)
@@ -89,6 +90,22 @@ class TransactionController extends Controller
         }
 
         return $query;
+    }
+
+    private function normalizePdfDescriptionTypes(Request $request): array
+    {
+        $allTypes = ['income', 'expense', 'capital', 'withdrawal'];
+
+        if (! $request->boolean('pdf_desc_custom')) {
+            return $allTypes;
+        }
+
+        $selected = array_values(array_intersect(
+            $allTypes,
+            (array) $request->input('pdf_description_types', [])
+        ));
+
+        return $selected;
     }
 
     private function orderedQuery($query)

@@ -63,6 +63,10 @@
             align-items: center;
         }
 
+        .students-directory .students-filter-row > * {
+            min-width: 0;
+        }
+
         .students-directory .students-search-field {
             position: relative;
         }
@@ -158,8 +162,12 @@
 
         .students-directory .students-advanced-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 0.75rem;
+        }
+
+        .students-directory .students-advanced-grid > * {
+            min-width: 0;
         }
 
         .students-directory .students-filter-group label {
