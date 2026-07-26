@@ -331,6 +331,7 @@
         $info = $data['academicInfo'];
         $subjectRows = $data['subjectRows'];
         $summary = $data['summary'];
+        $rank = $data['rank'] ?? null;
         $attendancePresent = $data['attendancePresent'];
         $attendanceTotal = $data['attendanceTotal'];
     @endphp
@@ -404,6 +405,29 @@
                         <td>:</td>
                         <td>{{ $student->student_cid ?? $student->id }}</td>
                     </tr>
+                    <tr>
+                        <td>Rank</td>
+                        <td>:</td>
+                        <td>{{ $rank ? '#'.$rank : '—' }}</td>
+                    </tr>
+                </table>
+            </div>
+            @endif
+
+            @if(!is_null($rank))
+            <div class="report-card__section" style="margin-top: 0.25cm;">
+                <table class="report-card__summary-table" style="font-size: 10px;">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Position</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 700; text-align: left;">Position</td>
+                            <td style="font-size: 16px; font-weight: 800;">#{{ $rank }}</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
             @endif

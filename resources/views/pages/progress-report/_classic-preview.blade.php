@@ -3,6 +3,7 @@
     $studentCid = data_get($previewStudent, 'student_cid', '0001');
     $studentClass = data_get($previewStudent, 'class_name', 'Class Name');
     $studentRoll = data_get($previewStudent, 'roll', '12');
+    $studentRank = data_get($previewStudent, 'rank', '—');
     $studentSession = data_get($previewStudent, 'session', now()->format('Y') . '-' . (now()->format('Y') + 1));
     $studentDob = data_get($previewStudent, 'dob', '20-05-2010');
     $remarksText = $summary['gpa'] >= 4.0
@@ -88,6 +89,7 @@
                 <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">Name</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $studentName }}</span></p>
                 <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">Class</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $studentClass }}</span></p>
                 <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">ID</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $studentCid }}</span></p>
+                <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">Rank</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $studentRank }}</span></p>
                 <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">Roll</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $studentRoll }}</span></p>
                 <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">Session</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $studentSession }}</span></p>
                 <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">DOB</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $studentDob }}</span></p>
@@ -127,10 +129,10 @@
 
     @if($templateSettings->show_summary)
     <div class="mt-6">
-        <table class="w-full text-sm border border-gray-700" style="border-color: {{ $templateSettings->table_border_color }};">
-            <thead style="background: {{ $templateSettings->summary_bg_color }}; color: {{ $templateSettings->summary_text_color }};">
-                <tr>
-                    <th class="px-3 py-2">Summary</th>
+                <table class="w-full text-sm border border-gray-700" style="border-color: {{ $templateSettings->table_border_color }};">
+                    <thead style="background: {{ $templateSettings->summary_bg_color }}; color: {{ $templateSettings->summary_text_color }};">
+                        <tr>
+                            <th class="px-3 py-2">Summary</th>
                     <th class="px-3 py-2">Total Exam Marks</th>
                     <th class="px-3 py-2">Obtained Total Marks/Percent</th>
                     <th class="px-3 py-2">GPA</th>
@@ -145,14 +147,21 @@
                     <td>{{ number_format($summary['gpa'], 2) }}</td>
                     <td>{{ $summary['grade'] }}</td>
                 </tr>
-            </tbody>
-        </table>
-    </div>
-    @endif
+                    </tbody>
+                </table>
+            </div>
+            @endif
 
-    @if($templateSettings->show_remarks)
-    <div class="mt-6 text-sm">
-        <h4 class="font-bold underline mb-2" style="color: {{ $templateSettings->remarks_title_color }};">Remarks:</h4>
+            @if (! is_null(data_get($previewStudent, 'rank')))
+            <div class="mt-4 px-4 py-3 rounded-lg d-flex justify-content-between align-items-center" style="border:1px solid {{ $templateSettings->table_border_color }}; background: {{ $templateSettings->table_body_bg_color }};">
+                <div class="font-weight-bold text-uppercase" style="letter-spacing:.08em; color: {{ $templateSettings->student_label_color }};">Position</div>
+                <div class="font-weight-bold" style="font-size: 1.25rem; color: {{ $templateSettings->student_value_color }};">#{{ data_get($previewStudent, 'rank') }}</div>
+            </div>
+            @endif
+
+            @if($templateSettings->show_remarks)
+            <div class="mt-6 text-sm">
+                <h4 class="font-bold underline mb-2" style="color: {{ $templateSettings->remarks_title_color }};">Remarks:</h4>
         <div class="space-y-1">
             <p class="inline-block bg-green-200 px-2 rounded" style="color: {{ $templateSettings->remarks_text_color }};">{{ $remarksText }}</p>
         </div>

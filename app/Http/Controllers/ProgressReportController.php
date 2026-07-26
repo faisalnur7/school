@@ -52,11 +52,23 @@ class ProgressReportController extends Controller
         $gradeScale = GradingService::allGrades();
         $sections = Section::where('school_class_id', $filters['class_id'])->get();
 
-        $students = $this->getStudents($filters);
+        $cohortFilters = $filters;
+        unset($cohortFilters['student_id']);
+
+        $students = $this->getStudents($cohortFilters);
         if ($isPreview) {
             $students = $students->take(1);
         }
-        $studentsData = $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters));
+        $studentsData = $this->rankProgressReports(
+            $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters))
+        );
+
+        if (! empty($filters['student_id'])) {
+            $studentsData = $studentsData->filter(function ($data) use ($filters) {
+                return $this->matchesStudentIdentifier($data['student'], $filters['student_id']);
+            })->values();
+        }
+
         $statusMap = $this->buildStatusMap($studentsData->pluck('student.id')->all(), (int) $filters['exam_id']);
 
         return view('pages.progress-report.results', compact('studentsData', 'exam', 'school', 'gradeScale', 'filters', 'statusMap', 'sections', 'templateSettings', 'isPreview'))
@@ -85,8 +97,19 @@ class ProgressReportController extends Controller
         $templateSettings = ProgressReportTemplateSetting::current();
         $gradeScale = GradingService::allGrades();
 
-        $students = $this->getStudents($filters);
-        $studentsData = $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters));
+        $cohortFilters = $filters;
+        unset($cohortFilters['student_id']);
+
+        $students = $this->getStudents($cohortFilters);
+        $studentsData = $this->rankProgressReports(
+            $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters))
+        );
+
+        if (! empty($filters['student_id'])) {
+            $studentsData = $studentsData->filter(function ($data) use ($filters) {
+                return $this->matchesStudentIdentifier($data['student'], $filters['student_id']);
+            })->values();
+        }
 
         $html = view('pages.progress-report.print', compact('studentsData', 'exam', 'school', 'gradeScale', 'filters', 'templateSettings'))->render();
 
@@ -176,6 +199,83 @@ class ProgressReportController extends Controller
     private function contextKey(int $examId, int $studentId): string
     {
         return "progress:exam:{$examId}:student:{$studentId}";
+    }
+
+    private function matchesStudentIdentifier(Student $student, mixed $identifier): bool
+    {
+        if (is_null($identifier) || $identifier === '') {
+            return false;
+        }
+
+        $identifier = (string) $identifier;
+
+        return (string) $student->id === $identifier
+            || (string) ($student->student_cid ?? '') === $identifier;
+    }
+
+    private function rankProgressReports(\Illuminate\Support\Collection $studentsData): \Illuminate\Support\Collection
+    {
+        $rows = $studentsData->map(function (array $row) {
+            $failedSubjectCount = collect($row['subjectRows'] ?? [])
+                ->filter(fn ($subjectRow) => (bool) ($subjectRow['paper_fail'] ?? false))
+                ->count();
+
+            $row['failed_subject_count'] = $failedSubjectCount;
+            $row['has_failed'] = $failedSubjectCount > 0;
+            $row['status'] = $failedSubjectCount > 0 ? 'Failed' : 'Passed';
+            $row['rank'] = null;
+
+            return $row;
+        })->values()->all();
+
+        usort($rows, function (array $a, array $b) {
+            $failedCompare = ($a['failed_subject_count'] ?? 0) <=> ($b['failed_subject_count'] ?? 0);
+            if ($failedCompare !== 0) {
+                return $failedCompare;
+            }
+
+            $totalCompare = (float) data_get($b, 'summary.obtained', 0) <=> (float) data_get($a, 'summary.obtained', 0);
+            if ($totalCompare !== 0) {
+                return $totalCompare;
+            }
+
+            $percentageCompare = (float) data_get($b, 'summary.percentage', 0) <=> (float) data_get($a, 'summary.percentage', 0);
+            if ($percentageCompare !== 0) {
+                return $percentageCompare;
+            }
+
+            return strcmp((string) data_get($a, 'student.full_name_en', ''), (string) data_get($b, 'student.full_name_en', ''));
+        });
+
+        $rank = 1;
+        $prevFailedCount = null;
+        $prevTotal = null;
+        $prevPercentage = null;
+
+        foreach ($rows as &$row) {
+            $currentFailedCount = (int) ($row['failed_subject_count'] ?? 0);
+            $currentTotal = (float) data_get($row, 'summary.obtained', 0);
+            $currentPercentage = (float) data_get($row, 'summary.percentage', 0);
+
+            if (
+                $prevFailedCount !== null
+                && $currentFailedCount === $prevFailedCount
+                && $currentTotal === $prevTotal
+                && $currentPercentage === $prevPercentage
+            ) {
+                $row['rank'] = $rank - 1;
+            } else {
+                $row['rank'] = $rank;
+            }
+
+            $prevFailedCount = $currentFailedCount;
+            $prevTotal = $currentTotal;
+            $prevPercentage = $currentPercentage;
+            $rank++;
+        }
+        unset($row);
+
+        return collect($rows);
     }
 
     private function hasCompleteFilters(Request $request): bool

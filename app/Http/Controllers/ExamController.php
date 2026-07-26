@@ -397,6 +397,7 @@ class ExamController extends Controller
         $classId = $request->integer('class_id') ?: null;
         $sectionId = $request->integer('section_id') ?: null;
         $groupId = $request->integer('group_id') ?: null;
+        $subjectId = null;
         $filter = $request->filter ?? 'all';
         $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
         $selectedClass = $classId ? SchoolClass::find($classId) : null;
@@ -429,7 +430,7 @@ class ExamController extends Controller
                 $totalObtained = 0;
                 $totalFull = 0;
                 $gpas = [];
-                $hasFailed = false;
+                $failedSubjectCount = 0;
 
                 foreach ($subjects as $subject) {
                     $config = $subject->getEffectiveMarksForClass($classId);
@@ -439,9 +440,10 @@ class ExamController extends Controller
                     $obtained = $mark ? (float) $mark->total : 0;
                     $isAbsent = $mark ? $mark->is_absent : false;
                     $grade = GradingService::getGrade($obtained, $fullMarks);
+                    $passed = ! $isAbsent && $obtained >= $passMark;
 
-                    if ($grade['letter'] === 'F' || $isAbsent) {
-                        $hasFailed = true;
+                    if (! $passed) {
+                        $failedSubjectCount++;
                     }
 
                     $subjectResults[$subject->id] = [
@@ -451,7 +453,7 @@ class ExamController extends Controller
                         'letter_grade' => $isAbsent ? 'AB' : $grade['letter'],
                         'gpa'          => $isAbsent ? 0 : $grade['gpa'],
                         'is_absent'    => $isAbsent,
-                        'passed'       => ! $isAbsent && $obtained >= $passMark,
+                        'passed'       => $passed,
                     ];
 
                     $totalObtained += $obtained;
@@ -469,24 +471,40 @@ class ExamController extends Controller
                     'percentage'      => $totalFull > 0 ? round(($totalObtained / $totalFull) * 100, 2) : 0,
                     'gpa'             => $avgGpa,
                     'gpa_label'       => GradingService::getGpaLabel($avgGpa),
-                    'has_failed'      => $hasFailed,
-                    'status'          => $hasFailed ? 'Failed' : 'Passed',
+                    'failed_subject_count' => $failedSubjectCount,
+                    'has_failed'      => $failedSubjectCount > 0,
+                    'status'          => $failedSubjectCount > 0 ? 'Failed' : 'Passed',
                 ];
             }
 
-            // Sort by total descending and assign rank
-            uasort($results, fn($a, $b) => $b['total_obtained'] <=> $a['total_obtained']);
+            // Merit order: all-passed students first, then 1 failed subject, 2 failed subjects, etc.
+            uasort($results, function ($a, $b) {
+                $failedCompare = ($a['failed_subject_count'] ?? 0) <=> ($b['failed_subject_count'] ?? 0);
+                if ($failedCompare !== 0) {
+                    return $failedCompare;
+                }
+
+                $totalCompare = ($b['total_obtained'] ?? 0) <=> ($a['total_obtained'] ?? 0);
+                if ($totalCompare !== 0) {
+                    return $totalCompare;
+                }
+
+                return ($b['percentage'] ?? 0) <=> ($a['percentage'] ?? 0);
+            });
             $rank = 1;
+            $prevFailedCount = null;
             $prevTotal = null;
-            $sameCount = 0;
             foreach ($results as &$row) {
-                if ($prevTotal !== null && $row['total_obtained'] === $prevTotal) {
-                    $row['rank'] = $rank - $sameCount;
-                    $sameCount++;
+                if (
+                    $prevFailedCount !== null
+                    && (int) $row['failed_subject_count'] === (int) $prevFailedCount
+                    && (float) $row['total_obtained'] === (float) $prevTotal
+                ) {
+                    $row['rank'] = $rank - 1;
                 } else {
                     $row['rank'] = $rank;
-                    $sameCount = 1;
                 }
+                $prevFailedCount = $row['failed_subject_count'];
                 $prevTotal = $row['total_obtained'];
                 $rank++;
             }
@@ -544,6 +562,7 @@ class ExamController extends Controller
         $classId  = $request->integer('class_id') ?: null;
         $sectionId = $request->integer('section_id') ?: null;
         $groupId = $request->integer('group_id') ?: null;
+        $subjectId = null;
         $exam->load(['academicSession']);
 
         $selectedClass = SchoolClass::find($classId);
@@ -569,7 +588,7 @@ class ExamController extends Controller
             $totalObtained  = 0;
             $totalFull      = 0;
             $gpas           = [];
-            $hasFailed      = false;
+            $failedSubjectCount = 0;
 
             foreach ($subjects as $subject) {
                 $config    = $subject->getEffectiveMarksForClass($classId);
@@ -579,8 +598,11 @@ class ExamController extends Controller
                 $obtained  = $mark ? (float) $mark->total : 0;
                 $isAbsent  = $mark ? $mark->is_absent : false;
                 $grade     = GradingService::getGrade($obtained, $fullMarks);
+                $passed    = ! $isAbsent && $obtained >= $passMark;
 
-                if ($grade['letter'] === 'F' || $isAbsent) $hasFailed = true;
+                if (! $passed) {
+                    $failedSubjectCount++;
+                }
 
                 $subjectResults[$subject->id] = [
                     'obtained'     => $obtained,
@@ -588,7 +610,7 @@ class ExamController extends Controller
                     'letter_grade' => $isAbsent ? 'AB' : $grade['letter'],
                     'gpa'          => $isAbsent ? 0 : $grade['gpa'],
                     'is_absent'    => $isAbsent,
-                    'passed'       => ! $isAbsent && $obtained >= $passMark,
+                    'passed'       => $passed,
                 ];
 
                 $totalObtained += $obtained;
@@ -605,14 +627,42 @@ class ExamController extends Controller
                 'percentage'      => $totalFull > 0 ? round(($totalObtained / $totalFull) * 100, 2) : 0,
                 'gpa'             => $avgGpa,
                 'gpa_label'       => GradingService::getGpaLabel($avgGpa),
-                'has_failed'      => $hasFailed,
-                'status'          => $hasFailed ? 'Failed' : 'Passed',
+                'failed_subject_count' => $failedSubjectCount,
+                'has_failed'      => $failedSubjectCount > 0,
+                'status'          => $failedSubjectCount > 0 ? 'Failed' : 'Passed',
             ];
         }
 
-        uasort($results, fn($a, $b) => $b['total_obtained'] <=> $a['total_obtained']);
+        uasort($results, function ($a, $b) {
+            $failedCompare = ($a['failed_subject_count'] ?? 0) <=> ($b['failed_subject_count'] ?? 0);
+            if ($failedCompare !== 0) {
+                return $failedCompare;
+            }
+
+            $totalCompare = ($b['total_obtained'] ?? 0) <=> ($a['total_obtained'] ?? 0);
+            if ($totalCompare !== 0) {
+                return $totalCompare;
+            }
+
+            return ($b['percentage'] ?? 0) <=> ($a['percentage'] ?? 0);
+        });
         $rank = 1;
-        foreach ($results as &$row) { $row['rank'] = $rank++; }
+        $prevFailedCount = null;
+        $prevTotal = null;
+        foreach ($results as &$row) {
+            if (
+                $prevFailedCount !== null
+                && (int) $row['failed_subject_count'] === (int) $prevFailedCount
+                && (float) $row['total_obtained'] === (float) $prevTotal
+            ) {
+                $row['rank'] = $rank - 1;
+            } else {
+                $row['rank'] = $rank;
+            }
+            $prevFailedCount = $row['failed_subject_count'];
+            $prevTotal = $row['total_obtained'];
+            $rank++;
+        }
         unset($row);
 
         $mpdf = new \Mpdf\Mpdf(['orientation' => 'L', 'margin_top' => 15, 'margin_bottom' => 15]);

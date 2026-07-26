@@ -61,7 +61,7 @@
         <tr>
             @foreach($subjects as $subject)
             @php $cfg = $subject->getEffectiveMarksForClass($selectedClass->id ?? 0); @endphp
-            <th style="color:#ffd700">/{{ $cfg['total_marks'] }}</th>
+            <th style="color:#ffd700">/{{ $cfg['total_marks'] }} | PM {{ $cfg['pass_mark'] }}</th>
             @endforeach
         </tr>
     </thead>
