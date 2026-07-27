@@ -63,15 +63,19 @@
                         </td>
                         <td>{{ $rec->checkout_date ? $rec->checkout_date->format('d M Y') : '—' }}</td>
                         <td><span class="badge badge-secondary">{{ $rec->academic_status }}</span></td>
-                        <td>
-                            <div class="d-flex flex-wrap gap-1">
+                        <td class="text-nowrap">
+                            <div class="students-checkout-actions">
                                 <a href="{{ route('students.tc', [$rec->student_id, 'style' => 'standard']) }}"
-                                    class="btn btn-xs btn-primary" target="_blank">
-                                    <i class="fas fa-file-alt mr-1"></i> TC
+                                    class="btn btn-xs btn-primary students-checkout-action-btn students-checkout-action-btn--tc"
+                                    target="_blank">
+                                    <i class="fas fa-file-alt students-checkout-action-icon"></i>
+                                    <span>TC</span>
                                 </a>
                                 <a href="{{ route('students.testimonial', [$rec->student_id, 'style' => 'standard']) }}"
-                                    class="btn btn-xs btn-info" target="_blank">
-                                    <i class="fas fa-certificate mr-1"></i> Testimonial
+                                    class="btn btn-xs btn-info students-checkout-action-btn students-checkout-action-btn--testimonial"
+                                    target="_blank">
+                                    <i class="fas fa-certificate students-checkout-action-icon"></i>
+                                    <span>Testimonial</span>
                                 </a>
                             </div>
                         </td>
