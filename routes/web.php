@@ -206,7 +206,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:view_shareholders')->get('/shareholders/hub', [ShareholdersHubController::class, 'index'])->name('shareholders.hub');
     Route::middleware('permission:view_budget')->get('/budget/hub', [BudgetHubController::class, 'index'])->name('budget.hub');
     Route::middleware('permission:view_users')->get('/users/hub', [UsersHubController::class, 'index'])->name('users.hub');
-    Route::middleware('permission:view_users')->get('/audit-trails', [AuditTrailController::class, 'index'])->name('audit-trails.index');
+    Route::middleware('permission:view_audit_trail')->get('/audit-trails', [AuditTrailController::class, 'index'])->name('audit-trails.index');
     Route::middleware('permission:view_inventory')->get('/inventory/hub', [InventoryController::class, 'hub'])->name('inventory.hub');
     Route::middleware('permission:view_inventory')->get('/inventory/sales/hub', [InventoryController::class, 'salesHub'])->name('inventory.sales.hub');
 
@@ -1035,9 +1035,23 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
         Route::post('/attendance/store', [StaffController::class, 'attendanceStore'])->name('attendance.staff.store');
     });
 
+    // ------------------- Communications -------------------
+    Route::middleware('auth')->group(function () {
+        Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+        Route::prefix('communications')->name('communications.')->group(function () {
+            Route::get('/', [ChatController::class, 'index'])->name('index');
+            Route::post('/conversations', [ChatController::class, 'storeConversation'])->name('conversations.store');
+            Route::get('/conversations/{conversation}', [ChatController::class, 'show'])->name('conversations.show');
+            Route::post('/conversations/{conversation}/messages', [ChatController::class, 'storeMessage'])->name('messages.store');
+            Route::patch('/conversations/{conversation}/messages/{message}', [ChatController::class, 'updateMessage'])->name('messages.update');
+            Route::delete('/conversations/{conversation}/messages/{message}', [ChatController::class, 'destroyMessage'])->name('messages.destroy');
+            Route::post('/conversations/{conversation}/messages/{message}/reactions', [ChatController::class, 'toggleMessageReaction'])->name('messages.reactions.toggle');
+            Route::post('/conversations/{conversation}/read', [ChatController::class, 'markConversationRead'])->name('conversations.read');
+        });
+    });
+
     // ------------------- Communication -------------------
     Route::middleware('permission:view_students')->group(function () {
-        Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
         Route::get('/notice', [NoticeController::class, 'index'])->name('notice.index');
         Route::get('/notice/create', [NoticeController::class, 'create'])->name('notice.create');
         Route::post('/notice', [NoticeController::class, 'store'])->name('notice.store');
@@ -1128,15 +1142,20 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
 
     // ------------------- Settings -------------------
     Route::middleware('permission:view_institute_settings')->get('/settings', [SettingController::class, 'index'])->name('settings.index');
-    Route::get('/settings/general', [SettingController::class, 'general'])->name('general.settings');
-    Route::post('/settings/general/update', [SettingController::class, 'updateGeneral'])->name('general.settings.update');
-    Route::get('/settings/email', [SettingController::class, 'email'])->name('email.settings');
-    Route::post('/settings/email/update', [SettingController::class, 'updateEmail'])->name('email.settings.update');
-    Route::get('/settings/payment', [SettingController::class, 'payment'])->name('payment.settings');
-    Route::post('/settings/payment/update', [SettingController::class, 'updatePayment'])->name('payment.settings.update');
-    Route::get('/settings/backup', [SettingController::class, 'backup'])->name('backup.index');
-    Route::post('/settings/backup/create', [SettingController::class, 'createBackup'])->name('backup.create');
-    Route::get('/settings/backup/download/{file}', [SettingController::class, 'downloadBackup'])->name('backup.download');
+    Route::middleware('permission:view_institute_settings')->group(function () {
+        Route::get('/settings/general', [SettingController::class, 'general'])->name('general.settings');
+        Route::get('/settings/email', [SettingController::class, 'email'])->name('email.settings');
+        Route::get('/settings/payment', [SettingController::class, 'payment'])->name('payment.settings');
+        Route::get('/settings/backup', [SettingController::class, 'backup'])->name('backup.index');
+    });
+
+    Route::middleware('permission:manage_school_settings')->group(function () {
+        Route::post('/settings/general/update', [SettingController::class, 'updateGeneral'])->name('general.settings.update');
+        Route::post('/settings/email/update', [SettingController::class, 'updateEmail'])->name('email.settings.update');
+        Route::post('/settings/payment/update', [SettingController::class, 'updatePayment'])->name('payment.settings.update');
+        Route::post('/settings/backup/create', [SettingController::class, 'createBackup'])->name('backup.create');
+        Route::get('/settings/backup/download/{file}', [SettingController::class, 'downloadBackup'])->name('backup.download');
+    });
 
     // ------------------- Location Settings -------------------
     Route::middleware('permission:manage_divisions')->prefix('division')->group(function () {

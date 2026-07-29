@@ -13,6 +13,8 @@ class PermissionSeeder extends Seeder
         $definitions = [
             ['name' => 'Dashboard',           'sort' => 1,  'permissions' => [
                 ['name' => 'view_dashboard', 'display_name' => 'View Dashboard'],
+                ['name' => 'view_card_dashboard', 'display_name' => 'View Dashboard Card'],
+                ['name' => 'view_divwise_dashboard', 'display_name' => 'View Division-wise Dashboard'],
                 ['name' => 'view_todays_attendence', 'display_name' => 'View Attendace Card'],
                 ['name' => 'view_fee_collection', 'display_name' => 'View Fee Collection Card'],
                 ['name' => 'view_income_expense', 'display_name' => 'View Income Expense Card'],
@@ -64,14 +66,9 @@ class PermissionSeeder extends Seeder
             ]],
             ['name' => 'Fee Collection',      'sort' => 5,  'permissions' => [
                 ['name' => 'view_fees',                   'display_name' => 'View Fee Collection'],
-                ['name' => 'manage_fee_categories',       'display_name' => 'Manage Fee Categories'],
-                ['name' => 'manage_fee_sets',             'display_name' => 'Manage Fee Sets'],
                 ['name' => 'manage_scholarships',         'display_name' => 'Manage Scholarships'],
                 ['name' => 'manage_free_studentships',    'display_name' => 'Manage Free Studentships'],
                 ['name' => 'manage_transports',           'display_name' => 'Manage Transports'],
-                ['name' => 'manage_student_fees',         'display_name' => 'Manage Student Fees'],
-                ['name' => 'collect_payments',            'display_name' => 'Collect Payments'],
-                ['name' => 'view_payment_report',         'display_name' => 'View Payment Report'],
                 ['name' => 'view_card_collect_payments',  'display_name' => 'View Collect Payments Card'],
                 ['name' => 'view_card_fee_categories',    'display_name' => 'View Fee Categories Card'],
                 ['name' => 'view_card_fee_sets',          'display_name' => 'View Fee Sets Card'],
@@ -105,7 +102,6 @@ class PermissionSeeder extends Seeder
                 ['name' => 'manage_exams',                'display_name' => 'Manage Exams'],
                 ['name' => 'manage_student_subjects',     'display_name' => 'Manage Student Subjects'],
                 ['name' => 'view_card_all_exams',         'display_name' => 'View All Exams Card'],
-                ['name' => 'view_card_create_exam',       'display_name' => 'View Create Exam Card'],
                 ['name' => 'view_card_subject_assignment','display_name' => 'View Subject Assignment Card'],
                 ['name' => 'view_card_terminal_report',   'display_name' => 'View Terminal Report Card'],
                 ['name' => 'view_card_yearly_final_report', 'display_name' => 'View Yearly Final Report Card'],
@@ -125,8 +121,6 @@ class PermissionSeeder extends Seeder
                 ['name' => 'manage_salary_structures',    'display_name' => 'Manage Salary Structures'],
                 ['name' => 'manage_payroll',              'display_name' => 'Manage Payroll'],
                 ['name' => 'manage_leave_requests',       'display_name' => 'Manage Leave Requests'],
-                ['name' => 'manage_payment_information',  'display_name' => 'Manage Payment Information'],
-                ['name' => 'view_card_hr_dashboard',      'display_name' => 'View HR Dashboard Card'],
                 ['name' => 'view_card_all_employees',     'display_name' => 'View All Employees Card'],
                 ['name' => 'view_card_add_employee',      'display_name' => 'View Add Employee Card'],
                 ['name' => 'view_card_departments',       'display_name' => 'View Departments Card'],
@@ -143,7 +137,6 @@ class PermissionSeeder extends Seeder
                 ['name' => 'view_accounts',               'display_name' => 'View Accounts'],
                 ['name' => 'manage_account_groups',       'display_name' => 'Manage Account Groups'],
                 ['name' => 'manage_accounts_list',        'display_name' => 'Manage Accounts List'],
-                ['name' => 'view_ledger',                 'display_name' => 'View Ledger'],
                 ['name' => 'manage_accounting_periods',   'display_name' => 'Manage Accounting Periods'],
                 ['name' => 'manage_journal_entries',      'display_name' => 'Manage Journal Entries'],
                 ['name' => 'view_reports',                'display_name' => 'View Reports'],
@@ -215,6 +208,7 @@ class PermissionSeeder extends Seeder
                 ['name' => 'create_users',                'display_name' => 'Create Users'],
                 ['name' => 'edit_users',                  'display_name' => 'Edit Users'],
                 ['name' => 'delete_users',                'display_name' => 'Delete Users'],
+                ['name' => 'view_audit_trail',            'display_name' => 'View Audit Trail'],
                 ['name' => 'view_roles',                  'display_name' => 'View Roles'],
                 ['name' => 'create_roles',                'display_name' => 'Create Roles'],
                 ['name' => 'edit_roles',                  'display_name' => 'Edit Roles'],
@@ -244,9 +238,6 @@ class PermissionSeeder extends Seeder
             ]],
             ['name' => 'Website Management',  'sort' => 18, 'permissions' => [
                 ['name' => 'view_website_management',     'display_name' => 'View Website Management'],
-                ['name' => 'manage_website_content',      'display_name' => 'Manage Website Content'],
-                ['name' => 'manage_academic_calendar',    'display_name' => 'Manage Academic Calendar'],
-                ['name' => 'view_contact_messages',       'display_name' => 'View Contact Messages'],
             ]],
         ];
 
