@@ -233,6 +233,7 @@
                                             <th>MCQ</th>
                                             <th>Practical</th>
                                             <th>Viva</th>
+                                            <th>Tutorial</th>
                                             <th>Total</th>
                                             <th>Pass</th>
                                         </tr>
@@ -245,6 +246,7 @@
                                                 <td>{{ number_format($config->mcq_marks, 2) }}</td>
                                                 <td>{{ number_format($config->practical_marks, 2) }}</td>
                                                 <td>{{ number_format($config->viva_marks, 2) }}</td>
+                                                <td>{{ number_format($config->tutorial_marks ?? 0, 2) }}</td>
                                                 <td><strong>{{ number_format($config->total_marks, 2) }}</strong></td>
                                                 <td>{{ number_format($config->pass_mark, 2) }}</td>
                                             </tr>

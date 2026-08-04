@@ -174,57 +174,75 @@
 
         // ============= SAME ADDRESS CHECKBOX FUNCTIONALITY =============
 
-        $("#same_address").change(function() {
-            const isChecked = $(this).is(':checked');
+        function syncPermanentAddressFromPresent(showToast = true) {
+            // Get present address values
+            const presentDivision = $("select[name='present_division_id']").val();
+            const presentDistrict = $("select[name='present_district_id']").val();
+            const presentPoliceStation = $("select[name='present_police_station_id']").val();
+            const presentPostOffice = $("select[name='present_post_office_id']").val();
+            const presentAddress = $("textarea[name='present_address']").val();
 
-            if (isChecked) {
-                // Get present address values
-                const presentDivision = $("select[name='present_division_id']").val();
-                const presentDistrict = $("select[name='present_district_id']").val();
-                const presentPoliceStation = $("select[name='present_police_station_id']").val();
-                const presentPostOffice = $("select[name='present_post_office_id']").val();
-                const presentAddress = $("textarea[name='present_address']").val();
+            // Set permanent division and trigger cascade
+            $("select[name='permanent_division_id']").val(presentDivision);
 
-                // Set permanent division and trigger cascade
-                $("select[name='permanent_division_id']").val(presentDivision);
+            // Load districts, then set district value
+            loadDistricts(presentDivision, $("select[name='permanent_district_id']"), function() {
+                $("select[name='permanent_district_id']").val(presentDistrict);
 
-                // Load districts, then set district value
-                loadDistricts(presentDivision, $("select[name='permanent_district_id']"), function() {
-                    $("select[name='permanent_district_id']").val(presentDistrict);
+                // Load police stations, then set police station value
+                loadPoliceStations(presentDistrict, $(
+                    "select[name='permanent_police_station_id']"), function() {
+                    $("select[name='permanent_police_station_id']").val(
+                        presentPoliceStation);
 
-                    // Load police stations, then set police station value
-                    loadPoliceStations(presentDistrict, $(
-                        "select[name='permanent_police_station_id']"), function() {
-                        $("select[name='permanent_police_station_id']").val(
-                            presentPoliceStation);
-
-                        // Load post offices, then set post office value
-                        loadPostOffices(presentPoliceStation, $(
-                                "select[name='permanent_post_office_id']"),
-                            function() {
-                                $("select[name='permanent_post_office_id']").val(
-                                    presentPostOffice);
-                            });
-                    });
+                    // Load post offices, then set post office value
+                    loadPostOffices(presentPoliceStation, $(
+                            "select[name='permanent_post_office_id']"),
+                        function() {
+                            $("select[name='permanent_post_office_id']").val(
+                                presentPostOffice);
+                        });
                 });
+            });
 
-                // Copy textarea
-                $("textarea[name='permanent_address']").val(presentAddress);
+            // Copy textarea
+            $("textarea[name='permanent_address']").val(presentAddress);
 
-                // Disable permanent address fields
-                $("#permanent_address_section select, #permanent_address_section textarea")
-                    .prop('disabled', true)
-                    .addClass('bg-gray-100 cursor-not-allowed');
+            // Disable permanent address fields
+            $("#permanent_address_section select, #permanent_address_section textarea")
+                .prop('disabled', true)
+                .addClass('bg-gray-100 cursor-not-allowed');
 
+            if (showToast) {
                 toastr.info('Permanent address copied from present address');
-            } else {
-                // Enable permanent address fields
-                $("#permanent_address_section select, #permanent_address_section textarea")
-                    .prop('disabled', false)
-                    .removeClass('bg-gray-100 cursor-not-allowed');
+            }
+        }
 
+        function enablePermanentAddressFields(showToast = true) {
+            // Enable permanent address fields
+            $("#permanent_address_section select, #permanent_address_section textarea")
+                .prop('disabled', false)
+                .removeClass('bg-gray-100 cursor-not-allowed');
+
+            if (showToast) {
                 toastr.warning('Permanent address fields enabled');
             }
+        }
+
+        function handleSameAddressChange(showToast = true) {
+            const isChecked = $("#same_address").is(':checked');
+
+            if (isChecked) {
+                syncPermanentAddressFromPresent(showToast);
+            } else {
+                enablePermanentAddressFields(showToast);
+            }
+        }
+
+        window.handleSameAddressChange = handleSameAddressChange;
+
+        $("#same_address").change(function() {
+            handleSameAddressChange(true);
         });
 
         // Real-time sync when "Same Address" is checked

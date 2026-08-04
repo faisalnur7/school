@@ -52,8 +52,6 @@
 
     @yield('scripts')
 
-    @include('layouts.partials._chat-widget')
-
     <style>
         @media (max-width: 991.98px) {
             #mainSidebar {

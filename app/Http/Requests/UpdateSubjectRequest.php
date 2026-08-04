@@ -46,6 +46,7 @@ class UpdateSubjectRequest extends FormRequest
             'class_configs.*.mcq_marks' => 'nullable|numeric|min:0',
             'class_configs.*.practical_marks' => 'nullable|numeric|min:0',
             'class_configs.*.viva_marks' => 'nullable|numeric|min:0',
+            'class_configs.*.tutorial_marks' => 'nullable|numeric|min:0',
             'class_configs.*.pass_mark' => 'nullable|numeric|min:0',
             // Papers
             'papers' => 'nullable|array',

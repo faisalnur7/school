@@ -12,7 +12,7 @@
         <div class="card card-outline card-primary mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
-                    <h4 class="mb-0 font-weight-bold text-white">
+                    <h4 class="mb-0 font-weight-bold text-dark">
                         <i class="fas fa-keyboard text-success mr-2"></i>Marks Entry
                     </h4>
                     <small class="text-muted">
@@ -127,7 +127,7 @@
                             $hasMcq = ($subjectConfig['mcq_marks'] ?? 0) > 0;
                             $hasPractical = ($subjectConfig['practical_marks'] ?? 0) > 0;
                             $hasViva = ($subjectConfig['viva_marks'] ?? 0) > 0;
-                            $fullMarks = $isTutorial ? ($subject->tutorial_marks ?? 0) : ($subjectConfig['total_marks'] ?? 100);
+                            $fullMarks = $isTutorial ? ($subjectConfig['tutorial_marks'] ?? $subject->tutorial_marks ?? 0) : ($subjectConfig['total_marks'] ?? 100);
                             $passMark = $isTutorial ? 0 : ($subjectConfig['pass_mark'] ?? 33);
                         @endphp
 

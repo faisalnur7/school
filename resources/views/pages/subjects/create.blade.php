@@ -394,6 +394,13 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
+                                    <label>Tutorial Marks</label>
+                                    <input type="number" name="class_configs[${index}][tutorial_marks]" class="form-control"
+                                        value="0" min="0" step="0.01" placeholder="Override or leave empty for default">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
                                     <label>Pass Mark</label>
                                     <input type="number" name="class_configs[${index}][pass_mark]" class="form-control"
                                         value="0" min="0" step="0.01" placeholder="Override or leave empty for default">

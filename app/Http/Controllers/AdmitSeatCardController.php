@@ -11,6 +11,7 @@ use App\Models\SchoolSetting;
 use App\Models\Section;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Mpdf\Mpdf;
 
 class AdmitSeatCardController extends Controller
@@ -50,6 +51,31 @@ class AdmitSeatCardController extends Controller
         $mpdf->Output($filename, 'D');
     }
 
+    public function examsByType(Request $request): JsonResponse
+    {
+        $examType = $request->query('exam_type');
+        $sessionId = $request->query('session_id');
+
+        if (!in_array($examType, [Exam::TYPE_TERMINAL, Exam::TYPE_TUTORIAL], true) || !$sessionId) {
+            return response()->json(['exams' => []]);
+        }
+
+        $exams = Exam::query()
+            ->where('academic_session_id', $sessionId)
+            ->where('type', $examType)
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn (Exam $exam) => [
+                'id' => $exam->id,
+                'name' => $exam->name,
+                'type' => $exam->type,
+                'type_label' => $exam->type_label,
+            ])
+            ->values();
+
+        return response()->json(['exams' => $exams]);
+    }
+
     private function buildData(Request $request): array
     {
         $sessions = AcademicSession::orderByDesc('id')->get();
@@ -74,25 +100,23 @@ class AdmitSeatCardController extends Controller
             : collect();
 
         $groups = Group::orderBy('name_en')->get();
-        $examsQuery = Exam::query()->orderByDesc('id');
-
-        if ($request->filled('exam_type')) {
-            $examsQuery->where('type', $request->exam_type);
-        }
-
         $selectedExam = $request->filled('exam_id')
             ? Exam::find($request->exam_id)
             : null;
+        $selectedSessionId = $request->input('session_id');
 
         if (!$examType && $selectedExam) {
             $examType = $selectedExam->type;
         }
 
-        if ($examType) {
-            $examsQuery->where('type', $examType);
+        $exams = collect();
+        if ($examType && $selectedSessionId) {
+            $exams = Exam::query()
+                ->where('type', $examType)
+                ->where('academic_session_id', $selectedSessionId)
+                ->orderByDesc('id')
+                ->get();
         }
-
-        $exams = $examsQuery->get();
 
         $students = collect();
 

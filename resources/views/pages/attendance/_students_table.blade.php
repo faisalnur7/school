@@ -4,16 +4,23 @@
 @endphp
 
 @if($students->isEmpty())
-<div class="card card-body text-center text-muted py-5">
-    <i class="fas fa-users fa-3x mb-3"></i>
-    <p>No students found for the selected filters.</p>
+<div class="attendance-empty-state attendance-empty-state--results">
+    <div class="attendance-empty-state__icon">
+        <i class="fas fa-users"></i>
+    </div>
+    <h5>No students found</h5>
+    <p>No students matched the selected session, class, and section.</p>
 </div>
 @else
-<div class="card card-outline card-info">
-    <div class="card-header">
-        <h6 class="mb-0 font-weight-bold text-white">
-            <i class="fas fa-list mr-2"></i>Students ({{ $students->count() }})
-        </h6>
+<div class="card attendance-results-card border-0 shadow-sm">
+    <div class="attendance-results-card__header">
+        <div>
+            <div class="attendance-results-card__eyebrow">Students Loaded</div>
+            <h6 class="mb-0 attendance-results-card__title">
+                <i class="fas fa-list mr-2"></i>Students
+            </h6>
+        </div>
+        <div class="attendance-results-card__count">{{ $students->count() }} students</div>
     </div>
     <div class="card-body p-0">
         <form method="POST" action="{{ $action }}">
@@ -28,13 +35,17 @@
             <input type="hidden" name="date" value="{{ $date }}">
 
             <div class="table-responsive">
-                <table class="table table-sm table-hover mb-0">
-                    <thead class="thead-light">
+                <table class="table table-sm table-hover mb-0 attendance-mark-table">
+                    <thead>
                         <tr>
+                            <th style="width: 120px;" class="text-center">
+                                <label class="attendance-select-all mb-0">
+                                    <input type="checkbox" id="attendanceSelectAll">
+                                    <span>Present</span>
+                                </label>
+                            </th>
                             <th style="width: 90px;">Roll</th>
-                            <th style="width: 120px;">Student ID</th>
                             <th>Name</th>
-                            <th style="width: 120px;" class="text-center">Present</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -46,17 +57,16 @@
                                 $checked = $status === null ? true : ($status === 'present');
                             @endphp
                             <tr>
+                                <td class="text-center">
+                                    <input type="hidden" name="student_ids[]" value="{{ $sid }}">
+                                    <input type="checkbox" name="present_ids[]" value="{{ $sid }}" {{ $checked ? 'checked' : '' }}>
+                                </td>
                                 <td>{{ $info->roll ?? '-' }}</td>
-                                <td>{{ $sid }}</td>
                                 <td>
                                     {{ $student->full_name_en }}
                                     @if($student->full_name_bn)
                                     <br><small class="text-muted">{{ $student->full_name_bn }}</small>
                                     @endif
-                                </td>
-                                <td class="text-center">
-                                    <input type="hidden" name="student_ids[]" value="{{ $sid }}">
-                                    <input type="checkbox" name="present_ids[]" value="{{ $sid }}" {{ $checked ? 'checked' : '' }}>
                                 </td>
                             </tr>
                         @endforeach
@@ -64,8 +74,8 @@
                 </table>
             </div>
 
-            <div class="p-3 border-top d-flex justify-content-end">
-                <button type="submit" class="btn btn-sm btn-success">
+            <div class="attendance-results-card__footer">
+                <button type="submit" class="btn btn-sm btn-success attendance-save-btn">
                     <i class="fas fa-save mr-1"></i>{{ $isUpdate ? 'Update' : 'Save' }}
                 </button>
             </div>
@@ -73,4 +83,3 @@
     </div>
 </div>
 @endif
-

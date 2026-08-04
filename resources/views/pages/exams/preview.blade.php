@@ -8,7 +8,7 @@
         <div class="card card-outline card-primary mb-3">
             <div class="card-header d-flex justify-content-between align-items-center mb-3">
                 <div>
-                    <h4 class="mb-0 font-weight-bold text-white"><i class="fas fa-chart-bar text-info mr-2"></i>Marks Preview
+                    <h4 class="mb-0 font-weight-bold text-dark"><i class="fas fa-chart-bar text-info mr-2"></i>Marks Preview
                     </h4>
                     <small class="text-muted">{{ $exam->name }}</small>
                 </div>
@@ -197,7 +197,7 @@
                             <div class="card-header">
                                 <strong>{{ $subject->name }}</strong>
                                 <span class="badge badge-light ml-2">Full:
-                                    {{ $isTutorial ? ($subject->tutorial_marks ?? 0) : $subject->getEffectiveMarksForClass($classId)['total_marks'] }}</span>
+                                    {{ $isTutorial ? ($subject->getEffectiveMarksForClass($classId)['tutorial_marks'] ?? $subject->tutorial_marks ?? 0) : $subject->getEffectiveMarksForClass($classId)['total_marks'] }}</span>
                             </div>
                             <div class="card-body p-0">
                                 <table class="table table-sm table-hover mb-0">

@@ -126,7 +126,7 @@ class StudentSubjectController extends Controller
         $classId  = $academicInfo->school_class_id;
         $groupId  = $academicInfo->group_id;
         $gender   = $student->gender == 1 ? 'male' : 'female';
-        $religion = $this->getReligionName($student->religion);
+        $religion = Student::religionTokenFromId($student->religion);
 
         // Get all assignments for this class
         $assignments = SubjectClassAssignment::where('school_class_id', $classId)
@@ -135,7 +135,9 @@ class StudentSubjectController extends Controller
                 $q->whereNull('group_id')->orWhere('group_id', $groupId);
             })
             ->with('subject')
-            ->get();
+            ->get()
+            ->filter(fn (SubjectClassAssignment $assignment) => $assignment->appliesToStudent($gender, $religion))
+            ->values();
 
         // Current student subjects
         $currentSubjectIds = StudentSubject::where('student_id', $student->id)
@@ -176,16 +178,27 @@ class StudentSubjectController extends Controller
         $sessionId = $request->session_id;
         $classId   = $request->class_id;
         $subjectIds = array_filter((array) $request->subject_ids);
+        $gender = $student->gender == 1 ? 'male' : 'female';
+        $religion = Student::religionTokenFromId($student->religion);
 
-        DB::transaction(function () use ($student, $sessionId, $classId, $subjectIds) {
+        DB::transaction(function () use ($student, $sessionId, $classId, $subjectIds, $gender, $religion) {
             // Remove existing optional assignments (keep compulsory ones)
             StudentSubject::where('student_id', $student->id)
                 ->where('academic_session_id', $sessionId)
                 ->where('is_mandatory', false)
                 ->delete();
 
+            $applicableSubjectIds = SubjectClassAssignment::where('school_class_id', $classId)
+                ->whereIn('subject_id', $subjectIds)
+                ->where('is_active', true)
+                ->with('subject')
+                ->get()
+                ->filter(fn (SubjectClassAssignment $assignment) => $assignment->appliesToStudent($gender, $religion))
+                ->pluck('subject_id')
+                ->all();
+
             // Add new optional assignments
-            foreach ($subjectIds as $subjectId) {
+            foreach ($applicableSubjectIds as $subjectId) {
                 // Check if already exists (compulsory)
                 $exists = StudentSubject::where('student_id', $student->id)
                     ->where('subject_id', $subjectId)
@@ -236,7 +249,13 @@ class StudentSubjectController extends Controller
         $count = 0;
         DB::transaction(function () use ($students, $compulsoryAssignments, $classId, $sessionId, &$count) {
             foreach ($students as $student) {
-                foreach ($compulsoryAssignments as $assignment) {
+                $gender = $student->gender == 1 ? 'male' : 'female';
+                $religion = Student::religionTokenFromId($student->religion);
+                $applicableAssignments = $compulsoryAssignments->filter(
+                    fn (SubjectClassAssignment $assignment) => $assignment->appliesToStudent($gender, $religion)
+                );
+
+                foreach ($applicableAssignments as $assignment) {
                     StudentSubject::updateOrCreate(
                         ['student_id' => $student->id, 'subject_id' => $assignment->subject_id, 'academic_session_id' => $sessionId],
                         ['school_class_id' => $classId, 'is_optional' => false, 'is_mandatory' => true]
@@ -251,12 +270,6 @@ class StudentSubjectController extends Controller
 
     private function getReligionName(?int $religion): string
     {
-        return match($religion) {
-            1 => 'islam',
-            2 => 'hinduism',
-            3 => 'christianity',
-            4 => 'buddhism',
-            default => 'other',
-        };
+        return Student::religionTokenFromId($religion);
     }
 }
