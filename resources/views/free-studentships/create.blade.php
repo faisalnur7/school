@@ -18,11 +18,39 @@
 
             <!-- Student List -->
             <div id="studentListContainer" style="display: none;">
-                <div class="flex justify-between">
-                <h5 class="mb-3 text-lg font-bold">Students List</h5>
-                <div class="text-right mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0 text-lg font-bold">Students List</h5>
                     <button type="button" class="btn btn-success saveFreeStudentships">Save Free Studentships</button>
                 </div>
+                <div class="card mb-3 border">
+                    <div class="card-body py-3">
+                        <div class="row align-items-end">
+                            <div class="col-md-3 mb-2 mb-md-0">
+                                <label class="mb-1 font-weight-bold">Bulk Type</label>
+                                <select class="form-control" id="bulkStudentshipType">
+                                    <option value="">Select type</option>
+                                    <option value="fixed">Fixed Amount</option>
+                                    <option value="percentage">Percentage</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-2 mb-md-0">
+                                <label class="mb-1 font-weight-bold">Bulk Value</label>
+                                <input type="number" class="form-control" id="bulkStudentshipValue" placeholder="Enter value" step="0.01" min="0">
+                            </div>
+                            <div class="col-md-3 mb-2 mb-md-0">
+                                <label class="mb-1 font-weight-bold">Bulk Permitted By</label>
+                                <input type="text" class="form-control" id="bulkPermittedBy" placeholder="Optional">
+                            </div>
+                            <div class="col-md-3 text-md-right">
+                                <button type="button" class="btn btn-primary" id="applyBulkStudentship">
+                                    Apply to All Rows
+                                </button>
+                            </div>
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                            This will copy the selected type, value, and permitted-by text into every loaded student row.
+                        </small>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-bordered">
@@ -156,22 +184,71 @@ $(document).ready(function() {
         $('#studentTableBody').html(html);
     }
 
+    function applyBulkStudentshipValues() {
+        const bulkType = $('#bulkStudentshipType').val();
+        const bulkValue = $('#bulkStudentshipValue').val();
+        const bulkPermittedBy = $('#bulkPermittedBy').val();
+
+        if (!bulkType || bulkValue === '') {
+            return false;
+        }
+
+        $('#studentTableBody tr').each(function() {
+            const $row = $(this);
+            $row.find('.free-studentship-type').val(bulkType);
+            $row.find('.free-studentship-value').val(bulkValue);
+            $row.find('.free-studentship-permitted-by').val(bulkPermittedBy);
+        });
+
+        return true;
+    }
+
+    $('#bulkStudentshipType, #bulkStudentshipValue, #bulkPermittedBy').on('change input', function() {
+        if ($('#studentListContainer').is(':visible')) {
+            applyBulkStudentshipValues();
+        }
+    });
+
+    $('#applyBulkStudentship').click(function() {
+        if (!$('#bulkStudentshipType').val()) {
+            notify('Please select a bulk type first', 'warning');
+            return;
+        }
+
+        if ($('#bulkStudentshipValue').val() === '') {
+            notify('Please enter a bulk value', 'warning');
+            return;
+        }
+
+        applyBulkStudentshipValues();
+
+        notify('Bulk values applied to all rows', 'success');
+    });
+
     $('.saveFreeStudentships').click(function() {
         const sessionId = $('#academic_session_id').val();
         const feeCategoryId = $('#fee_category_id').val();
+        const bulkType = $('#bulkStudentshipType').val();
+        const bulkValue = $('#bulkStudentshipValue').val();
+        const bulkPermittedBy = $('#bulkPermittedBy').val();
 
         if (!sessionId || !feeCategoryId) {
             notify('Please fill required fields', 'warning');
             return;
         }
 
+        applyBulkStudentshipValues();
+
         const freeStudentships = [];
         $('#studentTableBody tr').each(function() {
             const studentId = $(this).data('student-id');
             const academicInfoId = $(this).data('academic-info-id');
-            const type = $(this).find('.free-studentship-type').val();
-            const value = $(this).find('.free-studentship-value').val();
-            const permittedBy = $(this).find('.free-studentship-permitted-by').val();
+            const rowType = $(this).find('.free-studentship-type').val();
+            const rowValue = $(this).find('.free-studentship-value').val();
+            const rowPermittedBy = $(this).find('.free-studentship-permitted-by').val();
+            const type = bulkType || rowType;
+            const value = bulkValue || rowValue;
+            const permittedBy = bulkPermittedBy || rowPermittedBy;
 
             if (type && value) {
                 freeStudentships.push({
@@ -197,6 +274,9 @@ $(document).ready(function() {
                 _token: '{{ csrf_token() }}',
                 academic_session_id: sessionId,
                 fee_category_id: feeCategoryId,
+                bulk_type: bulkType || null,
+                bulk_value: bulkValue || null,
+                bulk_permitted_by: bulkPermittedBy || null,
                 students: freeStudentships
             },
             success: function(response) {

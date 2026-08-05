@@ -24,10 +24,34 @@
 
                 <!-- Student List -->
                 <div id="studentListContainer" style="display: none;">
-                    <div class="flex my-3 justify-between items-center">
-                        <h5 class="font-bold text-lg text-white">Assign Transport Fee</h5>
-                        <div class="text-right">
-                            <button type="button" class="btn btn-success saveTransports">Save Transport Fees</button>
+                    <div class="d-flex justify-content-between align-items-center my-3">
+                        <h5 class="font-bold text-lg text-white mb-0">Assign Transport Fee</h5>
+                        <button type="button" class="btn btn-success saveTransports">Save Transport Fees</button>
+                    </div>
+                    <div class="card mb-3 border">
+                        <div class="card-body py-3">
+                            <div class="row align-items-end">
+                                <div class="col-md-4 mb-2 mb-md-0">
+                                    <label class="mb-1 font-weight-bold">Bulk Amount (৳)</label>
+                                    <input type="number" class="form-control" id="bulkTransportAmount" placeholder="Enter amount" step="0.01" min="0">
+                                </div>
+                                <div class="col-md-4 mb-2 mb-md-0">
+                                    <label class="mb-1 font-weight-bold">Bulk Status</label>
+                                    <select class="form-control" id="bulkTransportStatus">
+                                        <option value="">Select status</option>
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 text-md-right">
+                                    <button type="button" class="btn btn-primary" id="applyBulkTransport">
+                                        Apply to All Rows
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mt-2">
+                                This will copy the selected amount and status into every loaded student row.
+                            </small>
                         </div>
                     </div>
                     <div class="table-responsive">
@@ -121,6 +145,48 @@
                 $('#studentTableBody').html(html);
             }
 
+            function applyBulkTransportValues() {
+                const bulkAmount = $('#bulkTransportAmount').val();
+                const bulkStatus = $('#bulkTransportStatus').val();
+
+                if (bulkAmount === '' && !bulkStatus) {
+                    return false;
+                }
+
+                $('#studentTableBody tr').each(function() {
+                    const $row = $(this);
+
+                    if (bulkAmount !== '') {
+                        $row.find('.transport-amount').val(bulkAmount);
+                    }
+
+                    if (bulkStatus) {
+                        $row.find('.transport-status').val(bulkStatus);
+                    }
+                });
+
+                return true;
+            }
+
+            $('#bulkTransportAmount, #bulkTransportStatus').on('change input', function() {
+                if ($('#studentListContainer').is(':visible')) {
+                    applyBulkTransportValues();
+                }
+            });
+
+            $('#applyBulkTransport').click(function() {
+                const bulkAmount = $('#bulkTransportAmount').val();
+                const bulkStatus = $('#bulkTransportStatus').val();
+
+                if (bulkAmount === '' && !bulkStatus) {
+                    alert('Please select a bulk amount or status first');
+                    return;
+                }
+
+                applyBulkTransportValues();
+                alert('Bulk values applied to all rows');
+            });
+
             $('.saveTransports').click(function() {
                 const sessionId = $('#academic_session_id').val();
                 if (!sessionId) {
@@ -128,11 +194,15 @@
                     return;
                 }
 
+                applyBulkTransportValues();
+
+                const bulkAmount = $('#bulkTransportAmount').val();
+                const bulkStatus = $('#bulkTransportStatus').val();
                 const transports = [];
                 $('#studentTableBody tr').each(function() {
                     const studentId = $(this).data('student-id');
-                    const amount = $(this).find('.transport-amount').val();
-                    const status = $(this).find('.transport-status').val();
+                    const amount = $(this).find('.transport-amount').val() || bulkAmount;
+                    const status = $(this).find('.transport-status').val() || bulkStatus || 'active';
 
                     if (amount && parseFloat(amount) > 0) {
                         transports.push({
@@ -154,6 +224,8 @@
                     data: {
                         _token: '{{ csrf_token() }}',
                         academic_session_id: sessionId,
+                        bulk_amount: bulkAmount || null,
+                        bulk_status: bulkStatus || null,
                         transports: transports
                     },
                     success: function(response) {

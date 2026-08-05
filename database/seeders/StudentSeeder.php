@@ -28,7 +28,7 @@ class StudentSeeder extends Seeder
         $studentRows = [];
         $academicRows = [];
 
-        // Build a map of school_class_id => section_id
+        // Build a map of school_class_id => section_id for fallback seeding.
         $sectionMap = DB::table('sections')->pluck('id', 'school_class_id')->toArray();
 
         foreach ($payload['students'] as $student) {
@@ -94,14 +94,21 @@ class StudentSeeder extends Seeder
             ];
 
             $classId = $academicInfo['school_class_id'] ?? null;
+            $sectionId = $academicInfo['section_id'] ?? ($classId ? ($sectionMap[$classId] ?? null) : null);
 
             $academicRows[] = [
                 'student_id' => $studentId,
                 'academic_session_id' => $academicInfo['academic_session_id'] ?? null,
                 'school_class_id' => $classId,
-                'section_id' => $classId ? ($sectionMap[$classId] ?? null) : null,
+                'section_id' => $sectionId,
                 'group_id' => $academicInfo['group_id'] ?? null,
                 'roll' => $academicInfo['roll'] ?? null,
+                'academic_status' => $academicInfo['academic_status'] ?? 'active',
+                'promotion_status' => $academicInfo['promotion_status'] ?? 'new_admission',
+                'is_current' => $academicInfo['is_current'] ?? true,
+                'previous_academic_information_id' => $academicInfo['previous_academic_information_id'] ?? null,
+                'checkout_date' => $academicInfo['checkout_date'] ?? null,
+                'notes' => $academicInfo['notes'] ?? null,
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
