@@ -24,7 +24,8 @@
                                 <th>Email</th>
                                 <th>Role</th>
                                 <th>Super Admin</th>
-                                <th width="150">Action</th>
+                                <th>Active</th>
+                                <th width="90">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -50,15 +51,25 @@
                                             <span class="badge badge-light">No</span>
                                         @endif
                                     </td>
+                                    <td>
+                                        <form action="{{ route('users.toggle-status', $user->id) }}" method="POST" class="mb-0">
+                                            @csrf
+                                            <div class="custom-control custom-switch">
+                                                <input
+                                                    type="checkbox"
+                                                    class="custom-control-input"
+                                                    id="userStatusSwitch{{ $user->id }}"
+                                                    onchange="this.form.submit()"
+                                                    {{ $user->is_active ? 'checked' : '' }}
+                                                >
+                                                <label class="custom-control-label" for="userStatusSwitch{{ $user->id }}"></label>
+                                            </div>
+                                        </form>
+                                    </td>
                                     <td style="display: flex; justify-content: center; align-items: center; gap: 5px;">
                                         <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-dark">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('users.delete', $user->id) }}" method="POST" class="btn btn-sm btn-danger d-inline m-0" onsubmit="return confirm('Delete this user?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <i class="fas fa-trash"></i>
-                                        </form>
                                     </td>
                                 </tr>
                             @endforeach

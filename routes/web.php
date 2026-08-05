@@ -1163,6 +1163,7 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
     Route::middleware('permission:edit_users')->group(function () {
         Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::post('/users/{id}/update', [UserController::class, 'update'])->name('users.update');
+        Route::post('/users/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
     });
 
     Route::middleware('permission:delete_users')->delete('/users/{id}/delete', [UserController::class, 'destroy'])->name('users.delete');

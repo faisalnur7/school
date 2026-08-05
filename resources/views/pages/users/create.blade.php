@@ -59,6 +59,19 @@
                         @error('role_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6 mb-3">
+                        <label class="form-label d-block">Account Status</label>
+                        <div class="custom-control custom-switch mt-2">
+                            <input type="hidden" name="is_active" value="0">
+                            <input type="checkbox"
+                                   class="custom-control-input"
+                                   id="is_active"
+                                   name="is_active"
+                                   value="1"
+                                   {{ old('is_active', true) ? 'checked' : '' }}>
+                            <label class="custom-control-label" for="is_active"></label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">User Image</label>
                         <div class="mb-2">
                             <img id="create_image_preview" src="https://ui-avatars.com/api/?name=User&background=2563eb&color=fff&size=80" alt="Preview" class="img-circle elevation-1" style="width:70px; height:70px; object-fit:cover;">
