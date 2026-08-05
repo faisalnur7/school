@@ -2,9 +2,11 @@
     <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3"
        >
         <h3 class="card-title mb-0 text-white text-lg">Sections</h3>
-        <a href="{{ route('sections.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
-            + Add Section
-        </a>
+        @if(auth()->user()?->hasPermission('create_sections'))
+            <a href="{{ route('sections.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
+                + Add Section
+            </a>
+        @endif
     </div>
 
     <div class="card-body px-0 pb-4 pt-0">
@@ -29,30 +31,38 @@
                             <td>{{ $section->name_en }}</td>
                             <td>{{ $section->name_bn }}</td>
                             <td>
-                                <form action="{{ route('sections.toggle-status', $section->id) }}" method="POST">
-                                    @csrf
-                                    <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input"
-                                            id="statusSwitch{{ $section->id }}" onchange="this.form.submit()"
-                                            {{ $section->status ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="statusSwitch{{ $section->id }}">
-                                        </label>
-                                    </div>
-                                </form>
+                                @if(auth()->user()?->hasPermission('edit_sections'))
+                                    <form action="{{ route('sections.toggle-status', $section->id) }}" method="POST">
+                                        @csrf
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input"
+                                                id="statusSwitch{{ $section->id }}" onchange="this.form.submit()"
+                                                {{ $section->status ? 'checked' : '' }}>
+                                            <label class="custom-control-label" for="statusSwitch{{ $section->id }}">
+                                            </label>
+                                        </div>
+                                    </form>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
 
                             </td>
                             <td style="display: flex; justify-content: center; align-items: self-start; gap: 5px;">
-                                <a href="{{ route('sections.edit', $section->id) }}" class="btn btn-sm btn-dark">
-                                    <i class="fas fa-edit"></i>
-                                </a>
+                                @if(auth()->user()?->hasPermission('edit_sections'))
+                                    <a href="{{ route('sections.edit', $section->id) }}" class="btn btn-sm btn-dark">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                @endif
 
-                                {{-- <form action="{{ route('sections.delete', $section->id) }}" method="POST"
-                                    class="btn btn-sm btn-danger d-inline m-0"
-                                    onsubmit="return confirm('Delete this section?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <i class="fas fa-trash"></i>
-                                </form> --}}
+                                @if(auth()->user()?->hasPermission('delete_sections'))
+                                    <form action="{{ route('sections.delete', $section->id) }}" method="POST"
+                                        class="btn btn-sm btn-danger d-inline m-0"
+                                        onsubmit="return confirm('Delete this section?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <i class="fas fa-trash"></i>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach

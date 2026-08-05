@@ -17,9 +17,11 @@
                         <a href="{{ route('subjects.index') }}" class="btn btn-light btn-sm">
                             <i class="fas fa-list mr-1"></i>Back to List
                         </a>
-                        <a href="{{ route('subjects.edit', $subject->id) }}" class="btn btn-warning btn-sm">
-                            <i class="fas fa-edit mr-1"></i>Edit
-                        </a>
+                        @if(auth()->user()?->hasPermission('edit_subjects'))
+                            <a href="{{ route('subjects.edit', $subject->id) }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>

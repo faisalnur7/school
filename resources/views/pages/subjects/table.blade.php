@@ -60,27 +60,33 @@
                     </td>
                     <td>
                         <div class="flex gap-1 items-center">
-                            <a href="{{ route('subjects.show', $subject->id) }}"
-                                class="btn btn-info btn-sm p-1 flex items-center justify-center" title="View">
-                                <i class="fas fa-eye"></i>
-                            </a>
+                            @if(auth()->user()?->hasPermission('view_subjects'))
+                                <a href="{{ route('subjects.show', $subject->id) }}"
+                                    class="btn btn-info btn-sm p-1 flex items-center justify-center" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            @endif
 
-                            <a href="{{ route('subjects.edit', $subject->id) }}"
-                                class="btn btn-primary btn-sm p-1 flex items-center justify-center" title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </a>
+                            @if(auth()->user()?->hasPermission('edit_subjects'))
+                                <a href="{{ route('subjects.edit', $subject->id) }}"
+                                    class="btn btn-primary btn-sm p-1 flex items-center justify-center" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            @endif
 
-                            <form action="{{ route('subjects.delete', $subject->id) }}" method="POST"
-                                class="inline-block m-0">
-                                @csrf
-                                @method('DELETE')
+                            @if(auth()->user()?->hasPermission('delete_subjects'))
+                                <form action="{{ route('subjects.delete', $subject->id) }}" method="POST"
+                                    class="inline-block m-0">
+                                    @csrf
+                                    @method('DELETE')
 
-                                <button type="submit"
-                                    class="btn btn-danger btn-sm p-1 flex items-center justify-center" title="Delete"
-                                    onclick="return confirm('Are you sure?')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
+                                    <button type="submit"
+                                        class="btn btn-danger btn-sm p-1 flex items-center justify-center" title="Delete"
+                                        onclick="return confirm('Are you sure?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </td>
                 </tr>

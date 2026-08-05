@@ -209,78 +209,140 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:view_inventory')->get('/inventory/sales/hub', [InventoryController::class, 'salesHub'])->name('inventory.sales.hub');
 
     // ------------------- Academics -------------------
-    Route::middleware('permission:manage_classes')->prefix('classes')->group(function () {
+    Route::middleware('permission:view_classes')->prefix('classes')->group(function () {
         Route::get('/', [SchoolClassController::class, 'index'])->name('classes.index');
+    });
+
+    Route::middleware('permission:create_classes')->prefix('classes')->group(function () {
         Route::get('/create', [SchoolClassController::class, 'create'])->name('classes.create');
         Route::post('/store', [SchoolClassController::class, 'store'])->name('classes.store');
+    });
+
+    Route::middleware('permission:edit_classes')->prefix('classes')->group(function () {
         Route::get('/{id}/edit', [SchoolClassController::class, 'edit'])->name('classes.edit');
         Route::post('/{id}/update', [SchoolClassController::class, 'update'])->name('classes.update');
-        Route::delete('/{id}/delete', [SchoolClassController::class, 'destroy'])->name('classes.delete');
         Route::post('/{id}/toggle_status', [SchoolClassController::class, 'toggleStatus'])->name('classes.toggle-status');
     });
 
-    Route::middleware('permission:manage_sections')->prefix('sections')->group(function () {
+    Route::middleware('permission:delete_classes')->prefix('classes')->group(function () {
+        Route::delete('/{id}/delete', [SchoolClassController::class, 'destroy'])->name('classes.delete');
+    });
+
+    Route::middleware('permission:view_sections')->prefix('sections')->group(function () {
         Route::get('/', [SectionController::class, 'index'])->name('sections.index');
+    });
+
+    Route::middleware('permission:create_sections')->prefix('sections')->group(function () {
         Route::get('/create', [SectionController::class, 'create'])->name('sections.create');
         Route::post('/store', [SectionController::class, 'store'])->name('sections.store');
+    });
+
+    Route::middleware('permission:edit_sections')->prefix('sections')->group(function () {
         Route::get('/{id}/edit', [SectionController::class, 'edit'])->name('sections.edit');
         Route::post('/{id}/update', [SectionController::class, 'update'])->name('sections.update');
-        Route::delete('/{id}/delete', [SectionController::class, 'destroy'])->name('sections.delete');
         Route::post('/{id}/toggle_status', [SectionController::class, 'toggleStatus'])->name('sections.toggle-status');
     });
 
-    Route::middleware('permission:manage_groups')->prefix('groups')->group(function () {
+    Route::middleware('permission:delete_sections')->prefix('sections')->group(function () {
+        Route::delete('/{id}/delete', [SectionController::class, 'destroy'])->name('sections.delete');
+    });
+
+    Route::middleware('permission:view_groups')->prefix('groups')->group(function () {
         Route::get('/', [GroupController::class, 'index'])->name('groups.index');
+    });
+
+    Route::middleware('permission:create_groups')->prefix('groups')->group(function () {
         Route::get('/create', [GroupController::class, 'create'])->name('groups.create');
         Route::post('/store', [GroupController::class, 'store'])->name('groups.store');
+    });
+
+    Route::middleware('permission:edit_groups')->prefix('groups')->group(function () {
         Route::get('/{id}/edit', [GroupController::class, 'edit'])->name('groups.edit');
         Route::post('/{id}/update', [GroupController::class, 'update'])->name('groups.update');
-        Route::delete('/{id}/delete', [GroupController::class, 'destroy'])->name('groups.delete');
         Route::post('/{id}/toggle_status', [GroupController::class, 'toggleStatus'])->name('groups.toggle-status');
     });
 
-    Route::middleware('permission:manage_sessions')->prefix('sessions')->group(function () {
+    Route::middleware('permission:delete_groups')->prefix('groups')->group(function () {
+        Route::delete('/{id}/delete', [GroupController::class, 'destroy'])->name('groups.delete');
+    });
+
+    Route::middleware('permission:view_sessions')->prefix('sessions')->group(function () {
         Route::get('/', [AcademicSessionController::class, 'index'])->name('sessions.index');
+    });
+
+    Route::middleware('permission:create_sessions')->prefix('sessions')->group(function () {
         Route::get('/create', [AcademicSessionController::class, 'create'])->name('sessions.create');
         Route::post('/store', [AcademicSessionController::class, 'store'])->name('sessions.store');
+    });
+
+    Route::middleware('permission:edit_sessions')->prefix('sessions')->group(function () {
         Route::get('/{id}/edit', [AcademicSessionController::class, 'edit'])->name('sessions.edit');
         Route::post('/{id}/update', [AcademicSessionController::class, 'update'])->name('sessions.update');
-        Route::delete('/{id}/delete', [AcademicSessionController::class, 'destroy'])->name('sessions.delete');
         Route::post('/{id}/toggle_status', [AcademicSessionController::class, 'toggleStatus'])->name('sessions.toggle-status');
     });
 
-    Route::middleware('permission:manage_subjects')->prefix('subjects')->group(function () {
-        Route::get('/', [SubjectController::class, 'index'])->name('subjects.index');
-        Route::get('/classwise', [SubjectController::class, 'indexClasswise'])->name('subjects.classwise');
-        Route::get('/create', [SubjectController::class, 'create'])->name('subjects.create');
-        Route::post('/store', [SubjectController::class, 'store'])->name('subjects.store');
-        Route::get('/by-class', [SubjectController::class, 'getSubjectsByClass'])->name('subjects.by-class');
-
-        Route::get('/{subject}', [SubjectController::class, 'show'])->name('subjects.show');
-        Route::get('/{subject}/edit', [SubjectController::class, 'edit'])->name('subjects.edit');
-        Route::put('/{subject}', [SubjectController::class, 'update'])->name('subjects.update');
-        Route::delete('/{subject}', [SubjectController::class, 'destroy'])->name('subjects.delete');
-        Route::post('/{subject}/toggle-status', [SubjectController::class, 'toggleStatus'])->name('subjects.toggle-status');
-        Route::delete('/assignment/{id}', [SubjectController::class, 'removeAssignment'])->name('subjects.removeAssignment');
-        Route::post('/assign-to-class', [SubjectController::class, 'assignToClass'])->name('subjects.assign');
+    Route::middleware('permission:delete_sessions')->prefix('sessions')->group(function () {
+        Route::delete('/{id}/delete', [AcademicSessionController::class, 'destroy'])->name('sessions.delete');
     });
 
-    Route::middleware('permission:manage_routines')->prefix('routines')->group(function () {
+    Route::middleware('permission:view_subjects')->prefix('subjects')->group(function () {
+        Route::get('/', [SubjectController::class, 'index'])->name('subjects.index');
+        Route::get('/classwise', [SubjectController::class, 'indexClasswise'])->name('subjects.classwise');
+        Route::get('/{subject}', [SubjectController::class, 'show'])->name('subjects.show');
+        Route::get('/by-class', [SubjectController::class, 'getSubjectsByClass'])->name('subjects.by-class');
+    });
+
+    Route::middleware('permission:create_subjects')->prefix('subjects')->group(function () {
+        Route::get('/create', [SubjectController::class, 'create'])->name('subjects.create');
+        Route::post('/store', [SubjectController::class, 'store'])->name('subjects.store');
+    });
+
+    Route::middleware('permission:edit_subjects')->prefix('subjects')->group(function () {
+        Route::get('/{subject}/edit', [SubjectController::class, 'edit'])->name('subjects.edit');
+        Route::put('/{subject}', [SubjectController::class, 'update'])->name('subjects.update');
+        Route::post('/{subject}/toggle-status', [SubjectController::class, 'toggleStatus'])->name('subjects.toggle-status');
+        Route::post('/assign-to-class', [SubjectController::class, 'assignToClass'])->name('subjects.assign');
+        Route::delete('/assignment/{id}', [SubjectController::class, 'removeAssignment'])->name('subjects.removeAssignment');
+    });
+
+    Route::middleware('permission:delete_subjects')->prefix('subjects')->group(function () {
+        Route::delete('/{subject}', [SubjectController::class, 'destroy'])->name('subjects.delete');
+    });
+
+    Route::middleware('permission:view_routines')->prefix('routines')->group(function () {
         Route::get('/', [RoutineController::class, 'index'])->name('routines.index');
+        Route::get('/{id}', [RoutineController::class, 'show'])->name('routines.show');
+    });
+
+    Route::middleware('permission:create_routines')->prefix('routines')->group(function () {
         Route::get('/create', [RoutineController::class, 'create'])->name('routines.create');
         Route::post('/store', [RoutineController::class, 'store'])->name('routines.store');
-        Route::get('/{id}', [RoutineController::class, 'show'])->name('routines.show');
+    });
+
+    Route::middleware('permission:edit_routines')->prefix('routines')->group(function () {
         Route::get('/{id}/edit', [RoutineController::class, 'edit'])->name('routines.edit');
         Route::post('/{id}/update', [RoutineController::class, 'update'])->name('routines.update');
+    });
+
+    Route::middleware('permission:delete_routines')->prefix('routines')->group(function () {
         Route::delete('/{id}/delete', [RoutineController::class, 'destroy'])->name('routines.delete');
     });
 
-    Route::middleware('permission:manage_classrooms')->prefix('classrooms')->group(function () {
+    Route::middleware('permission:view_classrooms')->prefix('classrooms')->group(function () {
         Route::get('/', [ClassroomController::class, 'index'])->name('classrooms.index');
+    });
+
+    Route::middleware('permission:create_classrooms')->prefix('classrooms')->group(function () {
         Route::get('/create', [ClassroomController::class, 'create'])->name('classrooms.create');
         Route::post('/store', [ClassroomController::class, 'store'])->name('classrooms.store');
+    });
+
+    Route::middleware('permission:edit_classrooms')->prefix('classrooms')->group(function () {
         Route::get('/{id}/edit', [ClassroomController::class, 'edit'])->name('classrooms.edit');
         Route::post('/{id}/update', [ClassroomController::class, 'update'])->name('classrooms.update');
+    });
+
+    Route::middleware('permission:delete_classrooms')->prefix('classrooms')->group(function () {
         Route::delete('/{id}/delete', [ClassroomController::class, 'destroy'])->name('classrooms.delete');
     });
 
@@ -1004,7 +1066,7 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
     });
 
     // ------------------- Timetable Generator -------------------
-    Route::middleware('permission:manage_classrooms')->prefix('timetable')->group(function () {
+    Route::middleware('permission:view_routines')->prefix('timetable')->group(function () {
         Route::get('/', [TimetableController::class, 'index'])->name('timetable.index');
         Route::get('/create', [TimetableController::class, 'create'])->name('timetable.create');
         Route::post('/store', [TimetableController::class, 'store'])->name('timetable.store');

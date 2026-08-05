@@ -11,9 +11,11 @@
                             <a href="{{ route('subjects.index') }}" class="btn btn-info btn-sm mr-2">
                                 <i class="fas fa-list"></i> Default View
                             </a>
-                            <a href="{{ route('subjects.create') }}" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus"></i> Add Subject
-                            </a>
+                            @if(auth()->user()?->hasPermission('create_subjects'))
+                                <a href="{{ route('subjects.create') }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Add Subject
+                                </a>
+                            @endif
                         </div>
                     </div>
                     <div class="card-body">
@@ -60,16 +62,20 @@
                                                                 <td>{{ $subject->papers_count }}</td>
                                                                 <td>
                                                                     <div class="d-inline-flex align-items-center gap-1">
-                                                                        <a href="{{ route('subjects.show', $subject->id) }}"
-                                                                            class="btn btn-info btn-xs p-1 d-inline-flex align-items-center justify-content-center"
-                                                                            title="View" aria-label="View subject">
-                                                                            <i class="fas fa-eye"></i>
-                                                                        </a>
-                                                                        <a href="{{ route('subjects.edit', $subject->id) }}"
-                                                                            class="btn btn-warning btn-xs p-1 d-inline-flex align-items-center justify-content-center"
-                                                                            title="Edit" aria-label="Edit subject">
-                                                                            <i class="fas fa-pen"></i>
-                                                                        </a>
+                                                                        @if(auth()->user()?->hasPermission('view_subjects'))
+                                                                            <a href="{{ route('subjects.show', $subject->id) }}"
+                                                                                class="btn btn-info btn-xs p-1 d-inline-flex align-items-center justify-content-center"
+                                                                                title="View" aria-label="View subject">
+                                                                                <i class="fas fa-eye"></i>
+                                                                            </a>
+                                                                        @endif
+                                                                        @if(auth()->user()?->hasPermission('edit_subjects'))
+                                                                            <a href="{{ route('subjects.edit', $subject->id) }}"
+                                                                                class="btn btn-warning btn-xs p-1 d-inline-flex align-items-center justify-content-center"
+                                                                                title="Edit" aria-label="Edit subject">
+                                                                                <i class="fas fa-pen"></i>
+                                                                            </a>
+                                                                        @endif
                                                                     </div>
                                                                 </td>
                                                             </tr>
