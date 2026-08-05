@@ -15,6 +15,7 @@ class SubjectClassConfig extends Model
         'mcq_marks',
         'practical_marks',
         'viva_marks',
+        'tutorial_marks',
         'pass_mark',
     ];
 
@@ -23,6 +24,7 @@ class SubjectClassConfig extends Model
         'mcq_marks' => 'decimal:2',
         'practical_marks' => 'decimal:2',
         'viva_marks' => 'decimal:2',
+        'tutorial_marks' => 'decimal:2',
         'pass_mark' => 'decimal:2',
     ];
 

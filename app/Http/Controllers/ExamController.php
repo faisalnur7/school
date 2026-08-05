@@ -270,7 +270,7 @@ class ExamController extends Controller
                 if ($isTutorial) {
                     $tutorial  = $isAbsent ? 0 : (float) ($row['tutorial_marks'] ?? 0);
                     $total     = $tutorial;
-                    $fullMarks = (float) ($subject->tutorial_marks ?: 0);
+                    $fullMarks = (float) ($config['tutorial_marks'] ?? $subject->tutorial_marks ?? 0);
                 } else {
                     $cq        = $isAbsent ? 0 : (float) ($row['cq_marks'] ?? 0);
                     $mcq       = $isAbsent ? 0 : (float) ($row['mcq_marks'] ?? 0);
@@ -835,15 +835,9 @@ class ExamController extends Controller
         }
 
         if ($assignment->religion !== 'all') {
-            $expectedReligion = match ($assignment->religion) {
-                'islam' => Student::ISLAM,
-                'hindu' => Student::HINDU,
-                'christian' => Student::CHRISTIAN,
-                'buddhist' => Student::BUDDHIST,
-                default => null,
-            };
+            $studentReligion = Student::religionTokenFromId($student->religion);
 
-            if ($expectedReligion === null || (int) $student->religion !== $expectedReligion) {
+            if ($studentReligion !== $assignment->religion) {
                 return false;
             }
         }

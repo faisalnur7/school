@@ -12,9 +12,11 @@
                     <small class="text-white-50">{{ $routine->schoolClass?->name_en }} | {{ $routine->section?->name_en }}</small>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('routines.edit', $routine->id) }}" class="btn btn-light btn-sm">
-                        <i class="fas fa-edit mr-1"></i>Edit
-                    </a>
+                    @if(auth()->user()?->hasPermission('edit_routines'))
+                        <a href="{{ route('routines.edit', $routine->id) }}" class="btn btn-light btn-sm">
+                            <i class="fas fa-edit mr-1"></i>Edit
+                        </a>
+                    @endif
                     <a href="{{ route('routines.index') }}" class="btn btn-outline-light btn-sm">
                         Back
                     </a>

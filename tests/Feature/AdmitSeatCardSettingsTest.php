@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Http\Controllers\AdmitSeatCardController;
 use App\Models\AcademicSession;
 use App\Models\AdmitSeatCardSetting;
+use App\Models\Exam;
 use App\Models\Group;
 use App\Models\SchoolClass;
 use App\Models\SchoolSetting;
@@ -262,5 +263,87 @@ class AdmitSeatCardSettingsTest extends TestCase
         $this->assertStringContainsString('6 cards/page', $html);
         $this->assertStringContainsString('Requested 8 cards/page, but only 6 fit on A4', $html);
         $this->assertStringContainsString('Only 6 cards fit on A4 with the current layout.', $html);
+    }
+
+    public function test_exam_name_starts_empty_until_an_exam_type_is_selected(): void
+    {
+        $user = User::factory()->create();
+        $session = AcademicSession::create(['name_bn' => 'S', 'name_en' => 'S', 'status' => 1]);
+        $class = SchoolClass::create(['name_bn' => 'C', 'name_en' => 'C', 'status' => 1]);
+        SchoolSetting::current()->fill([
+            'name' => 'Test School',
+            'address' => 'Test Address',
+        ])->save();
+
+        $tutorialExam = Exam::create([
+            'name' => 'Tutorial Unit Test Exam',
+            'type' => Exam::TYPE_TUTORIAL,
+            'exam_category' => 'tutorial',
+            'class_id' => $class->id,
+            'academic_session_id' => $session->id,
+            'year' => '2026',
+            'status' => Exam::STATUS_PUBLISHED,
+        ]);
+
+        $terminalExam = Exam::create([
+            'name' => 'Terminal Unit Test Exam',
+            'type' => Exam::TYPE_TERMINAL,
+            'exam_category' => 'terminal',
+            'class_id' => $class->id,
+            'academic_session_id' => $session->id,
+            'year' => '2026',
+            'status' => Exam::STATUS_PUBLISHED,
+        ]);
+
+        $controller = app(AdmitSeatCardController::class);
+        $this->actingAs($user);
+
+        $blankRequest = Request::create('/results/admit-seat-cards', 'GET', [
+            'session_id' => '',
+            'class_id' => '',
+            'section_id' => '',
+            'group_id' => '',
+            'card_type' => 'admit_card',
+            'session_id' => $session->id,
+            'exam_type' => '',
+            'exam_id' => '',
+            'student_cid' => '',
+        ]);
+
+        app()->instance('request', $blankRequest);
+        app('view')->share('errors', new ViewErrorBag());
+        $blankHtml = $controller->index($blankRequest)->render();
+
+        $this->assertStringContainsString('-- Select Exam Type First --', $blankHtml);
+        $this->assertStringNotContainsString($tutorialExam->name, $blankHtml);
+        $this->assertStringNotContainsString($terminalExam->name, $blankHtml);
+
+        $tutorialRequest = Request::create('/results/admit-seat-cards', 'GET', [
+            'session_id' => '',
+            'class_id' => '',
+            'section_id' => '',
+            'group_id' => '',
+            'card_type' => 'admit_card',
+            'session_id' => $session->id,
+            'exam_type' => Exam::TYPE_TUTORIAL,
+            'exam_id' => '',
+            'student_cid' => '',
+        ]);
+
+        app()->instance('request', $tutorialRequest);
+        app('view')->share('errors', new ViewErrorBag());
+        $tutorialHtml = $controller->index($tutorialRequest)->render();
+
+        $this->assertStringContainsString('Tutorial Unit Test Exam', $tutorialHtml);
+        $this->assertStringNotContainsString('Terminal Unit Test Exam', $tutorialHtml);
+
+        $response = $controller->examsByType(Request::create('/results/admit-seat-cards/exams', 'GET', [
+            'session_id' => $session->id,
+            'exam_type' => Exam::TYPE_TUTORIAL,
+        ]));
+
+        $payload = $response->getData(true);
+        $this->assertCount(1, $payload['exams']);
+        $this->assertSame('Tutorial Unit Test Exam', $payload['exams'][0]['name']);
     }
 }

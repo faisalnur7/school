@@ -8,9 +8,11 @@
                 <h4 class="card-title mb-0 font-weight-bold text-white">
                     <i class="fas fa-door-open mr-2"></i>Classrooms
                 </h4>
-                <a href="{{ route('classrooms.create') }}" class="btn btn-light btn-sm">
-                    <i class="fas fa-plus mr-1"></i> Add Classroom
-                </a>
+                @if(auth()->user()?->hasPermission('create_classrooms'))
+                    <a href="{{ route('classrooms.create') }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus mr-1"></i> Add Classroom
+                    </a>
+                @endif
             </div>
         </div>
 
@@ -66,12 +68,15 @@
                                 <td>{{ $classrooms->firstItem() + $loop->index }}</td>
                                 <td class="font-weight-bold">{{ $classroom->name_en }}</td>
                                 <td>{{ $classroom->name_bn }}</td>
-                                <td>{{ $classroom->capacity ?? '—' }}</td>
-                                <td>{{ $classroom->location ?: '—' }}</td>
-                                <td class="text-center">
+                            <td>{{ $classroom->capacity ?? '—' }}</td>
+                            <td>{{ $classroom->location ?: '—' }}</td>
+                            <td class="text-center">
+                                @if(auth()->user()?->hasPermission('edit_classrooms'))
                                     <a href="{{ route('classrooms.edit', $classroom->id) }}" class="btn btn-xs btn-warning">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                @endif
+                                @if(auth()->user()?->hasPermission('delete_classrooms'))
                                     <form action="{{ route('classrooms.delete', $classroom->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this classroom?')">
                                         @csrf
                                         @method('DELETE')
@@ -79,7 +84,8 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
-                                </td>
+                                @endif
+                            </td>
                             </tr>
                         @empty
                             <tr>

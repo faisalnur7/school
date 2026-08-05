@@ -18,72 +18,16 @@
     </div>
 @endsection
 
+@section('styles')
+    @include('components.form-styles')
+    @include('pages.students._modern-styles')
+    <link rel="stylesheet" href="{{ asset('assets/plugins/dropzone/min/dropzone.min.css') }}">
+@endsection
+
 @section('scripts')
     @include('scripts.common.load_location')
     @include('scripts.common.load_academic_information')
     @include('scripts.student.main_script')
-    @include('components.form-styles')
-    <link rel="stylesheet" href="{{ asset('assets/plugins/dropzone/min/dropzone.min.css') }}">
-    <style>
-        .student-image-dropzone {
-            min-height: 520px;
-            cursor: pointer;
-            transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
-        }
-
-        .student-image-dropzone:hover {
-            border-color: #2563eb;
-            background-color: #eff6ff;
-            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
-        }
-
-        .student-image-dropzone.dz-started .dz-message {
-            display: none;
-        }
-
-        .student-image-dropzone .dz-preview {
-            margin: 0;
-            width: 100%;
-            max-width: 300px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .student-image-dropzone .dz-preview .dz-image {
-            border-radius: 14px;
-            width: 300px;
-            height: 450px;
-        }
-
-        .student-image-dropzone .dz-preview .dz-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .student-image-dropzone .dz-preview .dz-details {
-            padding: 1rem;
-        }
-
-        .student-image-dropzone .dz-preview .dz-remove {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: .75rem;
-            padding: .45rem .8rem;
-            border-radius: .5rem;
-            background: #fee2e2;
-            color: #b91c1c;
-            text-decoration: none;
-            font-size: .8rem;
-            font-weight: 600;
-        }
-
-        .student-image-dropzone .dz-preview .dz-remove:hover {
-            background: #fecaca;
-            color: #991b1b;
-        }
-    </style>
     <script src="{{ asset('assets/plugins/dropzone/min/dropzone.min.js') }}"></script>
     <script>
         (function () {

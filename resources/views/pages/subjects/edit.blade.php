@@ -172,6 +172,13 @@
                                                     value="{{ old('papers.'.$index.'.viva_marks', $paper->viva_marks) }}" min="0" step="0.01">
                                             </div>
                                         </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label>Tutorial Marks</label>
+                                                <input type="number" name="papers[{{ $index }}][tutorial_marks]" class="form-control paper-marks" 
+                                                    value="{{ old('papers.'.$index.'.tutorial_marks', $paper->tutorial_marks) }}" min="0" step="0.01">
+                                            </div>
+                                        </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>Pass Mark</label>
@@ -267,6 +274,7 @@
                                         <th>MCQ</th>
                                         <th>Practical</th>
                                         <th>Viva</th>
+                                        <th>Tutorial</th>
                                         <th>Total</th>
                                         <th>Pass</th>
                                         <th>Action</th>
@@ -280,6 +288,7 @@
                                         <td>{{ $config->mcq_marks }}</td>
                                         <td>{{ $config->practical_marks }}</td>
                                         <td>{{ $config->viva_marks }}</td>
+                                        <td>{{ number_format($config->tutorial_marks ?? 0, 2) }}</td>
                                         <td>{{ number_format($config->total_marks, 2) }}</td>
                                         <td>{{ $config->pass_mark }}</td>
                                         <td>
@@ -488,6 +497,13 @@
                                 <label>Viva Marks</label>
                                 <input type="number" name="class_configs[${index}][viva_marks]" class="form-control"
                                     value="0" min="0" step="0.01" placeholder="Default: {{ $subject->viva_marks ?? 0 }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Tutorial Marks</label>
+                                <input type="number" name="class_configs[${index}][tutorial_marks]" class="form-control"
+                                    value="0" min="0" step="0.01" placeholder="Default: {{ $subject->tutorial_marks ?? 0 }}">
                             </div>
                         </div>
                         <div class="col-md-3">

@@ -119,6 +119,30 @@ class Student extends Model
         self::BUDDHIST => 'Buddhist',
     ];
 
+    public static function religionTokenFromId(?int $religion): string
+    {
+        return match ((int) $religion) {
+            self::ISLAM => 'islam',
+            self::HINDU => 'hindu',
+            self::CHRISTIAN => 'christian',
+            self::BUDDHIST => 'buddhist',
+            default => 'other',
+        };
+    }
+
+    public static function religionIdFromToken(?string $token): ?int
+    {
+        $normalized = strtolower(trim((string) $token));
+
+        return match ($normalized) {
+            'islam', 'muslim' => self::ISLAM,
+            'hindu', 'hinduism' => self::HINDU,
+            'christian', 'christianity' => self::CHRISTIAN,
+            'buddhist', 'buddhism' => self::BUDDHIST,
+            default => null,
+        };
+    }
+
     public function getGenderTextAttribute(): string
     {
         return self::GENDERS[$this->gender] ?? 'N/A';
@@ -127,6 +151,11 @@ class Student extends Model
     public function getReligionTextAttribute(): string
     {
         return self::RELIGIONS[$this->religion] ?? 'N/A';
+    }
+
+    public function getReligionTokenAttribute(): string
+    {
+        return self::religionTokenFromId($this->religion);
     }
 
     public function getBloodGroupTextAttribute(): string

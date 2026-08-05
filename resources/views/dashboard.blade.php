@@ -19,6 +19,7 @@
     $net_balance = $net_balance ?? 0;
     $total_assets = $total_assets ?? 0;
     $classwise_attendance = $classwise_attendance ?? [];
+    $divisionwise_students = $divisionwise_students ?? [];
     $recent_exams = $recent_exams ?? collect();
     $recent_notices = $recent_notices ?? collect();
     $monthly_attendance = $monthly_attendance ?? ['days' => [], 'percentages' => []];
@@ -29,6 +30,7 @@
 @endphp
 <div class="dashboard-modern">
     <!-- Quick Actions Bar -->
+    @if(auth()->user()?->hasPermission('view_card_dashboard'))
     <div class="quick-actions-section mb-5">
         <div class="row g-4">
             <div class="col-6 col-lg-3">
@@ -108,6 +110,7 @@
             <div class="stat-glow"></div>
         </div>
     </div>
+    @endif
 
     <!-- Attendance Section -->
     @if(auth()->user()?->hasAnyPermission(['view_todays_attendence', 'view_fee_collection']))
@@ -243,6 +246,35 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Division-wise Distribution -->
+    @if(auth()->user()?->hasPermission('view_divwise_dashboard'))
+    <div class="card-modern mb-4">
+        <div class="card-header-modern">
+            <span><i class="fas fa-layer-group me-2"></i>Division-wise Student Distribution</span>
+        </div>
+        <div class="card-body-modern">
+            <div class="division-grid">
+                @forelse($divisionwise_students as $division)
+                    <div class="division-card">
+                        <div class="division-card-top">
+                            <div>
+                                <span class="division-name">{{ $division['name'] }}</span>
+                                <span class="division-count">{{ $division['count'] }} Students</span>
+                            </div>
+                            <span class="division-percent">{{ $division['percentage'] }}%</span>
+                        </div>
+                        <div class="division-progress">
+                            <span class="division-bar" style="width: {{ $division['percentage'] }}%"></span>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center text-muted py-4 w-100">No division data available</div>
+                @endforelse
             </div>
         </div>
     </div>
@@ -442,6 +474,73 @@
 .stat-card-modern.teachers .stat-glow { background: #4f46e5; }
 .stat-card-modern.staff .stat-glow { background: #f59e0b; }
 .stat-card-modern.classes .stat-glow { background: #10b981; }
+
+/* Division-wise */
+.division-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+@media (max-width: 767px) {
+    .division-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.division-card {
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.division-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.division-name {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.division-count {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.division-percent {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.division-progress {
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    overflow: hidden;
+}
+
+.division-bar {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #0ea5e9, #2563eb);
+}
 
 /* Card Modern */
 .card-modern {

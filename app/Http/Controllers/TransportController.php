@@ -253,6 +253,23 @@ class TransportController extends Controller
 
     public function storeBulk(Request $request)
     {
+        $transports = collect($request->input('transports', []))->map(function ($transportData) use ($request) {
+            $bulkAmount = $request->input('bulk_amount');
+            $bulkStatus = $request->input('bulk_status');
+
+            if ((empty($transportData['amount']) || (float) $transportData['amount'] <= 0) && $bulkAmount !== null && $bulkAmount !== '') {
+                $transportData['amount'] = $bulkAmount;
+            }
+
+            if (empty($transportData['status']) && $bulkStatus) {
+                $transportData['status'] = $bulkStatus;
+            }
+
+            return $transportData;
+        })->all();
+
+        $request->merge(['transports' => $transports]);
+
         $request->validate([
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'transports' => 'required|array',

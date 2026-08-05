@@ -143,13 +143,30 @@ class ResultMarksImportService
         }
 
         foreach ($this->cohorts() as $cohort) {
-            $class = SchoolClass::where('name_en', $cohort['class'])->firstOrFail();
+            $class = isset($cohort['class_id'])
+                ? SchoolClass::findOrFail($cohort['class_id'])
+                : SchoolClass::where('name_en', $cohort['class'])->firstOrFail();
+
             $section = Section::where('school_class_id', $class->id)
-                ->where('name_en', $cohort['section'])
+                ->when(
+                    isset($cohort['section_id']),
+                    fn ($query) => $query->whereKey($cohort['section_id']),
+                    fn ($query) => $query->where('name_en', $cohort['section'])
+                )
                 ->firstOrFail();
-            $group = ! empty($cohort['group'])
-                ? Group::where('name_en', $cohort['group'])->firstOrFail()
-                : null;
+
+            $group = array_key_exists('group_id', $cohort) && ! empty($cohort['group_id'])
+                ? Group::findOrFail($cohort['group_id'])
+                : (! empty($cohort['group'])
+                    ? Group::where('name_en', $cohort['group'])->firstOrFail()
+                    : null);
+
+            $cohortLabel = $cohort['label'] ?? trim(sprintf(
+                'Class %s Section %s%s',
+                $class->name_en,
+                $section->name_en,
+                $group ? ' ' . $group->name_en : ''
+            ));
 
             $students = $this->studentsForCohort($session->id, $class->id, $section->id, $group?->id);
             $subjectCount = 0;
@@ -167,7 +184,7 @@ class ResultMarksImportService
                 ->delete();
 
             $summary[] = [
-                'cohort' => $cohort['label'],
+                'cohort' => $cohortLabel,
                 'class' => $class->name_en,
                 'section' => $section->name_en,
                 'group' => $group?->name_en,
@@ -437,9 +454,10 @@ class ResultMarksImportService
     ): array {
         $isAbsent = $this->isAbsent($cohortKey, $exam, $studentIndex, $subject);
         $isTutorial = $exam->type === Exam::TYPE_TUTORIAL;
+        $config = $subject->getEffectiveMarksForClass($classId);
 
         if ($isTutorial) {
-            $fullMarks = (float) ($subject->tutorial_marks ?: 20);
+            $fullMarks = (float) ($config['tutorial_marks'] ?? $subject->tutorial_marks ?? 20);
             $total = $isAbsent
                 ? 0.0
                 : $this->roundToHalf($fullMarks * $this->targetPercentage(
@@ -466,7 +484,6 @@ class ResultMarksImportService
             ];
         }
 
-        $config = $subject->getEffectiveMarksForClass($classId);
         $fullMarks = (float) ($config['total_marks'] ?: 100);
         $targetTotal = $isAbsent
             ? 0.0

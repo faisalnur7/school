@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Group;
 use App\Models\SchoolClass;
+use App\Models\Student;
 use App\Models\StudentSubject;
 use App\Models\Subject;
 use App\Models\SubjectClassAssignment;
@@ -212,9 +213,6 @@ class SubjectService
 
         $subject = $assignment->subject;
         $classId = $assignment->school_class_id;
-        $groupId = $assignment->group_id;
-        $gender = $assignment->gender;
-        $religion = $assignment->religion;
 
         // Get current academic session
         $session = \App\Models\AcademicSession::where('status', 1)->first();
@@ -224,37 +222,32 @@ class SubjectService
 
         \Log::info('Academic session found', ['session_id' => $session->id]);
 
-        // Build student query based on filters
-        $studentQuery = \App\Models\Student::where('status', 1)
+        $studentQuery = Student::where('status', 1)
             ->whereHas('academicInformations', function ($q) use ($classId) {
                 $q->where('school_class_id', $classId);
             });
 
-        // Filter by group if specified
-        if ($groupId) {
-            $studentQuery->whereHas('academicInformations', function ($q) use ($groupId) {
-                $q->where('group_id', $groupId);
+        if ($assignment->group_id) {
+            $studentQuery->whereHas('academicInformations', function ($q) use ($assignment) {
+                $q->where('group_id', $assignment->group_id);
             });
         }
 
-        // Filter by gender if not 'all'
-        if ($gender && $gender !== 'all') {
-            $studentQuery->where('gender', $gender === 'male' ? 1 : 0);
-        }
-
-        // Filter by religion if not 'all'
-        if ($religion && $religion !== 'all') {
-            $religionId = $this->getReligionIdByName($religion);
-            if ($religionId) {
-                $studentQuery->where('religion', $religionId);
-            }
-        }
-
-        $students = $studentQuery->get();
+        $students = $studentQuery->get()->filter(
+            fn (Student $student) => $assignment->appliesToStudent(
+                $student->gender === Student::MALE ? 'male' : 'female',
+                Student::religionTokenFromId($student->religion)
+            )
+        )->values();
 
         \Log::info('Students found for assignment', [
             'count' => $students->count(),
-            'filters' => ['class_id' => $classId, 'group_id' => $groupId, 'gender' => $gender, 'religion' => $religion],
+            'filters' => [
+                'class_id' => $classId,
+                'group_id' => $assignment->group_id,
+                'gender' => $assignment->gender,
+                'religion' => $assignment->religion,
+            ],
         ]);
 
         $assignedCount = 0;
@@ -293,15 +286,7 @@ class SubjectService
      */
     private function getReligionIdByName(string $name): ?int
     {
-        $religionMap = [
-            'islam' => 1,
-            'hinduism' => 2,
-            'christianity' => 3,
-            'buddhism' => 4,
-            'other' => 5,
-        ];
-
-        return $religionMap[strtolower($name)] ?? null;
+        return Student::religionIdFromToken($name);
     }
 
     /**
@@ -339,18 +324,13 @@ class SubjectService
                 $query->whereNull('group_id')
                     ->orWhere('group_id', $groupId);
             })
-            ->where(function ($query) use ($gender) {
-                $query->where('gender', 'all')
-                    ->orWhere('gender', $gender);
-            })
-            ->where(function ($query) use ($religion) {
-                $query->where('religion', 'all')
-                    ->orWhere('religion', $religion);
-            })
             ->where('is_active', true)
             ->with(['subject', 'subject.classConfigs'])
             ->get()
-            ->pluck('subject');
+            ->filter(fn (SubjectClassAssignment $assignment) => $assignment->appliesToStudent($gender, $religion))
+            ->pluck('subject')
+            ->filter()
+            ->values();
     }
 
     /**
@@ -367,19 +347,14 @@ class SubjectService
                 $query->whereNull('group_id')
                     ->orWhere('group_id', $groupId);
             })
-            ->where(function ($query) use ($gender) {
-                $query->where('gender', 'all')
-                    ->orWhere('gender', $gender);
-            })
-            ->where(function ($query) use ($religion) {
-                $query->where('religion', 'all')
-                    ->orWhere('religion', $religion);
-            })
             ->where('is_compulsory', true)
             ->where('is_active', true)
             ->with(['subject', 'subject.classConfigs'])
             ->get()
-            ->pluck('subject');
+            ->filter(fn (SubjectClassAssignment $assignment) => $assignment->appliesToStudent($gender, $religion))
+            ->pluck('subject')
+            ->filter()
+            ->values();
     }
 
     /**
@@ -396,19 +371,14 @@ class SubjectService
                 $query->whereNull('group_id')
                     ->orWhere('group_id', $groupId);
             })
-            ->where(function ($query) use ($gender) {
-                $query->where('gender', 'all')
-                    ->orWhere('gender', $gender);
-            })
-            ->where(function ($query) use ($religion) {
-                $query->where('religion', 'all')
-                    ->orWhere('religion', $religion);
-            })
             ->where('is_optional', true)
             ->where('is_active', true)
             ->with(['subject', 'subject.classConfigs'])
             ->get()
-            ->pluck('subject');
+            ->filter(fn (SubjectClassAssignment $assignment) => $assignment->appliesToStudent($gender, $religion))
+            ->pluck('subject')
+            ->filter()
+            ->values();
     }
 
     /**
@@ -416,11 +386,15 @@ class SubjectService
      */
     public function assignToStudent(array $data): StudentSubject
     {
-        // Check if subject is available for this student
+        $student = Student::findOrFail($data['student_id']);
+        $gender = $student->gender === Student::MALE ? 'male' : 'female';
+        $religion = Student::religionTokenFromId($student->religion);
+
         $assignment = SubjectClassAssignment::where('subject_id', $data['subject_id'])
             ->where('school_class_id', $data['school_class_id'])
             ->where('is_active', true)
-            ->first();
+            ->get()
+            ->first(fn (SubjectClassAssignment $candidate) => $candidate->appliesToStudent($gender, $religion));
 
         if (! $assignment) {
             throw new \InvalidArgumentException('This subject is not available for assignment.');
