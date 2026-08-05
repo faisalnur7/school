@@ -572,7 +572,7 @@ svg {
     .content-wrapper .d-flex.align-items-center,
     .content-wrapper .d-flex.gap-2,
     .content-wrapper .d-flex.flex-wrap {
-        flex-direction: column !important;
+        flex-direction: row !important;
         align-items: stretch !important;
     }
 

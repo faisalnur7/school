@@ -293,7 +293,7 @@
                 @endif
 
                 <!-- Communications -->
-                @if(auth()->check())
+                @if(auth()->user()?->hasPermission('view_communications'))
                 <li class="nav-item-modern">
                     <a href="{{ route('communications.index') }}"
                        class="nav-link-modern {{ request()->routeIs('communications.*', 'chat.*') ? 'active' : '' }}">
