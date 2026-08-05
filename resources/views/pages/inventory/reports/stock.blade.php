@@ -42,13 +42,37 @@
 
             <form method="GET" class="mb-3 inventory-filter-panel">
                 <div class="row g-2 align-items-end">
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Search product...">
                     </div>
-                    <div class="col-md-6 d-flex flex-wrap gap-2">
+                    <div class="col-md-3">
+                        <select name="category_id" class="form-control">
+                            <option value="">All Categories</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="school_class_id" class="form-control">
+                            <option value="">All Classes</option>
+                            @foreach($classes as $class)
+                                <option value="{{ $class->id }}" {{ request('school_class_id') == $class->id ? 'selected' : '' }}>{{ $class->name_en }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="group_id" class="form-control">
+                            <option value="">All Groups</option>
+                            @foreach($groups as $group)
+                                <option value="{{ $group->id }}" {{ request('group_id') == $group->id ? 'selected' : '' }}>{{ $group->name_en }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex flex-wrap gap-2 align-items-center">
                         <button class="btn btn-dark btn-sm" title="Search" aria-label="Search">
                             <i class="fas fa-search"></i>
-                            <span>Search</span>
+                            <span>Filter</span>
                         </button>
                         <a href="{{ route('inventory.reports.stock') }}" class="btn btn-light btn-sm" title="Reset" aria-label="Reset">
                             <i class="fas fa-undo-alt"></i>

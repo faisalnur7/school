@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Group;
+use App\Models\InventoryCategory;
 use App\Models\InventoryItem;
+use App\Models\SchoolClass;
 use Illuminate\Http\Request;
 
 class StockController extends Controller
@@ -19,9 +22,6 @@ class StockController extends Controller
         $query = InventoryItem::with('category')
             ->where('stock_type', '!=', 'made_to_order')
             ->orderBy('name');
-        $totalInventoryValue = (float) InventoryItem::where('stock_type', '!=', 'made_to_order')
-            ->selectRaw('COALESCE(SUM(current_stock * COALESCE(average_cost, purchase_price)), 0) as total_value')
-            ->value('total_value');
 
         if ($request->filled('q')) {
             $q = trim((string)$request->get('q'));
@@ -30,8 +30,34 @@ class StockController extends Controller
             });
         }
 
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->get('category_id'));
+        }
+
+        if ($request->filled('school_class_id')) {
+            $query->where('school_class_id', $request->get('school_class_id'));
+        }
+
+        if ($request->filled('group_id')) {
+            $query->where('group_id', $request->get('group_id'));
+        }
+
+        $totalInventoryValue = (float) (clone $query)
+            ->selectRaw('COALESCE(SUM(current_stock * COALESCE(average_cost, purchase_price)), 0) as total_value')
+            ->value('total_value');
+
         $items = $query->paginate(25)->withQueryString();
-        return view('pages.inventory.reports.stock', compact('items', 'totalInventoryValue'));
+        $categories = InventoryCategory::orderBy('name')->get();
+        $classes = SchoolClass::get();
+        $groups = Group::orderBy('name_en')->get();
+
+        return view('pages.inventory.reports.stock', compact(
+            'items',
+            'totalInventoryValue',
+            'categories',
+            'classes',
+            'groups'
+        ));
     }
 
     public function lowStock(Request $request)
