@@ -41,7 +41,7 @@ class LoginVerificationController extends Controller
 
         $user = User::find($pendingUserId);
 
-        if (! $user || ! $user->login_verification_enabled) {
+        if (! $user || ! $user->is_active || ! $user->login_verification_enabled) {
             $request->session()->forget('login_verification');
 
             throw ValidationException::withMessages([
@@ -84,7 +84,7 @@ class LoginVerificationController extends Controller
 
         $user = User::find($pendingUserId);
 
-        if (! $user || ! $user->login_verification_enabled) {
+        if (! $user || ! $user->is_active || ! $user->login_verification_enabled) {
             $request->session()->forget('login_verification');
 
             return redirect()->route('login');

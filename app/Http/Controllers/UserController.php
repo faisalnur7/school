@@ -28,11 +28,13 @@ class UserController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'role_id' => 'nullable|exists:roles,id',
+            'is_active' => 'nullable|boolean',
             'login_verification_enabled' => 'nullable|boolean',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+        $validated['is_active'] = $request->boolean('is_active', true);
         $validated['login_verification_enabled'] = $request->boolean('login_verification_enabled');
 
         if ($request->hasFile('image')) {
@@ -66,6 +68,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
             'role_id' => 'nullable|exists:roles,id',
+            'is_active' => 'nullable|boolean',
             'login_verification_enabled' => 'nullable|boolean',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
@@ -73,6 +76,7 @@ class UserController extends Controller
         $user->name = $data['name'];
         $user->email = $data['email'];
         $user->role_id = $data['role_id'] ?? null;
+        $user->is_active = $request->boolean('is_active');
         $user->login_verification_enabled = $request->boolean('login_verification_enabled');
 
         if ($request->filled('password')) {
@@ -95,9 +99,29 @@ class UserController extends Controller
             $user->login_verification_expires_at = null;
         }
 
+        if (! $user->is_active) {
+            $user->login_verification_code = null;
+            $user->login_verification_expires_at = null;
+        }
+
         $user->save();
         
         return redirect()->route('users.index')->with('success', 'User updated successfully');
+    }
+
+    public function toggleStatus($id)
+    {
+        $user = User::findOrFail($id);
+        $user->is_active = ! $user->is_active;
+
+        if (! $user->is_active) {
+            $user->login_verification_code = null;
+            $user->login_verification_expires_at = null;
+        }
+
+        $user->save();
+
+        return back()->with('success', 'User status updated successfully');
     }
 
     public function destroy($id)

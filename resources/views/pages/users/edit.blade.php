@@ -59,6 +59,19 @@
                         @error('role_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6 mb-3">
+                        <label class="form-label d-block">Account Status</label>
+                        <div class="custom-control custom-switch mt-2">
+                            <input type="hidden" name="is_active" value="0">
+                            <input type="checkbox"
+                                   class="custom-control-input"
+                                   id="is_active"
+                                   name="is_active"
+                                   value="1"
+                                   {{ old('is_active', $user->is_active) ? 'checked' : '' }}>
+                            <label class="custom-control-label" for="is_active"></label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
                         <label class="form-label d-block">Current Image</label>
                         <img id="edit_image_preview" src="{{ $user->image_url }}" alt="User Image" class="img-circle elevation-2 mb-2" style="width:70px; height:70px; object-fit:cover;">
                         <input type="file" id="edit_image_input" name="image" accept="image/*" class="form-control @error('image') is-invalid @enderror">
