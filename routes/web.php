@@ -397,7 +397,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // ------------------- Students -------------------
-    Route::middleware('permission:view_students')->group(function () {
+    Route::middleware('permission:view_students,view_card_add_student')->group(function () {
         Route::get('/students/admission', [\App\Http\Controllers\StudentLifecycleController::class, 'admissionForm'])->name('students.admission');
         Route::post('/students/admission', [\App\Http\Controllers\StudentLifecycleController::class, 'admissionStore'])->name('students.admission.store');
         Route::get('/students/promote', [\App\Http\Controllers\StudentLifecycleController::class, 'promoteIndex'])->name('students.promote');
@@ -443,7 +443,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:delete_students')->delete('/students/{id}/delete', [StudentController::class, 'destroy'])->name('students.delete');
 
     // ------------------- Attendance -------------------
-    Route::middleware('auth')->prefix('teacher')->group(function () {
+    Route::middleware('permission:view_attendance,view_card_mark_attendance')->prefix('teacher')->group(function () {
         Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
         Route::get('/attendance/load', [AttendanceController::class, 'load'])->name('attendance.load');
         Route::post('/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
@@ -515,7 +515,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // ------------------- Reports -------------------
-    Route::middleware('permission:view_reports_hub')->group(function () {
+    Route::middleware('permission:view_reports_hub,view_card_view_reports')->group(function () {
         Route::get('/reports/hub', [ReportController::class, 'hub'])->name('reports.hub');
         // Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     });
@@ -643,7 +643,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/fees/discount-list/pdf', [\App\Http\Controllers\DiscountListController::class, 'pdf'])->name('fees.discount-list.pdf');
     });
 
-    Route::middleware('auth')->group(function () {
+    Route::middleware('permission:view_fees,view_card_collect_fees')->group(function () {
         Route::get('/fees/collect', [FeeCollectionController::class, 'index'])->name('fees.collect');
         Route::get('/fees/collect_payment', [FeeCollectionController::class, 'collect_payment'])->name('fees.collect_payment');
         Route::post('/fees/switch-student', [FeeCollectionController::class, 'switchStudent'])->name('fees.switch_student');
@@ -1097,7 +1097,7 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
     });
 
     // ------------------- Communications -------------------
-    Route::middleware('auth')->group(function () {
+    Route::middleware('permission:view_communications')->group(function () {
         Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
         Route::prefix('communications')->name('communications.')->group(function () {
             Route::get('/', [ChatController::class, 'index'])->name('index');

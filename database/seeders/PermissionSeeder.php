@@ -14,6 +14,10 @@ class PermissionSeeder extends Seeder
             ['name' => 'Dashboard', 'sort' => 1, 'permissions' => [
                 ['name' => 'view_dashboard', 'display_name' => 'View Dashboard'],
                 ['name' => 'view_card_dashboard', 'display_name' => 'View Dashboard Card'],
+                ['name' => 'view_card_mark_attendance', 'display_name' => 'View Mark Attendance Card'],
+                ['name' => 'view_card_collect_fees', 'display_name' => 'View Collect Fees Card'],
+                ['name' => 'view_card_add_student', 'display_name' => 'View Add Student Card'],
+                ['name' => 'view_card_view_reports', 'display_name' => 'View Reports Card'],
                 ['name' => 'view_divwise_dashboard', 'display_name' => 'View Division-wise Dashboard'],
                 ['name' => 'view_todays_attendence', 'display_name' => 'View Attendace Card'],
                 ['name' => 'view_fee_collection', 'display_name' => 'View Fee Collection Card'],
@@ -257,7 +261,10 @@ class PermissionSeeder extends Seeder
                 ['name' => 'view_card_police_stations', 'display_name' => 'View Police Stations Card'],
                 ['name' => 'view_card_post_offices', 'display_name' => 'View Post Offices Card'],
             ]],
-            ['name' => 'Website Management', 'sort' => 18, 'permissions' => [
+            ['name' => 'Communications', 'sort' => 18, 'permissions' => [
+                ['name' => 'view_communications', 'display_name' => 'View Communications'],
+            ]],
+            ['name' => 'Website Management', 'sort' => 19, 'permissions' => [
                 ['name' => 'view_website_management', 'display_name' => 'View Website Management'],
             ]],
         ];

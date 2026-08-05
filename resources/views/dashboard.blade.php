@@ -30,37 +30,55 @@
 @endphp
 <div class="dashboard-modern">
     <!-- Quick Actions Bar -->
-    @if(auth()->user()?->hasPermission('view_card_dashboard'))
+    @php
+        $quickActionCards = [
+            'mark_attendance' => auth()->user()?->hasPermission('view_card_mark_attendance'),
+            'collect_fees' => auth()->user()?->hasPermission('view_card_collect_fees'),
+            'add_student' => auth()->user()?->hasPermission('view_card_add_student'),
+            'view_reports' => auth()->user()?->hasPermission('view_card_view_reports'),
+        ];
+    @endphp
+    @if(in_array(true, $quickActionCards, true))
     <div class="quick-actions-section mb-5">
         <div class="row g-4">
-            <div class="col-6 col-lg-3">
-                <a href="{{ route('attendance.index') }}" class="quick-action-card attendance">
-                    <div class="action-icon"><i class="fas fa-clipboard-check"></i></div>
-                    <span class="action-text">Mark Attendance</span>
-                </a>
-            </div>
-            <div class="col-6 col-lg-3">
-                <a href="{{ route('fees.collect') }}" class="quick-action-card fees">
-                    <div class="action-icon"><i class="fas fa-money-bill-wave"></i></div>
-                    <span class="action-text">Collect Fees</span>
-                </a>
-            </div>
-            <div class="col-6 col-lg-3">
-                <a href="{{ route('students.admission') }}" class="quick-action-card student">
-                    <div class="action-icon"><i class="fas fa-user-plus"></i></div>
-                    <span class="action-text">Add Student</span>
-                </a>
-            </div>
-            <div class="col-6 col-lg-3">
-                <a href="{{ route('accounts.hub') }}" class="quick-action-card reports">
-                    <div class="action-icon"><i class="fas fa-chart-bar"></i></div>
-                    <span class="action-text">View Reports</span>
-                </a>
-            </div>
+            @if($quickActionCards['mark_attendance'])
+                <div class="col-6 col-lg-3">
+                    <a href="{{ route('attendance.index') }}" class="quick-action-card attendance">
+                        <div class="action-icon"><i class="fas fa-clipboard-check"></i></div>
+                        <span class="action-text">Mark Attendance</span>
+                    </a>
+                </div>
+            @endif
+            @if($quickActionCards['collect_fees'])
+                <div class="col-6 col-lg-3">
+                    <a href="{{ route('fees.collect') }}" class="quick-action-card fees">
+                        <div class="action-icon"><i class="fas fa-money-bill-wave"></i></div>
+                        <span class="action-text">Collect Fees</span>
+                    </a>
+                </div>
+            @endif
+            @if($quickActionCards['add_student'])
+                <div class="col-6 col-lg-3">
+                    <a href="{{ route('students.admission') }}" class="quick-action-card student">
+                        <div class="action-icon"><i class="fas fa-user-plus"></i></div>
+                        <span class="action-text">Add Student</span>
+                    </a>
+                </div>
+            @endif
+            @if($quickActionCards['view_reports'])
+                <div class="col-6 col-lg-3">
+                    <a href="{{ route('reports.hub') }}" class="quick-action-card reports">
+                        <div class="action-icon"><i class="fas fa-chart-bar"></i></div>
+                        <span class="action-text">View Reports</span>
+                    </a>
+                </div>
+            @endif
         </div>
     </div>
+    @endif
 
     <!-- Key Statistics Cards -->
+    @if(auth()->user()?->hasPermission('view_card_dashboard'))
     <div class="stats-grid mb-4">
         <!-- Students Card -->
         <div class="stat-card-modern students">
