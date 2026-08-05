@@ -112,11 +112,18 @@
 
         function toggleGuardianInfo() {
             const val = $('input[name="guardian_type"]:checked').val();
+            const $guardianInfoFields = $('#guardianInfoFields');
+
+            if (!$guardianInfoFields.length) {
+                return;
+            }
 
             if (String(val) === '3') {
-                $('#guardianInfo').removeClass('hidden').show();
+                $guardianInfoFields.stop(true, true).removeClass('hidden').slideDown(180);
             } else {
-                $('#guardianInfo').addClass('hidden').hide();
+                $guardianInfoFields.stop(true, true).slideUp(180, function () {
+                    $guardianInfoFields.addClass('hidden');
+                });
             }
         }
 
@@ -124,13 +131,19 @@
         $('input[name="guardian_type"]').on('change', toggleGuardianInfo);
 
         // Force toggle after load
+        if (String($('input[name="guardian_type"]:checked').val()) === '3') {
+            $('#guardianInfoFields').removeClass('hidden').show();
+        }
         toggleGuardianInfo();
 
         // ============= EDIT FORM SAME ADDRESS CHECK =============
 
         @if (isset($student))
             @if ($student->present_address === $student->permanent_address)
-                $('#same_address').prop('checked', true).trigger('change');
+                $('#same_address').prop('checked', true);
+                if (typeof window.handleSameAddressChange === 'function') {
+                    window.handleSameAddressChange(false);
+                }
             @endif
         @endif
 

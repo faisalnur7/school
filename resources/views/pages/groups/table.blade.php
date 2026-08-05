@@ -2,9 +2,11 @@
     <div class="card-header text-white rounded-top d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center shadow p-3"
        >
         <h3 class="card-title">Groups</h3>
-        <a href="{{ route('groups.create') }}" class="btn btn-primary btn-sm ml-sm-auto text-bold w-100 w-sm-auto">
-            + Add Group
-        </a>
+        @if(auth()->user()?->hasPermission('create_groups'))
+            <a href="{{ route('groups.create') }}" class="btn btn-primary btn-sm ml-sm-auto text-bold w-100 w-sm-auto">
+                + Add Group
+            </a>
+        @endif
     </div>
     <div class="card-body px-0 pb-4 pt-0">
         <div class="table-responsive">
@@ -26,29 +28,37 @@
                             <td>{{ $group->name_en }}</td>
                             <td>{{ $group->name_bn }}</td>
                             <td>
-                                <form action="{{ route('groups.toggle-status', $group->id) }}" method="POST">
-                                    @csrf
-                                    <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input"
-                                            id="statusSwitch{{ $group->id }}" onchange="this.form.submit()"
-                                            {{ $group->status ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="statusSwitch{{ $group->id }}">
-                                        </label>
-                                    </div>
-                                </form>
+                                @if(auth()->user()?->hasPermission('edit_groups'))
+                                    <form action="{{ route('groups.toggle-status', $group->id) }}" method="POST">
+                                        @csrf
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input"
+                                                id="statusSwitch{{ $group->id }}" onchange="this.form.submit()"
+                                                {{ $group->status ? 'checked' : '' }}>
+                                            <label class="custom-control-label" for="statusSwitch{{ $group->id }}">
+                                            </label>
+                                        </div>
+                                    </form>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
                             </td>
                             <td class="d-flex flex-column flex-sm-row justify-content-center align-items-stretch align-items-sm-start gap-1">
-                                <a href="{{ route('groups.edit', $group->id) }}" class="btn btn-sm btn-dark">
-                                    <i class="fas fa-edit"></i>
-                                </a>
+                                @if(auth()->user()?->hasPermission('edit_groups'))
+                                    <a href="{{ route('groups.edit', $group->id) }}" class="btn btn-sm btn-dark">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                @endif
 
-                                {{-- <form action="{{ route('groups.delete', $group->id) }}" method="POST"
-                                    class="btn btn-sm btn-danger d-inline m-0"
-                                    onsubmit="return confirm('Delete this group?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <i class="fas fa-trash"></i>
-                                </form> --}}
+                                @if(auth()->user()?->hasPermission('delete_groups'))
+                                    <form action="{{ route('groups.delete', $group->id) }}" method="POST"
+                                        class="btn btn-sm btn-danger d-inline m-0"
+                                        onsubmit="return confirm('Delete this group?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <i class="fas fa-trash"></i>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach

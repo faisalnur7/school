@@ -11,9 +11,11 @@
                     </h4>
                     <small class="text-white-50">Manage weekly class schedules.</small>
                 </div>
-                <a href="{{ route('routines.create') }}" class="btn btn-light btn-sm">
-                    <i class="fas fa-plus mr-1"></i>Add Routine
-                </a>
+                @if(auth()->user()?->hasPermission('create_routines'))
+                    <a href="{{ route('routines.create') }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus mr-1"></i>Add Routine
+                    </a>
+                @endif
             </div>
         </div>
 
@@ -96,19 +98,25 @@
                                 <td>{{ $routine->day }}</td>
                                 <td>{{ substr($routine->start_time, 0, 5) }} - {{ substr($routine->end_time, 0, 5) }}</td>
                                 <td class="text-center">
-                                    <a href="{{ route('routines.show', $routine->id) }}" class="btn btn-xs btn-info">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ route('routines.edit', $routine->id) }}" class="btn btn-xs btn-warning">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form action="{{ route('routines.delete', $routine->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this routine?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-xs btn-danger">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    @if(auth()->user()?->hasPermission('view_routines'))
+                                        <a href="{{ route('routines.show', $routine->id) }}" class="btn btn-xs btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    @endif
+                                    @if(auth()->user()?->hasPermission('edit_routines'))
+                                        <a href="{{ route('routines.edit', $routine->id) }}" class="btn btn-xs btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    @endif
+                                    @if(auth()->user()?->hasPermission('delete_routines'))
+                                        <form action="{{ route('routines.delete', $routine->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this routine?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-xs btn-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </td>
                             </tr>
                         @empty

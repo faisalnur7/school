@@ -559,13 +559,7 @@ class StudentLifecycleController extends Controller
         }
 
         $gender = $student->gender == 1 ? 'male' : 'female';
-        $religion = match ((int) $student->religion) {
-            1 => 'islam',
-            2 => 'hinduism',
-            3 => 'christianity',
-            4 => 'buddhism',
-            default => 'other',
-        };
+        $religion = Student::religionTokenFromId($student->religion);
 
         $assignments = SubjectClassAssignment::query()
             ->where('school_class_id', $academicInfo->school_class_id)
@@ -573,18 +567,12 @@ class StudentLifecycleController extends Controller
                 $query->whereNull('group_id')
                     ->orWhere('group_id', $academicInfo->group_id);
             })
-            ->where(function ($query) use ($gender) {
-                $query->where('gender', 'all')
-                    ->orWhere('gender', $gender);
-            })
-            ->where(function ($query) use ($religion) {
-                $query->where('religion', 'all')
-                    ->orWhere('religion', $religion);
-            })
             ->where('is_compulsory', true)
             ->where('is_active', true)
             ->with('subject')
-            ->get();
+            ->get()
+            ->filter(fn (SubjectClassAssignment $assignment) => $assignment->appliesToStudent($gender, $religion))
+            ->values();
 
         foreach ($assignments as $assignment) {
             $subject = $assignment->subject;

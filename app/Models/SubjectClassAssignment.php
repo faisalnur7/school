@@ -75,17 +75,40 @@ class SubjectClassAssignment extends Model
      */
     public function appliesToStudent($gender, $religion): bool
     {
-        // If gender is 'all', it applies to everyone
-        if ($this->gender === 'all') {
-            return true;
+        if ($this->gender !== 'all' && $this->normalizeGender($gender) !== $this->gender) {
+            return false;
         }
 
-        // If religion is 'all', it applies to everyone
-        if ($this->religion === 'all') {
-            return true;
+        if ($this->religion !== 'all' && $this->normalizeReligion($religion) !== $this->religion) {
+            return false;
         }
 
-        // Otherwise check specific gender and religion
-        return $this->gender === $gender && $this->religion === $religion;
+        return true;
+    }
+
+    private function normalizeGender($gender): string
+    {
+        return match ($gender) {
+            1, '1', 'male', 'm' => 'male',
+            2, '2', 'female', 'f' => 'female',
+            default => 'all',
+        };
+    }
+
+    private function normalizeReligion($religion): string
+    {
+        if (is_int($religion) || ctype_digit((string) $religion)) {
+            return Student::religionTokenFromId((int) $religion);
+        }
+
+        $normalized = strtolower(trim((string) $religion));
+
+        return match ($normalized) {
+            'islam', 'muslim' => 'islam',
+            'hindu', 'hinduism' => 'hindu',
+            'christian', 'christianity' => 'christian',
+            'buddhist', 'buddhism' => 'buddhist',
+            default => $normalized,
+        };
     }
 }

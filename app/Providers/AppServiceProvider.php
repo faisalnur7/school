@@ -391,7 +391,7 @@ class AppServiceProvider extends ServiceProvider
             'roles.' => ['view_users'],
             'permissions.' => ['view_users'],
             'permission-categories.' => ['view_users'],
-            'audit-trails.' => ['view_users'],
+            'audit-trails.' => ['view_audit_trail'],
             'institute.' => ['view_institute_settings'],
             'school-settings.' => ['view_institute_settings'],
             'certificates.' => ['view_institute_settings'],

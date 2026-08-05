@@ -164,6 +164,32 @@ class FreeStudentshipController extends Controller
 
     public function storeBulk(Request $request)
     {
+        $students = collect($request->input('students', []))->map(function ($studentData) use ($request) {
+            $bulkType = $request->input('bulk_type');
+            $bulkValue = $request->input('bulk_value');
+            $bulkPermittedBy = $request->input('bulk_permitted_by');
+
+            if (empty($studentData['type']) && $bulkType) {
+                $studentData['type'] = $bulkType;
+            }
+
+            if ($bulkType === 'fixed' && empty($studentData['amount']) && $bulkValue !== null && $bulkValue !== '') {
+                $studentData['amount'] = $bulkValue;
+            }
+
+            if ($bulkType === 'percentage' && empty($studentData['percentage']) && $bulkValue !== null && $bulkValue !== '') {
+                $studentData['percentage'] = $bulkValue;
+            }
+
+            if (empty($studentData['permitted_by']) && !empty($bulkPermittedBy)) {
+                $studentData['permitted_by'] = $bulkPermittedBy;
+            }
+
+            return $studentData;
+        })->all();
+
+        $request->merge(['students' => $students]);
+
         $validated = $request->validate([
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'fee_category_id' => 'required|exists:fee_categories,id',

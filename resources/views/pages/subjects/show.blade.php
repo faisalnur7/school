@@ -17,9 +17,11 @@
                         <a href="{{ route('subjects.index') }}" class="btn btn-light btn-sm">
                             <i class="fas fa-list mr-1"></i>Back to List
                         </a>
-                        <a href="{{ route('subjects.edit', $subject->id) }}" class="btn btn-warning btn-sm">
-                            <i class="fas fa-edit mr-1"></i>Edit
-                        </a>
+                        @if(auth()->user()?->hasPermission('edit_subjects'))
+                            <a href="{{ route('subjects.edit', $subject->id) }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -233,6 +235,7 @@
                                             <th>MCQ</th>
                                             <th>Practical</th>
                                             <th>Viva</th>
+                                            <th>Tutorial</th>
                                             <th>Total</th>
                                             <th>Pass</th>
                                         </tr>
@@ -245,6 +248,7 @@
                                                 <td>{{ number_format($config->mcq_marks, 2) }}</td>
                                                 <td>{{ number_format($config->practical_marks, 2) }}</td>
                                                 <td>{{ number_format($config->viva_marks, 2) }}</td>
+                                                <td>{{ number_format($config->tutorial_marks ?? 0, 2) }}</td>
                                                 <td><strong>{{ number_format($config->total_marks, 2) }}</strong></td>
                                                 <td>{{ number_format($config->pass_mark, 2) }}</td>
                                             </tr>

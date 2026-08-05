@@ -558,7 +558,8 @@
                         <div class="admit-seat-cards-filter-group">
                             <label class="font-weight-bold admit-seat-cards-filter-label">Academic Year <span
                                     class="text-danger">*</span></label>
-                            <select name="session_id" class="form-control form-control-sm admit-seat-cards-filter-control">
+                            <select name="session_id" id="sessionSelect"
+                                class="form-control form-control-sm admit-seat-cards-filter-control">
                                 <option value="">— Select Year —</option>
                                 @foreach ($sessions as $s)
                                     <option value="{{ $s->id }}"
@@ -613,8 +614,12 @@
                         <div class="admit-seat-cards-filter-group">
                             <label class="font-weight-bold admit-seat-cards-filter-label">Exam Name</label>
                             <select name="exam_id" class="form-control form-control-sm admit-seat-cards-filter-control"
-                                id="examSelect">
-                                <option value="">All Exams</option>
+                                id="examSelect"
+                                data-exams-url="{{ route('results.admit-seat-cards.exams') }}"
+                                @disabled(empty(request('session_id')) || empty($examType ?? null))>
+                                <option value="">
+                                    {{ empty(request('session_id')) || empty($examType ?? null) ? '-- Select Session and Exam Type First --' : '-- Select Exam --' }}
+                                </option>
                                 @foreach ($exams as $exam)
                                     <option value="{{ $exam->id }}"
                                         {{ request('exam_id') == $exam->id ? 'selected' : '' }}>
@@ -2747,17 +2752,116 @@
     </script>
 
     <script>
-        const form = document.getElementById('filterForm');
-        document.getElementById('examTypeSelect')?.addEventListener('change', function() {
+        (function() {
+            const form = document.getElementById('filterForm');
+            const sessionSelect = document.getElementById('sessionSelect');
+            const examTypeSelect = document.getElementById('examTypeSelect');
             const examSelect = document.getElementById('examSelect');
-            if (examSelect) {
-                examSelect.value = '';
+            const examsUrl = examSelect?.dataset.examsUrl;
+
+            function setExamSelectDisabled(isDisabled) {
+                if (!examSelect) return;
+                examSelect.disabled = isDisabled;
             }
-            form?.submit();
-        });
-        document.getElementById('examSelect')?.addEventListener('change', function() {
-            form?.submit();
-        });
+
+            function refreshSelect2(selectEl) {
+                if (!selectEl || !window.jQuery) return;
+
+                const $select = window.jQuery(selectEl);
+                if ($select.hasClass('select2-hidden-accessible')) {
+                    $select.trigger('change.select2');
+                }
+            }
+
+            function renderExamOptions(exams, selectedId = '') {
+                if (!examSelect) return;
+
+                const hasSessionAndType = !!sessionSelect?.value && !!examTypeSelect?.value;
+                const placeholder = hasSessionAndType ? '-- Select Exam --' : '-- Select Session and Exam Type First --';
+                let html = `<option value="">${placeholder}</option>`;
+
+                (Array.isArray(exams) ? exams : []).forEach((exam) => {
+                    const selected = String(selectedId) === String(exam.id) ? 'selected' : '';
+                    html += `<option value="${exam.id}" ${selected}>${exam.name} (${exam.type_label})</option>`;
+                });
+
+                examSelect.innerHTML = html;
+                setExamSelectDisabled(!hasSessionAndType);
+                refreshSelect2(examSelect);
+            }
+
+            function loadExamOptions(sessionId, examType, selectedId = '') {
+                if (!examSelect) return;
+
+                if (!sessionId || !examType) {
+                    renderExamOptions([]);
+                    examSelect.value = '';
+                    refreshSelect2(examSelect);
+                    return;
+                }
+
+                setExamSelectDisabled(true);
+                examSelect.innerHTML = '<option value="">Loading...</option>';
+
+                fetch(`${examsUrl}?session_id=${encodeURIComponent(sessionId)}&exam_type=${encodeURIComponent(examType)}`)
+                    .then((response) => {
+                        if (!response.ok) throw new Error('Failed to load exams');
+                        return response.json();
+                    })
+                    .then((data) => {
+                        renderExamOptions(data?.exams || [], selectedId);
+                    })
+                    .catch(() => {
+                        renderExamOptions([]);
+                    });
+            }
+
+            function handleSessionChange(value) {
+                if (examSelect) {
+                    examSelect.value = '';
+                }
+                loadExamOptions(value, examTypeSelect?.value || '');
+                refreshSelect2(sessionSelect);
+            }
+
+            function handleExamTypeChange(value) {
+                if (examSelect) {
+                    examSelect.value = '';
+                }
+                loadExamOptions(sessionSelect?.value || '', value);
+                refreshSelect2(examTypeSelect);
+            }
+
+            function bindExamFilterEvents() {
+                if (!window.jQuery) return;
+
+                const $document = window.jQuery(document);
+                $document.off('.admitSeatExamFilters');
+                $document.on('change.admitSeatExamFilters select2:select.admitSeatExamFilters select2:clear.admitSeatExamFilters',
+                    '#sessionSelect',
+                    function() {
+                        handleSessionChange(this.value);
+                    });
+                $document.on('change.admitSeatExamFilters select2:select.admitSeatExamFilters select2:clear.admitSeatExamFilters',
+                    '#examTypeSelect',
+                    function() {
+                        handleExamTypeChange(this.value);
+                    });
+                $document.on('change.admitSeatExamFilters select2:select.admitSeatExamFilters',
+                    '#examSelect',
+                    function() {
+                        form?.submit();
+                    });
+            }
+
+            bindExamFilterEvents();
+
+            if (sessionSelect?.value && examTypeSelect?.value) {
+                loadExamOptions(sessionSelect.value, examTypeSelect.value, examSelect?.value || '');
+            } else {
+                renderExamOptions([]);
+            }
+        })();
     </script>
 
 @endsection

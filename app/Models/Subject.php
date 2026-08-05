@@ -108,6 +108,7 @@ class Subject extends Model
                     'mcq_marks' => (float) $config->mcq_marks,
                     'practical_marks' => (float) $config->practical_marks,
                     'viva_marks' => (float) $config->viva_marks,
+                    'tutorial_marks' => (float) ($config->tutorial_marks ?? $this->tutorial_marks),
                     'total_marks' => (float) $config->total_marks,
                     'pass_mark' => (float) $config->pass_mark,
                 ];
@@ -119,6 +120,7 @@ class Subject extends Model
             'mcq_marks' => (float) $this->mcq_marks,
             'practical_marks' => (float) $this->practical_marks,
             'viva_marks' => (float) $this->viva_marks,
+            'tutorial_marks' => (float) $this->tutorial_marks,
             'total_marks' => (float) $this->total_marks,
             'pass_mark' => (float) $this->pass_mark,
         ];

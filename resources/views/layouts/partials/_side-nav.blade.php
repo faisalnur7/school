@@ -292,20 +292,19 @@
                 </li>
                 @endif
 
-                <!-- Communication -->
-                {{-- @if(auth()->user()?->hasPermission('view_students'))
+                <!-- Communications -->
+                @if(auth()->check())
                 <li class="nav-item-modern">
-                    <a href="{{ route('notice.index') }}"
-                       class="nav-link-modern {{ request()->routeIs('notice.*', 'communication.*', 'chat.*', 'emailsms.*') ? 'active' : '' }}">
-                        <span class="nav-icon"><i class="fas fa-bullhorn"></i></span>
-                        <span class="nav-text">Communication</span>
-                        
-                        @if(request()->routeIs('notice.*', 'communication.*', 'chat.*', 'emailsms.*'))
+                    <a href="{{ route('communications.index') }}"
+                       class="nav-link-modern {{ request()->routeIs('communications.*', 'chat.*') ? 'active' : '' }}">
+                        <span class="nav-icon"><i class="fas fa-comments"></i></span>
+                        <span class="nav-text">Communications</span>
+                        @if(request()->routeIs('communications.*', 'chat.*'))
                         <span class="nav-indicator"></span>
                         @endif
                     </a>
                 </li>
-                @endif --}}
+                @endif
 
                 <!-- Website Management -->
                 {{-- @if(auth()->user()?->hasPermission('view_website_management'))

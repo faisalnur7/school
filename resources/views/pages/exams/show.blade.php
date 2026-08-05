@@ -1,5 +1,13 @@
 @extends('layouts.master')
 
+@section('styles')
+    <style>
+        .exam-class-card {
+            border-left: 4px solid #007bff !important;
+        }
+    </style>
+@endsection
+
 @section('contents')
 <div class="container-fluid">
     @if(session('success'))
@@ -10,11 +18,17 @@
     @endif
 
     <div class="row">
-        {{-- Exam Info --}}
         <div class="col-md-4">
             <div class="card card-primary card-outline">
                 <div class="card-header">
-                    <h5 class="card-title mb-0"><i class="fas fa-info-circle mr-2"></i>Exam Details</h5>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <h5 class="card-title mb-0 mr-3">
+                            <i class="fas fa-info-circle mr-2"></i>Exam Details
+                        </h5>
+                        <a href="{{ route('exams.index') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-list mr-1"></i>Back to Exam List
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <table class="table table-sm table-borderless">
@@ -37,19 +51,13 @@
                     </table>
                 </div>
                 <div class="card-footer">
-                    <a href="{{ route('exams.edit', $exam) }}" class="btn btn-warning btn-sm">
-                        <i class="fas fa-edit mr-1"></i>Edit
+                    <a href="{{ route('exams.edit', $exam) }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-edit mr-1"></i>Edit Exam
                     </a>
-                    <form method="POST" action="{{ route('exams.destroy', $exam) }}" class="d-inline"
-                        onsubmit="return confirm('Delete this exam and all its marks?')">
-                        @csrf @method('DELETE')
-                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash mr-1"></i>Delete</button>
-                    </form>
                 </div>
             </div>
         </div>
 
-        {{-- Class-wise Actions --}}
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
@@ -61,27 +69,27 @@
                 <div class="card-body">
                     <div class="row">
                         @foreach($classes as $class)
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100 border" style="border-left: 4px solid #007bff !important;">
-                                <div class="card-body py-2 px-3">
+                        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+                            <div class="card h-100 border shadow-sm exam-class-card">
+                                <div class="card-body py-3 px-3 d-flex flex-column">
                                     <h6 class="font-weight-bold mb-1">{{ $class->name_en }}</h6>
                                     @if($class->name_bn)
-                                    <small class="text-muted d-block mb-2">{{ $class->name_bn }}</small>
+                                        <small class="text-muted d-block mb-2">{{ $class->name_bn }}</small>
                                     @endif
-                                    <div class="btn-group btn-group-sm d-flex flex-wrap gap-1">
+                                    <div class="mt-auto">
                                         <a href="{{ route('exams.marks-entry', ['exam' => $exam->id, 'class_id' => $class->id]) }}"
-                                            class="btn btn-success btn-sm mb-1" title="Enter Marks">
+                                            class="btn btn-success btn-sm btn-block mb-2" title="Enter Marks">
                                             <i class="fas fa-keyboard mr-1"></i>Marks
                                         </a>
                                         <a href="{{ route('exams.preview', ['exam' => $exam->id, 'class_id' => $class->id]) }}"
-                                            class="btn btn-info btn-sm mb-1" title="Preview">
+                                            class="btn btn-info btn-sm btn-block" title="Preview">
                                             <i class="fas fa-chart-bar mr-1"></i>Preview
                                         </a>
                                         @if($exam->type === 'term')
-                                        <a href="{{ route('exams.terminal-result', ['exam' => $exam->id, 'class_id' => $class->id]) }}"
-                                            class="btn btn-warning btn-sm mb-1" title="Result">
-                                            <i class="fas fa-trophy mr-1"></i>Result
-                                        </a>
+                                            <a href="{{ route('exams.terminal-result', ['exam' => $exam->id, 'class_id' => $class->id]) }}"
+                                                class="btn btn-warning btn-sm btn-block mt-2" title="Result">
+                                                <i class="fas fa-trophy mr-1"></i>Result
+                                            </a>
                                         @endif
                                     </div>
                                 </div>

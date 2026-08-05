@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Group;
 use App\Models\SchoolClass;
+use App\Models\Student;
 use App\Models\Subject;
 use App\Models\SubjectClassAssignment;
 use App\Models\SubjectClassConfig;
@@ -130,14 +131,15 @@ class SubjectSeeder extends Seeder
                 SchoolClass $class,
                 ?Group      $group = null,
                 bool        $isOptional = false,
-                ?string     $exclusiveKey = null
+                ?string     $exclusiveKey = null,
+                string      $religion = 'all'
             ): void {
                 SubjectClassAssignment::updateOrCreate([
                     'subject_id'      => $subject->id,
                     'school_class_id' => $class->id,
                     'group_id'        => $group?->id,
                     'gender'          => 'all',
-                    'religion'        => 'all',
+                    'religion'        => $religion,
                 ], [
                     'is_optional'        => $isOptional,
                     'is_compulsory'      => ! $isOptional,
@@ -169,6 +171,22 @@ class SubjectSeeder extends Seeder
                 ]);
             };
 
+            $assignReligionSubjects = function (
+                SchoolClass $class,
+                array $subjectsByReligion,
+                ?Subject $quranSubject = null
+            ) use ($assign): void {
+                foreach ($subjectsByReligion as $religionId => $subject) {
+                    if ($subject instanceof Subject) {
+                        $assign($subject, $class, null, false, null, Student::religionTokenFromId((int) $religionId));
+                    }
+                }
+
+                if ($quranSubject instanceof Subject) {
+                    $assign($quranSubject, $class, null, false, null, 'islam');
+                }
+            };
+
             // ─────────────────────────────────────────────────────────────
             // 0. PRE-PRIMARY — Play, Nursery, KG
             //    No MCQ at this level. All written/oral/activity based.
@@ -179,10 +197,15 @@ class SubjectSeeder extends Seeder
             // Play & Nursery subjects (50 marks each, pass 17)
             $bangla_pp   = $makeSubject('Bangla',                    'BAN-PP',  'mandatory', 100, 0, 0, 33);
             $english_pp  = $makeSubject('English',                   'ENG-PP',  'mandatory', 100, 0, 0, 33);
-            $gk_pp       = $makeSubject('General Knowledge',          'GK-PP',   'mandatory', 100, 0, 0, 33);
-            $spoken_pp   = $makeSubject('Spoken',                     'SPK-PP',  'mandatory', 50, 0, 0, 17);
+            $gk_pp       = $makeSubject('General Knowledge',         'GK-PP',   'mandatory', 100, 0, 0, 33);
+            $spoken_pp   = $makeSubject('Spoken',                    'SPK-PP',  'mandatory', 50, 0, 0, 17);
             $math_pp     = $makeSubject('Mathematics',               'MATH-PP', 'mandatory', 100, 0, 0, 33);
             $drawing_pp  = $makeSubject('Drawing',                   'DRW-PP',  'mandatory',  0, 0, 50, 17);
+            $quran_pp    = $makeSubject('Quran',                     'QUR-PP',  'mandatory', 50, 0, 0, 20);
+            $islam_religion_pp = $makeSubject('Islam Religion',      'REL-PP',  'mandatory', 50, 0, 0, 20);
+            $hindu_religion_pp = $makeSubject('Hindu Religion',      'HIN-PP',  'mandatory', 50, 0, 0, 20);
+            $buddha_religion_pp = $makeSubject('Buddha Religion',    'BUD-PP',  'mandatory', 50, 0, 0, 20);
+            $christian_religion_pp = $makeSubject('Christian Religion', 'CHR-PP', 'mandatory', 50, 0, 0, 20);
 
             // KG subjects (100 marks each, pass 33)
             $bangla_kg   = $makeSubject('Bangla',                    'BAN-KG',  'mandatory', 100, 0, 0, 33);
@@ -190,7 +213,12 @@ class SubjectSeeder extends Seeder
             $spoken_kg   = $makeSubject('Spoken',                    'SPK-KG',  'mandatory', 50, 0, 0, 17);
             $math_kg     = $makeSubject('Mathematics',               'MATH-KG', 'mandatory', 100, 0, 0, 33);
             $drawing_kg  = $makeSubject('Drawing',                   'DRW-KG',  'mandatory',   0, 0, 50, 17);
-            $gk_kg       = $makeSubject('General Knowledge',         'GK-KG',   'mandatory', 100, 0, 0, 33);
+            $gk_kg       = $makeSubject('General Knowledge',        'GK-KG',   'mandatory', 100, 0, 0, 33);
+            $quran_kg    = $makeSubject('Quran',                     'QUR-KG',  'mandatory', 100, 0, 0, 33);
+            $islam_religion_kg = $makeSubject('Islam Religion',      'REL-KG',  'mandatory', 100, 0, 0, 33);
+            $hindu_religion_kg = $makeSubject('Hindu Religion',      'HIN-KG',  'mandatory', 100, 0, 0, 33);
+            $buddha_religion_kg = $makeSubject('Buddha Religion',    'BUD-KG',  'mandatory', 100, 0, 0, 33);
+            $christian_religion_kg = $makeSubject('Christian Religion', 'CHR-KG', 'mandatory', 100, 0, 0, 33);
 
             foreach (['Play', 'Nursery'] as $cn) {
                 if (! isset($classes[$cn])) continue;
@@ -198,6 +226,12 @@ class SubjectSeeder extends Seeder
                 foreach ([$bangla_pp, $english_pp, $gk_pp, $spoken_pp, $math_pp, $drawing_pp] as $s) {
                     $assign($s, $cl);
                 }
+                $assignReligionSubjects($cl, [
+                    Student::ISLAM => $islam_religion_pp,
+                    Student::HINDU => $hindu_religion_pp,
+                    Student::CHRISTIAN => $christian_religion_pp,
+                    Student::BUDDHIST => $buddha_religion_pp,
+                ], $quran_pp);
             }
 
             if (isset($classes['KG'])) {
@@ -205,6 +239,12 @@ class SubjectSeeder extends Seeder
                 foreach ([$bangla_kg, $english_kg, $gk_kg, $spoken_kg, $math_kg, $drawing_kg] as $s) {
                     $assign($s, $cl);
                 }
+                $assignReligionSubjects($cl, [
+                    Student::ISLAM => $islam_religion_kg,
+                    Student::HINDU => $hindu_religion_kg,
+                    Student::CHRISTIAN => $christian_religion_kg,
+                    Student::BUDDHIST => $buddha_religion_kg,
+                ], $quran_kg);
             }
 
             // ─────────────────────────────────────────────────────────────
@@ -222,7 +262,12 @@ class SubjectSeeder extends Seeder
             $math_p     = $makeSubject('Mathematics',               'MATH-P', 'mandatory', 100, 0,  0, 40);
             $science_p  = $makeSubject('Science',                   'SCI-P',  'mandatory', 100, 0,  0, 40);
             $bgs_p      = $makeSubject('Bangladesh & World Studies','BGS-P',  'mandatory', 100, 0,  0, 40);
-            $religion_p = $makeSubject('Religion & Quran',          'REL-P',  'mandatory', 100, 0,  0, 40);
+            $islam_religion_p = $makeSubject('Islam Religion',      'REL-P',  'mandatory', 100, 0,  0, 40);
+            $hindu_religion_p = $makeSubject('Hindu Religion',      'HIN-P',  'mandatory', 100, 0,  0, 40);
+            $buddha_religion_p = $makeSubject('Buddha Religion',    'BUD-P',  'mandatory', 100, 0,  0, 40);
+            $christian_religion_p = $makeSubject('Christian Religion', 'CHR-P', 'mandatory', 100, 0,  0, 40);
+            $quran_p          = $makeSubject('Quran',               'QUR-P',  'mandatory', 100, 0,  0, 40);
+            $quran_js         = $makeSubject('Quran',              'QUR-JS', 'mandatory', 30,  0,  0, 10);
             $gk_p       = $makeSubject('General Knowledge',         'GK-P',   'mandatory', 100, 0,  0, 40);
             $reading_p  = $makeSubject('Reading & Writing',         'READ-P', 'mandatory', 100, 0,  0, 40);
             $computer_p = $makeSubject('Computer',                  'COMP-P', 'mandatory',  50, 0, 25, 25);
@@ -233,17 +278,32 @@ class SubjectSeeder extends Seeder
             foreach ($primaryClasses12 as $cn) {
                 if (! isset($classes[$cn])) continue;
                 $cl = $classes[$cn];
-                foreach ([$bangla_p, $english_p, $gk_p, $reading_p, $math_p, $religion_p, $computer_p, $drawing_p, $spoken_p] as $s) {
+                foreach ([$bangla_p, $english_p, $gk_p, $reading_p, $math_p, $computer_p, $drawing_p, $spoken_p] as $s) {
                     $assign($s, $cl);
                 }
+                $assignReligionSubjects($cl, [
+                    Student::ISLAM => $islam_religion_p,
+                    Student::HINDU => $hindu_religion_p,
+                    Student::CHRISTIAN => $christian_religion_p,
+                    Student::BUDDHIST => $buddha_religion_p,
+                ], $quran_p);
             }
 
             // Class 3–4: CQ=80, MCQ=20
             foreach (['Three', 'Four'] as $cn) {
                 if (! isset($classes[$cn])) continue;
                 $cl = $classes[$cn];
-                foreach ([$bangla_p, $english_p, $math_p, $science_p, $bgs_p, $religion_p, $gk_p, $reading_p, $spoken_p, $drawing_p] as $s) {
+                foreach ([$bangla_p, $english_p, $math_p, $science_p, $bgs_p, $gk_p, $reading_p, $spoken_p, $drawing_p] as $s) {
                     $assign($s, $cl);
+                    $config($s, $cl, 80, 20, 0, 33);
+                }
+                $assignReligionSubjects($cl, [
+                    Student::ISLAM => $islam_religion_p,
+                    Student::HINDU => $hindu_religion_p,
+                    Student::CHRISTIAN => $christian_religion_p,
+                    Student::BUDDHIST => $buddha_religion_p,
+                ], $quran_js);
+                foreach ([$islam_religion_p, $hindu_religion_p, $christian_religion_p, $buddha_religion_p] as $s) {
                     $config($s, $cl, 80, 20, 0, 33);
                 }
             }
@@ -274,21 +334,33 @@ class SubjectSeeder extends Seeder
             $english2_js = $english_js->papers()->where('code', 'ENG-JS-2')->first();
 
             // Standalone JS subjects
-            $math_js     = $makeSubject('Mathematics',                  'MATH-JS', 'mandatory', 70, 30,  0, 33);
-            $science_js  = $makeSubject('Science',                      'SCI-JS',  'mandatory', 55, 20, 25, 33);
-            $bgs_js      = $makeSubject('Bangladesh & World Studies',   'BGS-JS',  'mandatory', 70, 30,  0, 33);
-            $religion_js = $makeSubject('Religion & Quran',             'REL-JS',  'mandatory', 70, 30,  0, 33);
-            $ict_js      = $makeSubject('ICT',                          'ICT-JS',  'mandatory', 50,  0, 25, 25);
-            $gk_js       = $makeSubject('General Knowledge',            'GK-JS',   'mandatory', 70, 30,  0, 33);
-            $reading_js  = $makeSubject('Reading & Writing',            'READ-JS', 'mandatory', 70, 30,  0, 33);
-            $spoken_js   = $makeSubject('Spoken & Communication',       'SPK-JS',  'mandatory', 70, 30,  0, 33);
-            $agri_js     = $makeSubject('Agriculture',                  'AGR-JS',  'mandatory', 70, 30,  0, 33);
-            $drawing_js  = $makeSubject('Drawing',                      'DRW-JS',  'mandatory', 50,  0, 50, 33);
+            $math_js         = $makeSubject('Mathematics',             'MATH-JS', 'mandatory', 70, 30,  0, 33);
+            $science_js      = $makeSubject('Science',                 'SCI-JS',  'mandatory', 55, 20, 25, 33);
+            $bgs_js          = $makeSubject('Bangladesh & World Studies', 'BGS-JS',  'mandatory', 70, 30,  0, 33);
+            $islam_religion_js = $makeSubject('Islam Religion',        'REL-JS',  'mandatory', 70, 30,  0, 33);
+            $hindu_religion_js = $makeSubject('Hindu Religion',        'HIN-JS',  'mandatory', 70, 30,  0, 33);
+            $buddha_religion_js = $makeSubject('Buddha Religion',      'BUD-JS',  'mandatory', 70, 30,  0, 33);
+            $christian_religion_js = $makeSubject('Christian Religion', 'CHR-JS', 'mandatory', 70, 30,  0, 33);
+            $ict_js          = $makeSubject('ICT',                     'ICT-JS',  'mandatory', 50,  0, 25, 25);
+            $gk_js           = $makeSubject('General Knowledge',       'GK-JS',   'mandatory', 70, 30,  0, 33);
+            $reading_js      = $makeSubject('Reading & Writing',       'READ-JS', 'mandatory', 70, 30,  0, 33);
+            $spoken_js       = $makeSubject('Spoken & Communication',  'SPK-JS',  'mandatory', 70, 30,  0, 33);
+            $agri_js         = $makeSubject('Agriculture',             'AGR-JS',  'mandatory', 70, 30,  0, 33);
+            $drawing_js      = $makeSubject('Drawing',                 'DRW-JS',  'mandatory', 50,  0, 50, 33);
 
             if (isset($classes['Five'])) {
                 $cl = $classes['Five'];
-                foreach ([$bangla1_js, $bangla2_js, $english1_js, $english2_js, $math_p, $religion_p, $bgs_p, $science_p, $gk_p, $reading_p, $spoken_p] as $s) {
+                foreach ([$bangla1_js, $bangla2_js, $english1_js, $english2_js, $math_p, $bgs_p, $science_p, $gk_p, $reading_p, $spoken_p] as $s) {
                     $assign($s, $cl);
+                    $config($s, $cl, 80, 20, 0, 33);
+                }
+                $assignReligionSubjects($cl, [
+                    Student::ISLAM => $islam_religion_p,
+                    Student::HINDU => $hindu_religion_p,
+                    Student::CHRISTIAN => $christian_religion_p,
+                    Student::BUDDHIST => $buddha_religion_p,
+                ], $quran_js);
+                foreach ([$islam_religion_p, $hindu_religion_p, $christian_religion_p, $buddha_religion_p] as $s) {
                     $config($s, $cl, 80, 20, 0, 33);
                 }
             }
@@ -298,11 +370,17 @@ class SubjectSeeder extends Seeder
                 $cl = $classes[$cn];
                 foreach ([
                     $bangla1_js, $bangla2_js, $english1_js, $english2_js,
-                    $religion_js, $math_js, $bgs_js, $science_js, $ict_js,
+                    $math_js, $bgs_js, $science_js, $ict_js,
                     $gk_js, $reading_js, $spoken_js, $agri_js,
                 ] as $s) {
                     $assign($s, $cl);
                 }
+                $assignReligionSubjects($cl, [
+                    Student::ISLAM => $islam_religion_js,
+                    Student::HINDU => $hindu_religion_js,
+                    Student::CHRISTIAN => $christian_religion_js,
+                    Student::BUDDHIST => $buddha_religion_js,
+                ], $quran_js);
                 if ($cn !== 'Eight') {
                     $assign($drawing_js, $cl);
                 }
@@ -363,7 +441,10 @@ class SubjectSeeder extends Seeder
             $english2_ssc = $english_ssc->papers()->where('code', 'ENG-SSC-2')->first();
 
             $math_ssc     = $makeSubject('Mathematics',                 'MATH-SSC', 'mandatory', 75, 25,  0, 33);
-            $religion_ssc = $makeSubject('Religion & Quran',            'REL-SSC',  'mandatory', 70, 30,  0, 33);
+            $islam_religion_ssc = $makeSubject('Islam Religion',       'REL-SSC',  'mandatory', 70, 30,  0, 33);
+            $hindu_religion_ssc = $makeSubject('Hindu Religion',       'HIN-SSC',  'mandatory', 70, 30,  0, 33);
+            $buddha_religion_ssc = $makeSubject('Buddha Religion',     'BUD-SSC',  'mandatory', 70, 30,  0, 33);
+            $christian_religion_ssc = $makeSubject('Christian Religion', 'CHR-SSC', 'mandatory', 70, 30,  0, 33);
             $bgs_ssc      = $makeSubject('Bangladesh & Global Studies', 'BGS-SSC',  'mandatory', 70, 30,  0, 33);
             $ict_ssc      = $makeSubject('ICT',                         'ICT-SSC',  'mandatory', 50,  0, 25, 25);
             $pe_ssc       = $makeSubject('Physical Education',          'PE-SSC',   'mandatory', 50,  0, 50, 33);
@@ -395,9 +476,15 @@ class SubjectSeeder extends Seeder
                 $cl = $classes[$cn];
 
                 // Common compulsory (no group filter)
-                foreach ([$bangla1_ssc, $bangla2_ssc, $english1_ssc, $english2_ssc, $math_ssc, $religion_ssc, $bgs_ssc, $ict_ssc, $pe_ssc, $gk_ssc] as $s) {
+                foreach ([$bangla1_ssc, $bangla2_ssc, $english1_ssc, $english2_ssc, $math_ssc, $bgs_ssc, $ict_ssc, $pe_ssc, $gk_ssc] as $s) {
                     $assign($s, $cl);
                 }
+                $assignReligionSubjects($cl, [
+                    Student::ISLAM => $islam_religion_ssc,
+                    Student::HINDU => $hindu_religion_ssc,
+                    Student::CHRISTIAN => $christian_religion_ssc,
+                    Student::BUDDHIST => $buddha_religion_ssc,
+                ]);
                 foreach ([$agri_ssc, $drawing_ssc] as $s) {
                     $assign($s, $cl, null, true);
                 }

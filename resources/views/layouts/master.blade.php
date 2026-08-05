@@ -215,6 +215,46 @@
                         .append($('<span class="select2-checkbox-option__label"></span>').text(data.text));
                 }
 
+                function getSelect2SearchText(data) {
+                    if (!data) {
+                        return '';
+                    }
+
+                    if (data.element) {
+                        const elementSearchText = data.element.getAttribute('data-search-text') || data.element.dataset.searchText;
+                        if (elementSearchText) {
+                            return String(elementSearchText).toLowerCase();
+                        }
+                    }
+
+                    return String(data.text || '').toLowerCase();
+                }
+
+                function matchSelect2Search(params, data) {
+                    const term = String(params.term || '').trim().toLowerCase();
+                    if (!term) {
+                        return data;
+                    }
+
+                    if (data.children && data.children.length) {
+                        const matches = [];
+                        data.children.forEach(function(child) {
+                            const match = matchSelect2Search(params, child);
+                            if (match) {
+                                matches.push(match);
+                            }
+                        });
+
+                        if (matches.length) {
+                            return $.extend({}, data, { children: matches });
+                        }
+
+                        return null;
+                    }
+
+                    return getSelect2SearchText(data).includes(term) ? data : null;
+                }
+
                 $('select:not(.no-select2)', context).each(function() {
                     const $select = $(this);
                     if ($select.hasClass('select2-hidden-accessible')) return;
@@ -237,6 +277,7 @@
                         select2Options.closeOnSelect = false;
                         select2Options.templateResult = formatCheckboxOption;
                     }
+                    select2Options.matcher = matchSelect2Search;
                     if ($select.data('select2ContainerClass')) {
                         select2Options.containerCssClass = $select.data('select2ContainerClass');
                     }

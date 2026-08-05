@@ -19,6 +19,7 @@ use App\Models\Employee;
 use App\Models\Expense;
 use App\Models\Asset;
 use App\Models\Notice;
+use App\Models\Division;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -69,7 +70,10 @@ class DashboardController extends Controller
         
         // Student Distribution by Class
         $data['student_distribution'] = $this->getStudentDistribution();
-        
+
+        // Student Distribution by Division
+        $data['divisionwise_students'] = $this->getDivisionwiseStudentDistribution();
+
         // Recent Exams
         $data['recent_exams'] = Exam::latest()->take(5)->get();
         
@@ -218,6 +222,28 @@ class DashboardController extends Controller
                 'count' => (int) ($counts[$class->id] ?? 0),
             ];
         })->values()->all();
+    }
+
+    private function getDivisionwiseStudentDistribution()
+    {
+        $divisions = Division::query()->where('status', 1)->orderBy('name')->get(['id', 'name']);
+        $counts = Student::query()
+            ->whereNotNull('present_division_id')
+            ->selectRaw('present_division_id as division_id, COUNT(*) as total')
+            ->groupBy('present_division_id')
+            ->pluck('total', 'division_id');
+
+        $totalStudents = (int) $counts->sum();
+
+        return $divisions->map(function ($division) use ($counts, $totalStudents) {
+            $count = (int) ($counts[$division->id] ?? 0);
+
+            return [
+                'name' => $division->name,
+                'count' => $count,
+                'percentage' => $totalStudents > 0 ? round(($count / $totalStudents) * 100, 2) : 0,
+            ];
+        })->filter(fn ($division) => $division['count'] > 0)->values()->all();
     }
 
     private function getMonthlyFeeCollection()
