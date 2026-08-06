@@ -1110,7 +1110,6 @@
                                 <div
                                     class="communications-people__item"
                                     data-chat-user-result
-                                    data-chat-user-force-new="1"
                                     data-user-id="{{ $person->id }}"
                                     data-user-name="{{ $person->name }}"
                                     data-user-email="{{ $person->email }}"
