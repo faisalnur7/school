@@ -57,7 +57,7 @@
                             <select id="att_session_id" class="form-control form-control-sm attendance-filter-control" required>
                                 <option value="">Select Session</option>
                                 @foreach ($sessions as $session)
-                                    <option value="{{ $session->id }}">{{ $session->name_en }}</option>
+                                    <option value="{{ $session->id }}" {{ (string) $selectedSessionId === (string) $session->id ? 'selected' : '' }}>{{ $session->name_en }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -67,7 +67,7 @@
                             <select id="classSelect" class="form-control form-control-sm attendance-filter-control" required>
                                 <option value="">Select Class</option>
                                 @foreach ($classes as $class)
-                                    <option value="{{ $class->id }}">{{ $class->name_en }}</option>
+                                    <option value="{{ $class->id }}" {{ (string) $selectedClassId === (string) $class->id ? 'selected' : '' }}>{{ $class->name_en }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -112,6 +112,8 @@
     <script>
         const sectionSelect = document.getElementById('sectionSelect');
         const attendanceStudentsWrap = document.getElementById('attendanceStudentsWrap');
+        let attendanceAutoLoadPending = {{ request()->filled('session_id') && request()->filled('school_class_id') && request()->filled('section_id') && request()->filled('date') ? 'true' : 'false' }};
+        let attendanceAutoLoadAttempts = 0;
 
         function getAttendanceCheckboxes() {
             if (!attendanceStudentsWrap) {
@@ -161,6 +163,31 @@
             syncSelectAllCheckboxState();
         }
 
+        function attemptAttendanceAutoLoad() {
+            if (!attendanceAutoLoadPending) {
+                return;
+            }
+
+            attendanceAutoLoadAttempts += 1;
+            if (attendanceAutoLoadAttempts > 20) {
+                attendanceAutoLoadPending = false;
+                return;
+            }
+
+            const sessionId = document.getElementById('att_session_id').value;
+            const classId = document.getElementById('classSelect').value;
+            const sectionId = document.getElementById('sectionSelect').value;
+            const date = document.getElementById('att_date').value;
+
+            if (sessionId && classId && sectionId && date) {
+                attendanceAutoLoadPending = false;
+                document.getElementById('btnLoadStudents').click();
+                return;
+            }
+
+            setTimeout(attemptAttendanceAutoLoad, 200);
+        }
+
         document.getElementById('classSelect').addEventListener('change', function() {
             const classId = this.value;
             sectionSelect.innerHTML = '<option value="">Select Section</option>';
@@ -176,6 +203,7 @@
                         sectionSelect.insertAdjacentHTML('beforeend',
                             `<option value="${s.id}">${s.name_en}</option>`);
                     });
+                    attemptAttendanceAutoLoad();
                 })
                 .catch(() => {
                     sectionSelect.innerHTML = '<option value="">Select Section</option>';
@@ -241,5 +269,6 @@
         });
 
         bindAttendanceCheckboxSync();
+        attemptAttendanceAutoLoad();
     </script>
 @endsection

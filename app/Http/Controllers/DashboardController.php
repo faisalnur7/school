@@ -9,6 +9,7 @@ use App\Models\Attendance;
 use App\Models\AttendanceItem;
 use App\Models\Payment;
 use App\Models\Fee;
+use App\Models\AcademicSession;
 use App\Models\Exam;
 use App\Models\Staff;
 use App\Models\Teacher;
@@ -17,9 +18,8 @@ use App\Models\Section;
 use App\Models\Income;
 use App\Models\Employee;
 use App\Models\Expense;
-use App\Models\Asset;
 use App\Models\Notice;
-use App\Models\Division;
+use App\Models\StudentAcademicInformation;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -53,9 +53,6 @@ class DashboardController extends Controller
         $data['total_expense'] = Expense::sum('amount');
         $data['net_balance'] = $data['total_income'] - $data['total_expense'];
         
-        // Assets
-        $data['total_assets'] = Asset::count();
-        
         // Classwise Attendance (Last 7 days)
         $data['classwise_attendance'] = $this->getClasswiseAttendance();
         
@@ -71,8 +68,8 @@ class DashboardController extends Controller
         // Student Distribution by Class
         $data['student_distribution'] = $this->getStudentDistribution();
 
-        // Student Distribution by Division
-        $data['divisionwise_students'] = $this->getDivisionwiseStudentDistribution();
+        // Upcoming Birthdays
+        $data['upcoming_birthdays'] = $this->getUpcomingBirthdays(5);
 
         // Recent Exams
         $data['recent_exams'] = Exam::latest()->take(5)->get();
@@ -90,6 +87,7 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
         $classes = SchoolClass::all(['id', 'name_en']);
+        $currentSessionId = AcademicSession::where('status', 1)->value('id') ?? AcademicSession::latest('id')->value('id');
 
         $itemStats = AttendanceItem::query()
             ->join('attendances', 'attendance_items.attendance_id', '=', 'attendances.id')
@@ -100,15 +98,37 @@ class DashboardController extends Controller
             ->groupBy('class_id')
             ->map(fn ($rows) => $rows->pluck('total', 'status'));
 
-        return $classes->map(function ($class) use ($itemStats) {
+        $currentSections = StudentAcademicInformation::query()
+            ->when($currentSessionId, fn ($query) => $query->where('academic_session_id', $currentSessionId))
+            ->where('is_current', true)
+            ->whereIn('school_class_id', $classes->pluck('id'))
+            ->with('section:id,name_en')
+            ->orderBy('id')
+            ->get()
+            ->groupBy('school_class_id');
+
+        return $classes->map(function ($class) use ($itemStats, $currentSections, $currentSessionId, $today) {
             $stats = $itemStats->get($class->id, collect());
             $present = (int) ($stats->get('present') ?? 0);
             $total = (int) ($stats->sum());
             $percentage = $total > 0 ? round(($present / $total) * 100, 2) : 0;
+            $sectionInfo = $currentSections->get($class->id)?->first();
+            $fallbackSectionId = $sectionInfo?->section_id ?: Section::where('school_class_id', $class->id)->orderBy('id')->value('id');
 
             return [
                 'class' => $class->name_en,
                 'percentage' => $percentage,
+                'session_id' => $currentSessionId,
+                'class_id' => $class->id,
+                'section_id' => $fallbackSectionId,
+                'link' => ($currentSessionId && $fallbackSectionId)
+                    ? route('attendance.index', [
+                        'session_id' => $currentSessionId,
+                        'school_class_id' => $class->id,
+                        'section_id' => $fallbackSectionId,
+                        'date' => $today->toDateString(),
+                    ])
+                    : null,
             ];
         })->values()->all();
     }
@@ -224,26 +244,50 @@ class DashboardController extends Controller
         })->values()->all();
     }
 
-    private function getDivisionwiseStudentDistribution()
+    private function getUpcomingBirthdays(int $days = 5)
     {
-        $divisions = Division::query()->where('status', 1)->orderBy('name')->get(['id', 'name']);
-        $counts = Student::query()
-            ->whereNotNull('present_division_id')
-            ->selectRaw('present_division_id as division_id, COUNT(*) as total')
-            ->groupBy('present_division_id')
-            ->pluck('total', 'division_id');
+        $today = Carbon::today();
+        $endDate = $today->copy()->addDays($days);
+        $fromKey = $today->format('m-d');
+        $toKey = $endDate->format('m-d');
 
-        $totalStudents = (int) $counts->sum();
+        $students = Student::query()
+            ->whereNotNull('date_of_birth')
+            ->where(function ($query) use ($fromKey, $toKey) {
+                if ($fromKey <= $toKey) {
+                    $query->whereRaw("DATE_FORMAT(date_of_birth, '%m-%d') >= ? AND DATE_FORMAT(date_of_birth, '%m-%d') <= ?", [$fromKey, $toKey]);
+                } else {
+                    $query->whereRaw("DATE_FORMAT(date_of_birth, '%m-%d') >= ? OR DATE_FORMAT(date_of_birth, '%m-%d') <= ?", [$fromKey, $toKey]);
+                }
+            })
+            ->with(['academicInformations' => fn ($query) => $query->latest()->with(['schoolClass', 'section'])])
+            ->get()
+            ->map(function (Student $student) use ($today) {
+                $birthDate = Carbon::parse($student->date_of_birth);
+                $nextBirthday = Carbon::createFromDate($today->year, $birthDate->month, $birthDate->day)->startOfDay();
 
-        return $divisions->map(function ($division) use ($counts, $totalStudents) {
-            $count = (int) ($counts[$division->id] ?? 0);
+                if ($nextBirthday->lt($today)) {
+                    $nextBirthday->addYear();
+                }
 
-            return [
-                'name' => $division->name,
-                'count' => $count,
-                'percentage' => $totalStudents > 0 ? round(($count / $totalStudents) * 100, 2) : 0,
-            ];
-        })->filter(fn ($division) => $division['count'] > 0)->values()->all();
+                $daysUntil = $today->diffInDays($nextBirthday, false);
+                $academicInfo = $student->academicInformations->first();
+
+                return [
+                    'name' => $student->full_name_en ?: $student->full_name_bn ?: __('Student'),
+                    'date' => $birthDate,
+                    'days_until' => $daysUntil,
+                    'label' => $daysUntil === 0 ? __('Today') : __('In :days days', ['days' => $daysUntil]),
+                    'class' => $academicInfo?->schoolClass?->name_en,
+                    'section' => $academicInfo?->section?->name_en,
+                ];
+            })
+            ->filter(fn ($birthday) => $birthday['days_until'] >= 0 && $birthday['days_until'] <= $days)
+            ->sortBy('days_until')
+            ->values()
+            ->all();
+
+        return $students;
     }
 
     private function getMonthlyFeeCollection()
