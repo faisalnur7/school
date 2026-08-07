@@ -11,8 +11,8 @@
                 <i class="fas fa-cogs text-white text-4xl"></i>
             </div>
             <div>
-                <h3 class="text-white text-3xl font-bold m-0">Location Settings</h3>
-                <p class="text-amber-100 text-base mt-1 mb-0">Manage divisions, districts & local areas</p>
+                <h3 class="text-white text-3xl font-bold m-0">{{ __('Location Settings') }}</h3>
+                <p class="text-amber-100 text-base mt-1 mb-0">{{ __('Manage divisions, districts & local areas') }}</p>
             </div>
         </div>
     </div>

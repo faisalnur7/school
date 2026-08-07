@@ -1,9 +1,9 @@
 <div class="card">
     <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3 students-card-header">
         <div class="flex flex-col students-card-copy">
-            <h3 class="card-title mb-0 text-white text-lg">Student Directory</h3>
+            <h3 class="card-title mb-0 text-white text-lg">{{ __('Student Directory')}}</h3>
             <div class="students-directory-subtitle">
-                Browse current student records and manage each profile from one place.
+                {{ __('Browse current student records and manage each profile from one place.') }}
             </div>
         </div>
 
@@ -14,7 +14,7 @@
                 <span class="sr-only">PDF</span>
             </a>
             <a href="{{ route('students.admission') }}" class="btn btn-sm btn-primary students-add-student-btn">
-                <i class="fas fa-plus mr-1"></i> Add Student
+                <i class="fas fa-plus mr-1"></i> {{ __('Add Student') }}
             </a>
         </div>
     </div>
@@ -32,12 +32,12 @@
                 <thead>
                     <tr>
                         <th class="students-serial">#</th>
-                        <th>Name</th>
-                        <th>Academic</th>
-                        <th>Contact</th>
-                        <th>Guardian</th>
-                        <th class="text-center">Status</th>
-                        <th class="text-right">Actions</th>
+                        <th>{{ __('Name') }}</th>
+                        <th>{{ __('Academic') }}</th>
+                        <th>{{ __('Contact') }}</th>
+                        <th>{{ __('Guardian') }}</th>
+                        <th class="text-center">{{ __('Status') }}</th>
+                        <th class="text-right">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
 

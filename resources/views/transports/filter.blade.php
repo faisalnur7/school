@@ -1,18 +1,18 @@
 <!-- Filter Section -->
 <div class="row mb-4 align-items-end">
     <div class="col-lg-2 col-md-4 mb-3">
-        <label class="form-label">Student ID</label>
+        <label class="form-label">{{ __('Student ID') }}</label>
         <input type="text"
                name="student_cid"
                class="form-control"
                value="{{ request('student_cid') }}"
-               placeholder="Search by ID">
+               placeholder="{{ __('Search by ID') }}">
     </div>
 
     <div class="col-lg-2 col-md-4 mb-3">
-        <label class="form-label">Academic Session *</label>
+        <label class="form-label">{{ __('Academic Session *') }}</label>
         <select id="academic_session_id" name="academic_session_id" class="form-control" required>
-            <option value="">Select Session</option>
+            <option value="">{{ __('Select Session') }}</option>
             @foreach($sessions as $session)
                 <option value="{{ $session->id }}" {{ request('academic_session_id') == $session->id ? 'selected' : '' }}>{{ $session->name_en }}</option>
             @endforeach
@@ -20,9 +20,9 @@
     </div>
 
     {{-- <div class="col-md-3 mb-3">
-        <label class="form-label">Fee Category *</label>
+        <label class="form-label">{{ __('Fee Category *') }}</label>
         <select id="fee_category_id" name="fee_category_id" class="form-control" required>
-            <option value="">Select Fee Category</option>
+            <option value="">{{ __('Select Fee Category') }}</option>
             @foreach($feeCategories as $category)
                 <option value="{{ $category->id }}" {{ request('fee_category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
             @endforeach
@@ -30,9 +30,9 @@
     </div> --}}
 
     <div class="col-lg-2 col-md-4 mb-3">
-        <label class="form-label">Class</label>
+        <label class="form-label">{{ __('Class') }}</label>
         <select id="classSelect" name="school_class_id" class="form-control">
-            <option value="">All Classes</option>
+            <option value="">{{ __('All Classes') }}</option>
             @foreach($classes as $class)
                 <option value="{{ $class->id }}" {{ request('school_class_id') == $class->id ? 'selected' : '' }}>{{ $class->name_en }}</option>
             @endforeach
@@ -40,16 +40,16 @@
     </div>
 
     <div class="col-lg-2 col-md-4 mb-3">
-        <label class="form-label">Section</label>
+        <label class="form-label">{{ __('Section') }}</label>
         <select id="sectionSelect" name="section_id" class="form-control">
-            <option value="">All Sections</option>
+            <option value="">{{ __('All Sections') }}</option>
         </select>
     </div>
 
     <div class="col-lg-2 col-md-4 mb-3">
-        <label class="form-label">Group</label>
+        <label class="form-label">{{ __('Group') }}</label>
         <select id="groupSelect" name="group_id" class="form-control">
-            <option value="">All Groups</option>
+            <option value="">{{ __('All Groups') }}</option>
         </select>
     </div>
 

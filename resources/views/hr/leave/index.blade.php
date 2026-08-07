@@ -26,7 +26,7 @@
                     </div>
                     <div class="col-md-2 form-group mb-0">
                         <select name="status" class="form-control form-control-sm">
-                            <option value="">All Status</option>
+                            <option value="">{{ __('All Status') }}</option>
                             <option value="pending"  {{ request('status') === 'pending'  ? 'selected' : '' }}>Pending</option>
                             <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Approved</option>
                             <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
@@ -41,7 +41,7 @@
 
             <div class="table-responsive">
                 <table class="table table-sm table-bordered">
-                    <thead class="thead-dark"><tr><th>#</th><th>Employee</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th><th>Approver</th><th class="text-center">Actions</th></tr></thead>
+                    <thead class="thead-dark"><tr><th>#</th><th>{{ __('Employee') }}</th><th>{{ __('Type') }}</th><th>{{ __('From') }}</th><th>{{ __('To') }}</th><th>{{ __('Days') }}</th><th>{{ __('Status') }}</th><th>{{ __('Approver') }}</th><th class="text-center">{{ __('Actions') }}</th></tr></thead>
                     <tbody>
                         @forelse($requests as $i => $r)
                         <tr>

@@ -30,7 +30,7 @@
                                 <label class="font-weight-bold">Academic Year</label>
                                 <select name="session_id" class="form-control form-control-sm"
                                     onchange="this.form.submit()">
-                                    <option value="">All Sessions</option>
+                                    <option value="">{{ __('All Sessions') }}</option>
                                     @foreach ($sessions as $s)
                                         <option value="{{ $s->id }}"
                                             {{ request('session_id') == $s->id ? 'selected' : '' }}>{{ $s->name_en }}
@@ -41,9 +41,9 @@
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Class</label>
+                                <label>{{ __('Class') }}</label>
                                 <select name="class_id" id="classSelect" class="form-control form-control-sm">
-                                    <option value="">All Classes</option>
+                                    <option value="">{{ __('All Classes') }}</option>
                                     @foreach ($classes as $c)
                                         <option value="{{ $c->id }}"
                                             {{ request('class_id') == $c->id ? 'selected' : '' }}>{{ $c->name_en }}
@@ -54,9 +54,9 @@
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Section</label>
+                                <label>{{ __('Section') }}</label>
                                 <select name="section_id" id="sectionSelect" class="form-control form-control-sm">
-                                    <option value="">All Sections</option>
+                                    <option value="">{{ __('All Sections') }}</option>
                                     @foreach ($sections as $sec)
                                         <option value="{{ $sec->id }}"
                                             {{ request('section_id') == $sec->id ? 'selected' : '' }}>{{ $sec->name_en }}
@@ -67,9 +67,9 @@
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Group</label>
+                                <label>{{ __('Group') }}</label>
                                 <select name="group_id" class="form-control form-control-sm">
-                                    <option value="">All Groups</option>
+                                    <option value="">{{ __('All Groups') }}</option>
                                     @foreach ($groups as $g)
                                         <option value="{{ $g->id }}"
                                             {{ request('group_id') == $g->id ? 'selected' : '' }}>{{ $g->name_en }}
@@ -80,15 +80,15 @@
                         </div>
                         <div class="col-md-4 d-flex align-items-center">
                             <div class="form-group mb-0">
-                                <button type="submit" class="btn btn-primary btn-sm" title="Search"><i
+                                <button type="submit" class="btn btn-primary btn-sm" title="{{ __('Search') }}"><i
                                         class="fas fa-search"></i></button>
                                 <a href="{{ route('free-studentships.index') }}" class="btn btn-secondary btn-sm ml-1"
                                     title="Reset"><i class="fas fa-times"></i></a>
                                 @if (request()->hasAny(['session_id', 'class_id', 'section_id', 'group_id']) && $freeStudentships->total() > 0)
                                     <button type="button" class="btn btn-success btn-sm ml-1" onclick="window.print()"
-                                        title="Print"><i class="fas fa-print"></i></button>
+                                        title="{{ __('Print') }}"><i class="fas fa-print"></i></button>
                                     <a href="{{ route('free-studentships.pdf', request()->query()) }}"
-                                        class="btn btn-danger btn-sm ml-1" title="Export PDF"><i
+                                        class="btn btn-danger btn-sm ml-1" title="{{ __('Export PDF') }}"><i
                                             class="fas fa-file-pdf"></i></a>
                                 @endif
                             </div>
@@ -103,19 +103,19 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th>#</th>
-                                <th>Student ID</th>
-                                <th>Roll</th>
-                                <th>Student Name</th>
-                                <th>Class</th>
-                                <th>Section</th>
-                                <th>Group</th>
-                                <th>Fee Category</th>
-                                <th>Type</th>
-                                <th>Value</th>
-                                <th>Permitted By</th>
-                                <th>Session</th>
-                                <th>Status</th>
-                                <th class="text-center">Actions</th>
+                                <th>{{ __('Student ID') }}</th>
+                                <th>{{ __('Roll') }}</th>
+                                <th>{{ __('Student Name') }}</th>
+                                <th>{{ __('Class') }}</th>
+                                <th>{{ __('Section') }}</th>
+                                <th>{{ __('Group') }}</th>
+                                <th>{{ __('Fee Category') }}</th>
+                                <th>{{ __('Type') }}</th>
+                                <th>{{ __('Value') }}</th>
+                                <th>{{ __('Permitted By') }}</th>
+                                <th>{{ __('Session') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th class="text-center">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>

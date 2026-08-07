@@ -1,10 +1,10 @@
 <div class="card">
     <div class="card-header text-white rounded-top d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center shadow p-3"
        >
-        <h3 class="card-title">Academic Sessions</h3>
+        <h3 class="card-title">{{ __('Academic Sessions') }}</h3>
         @if(auth()->user()?->hasPermission('create_sessions'))
             <a href="{{ route('sessions.create') }}" class="btn btn-primary btn-sm ml-sm-auto text-bold w-100 w-sm-auto">
-                + Add Session
+                {{ __('+ Add Session') }}
             </a>
         @endif
     </div>
@@ -15,10 +15,10 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Name (EN)</th>
-                        <th>Name (BN)</th>
-                        <th class="text-center">Status</th>
-                        <th width="180">Action</th>
+                        <th>{{ __('Name (EN)') }}</th>
+                        <th>{{ __('Name (BN)') }}</th>
+                        <th class="text-center">{{ __('Status') }}</th>
+                        <th width="180">{{ __('Action') }}</th>
                     </tr>
                 </thead>
 
@@ -55,7 +55,7 @@
                                 @if(auth()->user()?->hasPermission('delete_sessions'))
                                     <form action="{{ route('sessions.delete', $session->id) }}" method="POST"
                                         class="btn btn-sm btn-danger" style="display:inline;"
-                                        onsubmit="return confirm('Delete this session?')">
+                                        onsubmit="return confirm('{{ __('Delete this session?') }}')">
                                         @csrf @method('DELETE')
                                         <i class="fas fa-trash"></i>
                                     </form>
@@ -67,7 +67,7 @@
                     @if ($sessions->isEmpty())
                         <tr>
                             <td colspan="5" class="text-center text-muted py-4">
-                                No Session found
+                                {{ __('No Session found') }}
                             </td>
                         </tr>
                     @endif

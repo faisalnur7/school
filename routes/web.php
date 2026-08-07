@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\{
     CommonController,
     FreeStudentshipController,
@@ -110,6 +111,15 @@ use App\Http\Controllers\{
     UsersHubController
 };
 use App\Http\Controllers\Website\PublicWebsiteController;
+
+Route::get('/language/{locale}', function (Request $request, string $locale) {
+    $supportedLocales = config('app.supported_locales', ['en']);
+    abort_unless(in_array($locale, $supportedLocales, true), 404);
+
+    session(['locale' => $locale]);
+
+    return redirect()->back();
+})->name('locale.switch');
 
 Route::get('/reboot', function () {
     Artisan::call('optimize:clear');

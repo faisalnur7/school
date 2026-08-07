@@ -13,8 +13,8 @@
                 <i class="fas fa-poll text-white text-4xl"></i>
             </div>
             <div>
-                <h3 class="text-white text-3xl font-bold m-0">Result Management</h3>
-                <p class="text-violet-100 text-base mt-1 mb-0">Manage exams & student results</p>
+                <h3 class="text-white text-3xl font-bold m-0">{{ __('Result Management') }}</h3>
+                <p class="text-violet-100 text-base mt-1 mb-0">{{ __('Manage exams & student results') }}</p>
             </div>
         </div>
     </div>

@@ -45,7 +45,7 @@
                 <div class="col-6 col-lg-3">
                     <a href="{{ route('attendance.index') }}" class="quick-action-card attendance">
                         <div class="action-icon"><i class="fas fa-clipboard-check"></i></div>
-                        <span class="action-text">Mark Attendance</span>
+                        <span class="action-text">{{ __('Mark Attendance') }}</span>
                     </a>
                 </div>
             @endif
@@ -53,7 +53,7 @@
                 <div class="col-6 col-lg-3">
                     <a href="{{ route('fees.collect') }}" class="quick-action-card fees">
                         <div class="action-icon"><i class="fas fa-money-bill-wave"></i></div>
-                        <span class="action-text">Collect Fees</span>
+                        <span class="action-text">{{ __('Collect Fees') }}</span>
                     </a>
                 </div>
             @endif
@@ -61,7 +61,7 @@
                 <div class="col-6 col-lg-3">
                     <a href="{{ route('students.admission') }}" class="quick-action-card student">
                         <div class="action-icon"><i class="fas fa-user-plus"></i></div>
-                        <span class="action-text">Add Student</span>
+                        <span class="action-text">{{ __('Add Student') }}</span>
                     </a>
                 </div>
             @endif
@@ -69,7 +69,7 @@
                 <div class="col-6 col-lg-3">
                     <a href="{{ route('reports.hub') }}" class="quick-action-card reports">
                         <div class="action-icon"><i class="fas fa-chart-bar"></i></div>
-                        <span class="action-text">View Reports</span>
+                        <span class="action-text">{{ __('View Reports') }}</span>
                     </a>
                 </div>
             @endif
@@ -84,8 +84,8 @@
         <div class="stat-card-modern students">
             <div class="stat-content">
                 <div class="stat-info">
-                    <span class="stat-label">Total Students</span>
-                    <span class="stat-value">{{ $total_students }}</span>
+                    <span class="stat-label">{{ __('Total Students') }}</span>
+                    <span class="stat-value">{{ localized_number($total_students) }}</span>
                 </div>
                 <div class="stat-icon-wrap"><i class="fas fa-users"></i></div>
             </div>
@@ -96,8 +96,8 @@
         <div class="stat-card-modern teachers">
             <div class="stat-content">
                 <div class="stat-info">
-                    <span class="stat-label">Total Teachers</span>
-                    <span class="stat-value">{{ $total_teachers }}</span>
+                    <span class="stat-label">{{ __('Total Teachers') }}</span>
+                    <span class="stat-value">{{ localized_number($total_teachers) }}</span>
                 </div>
                 <div class="stat-icon-wrap"><i class="fas fa-chalkboard-user"></i></div>
             </div>
@@ -108,8 +108,8 @@
         <div class="stat-card-modern staff">
             <div class="stat-content">
                 <div class="stat-info">
-                    <span class="stat-label">Total Staff</span>
-                    <span class="stat-value">{{ $total_staff }}</span>
+                    <span class="stat-label">{{ __('Total Staff') }}</span>
+                    <span class="stat-value">{{ localized_number($total_staff) }}</span>
                 </div>
                 <div class="stat-icon-wrap"><i class="fas fa-briefcase"></i></div>
             </div>
@@ -120,8 +120,8 @@
         <div class="stat-card-modern classes">
             <div class="stat-content">
                 <div class="stat-info">
-                    <span class="stat-label">Total Classes</span>
-                    <span class="stat-value">{{ $total_classes }}</span>
+                    <span class="stat-label">{{ __('Total Classes') }}</span>
+                    <span class="stat-value">{{ localized_number($total_classes) }}</span>
                 </div>
                 <div class="stat-icon-wrap"><i class="fas fa-school"></i></div>
             </div>
@@ -137,27 +137,27 @@
         <div class="col-12 col-lg-6 mb-3 mb-lg-0">
             <div class="card-modern h-100">
                 <div class="card-header-modern">
-                    <span><i class="fas fa-clipboard-check me-2"></i>Today's Attendance</span>
+                    <span><i class="fas fa-clipboard-check me-2"></i>{{ __("Today's Attendance") }}</span>
                 </div>
                 <div class="card-body-modern">
                     <div class="attend-grid">
                         <div class="attend-item present">
-                            <span class="attend-num">{{ $today_present }}</span>
-                            <span class="attend-label">Present</span>
+                            <span class="attend-num">{{ localized_number($today_present) }}</span>
+                            <span class="attend-label">{{ __('Present') }}</span>
                         </div>
                         <div class="attend-item absent">
-                            <span class="attend-num">{{ $today_absent }}</span>
-                            <span class="attend-label">Absent</span>
+                            <span class="attend-num">{{ localized_number($today_absent) }}</span>
+                            <span class="attend-label">{{ __('Absent') }}</span>
                         </div>
                         <div class="attend-item leave">
-                            <span class="attend-num">{{ $today_leave }}</span>
-                            <span class="attend-label">Leave</span>
+                            <span class="attend-num">{{ localized_number($today_leave) }}</span>
+                            <span class="attend-label">{{ __('Leave') }}</span>
                         </div>
                     </div>
                     <div class="progress-section">
                         <div class="progress-header">
-                            <span>Attendance Rate</span>
-                            <strong>{{ $attendance_percentage }}%</strong>
+                            <span>{{ __('Attendance Rate') }}</span>
+                            <strong>{{ localized_number($attendance_percentage) }}%</strong>
                         </div>
                         <div class="progress-modern">
                             <div class="progress-bar-modern" style="width: {{ $attendance_percentage }}%"></div>
@@ -173,27 +173,27 @@
         <div class="col-12 col-lg-6">
             <div class="card-modern h-100">
                 <div class="card-header-modern fee-header">
-                    <span><i class="fas fa-coins me-2"></i>Fee Collection Status</span>
+                    <span><i class="fas fa-coins me-2"></i>{{ __('Fee Collection Status') }}</span>
                 </div>
                 <div class="card-body-modern">
                     <div class="attend-grid">
                         <div class="attend-item collected">
-                            <span class="attend-num">৳{{ number_format($total_fees_paid, 0) }}</span>
-                            <span class="attend-label">Collected</span>
+                            <span class="attend-num">{{ localized_currency($total_fees_paid, '৳', 0) }}</span>
+                            <span class="attend-label">{{ __('Collected') }}</span>
                         </div>
                         <div class="attend-item pending">
-                            <span class="attend-num">৳{{ number_format($total_fees_pending, 0) }}</span>
-                            <span class="attend-label">Pending</span>
+                            <span class="attend-num">{{ localized_currency($total_fees_pending, '৳', 0) }}</span>
+                            <span class="attend-label">{{ __('Pending') }}</span>
                         </div>
                         <div class="attend-item due">
-                            <span class="attend-num">৳{{ number_format($total_fees_due, 0) }}</span>
-                            <span class="attend-label">Total Due</span>
+                            <span class="attend-num">{{ localized_currency($total_fees_due, '৳', 0) }}</span>
+                            <span class="attend-label">{{ __('Total Due') }}</span>
                         </div>
                     </div>
                     <div class="progress-section">
                         <div class="progress-header">
-                            <span>Collection Rate</span>
-                            <strong>{{ $fee_collection_rate }}%</strong>
+                            <span>{{ __('Collection Rate') }}</span>
+                            <strong>{{ localized_number($fee_collection_rate) }}%</strong>
                         </div>
                         <div class="progress-modern">
                             <div class="progress-bar-fee" style="width: {{ $fee_collection_rate }}%"></div>
@@ -210,16 +210,16 @@
     @if(auth()->user()?->hasPermission('view_income_expense'))
     <div class="finance-grid mb-4">
         <div class="finance-card income">
-            <span class="finance-label">Total Income</span>
-            <span class="finance-value">৳{{ number_format($total_income, 0) }}</span>
+            <span class="finance-label">{{ __('Total Income') }}</span>
+            <span class="finance-value">{{ localized_currency($total_income, '৳', 0) }}</span>
         </div>
         <div class="finance-card expense">
-            <span class="finance-label">Total Expense</span>
-            <span class="finance-value">৳{{ number_format($total_expense, 0) }}</span>
+            <span class="finance-label">{{ __('Total Expense') }}</span>
+            <span class="finance-value">{{ localized_currency($total_expense, '৳', 0) }}</span>
         </div>
         <div class="finance-card balance {{ $net_balance >= 0 ? 'positive' : 'negative' }}">
-            <span class="finance-label">Net Balance</span>
-            <span class="finance-value">৳{{ number_format($net_balance, 0) }}</span>
+            <span class="finance-label">{{ __('Net Balance') }}</span>
+            <span class="finance-value">{{ localized_currency($net_balance, '৳', 0) }}</span>
         </div>
     </div>
     @endif
@@ -227,8 +227,8 @@
     <!-- Assets Card -->
     @if(auth()->user()?->hasPermission('view_asset'))
     <div class="asset-card mb-4">
-        <span class="asset-label">Total Assets</span>
-        <span class="asset-value">{{ $total_assets }}</span>
+        <span class="asset-label">{{ __('Total Assets') }}</span>
+        <span class="asset-value">{{ localized_number($total_assets) }}</span>
     </div>
     @endif
 
@@ -236,23 +236,23 @@
     @if(auth()->user()?->hasPermission('view_classwise_attendance'))
     <div class="card-modern mb-4">
         <div class="card-header-modern">
-            <span><i class="fas fa-list me-2"></i>Today's Classwise Attendance</span>
+            <span><i class="fas fa-list me-2"></i>{{ __("Today's Classwise Attendance") }}</span>
         </div>
         <div class="card-body-modern p-0">
             <div class="table-responsive-modern">
                 <table class="table-modern">
                     <thead>
                         <tr>
-                            <th>Class</th>
-                            <th>Attendance %</th>
-                            <th>Status</th>
+                            <th>{{ __('Class') }}</th>
+                            <th>{{ __('Attendance %') }}</th>
+                            <th>{{ __('Status') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($classwise_attendance as $attendance)
                             <tr>
                                 <td class="fw-bold">{{ $attendance['class'] }}</td>
-                                <td>{{ $attendance['percentage'] }}%</td>
+                                <td>{{ localized_number($attendance['percentage']) }}%</td>
                                 <td>
                                     <div class="status-bar-wrap">
                                         <div class="status-bar" style="width: {{ $attendance['percentage'] }}%; background: {{ $attendance['percentage'] >= 80 ? 'linear-gradient(90deg, #22c55e, #16a34a)' : ($attendance['percentage'] >= 60 ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'linear-gradient(90deg, #ef4444, #dc2626)') }}"></div>
@@ -260,7 +260,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="3" class="text-center text-muted py-4">No attendance data available</td></tr>
+                        <tr><td colspan="3" class="text-center text-muted py-4">{{ __('No attendance data available') }}</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -273,7 +273,7 @@
     @if(auth()->user()?->hasPermission('view_divwise_dashboard'))
     <div class="card-modern mb-4">
         <div class="card-header-modern">
-            <span><i class="fas fa-layer-group me-2"></i>Division-wise Student Distribution</span>
+            <span><i class="fas fa-layer-group me-2"></i>{{ __('Division-wise Student Distribution') }}</span>
         </div>
         <div class="card-body-modern">
             <div class="division-grid">
@@ -282,16 +282,16 @@
                         <div class="division-card-top">
                             <div>
                                 <span class="division-name">{{ $division['name'] }}</span>
-                                <span class="division-count">{{ $division['count'] }} Students</span>
+                                <span class="division-count">{{ localized_number($division['count']) }} {{ __('Students') }}</span>
                             </div>
-                            <span class="division-percent">{{ $division['percentage'] }}%</span>
+                                <span class="division-percent">{{ localized_number($division['percentage']) }}%</span>
                         </div>
                         <div class="division-progress">
                             <span class="division-bar" style="width: {{ $division['percentage'] }}%"></span>
                         </div>
                     </div>
                 @empty
-                    <div class="text-center text-muted py-4 w-100">No division data available</div>
+                    <div class="text-center text-muted py-4 w-100">{{ __('No division data available') }}</div>
                 @endforelse
             </div>
         </div>
@@ -305,18 +305,18 @@
         <div class="col-12 col-lg-12">
             <div class="card-modern h-100">
                 <div class="card-header-modern exam-header">
-                    <span><i class="fas fa-file-alt me-2"></i>Recent Exams</span>
+                    <span><i class="fas fa-file-alt me-2"></i>{{ __('Recent Exams') }}</span>
                 </div>
                 <div class="card-body-modern recent-list">
                     @forelse($recent_exams as $exam)
                         <div class="recent-item">
                             <div class="recent-content">
-                                <strong>{{ $exam->name ?? 'Exam' }}</strong>
+                                <strong>{{ $exam->name ?? __('Exam') }}</strong>
                                 <small>{{ $exam->created_at->format('M d, Y') }}</small>
                             </div>
                         </div>
                     @empty
-                        <p class="text-muted text-center py-4">No exams scheduled</p>
+                        <p class="text-muted text-center py-4">{{ __('No exams scheduled') }}</p>
                     @endforelse
                 </div>
             </div>
@@ -327,18 +327,18 @@
         <div class="col-12 col-lg-6">
             <div class="card-modern h-100">
                 <div class="card-header-modern notice-header">
-                    <span><i class="fas fa-bullhorn me-2"></i>Recent Notices</span>
+                    <span><i class="fas fa-bullhorn me-2"></i>{{ __('Recent Notices') }}</span>
                 </div>
                 <div class="card-body-modern recent-list">
                     @forelse($recent_notices as $notice)
                         <div class="recent-item">
                             <div class="recent-content">
-                                <strong>{{ $notice->title ?? 'Notice' }}</strong>
+                                <strong>{{ $notice->title ?? __('Notice') }}</strong>
                                 <small>{{ $notice->created_at->format('M d, Y') }}</small>
                             </div>
                         </div>
                     @empty
-                        <p class="text-muted text-center py-4">No notices available</p>
+                        <p class="text-muted text-center py-4">{{ __('No notices available') }}</p>
                     @endforelse
                 </div>
             </div>

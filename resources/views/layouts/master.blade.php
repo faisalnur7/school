@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 @include('layouts.partials._head')
 
@@ -16,7 +16,7 @@
                 <div class="container-fluid px-3 pt-2">
                     <div class="d-flex justify-content-end">
                         <a href="{{ route($hubRoute) }}" class="btn btn-outline-primary btn-sm rounded-pill shadow-sm">
-                            <i class="fas fa-arrow-left mr-1"></i> Back to Hub
+                            <i class="fas fa-arrow-left mr-1"></i> {{ __('Back to Hub') }}
                         </a>
                     </div>
                 </div>

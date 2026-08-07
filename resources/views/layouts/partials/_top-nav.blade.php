@@ -6,7 +6,7 @@
 <nav class="main-header navbar navbar-expand navbar-white navbar-light border-bottom admin-topnav-sticky">
     <ul class="navbar-nav align-items-center">
         <li class="nav-item">
-            <a class="nav-link" data-widget="pushmenu" href="#" role="button" aria-label="Toggle sidebar">
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button" aria-label="{{ __('Toggle sidebar') }}">
                 <i class="fas fa-bars"></i>
             </a>
         </li>
@@ -33,11 +33,22 @@
     <ul class="navbar-nav ml-auto align-items-center">
         <li class="nav-item d-flex align-items-center mr-1 mr-md-2">
             <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill d-inline-flex align-items-center gap-2 inky-search-trigger border-gray-300"
-                data-toggle="modal" data-target="#inkySearchModal" aria-label="Ask in Seekly">
+                data-toggle="modal" data-target="#inkySearchModal" aria-label="{{ __('Ask in Seekly') }}">
                 <i class="fas fa-search"></i>
-                <span class="d-none d-sm-inline">Ask in Seekly</span>
+                <span class="d-none d-sm-inline">{{ __('Ask in Seekly') }}</span>
                 <kbd class="inky-shortcut">Ctrl+K</kbd>
             </button>
+        </li>
+
+        <li class="nav-item dropdown ml-2">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{{ __('Language') }}">
+                <i class="fas fa-language"></i>
+                <span class="d-none d-sm-inline">{{ strtoupper(app()->getLocale()) }}</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="{{ route('locale.switch', ['locale' => 'en']) }}">{{ __('English') }}</a>
+                <a class="dropdown-item" href="{{ route('locale.switch', ['locale' => 'bn']) }}">{{ __('Bangla') }}</a>
+            </div>
         </li>
 
         <li class="nav-item d-flex align-items-center mr-2">
@@ -45,33 +56,33 @@
         </li>
 
         <li class="nav-item dropdown">
-            <a class="nav-link" data-toggle="dropdown" href="#" aria-label="User menu">
-                <img src="{{ auth()->user()->image_url }}" alt="User" class="img-circle" style="width:28px;height:28px;object-fit:cover;">
+            <a class="nav-link" data-toggle="dropdown" href="#" aria-label="{{ __('User menu') }}">
+                <img src="{{ auth()->user()->image_url }}" alt="{{ __('User') }}" class="img-circle" style="width:28px;height:28px;object-fit:cover;">
             </a>
             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                 <a href="#" class="dropdown-item">
                     <div class="media">
-                        <img src="{{ auth()->user()->image_url }}" alt="User Avatar" class="img-size-50 mr-3 img-circle" style="object-fit:cover;">
+                        <img src="{{ auth()->user()->image_url }}" alt="{{ __('User Avatar') }}" class="img-size-50 mr-3 img-circle" style="object-fit:cover;">
                         <div class="media-body">
                             <h3 class="dropdown-item-title">
                                 {{ auth()->user()->name ?? '' }}
                             </h3>
-                            <p class="text-sm">Role</p>
+                            <p class="text-sm">{{ __('Role') }}</p>
                         </div>
                     </div>
                 </a>
                 <div class="dropdown-divider"></div>
 
                 <a href="{{ route('account.profile.edit') }}" class="dropdown-item">
-                    <i class="fas fa-cog mr-2"></i> Profile Setting
+                    <i class="fas fa-cog mr-2"></i> {{ __('Profile Setting') }}
                 </a>
                 <div class="dropdown-divider"></div>
                 <a href="{{ route('account.password.edit') }}" class="dropdown-item">
-                    <i class="fas fa-key mr-2"></i> Change Password
+                    <i class="fas fa-key mr-2"></i> {{ __('Change Password') }}
                 </a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item cursor-pointer" id="customer-logout-btn">
-                    <i class="fas fa-power-off mr-2"></i> Logout
+                    <i class="fas fa-power-off mr-2"></i> {{ __('Logout') }}
                 </a>
 
                 <form id="customer_logout_form" style="display:none" action="{{ route('logout') }}" method="POST">
@@ -92,33 +103,33 @@
             <div class="modal-content border-0 shadow-lg inky-search-modal">
                 <div class="modal-header border-0 pb-0">
                     <div class="inky-search-heading">
-                        <span class="inky-search-badge">Quick Search</span>
-                        <h5 class="modal-title font-weight-bold mb-0" id="inkySearchModalLabel">Ask in Seekly</h5>
-                        <small class="text-muted">Find modules, pages, and actions</small>
+                        <span class="inky-search-badge">{{ __('Quick Search') }}</span>
+                        <h5 class="modal-title font-weight-bold mb-0" id="inkySearchModalLabel">{{ __('Ask in Seekly') }}</h5>
+                        <small class="text-muted">{{ __('Find modules, pages, and actions') }}</small>
                     </div>
-                    <button type="button" class="inky-search-close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="inky-search-close" data-dismiss="modal" aria-label="{{ __('Close') }}">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
             <div class="modal-body pt-3">
-                <label class="sr-only" for="inkySearchInput">Search pages, settings, or entities</label>
+                <label class="sr-only" for="inkySearchInput">{{ __('Search pages, settings, or entities') }}</label>
                 <div class="inky-search-input-wrap">
                     <span class="inky-search-input-icon" aria-hidden="true">
                         <i class="fas fa-search text-muted"></i>
                     </span>
-                    <input type="search" id="inkySearchInput" class="form-control inky-search-input" placeholder="Search pages, settings, or entities..." autocomplete="off">
+                    <input type="search" id="inkySearchInput" class="form-control inky-search-input" placeholder="{{ __('Search pages, settings, or entities...') }}" autocomplete="off">
                 </div>
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-2 mb-2">
-                    <small class="text-muted">Type to filter results</small>
-                    <small class="text-muted d-none d-sm-inline">Esc to close</small>
+                    <small class="text-muted">{{ __('Type to filter results') }}</small>
+                    <small class="text-muted d-none d-sm-inline">{{ __('Esc to close') }}</small>
                 </div>
                 <div id="inkySearchResults" class="inky-search-results"></div>
                 <div id="inkySearchEmpty" class="inky-search-empty">
                     <div class="inky-search-empty__icon" aria-hidden="true">
                         <i class="fas fa-compass"></i>
                     </div>
-                    <div class="inky-search-empty__title">Search results will appear here.</div>
-                    <div class="inky-search-empty__text">Try typing a module, page, or action like attendance, student, or reports.</div>
+                    <div class="inky-search-empty__title">{{ __('Search results will appear here.') }}</div>
+                    <div class="inky-search-empty__text">{{ __('Try typing a module, page, or action like attendance, student, or reports.') }}</div>
                 </div>
             </div>
         </div>
@@ -216,8 +227,8 @@
             if (!normalizedQuery) {
                 $results.empty();
                 renderEmptyState(
-                    'Search results will appear here.',
-                    'Try typing a module, page, or action like attendance, student, or reports.'
+                    @js(__('Search results will appear here.')),
+                    @js(__('Try typing a module, page, or action like attendance, student, or reports.'))
                 );
                 return;
             }
@@ -238,8 +249,8 @@
 
             if (!matches.length) {
                 renderEmptyState(
-                    'No matching pages found.',
-                    'Try a different module, page, or action.'
+                    @js(__('No matching pages found.')),
+                    @js(__('Try a different module, page, or action.'))
                 );
                 return;
             }
@@ -280,8 +291,8 @@
             $(inputSelector).val('');
             $(resultsSelector).empty();
             renderEmptyState(
-                'Search results will appear here.',
-                'Try typing a module, page, or action like attendance, student, or reports.'
+                @js(__('Search results will appear here.')),
+                @js(__('Try typing a module, page, or action like attendance, student, or reports.'))
             );
         });
 

@@ -1,7 +1,7 @@
 <footer class="main-footer no-print">
-    <strong>Copyright &copy; 2026 <a href="https://faisalnurroney.com">Faisal Nur</a>.</strong>
-    All rights reserved.
+    <strong>{{ __('Copyright') }} &copy; 2026 <a href="https://faisalnurroney.com">Faisal Nur</a>.</strong>
+    {{ __('All rights reserved.') }}
     <div class="float-right d-none d-sm-inline-block">
-      <b>Version</b> 1.0.0
+      <b>{{ __('Version') }}</b> 1.0.0
     </div>
   </footer>

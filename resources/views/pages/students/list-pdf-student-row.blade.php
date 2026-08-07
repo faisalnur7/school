@@ -72,7 +72,7 @@
                     @break
 
                 @case('status')
-                    {{ $student->status ? 'Active' : 'Inactive' }}
+                    {{ $student->status ? __('Active') : __('Inactive') }}
                     @break
 
                 @default

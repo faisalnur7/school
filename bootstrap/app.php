@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'audit.trail' => \App\Http\Middleware\RecordAuditTrail::class,
         ]);
 
+        $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\RecordAuditTrail::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {

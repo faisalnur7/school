@@ -1,8 +1,8 @@
 <div class="card">
     <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
-        <h3 class="card-title mb-0 text-white text-lg">Mobile Banking Accounts</h3>
+        <h3 class="card-title mb-0 text-white text-lg">{{ __('Mobile Banking Accounts') }}</h3>
         <a href="{{ route('mobile-banking-accounts.create') }}" class="btn btn-primary btn-sm ml-auto text-bold">
-            + Add Account
+            {{ __('+ Add Mobile Account') }}
         </a>
     </div>
 
@@ -12,14 +12,14 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Provider</th>
-                        <th>Account Name</th>
-                        <th>Account Number</th>
-                        <th>Type</th>
-                        <th>Opening Balance</th>
-                        <th>Opening Date</th>
-                        <th>Status</th>
-                        <th width="120">Action</th>
+                        <th>{{ __('Provider') }}</th>
+                        <th>{{ __('Account Name') }}</th>
+                        <th>{{ __('Account Number') }}</th>
+                        <th>{{ __('Type') }}</th>
+                        <th>{{ __('Opening Balance') }}</th>
+                        <th>{{ __('Opening Date') }}</th>
+                        <th>{{ __('Status') }}</th>
+                        <th width="120">{{ __('Action') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -41,7 +41,7 @@
                             <td class="mono" style="font-size:13px">{{ $account->opening_date->format('d/m/Y') }}</td>
                             <td>
                                 <span class="badge badge-{{ $account->is_active ? 'success' : 'secondary' }}">
-                                    {{ $account->is_active ? 'Active' : 'Inactive' }}
+                                    {{ $account->is_active ? __('Active') : __('Inactive') }}
                                 </span>
                             </td>
                             <td style="display:flex;gap:5px; justify-content: center; align-items: center;;align-items:center">
@@ -64,7 +64,7 @@
 
                     @if ($accounts->isEmpty())
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-4">No mobile banking accounts found</td>
+                            <td colspan="9" class="text-center text-muted py-4">{{ __('No mobile banking accounts found') }}</td>
                         </tr>
                     @endif
                 </tbody>

@@ -14,7 +14,7 @@
             <div class="table-responsive">
                 <table class="table table-sm table-bordered">
                     <thead class="thead-dark">
-                        <tr><th>Employee</th><th>Casual</th><th>Sick</th><th>Annual</th><th>Maternity</th><th>Other</th><th>Set Balance</th></tr>
+                        <tr><th>{{ __('Employee') }}</th><th>{{ __('Casual') }}</th><th>{{ __('Sick') }}</th><th>{{ __('Annual') }}</th><th>{{ __('Maternity') }}</th><th>{{ __('Other') }}</th><th>{{ __('Set Balance') }}</th></tr>
                     </thead>
                     <tbody>
                         @foreach($employees as $emp)
@@ -41,7 +41,7 @@
                                             <input type="hidden" name="employee_id" value="{{ $emp->id }}">
                                             <div class="modal-body">
                                                 <div class="form-group">
-                                                    <label>Leave Type</label>
+                                                    <label>{{ __('Leave Type') }}</label>
                                                     <select name="leave_type" class="form-control" required>
                                                         @foreach(['casual','sick','annual','maternity','other'] as $t)
                                                             <option value="{{ $t }}">{{ ucfirst($t) }}</option>
@@ -53,7 +53,7 @@
                                                     <input type="number" name="total_leave" class="form-control" min="0" required>
                                                 </div>
                                             </div>
-                                            <div class="modal-footer"><button type="submit" class="btn btn-primary btn-sm ml-auto">Save</button></div>
+                                            <div class="modal-footer"><button type="submit" class="btn btn-primary btn-sm ml-auto">{{ __('Save') }}</button></div>
                                         </form>
                                     </div></div>
                                 </div>

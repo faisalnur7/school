@@ -13,8 +13,8 @@
                 <i class="fas fa-user-graduate text-white text-4xl"></i>
             </div>
             <div>
-                <h3 class="text-white text-3xl font-bold m-0">Students</h3>
-                <p class="text-indigo-100 text-base mt-1 mb-0">Manage students & assignments</p>
+                <h3 class="text-white text-3xl font-bold m-0">{{ __('Students') }}</h3>
+                <p class="text-indigo-100 text-base mt-1 mb-0">{{ __('Manage students & assignments') }}</p>
             </div>
         </div>
     </div>

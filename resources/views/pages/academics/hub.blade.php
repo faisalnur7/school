@@ -13,8 +13,8 @@
                 <i class="fas fa-school text-white text-4xl"></i>
             </div>
             <div>
-                <h3 class="text-white text-3xl font-bold m-0">Academics</h3>
-                <p class="text-sky-100 text-base mt-1 mb-0">Manage your academic structure</p>
+                <h3 class="text-white text-3xl font-bold m-0">{{ __('Academics') }}</h3>
+                <p class="text-sky-100 text-base mt-1 mb-0">{{ __('Manage your academic structure') }}</p>
             </div>
         </div>
     </div>

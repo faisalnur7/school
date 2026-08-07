@@ -34,24 +34,24 @@ class StudentController extends Controller
     private function pdfColumnOptions(): array
     {
         return [
-            'student_cid' => 'Student ID',
-            'roll' => 'Roll',
-            'full_name_en' => 'Student Name',
-            'full_name_bn' => 'Student Name (Bangla)',
-            'class' => 'Class',
-            'section' => 'Section',
-            'group' => 'Group',
-            'gender' => 'Gender',
-            'religion' => 'Religion',
-            'date_of_birth' => 'Date of Birth',
-            'blood_group' => 'Blood Group',
-            'father_name' => 'Father Name',
-            'mother_name' => 'Mother Name',
-            'father_phone' => 'Father Phone',
-            'mother_phone' => 'Mother Phone',
-            'guardian_phone' => 'Guardian Phone',
-            'present_address' => 'Present Address',
-            'status' => 'Status',
+            'student_cid' => __('Student ID'),
+            'roll' => __('Roll'),
+            'full_name_en' => __('Student Name'),
+            'full_name_bn' => __('Student Name (Bangla)'),
+            'class' => __('Class'),
+            'section' => __('Section'),
+            'group' => __('Group'),
+            'gender' => __('Gender'),
+            'religion' => __('Religion'),
+            'date_of_birth' => __('Date of Birth'),
+            'blood_group' => __('Blood Group'),
+            'father_name' => __('Father Name'),
+            'mother_name' => __('Mother Name'),
+            'father_phone' => __('Father Phone'),
+            'mother_phone' => __('Mother Phone'),
+            'guardian_phone' => __('Guardian Phone'),
+            'present_address' => __('Present Address'),
+            'status' => __('Status'),
         ];
     }
 
@@ -586,7 +586,7 @@ class StudentController extends Controller
         $mpdf->SetHTMLFooter('
             <table width="100%">
                 <tr>
-                    <td style="font-size: 9px; color: #555;">Student List</td>
+                    <td style="font-size: 9px; color: #555;">' . __('Student List') . '</td>
                     <td style="font-size: 9px; color: #555; text-align: right;">
                         Page {PAGENO} of {nbpg}
                     </td>
