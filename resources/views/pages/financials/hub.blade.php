@@ -13,8 +13,8 @@
                 <i class="fas fa-chart-line text-white text-4xl"></i>
             </div>
             <div>
-                <h3 class="text-white text-3xl font-bold m-0">Financials</h3>
-                <p class="text-slate-300 text-base mt-1 mb-0">Manage incomes, expenses & transactions</p>
+                <h3 class="text-white text-3xl font-bold m-0">{{ __('Financials') }}</h3>
+                <p class="text-slate-300 text-base mt-1 mb-0">{{ __('Manage incomes, expenses & transactions') }}</p>
             </div>
         </div>
     </div>

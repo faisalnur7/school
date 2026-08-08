@@ -8,10 +8,10 @@
     $cards = collect($cards);
     $sections = collect($sections);
     $viewModes = [
-        'small' => ['label' => 'Small Grid', 'icon' => 'fa-th'],
-        'medium' => ['label' => 'Medium Grid', 'icon' => 'fa-th-large'],
-        'large' => ['label' => 'Large Grid', 'icon' => 'fa-border-all'],
-        'list' => ['label' => 'List', 'icon' => 'fa-list'],
+        'small' => ['label' => __('Small Grid'), 'icon' => 'fa-th'],
+        'medium' => ['label' => __('Medium Grid'), 'icon' => 'fa-th-large'],
+        'large' => ['label' => __('Large Grid'), 'icon' => 'fa-border-all'],
+        'list' => ['label' => __('List'), 'icon' => 'fa-list'],
     ];
     $defaultView = array_key_exists($defaultView, $viewModes) ? $defaultView : 'medium';
 
@@ -596,10 +596,10 @@
     data-view="{{ $defaultView }}"
 >
     <div class="hub-browser__toolbar">
-        <div class="hub-browser__switcher" role="group" aria-label="Card view options">
+        <div class="hub-browser__switcher" role="group" aria-label="{{ __('Card view options') }}">
             <span class="hub-browser__switcher-label">
                 <i class="fas fa-eye" aria-hidden="true"></i>
-                View
+                {{ __('View') }}
             </span>
             @foreach($viewModes as $mode => $config)
                 <button
@@ -625,7 +625,7 @@
                 <section class="hub-browser__section">
                     <div class="hub-browser__section-header">
                         <h4 class="hub-browser__section-title">{{ $sectionName }}</h4>
-                        <span class="hub-browser__section-count">{{ $sectionCards->count() }} cards</span>
+                        <span class="hub-browser__section-count">{{ $sectionCards->count() }} {{ __('cards') }}</span>
                     </div>
 
                     <div class="hub-browser__grid">
@@ -633,7 +633,7 @@
                             @php
                                 $href = $resolveHref($card);
                             @endphp
-                            <a href="{{ $href }}" class="hub-browser__card-link group" aria-label="{{ $card['title'] ?? 'Open card' }}">
+                            <a href="{{ $href }}" class="hub-browser__card-link group" aria-label="{{ $card['title'] ?? __('Open card') }}">
                                 <article
                                     class="hub-browser__card"
                                     style="--hub-card-from: {{ $card['from'] ?? '#4f46e5' }}; --hub-card-to: {{ $card['to'] ?? '#7c3aed' }};"
@@ -670,7 +670,7 @@
                     @php
                         $href = $resolveHref($card);
                     @endphp
-                    <a href="{{ $href }}" class="hub-browser__card-link group" aria-label="{{ $card['title'] ?? 'Open card' }}">
+                    <a href="{{ $href }}" class="hub-browser__card-link group" aria-label="{{ $card['title'] ?? __('Open card') }}">
                         <article
                             class="hub-browser__card"
                             style="--hub-card-from: {{ $card['from'] ?? '#4f46e5' }}; --hub-card-to: {{ $card['to'] ?? '#7c3aed' }};"

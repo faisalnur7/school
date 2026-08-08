@@ -15,6 +15,7 @@
         </div>
 
         <form method="POST" action="{{ route('bank-accounts.update', $bankAccount->id) }}" id="modernForm">
+            @method('PUT')
             @csrf
 
             <div class="card-body p-3">

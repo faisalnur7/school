@@ -1879,7 +1879,7 @@ function initCommunicationsPage() {
         if (peopleResult && page.contains(peopleResult)) {
             event.preventDefault();
             event.stopPropagation();
-            startConversationFromSearchResult(peopleResult, true);
+            startConversationFromSearchResult(peopleResult, false);
             return;
         }
 
@@ -1915,7 +1915,7 @@ function initCommunicationsPage() {
         }
 
         event.preventDefault();
-        startConversationFromSearchResult(userResult, true);
+        startConversationFromSearchResult(userResult, userResult.dataset.chatUserForceNew === '1');
     });
 
     mobileInboxToggle?.addEventListener('click', (event) => {

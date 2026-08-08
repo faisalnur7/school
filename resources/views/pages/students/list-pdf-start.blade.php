@@ -87,26 +87,26 @@
 </table>
 @endif
 
-<h2>Student List</h2>
+<h2>{{ __('Student List') }}</h2>
 @if(!empty($filterHeading['class']) || !empty($filterHeading['section']) || !empty($filterHeading['group']) || !empty($filterHeading['session']))
 <p class="sub" style="margin-bottom: 4px;">
     @if(!empty($filterHeading['session']))
-        Session: {{ $filterHeading['session'] }}
+        {{ __('Session') }}: {{ $filterHeading['session'] }}
     @endif
     @if(!empty($filterHeading['class']))
-        &nbsp;|&nbsp; Class: {{ $filterHeading['class'] }}
+        &nbsp;|&nbsp; {{ __('Class') }}: {{ $filterHeading['class'] }}
     @endif
     @if(!empty($filterHeading['section']))
-        &nbsp;|&nbsp; Section: {{ $filterHeading['section'] }}
+        &nbsp;|&nbsp; {{ __('Section') }}: {{ $filterHeading['section'] }}
     @endif
     @if(!empty($filterHeading['group']))
-        &nbsp;|&nbsp; Group: {{ $filterHeading['group'] }}
+        &nbsp;|&nbsp; {{ __('Group') }}: {{ $filterHeading['group'] }}
     @endif
 </p>
 @endif
 <p class="sub">
-    Total Students: {{ $students->count() }}
-    &nbsp;|&nbsp; Generated: {{ now()->format('d M Y, h:i A') }}
+    {{ __('Total Students') }}: {{ $students->count() }}
+    &nbsp;|&nbsp; {{ __('Generated') }}: {{ now()->format('d M Y, h:i A') }}
 </p>
 
 <table>

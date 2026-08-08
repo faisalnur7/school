@@ -11,8 +11,8 @@
                 <i class="fas fa-school text-white text-4xl"></i>
             </div>
             <div>
-                <h3 class="text-white text-3xl font-bold m-0">Institute Settings</h3>
-                <p class="text-violet-100 text-base mt-1 mb-0">Configure school settings & infrastructure</p>
+                <h3 class="text-white text-3xl font-bold m-0">{{ __('Institute Settings') }}</h3>
+                <p class="text-violet-100 text-base mt-1 mb-0">{{ __('Configure school settings & infrastructure') }}</p>
             </div>
         </div>
     </div>

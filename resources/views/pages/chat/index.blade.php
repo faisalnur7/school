@@ -3,18 +3,18 @@
 @section('contents')
 @php
     $currentUser = auth()->user();
-    $activeConversationName = $activeConversation ? $activeConversation->titleFor($currentUser) : 'Communications';
-    $activeConversationSubtitle = $activeConversation ? $activeConversation->subtitleFor($currentUser) : 'Select a conversation to begin.';
+    $activeConversationName = $activeConversation ? $activeConversation->titleFor($currentUser) : __('Communications');
+    $activeConversationSubtitle = $activeConversation ? $activeConversation->subtitleFor($currentUser) : __('Select a conversation to begin.');
     $lastMessageDay = null;
     $totalUnreadCount = $conversations->sum('unread_count');
     $quickPeople = $users;
     $reactionOptions = [
-        'like' => ['emoji' => '👍', 'label' => 'Like'],
-        'love' => ['emoji' => '❤️', 'label' => 'Love'],
-        'haha' => ['emoji' => '😂', 'label' => 'Haha'],
-        'wow' => ['emoji' => '😮', 'label' => 'Wow'],
-        'sad' => ['emoji' => '😢', 'label' => 'Sad'],
-        'angry' => ['emoji' => '😡', 'label' => 'Angry'],
+        'like' => ['emoji' => '👍', 'label' => __('Like')],
+        'love' => ['emoji' => '❤️', 'label' => __('Love')],
+        'haha' => ['emoji' => '😂', 'label' => __('Haha')],
+        'wow' => ['emoji' => '😮', 'label' => __('Wow')],
+        'sad' => ['emoji' => '😢', 'label' => __('Sad')],
+        'angry' => ['emoji' => '😡', 'label' => __('Angry')],
     ];
 @endphp
 
@@ -829,13 +829,13 @@
 
     <div class="communications-hero">
         <div class="communications-hero__row">
-            <h2 class="communications-hero__title">Communications</h2>
+            <h2 class="communications-hero__title">{{ __('Communications') }}</h2>
             <div class="communications-hero__actions">
                 <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" data-toggle="modal" data-target="#newConversationModal">
-                    <i class="fas fa-plus mr-1"></i> New chat
+                    <i class="fas fa-plus mr-1"></i> {{ __('New chat') }}
                 </button>
                 <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
-                    Dashboard
+                    {{ __('Dashboard') }}
                 </a>
             </div>
         </div>
@@ -845,13 +845,13 @@
         <section class="communications-panel communications-panel--inbox">
                 <div class="communications-panel__header">
                 <div>
-                    <h3 class="communications-panel__title">Inbox</h3>
-                    <div class="communications-panel__subtitle">Recent direct chats and groups.</div>
+                    <h3 class="communications-panel__title">{{ __('Inbox') }}</h3>
+                    <div class="communications-panel__subtitle">{{ __('Recent direct chats and groups.') }}</div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <span class="conversation-card__count {{ $totalUnreadCount > 0 ? '' : 'd-none' }}" data-chat-inbox-unread-badge>{{ $totalUnreadCount > 0 ? $totalUnreadCount : '' }}</span>
+                    <span class="conversation-card__count {{ $totalUnreadCount > 0 ? '' : 'd-none' }}" data-chat-inbox-unread-badge>{{ $totalUnreadCount > 0 ? localized_number($totalUnreadCount) : '' }}</span>
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill d-lg-none" data-chat-mobile-inbox-close>
-                        Close
+                        {{ __('Close') }}
                     </button>
                 </div>
             </div>
@@ -863,7 +863,7 @@
                         name="q"
                         value="{{ $searchQuery ?? '' }}"
                         class="communications-search__input"
-                        placeholder="Search users or chats"
+                        placeholder="{{ __('Search users or chats') }}"
                         autocomplete="off"
                         data-communications-search
                     >
@@ -872,8 +872,8 @@
             </div>
             <div class="communications-section">
                 <div class="communications-section__heading">
-                    <h4 class="communications-section__title">Chats</h4>
-                    <span class="communications-section__hint">{{ $conversations->count() }} threads</span>
+                    <h4 class="communications-section__title">{{ __('Chats') }}</h4>
+                    <span class="communications-section__hint">{{ localized_number($conversations->count()) }} {{ __('threads') }}</span>
                 </div>
                 <div class="conversation-list" data-chat-conversations-list>
                     @forelse($conversations as $conversation)
@@ -896,18 +896,18 @@
                                         <span class="conversation-card__count">{{ $conversation['unread_count'] }}</span>
                                     @endif
                                 </span>
-                                <span class="conversation-card__preview">{{ $conversation['last_message_preview'] ?: 'Start the conversation' }}</span>
+                                <span class="conversation-card__preview">{{ $conversation['last_message_preview'] ?: __('Start the conversation') }}</span>
                                 <span class="conversation-card__meta">
                                     <span>{{ $conversation['subtitle'] }}</span>
-                                    <span>{{ $conversation['last_message_at'] ? \Illuminate\Support\Carbon::parse($conversation['last_message_at'])->diffForHumans() : 'Just now' }}</span>
+                                    <span>{{ $conversation['last_message_at'] ? \Illuminate\Support\Carbon::parse($conversation['last_message_at'])->diffForHumans() : __('Just now') }}</span>
                                 </span>
                             </span>
                         </a>
                     @empty
                         <div class="chat-empty-state" data-communications-empty="chats">
                             <div class="chat-thread-avatar">C</div>
-                            <div class="font-weight-bold text-dark">No conversations yet</div>
-                            <div class="small">Create a direct chat or a group to begin.</div>
+                            <div class="font-weight-bold text-dark">{{ __('No conversations yet') }}</div>
+                            <div class="small">{{ __('Create a direct chat or a group to begin.') }}</div>
                         </div>
                     @endforelse
                 </div>
@@ -918,19 +918,19 @@
         <section class="communications-panel communications-panel--thread">
             <div class="chat-thread-shell">
                 <div class="chat-thread-shell__header">
-                    <div class="chat-thread-shell__identity">
-                        <div class="chat-thread-shell__avatar" data-chat-avatar>{{ $activeConversation ? $activeConversation->avatarLabelFor($currentUser) : 'C' }}</div>
-                        <div class="min-w-0">
-                            <h3 class="chat-thread-shell__name" data-chat-title>{{ $activeConversationName }}</h3>
-                            <div class="chat-thread-shell__sub" data-chat-subtitle>{{ $activeConversationSubtitle }}</div>
+                        <div class="chat-thread-shell__identity">
+                            <div class="chat-thread-shell__avatar" data-chat-avatar>{{ $activeConversation ? $activeConversation->avatarLabelFor($currentUser) : 'C' }}</div>
+                            <div class="min-w-0">
+                                <h3 class="chat-thread-shell__name" data-chat-title>{{ $activeConversationName }}</h3>
+                                <div class="chat-thread-shell__sub" data-chat-subtitle>{{ $activeConversationSubtitle }}</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill d-lg-none" data-chat-mobile-inbox-toggle>
-                            Inbox
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill d-lg-none" data-chat-mobile-inbox-toggle>
+                            {{ __('Inbox') }}
                         </button>
                         <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill d-lg-none" data-chat-mobile-people-toggle>
-                            People
+                            {{ __('People') }}
                         </button>
                         <span class="conversation-card__count d-none" data-chat-unread-badge></span>
                     </div>
@@ -940,7 +940,10 @@
                     class="chat-thread-shell__body"
                     data-chat-thread
                     data-chat-last-message-id="{{ $messages->last()?->id ?? '' }}"
-                    data-empty-state-html="<div class='chat-empty-state'><div class='chat-thread-avatar'>C</div><div class='font-weight-bold text-dark'>No messages yet</div><div class='small'>Send the first message to start the thread.</div></div>"
+                    @php
+                        $emptyStateHtml = '<div class="chat-empty-state"><div class="chat-thread-avatar">C</div><div class="font-weight-bold text-dark">' . e(__('No messages yet')) . '</div><div class="small">' . e(__('Send the first message to start the thread.')) . '</div></div>';
+                    @endphp
+                    data-empty-state-html="{{ $emptyStateHtml }}"
                 >
                     @if($activeConversation)
                         @forelse($messages as $message)
@@ -1029,18 +1032,18 @@
                                     <div class="chat-message-time">{{ optional($message->created_at)?->format('g:i A') }}</div>
                                 </div>
                             </article>
-                        @empty
+                            @empty
                             <div class="chat-empty-state">
                                 <div class="chat-thread-avatar">C</div>
-                                <div class="font-weight-bold text-dark">No messages yet</div>
-                                <div class="small">Send the first message to start the thread.</div>
+                                <div class="font-weight-bold text-dark">{{ __('No messages yet') }}</div>
+                                <div class="small">{{ __('Send the first message to start the thread.') }}</div>
                             </div>
                         @endforelse
                     @else
                         <div class="chat-empty-state">
                             <div class="chat-thread-avatar">C</div>
-                            <div class="font-weight-bold text-dark">Choose a conversation</div>
-                            <div class="small">Select a thread from the inbox or create a new one.</div>
+                            <div class="font-weight-bold text-dark">{{ __('Choose a conversation') }}</div>
+                            <div class="small">{{ __('Select a thread from the inbox or create a new one.') }}</div>
                         </div>
                     @endif
                 </div>
@@ -1050,18 +1053,18 @@
                         @csrf
                         <div class="chat-compose-edit d-none" data-chat-compose-edit-bar>
                             <div>
-                                <strong>Editing message</strong>
-                                <div class="small text-muted">Update the text and save the change.</div>
+                                <strong>{{ __('Editing message') }}</strong>
+                                <div class="small text-muted">{{ __('Update the text and save the change.') }}</div>
                             </div>
-                            <button type="button" class="chat-compose-edit__cancel" data-chat-compose-edit-cancel>Cancel</button>
+                            <button type="button" class="chat-compose-edit__cancel" data-chat-compose-edit-cancel>{{ __('Cancel') }}</button>
                         </div>
                         <div class="form-group mb-2">
-                            <textarea name="body" class="form-control chat-composer-textarea" rows="1" placeholder="Write a message..." data-chat-message-input>{{ old('body') }}</textarea>
+                            <textarea name="body" class="form-control chat-composer-textarea" rows="1" placeholder="{{ __('Write a message...') }}" data-chat-message-input>{{ old('body') }}</textarea>
                             <div class="chat-composer-preview d-none" data-chat-attachment-preview>
-                                <img data-chat-attachment-preview-image alt="Selected attachment preview" class="chat-composer-preview__image d-none">
+                                <img data-chat-attachment-preview-image alt="{{ __('Selected attachment preview') }}" class="chat-composer-preview__image d-none">
                                 <div class="chat-composer-preview__meta">
                                     <div class="chat-composer-preview__label" data-chat-attachment-preview-label></div>
-                                    <div class="chat-composer-preview__hint">Attachment ready to send</div>
+                                    <div class="chat-composer-preview__hint">{{ __('Attachment ready to send') }}</div>
                                 </div>
                             </div>
                         </div>
@@ -1069,18 +1072,18 @@
                             <div class="d-flex align-items-center gap-2">
                                 <label class="btn btn-sm btn-outline-secondary rounded-pill mb-0">
                                     <i class="fas fa-image mr-1"></i>
-                                    <span data-chat-attachment-label>Attach image</span>
+                                    <span data-chat-attachment-label>{{ __('Attach image') }}</span>
                                     <input type="file" name="attachment" class="d-none" accept="image/*" data-chat-attachment-input>
                                 </label>
                             </div>
                             <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3" data-chat-submit>
-                                <span data-chat-submit-label>Send</span>
+                                <span data-chat-submit-label>{{ __('Send') }}</span>
                             </button>
                         </div>
                     </form>
                 @else
                     <div class="chat-compose">
-                        <div class="text-muted small">Pick a conversation to start chatting.</div>
+                        <div class="text-muted small">{{ __('Pick a conversation to start chatting.') }}</div>
                     </div>
                 @endif
             </div>
@@ -1091,26 +1094,25 @@
                 <div class="chat-info-card">
                     <div class="d-flex justify-content-end d-lg-none mb-2">
                         <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" data-chat-mobile-people-close>
-                            Close
+                            {{ __('Close') }}
                         </button>
                     </div>
-                    <div class="chat-info-card__label">People</div>
-                    <div class="chat-info-card__value">Start a direct chat</div>
-                    <div class="small text-muted mt-1">Select a user below to open a new conversation.</div>
+                    <div class="chat-info-card__label">{{ __('People') }}</div>
+                    <div class="chat-info-card__value">{{ __('Start a direct chat') }}</div>
+                    <div class="small text-muted mt-1">{{ __('Select a user below to open a new conversation.') }}</div>
                 </div>
 
                 @if($quickPeople->isNotEmpty())
                     <div class="communications-people">
                         <div class="communications-people__heading">
-                            <h4 class="communications-people__title">People</h4>
-                            <span class="communications-people__hint">{{ $quickPeople->count() }} shown</span>
+                            <h4 class="communications-people__title">{{ __('People') }}</h4>
+                            <span class="communications-people__hint">{{ localized_number($quickPeople->count()) }} {{ __('shown') }}</span>
                         </div>
                         <div class="communications-people__list">
                             @foreach($quickPeople as $person)
                                 <div
                                     class="communications-people__item"
                                     data-chat-user-result
-                                    data-chat-user-force-new="1"
                                     data-user-id="{{ $person->id }}"
                                     data-user-name="{{ $person->name }}"
                                     data-user-email="{{ $person->email }}"
@@ -1134,8 +1136,8 @@
                 @else
                     <div class="chat-empty-state">
                         <div class="chat-thread-avatar">P</div>
-                        <div class="font-weight-bold text-dark">No people available</div>
-                        <div class="small">Try again later or use the search box to find someone.</div>
+                        <div class="font-weight-bold text-dark">{{ __('No people available') }}</div>
+                        <div class="small">{{ __('Try again later or use the search box to find someone.') }}</div>
                     </div>
                 @endif
             </div>
@@ -1149,8 +1151,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div>
-                    <h5 class="modal-title" id="newConversationModalLabel">New direct chat or group</h5>
-                    <small class="text-muted">Choose one user for a direct message or several for a group.</small>
+                    <h5 class="modal-title" id="newConversationModalLabel">{{ __('New direct chat or group') }}</h5>
+                    <small class="text-muted">{{ __('Choose one user for a direct message or several for a group.') }}</small>
                 </div>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -1160,18 +1162,18 @@
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="newConversationName">Group name</label>
-                        <input type="text" name="name" id="newConversationName" class="form-control" placeholder="Optional group name">
-                        <small class="form-text text-muted">Leave blank for a direct message.</small>
+                        <label for="newConversationName">{{ __('Group name') }}</label>
+                        <input type="text" name="name" id="newConversationName" class="form-control" placeholder="{{ __('Optional group name') }}">
+                        <small class="form-text text-muted">{{ __('Leave blank for a direct message.') }}</small>
                     </div>
                     <div class="form-group">
-                        <label for="newConversationParticipants">Participants</label>
+                        <label for="newConversationParticipants">{{ __('Participants') }}</label>
                         <select
                             name="participant_ids[]"
                             id="newConversationParticipants"
                             class="form-control select2-checkboxes"
                             multiple
-                            data-placeholder="Search users"
+                            data-placeholder="{{ __('Search users') }}"
                             data-select2-checkboxes="1"
                         >
                             @foreach($users as $user)
@@ -1183,12 +1185,12 @@
                                 </option>
                             @endforeach
                         </select>
-                        <small class="form-text text-muted">Select at least one person. One participant creates a direct chat, more than one creates a group.</small>
+                        <small class="form-text text-muted">{{ __('Select at least one person. One participant creates a direct chat, more than one creates a group.') }}</small>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary rounded-pill" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary rounded-pill">Create conversation</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-pill" data-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="submit" class="btn btn-primary rounded-pill">{{ __('Create conversation') }}</button>
                 </div>
             </form>
         </div>

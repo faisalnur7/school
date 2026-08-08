@@ -20,7 +20,7 @@
             <div class="card-header bg-gradient-primary text-white py-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 class="card-title mb-0 font-weight-bold text-white">
-                        <i class="fas fa-filter mr-2"></i>Filter Students
+                        <i class="fas fa-filter mr-2"></i>{{ __('Filter Students') }}
                     </h4>
                 </div>
             </div>
@@ -37,14 +37,14 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead style="background:#f8fafc">
                             <tr>
-                                <th class="px-4 py-3">Student ID</th>
-                                <th class="px-4 py-3">Student Info</th>
-                                <th class="px-4 py-3">Academic Info</th>
-                                <th class="px-4 py-3">Fee Category</th>
-                                <th class="px-4 py-3">Amount</th>
-                                <th class="px-4 py-3">Session</th>
-                                <th class="px-4 py-3 text-center">Active/Inactive</th>
-                                <th class="px-4 py-3 text-center">Actions</th>
+                                <th class="px-4 py-3">{{ __('Student ID') }}</th>
+                                <th class="px-4 py-3">{{ __('Student Info') }}</th>
+                                <th class="px-4 py-3">{{ __('Academic Info') }}</th>
+                                <th class="px-4 py-3">{{ __('Fee Category') }}</th>
+                                <th class="px-4 py-3">{{ __('Amount') }}</th>
+                                <th class="px-4 py-3">{{ __('Session') }}</th>
+                                <th class="px-4 py-3 text-center">{{ __('Active/Inactive') }}</th>
+                                <th class="px-4 py-3 text-center">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>

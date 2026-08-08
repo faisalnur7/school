@@ -15,7 +15,7 @@
                     <i class="fas fa-file-excel"></i> Export
                 </a>
                 <a href="{{ route('students.create') }}" class="btn btn-primary btn-sm text-bold w-100 w-sm-auto">
-                    <i class="fas fa-plus"></i> Add Student
+                    <i class="fas fa-plus"></i> {{ __('Add Student') }}
                 </a>
             </div>
         </div>

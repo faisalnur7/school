@@ -24,9 +24,20 @@ class AttendanceController extends Controller
         $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
         $isOpenForAll = AttendanceSetting::current()->is_open_for_all;
 
-        $defaultDate = now()->toDateString();
+        $defaultDate = $request->input('date', now()->toDateString());
+        $selectedSessionId = $request->input('session_id');
+        $selectedClassId = $request->input('school_class_id');
+        $selectedSectionId = $request->input('section_id');
 
-        return view('pages.attendance.index', compact('sessions', 'classes', 'defaultDate', 'isOpenForAll'));
+        return view('pages.attendance.index', compact(
+            'sessions',
+            'classes',
+            'defaultDate',
+            'isOpenForAll',
+            'selectedSessionId',
+            'selectedClassId',
+            'selectedSectionId'
+        ));
     }
 
     public function load(Request $request)

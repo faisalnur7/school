@@ -11,8 +11,8 @@
                 <i class="fas fa-building text-white text-4xl"></i>
             </div>
             <div>
-                <h3 class="text-white text-3xl font-bold m-0">Assets</h3>
-                <p class="text-blue-100 text-base mt-1 mb-0">Manage assets, purchases & stock</p>
+                <h3 class="text-white text-3xl font-bold m-0">{{ __('Assets') }}</h3>
+                <p class="text-blue-100 text-base mt-1 mb-0">{{ __('Manage assets, purchases & stock') }}</p>
             </div>
         </div>
     </div>

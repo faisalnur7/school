@@ -30,8 +30,8 @@
                 <img src="{{ $currentUser?->image_url ?? asset('assets/dist/img/user2-160x160.jpg') }}" alt="User Image">
             </div>
             <div class="user-info">
-                <span class="user-name">{{ $currentUser?->name ?? 'Guest' }}</span>
-                <span class="user-role">{{ $currentUser?->roles?->first()?->name ?? 'User' }}</span>
+                <span class="user-name">{{ $currentUser?->name ?? __('Guest') }}</span>
+                <span class="user-role">{{ $currentUser?->roles?->first()?->name ?? __('User') }}</span>
             </div>
         </div>
 
@@ -44,7 +44,7 @@
                 <li class="nav-item-modern">
                     <a href="{{ route('dashboard') }}" class="nav-link-modern {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
-                        <span class="nav-text">Dashboard</span>
+                        <span class="nav-text">{{ __('Dashboard') }}</span>
                         @if(request()->routeIs('dashboard'))
                         <span class="nav-indicator"></span>
                         @endif
@@ -58,7 +58,7 @@
                     <a href="{{ route('academics.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('academics.hub', 'classes.*', 'sections.*', 'groups.*', 'sessions.*', 'subjects.*', 'classrooms.*', 'routines.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-school"></i></span>
-                        <span class="nav-text">Academics</span>
+                        <span class="nav-text">{{ __('Academics') }}</span>
                         
                         @if(request()->routeIs('academics.hub', 'classes.*', 'sections.*', 'groups.*', 'sessions.*', 'subjects.*', 'classrooms.*', 'routines.*'))
                         <span class="nav-indicator"></span>
@@ -73,7 +73,7 @@
                     <a href="{{ route('students.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('students.hub', 'students.*', 'teacher-section-assignments.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-user-graduate"></i></span>
-                        <span class="nav-text">Students</span>
+                        <span class="nav-text">{{ __('Students') }}</span>
                         
                         @if(request()->routeIs('students.hub', 'students.*', 'teacher-section-assignments.*'))
                         <span class="nav-indicator"></span>
@@ -88,7 +88,7 @@
                     <a href="{{ route('results.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('results.hub', 'exams.*', 'student-subjects.*','result.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-poll"></i></span>
-                        <span class="nav-text">Result Management</span>
+                        <span class="nav-text">{{ __('Result Management') }}</span>
                         
                         @if(request()->routeIs('results.hub', 'exams.*', 'student-subjects.*','result.*'))
                         <span class="nav-indicator"></span>
@@ -103,7 +103,7 @@
                     <a href="{{ route('attendance.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('attendance.hub', 'attendance.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-clipboard-check"></i></span>
-                        <span class="nav-text">Attendance</span>
+                        <span class="nav-text">{{ __('Attendance') }}</span>
                         
                         @if(request()->routeIs('attendance.hub', 'attendance.*'))
                         <span class="nav-indicator"></span>
@@ -118,7 +118,7 @@
                     <a href="{{ route('fees.hub') }}"
                         class="nav-link-modern {{ request()->routeIs('fees.hub', 'fee-categories.*', 'fee-sets.*', 'scholarships.*', 'free-studentships.*', 'transports.*', 'fees.*', 'payments.*', 'fees.payment-report', 'fees.payment-report.pdf') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-coins"></i></span>
-                        <span class="nav-text">Fee Collection</span>
+                        <span class="nav-text">{{ __('Fee Collection') }}</span>
                         
                         @if(request()->routeIs('fees.hub', 'fee-categories.*', 'fee-sets.*', 'scholarships.*', 'free-studentships.*', 'transports.*', 'fees.*', 'payments.*', 'fees.payment-report', 'fees.payment-report.pdf'))
                         <span class="nav-indicator"></span>
@@ -133,7 +133,7 @@
                     <a href="{{ route('accounts.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-book"></i></span>
-                        <span class="nav-text">Accounts</span>
+                        <span class="nav-text">{{ __('Accounts') }}</span>
                         
                         @if(request()->routeIs('accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*'))
                         <span class="nav-indicator"></span>
@@ -148,7 +148,7 @@
                     <a href="{{ route('inventory.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('inventory.hub', 'inventory.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-boxes"></i></span>
-                        <span class="nav-text">Inventory</span>
+                        <span class="nav-text">{{ __('Inventory') }}</span>
                         
                         @if(request()->routeIs('inventory.hub', 'inventory.*'))
                         <span class="nav-indicator"></span>
@@ -163,7 +163,7 @@
                     <a href="{{ route('financials.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('financials.hub', 'incomes.*', 'expenses.*', 'transactions.*', 'income-categories.*', 'expense-categories.*', 'shareholder-transactions.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
-                        <span class="nav-text">Financials</span>
+                        <span class="nav-text">{{ __('Financials') }}</span>
                         
                         @if(request()->routeIs('financials.hub', 'incomes.*', 'expenses.*', 'transactions.*', 'income-categories.*', 'expense-categories.*', 'shareholder-transactions.*'))
                         <span class="nav-indicator"></span>
@@ -178,7 +178,7 @@
                     <a href="{{ route('shareholders.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('shareholders.hub', 'shareholders.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-handshake"></i></span>
-                        <span class="nav-text">Shareholders</span>
+                        <span class="nav-text">{{ __('Shareholders') }}</span>
                         
                         @if(request()->routeIs('shareholders.hub', 'shareholders.*'))
                         <span class="nav-indicator"></span>
@@ -193,7 +193,7 @@
                     <a href="{{ route('hr.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('hr.hub', 'hr.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-users"></i></span>
-                        <span class="nav-text">HR & Payroll</span>
+                        <span class="nav-text">{{ __('HR & Payroll') }}</span>
                         
                         @if(request()->routeIs('hr.hub', 'hr.*'))
                         <span class="nav-indicator"></span>
@@ -208,7 +208,7 @@
                     <a href="{{ route('assets.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('assets.hub', 'assets.*', 'asset-categories.*', 'asset-purchases.*', 'asset-issues.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-building"></i></span>
-                        <span class="nav-text">Assets</span>
+                        <span class="nav-text">{{ __('Assets') }}</span>
                         
                         @if(request()->routeIs('assets.hub', 'assets.*', 'asset-categories.*', 'asset-purchases.*', 'asset-issues.*'))
                         <span class="nav-indicator"></span>
@@ -238,7 +238,7 @@
                     <a href="{{ route('institute.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('institute.hub', 'school-settings.*', 'certificates.*', 'id-card-templates.*', 'buildings.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-cogs"></i></span>
-                        <span class="nav-text">Institute Settings</span>
+                        <span class="nav-text">{{ __('Institute Settings') }}</span>
                         
                         @if(request()->routeIs('institute.hub', 'school-settings.*', 'certificates.*', 'id-card-templates.*', 'buildings.*'))
                         <span class="nav-indicator"></span>
@@ -253,7 +253,7 @@
                     <a href="{{ route('users.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('users.hub', 'users.*', 'roles.*', 'permissions.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-user-cog"></i></span>
-                        <span class="nav-text">User & Roles</span>
+                        <span class="nav-text">{{ __('User & Roles') }}</span>
                         
                         @if(request()->routeIs('users.hub', 'users.*', 'roles.*', 'permissions.*'))
                         <span class="nav-indicator"></span>
@@ -268,7 +268,7 @@
                     <a href="{{ route('audit-trails.index') }}"
                        class="nav-link-modern {{ request()->routeIs('audit-trails.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-shield-alt"></i></span>
-                        <span class="nav-text">Audit Trail</span>
+                        <span class="nav-text">{{ __('Audit Trail') }}</span>
 
                         @if(request()->routeIs('audit-trails.*'))
                         <span class="nav-indicator"></span>
@@ -283,7 +283,7 @@
                     <a href="{{ route('location.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('location.hub', 'division.*', 'district.*', 'police-station.*', 'post-office.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-map-marker-alt"></i></span>
-                        <span class="nav-text">Location Settings</span>
+                        <span class="nav-text">{{ __('Location Settings') }}</span>
                         
                         @if(request()->routeIs('location.hub', 'division.*', 'district.*', 'police-station.*', 'post-office.*'))
                         <span class="nav-indicator"></span>
@@ -298,7 +298,7 @@
                     <a href="{{ route('communications.index') }}"
                        class="nav-link-modern {{ request()->routeIs('communications.*', 'chat.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-comments"></i></span>
-                        <span class="nav-text">Communications</span>
+                        <span class="nav-text">{{ __('Communications') }}</span>
                         @if(request()->routeIs('communications.*', 'chat.*'))
                         <span class="nav-indicator"></span>
                         @endif

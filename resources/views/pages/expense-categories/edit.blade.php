@@ -16,6 +16,7 @@
 
         <form method="POST" action="{{ route('expense-categories.update', $expenseCategory->id) }}" id="modernForm">
             @csrf
+            @method('PUT')
 
             <div class="card-body p-3">
                 @if($errors->any())
