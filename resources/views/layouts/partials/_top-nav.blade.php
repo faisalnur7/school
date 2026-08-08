@@ -1,5 +1,8 @@
 @php
     $inkySearchEntries = $inkySearchEntries ?? [];
+    $currentLocale = app()->getLocale();
+    $currentFlag = $currentLocale === 'bn' ? '🇧🇩' : '🇺🇸';
+    $timezone = config('app.timezone', 'Asia/Dhaka');
 @endphp
 
 <!-- Navbar -->
@@ -30,7 +33,25 @@
         </nav>
     </div>
 
-    <ul class="navbar-nav ml-auto align-items-center">
+    <div class="admin-topnav-datetime d-none d-lg-flex align-items-center mr-2">
+        <div class="d-flex align-items-center text-right admin-topnav-datetime__inner">
+            <span class="admin-topnav-datetime__icon" aria-hidden="true">
+                <i class="far fa-clock"></i>
+            </span>
+            <span id="topNavClock" class="font-weight-bold small admin-topnav-datetime__clock">
+                {{ now($timezone)->format('h:i:s A') }}
+            </span>
+            <span class="admin-topnav-datetime__separator" aria-hidden="true"></span>
+            <span class="admin-topnav-datetime__icon" aria-hidden="true">
+                <i class="far fa-calendar-alt"></i>
+            </span>
+            <span id="topNavDate" class="admin-topnav-datetime__date">
+                {{ now($timezone)->format('D, M d, Y') }}
+            </span>
+        </div>
+    </div>
+
+    <ul class="navbar-nav ml-auto align-items-center topnav-actions">
         <li class="nav-item d-flex align-items-center mr-1 mr-md-2">
             <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill d-inline-flex align-items-center gap-2 inky-search-trigger border-gray-300"
                 data-toggle="modal" data-target="#inkySearchModal" aria-label="{{ __('Ask in Seekly') }}">
@@ -41,47 +62,53 @@
         </li>
 
         <li class="nav-item dropdown ml-2">
-            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{{ __('Language') }}">
-                <i class="fas fa-language"></i>
-                <span class="d-none d-sm-inline">{{ strtoupper(app()->getLocale()) }}</span>
+            <a class="nav-link dropdown-toggle topnav-lang-toggle d-inline-flex align-items-center" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{{ __('Language') }}">
+                <span class="topnav-lang-toggle__flag" aria-hidden="true">{{ $currentFlag }}</span>
+                <i class="fas fa-chevron-down topnav-lang-toggle__caret" aria-hidden="true"></i>
             </a>
-            <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="{{ route('locale.switch', ['locale' => 'en']) }}">{{ __('English') }}</a>
-                <a class="dropdown-item" href="{{ route('locale.switch', ['locale' => 'bn']) }}">{{ __('Bangla') }}</a>
+            <div class="dropdown-menu dropdown-menu-right topnav-lang-menu shadow-lg border-0 p-2">
+                <a class="dropdown-item d-flex align-items-center topnav-lang-item {{ $currentLocale === 'en' ? 'active' : '' }}" href="{{ route('locale.switch', ['locale' => 'en']) }}" aria-label="{{ __('Switch to English') }}">
+                    <span class="topnav-lang-item__flag" aria-hidden="true">🇺🇸</span>
+                    <span class="topnav-lang-item__label">{{ __('English') }}</span>
+                </a>
+                <a class="dropdown-item d-flex align-items-center topnav-lang-item {{ $currentLocale === 'bn' ? 'active' : '' }}" href="{{ route('locale.switch', ['locale' => 'bn']) }}" aria-label="{{ __('Switch to Bangla') }}">
+                    <span class="topnav-lang-item__flag" aria-hidden="true">🇧🇩</span>
+                    <span class="topnav-lang-item__label">{{ __('Bangla') }}</span>
+                </a>
             </div>
         </li>
 
-        <li class="nav-item d-flex align-items-center mr-2">
-            @include('layouts.partials._theme-toggle')
+        <li class="nav-item d-flex align-items-center mr-3">
+            @include('layouts.partials._theme-toggle', ['buttonClass' => 'topnav-theme-toggle'])
         </li>
 
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#" aria-label="{{ __('User menu') }}">
                 <img src="{{ auth()->user()->image_url }}" alt="{{ __('User') }}" class="img-circle" style="width:28px;height:28px;object-fit:cover;">
             </a>
-            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                <a href="#" class="dropdown-item">
-                    <div class="media">
-                        <img src="{{ auth()->user()->image_url }}" alt="{{ __('User Avatar') }}" class="img-size-50 mr-3 img-circle" style="object-fit:cover;">
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right topnav-user-menu shadow-lg border-0 p-2">
+                <a href="#" class="dropdown-item topnav-user-menu__profile">
+                    <div class="media align-items-center">
+                        <img src="{{ auth()->user()->image_url }}" alt="{{ __('User Avatar') }}" class="img-size-50 mr-3 img-circle topnav-user-menu__avatar" style="object-fit:cover;">
                         <div class="media-body">
-                            <h3 class="dropdown-item-title">
+                            <h3 class="dropdown-item-title topnav-user-menu__name">
                                 {{ auth()->user()->name ?? '' }}
                             </h3>
-                            <p class="text-sm">{{ __('Role') }}</p>
+                            <p class="text-sm topnav-user-menu__role">{{ __('Role') }}</p>
                         </div>
                     </div>
                 </a>
-                <div class="dropdown-divider"></div>
+                <div class="dropdown-divider topnav-user-menu__divider"></div>
 
-                <a href="{{ route('account.profile.edit') }}" class="dropdown-item">
+                <a href="{{ route('account.profile.edit') }}" class="dropdown-item topnav-user-menu__action">
                     <i class="fas fa-cog mr-2"></i> {{ __('Profile Setting') }}
                 </a>
-                <div class="dropdown-divider"></div>
-                <a href="{{ route('account.password.edit') }}" class="dropdown-item">
+                <div class="dropdown-divider topnav-user-menu__divider"></div>
+                <a href="{{ route('account.password.edit') }}" class="dropdown-item topnav-user-menu__action">
                     <i class="fas fa-key mr-2"></i> {{ __('Change Password') }}
                 </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item cursor-pointer" id="customer-logout-btn">
+                <div class="dropdown-divider topnav-user-menu__divider"></div>
+                <a class="dropdown-item cursor-pointer topnav-user-menu__action topnav-user-menu__action--danger" id="customer-logout-btn">
                     <i class="fas fa-power-off mr-2"></i> {{ __('Logout') }}
                 </a>
 
@@ -133,12 +160,328 @@
                 </div>
             </div>
         </div>
-    </div>
 </div>
+</div>
+
+<style>
+    .admin-topnav-datetime {
+        min-width: 260px;
+        min-height: 38px;
+        padding: 0.45rem 0.85rem;
+        border-radius: 999px;
+        border: 1px solid rgba(191, 219, 254, 0.9);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(239, 246, 255, 0.9) 100%);
+        box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+        color: #0f172a;
+        backdrop-filter: blur(14px);
+    }
+
+    .admin-topnav-datetime__inner {
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .admin-topnav-datetime__icon {
+        color: #2563eb;
+        font-size: 0.88rem;
+        line-height: 1;
+    }
+
+    .admin-topnav-datetime__clock,
+    .admin-topnav-datetime__date {
+        color: #0f172a;
+        line-height: 1;
+    }
+
+    .admin-topnav-datetime__date {
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .admin-topnav-datetime__separator {
+        width: 1px;
+        height: 18px;
+        background: rgba(37, 99, 235, 0.18);
+    }
+
+    .topnav-actions {
+        gap: 0.95rem;
+    }
+
+    .topnav-actions > .nav-item {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .topnav-flag {
+        font-size: 1.05rem;
+        line-height: 1;
+    }
+
+    .topnav-lang-toggle {
+        min-width: 3.1rem;
+        min-height: 38px;
+        padding: 0.4rem 0.72rem !important;
+        border-radius: 999px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(239, 246, 255, 0.92) 100%);
+        border: 1px solid rgba(191, 219, 254, 0.9);
+        box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+        gap: 0.3rem;
+        justify-content: center;
+        backdrop-filter: blur(14px);
+    }
+
+    .topnav-lang-toggle:hover,
+    .topnav-lang-toggle:focus {
+        background: linear-gradient(135deg, rgba(239, 246, 255, 0.98) 0%, rgba(219, 234, 254, 0.96) 100%);
+        border-color: #bfdbfe;
+        box-shadow: 0 14px 28px rgba(37, 99, 235, 0.12);
+    }
+
+    .topnav-lang-toggle::after {
+        display: none;
+    }
+
+    .topnav-lang-toggle__flag {
+        font-size: 1.05rem;
+        line-height: 1;
+    }
+
+    .topnav-lang-toggle__caret {
+        font-size: 0.62rem;
+        color: #64748b;
+    }
+
+    .topnav-lang-menu {
+        min-width: 7rem;
+        padding: 0.45rem;
+        border-radius: 18px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(16px);
+    }
+
+    .topnav-lang-item {
+        min-height: 2.4rem;
+        justify-content: flex-start;
+        border-radius: 12px;
+        gap: 0.6rem;
+        padding: 0.6rem 0.85rem;
+        transition: background-color .15s ease, transform .15s ease, box-shadow .15s ease;
+    }
+
+    .topnav-lang-item + .topnav-lang-item {
+        margin-top: 0.2rem;
+    }
+
+    .topnav-lang-item:hover,
+    .topnav-lang-item:focus,
+    .topnav-lang-item.active {
+        background: rgba(59, 130, 246, 0.12);
+        box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.12);
+        transform: translateY(-1px);
+    }
+
+    .topnav-lang-item__flag {
+        font-size: 1rem;
+        line-height: 1;
+    }
+
+    .topnav-lang-item__label {
+        color: #0f172a;
+        font-size: 0.86rem;
+        font-weight: 600;
+        line-height: 1;
+        letter-spacing: 0.01em;
+    }
+
+    html[data-theme='dark'] .admin-topnav-datetime {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.96) 100%);
+        border-color: rgba(96, 165, 250, 0.22);
+        box-shadow: 0 14px 30px rgba(2, 6, 23, 0.5);
+    }
+
+    html[data-theme='dark'] .admin-topnav-datetime__icon {
+        color: #93c5fd;
+    }
+
+    html[data-theme='dark'] .admin-topnav-datetime__clock,
+    html[data-theme='dark'] .admin-topnav-datetime__date {
+        color: #f8fafc;
+    }
+
+    html[data-theme='dark'] .admin-topnav-datetime__separator {
+        background: rgba(96, 165, 250, 0.42);
+    }
+
+    html[data-theme='dark'] .topnav-lang-toggle {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.96) 100%);
+        border-color: rgba(96, 165, 250, 0.22);
+        box-shadow: 0 14px 30px rgba(2, 6, 23, 0.45);
+    }
+
+    html[data-theme='dark'] .topnav-lang-toggle:hover,
+    html[data-theme='dark'] .topnav-lang-toggle:focus {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 1) 0%, rgba(15, 23, 42, 0.98) 100%);
+        border-color: rgba(96, 165, 250, 0.5);
+        box-shadow: 0 16px 32px rgba(2, 6, 23, 0.5);
+    }
+
+    html[data-theme='dark'] .topnav-lang-toggle__caret {
+        color: #cbd5e1;
+    }
+
+    html[data-theme='dark'] .topnav-lang-menu {
+        background: rgba(15, 23, 42, 0.99);
+        border-color: rgba(96, 165, 250, 0.18);
+        box-shadow: 0 18px 36px rgba(2, 6, 23, 0.55);
+    }
+
+    html[data-theme='dark'] .topnav-lang-item:hover,
+    html[data-theme='dark'] .topnav-lang-item:focus,
+    html[data-theme='dark'] .topnav-lang-item.active {
+        background: rgba(59, 130, 246, 0.24);
+        box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.24);
+    }
+
+    html[data-theme='dark'] .topnav-lang-item__label {
+        color: #f8fafc;
+    }
+
+    .topnav-user-menu {
+        min-width: 16rem;
+        padding: 0.55rem;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+    }
+
+    .topnav-user-menu__profile {
+        border-radius: 0.9rem;
+        padding: 0.8rem 0.85rem;
+        margin-bottom: 0.3rem;
+        background: linear-gradient(135deg, rgba(239, 246, 255, 0.8) 0%, rgba(255, 255, 255, 0.96) 100%);
+    }
+
+    .topnav-user-menu__profile:hover,
+    .topnav-user-menu__profile:focus {
+        background: linear-gradient(135deg, rgba(224, 242, 254, 0.95) 0%, rgba(255, 255, 255, 1) 100%);
+    }
+
+    .topnav-user-menu__avatar {
+        width: 3rem;
+        height: 3rem;
+        border: 2px solid rgba(191, 219, 254, 0.8);
+        box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+    }
+
+    .topnav-user-menu__name {
+        margin-bottom: 0.25rem;
+        color: #0f172a;
+        font-size: 0.95rem;
+        font-weight: 700;
+        line-height: 1.15;
+    }
+
+    .topnav-user-menu__role {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 0.78rem;
+        line-height: 1.1;
+    }
+
+    .topnav-user-menu__divider {
+        margin: 0.35rem 0;
+        border-top-color: rgba(226, 232, 240, 0.9);
+    }
+
+    .topnav-user-menu__action {
+        border-radius: 0.8rem;
+        padding: 0.75rem 0.85rem;
+        color: #0f172a;
+        font-weight: 600;
+        transition: background-color 0.15s ease, transform 0.15s ease, color 0.15s ease;
+    }
+
+    .topnav-user-menu__action:hover,
+    .topnav-user-menu__action:focus {
+        background: rgba(59, 130, 246, 0.08);
+        color: #0f172a;
+        transform: translateY(-1px);
+    }
+
+    .topnav-user-menu__action--danger:hover,
+    .topnav-user-menu__action--danger:focus {
+        background: rgba(239, 68, 68, 0.1);
+        color: #b91c1c;
+    }
+
+    html[data-theme='dark'] .topnav-user-menu {
+        background: rgba(15, 23, 42, 0.98);
+        box-shadow: 0 20px 40px rgba(2, 6, 23, 0.55);
+        border: 1px solid rgba(51, 65, 85, 0.8);
+    }
+
+    html[data-theme='dark'] .topnav-user-menu__profile {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.98) 0%, rgba(15, 23, 42, 0.96) 100%);
+    }
+
+    html[data-theme='dark'] .topnav-user-menu__profile:hover,
+    html[data-theme='dark'] .topnav-user-menu__profile:focus {
+        background: linear-gradient(135deg, rgba(51, 65, 85, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
+    }
+
+    html[data-theme='dark'] .topnav-user-menu__avatar {
+        border-color: rgba(96, 165, 250, 0.35);
+    }
+
+    html[data-theme='dark'] .topnav-user-menu__name {
+        color: #f8fafc;
+    }
+
+    html[data-theme='dark'] .topnav-user-menu__role {
+        color: #cbd5e1;
+    }
+
+    html[data-theme='dark'] .topnav-user-menu__divider {
+        border-top-color: rgba(51, 65, 85, 0.85);
+    }
+
+    html[data-theme='dark'] .topnav-user-menu__action {
+        color: #e2e8f0;
+    }
+
+    html[data-theme='dark'] .topnav-user-menu__action:hover,
+    html[data-theme='dark'] .topnav-user-menu__action:focus {
+        background: rgba(59, 130, 246, 0.14);
+        color: #f8fafc;
+    }
+
+    html[data-theme='dark'] .topnav-user-menu__action--danger:hover,
+    html[data-theme='dark'] .topnav-user-menu__action--danger:focus {
+        background: rgba(239, 68, 68, 0.18);
+        color: #fecaca;
+    }
+
+    @media (max-width: 991.98px) {
+        .topnav-actions {
+            gap: 0.7rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .topnav-actions {
+            gap: 0.5rem;
+        }
+    }
+</style>
 
 <script>
     (function () {
         const entries = @json($inkySearchEntries);
+        const timezone = @json($timezone);
         const modalSelector = '#inkySearchModal';
         const inputSelector = '#inkySearchInput';
         const resultsSelector = '#inkySearchResults';
@@ -217,6 +560,36 @@
             });
 
             return score;
+        }
+
+        function updateTopNavClock() {
+            const now = new Date();
+            const clockEl = document.getElementById('topNavClock');
+            const dateEl = document.getElementById('topNavDate');
+
+            const timeFormatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: timezone,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+            });
+
+            const dateFormatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: timezone,
+                weekday: 'short',
+                month: 'short',
+                day: '2-digit',
+                year: 'numeric',
+            });
+
+            if (clockEl) {
+                clockEl.textContent = timeFormatter.format(now);
+            }
+
+            if (dateEl) {
+                dateEl.textContent = dateFormatter.format(now);
+            }
         }
 
         function renderResults(query) {
@@ -320,5 +693,10 @@
                 $(modalSelector).modal('hide');
             }
         });
+
+        updateTopNavClock();
+        if (!window.__schoolTopNavClockTimer) {
+            window.__schoolTopNavClockTimer = window.setInterval(updateTopNavClock, 1000);
+        }
     })();
 </script>

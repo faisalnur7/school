@@ -107,6 +107,31 @@
     </div>
 @endsection
 
+@section('styles')
+    <style>
+        .attendance-filter-control {
+            min-height: 42px;
+            height: 42px;
+        }
+
+        .attendance-filter-control[type='date'] {
+            padding-top: 0.45rem;
+            padding-bottom: 0.45rem;
+            line-height: 1.2;
+        }
+
+        .attendance-filter-control[type='date']::-webkit-calendar-picker-indicator {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .attendance-filter-field .select2-container--default .select2-selection--single {
+            min-height: 42px;
+            height: 42px;
+        }
+    </style>
+@endsection
+
 @section('scripts')
     @include('scripts.common.load_academic_information')
     <script>
