@@ -1,6 +1,13 @@
 @extends('layouts.master')
 
 @section('contents')
+@php
+    $feeSetsByClass = collect($feeSets ?? [])->groupBy(function ($feeSet) {
+        return $feeSet->school_class_id ?? 'all';
+    });
+    $firstClassId = optional($classes->first())->id;
+    $activeFeeSetTab = request('school_class_id') ? (string) request('school_class_id') : (string) $firstClassId;
+@endphp
 <div class="container-fluid px-3 py-3">
     <div class="row">
         <!-- Create Form on Left -->
@@ -187,8 +194,58 @@
 
         <!-- Fee Sets List on Right -->
         <div class="col-md-7 mb-3">
-            @include('pages.fee_sets.table')
-        </div>
+            <div class="card shadow-sm border-0 classwise-fee-sets-card">
+                <div class="card-header bg-white border-bottom-0 pb-0">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div>
+                            <h4 class="mb-1 font-weight-bold">Fee Sets by Class</h4>
+                            <div class="text-muted small">Switch between classes to review the fee structure.</div>
+                        </div>
+                    </div>
+                </div>
+
+                    <div class="card-body pt-3">
+                        <ul class="nav nav-tabs classwise-tabs mb-3" id="feeSetClassTabs" role="tablist">
+                            @foreach ($classes as $class)
+                                @php $classId = (string) $class->id; @endphp
+                                <li class="nav-item" role="presentation">
+                                    <a
+                                        class="nav-link {{ $activeFeeSetTab === $classId ? 'active' : '' }}"
+                                        id="fee-set-tab-{{ $classId }}"
+                                        data-toggle="tab"
+                                        href="#fee-set-pane-{{ $classId }}"
+                                        role="tab"
+                                        aria-controls="fee-set-pane-{{ $classId }}"
+                                        aria-selected="{{ $activeFeeSetTab === $classId ? 'true' : 'false' }}"
+                                    >
+                                        {{ $class->name_en }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+
+                        <div class="tab-content">
+                            @foreach ($classes as $class)
+                                @php
+                                    $classId = (string) $class->id;
+                                    $classFeeSets = $feeSetsByClass->get($class->id, collect());
+                                @endphp
+                                <div
+                                    class="tab-pane fade {{ $activeFeeSetTab === $classId ? 'show active' : '' }}"
+                                    id="fee-set-pane-{{ $classId }}"
+                                    role="tabpanel"
+                                    aria-labelledby="fee-set-tab-{{ $classId }}"
+                                >
+                                    @include('pages.fee_sets.table', [
+                                        'feeSets' => $classFeeSets,
+                                        'showHeader' => false,
+                                    ])
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
     </div>
 </div>
 @endsection
@@ -204,6 +261,42 @@
     .row.g-2 > [class*="col-"] {
         padding-right: 0.5rem;
         padding-left: 0.5rem;
+    }
+
+    .classwise-fee-sets-card .classwise-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0;
+        white-space: nowrap;
+        padding-bottom: 0;
+        border-bottom: 0;
+    }
+
+    .classwise-fee-sets-card .classwise-tabs .nav-item {
+        flex: 0 0 auto;
+    }
+
+    .classwise-fee-sets-card .classwise-tabs .nav-link {
+        border-radius: 0.25rem;
+        border: 1px solid #cbd5e1;
+        color: #2563eb;
+        background: #fff;
+        padding: 0.35rem 0.8rem;
+        font-size: 0.86rem;
+        margin: 0;
+    }
+
+    .classwise-fee-sets-card .classwise-tabs .nav-link.active {
+        background: #2563eb;
+        color: #fff;
+        border-color: #2563eb;
+    }
+
+    .classwise-fee-sets-card .classwise-tabs .nav-link:hover {
+        border-color: #2563eb;
+        color: #fff;
+        background: #3b82f6;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
     }
 </style>
 @endsection
