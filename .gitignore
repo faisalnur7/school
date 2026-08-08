@@ -6,7 +6,8 @@
 # Laravel
 /node_modules/
 /public/storage
-/public/build/
+!/public/build/
+!/public/build/assets
 /public/uploads/students
 /storage/*.key
 /storage/debugbar
