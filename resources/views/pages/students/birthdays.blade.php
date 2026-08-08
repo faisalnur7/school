@@ -85,7 +85,7 @@
                     Student Birthday Search Results
                 @endif
             </span>
-            <span class="badge bg-primary ml-auto">{{ $students->count() }} student(s)</span>
+            <span class="badge bg-primary ml-auto">{{ $students->count() }} shown</span>
         </div>
         <div class="card-body p-0">
             @if($students->isEmpty())
@@ -113,19 +113,24 @@
                             <th>Section</th>
                             <th>Group</th>
                             <th>Phone</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($students as $i => $student)
-                        @php $info = $student->academicInformations->first(); @endphp
+                        @php $info = $student->latestAcademicInformation; @endphp
                         <tr>
                             <td>{{ $i + 1 }}</td>
                             <td>
                                 <img src="{{ $student->photo_url }}" class="rounded-circle" width="36" height="36" style="object-fit:cover">
                             </td>
                             <td>
-                                <a href="{{ route('students.show', $student->id) }}" class="fw-semibold text-decoration-none">
+                                <a href="{{ route('students.show', ['id' => $student->id]) }}"
+                                   class="birthday-student-link fw-semibold text-decoration-none"
+                                   title="View student details"
+                                   aria-label="View details for {{ $student->full_name_en ?: $student->full_name_bn }}">
                                     {{ $student->full_name_en ?: $student->full_name_bn }}
+                                    <i class="fas fa-external-link-alt birthday-student-link__icon" aria-hidden="true"></i>
                                 </a>
                             </td>
                             <td>{{ $student->student_cid ?? '—' }}</td>
@@ -136,10 +141,23 @@
                             <td>{{ $info?->section?->name_en ?? '—' }}</td>
                             <td>{{ $info?->group?->name_en ?? '—' }}</td>
                             <td>{{ $student->guardian_phone ?? $student->father_phone ?? '—' }}</td>
+                            <td class="text-end">
+                                <a href="{{ route('students.birthdays.card.preview', ['student' => $student->id] + request()->query()) }}"
+                                   target="_blank"
+                                   rel="noopener"
+                                   class="btn btn-sm btn-gradient-warning"
+                                   title="Open birthday card print preview"
+                                   aria-label="Open birthday card print preview for {{ $student->full_name_en ?: $student->full_name_bn }}">
+                                    <i class="fas fa-print me-1"></i> Print Preview
+                                </a>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+            <div class="px-3 pb-3">
+                {{ $students->links() }}
             </div>
             @endif
         </div>
@@ -179,4 +197,51 @@ $(function () {
     });
 });
 </script>
+@endsection
+
+@section('styles')
+<style>
+    .birthday-student-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: #2563eb;
+        transition: color 0.15s ease, text-decoration-color 0.15s ease;
+    }
+
+    .birthday-student-link:hover,
+    .birthday-student-link:focus {
+        color: #1d4ed8;
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
+    }
+
+    .birthday-student-link__icon {
+        font-size: 0.75rem;
+        opacity: 0.7;
+    }
+
+    .btn-gradient-warning {
+        color: #fff;
+        border: 0;
+        background: linear-gradient(135deg, #f59e0b 0%, #fb7185 52%, #ec4899 100%);
+        box-shadow: 0 6px 14px rgba(236, 72, 153, 0.22);
+    }
+
+    .btn-gradient-warning:hover,
+    .btn-gradient-warning:focus {
+        color: #fff;
+        filter: brightness(1.02);
+        box-shadow: 0 8px 16px rgba(236, 72, 153, 0.28);
+    }
+
+    html[data-theme='dark'] .birthday-student-link {
+        color: #93c5fd;
+    }
+
+    html[data-theme='dark'] .birthday-student-link:hover,
+    html[data-theme='dark'] .birthday-student-link:focus {
+        color: #bfdbfe;
+    }
+</style>
 @endsection

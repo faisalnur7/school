@@ -98,7 +98,7 @@
                     <span class="stat-label">{{ __('Total Teachers') }}</span>
                     <span class="stat-value">{{ localized_number($total_teachers) }}</span>
                 </div>
-                <div class="stat-icon-wrap"><i class="fas fa-chalkboard-user"></i></div>
+                <div class="stat-icon-wrap"><i class="fas fa-chalkboard-teacher"></i></div>
             </div>
             <div class="stat-glow"></div>
         </div>

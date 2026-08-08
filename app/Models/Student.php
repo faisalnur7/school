@@ -243,6 +243,11 @@ class Student extends Model
         return $this->hasMany(StudentAcademicInformation::class);
     }
 
+    public function latestAcademicInformation()
+    {
+        return $this->hasOne(StudentAcademicInformation::class)->latestOfMany('id');
+    }
+
     public function payments()
     {
         return $this->hasMany(Payment::class);
