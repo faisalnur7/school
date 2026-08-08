@@ -1,10 +1,16 @@
+@php
+    $showHeader = $showHeader ?? true;
+@endphp
+
 <div class="card">
-    <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
-        <h3 class="card-title mb-0 text-white text-lg">Fee Sets</h3>
-        <a href="{{ route('fee-sets.index') }}" class="btn btn-primary btn-sm ml-auto text-bold">
-            + Add Fee Set
-        </a>
-    </div>
+    @if($showHeader)
+        <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
+            <h3 class="card-title mb-0 text-white text-lg">Fee Sets</h3>
+            <a href="{{ route('fee-sets.index') }}" class="btn btn-primary btn-sm ml-auto text-bold">
+                + Add Fee Set
+            </a>
+        </div>
+    @endif
 
     <div class="card-body px-0 pb-4 pt-0">
         <div class="table-responsive">
@@ -32,9 +38,14 @@
                                 @if ($feeSet->items->isNotEmpty())
                                     <ul class="mb-0">
                                         @foreach ($feeSet->items as $item)
+                                            @php
+                                                $isTransport = ($item->category->is_transport ?? 0) || (($item->category->name ?? '') === 'Transport Fee');
+                                            @endphp
                                             <li>
-                                                {{ $item->category->name ?? '-' }} :
-                                                {{ number_format($item->amount, 2) }}
+                                                {{ $item->category->name ?? '-' }}
+                                                @unless($isTransport)
+                                                    : {{ number_format($item->amount, 2) }}
+                                                @endunless
                                             </li>
                                         @endforeach
                                     </ul>
