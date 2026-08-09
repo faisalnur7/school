@@ -127,7 +127,7 @@ class FeeSetController extends Controller
 
                     foreach ($dueDates as $dueDate) {
 
-                        Fee::updateOrCreate(
+                        Fee::firstOrCreate(
                             [
                                 'student_id' => $info->student_id,
                                 'fee_set_id' => $feeSet->id,
@@ -247,9 +247,6 @@ class FeeSetController extends Controller
                                     ->groupBy('student_id')
                                     ->pluck('cnt', 'student_id');
 
-                // Delete old fees for this fee set
-                Fee::where('fee_set_id', $feeSet->id)->delete();
-
                 foreach ($academicInfos as $info) {
 
                     $studentType      = ($entryCounts[$info->student_id] ?? 1) > 1 ? 'old' : 'new';
@@ -261,12 +258,13 @@ class FeeSetController extends Controller
 
                     foreach ($dueDates as $dueDate) {
 
-                        Fee::create([
+                        Fee::firstOrCreate([
                             'student_id' => $info->student_id,
                             'fee_set_id' => $feeSet->id,
                             'due_date'   => $dueDate,
-                            'amount'     => $applicableAmount,
-                            'status'     => 'pending',
+                        ], [
+                            'amount' => $applicableAmount,
+                            'status' => 'pending',
                         ]);
                     }
                 }
