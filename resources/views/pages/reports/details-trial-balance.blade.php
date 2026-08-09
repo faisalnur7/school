@@ -79,11 +79,11 @@
                         <thead style="background:#1e293b;color:#fff">
                             <tr>
                                 <th rowspan="2" style="vertical-align:middle;width:30%">Account</th>
-                                <th colspan="2" class="text-center" style="border-bottom:1px solid #334155">Beginning
+                                <th colspan="2" class="text-center" style="border-bottom:1px solid #334155">Opening
                                     Balance</th>
                                 <th colspan="2" class="text-center" style="border-bottom:1px solid #334155">Period
                                     Activity</th>
-                                <th colspan="2" class="text-center" style="border-bottom:1px solid #334155">Ending
+                                <th colspan="2" class="text-center" style="border-bottom:1px solid #334155">Closing
                                     Balance</th>
                             </tr>
                             <tr style="background:#334155">

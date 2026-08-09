@@ -36,6 +36,20 @@
                 <h3 class="card-title flex text-white pl-3 text-medium">Balance Sheet &mdash; {{ $year }}</h3>
             </div>
             <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-2 mb-md-0">
+                        <div class="p-3 rounded" style="background:#f8fafc;border:1px solid #e2e8f0">
+                            <div style="font-size:11px;color:#64748b">Opening Balance</div>
+                            <div style="font-size:18px;font-weight:700;color:#111827">{{ number_format($openingBalance, 2) }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded" style="background:#f8fafc;border:1px solid #e2e8f0">
+                            <div style="font-size:11px;color:#64748b">Closing Balance</div>
+                            <div style="font-size:18px;font-weight:700;color:#111827">{{ number_format($closingBalance, 2) }}</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <h5 class="text-muted mb-3" style="font-size:13px;text-transform:uppercase;letter-spacing:1px">

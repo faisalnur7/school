@@ -1,4 +1,10 @@
 @php $content = ''; ob_start(); @endphp
+<table style="margin-bottom:8px;width:100%">
+    <tr>
+        <td style="padding:4px 10px;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;font-weight:700">Opening Balance: {{ number_format($openingBalance, 2) }}</td>
+        <td style="padding:4px 10px;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;font-weight:700">Closing Balance: {{ number_format($closingBalance, 2) }}</td>
+    </tr>
+</table>
 <table>
     <thead>
         <tr><th>Account</th><th class="text-right">Debit</th><th class="text-right">Credit</th></tr>

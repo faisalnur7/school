@@ -2,6 +2,12 @@
     $content = '';
     ob_start();
 @endphp
+<table style="margin-bottom:8px;width:100%">
+    <tr>
+        <td style="padding:4px 10px;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;font-weight:700">Opening Balance: {{ number_format($openingBalance, 2) }}</td>
+        <td style="padding:4px 10px;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;font-weight:700">Closing Balance: {{ number_format($closingBalance, 2) }}</td>
+    </tr>
+</table>
 <div class="two-col" style="width:100%; overflow:hidden;">
 
     <!-- Income -->

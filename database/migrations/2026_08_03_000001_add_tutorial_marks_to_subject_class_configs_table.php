@@ -16,12 +16,12 @@ return new class extends Migration
             $table->decimal('tutorial_marks', 5, 2)->nullable()->after('viva_marks')->comment('Tutorial marks for this class');
         });
 
-        DB::statement(
-            'UPDATE subject_class_configs scc
-             INNER JOIN subjects s ON s.id = scc.subject_id
-             SET scc.tutorial_marks = s.tutorial_marks
-             WHERE scc.tutorial_marks IS NULL'
-        );
+        DB::table('subject_class_configs')
+            ->whereNull('tutorial_marks')
+            ->whereNotNull('subject_id')
+            ->update([
+                'tutorial_marks' => DB::raw('(SELECT tutorial_marks FROM subjects WHERE subjects.id = subject_class_configs.subject_id)'),
+            ]);
     }
 
     /**

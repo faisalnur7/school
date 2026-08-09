@@ -28,6 +28,54 @@
             position: relative;
         }
 
+        .payment-report-page .payment-report-scope-banner {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.6rem;
+            margin-top: 0.35rem;
+            padding: 0.85rem 0.95rem;
+            border: 1px solid #dbeafe;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+        }
+
+        .payment-report-page .payment-report-scope-banner__title {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin: 0;
+            color: #0f172a;
+            font-size: 0.82rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .payment-report-page .payment-report-scope-banner__pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+        }
+
+        .payment-report-page .payment-report-scope-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.3rem 0.6rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            background: #fff;
+            color: #334155;
+            font-size: 0.75rem;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+        }
+
+        .payment-report-page .payment-report-scope-pill--primary {
+            border-color: #93c5fd;
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
         .payment-report-page .report-header-body {
             display: flex;
             align-items: center;
@@ -407,6 +455,27 @@
             box-shadow: 0 10px 24px rgba(2, 6, 23, 0.26);
         }
 
+        html[data-theme='dark'] .payment-report-page .payment-report-scope-banner {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(17, 24, 39, 0.98));
+            border-color: rgba(96, 165, 250, 0.28);
+        }
+
+        html[data-theme='dark'] .payment-report-page .payment-report-scope-banner__title,
+        html[data-theme='dark'] .payment-report-page .payment-report-scope-pill {
+            color: #e5e7eb;
+        }
+
+        html[data-theme='dark'] .payment-report-page .payment-report-scope-pill {
+            background: rgba(15, 23, 42, 0.7);
+            border-color: rgba(148, 163, 184, 0.28);
+        }
+
+        html[data-theme='dark'] .payment-report-page .payment-report-scope-pill--primary {
+            background: rgba(37, 99, 235, 0.2);
+            color: #bfdbfe;
+            border-color: rgba(96, 165, 250, 0.45);
+        }
+
         html[data-theme='dark'] .payment-report-page .payment-report-field label,
         html[data-theme='dark'] .payment-report-page .payment-report-pdf-subtitle,
         html[data-theme='dark'] .payment-report-page .payment-report-pdf-toggle,
@@ -494,6 +563,14 @@
     @php
         $reportTitle = 'Student Payment Report';
         $selectedCategoryKeys = $selectedCategoryKeys ?? ($availableCategories->pluck('column_key')->all() ?? []);
+        $activeScopePills = collect([
+            request('session_id') ? 'Session: ' . optional($sessions->firstWhere('id', request('session_id')))->name_en : null,
+            request('class_id') ? 'Class: ' . optional($classes->firstWhere('id', request('class_id')))->name_en : null,
+            request('section_id') ? 'Section: ' . optional($sections->firstWhere('id', request('section_id')))->name_en : null,
+            ! blank($fromDate ?? null) && ! blank($toDate ?? null)
+                ? 'Range: ' . \Carbon\Carbon::parse($fromDate)->format('d M Y') . ' to ' . \Carbon\Carbon::parse($toDate)->format('d M Y')
+                : null,
+        ])->filter()->values();
         $reportPdfQuery = collect([
             'student_id' => request('student_id'),
             'session_id' => request('session_id'),
@@ -608,6 +685,22 @@
                             </a>
                         </div>
                     </div>
+
+                    @if($activeScopePills->isNotEmpty())
+                        <div class="payment-report-scope-banner">
+                            <p class="payment-report-scope-banner__title mb-0">
+                                <i class="fas fa-filter"></i>
+                                Active scope
+                            </p>
+                            <div class="payment-report-scope-banner__pills">
+                                @foreach($activeScopePills as $index => $pill)
+                                    <span class="payment-report-scope-pill {{ $index === 0 ? 'payment-report-scope-pill--primary' : '' }}">
+                                        {{ $pill }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
 
                     <div class="payment-report-advanced-filters hidden" id="paymentReportAdvancedFilters">
                         <input type="hidden" name="columns_present" value="1">
@@ -807,8 +900,8 @@
                             <div class="info-box bg-light">
                                 <span class="info-box-icon bg-success"><i class="fas fa-check-circle"></i></span>
                                 <div class="info-box-content">
-                                    <span class="info-box-text">Grand Total Paid</span>
-                                    <span class="info-box-number">{{ number_format($rows->sum(fn($g) => $g->students->sum('grand_total')), 2) }}</span>
+                                    <span class="info-box-text">Selected Fee Total</span>
+                                    <span class="info-box-number">{{ number_format($rows->sum(fn($g) => $g->students->sum('selected_grand_total')), 2) }}</span>
                                 </div>
                             </div>
                         </div>

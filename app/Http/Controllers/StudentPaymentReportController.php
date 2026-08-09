@@ -33,9 +33,16 @@ class StudentPaymentReportController extends Controller
     public function pdf(Request $request)
     {
         [$categories, , $rows, $dateLabel] = $this->buildData($request);
+        $sessions = AcademicSession::orderByDesc('id')->get();
+        $classes = SchoolClass::orderBy('id')->get();
+        $sections = $request->filled('class_id')
+            ? Section::where('school_class_id', $request->class_id)->orderBy('name_en')->get()
+            : collect();
+
+        $activeScopePills = $this->buildActiveScopePills($request, $sessions, $classes, $sections);
 
         $html = view('pages.student-payment-report.pdf',
-            compact('categories', 'rows', 'dateLabel'))->render();
+            compact('categories', 'rows', 'dateLabel', 'activeScopePills'))->render();
 
         $mpdf = new Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'margin_top' => 10, 'margin_bottom' => 10]);
         $mpdf->WriteHTML($html);
@@ -106,7 +113,6 @@ class StudentPaymentReportController extends Controller
         $payments = Payment::with([
                 'student.academicInformations.schoolClass',
                 'student.academicInformations.section',
-                'items.fee.feeSet.items.category',
             ])
             ->when($studentIdFilter !== '', function ($q) use ($studentIdFilter) {
                 $q->whereHas('student', function ($studentQuery) use ($studentIdFilter) {
@@ -117,7 +123,8 @@ class StudentPaymentReportController extends Controller
                 });
             })
             ->whereBetween('payment_date', [$fromDate->toDateString(), $toDate->toDateString()])
-            ->whereHas('items')
+            ->orderBy('payment_date')
+            ->orderBy('id')
             ->get();
 
         foreach ($payments as $payment) {
@@ -126,230 +133,62 @@ class StudentPaymentReportController extends Controller
                 continue;
             }
 
-            $academicInfo = $student->academicInformations
-                ->where('academic_session_id', $request->session_id)
-                ->first() ?? $student->academicInformations->first();
+            if ($studentIdFilter !== '' && ! $this->studentMatchesFilter($student, $studentIdFilter)) {
+                continue;
+            }
 
-            if ($request->filled('session_id') && !$academicInfo) {
-                continue;
-            }
-            if ($request->filled('class_id') && $academicInfo?->school_class_id != $request->class_id) {
-                continue;
-            }
-            if ($request->filled('section_id') && $academicInfo?->section_id != $request->section_id) {
+            $academicInfo = $this->resolveStudentAcademicInfo($student);
+
+            if (! $this->matchesAcademicFilters($academicInfo, $request)) {
                 continue;
             }
 
             $monthKey = Carbon::parse($payment->payment_date)->format('Y-m');
-            if (!isset($months[$monthKey])) {
+            if (! isset($months[$monthKey])) {
                 continue;
             }
 
             $studentKey = $student->id;
 
-            foreach ($payment->items as $item) {
-                $fee = $item->fee;
-                if (!$fee || !$fee->feeSet) {
-                    continue;
-                }
-
-                $feeSetItems = $fee->feeSet->items;
-                $feeTotal = $feeSetItems->sum('amount');
-                if ($feeTotal <= 0) {
-                    continue;
-                }
-
-                foreach ($feeSetItems as $feeSetItem) {
-                    $category = $feeSetItem->category;
-                    if (!$category || !$category->status) {
-                        continue;
-                    }
-
-                    $amount = (float) $item->amount * ($feeSetItem->amount / $feeTotal);
-                    if ($amount <= 0) {
-                        continue;
-                    }
-
-                    $key = $studentKey . '|' . $category->id . '|' . $category->name;
-                    if (!isset($studentMap[$studentKey])) {
-                        $studentMap[$studentKey] = [
-                            'student_id' => $studentKey,
-                            'student_cid' => $student->student_cid,
-                            'student_name' => $student->full_name_en,
-                            'class_name' => $academicInfo?->schoolClass?->name_en ?? '—',
-                            'section_name' => $academicInfo?->section?->name_en ?? '—',
-                            'monthTotals' => array_fill_keys(array_keys($months), 0.0),
-                            'student_total' => 0.0,
-                            'lines' => [],
-                        ];
-                    }
-
-                    if (!isset($studentMap[$studentKey]['lines'][$key])) {
-                        $studentMap[$studentKey]['lines'][$key] = [
-                            'acc_code' => $category->id,
-                            'description' => $category->name,
-                            'monthTotals' => array_fill_keys(array_keys($months), 0.0),
-                            'total' => 0.0,
-                        ];
-                    }
-
-                    $studentMap[$studentKey]['lines'][$key]['monthTotals'][$monthKey] += $amount;
-                    $studentMap[$studentKey]['lines'][$key]['total'] += $amount;
-                    $studentMap[$studentKey]['monthTotals'][$monthKey] += $amount;
-                    $studentMap[$studentKey]['student_total'] += $amount;
-                    $totals['months'][$monthKey] += $amount;
-                    $totals['total'] += $amount;
-                }
+            if (! isset($studentMap[$studentKey])) {
+                $studentMap[$studentKey] = [
+                    'student_id' => $studentKey,
+                    'student_cid' => $student->student_cid,
+                    'student_name' => $student->full_name_en,
+                    'class_name' => $academicInfo?->schoolClass?->name_en ?? '—',
+                    'section_name' => $academicInfo?->section?->name_en ?? '—',
+                    'monthTotals' => array_fill_keys(array_keys($months), 0.0),
+                    'student_total' => 0.0,
+                    'lines' => [],
+                ];
             }
-        }
 
-        $inventoryPayments = Payment::with([
-                'student.academicInformations.schoolClass',
-                'student.academicInformations.section',
-                'inventorySale.items.inventoryItem.category',
-                'inventoryDueItems.inventorySaleItem.inventoryItem.category',
-            ])
-            ->when($request->filled('student_id'), function ($q) use ($request) {
-                $studentId = trim((string) $request->student_id);
-                $q->whereHas('student', function ($studentQuery) use ($studentId) {
-                    $studentQuery->where('student_cid', $studentId);
-                    if (is_numeric($studentId)) {
-                        $studentQuery->orWhere('id', $studentId);
-                    }
-                });
-            })
-            ->whereBetween('payment_date', [$fromDate->toDateString(), $toDate->toDateString()])
-            ->where(function ($q) {
-                $q->whereNotNull('inventory_sale_id')
-                  ->orWhereHas('inventoryDueItems');
-            })
-            ->get();
+            $lineKey = 'payment:' . $payment->id;
+            if (! isset($studentMap[$studentKey]['lines'][$lineKey])) {
+                $lineDescription = trim(
+                    ($payment->receipt_no ? 'Receipt ' . $payment->receipt_no : 'Payment')
+                    . ($payment->description ? ' - ' . $payment->description : '')
+                );
 
-        foreach ($inventoryPayments as $payment) {
-            $student = $payment->student;
-            if (!$student) {
+                $studentMap[$studentKey]['lines'][$lineKey] = [
+                    'acc_code' => $payment->receipt_no ?? $payment->id,
+                    'description' => $lineDescription ?: 'Payment',
+                    'monthTotals' => array_fill_keys(array_keys($months), 0.0),
+                    'total' => 0.0,
+                ];
+            }
+
+            $amount = (float) $payment->amount;
+            if ($amount <= 0) {
                 continue;
             }
 
-            $academicInfo = $student->academicInformations
-                ->where('academic_session_id', $request->session_id)
-                ->first() ?? $student->academicInformations->first();
-
-            if ($request->filled('session_id') && !$academicInfo) {
-                continue;
-            }
-            if ($request->filled('class_id') && $academicInfo?->school_class_id != $request->class_id) {
-                continue;
-            }
-            if ($request->filled('section_id') && $academicInfo?->section_id != $request->section_id) {
-                continue;
-            }
-
-            $monthKey = Carbon::parse($payment->payment_date)->format('Y-m');
-            if (!isset($months[$monthKey])) {
-                continue;
-            }
-            $academicInfo = $student->academicInformations->first();
-            $studentKey = $student->id;
-
-            if ($payment->inventorySale) {
-                $sale = $payment->inventorySale;
-                $saleItems = $sale->items;
-                $saleTotal = $saleItems->sum('subtotal');
-                if ($saleTotal > 0) {
-                    $inventoryPaidTotal = (float) ($sale->paid_amount ?? 0);
-
-                    foreach ($saleItems as $saleItem) {
-                        $inventoryItem = $saleItem->inventoryItem;
-                        $inventoryCategory = $inventoryItem?->category;
-                        if (!$inventoryCategory || !$inventoryCategory->is_active) {
-                            continue;
-                        }
-
-                        $amount = $inventoryPaidTotal * ($saleItem->subtotal / $saleTotal);
-                        if ($amount <= 0) {
-                            continue;
-                        }
-
-                        if (!isset($studentMap[$studentKey])) {
-                            $studentMap[$studentKey] = [
-                                'student_id' => $studentKey,
-                                'student_cid' => $student->student_cid,
-                                'student_name' => $student->full_name_en,
-                                'class_name' => $academicInfo?->schoolClass?->name_en ?? '—',
-                                'section_name' => $academicInfo?->section?->name_en ?? '—',
-                                'monthTotals' => array_fill_keys(array_keys($months), 0.0),
-                                'student_total' => 0.0,
-                                'lines' => [],
-                            ];
-                        }
-
-                        $key = $studentKey . '|' . $inventoryCategory->id . '|' . $inventoryCategory->name;
-                        if (!isset($studentMap[$studentKey]['lines'][$key])) {
-                            $studentMap[$studentKey]['lines'][$key] = [
-                                'acc_code' => $inventoryCategory->id,
-                                'description' => $inventoryCategory->name,
-                                'monthTotals' => array_fill_keys(array_keys($months), 0.0),
-                                'total' => 0.0,
-                            ];
-                        }
-
-                        $studentMap[$studentKey]['lines'][$key]['monthTotals'][$monthKey] += $amount;
-                        $studentMap[$studentKey]['lines'][$key]['total'] += $amount;
-                        $studentMap[$studentKey]['monthTotals'][$monthKey] += $amount;
-                        $studentMap[$studentKey]['student_total'] += $amount;
-                        $totals['months'][$monthKey] += $amount;
-                        $totals['total'] += $amount;
-                    }
-                }
-            }
-
-            if ($payment->inventoryDueItems->isNotEmpty()) {
-                foreach ($payment->inventoryDueItems as $dueItem) {
-                    $saleItem = $dueItem->inventorySaleItem;
-                    $inventoryItem = $saleItem?->inventoryItem;
-                    $inventoryCategory = $inventoryItem?->category;
-                    if (!$inventoryCategory || !$inventoryCategory->is_active) {
-                        continue;
-                    }
-
-                    $amount = (float) $dueItem->amount;
-                    if ($amount <= 0) {
-                        continue;
-                    }
-
-                    if (!isset($studentMap[$studentKey])) {
-                        $studentMap[$studentKey] = [
-                            'student_id' => $studentKey,
-                            'student_cid' => $student->student_cid,
-                            'student_name' => $student->full_name_en,
-                            'class_name' => $academicInfo?->schoolClass?->name_en ?? '—',
-                            'section_name' => $academicInfo?->section?->name_en ?? '—',
-                            'monthTotals' => array_fill_keys(array_keys($months), 0.0),
-                            'student_total' => 0.0,
-                            'lines' => [],
-                        ];
-                    }
-
-                    $columnKey = $categoryKeyMap['inv_' . $inventoryCategory->id] ?? 'inv_' . $inventoryCategory->id;
-                    $key = $studentKey . '|due|' . $columnKey;
-                    if (!isset($studentMap[$studentKey]['lines'][$key])) {
-                        $studentMap[$studentKey]['lines'][$key] = [
-                            'acc_code' => $inventoryCategory->id,
-                            'description' => $inventoryCategory->name . ' - ' . ($inventoryItem?->name ?? 'Item'),
-                            'monthTotals' => array_fill_keys(array_keys($months), 0.0),
-                            'total' => 0.0,
-                        ];
-                    }
-
-                    $studentMap[$studentKey]['lines'][$key]['monthTotals'][$monthKey] += $amount;
-                    $studentMap[$studentKey]['lines'][$key]['total'] += $amount;
-                    $studentMap[$studentKey]['monthTotals'][$monthKey] += $amount;
-                    $studentMap[$studentKey]['student_total'] += $amount;
-                    $totals['months'][$monthKey] += $amount;
-                    $totals['total'] += $amount;
-                }
-            }
+            $studentMap[$studentKey]['lines'][$lineKey]['monthTotals'][$monthKey] += $amount;
+            $studentMap[$studentKey]['lines'][$lineKey]['total'] += $amount;
+            $studentMap[$studentKey]['monthTotals'][$monthKey] += $amount;
+            $studentMap[$studentKey]['student_total'] += $amount;
+            $totals['months'][$monthKey] += $amount;
+            $totals['total'] += $amount;
         }
 
         foreach ($studentMap as &$student) {
@@ -415,6 +254,21 @@ class StudentPaymentReportController extends Controller
                     $studentQuery->where('student_cid', $studentId);
                     if (is_numeric($studentId)) {
                         $studentQuery->orWhere('id', $studentId);
+                    }
+                });
+            })
+            ->when($request->filled('session_id') || $request->filled('class_id') || $request->filled('section_id'), function ($query) use ($request) {
+                $query->whereHas('student.academicInformations', function ($academicQuery) use ($request) {
+                    if ($request->filled('session_id')) {
+                        $academicQuery->where('academic_session_id', $request->session_id);
+                    }
+
+                    if ($request->filled('class_id')) {
+                        $academicQuery->where('school_class_id', $request->class_id);
+                    }
+
+                    if ($request->filled('section_id')) {
+                        $academicQuery->where('section_id', $request->section_id);
                     }
                 });
             })
@@ -502,6 +356,21 @@ class StudentPaymentReportController extends Controller
                     }
                 });
             })
+            ->when($request->filled('session_id') || $request->filled('class_id') || $request->filled('section_id'), function ($query) use ($request) {
+                $query->whereHas('student.academicInformations', function ($academicQuery) use ($request) {
+                    if ($request->filled('session_id')) {
+                        $academicQuery->where('academic_session_id', $request->session_id);
+                    }
+
+                    if ($request->filled('class_id')) {
+                        $academicQuery->where('school_class_id', $request->class_id);
+                    }
+
+                    if ($request->filled('section_id')) {
+                        $academicQuery->where('section_id', $request->section_id);
+                    }
+                });
+            })
             ->whereBetween('payments.payment_date', [$fromDate->toDateString(), $toDate->toDateString()])
             ->select(
                 'students.id as student_id',
@@ -527,11 +396,9 @@ class StudentPaymentReportController extends Controller
             $studentMap[$sid][$columnKey] += (float) $r->paid;
         }
 
-        $rows = collect(array_values($studentMap))->map(function ($row) {
-            $row['grand_total'] = array_sum(array_filter($row, fn($v, $k) =>
-                is_numeric($v) && str_starts_with($k, 'category_'),
-                ARRAY_FILTER_USE_BOTH
-            ));
+        $rows = collect(array_values($studentMap))->map(function ($row) use ($selectedCategoryKeys) {
+            $row['grand_total'] = $this->sumSelectedGrandTotal($row, $selectedCategoryKeys);
+            $row['selected_grand_total'] = $row['grand_total'];
             return (object) $row;
         })->sortBy('student_name')->values()
             ->groupBy(fn($r) => $r->class_name . '|' . $r->section_name)
@@ -554,6 +421,21 @@ class StudentPaymentReportController extends Controller
             $toDate->toDateString(),
             $selectedCategoryKeys,
         ];
+    }
+
+    private function sumSelectedGrandTotal(array $row, array $selectedCategoryKeys): float
+    {
+        if (empty($selectedCategoryKeys)) {
+            return 0.0;
+        }
+
+        $total = 0.0;
+
+        foreach ($selectedCategoryKeys as $key) {
+            $total += (float) ($row[$key] ?? 0);
+        }
+
+        return round($total, 2);
     }
 
     private function buildMergedCategories()
@@ -657,6 +539,35 @@ class StudentPaymentReportController extends Controller
             ->firstWhere('is_current', true)
             ?? $student->academicInformations->sortByDesc('academic_session_id')->first()
             ?? $student->academicInformations->first();
+    }
+
+    private function matchesAcademicFilters($academicInfo, Request $request): bool
+    {
+        if ($request->filled('session_id') && (int) $academicInfo?->academic_session_id !== (int) $request->session_id) {
+            return false;
+        }
+
+        if ($request->filled('class_id') && (int) $academicInfo?->school_class_id !== (int) $request->class_id) {
+            return false;
+        }
+
+        if ($request->filled('section_id') && (int) $academicInfo?->section_id !== (int) $request->section_id) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function buildActiveScopePills(Request $request, $sessions, $classes, $sections): array
+    {
+        return collect([
+            $request->filled('session_id') ? 'Session: ' . optional($sessions->firstWhere('id', $request->session_id))->name_en : null,
+            $request->filled('class_id') ? 'Class: ' . optional($classes->firstWhere('id', $request->class_id))->name_en : null,
+            $request->filled('section_id') ? 'Section: ' . optional($sections->firstWhere('id', $request->section_id))->name_en : null,
+            $request->filled('from_date') && $request->filled('to_date')
+                ? 'Range: ' . Carbon::parse($request->from_date)->format('d M Y') . ' to ' . Carbon::parse($request->to_date)->format('d M Y')
+                : null,
+        ])->filter()->values()->all();
     }
 
     private function resolvePaymentReportDate(?string $value): ?Carbon

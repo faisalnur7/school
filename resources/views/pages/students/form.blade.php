@@ -641,6 +641,7 @@
         const accordionKey = 'student-form-view-mode';
         const panelKey = 'student-form-active-panel';
         const isSmallScreen = () => window.matchMedia('(max-width: 991.98px)').matches;
+        const form = root.querySelector('form');
 
         let accordionState = new Map(
             panels.map((panel) => [panel.dataset.studentPanel, panel.open])
@@ -701,6 +702,40 @@
             }
         };
 
+        const activatePanel = (panelKeyToShow) => {
+            if (!panelKeyToShow) {
+                return;
+            }
+
+            const targetPanel = panels.find((panel) => panel.dataset.studentPanel === panelKeyToShow);
+            if (!targetPanel) {
+                return;
+            }
+
+            if (root.dataset.studentView === 'tabs') {
+                if (tabbar) {
+                    tabbar.hidden = false;
+                }
+
+                panels.forEach((panel) => {
+                    const active = panel === targetPanel;
+                    panel.hidden = !active;
+                    panel.classList.toggle('is-active', active);
+                    panel.open = active;
+                });
+
+                tabButtons.forEach((button) => {
+                    const active = button.dataset.studentTab === panelKeyToShow;
+                    button.classList.toggle('is-active', active);
+                    button.setAttribute('aria-selected', active ? 'true' : 'false');
+                });
+            } else {
+                targetPanel.open = true;
+            }
+
+            localStorage.setItem(panelKey, panelKeyToShow);
+        };
+
         viewButtons.forEach((button) => {
             button.addEventListener('click', () => {
                 const mode = button.dataset.studentViewToggle;
@@ -708,6 +743,18 @@
                 setView(mode);
             });
         });
+
+        if (form) {
+            form.addEventListener('invalid', (event) => {
+                const field = event.target;
+                const panel = field?.closest?.('[data-student-panel]');
+                if (!panel) {
+                    return;
+                }
+
+                activatePanel(panel.dataset.studentPanel);
+            }, true);
+        }
 
         tabButtons.forEach((button) => {
             button.addEventListener('click', () => {

@@ -16,8 +16,26 @@ class HandCash extends Model
     protected $casts = [
         'opening_date'   => 'date',
         'opening_amount' => 'decimal:2',
+        'balance'        => 'decimal:2',
         'is_active'      => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $handCash) {
+            $handCash->balance = (float) ($handCash->opening_amount ?? 0);
+        });
+
+        static::updating(function (self $handCash) {
+            if (! $handCash->isDirty('opening_amount')) {
+                return;
+            }
+
+            $originalOpening = (float) ($handCash->getOriginal('opening_amount') ?? 0);
+            $newOpening = (float) ($handCash->opening_amount ?? 0);
+            $handCash->balance = (float) ($handCash->balance ?? 0) + ($newOpening - $originalOpening);
+        });
+    }
 
     public function recorder()
     {
@@ -31,6 +49,7 @@ class HandCash extends Model
 
     public function getCurrentBalanceAttribute()
     {
-        return $this->accountTransactions()->latest('id')->value('balance_after') ?? 0;
+        return $this->accountTransactions()->latest('id')->value('balance_after')
+            ?? (float) ($this->balance ?? $this->opening_amount ?? 0);
     }
 }

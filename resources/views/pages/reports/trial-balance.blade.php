@@ -39,6 +39,14 @@
             </div>
 
             <div class="card-body">
+                <div class="px-3 pb-3 d-flex flex-wrap gap-2">
+                    <span class="badge" style="background:#f8fafc;color:#334155;border:1px solid #e2e8f0;font-size:12px;padding:6px 14px">
+                        Opening Balance: <strong style="color:#111827">{{ number_format($openingBalance, 2) }}</strong>
+                    </span>
+                    <span class="badge" style="background:#f8fafc;color:#334155;border:1px solid #e2e8f0;font-size:12px;padding:6px 14px">
+                        Closing Balance: <strong style="color:#111827">{{ number_format($closingBalance, 2) }}</strong>
+                    </span>
+                </div>
                 <div class="table-responsive">
                     <table class="table mb-0" style="font-size:13px">
                         <thead style="background:#f8fafc">

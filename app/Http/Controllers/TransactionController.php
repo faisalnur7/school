@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BankAccount;
+use App\Models\HandCash;
 use App\Models\ExpenseCategory;
 use App\Models\IncomeCategory;
+use App\Models\MobileBankingAccount;
 use App\Models\Shareholder;
 use App\Models\Transaction;
 use Carbon\Carbon;
@@ -39,6 +42,8 @@ class TransactionController extends Controller
         $query = $this->buildQuery($request);
 
         [$totalIncome, $totalExpense, $totalCapital, $totalWithdrawal] = $this->totals($query);
+        $openingBalance = $this->openingBalance($request);
+        $closingBalance = $openingBalance + (($totalIncome + $totalCapital) - ($totalExpense + $totalWithdrawal));
 
         $transactions = $forPdf
             ? $this->orderedQuery(clone $query)->get()
@@ -55,6 +60,8 @@ class TransactionController extends Controller
             'totalExpense'      => $totalExpense,
             'totalCapital'      => $totalCapital,
             'totalWithdrawal'   => $totalWithdrawal,
+            'openingBalance'    => $openingBalance,
+            'closingBalance'    => $closingBalance,
         ];
     }
 
@@ -67,7 +74,7 @@ class TransactionController extends Controller
         };
     }
 
-    private function buildQuery(Request $request)
+    private function buildQuery(Request $request, bool $applyDateFilters = true)
     {
         $query = Transaction::with(['shareholder', 'incomeCategory', 'expenseCategory', 'recorder'])
             ->whereIn('type', ['income', 'expense', 'capital', 'withdrawal']);
@@ -78,10 +85,10 @@ class TransactionController extends Controller
             $query->where(fn($q) => $q->where('income_category_id', $request->category_id)
                                       ->orWhere('expense_category_id', $request->category_id));
         }
-        if ($request->filled('from')) {
+        if ($applyDateFilters && $request->filled('from')) {
             $query->whereDate('transaction_date', '>=', Carbon::createFromFormat('d/m/Y', $request->from));
         }
-        if ($request->filled('to')) {
+        if ($applyDateFilters && $request->filled('to')) {
             $query->whereDate('transaction_date', '<=', Carbon::createFromFormat('d/m/Y', $request->to));
         }
         if ($request->filled('search')) {
@@ -90,6 +97,30 @@ class TransactionController extends Controller
         }
 
         return $query;
+    }
+
+    private function openingBalance(Request $request): float
+    {
+        if (! $request->filled('from')) {
+            return 0.0;
+        }
+
+        $query = $this->buildQuery($request, false);
+        $openingBalance = $this->openingSeedBalance();
+        $from = Carbon::createFromFormat('d/m/Y', $request->from)->toDateString();
+        $before = (clone $query)->whereDate('transaction_date', '<', $from)->get();
+
+        $credit = $before->whereIn('type', ['income', 'capital'])->sum('amount');
+        $debit  = $before->whereIn('type', ['expense', 'withdrawal'])->sum('amount');
+
+        return (float) ($openingBalance + ($credit - $debit));
+    }
+
+    private function openingSeedBalance(): float
+    {
+        return (float) HandCash::where('is_active', true)->sum('opening_amount')
+            + BankAccount::where('is_active', true)->sum('opening_balance')
+            + MobileBankingAccount::where('is_active', true)->sum('opening_balance');
     }
 
     private function normalizePdfDescriptionTypes(Request $request): array

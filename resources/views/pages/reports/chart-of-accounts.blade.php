@@ -27,7 +27,7 @@
                         <th class="text-right">Opening Balance</th>
                         <th class="text-right">Total Debit</th>
                         <th class="text-right">Total Credit</th>
-                        <th class="text-right">Net Balance</th>
+                        <th class="text-right">Closing Balance</th>
                     </tr>
                 </thead>
                 <tbody>

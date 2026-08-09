@@ -1,6 +1,14 @@
 @php $content = ''; ob_start(); @endphp
 <div class="two-col">
     <div class="col">
+        <div class="summary-box" style="margin-bottom:6px">
+            <div class="label">Opening Balance</div>
+            <div class="value">{{ number_format($openingBalance, 2) }}</div>
+        </div>
+        <div class="summary-box" style="margin-bottom:6px">
+            <div class="label">Closing Balance</div>
+            <div class="value">{{ number_format($closingBalance, 2) }}</div>
+        </div>
         <div class="section-title">Liabilities</div>
         <table>
             <tbody>

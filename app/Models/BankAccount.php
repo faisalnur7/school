@@ -17,8 +17,26 @@ class BankAccount extends Model
     protected $casts = [
         'opening_date'    => 'date',
         'opening_balance' => 'decimal:2',
+        'balance'         => 'decimal:2',
         'is_active'       => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $bankAccount) {
+            $bankAccount->balance = (float) ($bankAccount->opening_balance ?? 0);
+        });
+
+        static::updating(function (self $bankAccount) {
+            if (! $bankAccount->isDirty('opening_balance')) {
+                return;
+            }
+
+            $originalOpening = (float) ($bankAccount->getOriginal('opening_balance') ?? 0);
+            $newOpening = (float) ($bankAccount->opening_balance ?? 0);
+            $bankAccount->balance = (float) ($bankAccount->balance ?? 0) + ($newOpening - $originalOpening);
+        });
+    }
 
     public function accountTransactions()
     {
@@ -27,6 +45,7 @@ class BankAccount extends Model
 
     public function getCurrentBalanceAttribute()
     {
-        return $this->accountTransactions()->latest('id')->value('balance_after') ?? 0;
+        return $this->accountTransactions()->latest('id')->value('balance_after')
+            ?? (float) ($this->balance ?? $this->opening_balance ?? 0);
     }
 }
