@@ -13,9 +13,9 @@
     <thead>
         <tr style="background:#1e293b;color:#fff">
             <th rowspan="2" style="vertical-align:middle;width:32%">Account</th>
-            <th colspan="2" class="text-center" style="border-bottom:1px solid #334155">Beginning Balance</th>
+            <th colspan="2" class="text-center" style="border-bottom:1px solid #334155">Opening Balance</th>
             <th colspan="2" class="text-center" style="border-bottom:1px solid #334155">Period Activity</th>
-            <th colspan="2" class="text-center" style="border-bottom:1px solid #334155">Ending Balance</th>
+            <th colspan="2" class="text-center" style="border-bottom:1px solid #334155">Closing Balance</th>
         </tr>
         <tr style="background:#334155;color:#fff">
             <th class="text-right">Debit</th>

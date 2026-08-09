@@ -43,6 +43,14 @@
             </div>
 
             <div class="card-body">
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge" style="background:#f8fafc;color:#334155;border:1px solid #e2e8f0;font-size:12px;padding:6px 14px">
+                        Opening Balance: <strong style="color:#111827">{{ number_format($openingBalance, 2) }}</strong>
+                    </span>
+                    <span class="badge" style="background:#f8fafc;color:#334155;border:1px solid #e2e8f0;font-size:12px;padding:6px 14px">
+                        Closing Balance: <strong style="color:#111827">{{ number_format($closingBalance, 2) }}</strong>
+                    </span>
+                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <h5 style="color:#16a34a;font-size:13px;text-transform:uppercase;letter-spacing:1px">Income</h5>

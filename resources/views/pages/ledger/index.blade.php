@@ -81,6 +81,9 @@
 
             {{-- ── Summary Badges ──────────────────────────────────── --}}
             <div class="px-3 pb-3 d-flex flex-wrap gap-2">
+                <span class="badge" style="background:#f8fafc;color:#334155;border:1px solid #e2e8f0;font-size:12px;padding:6px 14px">
+                    Opening Balance: {{ number_format($openingBalance, 2) }}
+                </span>
                 <span class="badge" style="background:#fff1f2;color:#e11d48;border:1px solid #fecdd3;font-size:12px;padding:6px 14px">
                     {{ __('Total Debit') }}: {{ number_format($totalDebit, 2) }}
                 </span>
@@ -90,6 +93,9 @@
                 @php $net = $totalCredit - $totalDebit; @endphp
                 <span class="badge" style="background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;font-size:12px;padding:6px 14px">
                     {{ __('Net') }}: {{ number_format($net, 2) }}
+                </span>
+                <span class="badge" style="background:#f8fafc;color:#334155;border:1px solid #e2e8f0;font-size:12px;padding:6px 14px">
+                    Closing Balance: {{ number_format($closingBalance, 2) }}
                 </span>
             </div>
 

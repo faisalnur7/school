@@ -412,6 +412,9 @@
                 <div class="transactions-summary-label">Summary</div>
                 <div class="d-flex flex-wrap gap-2">
                 @php $net = ($totalIncome + $totalCapital) - ($totalExpense + $totalWithdrawal); @endphp
+                <span class="badge" style="background:#f8fafc;color:#334155;border:1px solid #e2e8f0;font-size:12px;padding:6px 14px">
+                    Opening Balance: <strong style="color:#111827">{{ number_format($openingBalance, 2) }}</strong>
+                </span>
                 <span class="badge" style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;font-size:12px;padding:6px 14px">
                     Income: {{ number_format($totalIncome, 2) }}
                 </span>
@@ -426,6 +429,9 @@
                 </span>
                 <span class="badge" style="background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;font-size:12px;padding:6px 14px">
                     Net: <strong style="color:{{ $net >= 0 ? '#16a34a' : '#e11d48' }}">{{ number_format($net, 2) }}</strong>
+                </span>
+                <span class="badge" style="background:#f8fafc;color:#334155;border:1px solid #e2e8f0;font-size:12px;padding:6px 14px">
+                    Closing Balance: <strong style="color:#111827">{{ number_format($closingBalance, 2) }}</strong>
                 </span>
                 </div>
             </div>

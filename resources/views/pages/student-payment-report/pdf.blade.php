@@ -20,11 +20,11 @@
     table { width: 100%; border-collapse: collapse; margin-top: 8px; }
     th { background: #2d3748; color: #fff; padding: 6px 8px; text-align: left; }
     td { padding: 5px 8px; border-bottom: 1px solid #ddd; }
+    th:nth-child(3), td:nth-child(3) { white-space: nowrap; }
     tfoot td { font-weight: bold; background: #f0f0f0; border-top: 2px solid #aaa; }
     .text-right { text-align: right; }
-    .grand-total-box { text-align: center; margin: 15px 0; padding: 10px; background: #e8f4f8; border: 2px solid #2d3748; }
-    .grand-total-box strong { font-size: 13px; }
-    .grand-total-box .amount { font-size: 16px; font-weight: bold; color: #0066cc; }
+    .grand-total-box { margin: 15px 0; font-size: 12px; font-weight: 700; color: #0f172a; }
+    .grand-total-box .amount { font-size: 12px; font-weight: 700; color: #0f172a; }
 </style>
 </head>
 <body>
@@ -39,10 +39,7 @@
 @if($categories->isEmpty())
     <p style="text-align:center; font-size:12px; margin-top:20px;">No columns selected.</p>
 @else
-    <div class="grand-total-box">
-        <strong>Grand Total of All Classes:</strong><br>
-        <span class="amount">{{ number_format($totalGrandTotal, 2) }}</span>
-    </div>
+    <div class="grand-total-box"><strong>Grand Total: {{ number_format($totalGrandTotal, 2) }}</strong></div>
 
     @foreach($rows as $group)
         <h4>Class: {{ $group->class_name }} | Section: {{ $group->section_name }}</h4>

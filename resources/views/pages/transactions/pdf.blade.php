@@ -86,12 +86,14 @@
 
 <table class="summary" style="margin-bottom:10px">
     <tr>
+        <td><div class="label"><strong>Opening Balance</strong></div><div class="value"><strong>{{ number_format($openingBalance, 2) }}</strong></div></td>
         <td><div class="label"><strong>Income</strong></div><div class="value"><strong>{{ number_format($totalIncome, 2) }}</strong></div></td>
         <td><div class="label"><strong>Expense</strong></div><div class="value"><strong>{{ number_format($totalExpense, 2) }}</strong></div></td>
         <td><div class="label"><strong>Capital</strong></div><div class="value"><strong>{{ number_format($totalCapital, 2) }}</strong></div></td>
         <td><div class="label"><strong>Withdrawal</strong></div><div class="value"><strong>{{ number_format($totalWithdrawal, 2) }}</strong></div></td>
         @php $net = ($totalIncome + $totalCapital) - ($totalExpense + $totalWithdrawal); @endphp
         <td><div class="label"><strong>Net</strong></div><div class="value"><strong>{{ number_format($net, 2) }}</strong></div></td>
+        <td><div class="label"><strong>Closing Balance</strong></div><div class="value"><strong>{{ number_format($closingBalance, 2) }}</strong></div></td>
     </tr>
 </table>
 

@@ -72,6 +72,9 @@ class ReportsController extends Controller
         $totalExpense    = Transaction::expense()->whereYear('transaction_date', $year)->sum('amount');
         $totalCapital    = Transaction::capital()->whereYear('transaction_date', $year)->sum('amount');
         $totalWithdrawal = Transaction::withdrawal()->whereYear('transaction_date', $year)->sum('amount');
+        $yearStart       = Carbon::createFromDate($year, 1, 1)->startOfDay();
+        $openingBalance  = $this->openingBalanceBefore($yearStart);
+        $closingBalance  = $openingBalance + (($totalIncome + $totalCapital) - ($totalExpense + $totalWithdrawal));
 
         $rows = [
             ['account' => 'Income',              'debit' => 0,                'credit' => $totalIncome],
@@ -83,7 +86,7 @@ class ReportsController extends Controller
         $totalDebit  = collect($rows)->sum('debit');
         $totalCredit = collect($rows)->sum('credit');
 
-        return view('pages.reports.trial-balance', compact('rows', 'totalDebit', 'totalCredit', 'year'));
+        return view('pages.reports.trial-balance', compact('rows', 'totalDebit', 'totalCredit', 'year', 'openingBalance', 'closingBalance'));
     }
 
     // ── Balance Sheet ──────────────────────────────────────────
@@ -98,7 +101,10 @@ class ReportsController extends Controller
         $supplierLiability = $this->supplierLiabilityAsOf($yearEnd);
         $totalLiabilities  = $supplierLiability;
         $netIncome         = $totalIncome - $totalExpense;
-        $equity            = $capital + $netIncome - $withdrawals;
+        $yearStart         = Carbon::createFromDate($year, 1, 1)->startOfDay();
+        $openingBalance    = $this->openingBalanceBefore($yearStart);
+        $closingBalance    = $openingBalance + (($capital + $netIncome) - $withdrawals);
+        $equity            = $closingBalance;
 
         return view('pages.reports.balance-sheet', compact(
             'totalIncome',
@@ -109,7 +115,9 @@ class ReportsController extends Controller
             'equity',
             'year',
             'supplierLiability',
-            'totalLiabilities'
+            'totalLiabilities',
+            'openingBalance',
+            'closingBalance'
         ));
     }
 
@@ -152,7 +160,7 @@ class ReportsController extends Controller
 
         $totalDebit  = $transactions->whereIn('type', ['expense', 'withdrawal'])->sum('amount');
         $totalCredit = $transactions->whereIn('type', ['income', 'capital'])->sum('amount');
-        $openingBalance = $this->openingBalanceBefore($date);
+        $openingBalance = $this->openingBalanceBefore($date, false, null, null, false);
         $closingBalance = $openingBalance + ($totalCredit - $totalDebit);
         $summaryRows = $reportType === 'summary' ? $this->groupCashSummaryRows($transactions) : collect();
 
@@ -192,7 +200,7 @@ class ReportsController extends Controller
         $openingBalance = (clone $base)
             ->where('transaction_date', '<', $from->toDateString())
             ->orderBy('id', 'desc')
-            ->value('balance_after') ?? (float) ($acc->opening_balance ?? $acc->opening_amount ?? 0);
+            ->value('balance_after') ?? (float) ($acc->balance ?? $acc->opening_balance ?? $acc->opening_amount ?? 0);
 
         $totalIn  = (clone $base)->whereBetween('transaction_date', [$from->toDateString(), $to->toDateString()])
             ->where('type', 'credit')->sum('amount');
@@ -284,6 +292,8 @@ class ReportsController extends Controller
         $totalInventoryReceipts = $inventoryReceipts->sum('amount');
         $totalPayments = $payments->sum('amount');
         $grandTotalReceipts = $totalReceipts + $totalInventoryReceipts;
+        $openingBalance = $this->openingBalanceBefore($from, true) + $this->inventoryReceiptTotalBefore($from);
+        $closingBalance  = $openingBalance + ($grandTotalReceipts - $totalPayments);
 
         return view('pages.reports.receipt-payment', compact(
             'receipts',
@@ -293,6 +303,8 @@ class ReportsController extends Controller
             'totalInventoryReceipts',
             'grandTotalReceipts',
             'totalPayments',
+            'openingBalance',
+            'closingBalance',
             'from',
             'to'
         ));
@@ -318,10 +330,7 @@ class ReportsController extends Controller
         $financingOut = Transaction::withdrawal()->whereBetween('transaction_date', [$from, $to])->sum('amount');
         $netFinancing = $financingIn - $financingOut;
 
-        // Opening cash = sum of all account opening balances
-        $openingCash = HandCash::where('is_active', true)->sum('opening_amount')
-                     + BankAccount::where('is_active', true)->sum('opening_balance')
-                     + MobileBankingAccount::where('is_active', true)->sum('opening_balance');
+        $openingCash = $this->cashOpeningBalanceAsOf($from);
 
         $netChange    = $netOperating + $netFinancing;
         $closingCash  = $openingCash + $netChange;
@@ -439,8 +448,12 @@ class ReportsController extends Controller
         ->having('total', '>', 0)
         ->get();
 
+        $openingBalance = ((float) Income::where('income_date', '<', $from->toDateString())->sum('amount'))
+            - ((float) Expense::where('expense_date', '<', $from->toDateString())->sum('amount'));
+        $closingBalance = $openingBalance + ($incomeHeads->sum('total') - $expenseHeads->sum('total'));
+
         return view('pages.reports.headwise-transactions', compact(
-            'incomeHeads', 'expenseHeads', 'from', 'to'
+            'incomeHeads', 'expenseHeads', 'openingBalance', 'closingBalance', 'from', 'to'
         ));
     }
 
@@ -475,6 +488,9 @@ class ReportsController extends Controller
         $totalIncome  = $incomeByCategory->sum('amount');
         $totalExpense = $expenseByCategory->sum('amount');
         $surplus      = $totalIncome - $totalExpense;
+        $openingBalance = ((float) Income::where('income_date', '<', $from->toDateString())->sum('amount'))
+            - ((float) Expense::where('expense_date', '<', $from->toDateString())->sum('amount'));
+        $closingBalance = $openingBalance + $surplus;
 
         return view('pages.reports.income-expenditure', compact(
             'incomeByCategory',
@@ -482,6 +498,8 @@ class ReportsController extends Controller
             'totalIncome',
             'totalExpense',
             'surplus',
+            'openingBalance',
+            'closingBalance',
             'from',
             'to'
         ));
@@ -639,6 +657,9 @@ class ReportsController extends Controller
         $totalExpense    = Transaction::expense()->whereYear('transaction_date', $year)->sum('amount');
         $totalCapital    = Transaction::capital()->whereYear('transaction_date', $year)->sum('amount');
         $totalWithdrawal = Transaction::withdrawal()->whereYear('transaction_date', $year)->sum('amount');
+        $yearStart       = Carbon::createFromDate($year, 1, 1)->startOfDay();
+        $openingBalance  = $this->openingBalanceBefore($yearStart);
+        $closingBalance  = $openingBalance + (($totalIncome + $totalCapital) - ($totalExpense + $totalWithdrawal));
         $rows = [
             ['account' => 'Income',                'debit' => 0,                'credit' => $totalIncome],
             ['account' => 'Expenses',              'debit' => $totalExpense,    'credit' => 0],
@@ -647,7 +668,7 @@ class ReportsController extends Controller
         ];
         $totalDebit  = collect($rows)->sum('debit');
         $totalCredit = collect($rows)->sum('credit');
-        $this->makePdf('pages.reports.pdf.trial-balance', compact('rows', 'totalDebit', 'totalCredit', 'year'), 'trial-balance-' . $year);
+        $this->makePdf('pages.reports.pdf.trial-balance', compact('rows', 'totalDebit', 'totalCredit', 'year', 'openingBalance', 'closingBalance'), 'trial-balance-' . $year);
     }
 
     public function balanceSheetPdf(Request $request)
@@ -661,7 +682,10 @@ class ReportsController extends Controller
         $supplierLiability = $this->supplierLiabilityAsOf($yearEnd);
         $totalLiabilities  = $supplierLiability;
         $netIncome         = $totalIncome - $totalExpense;
-        $equity            = $capital + $netIncome - $withdrawals;
+        $yearStart         = Carbon::createFromDate($year, 1, 1)->startOfDay();
+        $openingBalance    = $this->openingBalanceBefore($yearStart);
+        $closingBalance    = $openingBalance + (($capital + $netIncome) - $withdrawals);
+        $equity            = $closingBalance;
         $this->makePdf('pages.reports.pdf.balance-sheet', compact(
             'totalIncome',
             'totalExpense',
@@ -671,7 +695,9 @@ class ReportsController extends Controller
             'equity',
             'year',
             'supplierLiability',
-            'totalLiabilities'
+            'totalLiabilities',
+            'openingBalance',
+            'closingBalance'
         ), 'balance-sheet-' . $year);
     }
 
@@ -778,9 +804,12 @@ class ReportsController extends Controller
             ->values();
     }
 
-    private function openingBalanceBefore(Carbon $date, bool $cashOnly = false, ?string $categoryType = null, ?int $categoryId = null): float
+    private function openingBalanceBefore(Carbon $date, bool $cashOnly = false, ?string $categoryType = null, ?int $categoryId = null, bool $includeBankOpeningBalance = true): float
     {
         $query = Transaction::query();
+        $openingBalance = $cashOnly
+            ? $this->cashOpeningSeedBalance()
+            : $this->openingSeedBalance($includeBankOpeningBalance);
 
         if ($cashOnly) {
             $query->where('payment_method', 'Cash');
@@ -809,7 +838,34 @@ class ReportsController extends Controller
         $credit = $before->whereIn('type', ['income', 'capital'])->sum('amount');
         $debit  = $before->whereIn('type', ['expense', 'withdrawal'])->sum('amount');
 
-        return $credit - $debit;
+        return $openingBalance + ($credit - $debit);
+    }
+
+    private function openingSeedBalance(bool $includeBankOpeningBalance = true): float
+    {
+        $balance = (float) HandCash::where('is_active', true)->sum('opening_amount');
+
+        if ($includeBankOpeningBalance) {
+            $balance += (float) BankAccount::where('is_active', true)->sum('opening_balance');
+        }
+
+        return $balance + (float) MobileBankingAccount::where('is_active', true)->sum('opening_balance');
+    }
+
+    private function cashOpeningSeedBalance(): float
+    {
+        return (float) HandCash::where('is_active', true)->sum('opening_amount');
+    }
+
+    private function pettyCashOpeningBalanceAsOf(Carbon $date): float
+    {
+        $opening = 0.0;
+
+        foreach (HandCash::where('is_active', true)->get() as $acc) {
+            $opening += $this->accountBalanceAsOf($acc, HandCash::class, $date);
+        }
+
+        return $opening;
     }
 
     private function cashBookGroupKey(Transaction $txn): string
@@ -864,6 +920,48 @@ class ReportsController extends Controller
         return [null, is_numeric($value) ? (int) $value : null];
     }
 
+    private function cashOpeningBalanceAsOf(Carbon $date): float
+    {
+        $opening = 0.0;
+
+        foreach (HandCash::where('is_active', true)->get() as $acc) {
+            $opening += $this->accountBalanceAsOf($acc, HandCash::class, $date);
+        }
+
+        foreach (BankAccount::where('is_active', true)->get() as $acc) {
+            $opening += $this->accountBalanceAsOf($acc, BankAccount::class, $date);
+        }
+
+        foreach (MobileBankingAccount::where('is_active', true)->get() as $acc) {
+            $opening += $this->accountBalanceAsOf($acc, MobileBankingAccount::class, $date);
+        }
+
+        return $opening;
+    }
+
+    private function accountBalanceAsOf($acc, string $type, Carbon $date): float
+    {
+        $base = AccountTransaction::where('account_type', $type)
+            ->where('account_id', $acc->id);
+
+        $balance = (clone $base)
+            ->where('transaction_date', '<', $date->toDateString())
+            ->orderBy('id', 'desc')
+            ->value('balance_after');
+
+        return (float) ($balance ?? $acc->balance ?? $acc->opening_balance ?? $acc->opening_amount ?? 0);
+    }
+
+    private function inventoryReceiptTotalBefore(Carbon $date): float
+    {
+        return (float) Payment::whereDate('payment_date', '<', $date->toDateString())
+            ->where(function ($q) {
+                $q->whereNotNull('inventory_sale_id')
+                  ->orWhereHas('inventoryDueItems');
+            })
+            ->sum('inventory_received_amount');
+    }
+
     public function dayBookPdf(Request $request)
     {
         $date = $request->filled('date') ? Carbon::createFromFormat('d/m/Y', $request->date) : now();
@@ -876,7 +974,7 @@ class ReportsController extends Controller
             ->get();
         $totalDebit  = $transactions->whereIn('type', ['expense', 'withdrawal'])->sum('amount');
         $totalCredit = $transactions->whereIn('type', ['income', 'capital'])->sum('amount');
-        $openingBalance = $this->openingBalanceBefore($date);
+        $openingBalance = $this->openingBalanceBefore($date, false, null, null, false);
         $closingBalance = $openingBalance + ($totalCredit - $totalDebit);
         $summaryRows = $reportType === 'summary' ? $this->groupCashSummaryRows($transactions) : collect();
         $this->makePdf('pages.reports.pdf.day-book', compact('transactions', 'totalDebit', 'totalCredit', 'date', 'reportType', 'summaryRows', 'openingBalance', 'closingBalance'), 'day-book-' . $date->format('Ymd'), 'P');
@@ -900,9 +998,12 @@ class ReportsController extends Controller
         $totalIncome  = $incomeByCategory->sum('amount');
         $totalExpense = $expenseByCategory->sum('amount');
         $surplus      = $totalIncome - $totalExpense;
+        $openingBalance = ((float) Income::where('income_date', '<', $from->toDateString())->sum('amount'))
+            - ((float) Expense::where('expense_date', '<', $from->toDateString())->sum('amount'));
+        $closingBalance = $openingBalance + $surplus;
         $this->makePdf(
             'pages.reports.pdf.income-expenditure',
-            compact('incomeByCategory', 'expenseByCategory', 'totalIncome', 'totalExpense', 'surplus', 'from', 'to'),
+            compact('incomeByCategory', 'expenseByCategory', 'totalIncome', 'totalExpense', 'surplus', 'openingBalance', 'closingBalance', 'from', 'to'),
             'income-expenditure-' . $from->format('Ymd') . '-' . $to->format('Ymd')
         );
     }
@@ -1013,6 +1114,9 @@ class ReportsController extends Controller
         $expenseHeads = ExpenseCategory::withSum(['transactions as total' => fn($q) => $q->whereBetween('transaction_date', [$from, $to])], 'amount')
             ->with(['transactions' => fn($q) => $q->whereBetween('transaction_date', [$from, $to])->latest('transaction_date')])
             ->having('total', '>', 0)->get();
-        $this->makePdf('pages.reports.pdf.headwise-transactions', compact('incomeHeads', 'expenseHeads', 'from', 'to'), 'headwise-transactions-' . $from->format('Ymd') . '-' . $to->format('Ymd'));
+        $openingBalance = ((float) Income::where('income_date', '<', $from->toDateString())->sum('amount'))
+            - ((float) Expense::where('expense_date', '<', $from->toDateString())->sum('amount'));
+        $closingBalance = $openingBalance + ($incomeHeads->sum('total') - $expenseHeads->sum('total'));
+        $this->makePdf('pages.reports.pdf.headwise-transactions', compact('incomeHeads', 'expenseHeads', 'openingBalance', 'closingBalance', 'from', 'to'), 'headwise-transactions-' . $from->format('Ymd') . '-' . $to->format('Ymd'));
     }
 }

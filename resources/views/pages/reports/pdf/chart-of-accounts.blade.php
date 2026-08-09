@@ -12,7 +12,7 @@
             <th class="text-right">Opening</th>
             <th class="text-right">Debit</th>
             <th class="text-right">Credit</th>
-            <th class="text-right">Net Balance</th>
+            <th class="text-right">Closing Balance</th>
         </tr>
     </thead>
     <tbody>

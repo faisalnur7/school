@@ -73,6 +73,14 @@
         </div>
         <div class="card-body p-0">
             <div class="p-3">
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge" style="background:#f8fafc;color:#334155;border:1px solid #e2e8f0;font-size:12px;padding:6px 14px">
+                        Opening Balance: <strong style="color:#111827">{{ number_format($openingBalance, 2) }}</strong>
+                    </span>
+                    <span class="badge" style="background:#f8fafc;color:#334155;border:1px solid #e2e8f0;font-size:12px;padding:6px 14px">
+                        Closing Balance: <strong style="color:#111827">{{ number_format($closingBalance, 2) }}</strong>
+                    </span>
+                </div>
             </div>
 
             <div class="row no-gutters">

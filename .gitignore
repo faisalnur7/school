@@ -8,6 +8,7 @@
 /public/storage
 /public/build/
 /public/build/assets
+/public/build/manifest.json
 /public/uploads/students
 /storage/*.key
 /storage/debugbar
