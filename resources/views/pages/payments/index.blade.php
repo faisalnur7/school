@@ -79,8 +79,13 @@
                                                         </span>
                                                     @endforeach
                                                 @endif
-                                                @if ($payment->inventoryDueItems?->isNotEmpty())
-                                                    @foreach ($payment->inventoryDueItems as $dueItem)
+                                                @php
+                                                    $validDueItems = method_exists($payment, 'validInventoryDueItems')
+                                                        ? $payment->validInventoryDueItems()
+                                                        : ($payment->inventoryDueItems ?? collect())->filter(fn ($dueItem) => $dueItem->inventorySaleItem?->inventoryItem);
+                                                @endphp
+                                                @if ($validDueItems->isNotEmpty())
+                                                    @foreach ($validDueItems as $dueItem)
                                                         <span class="badge rounded-pill me-1 mb-1 bg-orange-500 text-white"
                                                             style="font-size:11px;border:1px solid #fdba74">
                                                             Due: {{ $dueItem->inventorySaleItem?->inventoryItem?->name ?? 'Inventory' }}

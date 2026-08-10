@@ -68,6 +68,14 @@ class FeeCollectionReceiptOutstandingTest extends TestCase
             'status' => 1,
         ]);
 
+        $student->academicInformations()->create([
+            'academic_session_id' => $session->id,
+            'school_class_id' => $class->id,
+            'section_id' => $section->id,
+            'roll' => '7',
+            'is_current' => 1,
+        ]);
+
         $fee = Fee::create([
             'student_id' => $student->id,
             'fee_set_id' => $feeSet->id,
@@ -122,6 +130,9 @@ class FeeCollectionReceiptOutstandingTest extends TestCase
         $firstHtml = view('pages.payments.receipt', [
             'payment' => $firstPayment->fresh()->load([
                 'student',
+                'student.latestAcademicInformation.academicSession',
+                'student.latestAcademicInformation.schoolClass',
+                'student.latestAcademicInformation.section',
                 'collector',
                 'items.fee.feeSet.items.category',
                 'inventorySale.items.inventoryItem.category',
@@ -132,12 +143,16 @@ class FeeCollectionReceiptOutstandingTest extends TestCase
         ])->render();
 
         $this->assertStringContainsString('R-20260621-0001', $firstHtml);
+        $this->assertStringContainsString('2026 - Class 1 - A - 7', $firstHtml);
         $this->assertStringContainsString('BDT 1,100.00', $firstHtml);
         $this->assertStringContainsString('Outstanding balance after this payment: BDT 300.00', $firstHtml);
 
         $secondHtml = view('pages.payments.receipt', [
             'payment' => $secondPayment->fresh()->load([
                 'student',
+                'student.latestAcademicInformation.academicSession',
+                'student.latestAcademicInformation.schoolClass',
+                'student.latestAcademicInformation.section',
                 'collector',
                 'items.fee.feeSet.items.category',
                 'inventorySale.items.inventoryItem.category',

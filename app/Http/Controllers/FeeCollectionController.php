@@ -38,6 +38,23 @@ class FeeCollectionController extends Controller
             ?? $student->academicInformations->sortByDesc('id')->first();
     }
 
+    private function discountSourceLabel(bool $hasScholarship, bool $hasFreeStudentship): string
+    {
+        if ($hasScholarship && $hasFreeStudentship) {
+            return 'Scholarship + Free Studentship';
+        }
+
+        if ($hasFreeStudentship) {
+            return 'Free Studentship';
+        }
+
+        if ($hasScholarship) {
+            return 'Scholarship';
+        }
+
+        return 'Fee Discount';
+    }
+
     private function normalizePaymentMethod(?string $method): string
     {
         return match (strtolower((string) $method)) {
@@ -307,6 +324,8 @@ class FeeCollectionController extends Controller
             $categoryTransports = [];
             $totalDiscount = 0;
             $totalTransport = 0;
+            $hasScholarship = false;
+            $hasFreeStudentship = false;
 
             $feeGross = max(0, $fee->amount - $fee->paid_amount);
 
@@ -316,12 +335,13 @@ class FeeCollectionController extends Controller
                     $scholarship = $scholarshipsByCategory[$item->fee_category_id];
                     $discount = $scholarship->calculateDiscount($item->amount);
                     $categoryDiscounts[] = [
-                        'category' => $item->category->name_en,
+                        'category' => $item->category->name_en . ' (Scholarship)',
                         'amount' => $item->amount,
                         'discount' => $discount,
                         'net' => $item->amount - $discount,
                     ];
                     $totalDiscount += $discount;
+                    $hasScholarship = true;
                 }
 
                 // Free Studentships - specific category
@@ -329,12 +349,13 @@ class FeeCollectionController extends Controller
                     $freeStudentship = $freeStudentshipsByCategory[$item->fee_category_id];
                     $discount = $freeStudentship->calculateDiscount($item->amount);
                     $categoryDiscounts[] = [
-                        'category' => $item->category->name_en . ' (Free)',
+                        'category' => $item->category->name_en . ' (Free Studentship)',
                         'amount' => $item->amount,
                         'discount' => $discount,
                         'net' => $item->amount - $discount,
                     ];
                     $totalDiscount += $discount;
+                    $hasFreeStudentship = true;
                 }
             }
 
@@ -350,6 +371,7 @@ class FeeCollectionController extends Controller
                             'net' => ($feeGross - $totalDiscount) - $discount,
                         ];
                         $totalDiscount += $discount;
+                        $hasScholarship = true;
                     }
                 }
             }
@@ -360,18 +382,20 @@ class FeeCollectionController extends Controller
                     $discount = $freeStudentship->calculateDiscount($feeGross - $totalDiscount);
                     if ($discount > 0) {
                         $categoryDiscounts[] = [
-                            'category' => 'Free All Categories',
+                            'category' => 'Free Studentship (All Categories)',
                             'amount' => $feeGross - $totalDiscount,
                             'discount' => $discount,
                             'net' => ($feeGross - $totalDiscount) - $discount,
                         ];
                         $totalDiscount += $discount;
+                        $hasFreeStudentship = true;
                     }
                 }
             }
 
             $fee->category_discounts = $categoryDiscounts;
             $fee->total_scholarship_discount = $totalDiscount;
+            $fee->discount_label = $this->discountSourceLabel($hasScholarship, $hasFreeStudentship);
             $fee->total_transport_fee = $totalTransport;
             $fee->remaining_gross = $feeGross;
             $fee->calculated_net_amount = max(0, $feeGross - $totalDiscount + $totalTransport);
@@ -578,6 +602,8 @@ class FeeCollectionController extends Controller
             $grossAmount              = 0;
             $totalScholarshipDiscount = 0;
             $feeNetAmounts            = []; // fee_id => net after scholarship/discount
+            $feeScholarshipAmounts    = [];
+            $feeFreeStudentshipAmounts = [];
             $requestedFeeAmounts      = [];
 
             foreach ($requestedFees as $feeLine) {
@@ -589,34 +615,46 @@ class FeeCollectionController extends Controller
             foreach ($fees as $fee) {
                 $feeGross       = $fee->amount - $fee->paid_amount;
                 $feeScholarship = 0;
+                $feeScholarshipOnly = 0;
+                $feeFreeStudentshipOnly = 0;
 
                 foreach ($fee->feeSet->items as $item) {
                     // Scholarships - specific category
                     if (isset($scholarshipsByCategory[$item->fee_category_id])) {
-                        $feeScholarship += $scholarshipsByCategory[$item->fee_category_id]->calculateDiscount($item->amount);
+                        $discount = $scholarshipsByCategory[$item->fee_category_id]->calculateDiscount($item->amount);
+                        $feeScholarship += $discount;
+                        $feeScholarshipOnly += $discount;
                     }
                     // Free Studentships - specific category
                     if (isset($freeStudentshipsByCategory[$item->fee_category_id])) {
-                        $feeScholarship += $freeStudentshipsByCategory[$item->fee_category_id]->calculateDiscount($item->amount);
+                        $discount = $freeStudentshipsByCategory[$item->fee_category_id]->calculateDiscount($item->amount);
+                        $feeScholarship += $discount;
+                        $feeFreeStudentshipOnly += $discount;
                     }
                 }
 
                 // Scholarships - applies to all categories
                 if (!empty($scholarshipsForAll)) {
                     foreach ($scholarshipsForAll as $scholarship) {
-                        $feeScholarship += $scholarship->calculateDiscount($feeGross - $feeScholarship);
+                        $discount = $scholarship->calculateDiscount($feeGross - $feeScholarship);
+                        $feeScholarship += $discount;
+                        $feeScholarshipOnly += $discount;
                     }
                 }
 
                 // Free Studentships - applies to all categories
                 if (!empty($freeStudentshipsForAll)) {
                     foreach ($freeStudentshipsForAll as $freeStudentship) {
-                        $feeScholarship += $freeStudentship->calculateDiscount($feeGross - $feeScholarship);
+                        $discount = $freeStudentship->calculateDiscount($feeGross - $feeScholarship);
+                        $feeScholarship += $discount;
+                        $feeFreeStudentshipOnly += $discount;
                     }
                 }
 
                 $netAfterScholarship              = max(0, $feeGross - $feeScholarship);
                 $feeNetAmounts[$fee->id]           = $netAfterScholarship;
+                $feeScholarshipAmounts[$fee->id]   = $feeScholarshipOnly;
+                $feeFreeStudentshipAmounts[$fee->id] = $feeFreeStudentshipOnly;
                 $grossAmount                      += $feeGross;
                 $totalScholarshipDiscount         += $feeScholarship;
             }
@@ -727,9 +765,11 @@ class FeeCollectionController extends Controller
                 $paidAmount = min($netAmount, (float) ($requestedFeeAmounts[$fee->id] ?? $netAmount));
 
                 PaymentItem::create([
-                    'payment_id' => $payment->id,
-                    'fee_id'     => $fee->id,
-                    'amount'     => $paidAmount,
+                    'payment_id'              => $payment->id,
+                    'fee_id'                  => $fee->id,
+                    'amount'                  => $paidAmount,
+                    'scholarship_amount'      => $feeScholarshipAmounts[$fee->id] ?? 0,
+                    'free_studentship_amount' => $feeFreeStudentshipAmounts[$fee->id] ?? 0,
                 ]);
 
                 $transportBase = 0.0;

@@ -9,7 +9,15 @@ class PaymentItem extends Model
     protected $fillable = [
         'payment_id',
         'fee_id',
-        'amount'
+        'amount',
+        'scholarship_amount',
+        'free_studentship_amount',
+    ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
+        'scholarship_amount' => 'decimal:2',
+        'free_studentship_amount' => 'decimal:2',
     ];
 
     public function payment()

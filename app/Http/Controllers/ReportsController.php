@@ -248,12 +248,14 @@ class ReportsController extends Controller
             ->whereBetween('payment_date', [$from->toDateString(), $to->toDateString()])
             ->where(function ($q) {
                 $q->whereNotNull('inventory_sale_id')
-                  ->orWhereHas('inventoryDueItems');
+                  ->orWhereHas('inventoryDueItems.inventorySaleItem');
             })
             ->get()
             ->map(function (Payment $payment) {
                 $saleItems = $payment->inventorySale?->items ?? collect();
-                $dueItems  = $payment->inventoryDueItems ?? collect();
+                $dueItems  = method_exists($payment, 'validInventoryDueItems')
+                    ? $payment->validInventoryDueItems()
+                    : ($payment->inventoryDueItems ?? collect())->filter(fn ($item) => $item->inventorySaleItem?->inventoryItem);
 
                 $labels = $saleItems->map(function ($item) {
                     return ($item->inventoryItem?->name ?? 'Item')
@@ -1035,12 +1037,14 @@ class ReportsController extends Controller
             ->whereBetween('payment_date', [$from->toDateString(), $to->toDateString()])
             ->where(function ($q) {
                 $q->whereNotNull('inventory_sale_id')
-                  ->orWhereHas('inventoryDueItems');
+                  ->orWhereHas('inventoryDueItems.inventorySaleItem');
             })
             ->get()
             ->map(function (Payment $payment) {
                 $saleItems = $payment->inventorySale?->items ?? collect();
-                $dueItems  = $payment->inventoryDueItems ?? collect();
+                $dueItems  = method_exists($payment, 'validInventoryDueItems')
+                    ? $payment->validInventoryDueItems()
+                    : ($payment->inventoryDueItems ?? collect())->filter(fn ($item) => $item->inventorySaleItem?->inventoryItem);
                 $labels = $saleItems->map(function ($item) {
                     return ($item->inventoryItem?->name ?? 'Item')
                         . ($item->inventoryItem?->category?->name ? ' • ' . $item->inventoryItem->category->name : '');
