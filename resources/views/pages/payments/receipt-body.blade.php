@@ -10,6 +10,12 @@
         $setting?->website,
     ]);
 @endphp
+@php
+    $academicInfo = $payment->student?->latestAcademicInformation;
+    $paymentDate = \Carbon\Carbon::parse($payment->payment_date);
+    $paymentDateLabel = $paymentDate->format('d M Y');
+    $paymentTimeLabel = $paymentDate->format('h:iA');
+@endphp
 <div class="school-logo-row">
     <div class="school-header-main">
         <div class="school-logo-and-name">
@@ -28,9 +34,19 @@
         @if(count($contactParts))
             <div class="school-sub">{{ implode(' | ', $contactParts) }}</div>
         @endif
-        <div class="receipt-tag" style="margin-top:5px;">
-            <div class="receipt-tag-label">Receipt No.</div>
-            <div class="receipt-tag-no">{{ $payment->receipt_no }}</div>
+        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:5px;">
+            <div class="receipt-tag" style="margin-top:0;">
+                <div class="receipt-tag-label">Receipt No.</div>
+                <div class="receipt-tag-no">{{ $payment->receipt_no }}</div>
+            </div>
+            <div class="receipt-tag" style="margin-top:0;color:#000;">
+                <div class="receipt-tag-no" style="color:#000;font-size:13px;font-weight:700;line-height:1.1;">
+                    {{ $paymentDateLabel }}
+                </div>
+                <div class="receipt-tag-no" style="color:#000;font-size:15px;font-weight:900;line-height:1.1;">
+                    {{ $paymentTimeLabel }}
+                </div>
+            </div>
         </div>
         <div class="school-sub" style="margin-top:3px;font-weight:700;letter-spacing:.1em">FEE PAYMENT RECEIPT</div>
     </div>
@@ -49,8 +65,15 @@
         <div class="val">{{ $payment->student?->student_cid ?? '—' }}</div>
     </div>
     <div class="info-cell">
-        <div class="lbl">Payment Date</div>
-        <div class="val">{{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y \a\t h:iA') }}</div>
+        <div class="lbl">Academic Information</div>
+        <div class="val">
+            {{ collect([
+                $academicInfo?->academicSession?->name_en,
+                $academicInfo?->schoolClass?->name_en,
+                $academicInfo?->section?->name_en,
+                $academicInfo?->roll,
+            ])->filter(fn ($value) => filled($value))->join(' - ') ?: '—' }}
+        </div>
     </div>
     <div class="info-cell">
         <div class="lbl">Collected By</div>
@@ -107,14 +130,17 @@
     $hasDiscount    = $payment->discount_amount > 0;
     $feeItems       = $payment->items;
     $feeRecords     = $feeItems->map(fn ($item) => $item->fee)->filter()->unique('id');
-    $saleItems      = $payment->inventorySale?->items ?? collect();
-    $dueItems       = $payment->inventoryDueItems ?? collect();
+    $saleItems      = $inventorySaleItems ?? ($payment->inventorySale?->items ?? collect());
+    $dueItems       = method_exists($payment, 'validInventoryDueItems')
+        ? $payment->validInventoryDueItems()
+        : ($payment->inventoryDueItems ?? collect())->filter(fn ($dueItem) => $dueItem->inventorySaleItem?->inventoryItem);
     $inventoryTotal = (float)($payment->inventorySale?->total_amount ?? 0);
     $feeSubtotal    = (float) ($receiptSummary['feeSubtotal'] ?? $feeRecords->sum(fn ($fee) => (float) ($fee->amount ?? 0)));
     $subtotal       = round($feeSubtotal + $inventoryTotal, 2);
-    $scholarshipAmt = round((float) ($receiptSummary['scholarshipAmt'] ?? $payment->scholarship_amount), 2);
-    $freeStudentshipAmt = round((float) ($receiptSummary['freeStudentshipAmt'] ?? $payment->discount_amount), 2);
-    $totalDue       = round($receiptSummary['totalDue'] ?? max(0, $subtotal - $scholarshipAmt - $freeStudentshipAmt), 2);
+    $scholarshipAmt = round((float) ($receiptSummary['scholarshipAmt'] ?? $payment->scholarship_received_amount), 2);
+    $freeStudentshipAmt = round((float) ($receiptSummary['freeStudentshipAmt'] ?? $payment->free_studentship_received_amount), 2);
+    $discountAmt    = round((float) ($receiptSummary['discountAmt'] ?? $payment->discount_amount), 2);
+    $totalDue       = round($receiptSummary['totalDue'] ?? max(0, $subtotal - $scholarshipAmt - $freeStudentshipAmt - $discountAmt), 2);
     $totalPaid      = round($receiptSummary['totalPaid'] ?? $payment->amount, 2);
     $balanceDue     = round($receiptSummary['balanceDue'] ?? max(0, $totalDue - $totalPaid), 2);
 @endphp
@@ -123,39 +149,30 @@
 @if($saleItems->isNotEmpty())
 <div style="margin-top:10px">
     <div style="font-size:8.5px;letter-spacing:.12em;font-weight:900;text-transform:uppercase;color:#333;border-bottom:1.5px solid #111;padding-bottom:4px;margin-bottom:4px">Items Sold</div>
-    @php
-        // Group inventory items by category
-        $groupedItems = $saleItems->groupBy(function($si) {
-            return $si->inventoryItem->category_id ?? 0;
-        });
-    @endphp
-    @foreach($groupedItems as $categoryId => $items)
-        @php
-            $category = $items->first()->inventoryItem->category ?? null;
-            $categoryName = $category ? $category->name : 'Unknown Category';
-            $categoryKey = strtolower($categoryName);
-            $showProductNames = !str_contains($categoryKey, 'book');
-            $productNames = $showProductNames
-                ? $items->map(fn($si) => $si->inventoryItem?->name)
-                    ->filter()
-                    ->unique()
-                    ->values()
-                    ->implode(', ')
-                : '';
-            $categoryLabel = $productNames
-                ? $categoryName . ' — ' . $productNames
-                : $categoryName;
-            $categoryTotal = $items->sum('subtotal');
-        @endphp
-        <div style="margin-bottom:8px; display:flex; justify-content: space-between;">
-            <div style="font-size:9px;letter-spacing:.08em;font-weight:700;text-transform:uppercase;color:#333">
-                {{ $categoryLabel }}
-            </div>
-            <div style="font-size:11px;font-weight:700;text-align:right;color:#111">
-                BDT {{ number_format($categoryTotal, 2) }}
-            </div>
-        </div>
-    @endforeach
+    <table class="items-table" style="margin-top:0">
+        <thead>
+            <tr>
+                <th style="text-align:left">Category</th>
+                <th style="text-align:left">Item</th>
+                <th style="text-align:center;width:34px">Qty</th>
+                <th style="text-align:right">Amount (BDT)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($saleItems as $saleItem)
+                @php
+                    $inventoryItem = $saleItem->inventoryItem;
+                    $categoryName = $inventoryItem?->category?->name ?? 'Inventory';
+                @endphp
+                <tr>
+                    <td>{{ $categoryName }}</td>
+                    <td>{{ $inventoryItem?->name ?? 'Item' }}</td>
+                    <td style="text-align:center">{{ number_format((float) $saleItem->quantity, 0) }}</td>
+                    <td style="text-align:right">BDT {{ number_format((float) $saleItem->subtotal, 2) }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
 </div>
 @endif
 
@@ -197,9 +214,16 @@
     @endif
 
     @if($freeStudentshipAmt > 0)
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:#555;margin-bottom:4px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#059669;margin-bottom:4px">
             <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Free Studentship</span>
             <span>- BDT {{ number_format($freeStudentshipAmt, 2) }}</span>
+        </div>
+    @endif
+
+    @if($discountAmt > 0)
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#b45309;margin-bottom:4px">
+            <span style="letter-spacing:.06em;text-transform:uppercase;font-weight:700">Discount</span>
+            <span>- BDT {{ number_format($discountAmt, 2) }}</span>
         </div>
     @endif
 

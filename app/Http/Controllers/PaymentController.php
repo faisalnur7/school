@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Payment;
 use App\Models\PaymentItem;
 use App\Models\PaymentInventoryItem;
+use App\Models\InventorySale;
 use App\Models\InventorySaleItem;
 use App\Models\AcademicSession;
 use App\Models\SchoolClass;
@@ -47,15 +48,22 @@ class PaymentController extends Controller
     public function receipt(Payment $payment){
         $payment->load([
             'items.fee.feeSet.items.category',
-            'student',
+            'student.latestAcademicInformation.academicSession',
+            'student.latestAcademicInformation.schoolClass',
+            'student.latestAcademicInformation.section',
             'collector',
             'inventorySale.items.inventoryItem.category',
             'inventoryDueItems.inventorySaleItem.inventoryItem.category',
         ]);
         $setting = SchoolSetting::current();
         $receiptSummary = $this->buildReceiptSummary($payment);
+        $inventorySaleItems = $payment->inventory_sale_id
+            ? InventorySale::with('items.inventoryItem.category')
+                ->find($payment->inventory_sale_id)
+                ?->items ?? collect()
+            : collect();
 
-        return view('pages.payments.receipt', compact('payment', 'setting', 'receiptSummary'));
+        return view('pages.payments.receipt', compact('payment', 'setting', 'receiptSummary', 'inventorySaleItems'));
     }
 
     private function buildReceiptSummary(Payment $payment): array
@@ -67,9 +75,14 @@ class PaymentController extends Controller
             ->values();
 
         $feeSubtotal = (float) $feeRecords->sum(fn ($fee) => (float) ($fee->amount ?? 0));
-        $scholarshipAmt = round((float) ($payment->scholarship_amount ?? 0), 2);
-        $freeStudentshipAmt = round((float) ($payment->discount_amount ?? 0), 2);
-        $totalDue = round(max(0, $feeSubtotal - $scholarshipAmt - $freeStudentshipAmt), 2);
+        $inventorySaleTotal = (float) ($payment->inventorySale?->total_amount ?? 0);
+        $inventoryDueTotal = (float) $payment->validInventoryDueItems()
+            ->sum(fn ($item) => (float) ($item->inventorySaleItem?->subtotal ?? 0));
+        $scholarshipAmt = round((float) $payment->scholarship_received_amount, 2);
+        $freeStudentshipAmt = round((float) $payment->free_studentship_received_amount, 2);
+        $discountAmt = round((float) ($payment->discount_amount ?? 0), 2);
+        $subtotal = round($feeSubtotal + $inventorySaleTotal + $inventoryDueTotal, 2);
+        $totalDue = round(max(0, $subtotal - $scholarshipAmt - $freeStudentshipAmt - $discountAmt), 2);
 
         $paidCutoffDate = $payment->payment_date
             ? Carbon::parse($payment->payment_date)->toDateString()
@@ -93,14 +106,17 @@ class PaymentController extends Controller
         }
 
         $feePaidTotal = round($feeRecords->sum(fn ($fee) => (float) ($paidByFee[$fee->id] ?? 0)), 2);
-        $balanceDue = round(max(0, $totalDue - $feePaidTotal), 2);
+        $totalPaid = round((float) $payment->amount, 2);
+        $balanceDue = round(max(0, $totalDue - $totalPaid), 2);
 
         return [
             'feeSubtotal' => $feeSubtotal,
+            'subtotal' => $subtotal,
             'scholarshipAmt' => $scholarshipAmt,
             'freeStudentshipAmt' => $freeStudentshipAmt,
+            'discountAmt' => $discountAmt,
             'totalDue' => $totalDue,
-            'totalPaid' => $feePaidTotal,
+            'totalPaid' => $totalPaid,
             'balanceDue' => $balanceDue,
         ];
     }
@@ -361,12 +377,15 @@ class PaymentController extends Controller
 
     private function syncPaymentTotals(Payment $payment): void
     {
-        $payment->loadMissing(['items.fee', 'inventorySale.items', 'inventoryDueItems.inventorySaleItem']);
+        $payment->loadMissing(['items.fee', 'inventorySale.items', 'inventoryDueItems.inventorySaleItem.inventoryItem.category']);
         $feeReceived = (float) $payment->items->sum('amount');
         $feeGross = (float) $payment->items->sum(fn ($item) => (float) ($item->fee?->amount ?? $item->amount));
-        $inventoryReceived = (float) ($payment->inventorySale?->paid_amount ?? 0) + (float) $payment->inventoryDueItems->sum('amount');
+        $validDueItems = method_exists($payment, 'validInventoryDueItems')
+            ? $payment->validInventoryDueItems()
+            : ($payment->inventoryDueItems ?? collect())->filter(fn ($item) => $item->inventorySaleItem?->inventoryItem);
+        $inventoryReceived = (float) ($payment->inventorySale?->paid_amount ?? 0) + (float) $validDueItems->sum('amount');
         $inventoryGross = (float) ($payment->inventorySale?->total_amount ?? 0);
-        $inventoryGross += (float) $payment->inventoryDueItems->sum(fn ($item) => (float) ($item->inventorySaleItem?->subtotal ?? 0));
+        $inventoryGross += (float) $validDueItems->sum(fn ($item) => (float) ($item->inventorySaleItem?->subtotal ?? 0));
 
         $payment->amount = round($feeReceived + $inventoryReceived, 2);
         $payment->gross_amount = round($feeGross + $inventoryGross, 2);

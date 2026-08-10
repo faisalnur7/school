@@ -7,6 +7,7 @@ use App\Models\Fee;
 use App\Models\FeeCategory;
 use App\Models\FeeSet;
 use App\Models\FeeSetItem;
+use App\Models\FreeStudentship;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Student;
@@ -91,7 +92,9 @@ class FeeCategoryStudentTypeTest extends TestCase
             'due_date'   => now()->addDays(30),
         ]);
 
-        $response = $this->actingAs($user)->get(route('fees.collect_payment', ['student_id' => $student->id]));
+        $response = $this->withoutMiddleware()
+            ->actingAs($user)
+            ->get(route('fees.collect_payment', ['student_id' => $student->id]));
         $response->assertOk();
 
         $pendingFees = $response->viewData('pendingFees');
@@ -142,10 +145,101 @@ class FeeCategoryStudentTypeTest extends TestCase
             'due_date'   => now()->addDays(30),
         ]);
 
-        $response = $this->actingAs($user)->get(route('fees.collect_payment', ['student_id' => $student->id]));
+        $response = $this->withoutMiddleware()
+            ->actingAs($user)
+            ->get(route('fees.collect_payment', ['student_id' => $student->id]));
         $response->assertOk();
 
         $pendingFees = $response->viewData('pendingFees');
         $this->assertCount(1, $pendingFees);
+    }
+
+    public function test_collect_payment_labels_free_studentship_discounts_correctly(): void
+    {
+        $user = User::factory()->create();
+
+        $session = AcademicSession::create([
+            'name_en' => '2026',
+            'name_bn' => '২০২৬',
+            'status' => 1,
+        ]);
+
+        $class = SchoolClass::create([
+            'name_en' => 'Class 1',
+            'name_bn' => 'Class 1',
+            'status' => 1,
+        ]);
+
+        $section = Section::create([
+            'school_class_id' => $class->id,
+            'name_en' => 'A',
+            'name_bn' => 'A',
+            'status' => 1,
+        ]);
+
+        $category = FeeCategory::create([
+            'name' => 'Tuition Fee',
+            'bn_name' => 'টিউশন ফি',
+            'student_type' => 'both',
+            'status' => 1,
+        ]);
+
+        $feeSet = FeeSet::create([
+            'name' => 'Monthly Fees',
+            'bn_name' => 'Monthly Fees',
+            'academic_session_id' => $session->id,
+            'school_class_id' => $class->id,
+            'frequency' => 'monthly',
+        ]);
+
+        FeeSetItem::create([
+            'fee_set_id' => $feeSet->id,
+            'fee_category_id' => $category->id,
+            'amount' => 1700,
+        ]);
+
+        $student = Student::create([
+            'full_name_en' => 'Free Studentship Student',
+            'student_cid' => 'STU-FREE-001',
+            'status' => 1,
+        ]);
+
+        $academicInfo = $student->academicInformations()->create([
+            'academic_session_id' => $session->id,
+            'school_class_id' => $class->id,
+            'section_id' => $section->id,
+            'roll' => '10',
+            'is_current' => 1,
+            'academic_status' => 'active',
+        ]);
+
+        Fee::create([
+            'student_id' => $student->id,
+            'fee_set_id' => $feeSet->id,
+            'amount' => 1700,
+            'paid_amount' => 0,
+            'status' => 'pending',
+            'is_active' => 1,
+            'due_date' => now()->addMonth(),
+        ]);
+
+        FreeStudentship::create([
+            'student_id' => $student->id,
+            'student_academic_information_id' => $academicInfo->id,
+            'name' => 'Free Studentship 2026',
+            'type' => 'fixed',
+            'amount' => 220,
+            'academic_session_id' => $session->id,
+            'fee_category_id' => $category->id,
+            'status' => 'active',
+        ]);
+
+        $response = $this->withoutMiddleware()
+            ->actingAs($user)
+            ->get(route('fees.collect_payment', ['student_id' => $student->id]));
+
+        $response->assertOk();
+        $response->assertSee('data-discount-label="Free Studentship"', false);
+        $response->assertDontSee('Scholarship: -${discount.toFixed(2)}', false);
     }
 }

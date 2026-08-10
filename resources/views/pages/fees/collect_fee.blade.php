@@ -1948,6 +1948,7 @@
                                             data-amount="{{ $fee->calculated_net_amount }}"
                                             data-gross="{{ $fee->amount }}"
                                             data-discount="{{ $fee->total_scholarship_discount ?? 0 }}"
+                                            data-discount-label="{{ $fee->discount_label ?? 'Fee Discount' }}"
                                             data-name="{{ $feeSetName }}"
                                             data-items='@json($fee->feeSet->items->map(fn($i) => ['category' => $i->category->name, 'amount' => $i->amount]))'
                                             style="display:none;border:1.5px solid #e2e8f0;cursor:pointer">
@@ -2269,7 +2270,11 @@
                                 </strong>
                                 &nbsp;|&nbsp; Scholarship:
                                 <strong style="color:#111827">
-                                    BDT {{ number_format($payments->sum('scholarship_amount'), 2) }}
+                                    BDT {{ number_format($payments->sum(fn ($payment) => $payment->scholarship_received_amount), 2) }}
+                                </strong>
+                                &nbsp;|&nbsp; Free Studentship:
+                                <strong style="color:#111827">
+                                    BDT {{ number_format($payments->sum(fn ($payment) => $payment->free_studentship_received_amount), 2) }}
                                 </strong>
                                 &nbsp;|&nbsp; Discount:
                                 <strong style="color:#111827">
@@ -2289,6 +2294,7 @@
                                         <th class="mono px-4 py-3 text-muted">ITEMS</th>
                                         <th class="mono px-4 py-3 text-muted">GROSS</th>
                                         <th class="mono px-4 py-3 text-muted">SCHOLARSHIP</th>
+                                        <th class="mono px-4 py-3 text-muted">FREE STUDENTSHIP</th>
                                         <th class="mono px-4 py-3 text-muted">DISCOUNT</th>
                                         <th class="mono px-4 py-3 text-muted">PAID</th>
                                         <th class="mono px-4 py-3 text-muted">COLLECTED BY</th>
@@ -2336,9 +2342,19 @@
                                                 <span class="text-muted mono" style="font-size:11px"> BDT</span>
                                             </td>
                                             <td class="px-4 py-3 payment-history-scholarship">
-                                                @if ($payment->scholarship_amount > 0)
+                                                @if ($payment->scholarship_received_amount > 0)
                                                     <span class="mono fw-bold" style="font-size:13px;color:#059669">
-                                                        -{{ number_format($payment->scholarship_amount, 2) }}
+                                                        -{{ number_format($payment->scholarship_received_amount, 2) }}
+                                                    </span>
+                                                    <span class="text-muted mono" style="font-size:10px"> BDT</span>
+                                                @else
+                                                    <span class="text-muted mono" style="font-size:12px">—</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-3 payment-history-free-studentship">
+                                                @if ($payment->free_studentship_received_amount > 0)
+                                                    <span class="mono fw-bold" style="font-size:13px;color:#059669">
+                                                        -{{ number_format($payment->free_studentship_received_amount, 2) }}
                                                     </span>
                                                     <span class="text-muted mono" style="font-size:10px"> BDT</span>
                                                 @else
@@ -3037,6 +3053,7 @@
                 let amount = parseFloat($(this).data('amount'));
                 let gross = parseFloat($(this).data('gross') || $(this).data('amount'));
                 let discount = parseFloat($(this).data('discount') || 0);
+                let discountLabel = $(this).data('discount-label') || 'Fee Discount';
                 let name = $(this).data('name');
                 let items = $(this).data('items') || [];
                 if (cartIds.has(id)) return;
@@ -3046,7 +3063,7 @@
                 $cartEmpty.hide();
 
                 let discountHtml = discount > 0 ?
-                    `<span class="mono" style="font-size:11px;color:#059669">Scholarship: -${discount.toFixed(2)}</span><br>` :
+                    `<span class="mono" style="font-size:11px;color:#059669">${discountLabel}: -${discount.toFixed(2)}</span><br>` :
                     '';
                 let grossHtml = discount > 0 ?
                     `<span class="mono text-muted" style="font-size:11px;text-decoration:line-through">${gross.toFixed(2)}</span><br>` :

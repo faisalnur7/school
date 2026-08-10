@@ -41,6 +41,19 @@ class Payment extends Model
         return $this->hasMany(PaymentInventoryItem::class);
     }
 
+    public function validInventoryDueItems()
+    {
+        $items = $this->relationLoaded('inventoryDueItems')
+            ? $this->inventoryDueItems
+            : $this->inventoryDueItems()->with('inventorySaleItem.inventoryItem.category')->get();
+
+        return $items->filter(function ($item) {
+            return $item->inventorySaleItem
+                && $item->inventorySaleItem->inventoryItem
+                && $item->inventorySaleItem->inventoryItem->category;
+        })->values();
+    }
+
     public function student()
     {
         return $this->belongsTo(Student::class);
@@ -58,10 +71,29 @@ class Payment extends Model
         return (float) $items->sum(fn ($item) => (float) $item->amount);
     }
 
+    public function getScholarshipReceivedAmountAttribute(): float
+    {
+        $items = $this->relationLoaded('items') ? $this->items : $this->items()->get();
+        $amount = round((float) $items->sum(fn ($item) => (float) ($item->scholarship_amount ?? 0)), 2);
+
+        if ($amount > 0) {
+            return $amount;
+        }
+
+        return round((float) ($this->scholarship_amount ?? 0), 2);
+    }
+
+    public function getFreeStudentshipReceivedAmountAttribute(): float
+    {
+        $items = $this->relationLoaded('items') ? $this->items : $this->items()->get();
+
+        return round((float) $items->sum(fn ($item) => (float) ($item->free_studentship_amount ?? 0)), 2);
+    }
+
     public function getInventoryReceivedAmountAttribute(): float
     {
         $sale = $this->relationLoaded('inventorySale') ? $this->inventorySale : $this->inventorySale()->first();
-        $dueItems = $this->relationLoaded('inventoryDueItems') ? $this->inventoryDueItems : $this->inventoryDueItems()->get();
+        $dueItems = $this->validInventoryDueItems();
 
         return (float) ($sale?->paid_amount ?? 0) + (float) $dueItems->sum('amount');
     }
@@ -80,7 +112,7 @@ class Payment extends Model
 
         $sale = $this->relationLoaded('inventorySale') ? $this->inventorySale : $this->inventorySale()->first();
         $inventoryGross = (float) ($sale?->total_amount ?? 0);
-        $dueItems = $this->relationLoaded('inventoryDueItems') ? $this->inventoryDueItems : $this->inventoryDueItems()->with('inventorySaleItem')->get();
+        $dueItems = $this->validInventoryDueItems();
         $inventoryGross += (float) $dueItems->sum(fn ($item) => (float) ($item->inventorySaleItem?->subtotal ?? 0));
 
         return round($feeGross + $inventoryGross, 2);
