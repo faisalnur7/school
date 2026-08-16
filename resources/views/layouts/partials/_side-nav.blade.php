@@ -131,11 +131,11 @@
                 @if(auth()->user()?->hasPermission('view_accounts'))
                 <li class="nav-item-modern">
                     <a href="{{ route('accounts.hub') }}"
-                       class="nav-link-modern {{ request()->routeIs('accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*') ? 'active' : '' }}">
+                       class="nav-link-modern {{ request()->routeIs('accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*', 'transactions.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-book"></i></span>
                         <span class="nav-text">{{ __('Accounts') }}</span>
                         
-                        @if(request()->routeIs('accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*'))
+                        @if(request()->routeIs('accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*', 'transactions.*'))
                         <span class="nav-indicator"></span>
                         @endif
                     </a>
@@ -161,11 +161,11 @@
                 @if(auth()->user()?->hasPermission('view_financials'))
                 <li class="nav-item-modern">
                     <a href="{{ route('financials.hub') }}"
-                       class="nav-link-modern {{ request()->routeIs('financials.hub', 'incomes.*', 'expenses.*', 'transactions.*', 'income-categories.*', 'expense-categories.*', 'shareholder-transactions.*') ? 'active' : '' }}">
+                       class="nav-link-modern {{ request()->routeIs('financials.hub', 'incomes.*', 'expenses.*', 'income-categories.*', 'expense-categories.*', 'shareholder-transactions.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
                         <span class="nav-text">{{ __('Financials') }}</span>
                         
-                        @if(request()->routeIs('financials.hub', 'incomes.*', 'expenses.*', 'transactions.*', 'income-categories.*', 'expense-categories.*', 'shareholder-transactions.*'))
+                        @if(request()->routeIs('financials.hub', 'incomes.*', 'expenses.*', 'income-categories.*', 'expense-categories.*', 'shareholder-transactions.*'))
                         <span class="nav-indicator"></span>
                         @endif
                     </a>

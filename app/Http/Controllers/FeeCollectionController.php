@@ -279,6 +279,42 @@ class FeeCollectionController extends Controller
             })
             ->values();
 
+        $assignedFeeGroups = $assignedFees
+            ->groupBy(function ($fee) {
+                return $fee->feeSet?->items?->first()?->category?->id ?? 'uncategorized';
+            })
+            ->map(function ($fees, $groupKey) {
+                $fees = $fees->values();
+                $firstFee = $fees->first();
+                $categoryNames = $firstFee?->feeSet?->items
+                    ?->map(function ($item) {
+                        return $item->category?->name_en
+                            ?? $item->category?->name
+                            ?? null;
+                    })
+                    ->filter()
+                    ->unique()
+                    ->values() ?? collect();
+
+                return [
+                    'key' => (string) $groupKey,
+                    'label' => $categoryNames->first() ?? ($firstFee?->feeSet?->name ?? 'Uncategorized'),
+                    'fees' => $fees,
+                    'count' => $fees->count(),
+                    'total_amount' => round($fees->sum(fn ($fee) => (float) ($fee->amount ?? 0)), 2),
+                    'total_paid' => round($fees->sum(fn ($fee) => (float) ($fee->paid_amount ?? 0)), 2),
+                    'total_due' => round($fees->sum(function ($fee) {
+                        return max(
+                            0,
+                            (float) ($fee->due_amount ?? max(0, (float) ($fee->amount ?? 0) - (float) ($fee->paid_amount ?? 0)))
+                        );
+                    }), 2),
+                    'active_count' => $fees->where('is_active', true)->count(),
+                    'locked_count' => $fees->where('status', 'paid')->count(),
+                ];
+            })
+            ->values();
+
         // Get active scholarships for this student
         $scholarships = Scholarship::where('student_id', $student->id)
             ->where('status', 'active')
@@ -436,6 +472,7 @@ class FeeCollectionController extends Controller
         return view('pages.fees.collect_fee', compact(
             'pendingFees',
             'assignedFees',
+            'assignedFeeGroups',
             'student',
             'payments',
             'inventoryCategories',
