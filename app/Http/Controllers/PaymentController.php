@@ -3,13 +3,18 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\AccountTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Income;
+use App\Models\JournalEntry;
 use App\Models\Payment;
 use App\Models\PaymentItem;
 use App\Models\PaymentInventoryItem;
 use App\Models\InventorySale;
 use App\Models\InventorySaleItem;
+use App\Models\StockMovement;
+use App\Models\Transaction;
 use App\Models\AcademicSession;
 use App\Models\SchoolClass;
 use App\Models\Section;
@@ -294,6 +299,77 @@ class PaymentController extends Controller
         return redirect()->back()->with('success', 'Payment updated successfully');
     }
 
+    public function destroy(Payment $payment)
+    {
+        $payment->loadMissing([
+            'items.fee',
+            'inventorySale.items.inventoryItem',
+            'inventoryDueItems.inventorySaleItem.inventoryItem',
+        ]);
+
+        $studentId = $payment->student_id;
+        $receiptNo = $payment->receipt_no;
+        $affectedFeeIds = $payment->items->pluck('fee_id')->filter()->unique()->values()->all();
+        $inventorySaleItems = $payment->inventorySale?->items ?? collect();
+        $inventoryDueItems = $payment->inventoryDueItems ?? collect();
+
+        DB::transaction(function () use ($payment, $receiptNo, $affectedFeeIds, $inventorySaleItems, $inventoryDueItems) {
+            foreach ($inventoryDueItems as $paymentDueItem) {
+                $saleItem = $paymentDueItem->inventorySaleItem()->lockForUpdate()->first();
+                if (!$saleItem) {
+                    continue;
+                }
+
+                $paidAmount = round((float) ($paymentDueItem->amount ?? 0), 2);
+                if ($paidAmount <= 0) {
+                    continue;
+                }
+
+                $saleItem->paid_amount = max(0, (float) ($saleItem->paid_amount ?? 0) - $paidAmount);
+                $saleItem->save();
+            }
+
+            foreach ($inventorySaleItems as $saleItem) {
+                $inventoryItem = $saleItem->inventoryItem()->lockForUpdate()->first();
+                if ($inventoryItem && !$inventoryItem->isMadeToOrder() && (int) $saleItem->quantity > 0) {
+                    $inventoryItem->increment('current_stock', (int) $saleItem->quantity);
+                }
+
+                if ($inventoryItem && filled($receiptNo)) {
+                    StockMovement::where('inventory_item_id', $inventoryItem->id)
+                        ->where('note', 'like', '%' . $receiptNo . '%')
+                        ->delete();
+                }
+            }
+
+            $this->deletePaymentIncomeTrail($payment, $receiptNo);
+
+            Transaction::withTrashed()
+                ->where('transactionable_type', Payment::class)
+                ->where('transactionable_id', $payment->id)
+                ->get()
+                ->each
+                ->forceDelete();
+
+            JournalEntry::withTrashed()
+                ->where('source_type', Payment::class)
+                ->where('source_id', $payment->id)
+                ->get()
+                ->each
+                ->forceDelete();
+
+            $payment->delete();
+
+            foreach ($affectedFeeIds as $feeId) {
+                $this->syncFeePaymentState((int) $feeId);
+            }
+        });
+
+        return redirect()
+            ->route('fees.collect_payment', ['student_id' => $studentId])
+            ->with('success', 'Payment deleted successfully.');
+    }
+
     public function removeItem(\App\Models\PaymentItem $paymentItem)
     {
         DB::transaction(function () use ($paymentItem) {
@@ -390,5 +466,60 @@ class PaymentController extends Controller
         $payment->amount = round($feeReceived + $inventoryReceived, 2);
         $payment->gross_amount = round($feeGross + $inventoryGross, 2);
         $payment->save();
+    }
+
+    private function deletePaymentIncomeTrail(Payment $payment, ?string $receiptNo): void
+    {
+        if (! filled($receiptNo)) {
+            return;
+        }
+
+        $incomes = Income::withTrashed()
+            ->whereIn('title', ['Student Payment', 'Transport Fee', 'Inventory Sale', 'Inventory Sales'])
+            ->where(function ($query) use ($receiptNo) {
+                $query->where('description', 'like', '%' . $receiptNo . '%')
+                    ->orWhere('reference_no', $receiptNo);
+            })
+            ->get();
+
+        Income::withoutEvents(function () use ($incomes) {
+            foreach ($incomes as $income) {
+                $accountTransactions = AccountTransaction::where('transactionable_type', Income::class)
+                    ->where('transactionable_id', $income->id)
+                    ->get();
+
+                foreach ($accountTransactions as $accountTransaction) {
+                    $accountType = $accountTransaction->account_type;
+                    $accountId = (int) $accountTransaction->account_id;
+                    $amount = (float) $accountTransaction->amount;
+
+                    if ($accountType && $accountId && class_exists($accountType)) {
+                        if ($accountTransaction->type === 'credit') {
+                            $accountType::where('id', $accountId)->decrement('balance', $amount);
+                        } else {
+                            $accountType::where('id', $accountId)->increment('balance', $amount);
+                        }
+                    }
+
+                    $accountTransaction->delete();
+                }
+
+                Transaction::withTrashed()
+                    ->where('transactionable_type', Income::class)
+                    ->where('transactionable_id', $income->id)
+                    ->get()
+                    ->each
+                    ->forceDelete();
+
+                JournalEntry::withTrashed()
+                    ->where('source_type', Income::class)
+                    ->where('source_id', $income->id)
+                    ->get()
+                    ->each
+                    ->forceDelete();
+
+                $income->forceDelete();
+            }
+        });
     }
 }

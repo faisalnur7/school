@@ -381,6 +381,12 @@
             white-space: nowrap;
         }
 
+        .payment-report-page .payment-report-table thead th.payment-report-column-header {
+            white-space: normal;
+            line-height: 1.15;
+            text-align: center;
+        }
+
         .payment-report-page .payment-report-table tbody td {
             border: 0;
             border-bottom: 1px solid #f3f4f6;
@@ -400,6 +406,53 @@
             padding: 0.9rem 1rem;
             background: #f8fafc;
             color: #111827;
+        }
+
+        .payment-report-page .payment-report-group-row td {
+            background: #eef6ff;
+            color: #0f172a;
+            font-weight: 700;
+            border-bottom: 1px solid #dbeafe;
+        }
+
+        .payment-report-page .payment-report-group-subtotal-row td {
+            background: #f8fafc;
+        }
+
+        .payment-report-page .payment-report-category-summary-card {
+            overflow: hidden;
+        }
+
+        .payment-report-page .payment-report-category-summary-wrap {
+            overflow-x: auto;
+        }
+
+        .payment-report-page .payment-report-category-summary-table {
+            width: 100%;
+            min-width: 900px;
+            margin: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .payment-report-page .payment-report-category-summary-table thead th {
+            border: 0;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 0.85rem 1rem;
+            background: #f8fafc;
+            color: #374151;
+            font-size: 0.8rem;
+            font-weight: 700;
+            white-space: normal;
+            line-height: 1.15;
+            text-align: center;
+        }
+
+        .payment-report-page .payment-report-category-summary-table tbody td {
+            border: 0;
+            padding: 0.95rem 1rem;
+            color: #111827;
+            font-size: 0.9rem;
         }
 
         .payment-report-page .payment-report-empty {
@@ -886,6 +939,17 @@
                         <p class="mb-0">No payment records found for the selected date range.</p>
                     </div>
                 @else
+                    @php
+                        $categoryTotals = $categories->mapWithKeys(function ($category) use ($rows) {
+                            return [
+                                $category->column_key => $rows->sum(function ($group) use ($category) {
+                                    return $group->students->sum(fn ($student) => (float) ($student->{$category->column_key} ?? 0));
+                                }),
+                            ];
+                        });
+                        $categoryGrandTotal = $categoryTotals->sum();
+                    @endphp
+
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <div class="info-box bg-light">
@@ -916,52 +980,76 @@
                         </div>
                     </div>
 
-                    @foreach($rows as $group)
-                        <div class="payment-report-group-card">
-                            <div class="payment-report-group-header">
-                                <h5 class="payment-report-group-title">
-                                    <strong>Class:</strong> {{ $group->class_name }} | <strong>Section:</strong> {{ $group->section_name }}
-                                </h5>
-                            </div>
-                            <div class="payment-report-table-wrap">
-                                <table class="table table-hover table-sm payment-report-table">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Student ID</th>
-                                            <th>Name</th>
-                                            @foreach($categories as $category)
-                                                <th class="text-right">{{ $category->name }}</th>
-                                            @endforeach
-                                            <th class="text-right">Grand Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($group->students as $index => $row)
-                                            <tr>
-                                                <td>{{ $index + 1 }}</td>
-                                                <td>{{ $row->student_cid }}</td>
-                                                <td>{{ $row->student_name }}</td>
-                                                @foreach($categories as $category)
-                                                    <td class="text-right">{{ number_format($row->{$category->column_key}, 2) }}</td>
-                                                @endforeach
-                                                <td class="text-right font-weight-bold">{{ number_format($row->grand_total, 2) }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                    <tfoot>
-                                        <tr class="font-weight-bold">
-                                            <td colspan="3">Subtotal</td>
-                                            @foreach($categories as $category)
-                                                <td class="text-right">{{ number_format($group->students->sum(fn($r) => $r->{$category->column_key}), 2) }}</td>
-                                            @endforeach
-                                            <td class="text-right">{{ number_format($group->students->sum('grand_total'), 2) }}</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
+                    <div class="payment-report-card payment-report-category-summary-card mb-3">
+                        <div class="payment-report-group-header">
+                            <h5 class="payment-report-group-title mb-0">
+                                <strong>Categorywise Totals</strong>
+                            </h5>
                         </div>
-                    @endforeach
+                        <div class="payment-report-category-summary-wrap">
+                            <table class="table table-sm payment-report-category-summary-table mb-0">
+                                <thead>
+                                    <tr>
+                                        @foreach($categories as $category)
+                                            <th>{!! $category->display_name_html ?? e($category->name) !!}</th>
+                                        @endforeach
+                                        <th class="text-right">Grand<br>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        @foreach($categories as $category)
+                                            <td class="text-right">{{ number_format($categoryTotals[$category->column_key] ?? 0, 2) }}</td>
+                                        @endforeach
+                                        <td class="text-right font-weight-bold">{{ number_format($categoryGrandTotal, 2) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="payment-report-table-wrap">
+                        <table class="table table-hover table-sm payment-report-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    @foreach($categories as $category)
+                                        <th class="payment-report-column-header">{!! $category->display_name_html ?? e($category->name) !!}</th>
+                                    @endforeach
+                                    <th class="payment-report-column-header">Grand<br>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($rows as $group)
+                                    <tr class="payment-report-group-row">
+                                        <td colspan="{{ 4 + $categories->count() }}">
+                                            <strong>Class:</strong> {{ $group->class_name }} | <strong>Section:</strong> {{ $group->section_name }}
+                                        </td>
+                                    </tr>
+                                    @foreach($group->students as $index => $row)
+                                        <tr>
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ $row->student_cid }}</td>
+                                            <td>{{ $row->student_name }}</td>
+                                            @foreach($categories as $category)
+                                                <td class="text-right">{{ number_format($row->{$category->column_key}, 2) }}</td>
+                                            @endforeach
+                                            <td class="text-right font-weight-bold">{{ number_format($row->grand_total, 2) }}</td>
+                                        </tr>
+                                    @endforeach
+                                    <tr class="font-weight-bold payment-report-group-subtotal-row">
+                                        <td colspan="3">Subtotal</td>
+                                        @foreach($categories as $category)
+                                            <td class="text-right">{{ number_format($group->students->sum(fn($r) => $r->{$category->column_key}), 2) }}</td>
+                                        @endforeach
+                                        <td class="text-right">{{ number_format($group->students->sum('grand_total'), 2) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 @endif
             </div>
         </div>
@@ -1081,6 +1169,27 @@
 
             .payment-report-table tfoot td {
                 font-size: 7px !important;
+            }
+
+            .payment-report-category-summary-card {
+                box-shadow: none !important;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .payment-report-category-summary-table {
+                width: 100% !important;
+                min-width: 0 !important;
+                table-layout: fixed !important;
+                font-size: 8px !important;
+            }
+
+            .payment-report-category-summary-table thead th,
+            .payment-report-category-summary-table tbody td {
+                padding: 0.22rem 0.28rem !important;
+                white-space: normal !important;
+                word-break: break-word !important;
+                overflow-wrap: anywhere !important;
             }
 
             .payment-report-table th:nth-child(1),

@@ -157,7 +157,7 @@ class AppServiceProvider extends ServiceProvider
             'financials.' => ['route' => 'financials.hub', 'label' => __('Financials')],
             'incomes.' => ['route' => 'financials.hub', 'label' => __('Financials')],
             'expenses.' => ['route' => 'financials.hub', 'label' => __('Financials')],
-            'transactions.' => ['route' => 'financials.hub', 'label' => __('Financials')],
+            'transactions.' => ['route' => 'accounts.hub', 'label' => __('Accounts')],
             'income-categories.' => ['route' => 'financials.hub', 'label' => __('Financials')],
             'expense-categories.' => ['route' => 'financials.hub', 'label' => __('Financials')],
             'shareholder-transactions.' => ['route' => 'shareholders.hub', 'label' => __('Shareholders')],

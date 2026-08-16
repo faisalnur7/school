@@ -19,7 +19,7 @@ class StudentPaymentReportController extends Controller
     public function index(Request $request)
     {
         $sessions = AcademicSession::orderByDesc('id')->get();
-        $classes = SchoolClass::orderBy('id')->get();
+        $classes = SchoolClass::orderBy('order')->orderBy('id')->get();
         $sections = $request->filled('class_id')
             ? Section::where('school_class_id', $request->class_id)->orderBy('name_en')->get()
             : collect();
@@ -34,7 +34,7 @@ class StudentPaymentReportController extends Controller
     {
         [$categories, , $rows, $dateLabel] = $this->buildData($request);
         $sessions = AcademicSession::orderByDesc('id')->get();
-        $classes = SchoolClass::orderBy('id')->get();
+        $classes = SchoolClass::orderBy('order')->orderBy('id')->get();
         $sections = $request->filled('class_id')
             ? Section::where('school_class_id', $request->class_id)->orderBy('name_en')->get()
             : collect();
@@ -44,7 +44,7 @@ class StudentPaymentReportController extends Controller
         $html = view('pages.student-payment-report.pdf',
             compact('categories', 'rows', 'dateLabel', 'activeScopePills'))->render();
 
-        $mpdf = new Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'margin_top' => 10, 'margin_bottom' => 10]);
+        $mpdf = new Mpdf(['mode' => 'utf-8', 'format' => 'A4', 'margin_top' => 10, 'margin_bottom' => 10]);
         $mpdf->WriteHTML($html);
         $mpdf->Output('student-payment-report.pdf', 'D');
     }
@@ -74,7 +74,7 @@ class StudentPaymentReportController extends Controller
     public function buildReceiveData(Request $request): array
     {
         $sessions = AcademicSession::orderByDesc('id')->get();
-        $classes = SchoolClass::orderBy('id')->get();
+        $classes = SchoolClass::orderBy('order')->orderBy('id')->get();
         $sections = $request->filled('class_id')
             ? Section::where('school_class_id', $request->class_id)->orderBy('name_en')->get()
             : collect();
@@ -293,6 +293,7 @@ class StudentPaymentReportController extends Controller
                     'student_id' => $student->id,
                     'student_cid' => $student->student_cid,
                     'student_name' => $student->full_name_en,
+                    'class_order' => $academicInfo?->schoolClass?->order ?? PHP_INT_MAX,
                     'class_name' => null,
                     'section_name' => null,
                 ], $academicInfo, $categories);
@@ -376,6 +377,7 @@ class StudentPaymentReportController extends Controller
                 'students.id as student_id',
                 'students.student_cid',
                 'students.full_name_en as student_name',
+                DB::raw('MAX(sc2.`order`) as class_order'),
                 DB::raw('MAX(sc2.name_en) as class_name'),
                 DB::raw('MAX(sec2.name_en) as section_name'),
                 'inventory_categories.id as category_id',
@@ -389,6 +391,7 @@ class StudentPaymentReportController extends Controller
             if (!isset($studentMap[$sid])) {
                 $studentMap[$sid] = $this->blankRow($r, null, $categories);
             }
+            $studentMap[$sid]['class_order'] = min($studentMap[$sid]['class_order'] ?? PHP_INT_MAX, (int) ($r->class_order ?? PHP_INT_MAX));
             $columnKey = $categoryKeyMap['inv_' . $r->category_id] ?? 'inv_' . $r->category_id;
             if (!isset($studentMap[$sid][$columnKey])) {
                 $studentMap[$sid][$columnKey] = 0;
@@ -403,11 +406,12 @@ class StudentPaymentReportController extends Controller
         })->sortBy('student_name')->values()
             ->groupBy(fn($r) => $r->class_name . '|' . $r->section_name)
             ->map(fn($group) => (object)[
+                'class_order' => $group->first()->class_order ?? PHP_INT_MAX,
                 'class_name'  => $group->first()->class_name,
                 'section_name' => $group->first()->section_name,
                 'students'    => $group->values(),
             ])
-            ->sortBy('class_name')
+            ->sortBy(fn ($group) => sprintf('%010d|%s', $group->class_order ?? PHP_INT_MAX, $group->class_name ?? ''))
             ->values();
 
         $dateLabel = 'Date Range: ' . $fromDate->format('d M Y') . ' - ' . $toDate->format('d M Y');
@@ -448,6 +452,7 @@ class StudentPaymentReportController extends Controller
                     'kind' => 'fee',
                     'id' => $category->id,
                     'name' => $category->name,
+                    'display_name_html' => $this->formatPaymentReportHeaderLabel($category->name),
                     'column_key' => 'fee_' . $category->id,
                 ];
             })
@@ -460,6 +465,7 @@ class StudentPaymentReportController extends Controller
                             'kind' => 'inventory',
                             'id' => $category->id,
                             'name' => $category->name,
+                            'display_name_html' => $this->formatPaymentReportHeaderLabel($category->name),
                             'column_key' => 'inv_' . $category->id,
                         ];
                     })
@@ -477,11 +483,30 @@ class StudentPaymentReportController extends Controller
                     'kind' => $group->pluck('kind')->unique()->count() > 1 ? 'merged' : $first->kind,
                     'id' => $first->id,
                     'name' => $first->name,
+                    'display_name_html' => $this->formatPaymentReportHeaderLabel($first->name),
                     'column_key' => 'category_' . substr(md5($normalizedName), 0, 12),
                     'source_keys' => $group->pluck('column_key')->values()->all(),
                 ];
             })
             ->values();
+    }
+
+    private function formatPaymentReportHeaderLabel(?string $label): string
+    {
+        $parts = preg_split('/\s+/', trim((string) $label), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        if (count($parts) <= 1) {
+            return e($label ?? '');
+        }
+
+        if (count($parts) === 2) {
+            return e($parts[0]) . '<br>' . e($parts[1]);
+        }
+
+        $head = implode(' ', array_slice($parts, 0, -1));
+        $tail = $parts[array_key_last($parts)];
+
+        return e($head) . '<br>' . e($tail);
     }
 
     private function buildCategoryKeyMap($availableCategories): array
@@ -585,6 +610,7 @@ class StudentPaymentReportController extends Controller
             'student_id'   => $r->student_id,
             'student_cid'  => $r->student_cid,
             'student_name' => $r->student_name,
+            'class_order'  => $r->class_order ?? PHP_INT_MAX,
             'class_name'   => $academicInfo?->schoolClass?->name_en ?? $r->class_name ?? '—',
             'section_name' => $academicInfo?->section?->name_en ?? $r->section_name ?? '—',
         ];

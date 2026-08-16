@@ -347,12 +347,12 @@
                             <option value="">All Categories</option>
                             <optgroup label="Income">
                                 @foreach($incomeCategories as $c)
-                                    <option value="{{ $c->id }}" {{ request('category_id') == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
+                                    <option value="income:{{ $c->id }}" {{ request('category_id') === 'income:' . $c->id || ((string) request('type') === 'income' && (string) request('category_id') === (string) $c->id) ? 'selected' : '' }}>{{ $c->name }}</option>
                                 @endforeach
                             </optgroup>
                             <optgroup label="Expense">
                                 @foreach($expenseCategories as $c)
-                                    <option value="{{ $c->id }}" {{ request('category_id') == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
+                                    <option value="expense:{{ $c->id }}" {{ request('category_id') === 'expense:' . $c->id || ((string) request('type') === 'expense' && (string) request('category_id') === (string) $c->id) ? 'selected' : '' }}>{{ $c->name }}</option>
                                 @endforeach
                             </optgroup>
                         </select>

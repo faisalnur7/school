@@ -81,9 +81,16 @@ class TransactionController extends Controller
 
         if ($request->filled('type'))           { $query->where('type', $request->type); }
         if ($request->filled('shareholder_id')) { $query->where('shareholder_id', $request->shareholder_id); }
-        if ($request->filled('category_id')) {
-            $query->where(fn($q) => $q->where('income_category_id', $request->category_id)
-                                      ->orWhere('expense_category_id', $request->category_id));
+        [$categoryType, $categoryId] = $this->parseTransactionCategoryFilter($request->input('category_id'));
+        if ($categoryId) {
+            if ($categoryType === 'income') {
+                $query->where('type', 'income')->where('income_category_id', $categoryId);
+            } elseif ($categoryType === 'expense') {
+                $query->where('type', 'expense')->where('expense_category_id', $categoryId);
+            } else {
+                $query->where(fn($q) => $q->where('income_category_id', $categoryId)
+                                          ->orWhere('expense_category_id', $categoryId));
+            }
         }
         if ($applyDateFilters && $request->filled('from')) {
             $query->whereDate('transaction_date', '>=', Carbon::createFromFormat('d/m/Y', $request->from));
@@ -230,5 +237,22 @@ class TransactionController extends Controller
             'incomeCategories'  => IncomeCategory::orderBy('name')->get(),
             'expenseCategories' => ExpenseCategory::orderBy('name')->get(),
         ];
+    }
+
+    private function parseTransactionCategoryFilter(?string $value): array
+    {
+        if (blank($value)) {
+            return [null, null];
+        }
+
+        if (str_contains($value, ':')) {
+            [$type, $id] = array_pad(explode(':', $value, 2), 2, null);
+            $type = in_array($type, ['income', 'expense'], true) ? $type : null;
+            $id = is_numeric($id) ? (int) $id : null;
+
+            return [$type, $id];
+        }
+
+        return [null, is_numeric($value) ? (int) $value : null];
     }
 }
