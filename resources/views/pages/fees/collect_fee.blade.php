@@ -2384,18 +2384,29 @@
                                             </td>
                                             <td class="px-4 py-3 text-center payment-history-actions">
                                                 <div class="d-flex gap-1 justify-content-center align-items-center flex-wrap">
-                                                    <a href="{{ route('payments.edit', $payment->id) }}"
-                                                        class="btn btn-sm btn-dark d-inline-flex align-items-center justify-content-center payment-history-action-btn"
-                                                        title="Edit payment"
-                                                        aria-label="Edit payment"
-                                                        style="width:32px;height:32px;padding:0">
-                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                                                            stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-                                                            stroke-linejoin="round">
-                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                                        </svg>
-                                                    </a>
+                                                    <form action="{{ route('payments.destroy', $payment->id) }}"
+                                                        method="POST"
+                                                        class="d-inline js-payment-delete-form"
+                                                        data-receipt-no="{{ $payment->receipt_no }}"
+                                                        data-student-name="{{ $student->full_name_en ?? '' }}">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit"
+                                                            class="btn btn-sm btn-danger d-inline-flex align-items-center justify-content-center payment-history-action-btn"
+                                                            title="Delete payment"
+                                                            aria-label="Delete payment"
+                                                            style="width:32px;height:32px;padding:0">
+                                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                                                stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                                                                stroke-linejoin="round">
+                                                                <path d="M3 6h18" />
+                                                                <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
+                                                                <path d="M10 11v6" />
+                                                                <path d="M14 11v6" />
+                                                                <path d="M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14" />
+                                                            </svg>
+                                                        </button>
+                                                    </form>
                                                     <a href="{{ route('payments.receipt', $payment->id) }}" target="_blank"
                                                         class="btn btn-sm btn-secondary d-inline-flex align-items-center justify-content-center payment-history-action-btn"
                                                         title="Print Receipt"
@@ -3541,6 +3552,33 @@
             $(document).on('click', '.js-set-all-fees', function() {
                 const shouldActivate = String($(this).data('state')) === '1';
                 $('#feeActivationForm .js-fee-active-toggle').not(':disabled').prop('checked', shouldActivate);
+            });
+
+            $(document).on('submit', '.js-payment-delete-form', function(event) {
+                event.preventDefault();
+
+                const form = this;
+                const receiptNo = $(form).data('receipt-no') || 'this payment';
+
+                if (typeof Swal === 'undefined') {
+                    form.submit();
+                    return;
+                }
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Delete payment?',
+                    text: `This will permanently delete payment ${receiptNo} and its related accounting and inventory records.`,
+                    showCancelButton: true,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
             });
 
             // Tab switching without Bootstrap

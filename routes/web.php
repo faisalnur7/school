@@ -672,6 +672,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
         Route::get('/payments/{payment}/edit', [PaymentController::class, 'edit'])->name('payments.edit');
         Route::put('/payments/{payment}', [PaymentController::class, 'update'])->name('payments.update');
+        Route::delete('/payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');
         Route::delete('/payment-items/{paymentItem}', [PaymentController::class, 'removeItem'])->name('payment-items.remove');
         Route::delete('/inventory-sale-items/{saleItem}', [PaymentController::class, 'removeInventoryItem'])->name('inventory-sale-items.remove');
     });
