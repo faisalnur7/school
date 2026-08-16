@@ -88,6 +88,8 @@ class FeeCollectionController extends Controller
 
     private function buildStudentSearchQuery(Request $request)
     {
+        $studentCid = trim((string) $request->input('student_id', ''));
+
         return Student::with([
             'academicInformations' => function ($q) {
                 $q->where('is_current', true)
@@ -96,8 +98,8 @@ class FeeCollectionController extends Controller
             },
         ])
             ->where('status', 1)
-            ->when($request->filled('student_id'), function ($query) use ($request) {
-                $query->where('student_cid', $request->student_id);
+            ->when($studentCid !== '', function ($query) use ($studentCid) {
+                $query->where('student_cid', 'like', '%' . $studentCid . '%');
             })
             ->whereHas('academicInformations', function ($q) use ($request) {
                 $q->where('is_current', true)

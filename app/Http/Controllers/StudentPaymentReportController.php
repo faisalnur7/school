@@ -44,7 +44,7 @@ class StudentPaymentReportController extends Controller
         $html = view('pages.student-payment-report.pdf',
             compact('categories', 'rows', 'dateLabel', 'activeScopePills'))->render();
 
-        $mpdf = new Mpdf(['mode' => 'utf-8', 'format' => 'A4-L', 'margin_top' => 10, 'margin_bottom' => 10]);
+        $mpdf = new Mpdf(['mode' => 'utf-8', 'format' => 'A4', 'margin_top' => 10, 'margin_bottom' => 10]);
         $mpdf->WriteHTML($html);
         $mpdf->Output('student-payment-report.pdf', 'D');
     }

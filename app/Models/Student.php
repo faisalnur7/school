@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 
 class Student extends Model
 {
@@ -292,18 +293,15 @@ class Student extends Model
     }
 
     /**
-     * Generate the next 6-digit student CID based on the latest ID in the database.
+     * Generate the next student CID from the highest numeric CID in the database.
      */
     public static function generateNextCid()
     {
-        $latest = self::orderBy('id', 'desc')->first();
+        $maxCid = (int) (self::query()
+            ->whereNotNull('student_cid')
+            ->where('student_cid', '!=', '')
+            ->max(DB::raw('CAST(student_cid AS UNSIGNED)')) ?? 0);
 
-        if ($latest && $latest->student_cid) {
-            $nextNumber = (int) $latest->student_cid + 1;
-        } else {
-            $nextNumber = 1;
-        }
-
-        return str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+        return str_pad((string) ($maxCid + 1), 4, '0', STR_PAD_LEFT);
     }
 }
