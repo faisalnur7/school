@@ -6,12 +6,21 @@
     $submitLabel = $submitLabel ?? ($isEdit ? 'Update Expense' : 'Save Expense');
     $submitIcon = $submitIcon ?? 'fa-save';
     $backRoute = $backRoute ?? route('expenses.index');
-    $methodValue = old('payment_method', data_get($expenseData, 'payment_method', 'Cash'));
+    $selectedAccountType = old('account_type', data_get($expenseData, 'account_type', \App\Models\HandCash::class));
     $selectedAccountId = old('account_id', data_get($expenseData, 'account_id', ''));
     $referenceValue = old('reference_no', data_get($expenseData, 'reference_no', 'Auto-generated on save'));
     $expenseDateValue = old('expense_date', $isEdit ? $expense->expense_date->format('d/m/Y') : '');
     $currentAttachmentUrl = $isEdit && filled($expense->attachment_url) ? $expense->attachment_url : null;
     $currentAttachmentName = $isEdit && filled($expense->attachment) ? basename($expense->attachment) : 'expense-attachment';
+    $selectedAccountLabel = old('account_id') ? 'Select a cash account' : ($isEdit ? ($expense->account_display_name ?? 'Select a cash account') : 'Select a cash account');
+
+    foreach ($accountGroups ?? [] as $group) {
+        foreach ($group['accounts'] as $account) {
+            if ((string) $selectedAccountId === (string) $account['id']) {
+                $selectedAccountLabel = $account['label'];
+            }
+        }
+    }
 @endphp
 
 <div class="container-fluid expense-form-shell">
@@ -23,7 +32,7 @@
                 </div>
                 <h3 class="mb-1 font-weight-bold text-white">{{ $pageTitle }}</h3>
                 <div style="color:#e5e7eb;font-size:0.92rem">
-                    Capture expense details, payment channel, and attachment in one consistent layout.
+                    Capture expense details, cash account, and attachment in one consistent layout.
                 </div>
             </div>
             <a href="{{ $backRoute }}" class="btn btn-light btn-sm">
@@ -127,14 +136,25 @@
 
                                 <div class="col-md-4">
                                     <div class="form-group mb-2">
-                                        <label class="small mb-1">Payment Method</label>
-                                        <select id="expensePaymentMethod" name="payment_method" class="form-control form-control-sm @error('payment_method') is-invalid @enderror" required>
-                                            @foreach (['Cash', 'Bank Transfer', 'Cheque', 'Mobile Banking', 'Other'] as $method)
-                                                <option value="{{ $method }}" {{ $methodValue == $method ? 'selected' : '' }}>{{ $method }}</option>
+                                        <label class="small mb-1">Cash Account</label>
+                                        <select name="account_id" id="expenseAccountSelect" class="form-control form-control-sm @error('account_id') is-invalid @enderror" required data-selected="{{ $selectedAccountId }}" data-selected-type="{{ $selectedAccountType }}">
+                                            <option value="">Select Cash Account</option>
+                                            @foreach (($accountGroups ?? []) as $group)
+                                                <optgroup label="{{ $group['label'] }}">
+                                                    @foreach ($group['accounts'] as $account)
+                                                        <option value="{{ $account['id'] }}" data-account-type="{{ $account['type'] }}" {{ (string) $selectedAccountId === (string) $account['id'] ? 'selected' : '' }}>
+                                                            {{ $account['label'] }}
+                                                        </option>
+                                                    @endforeach
+                                                </optgroup>
                                             @endforeach
                                         </select>
-                                        @error('payment_method')
+                                        <input type="hidden" name="account_type" id="expenseAccountType" value="{{ $selectedAccountType }}">
+                                        @error('account_id')
                                             <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                        @error('account_type')
+                                            <span class="invalid-feedback d-block">{{ $message }}</span>
                                         @enderror
                                     </div>
                                 </div>
@@ -151,23 +171,9 @@
                         <div class="expense-section">
                             <div class="expense-section-title">
                                 <i class="fas fa-wallet"></i>
-                                <span>Account & Notes</span>
+                                <span>Notes</span>
                             </div>
-                            <input type="hidden" name="account_type" id="expenseAccountType" value="{{ old('account_type', data_get($expenseData, 'account_type', '')) }}">
-
                             <div class="row">
-                                <div class="col-md-4" id="expenseAccountWrapper" style="display: none;">
-                                    <div class="form-group mb-2">
-                                        <label class="small mb-1">Account <span class="text-muted">(optional)</span></label>
-                                        <select name="account_id" id="expenseAccountSelect" class="form-control form-control-sm @error('account_id') is-invalid @enderror" data-selected="{{ $selectedAccountId }}">
-                                            <option value="">Select Account</option>
-                                        </select>
-                                        @error('account_id')
-                                            <span class="invalid-feedback">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-
                                 <div class="col-md-8">
                                     <div class="form-group mb-2">
                                         <label class="small mb-1">Description <span class="text-muted">(optional)</span></label>
@@ -251,8 +257,8 @@
 
                         <div class="expense-summary-list">
                             <div class="expense-summary-item">
-                                <div class="label">Payment method</div>
-                                <div class="value">{{ $methodValue }}</div>
+                                <div class="label">Cash account</div>
+                                <div class="value">{{ $selectedAccountLabel }}</div>
                             </div>
                             <div class="expense-summary-item">
                                 <div class="label">Reference</div>

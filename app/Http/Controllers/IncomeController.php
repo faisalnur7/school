@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\HandCash;
 use App\Models\Income;
 use App\Models\IncomeCategory;
 use App\Models\Transaction;
@@ -55,10 +56,11 @@ class IncomeController extends Controller
         $categories = IncomeCategory::where('is_active', true)
             ->whereNotIn('name', $excludedCategories)
             ->get();
+        $accountGroups = $this->incomeAccountGroups();
 
         $incomes    = Income::with('category')->latest('income_date')->paginate(15);
         $total      = Income::sum('amount');
-        return view('pages.incomes.create', compact('categories', 'incomes', 'total'));
+        return view('pages.incomes.create', compact('categories', 'accountGroups', 'incomes', 'total'));
     }
 
     public function store(Request $request)
@@ -68,8 +70,8 @@ class IncomeController extends Controller
             'title'              => 'required|string|max:255',
             'amount'             => 'required|numeric|min:0.01',
             'income_date'        => 'required|date_format:d/m/Y',
-            'payment_method'     => 'required|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other',
-            'account_id'         => 'nullable|integer',
+            'account_type'       => 'required|in:App\\Models\\HandCash',
+            'account_id'         => 'required|integer',
             'reference_no'       => 'nullable|string|max:100',
             'description'        => 'nullable|string',
             'attachment'         => 'nullable|mimes:jpg,jpeg,png,pdf|max:100',
@@ -77,11 +79,13 @@ class IncomeController extends Controller
 
         $data = $request->only([
             'income_category_id', 'title', 'amount',
-            'income_date', 'payment_method', 'account_type', 'account_id', 'reference_no', 'description',
+            'income_date', 'account_type', 'account_id', 'reference_no', 'description',
         ]);
 
         $data['income_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->income_date)->format('Y-m-d');
         $data['recorded_by'] = auth()->id();
+        $data['account_type'] = HandCash::class;
+        $data['payment_method'] = 'Cash';
 
         if ($request->hasFile('attachment')) {
             $data['attachment'] = $request->file('attachment')->store('incomes', 'public');
@@ -120,9 +124,10 @@ class IncomeController extends Controller
     public function edit(Income $income)
     {
         $categories = IncomeCategory::where('is_active', true)->get();
+        $accountGroups = $this->incomeAccountGroups();
         $incomes    = Income::with('category')->latest('income_date')->paginate(15);
         $total      = Income::sum('amount');
-        return view('pages.incomes.edit', compact('income', 'categories', 'incomes', 'total'));
+        return view('pages.incomes.edit', compact('income', 'categories', 'accountGroups', 'incomes', 'total'));
     }
 
     public function update(Request $request, Income $income)
@@ -132,9 +137,8 @@ class IncomeController extends Controller
             'title'              => 'required|string|max:255',
             'amount'             => 'required|numeric|min:0.01',
             'income_date'        => 'required|date_format:d/m/Y',
-            'payment_method'     => 'required|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other',
-            'account_type'       => 'nullable|in:App\\Models\\HandCash,App\\Models\\BankAccount,App\\Models\\MobileBankingAccount',
-            'account_id'         => 'nullable|integer',
+            'account_type'       => 'required|in:App\\Models\\HandCash',
+            'account_id'         => 'required|integer',
             'reference_no'       => 'nullable|string|max:100',
             'description'        => 'nullable|string',
             'attachment'         => 'nullable|mimes:jpg,jpeg,png,pdf|max:100',
@@ -142,10 +146,12 @@ class IncomeController extends Controller
 
         $data = $request->only([
             'income_category_id', 'title', 'amount',
-            'income_date', 'payment_method', 'account_type', 'account_id', 'reference_no', 'description',
+            'income_date', 'account_type', 'account_id', 'reference_no', 'description',
         ]);
 
         $data['income_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->income_date)->format('Y-m-d');
+        $data['account_type'] = HandCash::class;
+        $data['payment_method'] = 'Cash';
 
         if ($request->hasFile('attachment')) {
             if ($income->attachment) {
@@ -199,22 +205,40 @@ class IncomeController extends Controller
     {
         $setting = SchoolSetting::current();
 
-        $fromAccountName = $income->account_type
-            ? class_basename($income->account_type)
-            : 'Cash / Petty Cash';
+        $fromAccountName = $income->account_display_name ?: 'Cash / Petty Cash';
 
         $rows = [[
-            'description' => $income->title ?: ($income->description ?? 'Income received'),
+            'description' => $income->title ?: 'Income received',
+            'note' => $income->description,
             'amount' => $income->amount,
         ]];
 
         return view('pages.vouchers.print', [
             'setting' => $setting,
-            'voucherType' => 'Debit Voucher',
+            'voucherType' => 'Credit Voucher',
             'record' => $income,
             'fromAccountName' => $fromAccountName,
             'rows' => $rows,
             'total' => $income->amount,
+            'showSummary' => false,
         ]);
+    }
+
+    private function incomeAccountGroups(): array
+    {
+        return [
+            [
+                'label' => 'Cash Accounts',
+                'accounts' => \App\Models\HandCash::where('is_active', true)
+                    ->orderBy('label')
+                    ->get()
+                    ->map(fn (HandCash $account) => [
+                        'id' => $account->id,
+                        'label' => $account->label,
+                        'type' => HandCash::class,
+                    ])
+                    ->all(),
+            ],
+        ];
     }
 }

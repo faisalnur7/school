@@ -61,7 +61,7 @@
                         <th>Title</th>
                         <th>Description</th>
                         <th>Date</th>
-                        <th>Method</th>
+                        <th>Cash Account</th>
                         <th>Amount</th>
                         <th>Attachment</th>
                         <th width="120">Action</th>
@@ -81,7 +81,7 @@
                             <td class="mono" style="font-size:13px">{{ $income->income_date->format('d/m/Y') }}</td>
                             <td>
                                 <span class="badge" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-size:11px">
-                                    {{ $income->payment_method }}
+                                    {{ $income->account_display_name }}
                                 </span>
                             </td>
                             <td class="mono fw-bold" style="color:#4338ca">

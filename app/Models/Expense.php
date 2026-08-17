@@ -65,6 +65,27 @@ class Expense extends Model
         return $this->morphTo('account', 'account_type', 'account_id');
     }
 
+    public function getAccountDisplayNameAttribute(): string
+    {
+        $accountType = $this->account_type;
+        $accountId   = $this->account_id;
+
+        if ($accountType && $accountId) {
+            $account = $this->account;
+
+            if ($account) {
+                return match ($accountType) {
+                    BankAccount::class          => $account->bank_name . ' — ' . $account->account_number,
+                    MobileBankingAccount::class => $account->provider . ' — ' . $account->account_number,
+                    HandCash::class             => $account->label,
+                    default                     => $this->payment_method ?? '—',
+                };
+            }
+        }
+
+        return $this->payment_method ?? '—';
+    }
+
     public function getAccountModelAttribute()
     {
         return match($this->account_type) {

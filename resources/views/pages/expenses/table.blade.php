@@ -61,7 +61,7 @@
                         <th>Title</th>
                         <th>Description</th>
                         <th>Date</th>
-                        <th>Method</th>
+                        <th>Account</th>
                         <th>Amount</th>
                         <th>Attachment</th>
                         <th width="120">Action</th>
@@ -81,7 +81,7 @@
                             <td class="mono" style="font-size:13px">{{ $expense->expense_date->format('d/m/Y') }}</td>
                             <td>
                                 <span class="badge" style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;font-size:11px">
-                                    {{ $expense->payment_method }}
+                                    {{ $expense->account_display_name }}
                                 </span>
                             </td>
                             <td class="mono fw-bold" style="color:#e11d48">
