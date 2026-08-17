@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Account;
+use App\Models\HandCash;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Transaction;
@@ -13,6 +14,7 @@ use App\Services\JournalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Validation\ValidationException;
 
 class ExpenseController extends Controller
 {
@@ -42,9 +44,10 @@ class ExpenseController extends Controller
     public function create()
     {
         $categories = ExpenseCategory::where('is_active', true)->get();
+        $accountGroups = $this->expenseAccountGroups();
         $expenses   = Expense::with('category')->latest('expense_date')->paginate(15);
         $total      = Expense::sum('amount');
-        return view('pages.expenses.create', compact('categories', 'expenses', 'total'));
+        return view('pages.expenses.create', compact('categories', 'accountGroups', 'expenses', 'total'));
     }
 
     public function store(Request $request)
@@ -54,8 +57,8 @@ class ExpenseController extends Controller
             'title'               => 'required|string|max:255',
             'amount'              => 'required|numeric|min:0.01',
             'expense_date'        => 'required|date_format:d/m/Y',
-            'payment_method'      => 'required|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other',
-            'account_id'          => 'nullable|integer',
+            'account_type'        => 'required|in:App\\Models\\HandCash',
+            'account_id'          => 'required|integer',
             'reference_no'        => 'nullable|string|max:100',
             'description'         => 'nullable|string',
             'attachment'         => 'nullable|mimes:jpg,jpeg,png,pdf|max:100',
@@ -70,6 +73,14 @@ class ExpenseController extends Controller
         $data['expense_date'] = Carbon::createFromFormat('d/m/Y', $request->expense_date)->format('Y-m-d');
         $data['recorded_by']  = auth()->id();
         $data['reference_no'] = $data['reference_no'] ?: Expense::generateReference($data['expense_date']);
+        $data['account_type'] = HandCash::class;
+        $data['payment_method'] = 'Cash';
+
+        if (! $this->resolveExpenseAccount($data['account_type'], (int) $data['account_id'])) {
+            throw ValidationException::withMessages([
+                'account_id' => 'Please choose a valid active account.',
+            ]);
+        }
 
         $storedAttachment = null;
         if ($request->hasFile('attachment')) {
@@ -120,9 +131,10 @@ class ExpenseController extends Controller
     public function edit(Expense $expense)
     {
         $categories = ExpenseCategory::where('is_active', true)->get();
+        $accountGroups = $this->expenseAccountGroups();
         $expenses   = Expense::with('category')->latest('expense_date')->paginate(15);
         $total      = Expense::sum('amount');
-        return view('pages.expenses.edit', compact('expense', 'categories', 'expenses', 'total'));
+        return view('pages.expenses.edit', compact('expense', 'categories', 'accountGroups', 'expenses', 'total'));
     }
 
     public function update(Request $request, Expense $expense)
@@ -132,8 +144,8 @@ class ExpenseController extends Controller
             'title'               => 'required|string|max:255',
             'amount'              => 'required|numeric|min:0.01',
             'expense_date'        => 'required|date_format:d/m/Y',
-            'payment_method'      => 'required|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other',
-            'account_id'          => 'nullable|integer',
+            'account_type'        => 'required|in:App\\Models\\HandCash',
+            'account_id'          => 'required|integer',
             'reference_no'        => 'nullable|string|max:100',
             'description'         => 'nullable|string',
             'attachment'         => 'nullable|mimes:jpg,jpeg,png,pdf|max:100',
@@ -147,6 +159,14 @@ class ExpenseController extends Controller
 
         $data['expense_date'] = Carbon::createFromFormat('d/m/Y', $request->expense_date)->format('Y-m-d');
         $data['reference_no'] = $data['reference_no'] ?: $expense->reference_no ?: Expense::generateReference($data['expense_date']);
+        $data['account_type'] = HandCash::class;
+        $data['payment_method'] = 'Cash';
+
+        if (! $this->resolveExpenseAccount($data['account_type'], (int) $data['account_id'])) {
+            throw ValidationException::withMessages([
+                'account_id' => 'Please choose a valid active account.',
+            ]);
+        }
 
         $storedAttachment = null;
         if ($request->hasFile('attachment')) {
@@ -208,23 +228,49 @@ class ExpenseController extends Controller
     {
         $setting = SchoolSetting::current();
 
-        $fromAccountName = $expense->account_type
-            ? class_basename($expense->account_type)
-            : 'Cash / Petty Cash';
+        $fromAccountName = $expense->account_display_name ?: 'Cash / Petty Cash';
 
         $rows = [[
-            'description' => $expense->title ?: ($expense->description ?? 'Expense paid'),
+            'description' => $expense->title ?: 'Expense paid',
+            'note' => $expense->description,
             'amount' => $expense->amount,
         ]];
 
         return view('pages.vouchers.print', [
             'setting' => $setting,
-            'voucherType' => 'Credit Voucher',
+            'voucherType' => 'Debit Voucher',
             'record' => $expense,
             'fromAccountName' => $fromAccountName,
             'rows' => $rows,
             'total' => $expense->amount,
+            'showSummary' => false,
         ]);
+    }
+
+    private function expenseAccountGroups(): array
+    {
+        return [
+            [
+                'label' => 'Cash Accounts',
+                'accounts' => HandCash::where('is_active', true)
+                    ->orderBy('label')
+                    ->get()
+                    ->map(fn (HandCash $account) => [
+                        'id' => $account->id,
+                        'label' => $account->label,
+                        'type' => HandCash::class,
+                    ])
+                    ->all(),
+            ],
+        ];
+    }
+
+    private function resolveExpenseAccount(string $accountType, int $accountId): mixed
+    {
+        return match ($accountType) {
+            HandCash::class => HandCash::where('is_active', true)->find($accountId),
+            default => null,
+        };
     }
 
     private function storeExpenseAttachment($file, string $referenceNo): string

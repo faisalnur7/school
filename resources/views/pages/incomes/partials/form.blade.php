@@ -6,7 +6,7 @@
     $submitLabel = $submitLabel ?? ($isEdit ? 'Update Income' : 'Save Income');
     $submitIcon = $submitIcon ?? ($isEdit ? 'fa-save' : 'fa-save');
     $backRoute = $backRoute ?? route('incomes.index');
-    $methodValue = old('payment_method', data_get($incomeData, 'payment_method', 'Cash'));
+    $selectedAccountType = old('account_type', data_get($incomeData, 'account_type', \App\Models\HandCash::class));
     $selectedAccountId = old('account_id', data_get($incomeData, 'account_id', ''));
     $referenceValue = old('reference_no', data_get($incomeData, 'reference_no', 'Optional'));
     $incomeDateValue = old('income_date', $isEdit ? $income->income_date->format('d/m/Y') : '');
@@ -27,7 +27,7 @@
                 </div>
                 <h3 class="mb-1 font-weight-bold text-white">{{ $pageTitle }}</h3>
                 <div style="color:#cbd5e1;font-size:0.92rem">
-                    Capture the income details, payment channel, and attachment in one consistent form.
+                    Capture the income details, cash account, and attachment in one consistent form.
                 </div>
             </div>
             <a href="{{ $backRoute }}" class="btn btn-light btn-sm">
@@ -131,14 +131,25 @@
 
                                 <div class="col-md-4">
                                     <div class="form-group mb-2">
-                                        <label class="small mb-1">Payment Method</label>
-                                        <select id="paymentMethod" name="payment_method" class="form-control form-control-sm @error('payment_method') is-invalid @enderror" required>
-                                            @foreach (['Cash', 'Bank Transfer', 'Cheque', 'Mobile Banking', 'Other'] as $method)
-                                                <option value="{{ $method }}" {{ $methodValue == $method ? 'selected' : '' }}>{{ $method }}</option>
+                                        <label class="small mb-1">Cash Account</label>
+                                        <select name="account_id" id="incomeAccountSelect" class="form-control form-control-sm @error('account_id') is-invalid @enderror" required data-selected="{{ $selectedAccountId }}" data-selected-type="{{ $selectedAccountType }}">
+                                            <option value="">Select Cash Account</option>
+                                            @foreach (($accountGroups ?? []) as $group)
+                                                <optgroup label="{{ $group['label'] }}">
+                                                    @foreach ($group['accounts'] as $account)
+                                                        <option value="{{ $account['id'] }}" data-account-type="{{ $account['type'] }}" {{ (string) $selectedAccountId === (string) $account['id'] ? 'selected' : '' }}>
+                                                            {{ $account['label'] }}
+                                                        </option>
+                                                    @endforeach
+                                                </optgroup>
                                             @endforeach
                                         </select>
-                                        @error('payment_method')
+                                        <input type="hidden" name="account_type" id="incomeAccountType" value="{{ $selectedAccountType }}">
+                                        @error('account_id')
                                             <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                        @error('account_type')
+                                            <span class="invalid-feedback d-block">{{ $message }}</span>
                                         @enderror
                                     </div>
                                 </div>
@@ -158,23 +169,10 @@
                         <div class="income-section">
                             <div class="income-section-title">
                                 <i class="fas fa-wallet"></i>
-                                <span>Account & Notes</span>
+                                <span>Notes</span>
                             </div>
-                            <input type="hidden" name="account_type" id="incomeAccountType" value="{{ old('account_type', data_get($incomeData, 'account_type', '')) }}">
 
                             <div class="row">
-                                <div class="col-md-4" id="incomeAccountWrapper" style="display: none;">
-                                    <div class="form-group mb-2">
-                                        <label class="small mb-1">Account <span class="text-muted">(optional)</span></label>
-                                        <select name="account_id" id="incomeAccountSelect" class="form-control form-control-sm @error('account_id') is-invalid @enderror" data-selected="{{ $selectedAccountId }}">
-                                            <option value="">Select Account</option>
-                                        </select>
-                                        @error('account_id')
-                                            <span class="invalid-feedback">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-
                                 <div class="col-md-8">
                                     <div class="form-group mb-2">
                                         <label class="small mb-1">Description <span class="text-muted">(optional)</span></label>
@@ -258,8 +256,8 @@
 
                         <div class="income-summary-list">
                             <div class="income-summary-item">
-                                <div class="label">Payment method</div>
-                                <div class="value">{{ $methodValue }}</div>
+                                <div class="label">Cash account</div>
+                                <div class="value">{{ old('account_id') ? 'Selected cash account' : ($isEdit ? ($income->account_display_name ?? 'Select cash account') : 'Select cash account') }}</div>
                             </div>
                             <div class="income-summary-item">
                                 <div class="label">Reference</div>

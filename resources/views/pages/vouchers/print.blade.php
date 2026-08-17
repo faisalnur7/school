@@ -24,10 +24,10 @@
         .voucher-badge { display: inline-block; text-transform: uppercase; border: 1px solid #111827; padding: 4px 16px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: .08em; }
 
         /* Meta grid */
-        .voucher-meta { display: grid; grid-template-columns: auto auto 1fr; gap: 6px; margin-bottom: 10px; }
+        .voucher-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 6px; margin-bottom: 10px; }
         .meta-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 7px 10px; }
         .meta-card strong { display: block; font-size: 9.5px; color: #64748b; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
-        .meta-card span { font-size: 12px; font-weight: 600; color: #0f172a; white-space: nowrap; }
+        .meta-card span { font-size: 12px; font-weight: 600; color: #0f172a; white-space: normal; word-break: break-word; }
 
         /* Table */
         .detail-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
@@ -61,6 +61,9 @@
     </style>
 </head>
 <body>
+@php
+    $showSummary = $showSummary ?? true;
+@endphp
 <div class="page">
 
     <div class="no-print">
@@ -96,7 +99,7 @@
             <span>{{ $record->reference_no ?? 'N/A' }}</span>
         </div>
         <div class="meta-card">
-            <strong>Supplier</strong>
+            <strong>Account</strong>
             <span>{{ $fromAccountName }}</span>
         </div>
     </div>
@@ -114,7 +117,12 @@
         <tbody>
             @foreach($rows as $row)
                 <tr>
-                    <td>{{ $row['description'] }}</td>
+                    <td>
+                        <div>{{ $row['description'] }}</div>
+                        @if(!empty($row['note']))
+                            <div style="margin-top:2px;color:#64748b;font-size:10px;line-height:1.35">{{ $row['note'] }}</div>
+                        @endif
+                    </td>
                     <td>{{ $row['quantity'] ?? '—' }}</td>
                     <td class="amount">{{ isset($row['unit_price']) ? number_format($row['unit_price'], 2) : '—' }}</td>
                     <td class="amount">{{ number_format($row['amount'], 2) }}</td>
@@ -127,39 +135,41 @@
         </tbody>
     </table>
 
-    <div class="due-summary">
-        <div class="due-box">
-            <span class="label">Subtotal</span>
-            <span class="value">{{ number_format((float) $record->total_amount, 2) }}</span>
+    @if($showSummary)
+        <div class="due-summary">
+            <div class="due-box">
+                <span class="label">Subtotal</span>
+                <span class="value">{{ number_format((float) $record->total_amount, 2) }}</span>
+            </div>
+            <div class="due-box paid">
+                <span class="label">Paid</span>
+                <span class="value">{{ number_format((float) ($record->paid_amount ?? 0), 2) }}</span>
+            </div>
+            <div class="due-box due">
+                <span class="label">Due</span>
+                <span class="value">{{ number_format((float) ($record->due_amount ?? 0), 2) }}</span>
+            </div>
+            <div class="due-box status">
+                <span class="label">Status</span>
+                <span class="value">{{ ucfirst($record->status ?? 'unpaid') }}</span>
+            </div>
         </div>
-        <div class="due-box paid">
-            <span class="label">Paid</span>
-            <span class="value">{{ number_format((float) ($record->paid_amount ?? 0), 2) }}</span>
-        </div>
-        <div class="due-box due">
-            <span class="label">Due</span>
-            <span class="value">{{ number_format((float) ($record->due_amount ?? 0), 2) }}</span>
-        </div>
-        <div class="due-box status">
-            <span class="label">Status</span>
-            <span class="value">{{ ucfirst($record->status ?? 'unpaid') }}</span>
-        </div>
-    </div>
 
-    @php
-        $formatter = new \NumberFormatter('en', \NumberFormatter::SPELLOUT);
-        $amountString = number_format((float) $total, 2, '.', '');
-        [$whole, $fraction] = explode('.', $amountString);
-        $words = ucfirst(trim($formatter->format((int) $whole) ?: 'Zero')) . ' Taka';
-        if ((int) $fraction > 0) {
-            $words .= ' and ' . trim($formatter->format((int) $fraction)) . ' Paisa';
-        }
-        $amountInWords = $words . ' Only';
-    @endphp
+        @php
+            $formatter = new \NumberFormatter('en', \NumberFormatter::SPELLOUT);
+            $amountString = number_format((float) $total, 2, '.', '');
+            [$whole, $fraction] = explode('.', $amountString);
+            $words = ucfirst(trim($formatter->format((int) $whole) ?: 'Zero')) . ' Taka';
+            if ((int) $fraction > 0) {
+                $words .= ' and ' . trim($formatter->format((int) $fraction)) . ' Paisa';
+            }
+            $amountInWords = $words . ' Only';
+        @endphp
 
-    <div class="amount-words">
-        <strong>Invoice amount in words:</strong> {{ $amountInWords }}
-    </div>
+        <div class="amount-words">
+            <strong>Amount in words:</strong> {{ $amountInWords }}
+        </div>
+    @endif
 
     <!-- Signatures -->
     <div class="signatures">
