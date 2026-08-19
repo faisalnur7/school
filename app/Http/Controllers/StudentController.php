@@ -712,7 +712,7 @@ class StudentController extends Controller
                 'nullable',
                 'image',
                 'mimes:jpeg,png,jpg,gif,webp',
-                'max:100',
+                'max:200',
                 'dimensions:min_width=' . self::STUDENT_IMAGE_MIN_WIDTH .
                     ',max_width=' . self::STUDENT_IMAGE_MAX_WIDTH .
                     ',min_height=' . self::STUDENT_IMAGE_MIN_HEIGHT .

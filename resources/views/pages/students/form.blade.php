@@ -258,12 +258,12 @@
                                     </div>
                                 </div>
                                 <p class="student-basic-media__note">Use a clear portrait photo. The preview stays compact and aligned with the student identity fields.</p>
+                                <input type="file" id="studentImageInput" name="image" class="d-none" accept="image/*">
+                                <div id="studentImageValidationError" class="mt-2 text-sm text-danger"></div>
+                                @error('image')
+                                    <div class="mt-2 text-sm text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
-                            <input type="file" id="studentImageInput" name="image" class="d-none" accept="image/*">
-                            <div id="studentImageValidationError" class="mt-2 text-sm text-danger"></div>
-                            @error('image')
-                                <div class="mt-2 text-sm text-danger">{{ $message }}</div>
-                            @enderror
                         </div>
                     @else
                         <div class="student-basic-media">
@@ -273,10 +273,10 @@
                                     <input type="file" class="border-gray-300 rounded-lg p-2 w-full" name="image" accept="image/*">
                                 </div>
                                 <p class="student-basic-media__note">Use a clear portrait photo. The preview stays compact and aligned with the student identity fields.</p>
+                                @error('image')
+                                    <div class="mt-2 text-sm text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
-                            @error('image')
-                                <div class="mt-2 text-sm text-danger">{{ $message }}</div>
-                            @enderror
                         </div>
                     @endif
                 </div>
