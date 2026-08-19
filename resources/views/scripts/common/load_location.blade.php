@@ -184,16 +184,25 @@
 
             // Set permanent division and trigger cascade
             $("select[name='permanent_division_id']").val(presentDivision);
+            if (window.refreshSelect2) {
+                refreshSelect2($("select[name='permanent_division_id']"));
+            }
 
             // Load districts, then set district value
             loadDistricts(presentDivision, $("select[name='permanent_district_id']"), function() {
                 $("select[name='permanent_district_id']").val(presentDistrict);
+                if (window.refreshSelect2) {
+                    refreshSelect2($("select[name='permanent_district_id']"));
+                }
 
                 // Load police stations, then set police station value
                 loadPoliceStations(presentDistrict, $(
                     "select[name='permanent_police_station_id']"), function() {
                     $("select[name='permanent_police_station_id']").val(
                         presentPoliceStation);
+                    if (window.refreshSelect2) {
+                        refreshSelect2($("select[name='permanent_police_station_id']"));
+                    }
 
                     // Load post offices, then set post office value
                     loadPostOffices(presentPoliceStation, $(
@@ -201,6 +210,9 @@
                         function() {
                             $("select[name='permanent_post_office_id']").val(
                                 presentPostOffice);
+                            if (window.refreshSelect2) {
+                                refreshSelect2($("select[name='permanent_post_office_id']"));
+                            }
                         });
                 });
             });
@@ -208,10 +220,9 @@
             // Copy textarea
             $("textarea[name='permanent_address']").val(presentAddress);
 
-            // Disable permanent address fields
-            $("#permanent_address_section select, #permanent_address_section textarea")
-                .prop('disabled', true)
-                .addClass('bg-gray-100 cursor-not-allowed');
+            // Lock permanent address fields visually but keep them submit-able
+            $("#permanent_address_section")
+                .addClass('student-address-synced');
 
             if (showToast) {
                 toastr.info('Permanent address copied from present address');
@@ -219,10 +230,9 @@
         }
 
         function enablePermanentAddressFields(showToast = true) {
-            // Enable permanent address fields
-            $("#permanent_address_section select, #permanent_address_section textarea")
-                .prop('disabled', false)
-                .removeClass('bg-gray-100 cursor-not-allowed');
+            // Unlock permanent address fields
+            $("#permanent_address_section")
+                .removeClass('student-address-synced');
 
             if (showToast) {
                 toastr.warning('Permanent address fields enabled');
@@ -258,19 +268,23 @@
                     // Handle cascading updates
                     if (fieldName === 'present_division_id') {
                         permanentField.val(selectedValue);
+                        if (window.refreshSelect2) refreshSelect2(permanentField);
                         loadDistricts(selectedValue, $("select[name='permanent_district_id']"));
                         resetDropdowns($("select[name='permanent_police_station_id']"), $(
                             "select[name='permanent_post_office_id']"));
                     } else if (fieldName === 'present_district_id') {
                         permanentField.val(selectedValue);
+                        if (window.refreshSelect2) refreshSelect2(permanentField);
                         loadPoliceStations(selectedValue, $(
                             "select[name='permanent_police_station_id']"));
                         resetDropdowns($("select[name='permanent_post_office_id']"));
                     } else if (fieldName === 'present_police_station_id') {
                         permanentField.val(selectedValue);
+                        if (window.refreshSelect2) refreshSelect2(permanentField);
                         loadPostOffices(selectedValue, $("select[name='permanent_post_office_id']"));
                     } else if (fieldName === 'present_post_office_id') {
                         permanentField.val(selectedValue);
+                        if (window.refreshSelect2) refreshSelect2(permanentField);
                     }
                 } else if ($(this).is('textarea')) {
                     permanentField.val($(this).val());

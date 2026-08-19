@@ -139,7 +139,14 @@
         // ============= EDIT FORM SAME ADDRESS CHECK =============
 
         @if (isset($student))
-            @if ($student->present_address === $student->permanent_address)
+            @php
+                $permanentAddressFieldsEmpty = empty($student->permanent_division_id)
+                    && empty($student->permanent_district_id)
+                    && empty($student->permanent_police_station_id)
+                    && empty($student->permanent_post_office_id)
+                    && blank($student->permanent_address);
+            @endphp
+            @if ($student->present_address === $student->permanent_address || $permanentAddressFieldsEmpty)
                 $('#same_address').prop('checked', true);
                 if (typeof window.handleSameAddressChange === 'function') {
                     window.handleSameAddressChange(false);
