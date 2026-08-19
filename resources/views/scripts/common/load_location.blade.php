@@ -220,10 +220,9 @@
             // Copy textarea
             $("textarea[name='permanent_address']").val(presentAddress);
 
-            // Disable permanent address fields
-            $("#permanent_address_section select, #permanent_address_section textarea")
-                .prop('disabled', true)
-                .addClass('bg-gray-100 cursor-not-allowed');
+            // Lock permanent address fields visually but keep them submit-able
+            $("#permanent_address_section")
+                .addClass('student-address-synced');
 
             if (showToast) {
                 toastr.info('Permanent address copied from present address');
@@ -231,10 +230,9 @@
         }
 
         function enablePermanentAddressFields(showToast = true) {
-            // Enable permanent address fields
-            $("#permanent_address_section select, #permanent_address_section textarea")
-                .prop('disabled', false)
-                .removeClass('bg-gray-100 cursor-not-allowed');
+            // Unlock permanent address fields
+            $("#permanent_address_section")
+                .removeClass('student-address-synced');
 
             if (showToast) {
                 toastr.warning('Permanent address fields enabled');

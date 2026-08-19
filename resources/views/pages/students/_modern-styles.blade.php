@@ -309,6 +309,13 @@
         line-height: 1.35;
     }
 
+    .student-form-page .student-address-synced select,
+    .student-form-page .student-address-synced textarea {
+        pointer-events: none;
+        background: #f8fafc;
+        color: #64748b;
+    }
+
     #guardianInfoFields {
         overflow: hidden;
     }

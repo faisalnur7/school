@@ -344,7 +344,7 @@
                         </div>
 
                         <textarea name="present_address" rows="3" class="border-gray-300 rounded-lg p-2 w-full mt-2"
-                            placeholder="Present Address">{{ old('present_address') }}</textarea>
+                            placeholder="Present Address">{{ old('present_address', $student->present_address ?? '') }}</textarea>
                     </div>
 
                     <!-- Permanent Address -->
