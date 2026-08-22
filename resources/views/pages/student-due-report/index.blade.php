@@ -367,6 +367,14 @@
                                                     <a href="{{ route('fees.collect_payment', ['student_id' => $student->student_id]) }}" class="btn btn-sm btn-primary">
                                                         Collect
                                                     </a>
+                                                    <a href="{{ route('fees.student-due-report.monthwise-pdf', [
+                                                        'student_id' => $student->student_id,
+                                                        'session_id' => request('session_id'),
+                                                        'class_id' => request('class_id'),
+                                                        'section_id' => request('section_id'),
+                                                    ]) }}" class="btn btn-sm btn-danger" title="Download monthwise payment report">
+                                                        <i class="fas fa-file-pdf"></i>
+                                                    </a>
                                                 @endif
                                             </td>
                                         </tr>

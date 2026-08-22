@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\DiscountCategory;
 
 class FreeStudentship extends Model
 {
@@ -15,6 +16,8 @@ class FreeStudentship extends Model
         'percentage',
         'academic_session_id',
         'fee_category_id',
+        'discount_category_id',
+        'attachment',
         'permitted_by',
         'status',
         'remarks',
@@ -50,6 +53,11 @@ class FreeStudentship extends Model
     public function feeCategory()
     {
         return $this->belongsTo(FeeCategory::class);
+    }
+
+    public function discountCategory()
+    {
+        return $this->belongsTo(DiscountCategory::class);
     }
 
     public function calculateDiscount($feeAmount)

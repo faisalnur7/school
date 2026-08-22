@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             ExamSeeder::class,
             SchoolClassSeeder::class,
             FeeCategorySeeder::class,
+            DiscountCategorySeeder::class,
             IncomeCategorySeeder::class,
             ExpenseCategorySeeder::class,
             HandCashSeeder::class,

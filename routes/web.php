@@ -648,6 +648,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/fees/all-in-one-report/pdf', [\App\Http\Controllers\AllInOneReportController::class, 'pdf'])->name('fees.all-in-one-report.pdf');
         Route::get('/fees/student-due-report', [\App\Http\Controllers\StudentDueReportController::class, 'index'])->name('fees.student-due-report');
         Route::get('/fees/student-due-report/pdf', [\App\Http\Controllers\StudentDueReportController::class, 'pdf'])->name('fees.student-due-report.pdf');
+        Route::get('/fees/student-due-report/monthwise-pdf', [\App\Http\Controllers\StudentDueReportController::class, 'monthwisePdf'])->name('fees.student-due-report.monthwise-pdf');
         Route::get('/fees/student-ledger/{student}', [\App\Http\Controllers\StudentLedgerReportController::class, 'show'])->name('fees.student-ledger.show');
         Route::get('/fees/student-ledger/{student}/pdf', [\App\Http\Controllers\StudentLedgerReportController::class, 'pdf'])->name('fees.student-ledger.pdf');
         Route::get('/fees/discount-list', [\App\Http\Controllers\DiscountListController::class, 'index'])->name('fees.discount-list');

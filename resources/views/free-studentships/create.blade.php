@@ -53,18 +53,20 @@
                     </div>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered free-studentship-table">
                         <thead>
                             <tr>
-                                <th width="8%">Roll</th>
-                                <th width="10%">Student ID</th>
-                                <th width="10%">Student Name</th>
-                                <th width="10%">Academic Info</th>
-                                <th width="10%">Fee Amount</th>
-                                <th width="27%">Type</th>
-                                <th width="10%">Value</th>
-                                <th width="14%">Permitted By</th>
-                                <th width="10%">Current Free Studentship</th>
+                                <th>Roll</th>
+                                <th>Student ID</th>
+                                <th>Student Name</th>
+                                <th>Academic Info</th>
+                                <th>Fee Amount</th>
+                                <th>Discount Category</th>
+                                <th>Type</th>
+                                <th>Value</th>
+                                <th>Permitted By</th>
+                                <th>Attachment</th>
+                                <th>Current Free Studentship</th>
                             </tr>
                         </thead>
                         <tbody id="studentTableBody">
@@ -79,6 +81,54 @@
     </div>
 </div>
 
+<style>
+    .free-studentship-table {
+        min-width: 1500px;
+        font-size: 13px;
+    }
+
+    .free-studentship-table th,
+    .free-studentship-table td {
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    .free-studentship-table th:nth-child(3),
+    .free-studentship-table td:nth-child(3) {
+        width: 180px;
+        white-space: normal;
+    }
+
+    .free-studentship-table th:nth-child(4),
+    .free-studentship-table td:nth-child(4) {
+        width: 170px;
+        white-space: normal;
+    }
+
+    .free-studentship-table .student-name {
+        display: inline-block;
+        font-size: 14px;
+        line-height: 1.35;
+        color: #1f2937;
+    }
+
+    .free-studentship-table .academic-info {
+        display: inline-block;
+        font-size: 12px;
+        line-height: 1.65;
+        color: #374151;
+    }
+
+    .free-studentship-table .form-control {
+        min-width: 120px;
+    }
+
+    .free-studentship-table .free-studentship-attachment {
+        width: 180px;
+        font-size: 12px;
+    }
+</style>
+
 @endsection
 
 @section('scripts')
@@ -87,6 +137,10 @@
 <script>
 $(document).ready(function() {
     let studentsData = [];
+    const discountCategories = @json($discountCategories->map(fn ($category) => ['id' => $category->id, 'name' => $category->name])->values());
+    const discountCategoryOptions = discountCategories.map(function(category) {
+        return `<option value="${category.id}">${category.name}</option>`;
+    }).join('');
 
     function notify(message, type = 'info') {
         if (window.toastr && typeof window.toastr[type] === 'function') {
@@ -144,12 +198,12 @@ $(document).ready(function() {
                     <td>${student.roll || '—'}</td>
                     <td>${student.student_cid}</td>
                     <td>
-                        <strong>${student.name}</strong>
+                        <strong class="student-name">${student.name}</strong>
                         <br><small class="text-muted">Father: ${student.father_name || '—'}</small>
                         <br><small class="text-muted">Mother: ${student.mother_name || '—'}</small>
                     </td>
                     <td>
-                        <small>
+                        <small class="academic-info">
                             <strong>Class:</strong> ${student.class || '—'}<br>
                             <strong>Section:</strong> ${student.section || '—'}<br>
                             <strong>Group:</strong> ${student.group || '—'}<br>
@@ -157,6 +211,12 @@ $(document).ready(function() {
                         </small>
                     </td>
                     <td><strong>${feeAmount}</strong></td>
+                    <td>
+                        <select class="form-control free-studentship-discount-category">
+                            <option value="">Select category</option>
+                            ${discountCategoryOptions}
+                        </select>
+                    </td>
                     <td>
                         <select class="form-control free-studentship-type">
                             <option value="">No Free Studentship</option>
@@ -177,11 +237,18 @@ $(document).ready(function() {
                                value="${student.existing_permitted_by || ''}"
                                maxlength="255">
                     </td>
+                    <td>
+                        <input type="file" class="form-control-file free-studentship-attachment" accept="image/*">
+                        ${student.existing_attachment ? `<a href="/${student.existing_attachment}" target="_blank" class="small">View current</a>` : ''}
+                    </td>
                     <td class="text-center">${existingInfo}</td>
                 </tr>
             `;
         });
         $('#studentTableBody').html(html);
+        students.forEach(function(student, index) {
+            $('#studentTableBody tr').eq(index).find('.free-studentship-discount-category').val(student.existing_discount_category_id || '');
+        });
     }
 
     function applyBulkStudentshipValues() {
@@ -246,6 +313,7 @@ $(document).ready(function() {
             const rowType = $(this).find('.free-studentship-type').val();
             const rowValue = $(this).find('.free-studentship-value').val();
             const rowPermittedBy = $(this).find('.free-studentship-permitted-by').val();
+            const discountCategoryId = $(this).find('.free-studentship-discount-category').val();
             const type = bulkType || rowType;
             const value = bulkValue || rowValue;
             const permittedBy = bulkPermittedBy || rowPermittedBy;
@@ -257,7 +325,8 @@ $(document).ready(function() {
                     type: type,
                     amount: type === 'fixed' ? value : null,
                     percentage: type === 'percentage' ? value : null,
-                    permitted_by: permittedBy || null
+                    permitted_by: permittedBy || null,
+                    discount_category_id: discountCategoryId || null
                 });
             }
         });
@@ -267,18 +336,32 @@ $(document).ready(function() {
             return;
         }
 
+        const formData = new FormData();
+        formData.append('_token', '{{ csrf_token() }}');
+        formData.append('academic_session_id', sessionId);
+        formData.append('fee_category_id', feeCategoryId);
+        formData.append('bulk_type', bulkType || '');
+        formData.append('bulk_value', bulkValue || '');
+        formData.append('bulk_permitted_by', bulkPermittedBy || '');
+
+        freeStudentships.forEach(function(student, index) {
+            Object.keys(student).forEach(function(key) {
+                formData.append(`students[${index}][${key}]`, student[key] ?? '');
+            });
+
+            const row = $(`#studentTableBody tr[data-student-id="${student.student_id}"]`)[0];
+            const attachment = row?.querySelector('.free-studentship-attachment')?.files[0];
+            if (attachment) {
+                formData.append(`attachments[${student.student_id}]`, attachment);
+            }
+        });
+
         $.ajax({
             url: '{{ route("free-studentships.storeBulk") }}',
             method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                academic_session_id: sessionId,
-                fee_category_id: feeCategoryId,
-                bulk_type: bulkType || null,
-                bulk_value: bulkValue || null,
-                bulk_permitted_by: bulkPermittedBy || null,
-                students: freeStudentships
-            },
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function(response) {
                 notify(response.message, 'success');
                 window.location.href = '{{ route("free-studentships.index") }}';
