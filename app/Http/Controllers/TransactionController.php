@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BankAccount;
 use App\Models\HandCash;
 use App\Models\ExpenseCategory;
 use App\Models\IncomeCategory;
@@ -26,11 +25,16 @@ class TransactionController extends Controller
 
     public function pdf(Request $request)
     {
-        $html = view('pages.transactions.pdf', $this->reportData($request, true))->render();
+        $pdfStyle = $this->normalizePdfStyle($request->input('pdf_style', 'new'));
+        $view = $pdfStyle === 'old'
+            ? 'pages.transactions.pdf-old'
+            : 'pages.transactions.pdf';
+
+        $html = view($view, $this->reportData($request, true) + ['pdfStyle' => $pdfStyle])->render();
 
         $mpdf = new Mpdf(['orientation' => 'P', 'margin_top' => 8, 'margin_bottom' => 8, 'margin_left' => 10, 'margin_right' => 10]);
         $mpdf->WriteHTML($html);
-        $mpdf->Output('transactions-' . now()->format('Ymd') . '.pdf', 'D');
+        $mpdf->Output('transactions-' . $pdfStyle . '-' . now()->format('Ymd') . '.pdf', 'D');
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────
@@ -39,6 +43,7 @@ class TransactionController extends Controller
     {
         $viewType = $this->normalizeViewType($request->input('view_type', 'detailed'));
         $pdfDescriptionTypes = $this->normalizePdfDescriptionTypes($request);
+        $pdfStyle = $this->normalizePdfStyle($request->input('pdf_style', 'new'));
         $query = $this->buildQuery($request);
 
         [$totalIncome, $totalExpense, $totalCapital, $totalWithdrawal] = $this->totals($query);
@@ -54,6 +59,7 @@ class TransactionController extends Controller
         return [
             'viewType'          => $viewType,
             'pdfDescriptionTypes' => $pdfDescriptionTypes,
+            'pdfStyle'          => $pdfStyle,
             'transactions'      => $transactions,
             'transactionGroups' => $transactionGroups,
             'totalIncome'       => $totalIncome,
@@ -62,6 +68,9 @@ class TransactionController extends Controller
             'totalWithdrawal'   => $totalWithdrawal,
             'openingBalance'    => $openingBalance,
             'closingBalance'    => $closingBalance,
+            'reportFromDate'    => $this->parseReportDate($request->input('from')),
+            'reportToDate'      => $this->parseReportDate($request->input('to')),
+            'accountHeadLabel'  => $this->transactionAccountHeadLabel($request),
         ];
     }
 
@@ -108,12 +117,13 @@ class TransactionController extends Controller
 
     private function openingBalance(Request $request): float
     {
+        $openingBalance = $this->openingSeedBalance();
+
         if (! $request->filled('from')) {
-            return 0.0;
+            return $openingBalance;
         }
 
         $query = $this->buildQuery($request, false);
-        $openingBalance = $this->openingSeedBalance();
         $from = Carbon::createFromFormat('d/m/Y', $request->from)->toDateString();
         $before = (clone $query)->whereDate('transaction_date', '<', $from)->get();
 
@@ -126,7 +136,6 @@ class TransactionController extends Controller
     private function openingSeedBalance(): float
     {
         return (float) HandCash::where('is_active', true)->sum('opening_amount')
-            + BankAccount::where('is_active', true)->sum('opening_balance')
             + MobileBankingAccount::where('is_active', true)->sum('opening_balance');
     }
 
@@ -144,6 +153,56 @@ class TransactionController extends Controller
         ));
 
         return $selected;
+    }
+
+    private function normalizePdfStyle(?string $style): string
+    {
+        return match (strtolower(trim((string) $style))) {
+            'old', 'classic', 'legacy' => 'old',
+            default => 'new',
+        };
+    }
+
+    private function parseReportDate(?string $date): ?Carbon
+    {
+        if (! $date) {
+            return null;
+        }
+
+        try {
+            return Carbon::createFromFormat('d/m/Y', $date);
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    private function transactionAccountHeadLabel(Request $request): string
+    {
+        if ($request->filled('shareholder_id')) {
+            $shareholder = Shareholder::find($request->input('shareholder_id'));
+
+            if ($shareholder) {
+                return $shareholder->name;
+            }
+        }
+
+        [$categoryType, $categoryId] = $this->parseTransactionCategoryFilter($request->input('category_id'));
+
+        if ($categoryId) {
+            if ($categoryType === 'income') {
+                return IncomeCategory::find($categoryId)?->name ?? 'Income';
+            }
+
+            if ($categoryType === 'expense') {
+                return ExpenseCategory::find($categoryId)?->name ?? 'Expense';
+            }
+        }
+
+        if ($request->filled('type')) {
+            return ucfirst((string) $request->input('type'));
+        }
+
+        return 'All Transactions';
     }
 
     private function orderedQuery($query)

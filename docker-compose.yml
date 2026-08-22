@@ -58,6 +58,7 @@ services:
             PMA_USER: '${DB_USERNAME}'
             PMA_PASSWORD: '${DB_PASSWORD}'
             PMA_PORT: '${FORWARD_DB_PORT:-3306}'
+            UPLOAD_LIMIT: '512M'
         depends_on:
             - mysql
         networks:

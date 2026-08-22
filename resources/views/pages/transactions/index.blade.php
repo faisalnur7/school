@@ -116,6 +116,10 @@
             color: #1f2937;
         }
 
+        .transactions-report .transactions-pdf-select {
+            max-width: 180px;
+        }
+
         .transactions-report .transactions-filter-form {
             border: 1px solid #dbe4f0;
             border-radius: 18px;
@@ -259,6 +263,10 @@
             .transactions-report .transactions-pdf-checks {
                 grid-template-columns: 1fr;
             }
+
+            .transactions-report .transactions-pdf-select {
+                max-width: 100%;
+            }
         }
     </style>
 @endsection
@@ -271,7 +279,7 @@
         <div class="card-header shadow p-0 flex justify-between items-center">
             <h3 class="card-title flex text-white pl-3 text-medium">Transaction Report</h3>
             <div class="flex gap-2 pr-3 py-2 items-end ml-auto">
-                <a href="{{ route('transactions.pdf', request()->query()) }}" class="btn btn-sm btn-danger" style="margin-top:10px">
+                <a href="{{ route('transactions.pdf', request()->query()) }}" data-base-href="{{ route('transactions.pdf') }}" id="transactions-pdf-link" class="btn btn-sm btn-danger" style="margin-top:10px">
                     <i class="fas fa-file-pdf"></i> PDF
                 </a>
             </div>
@@ -293,6 +301,7 @@
                     'category_id',
                     'from',
                     'to',
+                    'pdf_style',
                     'pdf_desc_custom',
                     'pdf_description_types',
                 ]);
@@ -305,6 +314,7 @@
             <form method="GET" action="{{ route('transactions.index') }}" class="transactions-filter-form">
                 @php
                     $allPdfTypes = ['income', 'expense', 'capital', 'withdrawal'];
+                    $selectedPdfStyle = request('pdf_style', 'new');
                     $selectedPdfTypes = request()->boolean('pdf_desc_custom')
                         ? (array) request('pdf_description_types', [])
                         : $allPdfTypes;
@@ -379,13 +389,21 @@
                         <div class="transactions-pdf-panel">
                             <div class="transactions-pdf-header">
                                 <div class="transactions-pdf-copy">
-                                    <p class="transactions-pdf-title">PDF Description Selection</p>
-                                    <small class="transactions-pdf-subtitle">Choose which transaction types will show descriptions in the exported PDF list.</small>
+                                    <p class="transactions-pdf-title">PDF Options</p>
+                                    <small class="transactions-pdf-subtitle">Choose the PDF layout and which transaction types will show descriptions.</small>
                                 </div>
                                 <div class="form-check transactions-pdf-toggle mb-0">
                                     <input class="form-check-input" type="checkbox" id="pdf-description-toggle-all" checked>
                                     <label class="form-check-label" for="pdf-description-toggle-all">Select all</label>
                                 </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label mb-1" style="font-size:12px">PDF Style</label>
+                                <select name="pdf_style" id="transactions-pdf-style" class="form-control form-control-sm transactions-pdf-select">
+                                    <option value="new" {{ $selectedPdfStyle === 'new' ? 'selected' : '' }}>New style</option>
+                                    <option value="old" {{ $selectedPdfStyle === 'old' ? 'selected' : '' }}>Old style</option>
+                                </select>
                             </div>
 
                             <input type="hidden" name="pdf_desc_custom" value="1">
@@ -553,6 +571,9 @@
             const filterCollapse = document.getElementById('transactions-filter-collapse');
             const toggleAll = document.getElementById('pdf-description-toggle-all');
             const checkboxes = Array.from(document.querySelectorAll('.pdf-description-checkbox'));
+            const pdfLink = document.getElementById('transactions-pdf-link');
+            const filterForm = document.querySelector('.transactions-filter-form');
+            const pdfStyleSelect = document.getElementById('transactions-pdf-style');
 
             if (filterToggle && filterCollapse) {
                 const isMobile = window.matchMedia('(max-width: 767.98px)').matches;
@@ -573,9 +594,23 @@
                 });
             }
 
+            const syncPdfLink = () => {
+                if (!pdfLink || !filterForm) {
+                    return;
+                }
+
+                const params = new URLSearchParams(new FormData(filterForm));
+                const query = params.toString();
+                const baseHref = pdfLink.dataset.baseHref || pdfLink.href.split('?')[0];
+
+                pdfLink.href = query ? `${baseHref}?${query}` : baseHref;
+            };
+
             if (toggleAll && checkboxes.length) {
                 const syncToggleState = () => {
-                    toggleAll.checked = checkboxes.every((checkbox) => checkbox.checked);
+                    const checkedCount = checkboxes.filter((checkbox) => checkbox.checked).length;
+                    toggleAll.checked = checkedCount === checkboxes.length;
+                    toggleAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
                 };
 
                 toggleAll.addEventListener('change', function () {
@@ -589,6 +624,19 @@
                 });
 
                 syncToggleState();
+            }
+
+            if (filterForm && pdfLink) {
+                filterForm.querySelectorAll('input, select').forEach((input) => {
+                    input.addEventListener('change', syncPdfLink);
+                    input.addEventListener('input', syncPdfLink);
+                });
+
+                syncPdfLink();
+            }
+
+            if (pdfStyleSelect) {
+                pdfStyleSelect.addEventListener('change', syncPdfLink);
             }
         });
     </script>

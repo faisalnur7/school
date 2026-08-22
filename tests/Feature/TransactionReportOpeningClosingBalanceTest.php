@@ -3,7 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\ExpenseCategory;
+use App\Models\BankAccount;
 use App\Models\IncomeCategory;
+use App\Models\HandCash;
+use App\Models\MobileBankingAccount;
 use App\Models\Shareholder;
 use App\Models\Transaction;
 use App\Models\User;
@@ -216,5 +219,44 @@ class TransactionReportOpeningClosingBalanceTest extends TestCase
         $response->assertDontSee('value="expense:12" selected', false);
         $response->assertSee('Income - Admission Fee');
         $response->assertDontSee('Expense - Admission Supplies');
+    }
+
+    public function test_transaction_report_uses_opening_seed_balance_when_no_from_filter_is_provided(): void
+    {
+        $user = User::factory()->create([
+            'is_super_admin' => true,
+        ]);
+
+        HandCash::create([
+            'label' => 'Petty Cash',
+            'opening_amount' => 1200,
+            'opening_date' => '2026-01-01',
+            'is_active' => true,
+            'recorded_by' => $user->id,
+        ]);
+
+        BankAccount::create([
+            'bank_name' => 'City Bank',
+            'account_name' => 'Main Account',
+            'account_number' => '1234567890',
+            'opening_balance' => 5000,
+            'opening_date' => '2026-01-01',
+            'is_active' => true,
+        ]);
+
+        MobileBankingAccount::create([
+            'provider' => 'bKash',
+            'account_name' => 'Mobile Wallet',
+            'account_number' => '01700000000',
+            'opening_balance' => 300,
+            'opening_date' => '2026-01-01',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($user)->get(route('transactions.index'));
+
+        $response->assertOk();
+        $response->assertSee('Opening Balance');
+        $response->assertSee('1,500.00');
     }
 }
