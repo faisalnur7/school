@@ -8,11 +8,13 @@ use App\Models\AcademicSession;
 use App\Models\SchoolClass;
 use App\Models\FeeCategory;
 use App\Models\FeeSetItem;
+use App\Models\DiscountCategory;
 use App\Models\Section;
 use App\Models\Group;
 use App\Models\StudentAcademicInformation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class FreeStudentshipController extends Controller
 {
@@ -24,8 +26,9 @@ class FreeStudentshipController extends Controller
             ? Section::where('school_class_id', $request->class_id)->orderBy('name_en')->get()
             : collect();
         $groups = Group::orderBy('name_en')->get();
+        $discountCategories = DiscountCategory::orderBy('name')->get();
 
-        $freeStudentships = FreeStudentship::with(['student', 'academicSession', 'feeCategory', 'studentAcademicInformation.schoolClass', 'studentAcademicInformation.section', 'studentAcademicInformation.group'])
+        $freeStudentships = FreeStudentship::with(['student', 'academicSession', 'feeCategory', 'discountCategory', 'studentAcademicInformation.schoolClass', 'studentAcademicInformation.section', 'studentAcademicInformation.group'])
             ->when($request->filled('session_id'), fn($q) =>
                 $q->where('academic_session_id', $request->session_id)
             )
@@ -43,19 +46,22 @@ class FreeStudentshipController extends Controller
                 $q->whereHas('studentAcademicInformation', fn($q) =>
                     $q->where('group_id', $request->group_id)
                 )
+            )
+            ->when($request->filled('discount_category_id'), fn($q) =>
+                $q->where('discount_category_id', $request->discount_category_id)
             )
             ->latest()
             ->paginate(20)
             ->withQueryString();
 
         return view('free-studentships.index', compact(
-            'freeStudentships', 'sessions', 'classes', 'sections', 'groups'
+            'freeStudentships', 'sessions', 'classes', 'sections', 'groups', 'discountCategories'
         ));
     }
 
     public function pdf(Request $request)
     {
-        $freeStudentships = FreeStudentship::with(['student', 'academicSession', 'feeCategory', 'studentAcademicInformation.schoolClass', 'studentAcademicInformation.section', 'studentAcademicInformation.group'])
+        $freeStudentships = FreeStudentship::with(['student', 'academicSession', 'feeCategory', 'discountCategory', 'studentAcademicInformation.schoolClass', 'studentAcademicInformation.section', 'studentAcademicInformation.group'])
             ->when($request->filled('session_id'), fn($q) =>
                 $q->where('academic_session_id', $request->session_id)
             )
@@ -74,14 +80,25 @@ class FreeStudentshipController extends Controller
                     $q->where('group_id', $request->group_id)
                 )
             )
+            ->when($request->filled('discount_category_id'), fn($q) =>
+                $q->where('discount_category_id', $request->discount_category_id)
+            )
             ->latest()
             ->get();
 
         $session = AcademicSession::find($request->session_id);
+        $discountCategory = DiscountCategory::find($request->discount_category_id);
 
-        $html = view('free-studentships.pdf', compact('freeStudentships', 'session'))->render();
+        $html = view('free-studentships.pdf', compact('freeStudentships', 'session', 'discountCategory'))->render();
 
-        $mpdf = new \Mpdf\Mpdf(['margin_top' => 10, 'margin_bottom' => 10]);
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => 'A4',
+            'orientation' => 'P',
+            'margin_top' => 10,
+            'margin_bottom' => 10,
+            'margin_left' => 8,
+            'margin_right' => 8,
+        ]);
         $mpdf->WriteHTML($html);
         $mpdf->Output('free-studentships.pdf', 'D');
     }
@@ -92,8 +109,9 @@ class FreeStudentshipController extends Controller
         $classes = SchoolClass::all();
         $sections = collect();
         $feeCategories = FeeCategory::where('status', 1)->where('is_transport', 0)->get();
+        $discountCategories = DiscountCategory::orderBy('name')->get();
 
-        return view('free-studentships.create', compact('sessions', 'classes', 'sections', 'feeCategories'));
+        return view('free-studentships.create', compact('sessions', 'classes', 'sections', 'feeCategories', 'discountCategories'));
     }
 
     public function getStudents(Request $request)
@@ -156,6 +174,8 @@ class FreeStudentshipController extends Controller
                 'existing_amount' => $existingFreeStudentship?->amount,
                 'existing_percentage' => $existingFreeStudentship?->percentage,
                 'existing_permitted_by' => $existingFreeStudentship?->permitted_by,
+                'existing_discount_category_id' => $existingFreeStudentship?->discount_category_id,
+                'existing_attachment' => $existingFreeStudentship?->attachment,
             ];
         });
 
@@ -201,6 +221,9 @@ class FreeStudentshipController extends Controller
             'students.*.amount' => 'required_if:students.*.type,fixed|nullable|numeric|min:0',
             'students.*.percentage' => 'required_if:students.*.type,percentage|nullable|numeric|min:0|max:100',
             'students.*.permitted_by' => 'nullable|string|max:255',
+            'students.*.discount_category_id' => 'nullable|exists:discount_categories,id',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'nullable|image|max:300',
         ]);
 
         DB::beginTransaction();
@@ -212,7 +235,7 @@ class FreeStudentshipController extends Controller
                     continue;
                 }
 
-                FreeStudentship::updateOrCreate(
+                $freeStudentship = FreeStudentship::updateOrCreate(
                     [
                         'student_id' => $studentData['student_id'],
                         'academic_session_id' => $validated['academic_session_id'],
@@ -226,8 +249,28 @@ class FreeStudentshipController extends Controller
                         'percentage' => $studentData['type'] === 'percentage' ? $studentData['percentage'] : null,
                         'permitted_by' => $studentData['permitted_by'] ?? null,
                         'status' => 'active',
+                        'discount_category_id' => $studentData['discount_category_id'] ?? null,
                     ]
                 );
+
+                $attachment = $request->file('attachments.' . $studentData['student_id']);
+                if ($attachment) {
+                    $directory = public_path('uploads/free_studentship');
+                    if (!is_dir($directory)) {
+                        mkdir($directory, 0755, true);
+                    }
+
+                    $filename = Str::uuid() . '.' . $attachment->extension();
+                    $attachment->move($directory, $filename);
+
+                    if ($freeStudentship->attachment && file_exists(public_path($freeStudentship->attachment))) {
+                        unlink(public_path($freeStudentship->attachment));
+                    }
+
+                    $freeStudentship->update([
+                        'attachment' => 'uploads/free_studentship/' . $filename,
+                    ]);
+                }
             }
 
             DB::commit();
@@ -240,6 +283,10 @@ class FreeStudentshipController extends Controller
 
     public function destroy(FreeStudentship $freeStudentship)
     {
+        if ($freeStudentship->attachment && file_exists(public_path($freeStudentship->attachment))) {
+            unlink(public_path($freeStudentship->attachment));
+        }
+
         $freeStudentship->delete();
 
         return redirect()->route('free-studentships.index')

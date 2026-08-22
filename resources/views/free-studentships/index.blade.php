@@ -78,13 +78,27 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4 d-flex align-items-center">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>{{ __('Discount Category') }}</label>
+                                <select name="discount_category_id" class="form-control form-control-sm">
+                                    <option value="">{{ __('All Categories') }}</option>
+                                    @foreach ($discountCategories as $category)
+                                        <option value="{{ $category->id }}"
+                                            {{ request('discount_category_id') == $category->id ? 'selected' : '' }}>
+                                            {{ $category->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-center">
                             <div class="form-group mb-0">
                                 <button type="submit" class="btn btn-primary btn-sm" title="{{ __('Search') }}"><i
                                         class="fas fa-search"></i></button>
                                 <a href="{{ route('free-studentships.index') }}" class="btn btn-secondary btn-sm ml-1"
                                     title="Reset"><i class="fas fa-times"></i></a>
-                                @if (request()->hasAny(['session_id', 'class_id', 'section_id', 'group_id']) && $freeStudentships->total() > 0)
+                                @if ($freeStudentships->total() > 0)
                                     <button type="button" class="btn btn-success btn-sm ml-1" onclick="window.print()"
                                         title="{{ __('Print') }}"><i class="fas fa-print"></i></button>
                                     <a href="{{ route('free-studentships.pdf', request()->query()) }}"
@@ -110,11 +124,13 @@
                                 <th>{{ __('Section') }}</th>
                                 <th>{{ __('Group') }}</th>
                                 <th>{{ __('Fee Category') }}</th>
+                                <th>{{ __('Discount Category') }}</th>
                                 <th>{{ __('Type') }}</th>
                                 <th>{{ __('Value') }}</th>
                                 <th>{{ __('Permitted By') }}</th>
                                 <th>{{ __('Session') }}</th>
                                 <th>{{ __('Status') }}</th>
+                                <th>{{ __('Attachment') }}</th>
                                 <th class="text-center">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
@@ -130,6 +146,7 @@
                                     <td>{{ $ai?->section?->name_en ?? '—' }}</td>
                                     <td>{{ $ai?->group?->name_en ?? '—' }}</td>
                                     <td>{{ $freeStudentship->feeCategory->name ?? '—' }}</td>
+                                    <td>{{ $freeStudentship->discountCategory->name ?? '—' }}</td>
                                     <td>
                                         <span
                                             class="badge badge-{{ $freeStudentship->type === 'fixed' ? 'info' : 'warning' }}">
@@ -151,6 +168,13 @@
                                             {{ ucfirst($freeStudentship->status) }}
                                         </span>
                                     </td>
+                                    <td>
+                                        @if ($freeStudentship->attachment)
+                                            <a href="{{ asset($freeStudentship->attachment) }}" target="_blank">View</a>
+                                        @else
+                                            —
+                                        @endif
+                                    </td>
                                     <td class="text-center">
                                         <form action="{{ route('free-studentships.destroy', $freeStudentship) }}" method="POST"
                                             class="d-inline" onsubmit="return confirm('Delete this free studentship?')">
@@ -162,7 +186,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="14" class="text-center text-muted py-4">No free studentships found.</td>
+                                    <td colspan="16" class="text-center text-muted py-4">No free studentships found.</td>
                                 </tr>
                             @endforelse
                         </tbody>
