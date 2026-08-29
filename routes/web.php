@@ -112,6 +112,14 @@ use App\Http\Controllers\{
 };
 use App\Http\Controllers\Website\PublicWebsiteController;
 
+// Public admission entry points intentionally live outside the authenticated admin group.
+Route::get('/admission', [AdmissionController::class, 'publicForm'])->name('public.admission.form');
+Route::post('/admission/applications', [AdmissionController::class, 'publicStore'])->name('public.admission.store');
+Route::get('/admission/search', [AdmissionController::class, 'publicSearch'])->name('public.admission.search');
+Route::get('/admission/applications/{application}/pdf', [AdmissionController::class, 'publicApplicationPdf'])->name('public.admission.application-pdf');
+Route::get('/admission/applications/{application}/admit-card', [AdmissionController::class, 'admitCardPdf'])->name('public.admission.admit-card');
+Route::post('/admission/applications/{application}/payment', [AdmissionController::class, 'publicPayment'])->name('public.admission.payment');
+
 Route::get('/language/{locale}', function (Request $request, string $locale) {
     $supportedLocales = config('app.supported_locales', ['en']);
     abort_unless(in_array($locale, $supportedLocales, true), 404);
@@ -188,16 +196,39 @@ Route::group(['middleware' => ['auth']], function () {
     // ------------------- Dashboard -------------------
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('permission:view_dashboard')->name('dashboard');
 
-    // ------------------- Admissions -------------------
-    Route::middleware('permission:view_academics')->prefix('admissions')->group(function () {
+    // ------------------- Admission Management -------------------
+    Route::middleware('permission:view_admission_management')->prefix('admissions')->group(function () {
+        Route::get('/', [AdmissionController::class, 'hub'])->name('admissions.hub');
         Route::get('/applications', [AdmissionController::class, 'applications'])->name('admissions.applications');
-        Route::get('/applications/create', [AdmissionController::class, 'createApplication'])->name('admissions.applications.create');
-        Route::post('/applications/store', [AdmissionController::class, 'storeApplication'])->name('admissions.applications.store');
-        Route::get('/process', [AdmissionController::class, 'processTracking'])->name('admissions.process');
-        Route::get('/documents', [AdmissionController::class, 'documentVerification'])->name('admissions.documents');
-        Route::get('/interviews', [AdmissionController::class, 'interviewScheduling'])->name('admissions.interviews');
-        Route::get('/portal', [AdmissionController::class, 'onlinePortal'])->name('admissions.portal');
+        Route::get('/approved', [AdmissionController::class, 'approved'])->name('admissions.approved');
+        Route::get('/converted', [AdmissionController::class, 'converted'])->name('admissions.converted');
+        Route::get('/applications/{application}', [AdmissionController::class, 'showApplication'])->name('admissions.applications.show');
+        Route::get('/payments', [AdmissionController::class, 'payments'])->name('admissions.payments');
+        Route::get('/admit-cards', [AdmissionController::class, 'admitCards'])->name('admissions.admit-cards');
+        Route::get('/results', [AdmissionController::class, 'results'])->name('admissions.results');
     });
+    Route::middleware('permission:view_admission_exams')->prefix('admissions/exams')->group(function () {
+        Route::get('/', [AdmissionController::class, 'exams'])->name('admissions.exams');
+    });
+    Route::middleware('permission:create_admission_exams')->prefix('admissions/exams')->group(function () {
+        Route::get('/create', [AdmissionController::class, 'createExam'])->name('admissions.exams.create');
+        Route::post('/', [AdmissionController::class, 'storeExam'])->name('admissions.exams.store');
+    });
+    Route::middleware('permission:edit_admission_exams')->prefix('admissions/exams')->group(function () {
+        Route::get('/{exam}/edit', [AdmissionController::class, 'editExam'])->name('admissions.exams.edit');
+        Route::put('/{exam}', [AdmissionController::class, 'updateExam'])->name('admissions.exams.update');
+    });
+    Route::middleware('permission:delete_admission_exams')->delete('/admissions/exams/{exam}', [AdmissionController::class, 'deleteExam'])->name('admissions.exams.delete');
+    Route::middleware('permission:edit_admission_exams')->post('/admissions/exams/{exam}/toggle', [AdmissionController::class, 'toggleExam'])->name('admissions.exams.toggle');
+    Route::middleware('permission:verify_admission_payments')->post('/admissions/payments/{payment}', [AdmissionController::class, 'updatePayment'])->name('admissions.payments.update');
+    Route::middleware('permission:verify_admission_payments')->post('/admissions/applications/{application}/collect-payment', [AdmissionController::class, 'collectPayment'])->name('admissions.applications.collect-payment');
+    Route::middleware('permission:enter_admission_marks')->get('/admissions/exams/{exam}/marks', [AdmissionController::class, 'marks'])->name('admissions.marks');
+    Route::middleware('permission:enter_admission_marks')->post('/admissions/applications/{application}/marks', [AdmissionController::class, 'storeMarks'])->name('admissions.marks.store');
+    Route::middleware('permission:review_admission_applications')->post('/admissions/applications/{application}/review', [AdmissionController::class, 'review'])->name('admissions.applications.review');
+    Route::middleware('permission:view_admission_applications')->get('/admissions/applications/{application}/download', [AdmissionController::class, 'applicationPdf'])->name('admissions.applications.download');
+    Route::middleware('permission:view_admission_applications')->get('/admissions/applications/{application}/admit-card', [AdmissionController::class, 'admitCardPdf'])->name('admissions.applications.admit-card');
+    Route::middleware('permission:proceed_admission')->post('/admissions/applications/{application}/convert', [AdmissionController::class, 'convert'])->name('admissions.applications.convert');
+    Route::middleware('permission:manage_admission_admit_cards')->post('/admissions/applications/{application}/admit-card', [AdmissionController::class, 'generateAdmitCard'])->name('admissions.admit-cards.generate');
 
     // ------------------- Hub Pages (accessible to respective module users) -------------------
     Route::middleware('permission:view_academics')->get('/academics', [AcademicsHubController::class, 'index'])->name('academics.hub');
