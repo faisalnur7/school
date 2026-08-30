@@ -41,7 +41,6 @@ class StudentPaymentLedgerService
             ->where('student_id', $student->id)
             ->whereHas('items.fee.feeSet', fn($q) => $q->where('academic_session_id', $sessionId))
             ->orderBy('payment_date')
-            ->orderBy('created_at')
             ->orderBy('id')
             ->get();
 
@@ -53,7 +52,6 @@ class StudentPaymentLedgerService
                   ->orWhereHas('inventoryDueItems');
             })
             ->orderBy('payment_date')
-            ->orderBy('created_at')
             ->orderBy('id')
             ->get();
 

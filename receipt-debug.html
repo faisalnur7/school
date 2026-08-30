@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Receipt </title>
+    <style>
+        :root {
+            --bg: #eef2f7;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #475569;
+            --line: #dbe3ef;
+            --line-strong: #94a3b8;
+            --accent: #0f766e;
+            --accent-soft: #ecfeff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top, #f8fbff 0%, var(--bg) 48%, #e2e8f0 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            color: var(--text);
+        }
+
+        /* ── Print Controls ── */
+        .no-print {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        .btn-print {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 11px 28px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: .06em;
+            box-shadow: 0 8px 20px rgba(15, 118, 110, .25);
+        }
+
+        .btn-close-win {
+            background: #fff;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            padding: 11px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* ── Side-by-side wrapper ── */
+        .slips-row {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 48px rgba(15, 23, 42, .12);
+        }
+
+        /* ── Single slip column ── */
+        .slip-col {
+            width: 380px;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+        }
+
+        /* ── Copy Label ── */
+        .copy-label {
+            background: #f8fafc;
+            color: #334155;
+            text-align: center;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .2em;
+            padding: 8px 0;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--line);
+        }
+
+        /* ── Vertical Perforation ── */
+        .v-perforation {
+            width: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+            background: #f8fafc;
+        }
+
+        .v-perforation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            border-left: 2px dashed var(--line-strong);
+        }
+
+        .v-perf-label {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-size: 9px;
+            letter-spacing: .18em;
+            color: #64748b;
+            font-weight: 700;
+            background: #fff;
+            padding: 8px 0;
+            z-index: 1;
+            white-space: nowrap;
+        }
+
+        .v-scissors {
+            font-size: 14px;
+            color: #64748b;
+            background: #fff;
+            padding: 4px 0;
+            z-index: 1;
+            transform: rotate(90deg);
+        }
+
+        /* ── Slip Body ── */
+        .slip {
+            padding: 24px 26px 22px;
+            flex: 1;
+        }
+
+        /* ── Header ── */
+        .school-logo-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-direction: column;
+        }
+
+        .school-logo-box {
+            width: 50px;
+            height: 50px;
+            border: 1px solid var(--line-strong);
+            border-radius: 10px;
+            background: var(--accent-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            font-weight: 900;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .school-info { flex: 1; }
+
+        .school-name {
+            font-size: 14px;
+            font-weight: 900;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            color: var(--text);
+        }
+
+        .school-sub {
+            font-size: 9.5px;
+            color: var(--muted);
+            letter-spacing: .05em;
+            margin-top: 2px;
+        }
+
+
+
+        .receipt-tag-label {
+            font-size: 8.5px;
+            letter-spacing: .14em;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .receipt-tag-no {
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: .03em;
+        }
+
+        /* ── Dividers ── */
+        .divider-solid {
+            border: none;
+            border-top: 2px solid var(--line-strong);
+            margin: 10px 0;
+        }
+
+        .divider-dash {
+            border: none;
+            border-top: 1.5px dashed var(--line);
+            margin: 8px 0;
+        }
+
+        /* ── Info Grid ── */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 14px;
+            margin-bottom: 4px;
+        }
+
+        .info-cell .lbl {
+            font-size: 8.5px;
+            letter-spacing: .1em;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .info-cell .val {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text);
+            margin-top: 1px;
+        }
+
+        /* ── Items Table ── */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        .items-table thead tr {
+            border-top: 1px solid var(--line-strong);
+            border-bottom: 1px solid var(--line-strong);
+        }
+
+        .items-table th {
+            font-size: 8.5px;
+            letter-spacing: .1em;
+            color: #334155;
+            text-transform: uppercase;
+            font-weight: 900;
+            padding: 5px 0;
+        }
+
+        .items-table th:last-child { text-align: right; }
+
+        .items-table td {
+            font-size: 11.5px;
+            color: #1e293b;
+            padding: 5px 0;
+            border-bottom: 1px dashed var(--line);
+        }
+
+        .items-table td:last-child {
+            text-align: right;
+            font-weight: 700;
+        }
+
+        /* ── Total Row ── */
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-top: 1px solid var(--line-strong);
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+
+        .total-lbl {
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+
+        .total-val {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--accent);
+        }
+
+        .total-currency {
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            margin-right: 3px;
+        }
+
+        /* ── Stamp + Signature ── */
+        .stamp-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+        }
+
+        .stamp {
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .12em;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            background: var(--accent-soft);
+            padding: 3px 12px;
+            border-radius: 999px;
+            transform: rotate(-3deg);
+            display: inline-block;
+        }
+
+        .signature-line { text-align: right; }
+
+        .sig-line {
+            border-top: 1px solid #94a3b8;
+            width: 100px;
+            margin-left: auto;
+            margin-bottom: 3px;
+        }
+
+        .sig-label {
+            font-size: 8.5px;
+            letter-spacing: .08em;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        /* ── Footer ── */
+        .slip-footer {
+            text-align: center;
+            font-size: 9px;
+            color: #64748b;
+            letter-spacing: .05em;
+            margin-top: 14px;
+            border-top: 1px dashed var(--line);
+            padding-top: 9px;
+        }
+
+        .school-logo-and-name{
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+        }
+
+        .school-header-main{
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .school-header-meta{
+            margin-top: 6px;
+        }
+
+        /* ══════════════════
+           PRINT STYLES
+        ══════════════════ */
+        @media print {
+            body {
+                background: #fff;
+                padding: 0;
+            }
+
+            .no-print { display: none !important; }
+
+            .slips-row {
+                border: none;
+                width: 100%;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .slip-col {
+                width: 50%;
+            }
+
+            .v-perforation::before {
+                border-left-color: #bbb;
+            }
+
+            .v-perf-label,
+            .v-scissors {
+                background: #fff;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    
+    <div class="no-print">
+        <button class="btn-print" onclick="window.print()">Print Receipt</button>
+        <button class="btn-close-win" onclick="window.close()">✕ Close</button>
+    </div>
+
+    
+    <div class="slips-row">
+
+        
+        <div class="slip-col">
+            <div class="copy-label">Institute Copy</div>
+            <div class="slip">
+                <div class="school-logo-row">
+    <div class="school-header-main">
+        <div class="school-logo-and-name">
+                            <div class="school-logo-box">S</div>
+                        <div class="school-info">
+                <div class="school-name">School Name</div>
+            </div>
+        </div>
+    </div>
+    <div class="school-header-meta">
+                        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:5px;">
+            <div class="receipt-tag" style="margin-top:0;">
+                <div class="receipt-tag-label">Receipt No.</div>
+                <div class="receipt-tag-no"></div>
+            </div>
+            <div class="receipt-tag" style="margin-top:0;color:#000;">
+                <div class="receipt-tag-no" style="color:#000;font-size:13px;font-weight:700;line-height:1.1;">
+                    30 Aug 2026
+                </div>
+                <div class="receipt-tag-no" style="color:#000;font-size:15px;font-weight:900;line-height:1.1;">
+                    01:53PM
+                </div>
+            </div>
+        </div>
+        <div class="school-sub" style="margin-top:3px;font-weight:700;letter-spacing:.1em">FEE PAYMENT RECEIPT</div>
+    </div>
+</div>
+
+<hr class="divider-solid">
+
+
+<div class="info-grid">
+    <div class="info-cell">
+        <div class="lbl">Student Name</div>
+        <div class="val">—</div>
+    </div>
+    <div class="info-cell">
+        <div class="lbl">Student ID</div>
+        <div class="val">—</div>
+    </div>
+    <div class="info-cell">
+        <div class="lbl">Academic Information</div>
+        <div class="val">
+            —
+        </div>
+    </div>
+    <div class="info-cell">
+        <div class="lbl">Collected By</div>
+        <div class="val">—</div>
+    </div>
+</div>
+
+<hr class="divider-dash">
+
+
+<table class="items-table">
+    <thead>
+        <tr>
+            <th>Description</th>
+            <th style="text-align:right">Amount (BDT)</th>
+        </tr>
+    </thead>
+    <tbody>
+            </tbody>
+</table>
+
+
+
+
+
+    <div style="margin-top:10px; border-top:1.5px dashed #bbb; padding-top:8px">
+
+    
+    
+    
+    
+    
+    </div>
+
+
+<div class="stamp-row">
+    <div class="stamp">✓ PAID</div>
+    <div class="signature-line">
+        <div class="sig-line"></div>
+        <div class="sig-label">Authorised Signature</div>
+    </div>
+</div>
+
+
+
+<div class="slip-footer">
+    Thank you — Please keep this receipt for your records.
+</div>
+            </div>
+        </div>
+
+        
+        <div class="v-perforation">
+            <span class="v-scissors">✂</span>
+            <span class="v-perf-label">CUT HERE</span>
+            <span class="v-scissors">✂</span>
+        </div>
+
+        
+        <div class="slip-col">
+            <div class="copy-label">Student Copy</div>
+            <div class="slip">
+                <div class="school-logo-row">
+    <div class="school-header-main">
+        <div class="school-logo-and-name">
+                            <div class="school-logo-box">S</div>
+                        <div class="school-info">
+                <div class="school-name">School Name</div>
+            </div>
+        </div>
+    </div>
+    <div class="school-header-meta">
+                        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:5px;">
+            <div class="receipt-tag" style="margin-top:0;">
+                <div class="receipt-tag-label">Receipt No.</div>
+                <div class="receipt-tag-no"></div>
+            </div>
+            <div class="receipt-tag" style="margin-top:0;color:#000;">
+                <div class="receipt-tag-no" style="color:#000;font-size:13px;font-weight:700;line-height:1.1;">
+                    30 Aug 2026
+                </div>
+                <div class="receipt-tag-no" style="color:#000;font-size:15px;font-weight:900;line-height:1.1;">
+                    01:53PM
+                </div>
+            </div>
+        </div>
+        <div class="school-sub" style="margin-top:3px;font-weight:700;letter-spacing:.1em">FEE PAYMENT RECEIPT</div>
+    </div>
+</div>
+
+<hr class="divider-solid">
+
+
+<div class="info-grid">
+    <div class="info-cell">
+        <div class="lbl">Student Name</div>
+        <div class="val">—</div>
+    </div>
+    <div class="info-cell">
+        <div class="lbl">Student ID</div>
+        <div class="val">—</div>
+    </div>
+    <div class="info-cell">
+        <div class="lbl">Academic Information</div>
+        <div class="val">
+            —
+        </div>
+    </div>
+    <div class="info-cell">
+        <div class="lbl">Collected By</div>
+        <div class="val">—</div>
+    </div>
+</div>
+
+<hr class="divider-dash">
+
+
+<table class="items-table">
+    <thead>
+        <tr>
+            <th>Description</th>
+            <th style="text-align:right">Amount (BDT)</th>
+        </tr>
+    </thead>
+    <tbody>
+            </tbody>
+</table>
+
+
+
+
+
+    <div style="margin-top:10px; border-top:1.5px dashed #bbb; padding-top:8px">
+
+    
+    
+    
+    
+    
+    </div>
+
+
+<div class="stamp-row">
+    <div class="stamp">✓ PAID</div>
+    <div class="signature-line">
+        <div class="sig-line"></div>
+        <div class="sig-label">Authorised Signature</div>
+    </div>
+</div>
+
+
+
+<div class="slip-footer">
+    Thank you — Please keep this receipt for your records.
+</div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

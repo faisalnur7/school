@@ -558,6 +558,7 @@ class FeeCollectionController extends Controller
             'inventory_dues.*.paid_amount'            => 'nullable|numeric|min:0',
             'student_id'     => 'nullable|exists:students,id',
             'payment_amount' => 'nullable|numeric|min:0',
+            'payment_date'   => 'required|date',
             'payment_method' => 'nullable|string|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other,cash,bank,mobile_wallet',
             'account_type'   => 'nullable|in:App\\Models\\HandCash,App\\Models\\BankAccount,App\\Models\\MobileBankingAccount',
             'account_id'     => 'nullable|integer',
@@ -795,6 +796,7 @@ class FeeCollectionController extends Controller
             }
 
             $paymentMethod = $this->normalizePaymentMethod($request->payment_method);
+            $paymentDate = Carbon::parse($request->payment_date)->toDateString();
             $paymentAmount = 0.0;
 
             foreach ($fees as $fee) {
@@ -821,7 +823,7 @@ class FeeCollectionController extends Controller
                 'scholarship_amount' => $totalScholarshipDiscount,
                 'discount_type'      => $cartDiscount > 0 ? ($request->discount_type ?? 'flat') : null,
                 'discount_amount'    => $cartDiscount,
-                'payment_date'    => now(),
+                'payment_date'    => $paymentDate,
                 'payment_method'  => $paymentMethod,
                 'account_type'    => $request->account_type ?? null,
                 'account_id'      => $request->account_id ?? null,
@@ -909,6 +911,8 @@ class FeeCollectionController extends Controller
                 if ($category) {
                     $payment->recordIncome($category->id, 'Student Payment', [
                         'amount'         => $studentPaymentAmount,
+                        'income_date'    => $paymentDate,
+                        'transaction_date' => $paymentDate,
                         'payment_method' => $paymentMethod,
                         'account_type'   => $payment->account_type,
                         'account_id'     => $payment->account_id,
@@ -922,6 +926,8 @@ class FeeCollectionController extends Controller
                 if ($category) {
                     $payment->recordIncome($category->id, 'Transport Fee', [
                         'amount'         => $transportPaymentAmount,
+                        'income_date'    => $paymentDate,
+                        'transaction_date' => $paymentDate,
                         'payment_method' => $paymentMethod,
                         'account_type'   => $payment->account_type,
                         'account_id'     => $payment->account_id,

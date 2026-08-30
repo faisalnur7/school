@@ -2431,6 +2431,15 @@
                                     </div>
 
                                     <div class="mb-3">
+                                        <label for="paymentDate" class="form-label mono text-muted fw-semibold"
+                                            style="font-size:11px;letter-spacing:.08em">PAYMENT DATE</label>
+                                        <input type="date" id="paymentDate" name="payment_date"
+                                            value="{{ old('payment_date', now()->toDateString()) }}"
+                                            class="form-control" required
+                                            style="font-size:13px;border-radius:8px;border:1px solid #e2e8f0">
+                                    </div>
+
+                                    <div class="mb-3">
                                         <textarea name="description" id="descriptionInput" class="form-control" rows="2"
                                             placeholder="Add payment note or description" style="font-size:13px;border-radius:8px;border:1px solid #e2e8f0">{{ old('description') }}</textarea>
                                     </div>
@@ -3833,6 +3842,8 @@
                     inventory_dues: inventoryDuesPayload,
                     student_id: @json($student?->id),
                     payment_amount: $('#paymentAmount').val() ?? $totalEl.text(),
+                    // The shared datepicker keeps the submitted ISO date in the hidden field.
+                    payment_date: $('#feeForm input[name="payment_date"]').first().val(),
                     discount: $('#discountInput').val() || 0,
                     discount_type: $('#discountTypeHidden').val(),
                     discount_amount: $('#discountAmountHidden').val(),

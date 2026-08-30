@@ -19,12 +19,14 @@ trait HasTransactions
     public function recordIncome(int $categoryId, string $title, array $data): Transaction
     {
         $reference = Transaction::generateReference();
+        $incomeDate = $data['income_date'] ?? now()->toDateString();
+        $transactionDate = $data['transaction_date'] ?? $incomeDate;
 
         $income = Income::create(array_merge([
             'income_category_id' => $categoryId,
             'title'              => $title,
             'reference_no'       => $reference,
-            'income_date'        => now()->toDateString(),
+            'income_date'        => $incomeDate,
             'recorded_by'        => auth()->id(),
         ], $data));
 
@@ -33,12 +35,12 @@ trait HasTransactions
             'type'               => 'income',
             'income_category_id' => $categoryId,
             'title'              => $title,
-            'transaction_date'   => now()->toDateString(),
+            'transaction_date'   => $transactionDate,
             'recorded_by'        => auth()->id(),
         ], $data));
 
         JournalService::postSafe(
-            now()->toDateString(),
+            $transactionDate,
             $title,
             [
                 ['account_id' => Account::resolveForSource($data['account_type'] ?? '', (int) ($data['account_id'] ?? 0)), 'debit' => (float) $data['amount'], 'credit' => 0],
@@ -57,6 +59,7 @@ trait HasTransactions
         $expenseDate = $data['expense_date'] ?? now()->toDateString();
         $expenseReference = Expense::generateReference($expenseDate);
         $reference = Transaction::generateReference();
+        $transactionDate = $data['transaction_date'] ?? $expenseDate;
 
         $expense = Expense::create(array_merge([
             'expense_category_id' => $categoryId,
@@ -71,12 +74,12 @@ trait HasTransactions
             'type'                => 'expense',
             'expense_category_id' => $categoryId,
             'title'               => $title,
-            'transaction_date'    => now()->toDateString(),
+            'transaction_date'    => $transactionDate,
             'recorded_by'         => auth()->id(),
         ], $data));
 
         JournalService::postSafe(
-            now()->toDateString(),
+            $transactionDate,
             $title,
             [
                 ['account_id' => Account::resolveForSource(ExpenseCategory::class, $categoryId), 'debit' => (float) $data['amount'], 'credit' => 0],

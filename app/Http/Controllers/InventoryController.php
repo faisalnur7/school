@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InventoryItem;
 use App\Models\InventorySale;
+use App\Models\Payment;
 use App\Models\PurchaseOrder;
 use Illuminate\Http\Request;
 
@@ -75,7 +76,8 @@ class InventoryController extends Controller
                 'createdBy',
                 'items.inventoryItem.category',
             ])
-            ->orderByDesc('created_at')
+            ->orderByDesc(Payment::select('payment_date')
+                ->whereColumn('payments.id', 'inventory_sales.payment_id'))
             ->orderByDesc('id');
 
         if ($request->filled('q')) {
@@ -88,11 +90,11 @@ class InventoryController extends Controller
         }
 
         if ($request->filled('from')) {
-            $salesQuery->whereDate('created_at', '>=', $request->from);
+            $salesQuery->whereHas('payment', fn ($query) => $query->whereDate('payment_date', '>=', $request->from));
         }
 
         if ($request->filled('to')) {
-            $salesQuery->whereDate('created_at', '<=', $request->to);
+            $salesQuery->whereHas('payment', fn ($query) => $query->whereDate('payment_date', '<=', $request->to));
         }
 
         if ($itemIds->isNotEmpty()) {

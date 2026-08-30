@@ -615,8 +615,12 @@ class ReportsController extends Controller
         }
 
         // Inventory Sales
-        $bSales = InventorySale::with('items.inventoryItem.category')->where('created_at', '<', $from)->get();
-        $pSales = InventorySale::with('items.inventoryItem.category')->whereBetween('created_at', [$from, $to . ' 23:59:59'])->get();
+        $bSales = InventorySale::with('items.inventoryItem.category')
+            ->whereHas('payment', fn ($query) => $query->whereDate('payment_date', '<', $from))
+            ->get();
+        $pSales = InventorySale::with('items.inventoryItem.category')
+            ->whereHas('payment', fn ($query) => $query->whereBetween('payment_date', [$from, $to]))
+            ->get();
 
         $buildSaleTotals = fn($sales) => collect($sales)->flatMap->items->groupBy(fn($i) => $i->inventoryItem?->category?->name ?? 'Uncategorised')
             ->map(fn($g) => $g->sum('subtotal'));
