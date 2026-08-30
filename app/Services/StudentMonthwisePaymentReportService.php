@@ -69,12 +69,12 @@ class StudentMonthwisePaymentReportService
             }
         }
 
-        $sales = InventorySale::with(['items.inventoryItem.category'])
+        $sales = InventorySale::with(['items.inventoryItem.category', 'payment'])
             ->where('student_id', $studentId)
             ->get();
 
         foreach ($sales as $sale) {
-            $month = $this->monthFor($sale->created_at, $year);
+            $month = $this->monthFor($sale->payment?->payment_date, $year);
             if (!$month) {
                 continue;
             }

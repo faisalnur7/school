@@ -483,7 +483,9 @@ class StudentController extends Controller
             ->sortByDesc('id')
             ->first();
 
-        $inventorySales = $student->inventorySales->sortByDesc('id')->values();
+        $inventorySales = $student->inventorySales
+            ->sortByDesc(fn ($sale) => $sale->payment?->payment_date?->format('Y-m-d') ?? '')
+            ->values();
 
         $studentFees = $student->fees()->with(['feeSet', 'feeSet.items'])->latest()->get();
 

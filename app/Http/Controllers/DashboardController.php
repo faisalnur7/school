@@ -174,8 +174,8 @@ class DashboardController extends Controller
         $amounts = [];
 
         $payments = Payment::query()
-            ->whereBetween('created_at', [$start, $end])
-            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as ym, SUM(amount) as total')
+            ->whereBetween('payment_date', [$start->toDateString(), $end->toDateString()])
+            ->selectRaw('DATE_FORMAT(payment_date, "%Y-%m") as ym, SUM(amount) as total')
             ->groupBy('ym')
             ->pluck('total', 'ym');
 
@@ -201,14 +201,14 @@ class DashboardController extends Controller
         $expenses = [];
 
         $incomeByMonth = Income::query()
-            ->whereBetween('created_at', [$start, $end])
-            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as ym, SUM(amount) as total')
+            ->whereBetween('income_date', [$start->toDateString(), $end->toDateString()])
+            ->selectRaw('DATE_FORMAT(income_date, "%Y-%m") as ym, SUM(amount) as total')
             ->groupBy('ym')
             ->pluck('total', 'ym');
 
         $expenseByMonth = Expense::query()
-            ->whereBetween('created_at', [$start, $end])
-            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as ym, SUM(amount) as total')
+            ->whereBetween('expense_date', [$start->toDateString(), $end->toDateString()])
+            ->selectRaw('DATE_FORMAT(expense_date, "%Y-%m") as ym, SUM(amount) as total')
             ->groupBy('ym')
             ->pluck('total', 'ym');
 
@@ -298,8 +298,8 @@ class DashboardController extends Controller
         $collections = [];
 
         $payments = Payment::query()
-            ->whereBetween('created_at', [$start, $end])
-            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as ym, SUM(amount) as total')
+            ->whereBetween('payment_date', [$start->toDateString(), $end->toDateString()])
+            ->selectRaw('DATE_FORMAT(payment_date, "%Y-%m") as ym, SUM(amount) as total')
             ->groupBy('ym')
             ->pluck('total', 'ym');
 
