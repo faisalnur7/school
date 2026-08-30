@@ -200,6 +200,27 @@
             letter-spacing: .03em;
         }
 
+        .receipt-dates {
+            min-width: 158px;
+            margin-top: 1px;
+            color: #000;
+            font-size: 9px;
+            line-height: 1.35;
+            text-align: right;
+        }
+
+        .receipt-date-row {
+            white-space: nowrap;
+        }
+
+        .receipt-date-label {
+            font-weight: 600;
+        }
+
+        .receipt-date-value {
+            font-weight: 400;
+        }
+
         /* ── Dividers ── */
         .divider-solid {
             border: none;
