@@ -2564,6 +2564,7 @@
                                                                 <th class="text-end">Due</th>
                                                                 <th>Status</th>
                                                                 <th>Active</th>
+                                                                <th>Action</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -2616,6 +2617,35 @@
                                                                             </div>
                                                                         @endif
                                                                     </td>
+                                                                    <td>
+                                                                        <div class="d-flex flex-wrap align-items-center gap-1">
+                                                                            @if (in_array($fee->status, ['pending', 'partial'], true))
+                                                                                <button
+                                                                                    type="button"
+                                                                                    class="btn btn-sm btn-outline-primary js-edit-assigned-fee"
+                                                                                    data-toggle="modal"
+                                                                                    data-target="#editAssignedFeeModal"
+                                                                                    data-action="{{ route('fees.update', $fee->id) }}"
+                                                                                    data-fee-name="{{ $fee->feeSet->name ?? 'Fee' }}"
+                                                                                    data-amount="{{ number_format((float) ($fee->amount ?? 0), 2, '.', '') }}"
+                                                                                >
+                                                                                    <i class="fas fa-edit mr-1"></i>Edit
+                                                                                </button>
+                                                                            @else
+                                                                                <span class="text-muted small mr-1">Locked</span>
+                                                                            @endif
+                                                                            @if ($fee->amountHistories->isNotEmpty())
+                                                                                <button
+                                                                                    type="button"
+                                                                                    class="btn btn-sm btn-outline-secondary"
+                                                                                    data-toggle="modal"
+                                                                                    data-target="#feeAmountHistoryModal{{ $fee->id }}"
+                                                                                >
+                                                                                    <i class="fas fa-history mr-1"></i>History
+                                                                                </button>
+                                                                            @endif
+                                                                        </div>
+                                                                    </td>
                                                                 </tr>
                                                             @endforeach
                                                         </tbody>
@@ -2630,6 +2660,78 @@
                     </div>
                 </div>
             </div>
+
+            <div class="modal fade" id="editAssignedFeeModal" tabindex="-1" role="dialog" aria-labelledby="editAssignedFeeModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <form method="POST" id="editAssignedFeeForm">
+                            @csrf
+                            <input type="hidden" name="return_to_collect" value="1">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editAssignedFeeModalLabel">Edit Fee Amount</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group mb-0">
+                                    <label for="editAssignedFeeAmount">Fee Amount</label>
+                                    <input type="number" class="form-control" id="editAssignedFeeAmount" name="amount" min="0" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Update Amount</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            @foreach ($assignedFees as $fee)
+                <div class="modal fade" id="feeAmountHistoryModal{{ $fee->id }}" tabindex="-1" role="dialog" aria-labelledby="feeAmountHistoryModalLabel{{ $fee->id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="feeAmountHistoryModalLabel{{ $fee->id }}">
+                                    Amount History: {{ $fee->feeSet->name ?? 'Fee' }}
+                                </h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                @if ($fee->amountHistories->isEmpty())
+                                    <div class="text-center text-muted py-4">No amount changes recorded for this fee.</div>
+                                @else
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Previous Amount</th>
+                                                    <th>New Amount</th>
+                                                    <th>Edited By</th>
+                                                    <th>Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($fee->amountHistories as $history)
+                                                    <tr>
+                                                        <td>৳{{ number_format((float) $history->old_amount, 2) }}</td>
+                                                        <td>৳{{ number_format((float) $history->new_amount, 2) }}</td>
+                                                        <td>{{ $history->editor->name ?? 'Unknown user' }}</td>
+                                                        <td>{{ optional($history->created_at)->format('d M, Y h:i A') }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
 
 
             {{-- ══════════════════════════════════════
@@ -3932,6 +4034,13 @@
             $(document).on('click', '.js-set-all-fees', function() {
                 const shouldActivate = String($(this).data('state')) === '1';
                 $('#feeActivationForm .js-fee-active-toggle').not(':disabled').prop('checked', shouldActivate);
+            });
+
+            $(document).on('click', '.js-edit-assigned-fee', function() {
+                const $button = $(this);
+                $('#editAssignedFeeForm').attr('action', $button.data('action'));
+                $('#editAssignedFeeModalLabel').text('Edit Fee Amount: ' + $button.data('fee-name'));
+                $('#editAssignedFeeAmount').val($button.data('amount')).trigger('focus');
             });
 
             $(document).on('submit', '.js-payment-delete-form', function(event) {

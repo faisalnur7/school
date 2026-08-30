@@ -295,7 +295,7 @@ class FeeCollectionController extends Controller
             );
         })->values();
 
-        $assignedFees = Fee::with(['feeSet.items.category', 'scholarship'])
+        $assignedFees = Fee::with(['feeSet.items.category', 'scholarship', 'amountHistories.editor'])
             ->where('student_id', $student->id)
             ->when($sessionId, function ($q) use ($sessionId) {
                 $q->whereHas('feeSet', function ($subQ) use ($sessionId) {

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Fee;
+use App\Models\FeeAmountHistory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FeeController extends Controller
 {
@@ -17,13 +19,48 @@ class FeeController extends Controller
     {
         $fee = Fee::findOrFail($id);
 
+        if ($this->isPaidFee($fee)) {
+            return back()->with('error', 'Paid fees cannot be edited.');
+        }
+
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0',
             'due_date' => 'nullable|date',
             'remarks' => 'nullable|string',
         ]);
 
-        $fee->update($validated);
+        $minimumAmount = (float) ($fee->paid_amount ?? 0) + (float) ($fee->scholarship_discount ?? 0);
+        if ((float) $validated['amount'] < $minimumAmount) {
+            return back()
+                ->withErrors(['amount' => 'The fee amount cannot be less than the amount already paid.'])
+                ->withInput();
+        }
+
+        $oldAmount = (float) $fee->amount;
+
+        DB::transaction(function () use ($fee, $validated, $oldAmount) {
+            $fee->update($validated);
+
+            $netAmount = (float) $fee->amount - (float) ($fee->scholarship_discount ?? 0);
+            $fee->status = $fee->paid_amount <= 0
+                ? 'pending'
+                : ($fee->paid_amount >= $netAmount ? 'paid' : 'partial');
+            $fee->save();
+
+            if ($oldAmount !== (float) $fee->amount) {
+                FeeAmountHistory::create([
+                    'fee_id' => $fee->id,
+                    'edited_by' => auth()->id(),
+                    'old_amount' => $oldAmount,
+                    'new_amount' => (float) $fee->amount,
+                ]);
+            }
+        });
+
+        if ($request->boolean('return_to_collect')) {
+            return redirect()->route('fees.collect_payment', ['student_id' => $fee->student_id])
+                ->with('success', 'Fee amount updated successfully.');
+        }
 
         return redirect()->route('students.show', $fee->student_id)->with('success', 'Fee updated successfully.');
     }
