@@ -36,14 +36,14 @@ class PaymentController extends Controller
         ]);
 
         if ($request->filled('from')) {
-            $query->whereDate('created_at', '>=', $request->from);
+            $query->whereDate('payment_date', '>=', $request->from);
         }
 
         if ($request->filled('to')) {
-            $query->whereDate('created_at', '<=', $request->to);
+            $query->whereDate('payment_date', '<=', $request->to);
         }
 
-        $data['payments'] = $query->latest()->get();
+        $data['payments'] = $query->orderByDesc('payment_date')->orderByDesc('id')->get();
         $data['from']     = $request->from;
         $data['to']       = $request->to;
 
@@ -91,10 +91,10 @@ class PaymentController extends Controller
 
         $paidCutoffDate = $payment->payment_date
             ? Carbon::parse($payment->payment_date)->toDateString()
-            : Carbon::parse($payment->created_at ?: now())->toDateString();
+            : null;
 
         $paidByFee = collect();
-        if ($feeRecords->isNotEmpty()) {
+        if ($feeRecords->isNotEmpty() && $paidCutoffDate) {
             $paidByFee = PaymentItem::query()
                 ->selectRaw('payment_items.fee_id as fee_id, SUM(payment_items.amount) as total_paid')
                 ->join('payments', 'payments.id', '=', 'payment_items.payment_id')
@@ -157,16 +157,18 @@ class PaymentController extends Controller
         $itemsInput = $request->input('items', []);
         $saleItemsInput = $request->input('sale_items', []);
         $hasStructuredItems = (is_array($itemsInput) && count($itemsInput)) || (is_array($saleItemsInput) && count($saleItemsInput));
+        $paymentDate = Carbon::parse($request->payment_date)->toDateString();
 
-        DB::transaction(function () use ($payment, $request, $itemsInput, $saleItemsInput, $hasStructuredItems) {
+        DB::transaction(function () use ($payment, $request, $itemsInput, $saleItemsInput, $hasStructuredItems, $paymentDate) {
             $payment->refresh();
             $payment->loadMissing(['items.fee', 'inventorySale.items.inventoryItem', 'inventoryDueItems.inventorySaleItem.inventoryItem']);
 
             $payment->update([
-                'payment_date' => $request->payment_date,
+                'payment_date' => $paymentDate,
                 'payment_method' => $request->payment_method,
                 'description' => $request->description,
             ]);
+            $this->syncPaymentBusinessDates($payment, $paymentDate);
 
             if ($hasStructuredItems) {
                 $affectedFeeIds = [];
@@ -258,7 +260,7 @@ class PaymentController extends Controller
             $payment->update([
                 'amount' => $newAmount,
                 'gross_amount' => $newAmount,
-                'payment_date' => $request->payment_date,
+                'payment_date' => $paymentDate,
                 'payment_method' => $request->payment_method,
                 'description' => $request->description,
             ]);
@@ -297,6 +299,34 @@ class PaymentController extends Controller
         });
 
         return redirect()->back()->with('success', 'Payment updated successfully');
+    }
+
+    private function syncPaymentBusinessDates(Payment $payment, string $paymentDate): void
+    {
+        $references = Transaction::withTrashed()
+            ->where('transactionable_type', Payment::class)
+            ->where('transactionable_id', $payment->id)
+            ->pluck('reference_no')
+            ->filter()
+            ->values();
+
+        Transaction::withTrashed()
+            ->where('transactionable_type', Payment::class)
+            ->where('transactionable_id', $payment->id)
+            ->update(['transaction_date' => $paymentDate]);
+
+        Income::withTrashed()
+            ->whereIn('reference_no', $references)
+            ->get()
+            ->each(function (Income $income) use ($paymentDate): void {
+                $income->income_date = $paymentDate;
+                $income->save();
+            });
+
+        JournalEntry::withTrashed()
+            ->where('source_type', Payment::class)
+            ->where('source_id', $payment->id)
+            ->update(['date' => $paymentDate]);
     }
 
     public function destroy(Payment $payment)

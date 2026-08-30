@@ -21,8 +21,8 @@
     <div class="student-form-shell">
         <div class="student-form-header">
             <div>
-                <h3 class="student-form-title">{{ isset($student) ? 'Edit Student' : 'Create Student' }}</h3>
-                <p class="student-form-subtitle">A cleaner workspace for managing student identity, academic placement, family details, and contact information.</p>
+                <h3 class="student-form-title">{{ !empty($publicAdmissionMode) ? 'Application details' : (isset($student) ? 'Edit Student' : 'Create Student') }}</h3>
+                <p class="student-form-subtitle">{{ !empty($publicAdmissionMode) ? 'Fill in the required details below. You can review everything before submitting.' : 'A cleaner workspace for managing student identity, academic placement, family details, and contact information.' }}</p>
             </div>
             <div class="student-form-header-actions">
                 <div class="student-form-view-switcher" role="group" aria-label="Form view mode">
@@ -45,9 +45,15 @@
         </div>
 
         <form method="POST"
-            action="{{ isset($student) ? route('students.update', $student->id) : route('students.store') }}"
+            action="{{ !empty($publicAdmissionMode) ? route('public.admission.store') : (isset($student) ? route('students.update', $student->id) : route('students.store')) }}"
             enctype="multipart/form-data" class="student-form-body space-y-4">
         @csrf
+        @if(!empty($publicAdmissionMode))
+            <input type="hidden" name="academic_session_id" value="{{ $exam->academic_session_id }}">
+            @if(!empty($draftToken))
+                <input type="hidden" name="draft_token" value="{{ $draftToken }}">
+            @endif
+        @endif
         @if ($errors->any())
             <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700 shadow-sm">
                 <p class="font-semibold">Please fix the following errors:</p>
@@ -60,7 +66,9 @@
         @endif
 
         <div class="student-tabbar" data-student-tabs hidden>
-            <button type="button" class="student-tab-button is-active" data-student-tab="academic">Academic Information</button>
+            @if(empty($publicAdmissionMode))
+                <button type="button" class="student-tab-button is-active" data-student-tab="academic">Academic Information</button>
+            @endif
             <button type="button" class="student-tab-button" data-student-tab="basic">Basic Information</button>
             <button type="button" class="student-tab-button" data-student-tab="address">Address</button>
             <button type="button" class="student-tab-button" data-student-tab="parents">Parents Information</button>
@@ -68,10 +76,11 @@
             <button type="button" class="student-tab-button" data-student-tab="previous">Previous Academic History</button>
         </div>
 
-        {{-- ================= ACADEMIC INFORMATION ================= --}}
-        @php
-            $academic = $academicInfo ?? null;
-        @endphp
+        @if(empty($publicAdmissionMode))
+            {{-- ================= ACADEMIC INFORMATION ================= --}}
+            @php
+                $academic = $academicInfo ?? null;
+            @endphp
 
         <details class="student-section" data-student-panel="academic" open>
             <summary class="student-section__head">
@@ -166,7 +175,8 @@
 
                 </div>
             </div>
-        </details>
+            </details>
+        @endif
 
         {{-- ================= BASIC INFO ================= --}}
         <details class="student-section" data-student-panel="basic" open>
@@ -184,6 +194,20 @@
                 <div class="student-basic-layout">
                     <div class="student-basic-fields">
                         <div class="grid grid-cols-1 student-field-grid">
+                            @if(!empty($publicAdmissionMode))
+                                <div class="public-applied-class-field relative w-full">
+                                    <select name="school_class_id" id="publicClassSelect" class="border-gray-300 rounded-lg p-2 w-full" required>
+                                        <option value="">Class</option>
+                                        @foreach ($classes as $class)
+                                            @if($exam->classSettings->contains('school_class_id', (int) $class->id))
+                                        <option value="{{ $class->id }}" @selected(old('school_class_id', $draftData['school_class_id'] ?? '') == $class->id)>{{ $class->name_en }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                    <label for="publicClassSelect" class="{{ $labelClasses }}">Applied Class <span class="text-danger">*</span></label>
+                                </div>
+                            @endif
+
                             <div class="relative w-full">
                                 <input type="text" name="full_name_en"
                                     value="{{ old('full_name_en', $student->full_name_en ?? '') }}" class="{{ $inputClasses }}"
@@ -199,8 +223,10 @@
 
                             <div class="relative w-full">
                                 <input type="text" name="date_of_birth"
+                                    @if(!empty($publicAdmissionMode)) id="date_of_birth" @endif
                                     value="{{ old('date_of_birth', $date_of_birth ?? '') }}"
-                                    class="{{ $inputClasses }} datepicker">
+                                    class="{{ $inputClasses }} datepicker"
+                                    @if(!empty($publicAdmissionMode)) placeholder="dd/mm/yyyy" autocomplete="bday" data-date-format="dd/mm/yyyy" @endif>
                                 <label for="date_of_birth" class="{{ $labelClasses }}">Date of Birth</label>
                             </div>
 
@@ -211,28 +237,65 @@
                                 <label for="birth_certificate_number" class="{{ $labelClasses }}">Birth Certificate Number</label>
                             </div>
 
-                            <select name="gender" id="gender" class="border-gray-300 rounded-lg p-2 w-full" required>
-                                <option value="">Gender</option>
-                                @foreach (\App\Models\Student::GENDERS as $k => $v)
-                                    <option value="{{ $k }}" @selected(old('gender', $student->gender ?? '') == $k)>{{ $v }}</option>
-                                @endforeach
-                            </select>
-                            <select name="religion" id="religion" class="border-gray-300 rounded-lg p-2 w-full" required>
-                                <option value="">Religion</option>
-                                @foreach (\App\Models\Student::RELIGIONS as $k => $v)
-                                    <option value="{{ $k }}" @selected(old('religion', $student->religion ?? '') == $k)>{{ $v }}</option>
-                                @endforeach
-                            </select>
-                            <select name="blood_group" class="border-gray-300 rounded-lg p-2 w-full">
-                                <option value="">Select Blood Group</option>
-                                @foreach (\App\Models\Student::BLOOD_GROUPS as $k => $v)
-                                    <option value="{{ $k }}" @selected(old('blood_group', $student->blood_group ?? '') == $k)>{{ $v }}</option>
-                                @endforeach
-                            </select>
-                            <select name="disable" class="border-gray-300 rounded-lg p-2 w-full">
-                                <option value="0">Not Disabled</option>
-                                <option value="1" @selected(old('disable', $student->disable ?? 0) == 1)>Disabled</option>
-                            </select>
+                            @if(!empty($publicAdmissionMode))
+                                <div class="relative w-full">
+                                    <select name="gender" id="gender" class="border-gray-300 rounded-lg p-2 w-full" required>
+                                        <option value="">Gender</option>
+                                        @foreach (\App\Models\Student::GENDERS as $k => $v)
+                                            <option value="{{ $k }}" @selected(old('gender', $student->gender ?? '') == $k)>{{ $v }}</option>
+                                        @endforeach
+                                    </select>
+                                    <label for="gender" class="{{ $labelClasses }}">Gender <span class="text-danger">*</span></label>
+                                </div>
+                                <div class="relative w-full">
+                                    <select name="religion" id="religion" class="border-gray-300 rounded-lg p-2 w-full" required>
+                                        <option value="">Religion</option>
+                                        @foreach (\App\Models\Student::RELIGIONS as $k => $v)
+                                            <option value="{{ $k }}" @selected(old('religion', $student->religion ?? '') == $k)>{{ $v }}</option>
+                                        @endforeach
+                                    </select>
+                                    <label for="religion" class="{{ $labelClasses }}">Religion <span class="text-danger">*</span></label>
+                                </div>
+                                <div class="relative w-full">
+                                    <select name="blood_group" class="border-gray-300 rounded-lg p-2 w-full">
+                                        <option value="">Select Blood Group</option>
+                                        @foreach (\App\Models\Student::BLOOD_GROUPS as $k => $v)
+                                            <option value="{{ $k }}" @selected(old('blood_group', $student->blood_group ?? '') == $k)>{{ $v }}</option>
+                                        @endforeach
+                                    </select>
+                                    <label class="{{ $labelClasses }}">Blood Group</label>
+                                </div>
+                                <div class="relative w-full">
+                                    <select name="disable" class="border-gray-300 rounded-lg p-2 w-full">
+                                        <option value="0">Not Disabled</option>
+                                        <option value="1" @selected(old('disable', $student->disable ?? 0) == 1)>Disabled</option>
+                                    </select>
+                                    <label class="{{ $labelClasses }}">Disability Status</label>
+                                </div>
+                            @else
+                                <select name="gender" id="gender" class="border-gray-300 rounded-lg p-2 w-full" required>
+                                    <option value="">Gender</option>
+                                    @foreach (\App\Models\Student::GENDERS as $k => $v)
+                                        <option value="{{ $k }}" @selected(old('gender', $student->gender ?? '') == $k)>{{ $v }}</option>
+                                    @endforeach
+                                </select>
+                                <select name="religion" id="religion" class="border-gray-300 rounded-lg p-2 w-full" required>
+                                    <option value="">Religion</option>
+                                    @foreach (\App\Models\Student::RELIGIONS as $k => $v)
+                                        <option value="{{ $k }}" @selected(old('religion', $student->religion ?? '') == $k)>{{ $v }}</option>
+                                    @endforeach
+                                </select>
+                                <select name="blood_group" class="border-gray-300 rounded-lg p-2 w-full">
+                                    <option value="">Select Blood Group</option>
+                                    @foreach (\App\Models\Student::BLOOD_GROUPS as $k => $v)
+                                        <option value="{{ $k }}" @selected(old('blood_group', $student->blood_group ?? '') == $k)>{{ $v }}</option>
+                                    @endforeach
+                                </select>
+                                <select name="disable" class="border-gray-300 rounded-lg p-2 w-full">
+                                    <option value="0">Not Disabled</option>
+                                    <option value="1" @selected(old('disable', $student->disable ?? 0) == 1)>Disabled</option>
+                                </select>
+                            @endif
                         </div>
                     </div>
 
@@ -284,7 +347,7 @@
         </details>
 
         {{-- ================= ADDRESS ================= --}}
-        <details class="student-section" data-student-panel="address">
+        <details class="student-section" data-student-panel="address" @if(!empty($publicAdmissionMode)) open @endif>
             <summary class="student-section__head">
                 <div>
                     <h5>Address</h5>
@@ -306,6 +369,7 @@
                     <div>
                         <h6 class="font-semibold text-gray-600 mb-2">Present Address</h6>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
                             <select name="present_division_id" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">Division</option>
                                 @foreach ($divisions as $division)
@@ -313,8 +377,9 @@
                                         {{ $division->name }} - {{ $division->bn_name }}
                                     </option>
                                 @endforeach
-                            </select>
+                            </select>@if(!empty($publicAdmissionMode))<label class="{{ $labelClasses }}">Division</label></div>@endif
 
+                            @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
                             <select name="present_district_id" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">District</option>
                                 @foreach ($districts as $district)
@@ -322,8 +387,9 @@
                                         {{ $district->name }} - {{ $district->bn_name }}
                                     </option>
                                 @endforeach
-                            </select>
+                            </select>@if(!empty($publicAdmissionMode))<label class="{{ $labelClasses }}">District</label></div>@endif
 
+                            @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
                             <select name="present_police_station_id" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">Police Station</option>
                                 @foreach ($policeStations as $ps)
@@ -331,8 +397,9 @@
                                         {{ $ps->name }} - {{ $ps->bn_name }}
                                     </option>
                                 @endforeach
-                            </select>
+                            </select>@if(!empty($publicAdmissionMode))<label class="{{ $labelClasses }}">Police Station</label></div>@endif
 
+                            @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
                             <select name="present_post_office_id" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">Post Office</option>
                                 @foreach ($postOffices as $po)
@@ -340,7 +407,7 @@
                                         {{ $po->name }} - {{ $po->bn_name }}
                                     </option>
                                 @endforeach
-                            </select>
+                            </select>@if(!empty($publicAdmissionMode))<label class="{{ $labelClasses }}">Post Office</label></div>@endif
                         </div>
 
                         <textarea name="present_address" rows="3" class="border-gray-300 rounded-lg p-2 w-full mt-2"
@@ -352,6 +419,7 @@
                         <h6 class="font-semibold text-gray-600 mb-2">Permanent Address</h6>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
                             <select name="permanent_division_id" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">Division</option>
                                 @foreach ($divisions as $division)
@@ -359,8 +427,9 @@
                                         {{ $division->name }} - {{ $division->bn_name }}
                                     </option>
                                 @endforeach
-                            </select>
+                            </select>@if(!empty($publicAdmissionMode))<label class="{{ $labelClasses }}">Division</label></div>@endif
 
+                            @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
                             <select name="permanent_district_id" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">District</option>
                                 @foreach ($districts as $district)
@@ -368,8 +437,9 @@
                                         {{ $district->name }} - {{ $district->bn_name }}
                                     </option>
                                 @endforeach
-                            </select>
+                            </select>@if(!empty($publicAdmissionMode))<label class="{{ $labelClasses }}">District</label></div>@endif
 
+                            @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
                             <select name="permanent_police_station_id" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">Police Station</option>
                                 @foreach ($policeStations as $ps)
@@ -377,8 +447,9 @@
                                         {{ $ps->name }} - {{ $ps->bn_name }}
                                     </option>
                                 @endforeach
-                            </select>
+                            </select>@if(!empty($publicAdmissionMode))<label class="{{ $labelClasses }}">Police Station</label></div>@endif
 
+                            @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
                             <select name="permanent_post_office_id" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">Post Office</option>
                                 @foreach ($postOffices as $po)
@@ -386,7 +457,7 @@
                                         {{ $po->name }} - {{ $po->bn_name }}
                                     </option>
                                 @endforeach
-                            </select>
+                            </select>@if(!empty($publicAdmissionMode))<label class="{{ $labelClasses }}">Post Office</label></div>@endif
                         </div>
 
                         <textarea class="border-gray-300 rounded-lg p-2 w-full mt-2" name="permanent_address" rows="3"
@@ -398,7 +469,7 @@
         </details>
 
         {{-- ================= PARENTS INFO ================= --}}
-        <details class="student-section" data-student-panel="parents">
+        <details class="student-section" data-student-panel="parents" @if(!empty($publicAdmissionMode)) open @endif>
             <summary class="student-section__head">
                 <div>
                     <h5>Parents Information</h5>
@@ -438,8 +509,8 @@
                 <div class="relative w-full">
                     <input type="text" name="father_phone"
                         value="{{ old('father_phone', $student->father_phone ?? '') }}" class="{{ $inputClasses }}"
-                        id="father_phone">
-                    <label for="father_phone" class="{{ $labelClasses }}">Father Phone</label>
+                        id="father_phone" {{ !empty($publicAdmissionMode) ? 'aria-required=true' : '' }}>
+                    <label for="father_phone" class="{{ $labelClasses }}">Father Phone @if(!empty($publicAdmissionMode)) <span class="public-parent-phone-note">(at least one required)</span> @endif</label>
                 </div>
 
                 <div class="relative w-full">
@@ -479,8 +550,8 @@
                 <div class="relative w-full">
                     <input type="text" name="mother_phone"
                         value="{{ old('mother_phone', $student->mother_phone ?? '') }}" class="{{ $inputClasses }}"
-                        id="mother_phone">
-                    <label for="mother_phone" class="{{ $labelClasses }}">Mother Phone</label>
+                        id="mother_phone" {{ !empty($publicAdmissionMode) ? 'aria-required=true' : '' }}>
+                    <label for="mother_phone" class="{{ $labelClasses }}">Mother Phone @if(!empty($publicAdmissionMode)) <span class="public-parent-phone-note">(at least one required)</span> @endif</label>
                 </div>
 
                 <div class="relative w-full">
@@ -502,7 +573,7 @@
         </details>
 
         {{-- ================= GUARDIAN INFO ================= --}}
-        <details class="student-section" data-student-panel="guardian">
+        <details class="student-section" data-student-panel="guardian" @if(!empty($publicAdmissionMode)) open @endif>
             <summary class="student-section__head">
                 <div>
                     <h5>Guardian Information</h5>
@@ -579,7 +650,7 @@
         </details>
 
         {{-- ================= PREVIOUS ACADEMIC ================= --}}
-        <details class="student-section" data-student-panel="previous">
+        <details class="student-section" data-student-panel="previous" @if(!empty($publicAdmissionMode)) open @endif>
             <summary class="student-section__head">
                 <div>
                     <h5>Previous Academic History</h5>

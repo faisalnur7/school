@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Transaction extends Model
 {
@@ -173,10 +174,42 @@ class Transaction extends Model
 
     public static function generateReference(): string
     {
-        $date     = now()->format('Ymd');
-        $sequence = str_pad(static::whereDate('created_at', today())->count() + 1, 4, '0', STR_PAD_LEFT);
+        return DB::transaction(function (): string {
+            $date = now();
 
-        return "TXN-{$date}-{$sequence}";
+            // Keep transaction references independent from payment receipt numbers.
+            DB::table('transaction_sequences')->insertOrIgnore([
+                'sequence_date' => $date->toDateString(),
+                'last_number' => 0,
+                'created_at' => $date,
+                'updated_at' => $date,
+            ]);
+
+            $sequence = DB::table('transaction_sequences')
+                ->where('sequence_date', $date->toDateString())
+                ->lockForUpdate()
+                ->first();
+
+            if (!$sequence) {
+                throw new \RuntimeException('Unable to initialize the transaction reference sequence.');
+            }
+
+            $nextNumber = $sequence->last_number + 1;
+
+            DB::table('transaction_sequences')
+                ->where('sequence_date', $date->toDateString())
+                ->update([
+                    'last_number' => $nextNumber,
+                    'updated_at' => $date,
+                ]);
+
+            return 'TXN-' . $date->format('Ymd') . '-' . str_pad(
+                $nextNumber,
+                4,
+                '0',
+                STR_PAD_LEFT
+            );
+        });
     }
 
     /**

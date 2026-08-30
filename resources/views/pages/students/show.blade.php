@@ -1043,7 +1043,7 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>
                                             <div class="student-profile-info-value">{{ $sale->payment?->receipt_no ?? 'N/A' }}</div>
-                                            <div class="text-muted small">{{ optional($sale->created_at)->format('d M, Y') ?? 'N/A' }}</div>
+                                            <div class="text-muted small">{{ optional($sale->payment?->payment_date)->format('d M, Y') ?? 'N/A' }}</div>
                                         </td>
                                         <td style="min-width: 240px;">
                                             <div class="d-flex flex-wrap" style="gap: 0.4rem;">

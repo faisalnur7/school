@@ -86,6 +86,44 @@ class FeeCollectionController extends Controller
         );
     }
 
+    private function nextReceiptNumber(): string
+    {
+        $date = now();
+
+        // Create the daily counter once; the primary key makes concurrent creation safe.
+        DB::table('payment_sequences')->insertOrIgnore([
+            'sequence_date' => $date->toDateString(),
+            'last_number' => 0,
+            'created_at' => $date,
+            'updated_at' => $date,
+        ]);
+
+        $sequence = DB::table('payment_sequences')
+            ->where('sequence_date', $date->toDateString())
+            ->lockForUpdate()
+            ->first();
+
+        if (!$sequence) {
+            throw new \RuntimeException('Unable to initialize the payment receipt sequence.');
+        }
+
+        $nextNumber = $sequence->last_number + 1;
+
+        DB::table('payment_sequences')
+            ->where('sequence_date', $date->toDateString())
+            ->update([
+                'last_number' => $nextNumber,
+                'updated_at' => $date,
+            ]);
+
+        return 'R-' . $date->format('Ymd') . '-' . str_pad(
+            $nextNumber,
+            4,
+            '0',
+            STR_PAD_LEFT
+        );
+    }
+
     private function buildStudentSearchQuery(Request $request)
     {
         $studentCid = trim((string) $request->input('student_id', ''));
@@ -520,6 +558,7 @@ class FeeCollectionController extends Controller
             'inventory_dues.*.paid_amount'            => 'nullable|numeric|min:0',
             'student_id'     => 'nullable|exists:students,id',
             'payment_amount' => 'nullable|numeric|min:0',
+            'payment_date'   => 'required|date',
             'payment_method' => 'nullable|string|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other,cash,bank,mobile_wallet',
             'account_type'   => 'nullable|in:App\\Models\\HandCash,App\\Models\\BankAccount,App\\Models\\MobileBankingAccount',
             'account_id'     => 'nullable|integer',
@@ -757,6 +796,7 @@ class FeeCollectionController extends Controller
             }
 
             $paymentMethod = $this->normalizePaymentMethod($request->payment_method);
+            $paymentDate = Carbon::parse($request->payment_date)->toDateString();
             $paymentAmount = 0.0;
 
             foreach ($fees as $fee) {
@@ -783,15 +823,12 @@ class FeeCollectionController extends Controller
                 'scholarship_amount' => $totalScholarshipDiscount,
                 'discount_type'      => $cartDiscount > 0 ? ($request->discount_type ?? 'flat') : null,
                 'discount_amount'    => $cartDiscount,
-                'payment_date'    => now(),
+                'payment_date'    => $paymentDate,
                 'payment_method'  => $paymentMethod,
                 'account_type'    => $request->account_type ?? null,
                 'account_id'      => $request->account_id ?? null,
                 'description'     => $paymentDescription,
-                'receipt_no'      => 'R-' . now()->format('Ymd') . '-' . str_pad(
-                                        Payment::whereDate('created_at', today())->count() + 1,
-                                        4, '0', STR_PAD_LEFT
-                                    ),
+                'receipt_no'      => $this->nextReceiptNumber(),
                 'collected_by'    => auth()->id(),
             ]);
 
@@ -874,6 +911,8 @@ class FeeCollectionController extends Controller
                 if ($category) {
                     $payment->recordIncome($category->id, 'Student Payment', [
                         'amount'         => $studentPaymentAmount,
+                        'income_date'    => $paymentDate,
+                        'transaction_date' => $paymentDate,
                         'payment_method' => $paymentMethod,
                         'account_type'   => $payment->account_type,
                         'account_id'     => $payment->account_id,
@@ -887,6 +926,8 @@ class FeeCollectionController extends Controller
                 if ($category) {
                     $payment->recordIncome($category->id, 'Transport Fee', [
                         'amount'         => $transportPaymentAmount,
+                        'income_date'    => $paymentDate,
+                        'transaction_date' => $paymentDate,
                         'payment_method' => $paymentMethod,
                         'account_type'   => $payment->account_type,
                         'account_id'     => $payment->account_id,

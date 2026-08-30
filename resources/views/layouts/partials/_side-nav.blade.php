@@ -67,6 +67,18 @@
                 </li>
                 @endif
 
+                <!-- Admission Management -->
+                @if(auth()->user()?->hasPermission('view_admission_management'))
+                <li class="nav-item-modern">
+                    <a href="{{ route('admissions.hub') }}"
+                       class="nav-link-modern {{ request()->routeIs('admissions.*') ? 'active' : '' }}">
+                        <span class="nav-icon"><i class="fas fa-user-plus"></i></span>
+                        <span class="nav-text">{{ __('Admission Management') }}</span>
+                        @if(request()->routeIs('admissions.*'))<span class="nav-indicator"></span>@endif
+                    </a>
+                </li>
+                @endif
+
                 <!-- Students -->
                 @if(auth()->user()?->hasPermission('view_students'))
                 <li class="nav-item-modern">

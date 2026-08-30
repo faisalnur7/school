@@ -1,0 +1,4 @@
+@extends('layouts.master')
+@section('contents')
+<div class="container-fluid py-3"><h2>Converted Admissions</h2><p class="text-muted">Applications already converted into active student records.</p><div class="card border-0 shadow-sm"><div class="table-responsive"><table class="table mb-0"><thead><tr><th>Application</th><th>Applicant</th><th>Student ID</th><th>Class</th><th>Status</th></tr></thead><tbody>@forelse($applications as $application)<tr><td>{{ $application->application_number }}</td><td>{{ $application->applicant_data['full_name_en'] ?? '-' }}</td><td>{{ $application->convertedStudent?->student_cid ?? $application->converted_student_id }}</td><td>{{ $application->schoolClass?->name_en }}</td><td><span class="badge badge-success">Converted</span></td></tr>@empty<tr><td colspan="5" class="text-center py-5 text-muted">No converted admissions.</td></tr>@endforelse</tbody></table></div><div class="p-3">{{ $applications->links() }}</div></div></div>
+@endsection

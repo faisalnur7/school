@@ -260,7 +260,7 @@
                             <td class="text-end fw-semibold {{ $sale->due_amount > 0 ? 'text-danger' : 'text-muted' }}">
                                 BDT {{ number_format($sale->due_amount, 2) }}
                             </td>
-                            <td class="text-muted">{{ optional($sale->created_at)->format('d M Y') }}</td>
+                            <td class="text-muted">{{ optional($sale->payment?->payment_date)->format('d M Y') }}</td>
                             <td class="text-end px-4">
                                 @if($sale->payment)
                                     <a href="{{ route('payments.receipt', $sale->payment->id) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-3">
