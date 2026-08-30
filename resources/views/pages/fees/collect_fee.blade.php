@@ -3778,7 +3778,7 @@
                 let totalCount = cartIds.size + cartInvIds.size;
                 totalCount += cartDueIds.size;
                 $badgeEl.text(totalCount + (totalCount === 1 ? ' item' : ' items'));
-                $collectBtns.prop('disabled', totalCount === 0 || paidTotal <= 0);
+                $collectBtns.prop('disabled', totalCount === 0);
                 $('#paymentAmount').val(paidTotal.toFixed(2));
 
                 const cartCountText = totalCount === 0

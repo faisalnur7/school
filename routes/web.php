@@ -206,7 +206,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/approved', [AdmissionController::class, 'approved'])->name('admissions.approved');
         Route::get('/converted', [AdmissionController::class, 'converted'])->name('admissions.converted');
         Route::get('/applications/{application}', [AdmissionController::class, 'showApplication'])->name('admissions.applications.show');
-        Route::get('/payments', [AdmissionController::class, 'payments'])->name('admissions.payments');
         Route::get('/admit-cards', [AdmissionController::class, 'admitCards'])->name('admissions.admit-cards');
         Route::get('/results', [AdmissionController::class, 'results'])->name('admissions.results');
         Route::get('/results/pdf', [AdmissionController::class, 'resultsPdf'])->name('admissions.results.pdf');

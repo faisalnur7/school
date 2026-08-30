@@ -791,8 +791,8 @@ class FeeCollectionController extends Controller
             $feePaymentDefault = max(0, $totalAfterScholarship - $cartDiscount);
             $finalAmount       = $feePaymentDefault + $inventoryPaidTotal + $inventoryDuePaidTotal;
 
-            if ($finalAmount <= 0) {
-                return response()->json(['message' => 'Payment amount must be greater than zero.'], 422);
+            if ($finalAmount < 0) {
+                return response()->json(['message' => 'Payment amount cannot be negative.'], 422);
             }
 
             $paymentMethod = $this->normalizePaymentMethod($request->payment_method);
