@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\AcademicSession;
 use App\Models\AdmissionAdmitCard;
 use App\Models\AdmissionApplication;
+use App\Models\AdmissionApplicationDraft;
 use App\Models\AdmissionExam;
 use App\Models\AdmissionExamClassSetting;
 use App\Models\AdmissionPayment;
@@ -29,6 +30,7 @@ use App\Services\AdmissionConversionService;
 use App\Services\JournalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Mpdf\Mpdf;
 
@@ -88,6 +90,41 @@ class AdmissionController extends Controller
         return view('pages.admissions.exams.index', compact('exams'));
     }
 
+    public function examDetails(AdmissionExam $exam)
+    {
+        $applications = $exam->applications()->with(['schoolClass', 'admitCard', 'payment'])->get();
+        $totalApplications = $applications->count();
+        $paidApplications = $applications->where('payment_status', 'paid')->count();
+        $appearedStudents = $applications->filter(fn ($application) => $application->admitCard?->attendance_status === 'present')->count();
+        $passedStudents = $applications->where('result_status', 'passed')->count();
+        $failedStudents = $applications->where('result_status', 'failed')->count();
+        $admittedStudents = $applications->where('conversion_status', 'converted')->count();
+        $notAdmittedStudents = $applications->where('conversion_status', 'not_converted')->count();
+        $pendingReview = $applications->where('review_status', 'pending')->count();
+        $approvedAwaitingAdmission = $applications->where('review_status', 'approved')->where('conversion_status', 'not_converted')->count();
+        $rejectedApplications = $applications->where('review_status', 'rejected')->count();
+        $averageMarks = $applications->whereNotNull('total_marks')->avg('total_marks');
+        $collectedAmount = $applications->sum(fn ($application) => (float) ($application->payment?->total_amount ?: $application->payment?->amount ?: 0));
+
+        $classBreakdown = $applications->groupBy('school_class_id')->map(function ($classApplications) {
+            return [
+                'class' => $classApplications->first()?->schoolClass?->name_en ?? 'Unassigned',
+                'total' => $classApplications->count(),
+                'paid' => $classApplications->where('payment_status', 'paid')->count(),
+                'appeared' => $classApplications->filter(fn ($application) => $application->admitCard?->attendance_status === 'present')->count(),
+                'passed' => $classApplications->where('result_status', 'passed')->count(),
+                'failed' => $classApplications->where('result_status', 'failed')->count(),
+                'admitted' => $classApplications->where('conversion_status', 'converted')->count(),
+            ];
+        })->values();
+
+        return view('pages.admissions.exams.details', compact(
+            'exam', 'totalApplications', 'paidApplications', 'appearedStudents', 'passedStudents',
+            'failedStudents', 'admittedStudents', 'notAdmittedStudents', 'pendingReview',
+            'approvedAwaitingAdmission', 'rejectedApplications', 'averageMarks', 'collectedAmount', 'classBreakdown'
+        ));
+    }
+
     public function createExam()
     {
         return view('pages.admissions.exams.form', ['exam' => null, 'sessions' => AcademicSession::orderByDesc('id')->get(), 'classes' => SchoolClass::where('status', 1)->orderBy('order')->get()]);
@@ -101,11 +138,12 @@ class AdmissionController extends Controller
 
     public function storeExam(Request $request)
     {
-        $data = $request->validate(['name' => 'required|string|max:255', 'academic_session_id' => 'required|exists:academic_sessions,id', 'exam_date' => 'required|date', 'form_fee' => 'required|numeric|min:0.01', 'venue' => 'nullable|string|max:255', 'reporting_time' => 'nullable|string|max:100', 'instructions' => 'nullable|string', 'status' => 'nullable|boolean', 'pass_marks' => 'required|array|min:1', 'pass_marks.*' => 'required|numeric|min:0']);
+        $data = $request->validate(['name' => 'required|string|max:255', 'academic_session_id' => 'required|exists:academic_sessions,id', 'exam_date' => 'required|date', 'form_fee' => 'required|numeric|min:0.01', 'venue' => 'nullable|string|max:255', 'reporting_time' => 'nullable|string|max:100', 'instructions' => 'nullable|string', 'status' => 'nullable|boolean', 'total_marks' => 'required|array|min:1', 'total_marks.*' => 'required|integer|min:1', 'pass_marks' => 'required|array|min:1', 'pass_marks.*' => 'required|integer|min:0']);
+        foreach ($data['pass_marks'] as $classId => $passMark) abort_if((float) $passMark > (float) ($data['total_marks'][$classId] ?? 0), 422, 'Pass mark cannot exceed total marks.');
         return DB::transaction(function () use ($data, $request) {
             if ($request->boolean('status')) AdmissionExam::where('status', true)->update(['status' => false]);
             $exam = AdmissionExam::create(array_merge(collect($data)->except('pass_marks')->toArray(), ['status' => $request->boolean('status'), 'created_by' => auth()->id()]));
-            foreach ($data['pass_marks'] as $classId => $passMark) AdmissionExamClassSetting::create(['admission_exam_id' => $exam->id, 'school_class_id' => $classId, 'pass_mark' => $passMark]);
+            foreach ($data['pass_marks'] as $classId => $passMark) AdmissionExamClassSetting::create(['admission_exam_id' => $exam->id, 'school_class_id' => $classId, 'total_mark' => $data['total_marks'][$classId], 'pass_mark' => $passMark]);
             return redirect()->route('admissions.exams')->with('success', 'Admission exam created successfully.');
         });
     }
@@ -118,11 +156,12 @@ class AdmissionController extends Controller
 
     public function updateExam(Request $request, AdmissionExam $exam)
     {
-        $data = $request->validate(['name' => 'required|string|max:255', 'academic_session_id' => 'required|exists:academic_sessions,id', 'exam_date' => 'required|date', 'form_fee' => 'required|numeric|min:0.01', 'venue' => 'nullable|string|max:255', 'reporting_time' => 'nullable|string|max:100', 'instructions' => 'nullable|string', 'status' => 'nullable|boolean', 'pass_marks' => 'required|array|min:1', 'pass_marks.*' => 'required|numeric|min:0']);
+        $data = $request->validate(['name' => 'required|string|max:255', 'academic_session_id' => 'required|exists:academic_sessions,id', 'exam_date' => 'required|date', 'form_fee' => 'required|numeric|min:0.01', 'venue' => 'nullable|string|max:255', 'reporting_time' => 'nullable|string|max:100', 'instructions' => 'nullable|string', 'status' => 'nullable|boolean', 'total_marks' => 'required|array|min:1', 'total_marks.*' => 'required|integer|min:1', 'pass_marks' => 'required|array|min:1', 'pass_marks.*' => 'required|integer|min:0']);
+        foreach ($data['pass_marks'] as $classId => $passMark) abort_if((float) $passMark > (float) ($data['total_marks'][$classId] ?? 0), 422, 'Pass mark cannot exceed total marks.');
         DB::transaction(function () use ($data, $request, $exam) {
             if ($request->boolean('status')) AdmissionExam::where('status', true)->where('id', '!=', $exam->id)->update(['status' => false]);
             $exam->update(array_merge(collect($data)->except('pass_marks')->toArray(), ['status' => $request->boolean('status')]));
-            foreach ($data['pass_marks'] as $classId => $passMark) AdmissionExamClassSetting::updateOrCreate(['admission_exam_id' => $exam->id, 'school_class_id' => $classId], ['pass_mark' => $passMark]);
+            foreach ($data['pass_marks'] as $classId => $passMark) AdmissionExamClassSetting::updateOrCreate(['admission_exam_id' => $exam->id, 'school_class_id' => $classId], ['total_mark' => $data['total_marks'][$classId], 'pass_mark' => $passMark]);
         });
         return redirect()->route('admissions.exams')->with('success', 'Admission exam updated successfully.');
     }
@@ -235,25 +274,157 @@ class AdmissionController extends Controller
         return back()->with('success', 'Payment reference submitted for verification.');
     }
 
-    public function marks(AdmissionExam $exam)
+    public function marks(Request $request, AdmissionExam $exam)
     {
-        $applications = $exam->applications()->with('schoolClass')->where('payment_status', 'paid')->latest()->get();
-        return view('pages.admissions.results.marks', compact('exam', 'applications'));
+        $classSettings = $exam->classSettings()->with('schoolClass')->get();
+        $classIds = $classSettings->pluck('school_class_id');
+        $classStats = $exam->applications()
+            ->where('payment_status', 'paid')
+            ->whereIn('school_class_id', $classIds)
+            ->selectRaw('school_class_id, COUNT(*) as applicants_count, SUM(total_marks IS NOT NULL) as marked_count')
+            ->groupBy('school_class_id')
+            ->get()
+            ->keyBy('school_class_id');
+
+        $selectedClassId = $request->integer('school_class_id') ?: null;
+        abort_if($selectedClassId && ! $classIds->contains($selectedClassId), 404);
+
+        $applications = collect();
+        $selectedClass = null;
+        $selectedSetting = null;
+        if ($selectedClassId) {
+            $selectedSetting = $classSettings->firstWhere('school_class_id', $selectedClassId);
+            $selectedClass = $selectedSetting?->schoolClass;
+            $applications = $exam->applications()
+                ->with('schoolClass')
+                ->where('payment_status', 'paid')
+                ->where('school_class_id', $selectedClassId)
+                ->latest()
+                ->get();
+        }
+
+        return view('pages.admissions.results.marks', compact(
+            'exam', 'classSettings', 'classStats', 'applications', 'selectedClass', 'selectedClassId', 'selectedSetting'
+        ));
     }
 
     public function storeMarks(Request $request, AdmissionApplication $application)
     {
         $data = $request->validate(['total_marks' => 'required|numeric|min:0']);
-        $passMark = AdmissionExamClassSetting::where('admission_exam_id', $application->admission_exam_id)->where('school_class_id', $application->school_class_id)->value('pass_mark');
+        $setting = AdmissionExamClassSetting::where('admission_exam_id', $application->admission_exam_id)->where('school_class_id', $application->school_class_id)->first();
+        $passMark = $setting?->pass_mark;
+        $totalMark = (float) ($setting?->total_mark ?? 100);
         abort_if($passMark === null, 422, 'No pass mark is configured for this class.');
+        abort_if((float) $data['total_marks'] > $totalMark, 422, 'Marks cannot exceed the configured total marks.');
         $application->update(['total_marks' => $data['total_marks'], 'pass_mark_snapshot' => $passMark, 'result_status' => (float) $data['total_marks'] >= (float) $passMark ? 'passed' : 'failed']);
         return back()->with('success', 'Marks saved.');
     }
 
+    public function storeMarksBatch(Request $request, AdmissionExam $exam)
+    {
+        $data = $request->validate([
+            'school_class_id' => 'required|integer',
+            'marks' => 'required|array',
+            'marks.*' => 'nullable|integer|min:0',
+        ]);
+        $setting = $exam->classSettings()->where('school_class_id', $data['school_class_id'])->firstOrFail();
+        $totalMark = (int) ($setting->total_mark ?? 100);
+
+        DB::transaction(function () use ($data, $exam, $setting, $totalMark) {
+            $applications = $exam->applications()
+                ->where('payment_status', 'paid')
+                ->where('school_class_id', $data['school_class_id'])
+                ->whereIn('id', array_keys($data['marks']))
+                ->get()
+                ->keyBy('id');
+
+            foreach ($data['marks'] as $applicationId => $mark) {
+                $application = $applications->get($applicationId);
+                abort_unless($application, 422, 'One or more applications do not belong to this exam class.');
+                abort_if($mark !== null && (int) $mark > $totalMark, 422, 'Marks cannot exceed the configured total marks.');
+                $application->update([
+                    'total_marks' => $mark,
+                    'pass_mark_snapshot' => $mark === null ? null : $setting->pass_mark,
+                    'result_status' => $mark === null ? 'pending' : ((int) $mark >= (int) $setting->pass_mark ? 'passed' : 'failed'),
+                ]);
+            }
+        });
+
+        return back()->with('success', 'All marks saved successfully.');
+    }
+
     public function results(Request $request)
     {
-        $applications = AdmissionApplication::with(['exam', 'schoolClass'])->whereNotNull('total_marks')->orderByDesc('total_marks')->when($request->filled('result_status'), fn ($q) => $q->where('result_status', $request->result_status))->get();
-        return view('pages.admissions.results.index', compact('applications'));
+        $classId = $request->integer('school_class_id');
+        $sessionId = $request->integer('academic_session_id');
+        $resultStatus = trim((string) $request->input('result_status', ''));
+        $applications = $this->resultsQuery($request)
+            ->with(['exam', 'schoolClass', 'academicSession'])
+            ->orderByDesc('total_marks')
+            ->orderBy('id')
+            ->get();
+        $classes = SchoolClass::where('status', 1)->orderBy('order')->get();
+        $sessions = AcademicSession::orderByDesc('id')->get();
+        $resultColumnOptions = $this->resultColumnOptions();
+        $selectedColumns = $this->resolveResultColumns($request, $resultColumnOptions);
+        return view('pages.admissions.results.index', compact('applications', 'classes', 'sessions', 'classId', 'sessionId', 'resultStatus', 'resultColumnOptions', 'selectedColumns'));
+    }
+
+    public function resultsPdf(Request $request)
+    {
+        $applications = $this->resultsQuery($request)
+            ->with(['exam', 'schoolClass', 'academicSession'])
+            ->orderByDesc('total_marks')
+            ->orderBy('id')
+            ->get();
+        $filters = [
+            'class' => $request->integer('school_class_id') ? SchoolClass::find($request->integer('school_class_id'))?->name_en : 'All classes',
+            'session' => $request->integer('academic_session_id') ? AcademicSession::find($request->integer('academic_session_id'))?->name_en : 'All sessions',
+            'status' => in_array($request->input('result_status'), ['passed', 'failed']) ? ucfirst($request->input('result_status')) : 'All results',
+        ];
+        $resultColumnOptions = $this->resultColumnOptions();
+        $selectedColumns = $this->resolveResultColumns($request, $resultColumnOptions);
+        $pdf = new Mpdf(['format' => 'A4', 'margin_top' => 12, 'margin_bottom' => 12, 'margin_left' => 10, 'margin_right' => 10]);
+        $pdf->WriteHTML(view('pages.admissions.results.pdf', compact('applications', 'filters', 'resultColumnOptions', 'selectedColumns'))->render());
+
+        return response($pdf->Output('', 'S'))
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="admission-results-' . now()->format('Ymd-His') . '.pdf"');
+    }
+
+    private function resultsQuery(Request $request)
+    {
+        $classId = $request->integer('school_class_id');
+        $sessionId = $request->integer('academic_session_id');
+        $resultStatus = trim((string) $request->input('result_status', ''));
+
+        return AdmissionApplication::query()
+            ->whereNotNull('total_marks')
+            ->when($classId, fn ($query) => $query->where('school_class_id', $classId))
+            ->when($sessionId, fn ($query) => $query->where('academic_session_id', $sessionId))
+            ->when(in_array($resultStatus, ['passed', 'failed']), fn ($query) => $query->where('result_status', $resultStatus));
+    }
+
+    private function resultColumnOptions(): array
+    {
+        return [
+            'applicant' => 'Applicant',
+            'class' => 'Class',
+            'session' => 'Session',
+            'total_mark' => 'Total mark',
+            'pass_mark' => 'Pass mark',
+            'status' => 'Status',
+        ];
+    }
+
+    private function resolveResultColumns(Request $request, array $options): array
+    {
+        if (! $request->has('columns')) {
+            return array_keys($options);
+        }
+
+        $selected = array_values(array_intersect((array) $request->input('columns', []), array_keys($options)));
+        return $selected ?: array_keys($options);
     }
 
     public function review(Request $request, AdmissionApplication $application)
@@ -270,10 +441,23 @@ class AdmissionController extends Controller
         return back()->with('success', 'Application proceeded to admission successfully.');
     }
 
-    public function admitCards()
+    public function admitCards(Request $request)
     {
-        $applications = AdmissionApplication::with(['exam', 'schoolClass', 'admitCard'])->where('payment_status', 'paid')->latest()->paginate(20);
-        return view('pages.admissions.admit-cards.index', compact('applications'));
+        $classId = $request->integer('school_class_id');
+        $examId = $request->integer('exam_id');
+        $sessionId = $request->integer('academic_session_id');
+        $applications = AdmissionApplication::with(['exam', 'academicSession', 'schoolClass', 'admitCard'])
+            ->where('payment_status', 'paid')
+            ->when($classId, fn ($query) => $query->where('school_class_id', $classId))
+            ->when($examId, fn ($query) => $query->where('admission_exam_id', $examId))
+            ->when($sessionId, fn ($query) => $query->where('academic_session_id', $sessionId))
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+        $classes = SchoolClass::where('status', 1)->orderBy('order')->get();
+        $exams = AdmissionExam::latest()->get();
+        $sessions = AcademicSession::orderByDesc('id')->get();
+        return view('pages.admissions.admit-cards.index', compact('applications', 'classes', 'exams', 'sessions', 'classId', 'examId', 'sessionId'));
     }
 
     public function generateAdmitCard(AdmissionApplication $application)
@@ -335,8 +519,16 @@ class AdmissionController extends Controller
         return response($pdf->Output('', 'S'))->header('Content-Type', 'application/pdf')->header('Content-Disposition', 'attachment; filename="application-' . $application->application_number . '.pdf"');
     }
 
-    public function publicForm()
+    public function publicForm(Request $request)
     {
+        $draft = null;
+        $student = null;
+        $draftToken = trim((string) $request->input('draft', ''));
+        if ($draftToken !== '') {
+            $draft = $this->findActiveDraft($draftToken);
+            $student = new Student();
+            $student->fill($draft->applicant_data);
+        }
         return view('admissions.public.form', [
             'exam' => AdmissionExam::with('classSettings.schoolClass')->where('status', true)->latest()->first(),
             'academicSessions' => AcademicSession::all(),
@@ -350,18 +542,35 @@ class AdmissionController extends Controller
             'professions' => Profession::orderBy('name')->get(),
             'feeSets' => FeeSet::all(),
             'nextStudentCid' => Student::generateNextCid(),
+            'draft' => $draft,
+            'draftToken' => $draftToken,
+            'student' => $student,
         ]);
     }
 
     public function publicStore(Request $request)
     {
         $exam = AdmissionExam::with('classSettings')->where('status', true)->latest()->firstOrFail();
+        $dateOfBirth = trim((string) $request->input('date_of_birth', ''));
+        if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $dateOfBirth)) {
+            try {
+                $request->merge(['date_of_birth' => Carbon::createFromFormat('d/m/Y', $dateOfBirth)->format('Y-m-d')]);
+            } catch (\Throwable) {
+                // Keep the original value so Laravel returns its normal date validation error.
+            }
+        }
         $data = $request->validate([
             'academic_session_id' => 'nullable|exists:academic_sessions,id', 'school_class_id' => 'required|exists:school_classes,id', 'section_id' => 'nullable|exists:sections,id', 'group_id' => 'nullable|exists:groups,id',
             'full_name_en' => 'required|string|max:255', 'full_name_bn' => 'nullable|string|max:255', 'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:200', 'dimensions:min_width=290,max_width=300,min_height=440,max_height=450'], 'date_of_birth' => 'nullable|date', 'birth_certificate_number' => 'nullable|string|max:255', 'gender' => 'required|integer|in:1,2', 'religion' => 'required|integer|in:1,2,3,4', 'blood_group' => 'nullable|integer', 'disable' => 'nullable|boolean',
             'father_name' => 'required|string|max:255', 'father_nid_number' => 'nullable|string|max:255', 'fathers_profession_id' => 'nullable|exists:professions,id', 'father_phone' => 'nullable|string|required_without:mother_phone|max:50', 'father_email' => 'nullable|email|max:255', 'mother_name' => 'required|string|max:255', 'mother_nid_number' => 'nullable|string|max:255', 'mothers_profession_id' => 'nullable|exists:professions,id', 'mother_phone' => 'nullable|string|required_without:father_phone|max:50', 'mother_email' => 'nullable|email|max:255', 'annual_income' => 'nullable|string|max:255',
             'present_address' => 'nullable|string', 'present_division_id' => 'nullable|exists:divisions,id', 'present_district_id' => 'nullable|exists:districts,id', 'present_police_station_id' => 'nullable|exists:police_stations,id', 'present_post_office_id' => 'nullable|exists:post_offices,id', 'permanent_address' => 'nullable|string', 'permanent_division_id' => 'nullable|exists:divisions,id', 'permanent_district_id' => 'nullable|exists:districts,id', 'permanent_police_station_id' => 'nullable|exists:police_stations,id', 'permanent_post_office_id' => 'nullable|exists:post_offices,id',
-            'guardian_type' => 'nullable|integer|in:1,2,3', 'guardian_name' => 'nullable|string|max:255', 'guardian_relation' => 'nullable|string|max:255', 'guardian_profession_id' => 'nullable|exists:professions,id', 'guardian_address' => 'nullable|string', 'guardian_phone' => 'nullable|string|max:50', 'guardian_email' => 'nullable|email|max:255', 'previous_school' => 'nullable|string|max:255', 'previous_class_appeared' => 'nullable|string|max:255', 'tc_number' => 'nullable|string|max:255',
+            'guardian_type' => 'nullable|integer|in:1,2,3', 'guardian_name' => 'nullable|required_if:guardian_type,3|string|max:255', 'guardian_relation' => 'nullable|required_if:guardian_type,3|string|max:255', 'guardian_profession_id' => 'nullable|exists:professions,id', 'guardian_address' => 'nullable|string', 'guardian_phone' => 'nullable|required_if:guardian_type,3|string|max:50', 'guardian_email' => 'nullable|email|max:255', 'previous_school' => 'nullable|string|max:255', 'previous_class_appeared' => 'nullable|string|max:255', 'tc_number' => 'nullable|string|max:255',
+        ], [
+            'father_phone.required_without' => 'Enter either the father or mother phone number.',
+            'mother_phone.required_without' => 'Enter either the father or mother phone number.',
+            'guardian_name.required_if' => 'Guardian name is required when guardian is Other.',
+            'guardian_relation.required_if' => 'Guardian relationship is required when guardian is Other.',
+            'guardian_phone.required_if' => 'Guardian phone is required when guardian is Other.',
         ]);
         if (!empty($data['date_of_birth'])) {
             $data['date_of_birth'] = preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $data['date_of_birth'])
@@ -369,34 +578,152 @@ class AdmissionController extends Controller
                 : Carbon::parse($data['date_of_birth'])->format('Y-m-d');
         }
         abort_unless($exam->classSettings->contains('school_class_id', (int) $data['school_class_id']), 422, 'This class is not configured for the active exam.');
-        $number = 'APP-' . now()->format('Y') . '-' . strtoupper(Str::random(8));
-        if ($request->hasFile('image')) { $image = $request->file('image'); $filename = time() . '_' . Str::random(12) . '.' . $image->getClientOriginalExtension(); $image->move(public_path('uploads/students'), $filename); $data['image'] = 'uploads/students/' . $filename; }
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $filename = time() . '_' . Str::random(12) . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('uploads/admission-drafts'), $filename);
+            $data['image'] = 'uploads/admission-drafts/' . $filename;
+        }
         $data['academic_session_id'] = $exam->academic_session_id;
-        $application = AdmissionApplication::create(['admission_exam_id' => $exam->id, 'application_number' => $number, 'application_no' => $number, 'academic_session_id' => $exam->academic_session_id, 'school_class_id' => $data['school_class_id'], 'class_id' => $data['school_class_id'], 'applicant_data' => $data, 'full_name_en' => $data['full_name_en'], 'full_name_bn' => $data['full_name_bn'] ?? null, 'date_of_birth' => $data['date_of_birth'] ?? null, 'sex' => $data['gender'] == 1 ? 'male' : 'female', 'gender' => $data['gender'], 'religion' => $data['religion'], 'blood_group' => $data['blood_group'] ?? null, 'birth_certificate_number' => $data['birth_certificate_number'] ?? null, 'disable' => $data['disable'] ?? false, 'father_name' => $data['father_name'], 'father_nid_number' => $data['father_nid_number'] ?? null, 'fathers_profession_id' => $data['fathers_profession_id'] ?? null, 'father_phone' => $data['father_phone'] ?? null, 'father_email' => $data['father_email'] ?? null, 'mother_name' => $data['mother_name'], 'mother_nid_number' => $data['mother_nid_number'] ?? null, 'mothers_profession_id' => $data['mothers_profession_id'] ?? null, 'mother_phone' => $data['mother_phone'] ?? null, 'mother_email' => $data['mother_email'] ?? null, 'annual_income' => $data['annual_income'] ?? null, 'guardian_type' => $data['guardian_type'] ?? null, 'guardian_name' => $data['guardian_name'] ?? null, 'guardian_relation' => $data['guardian_relation'] ?? null, 'guardian_profession_id' => $data['guardian_profession_id'] ?? null, 'guardian_phone' => $data['guardian_phone'] ?? null, 'guardian_email' => $data['guardian_email'] ?? null, 'present_address' => $data['present_address'] ?? null, 'present_division_id' => $data['present_division_id'] ?? null, 'present_district_id' => $data['present_district_id'] ?? null, 'present_police_station_id' => $data['present_police_station_id'] ?? null, 'present_post_office_id' => $data['present_post_office_id'] ?? null, 'permanent_address' => $data['permanent_address'] ?? null, 'permanent_division_id' => $data['permanent_division_id'] ?? null, 'permanent_district_id' => $data['permanent_district_id'] ?? null, 'permanent_police_station_id' => $data['permanent_police_station_id'] ?? null, 'permanent_post_office_id' => $data['permanent_post_office_id'] ?? null, 'guardian_phone' => $data['guardian_phone'] ?? null, 'previous_school' => $data['previous_school'] ?? null, 'previous_class_appeared' => $data['previous_class_appeared'] ?? null, 'tc_number' => $data['tc_number'] ?? null, 'image' => $data['image'] ?? null, 'status' => 'pending', 'submitted_at' => now()]);
-        $application->payment()->create(['amount' => (float) $exam->form_fee, 'status' => 'pending']);
-        return redirect()->route('public.admission.search', ['application_number' => $application->application_number])->with('success', 'Application submitted. Please complete payment and keep your application number.');
+        $draftToken = trim((string) $request->input('draft_token', ''));
+        if ($draftToken !== '') {
+            $draft = $this->findActiveDraft($draftToken);
+            abort_unless($draft->admission_exam_id === $exam->id, 422, 'This draft belongs to another admission exam.');
+            if ($draft->image_path && $draft->image_path !== ($data['image'] ?? null) && file_exists(public_path($draft->image_path))) {
+                unlink(public_path($draft->image_path));
+            }
+            $draft->update(['applicant_data' => $data, 'school_class_id' => $data['school_class_id'], 'image_path' => $data['image'] ?? null, 'expires_at' => now()->addHours(24)]);
+            return redirect()->route('public.admission.preview', $draftToken);
+        }
+        $token = Str::random(64);
+        AdmissionApplicationDraft::create([
+            'token_hash' => hash('sha256', $token),
+            'admission_exam_id' => $exam->id,
+            'academic_session_id' => $exam->academic_session_id,
+            'school_class_id' => $data['school_class_id'],
+            'applicant_data' => $data,
+            'image_path' => $data['image'] ?? null,
+            'expires_at' => now()->addHours(24),
+        ]);
+
+        return redirect()->route('public.admission.preview', $token);
+    }
+
+    public function publicPreview(string $token)
+    {
+        $draft = $this->findActiveDraft($token);
+        $draft->load(['exam', 'schoolClass']);
+        return view('admissions.public.preview', compact('draft', 'token'));
+    }
+
+    public function publicConfirm(string $token)
+    {
+        $application = DB::transaction(function () use ($token) {
+            $draft = AdmissionApplicationDraft::where('token_hash', hash('sha256', $token))->lockForUpdate()->firstOrFail();
+            abort_if($draft->confirmed_at || $draft->expires_at->isPast(), 410, 'This application review has expired.');
+            $draft->load('exam');
+            $data = $draft->applicant_data;
+            $imagePath = $draft->image_path;
+            if ($imagePath && file_exists(public_path($imagePath))) {
+                $permanentPath = 'uploads/students/' . basename($imagePath);
+                if (! is_dir(public_path('uploads/students'))) mkdir(public_path('uploads/students'), 0755, true);
+                rename(public_path($imagePath), public_path($permanentPath));
+                $data['image'] = $permanentPath;
+            }
+            $number = $this->generateApplicationNumber($draft->exam);
+            $application = AdmissionApplication::create($this->applicationAttributes($draft->exam, $data, $number));
+            $application->payment()->create(['amount' => (float) $draft->exam->form_fee, 'status' => 'pending']);
+            $draft->update(['confirmed_at' => now()]);
+            return $application;
+        });
+
+        $data = $application->applicant_data ?? [];
+        $phone = match ((int) ($data['guardian_type'] ?? 1)) {
+            2 => $data['mother_phone'] ?? $data['father_phone'] ?? $data['guardian_phone'] ?? null,
+            3 => $data['guardian_phone'] ?? $data['father_phone'] ?? $data['mother_phone'] ?? null,
+            default => $data['father_phone'] ?? $data['mother_phone'] ?? $data['guardian_phone'] ?? null,
+        };
+
+        return redirect()->route('public.admission.search', [
+            'application_number' => $application->application_number,
+            'phone' => $phone,
+        ]);
+    }
+
+    public function publicConfirmation()
+    {
+        $applicationId = session('confirmed_application_id');
+        abort_unless($applicationId, 404);
+        $application = AdmissionApplication::with(['exam', 'schoolClass', 'payment', 'admitCard'])->findOrFail($applicationId);
+
+        return view('admissions.public.search', [
+            'application' => $application,
+            'searchTerm' => $application->application_number,
+            'phone' => '',
+            'searchErrors' => null,
+            'confirmation' => true,
+        ]);
+    }
+
+    private function findActiveDraft(string $token): AdmissionApplicationDraft
+    {
+        $draft = AdmissionApplicationDraft::where('token_hash', hash('sha256', $token))->firstOrFail();
+        abort_if($draft->confirmed_at || $draft->expires_at->isPast(), 410, 'This application review has expired.');
+        return $draft;
+    }
+
+    private function generateApplicationNumber(AdmissionExam $exam): string
+    {
+        $lockedExam = AdmissionExam::whereKey($exam->id)->lockForUpdate()->firstOrFail();
+        $lastNumber = AdmissionApplication::where('admission_exam_id', $exam->id)
+            ->where('academic_session_id', $exam->academic_session_id)
+            ->pluck('application_number')
+            ->filter(fn ($value) => preg_match('/^\d{4}$/', (string) $value))
+            ->map(fn ($value) => (int) $value)
+            ->max() ?? 0;
+        $nextNumber = max((int) $lockedExam->application_sequence, $lastNumber) + 1;
+        abort_if($nextNumber > 9999, 422, 'The application number limit for this exam has been reached.');
+        $lockedExam->update(['application_sequence' => $nextNumber]);
+        return str_pad((string) $nextNumber, 4, '0', STR_PAD_LEFT);
+    }
+
+    private function applicationAttributes(AdmissionExam $exam, array $data, string $number): array
+    {
+        return ['admission_exam_id' => $exam->id, 'application_number' => $number, 'application_no' => $number, 'academic_session_id' => $exam->academic_session_id, 'school_class_id' => $data['school_class_id'], 'class_id' => $data['school_class_id'], 'applicant_data' => $data, 'full_name_en' => $data['full_name_en'], 'full_name_bn' => $data['full_name_bn'] ?? null, 'date_of_birth' => $data['date_of_birth'] ?? null, 'sex' => $data['gender'] == 1 ? 'male' : 'female', 'gender' => $data['gender'], 'religion' => $data['religion'], 'blood_group' => $data['blood_group'] ?? null, 'birth_certificate_number' => $data['birth_certificate_number'] ?? null, 'disable' => $data['disable'] ?? false, 'father_name' => $data['father_name'], 'father_nid_number' => $data['father_nid_number'] ?? null, 'fathers_profession_id' => $data['fathers_profession_id'] ?? null, 'father_phone' => $data['father_phone'] ?? null, 'father_email' => $data['father_email'] ?? null, 'mother_name' => $data['mother_name'], 'mother_nid_number' => $data['mother_nid_number'] ?? null, 'mothers_profession_id' => $data['mothers_profession_id'] ?? null, 'mother_phone' => $data['mother_phone'] ?? null, 'mother_email' => $data['mother_email'] ?? null, 'annual_income' => $data['annual_income'] ?? null, 'guardian_type' => $data['guardian_type'] ?? null, 'guardian_name' => $data['guardian_name'] ?? null, 'guardian_relation' => $data['guardian_relation'] ?? null, 'guardian_profession_id' => $data['guardian_profession_id'] ?? null, 'guardian_phone' => $data['guardian_phone'] ?? null, 'guardian_email' => $data['guardian_email'] ?? null, 'present_address' => $data['present_address'] ?? null, 'present_division_id' => $data['present_division_id'] ?? null, 'present_district_id' => $data['present_district_id'] ?? null, 'present_police_station_id' => $data['present_police_station_id'] ?? null, 'present_post_office_id' => $data['present_post_office_id'] ?? null, 'permanent_address' => $data['permanent_address'] ?? null, 'permanent_division_id' => $data['permanent_division_id'] ?? null, 'permanent_district_id' => $data['permanent_district_id'] ?? null, 'permanent_police_station_id' => $data['permanent_police_station_id'] ?? null, 'permanent_post_office_id' => $data['permanent_post_office_id'] ?? null, 'guardian_phone' => $data['guardian_phone'] ?? null, 'previous_school' => $data['previous_school'] ?? null, 'previous_class_appeared' => $data['previous_class_appeared'] ?? null, 'tc_number' => $data['tc_number'] ?? null, 'image' => $data['image'] ?? null, 'status' => 'pending', 'submitted_at' => now()];
     }
 
     public function publicSearch(Request $request)
     {
-        $term = trim((string) $request->input('search', $request->input('application_number', '')));
+        $applicationNumber = trim((string) $request->input('application_number', $request->input('search', '')));
+        $phone = trim((string) $request->input('phone', ''));
         $application = null;
+        $searchErrors = null;
 
-        if ($term !== '') {
-            $digits = preg_replace('/\D+/', '', $term);
+        if ($applicationNumber !== '' || $phone !== '') {
+            $validator = Validator::make($request->all(), [
+                'application_number' => 'required|string|max:50',
+                'phone' => 'required|string|max:50',
+            ], [
+                'application_number.required' => 'Enter your application number.',
+                'phone.required' => 'Enter the father, mother, guardian, or other contact phone used in the application.',
+            ]);
+            if ($validator->fails()) {
+                $searchErrors = $validator->errors();
+            }
+
+            if ($searchErrors) {
+                return view('admissions.public.search', compact('application', 'applicationNumber', 'phone', 'searchErrors'))
+                    ->with('searchTerm', $applicationNumber);
+            }
+            $digits = preg_replace('/\D+/', '', $phone);
+            $phoneColumns = ['father_phone', 'mother_phone', 'guardian_phone', 'present_phone', 'present_mobile', 'permanent_phone', 'permanent_mobile', 'guardian_mobile'];
 
             $application = AdmissionApplication::with(['exam', 'schoolClass', 'payment', 'admitCard'])
-                ->where(function ($query) use ($term, $digits) {
-                    $query->where('application_number', $term)
-                        ->orWhere('birth_certificate_number', $term)
-                        ->orWhere('father_phone', $term)
-                        ->orWhere('mother_phone', $term);
-
-                    if ($digits !== '') {
-                        $normalizedPhone = "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(father_phone, '-', ''), ' ', ''), '+', ''), '(', ''), ')', '')";
-                        $normalizedMotherPhone = "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(mother_phone, '-', ''), ' ', ''), '+', ''), '(', ''), ')', '')";
-                        $query->orWhereRaw("{$normalizedPhone} = ?", [$digits])
-                            ->orWhereRaw("{$normalizedMotherPhone} = ?", [$digits]);
+                ->where('application_number', $applicationNumber)
+                ->where(function ($query) use ($digits, $phoneColumns) {
+                    foreach ($phoneColumns as $column) {
+                        $normalizedPhone = "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE({$column}, '-', ''), ' ', ''), '+', ''), '(', ''), ')', ''), '.', ''), '/', '')";
+                        $query->orWhere($column, $digits)->orWhereRaw("{$normalizedPhone} = ?", [$digits]);
                     }
                 })
                 ->latest('submitted_at')
@@ -406,7 +733,9 @@ class AdmissionController extends Controller
 
         return view('admissions.public.search', [
             'application' => $application,
-            'searchTerm' => $term,
+            'searchTerm' => $applicationNumber,
+            'phone' => $phone,
+            'searchErrors' => $searchErrors,
         ]);
     }
 

@@ -25,7 +25,7 @@ class AdmissionManagementTest extends TestCase
         $response = $this->post(route('public.admission.store'), [
             'school_class_id' => $class->id,
             'full_name_en' => 'Applicant One',
-            'date_of_birth' => '2015-01-01',
+            'date_of_birth' => '16/08/2000',
             'gender' => 1,
             'religion' => 1,
             'father_name' => 'Parent One',
@@ -36,7 +36,22 @@ class AdmissionManagementTest extends TestCase
         ]);
 
         $response->assertRedirect();
+        $previewUrl = $response->headers->get('Location');
+        $this->assertStringContainsString('/admission/preview/', $previewUrl);
+        $this->assertDatabaseCount('admission_applications', 0);
+        $this->get($previewUrl)->assertOk()->assertSee('Check your application')->assertSee('Applicant One');
+        $draftToken = basename(parse_url($previewUrl, PHP_URL_PATH));
+        $this->get(route('public.admission.form', ['draft' => $draftToken]))->assertOk()->assertSee('Applicant One')->assertSee('draft_token');
+        $confirmResponse = $this->post($previewUrl . '/confirm');
+        $confirmResponse->assertRedirect(route('public.admission.search', [
+            'application_number' => '0001',
+            'phone' => '01700000000',
+        ]));
+        $this->get($confirmResponse->headers->get('Location'))->assertOk()->assertSee('Applicant One')->assertSee('Export as PDF');
         $this->assertDatabaseHas('admission_applications', ['full_name_en' => 'Applicant One', 'school_class_id' => $class->id, 'payment_status' => 'unpaid']);
+        $application = AdmissionApplication::where('full_name_en', 'Applicant One')->firstOrFail();
+        $this->assertSame('0001', $application->application_number);
+        $this->assertSame($application->application_number, $application->application_no);
         $this->assertDatabaseHas('admission_payments', ['amount' => 500, 'status' => 'pending']);
 
         $application = AdmissionApplication::where('full_name_en', 'Applicant One')->firstOrFail();
@@ -59,6 +74,24 @@ class AdmissionManagementTest extends TestCase
                 'mother_name' => 'Parent Two',
             ])
             ->assertSessionHasErrors(['father_phone', 'mother_phone']);
+    }
+
+    public function test_other_guardian_requires_guardian_details(): void
+    {
+        [, $class] = $this->examSetup();
+
+        $this->from(route('public.admission.form'))
+            ->post(route('public.admission.store'), [
+                'school_class_id' => $class->id,
+                'full_name_en' => 'Applicant With Other Guardian',
+                'gender' => 1,
+                'religion' => 1,
+                'father_name' => 'Parent One',
+                'mother_name' => 'Parent Two',
+                'father_phone' => '01700000000',
+                'guardian_type' => 3,
+            ])
+            ->assertSessionHasErrors(['guardian_name', 'guardian_relation', 'guardian_phone']);
     }
 
     public function test_conversion_creates_student_academic_record_and_normal_fees_path(): void
@@ -102,15 +135,15 @@ class AdmissionManagementTest extends TestCase
             'submitted_at' => now(),
         ]);
 
-        $this->get(route('public.admission.search', ['search' => '01700111222']))
+        $this->get(route('public.admission.search', ['application_number' => 'APP-SEARCH-001', 'phone' => '01700111222']))
             ->assertOk()
             ->assertSee('APP-SEARCH-001');
-        $this->get(route('public.admission.search', ['search' => '01800 333444']))
+        $this->get(route('public.admission.search', ['application_number' => 'APP-SEARCH-001', 'phone' => '01800 333444']))
             ->assertOk()
             ->assertSee('APP-SEARCH-001');
-        $this->get(route('public.admission.search', ['search' => 'BC-SEARCH-001']))
+        $this->get(route('public.admission.search', ['application_number' => 'APP-SEARCH-001']))
             ->assertOk()
-            ->assertSee('APP-SEARCH-001');
+            ->assertSee('Enter the father, mother, guardian, or other contact phone used in the application.');
     }
 
     private function examSetup(): array

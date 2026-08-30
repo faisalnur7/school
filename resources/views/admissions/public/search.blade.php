@@ -17,18 +17,30 @@
 @php($guardianType = (int) ($data['guardian_type'] ?? $application?->guardian_type ?? 1))
 @php($guardianLabel = [1 => 'Father', 2 => 'Mother', 3 => 'Other'][$guardianType] ?? 'Father')
 <div class="public-site-container mx-auto w-full">
+    @if(!empty($confirmation))
+        <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-900">
+            <p class="font-bold"><i class="fas fa-check-circle mr-2"></i>Application confirmed successfully</p>
+            <p class="mt-1 text-sm">Your application has been saved. Use the buttons below to print or export the submitted admission form.</p>
+        </div>
+    @endif
     <div class="public-search-tools mb-8">
         <p class="text-sm font-bold uppercase tracking-[.2em] text-teal-700">Applicant portal</p>
         <h1 class="mt-2 text-4xl font-extrabold text-slate-950">Search your application</h1>
-        <p class="mt-3 text-slate-600">Search using your application number, father or mother mobile number, or birth certificate number.</p>
-        <form class="mt-6 flex flex-col gap-3 rounded-3xl border border-white bg-white/90 p-3 shadow-xl sm:flex-row">
-            <input name="search" required placeholder="Application number, mobile number, or birth certificate number" value="{{ $searchTerm ?? '' }}" class="min-w-0 flex-1 rounded-2xl border-0 bg-slate-50 px-5 py-4">
+        <p class="mt-3 text-slate-600">Enter the application number and any phone number submitted with the application.</p>
+        <form class="mt-6 grid gap-3 rounded-3xl border border-white bg-white/90 p-3 shadow-xl sm:grid-cols-[1fr_1.3fr_auto]">
+            <input name="application_number" required placeholder="Application number e.g. 0472" value="{{ $searchTerm ?? '' }}" class="min-w-0 rounded-2xl border-0 bg-slate-50 px-5 py-4">
+            <input name="phone" required placeholder="Father, mother, guardian, or contact phone" value="{{ $phone ?? '' }}" class="min-w-0 rounded-2xl border-0 bg-slate-50 px-5 py-4">
             <button class="rounded-2xl bg-slate-950 px-6 py-4 font-bold text-white">Search</button>
         </form>
+        @if(($searchErrors ?? null)?->any())
+            <div class="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+                <ul class="list-disc pl-5">@foreach($searchErrors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+            </div>
+        @endif
     </div>
 
     @if(($searchTerm ?? '') !== '' && !$application)
-        <div class="public-search-tools rounded-2xl bg-rose-50 p-5 text-rose-800">No application was found with that application number, mobile number, or birth certificate number.</div>
+        <div class="public-search-tools rounded-2xl bg-rose-50 p-5 text-rose-800">No application matched both the application number and phone number.</div>
     @endif
 
     @if($application)
@@ -47,6 +59,9 @@
                     <div class="public-print-button flex gap-2">
                         <button type="button" onclick="window.print()" class="rounded-xl bg-slate-950 px-4 py-2 font-bold text-white">Print Application</button>
                         <a href="{{ route('public.admission.application-pdf', $application) }}" class="rounded-xl bg-teal-700 px-4 py-2 font-bold text-white">Export as PDF</a>
+                        @if($application->admitCard && $application->payment_status === 'paid')
+                            <a class="rounded-xl bg-cyan-700 px-4 py-2 font-bold text-white" href="{{ route('public.admission.admit-card', $application) }}">Download Admit Card</a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -124,9 +139,7 @@
                 </div>
             </div>
 
-            @if($application->admitCard && $application->payment_status === 'paid')
-                <a class="public-print-button mt-6 inline-flex rounded-xl bg-teal-700 px-5 py-3 font-bold text-white" href="{{ route('public.admission.admit-card', $application) }}">Download Admit Card</a>
-            @else
+            @if(!$application->admitCard || $application->payment_status !== 'paid')
                 <p class="public-admit-card-note mt-6 text-sm text-slate-500">Your admit card will appear here after payment is verified and the card is generated.</p>
             @endif
         </div>

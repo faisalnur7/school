@@ -115,7 +115,10 @@ use App\Http\Controllers\Website\PublicWebsiteController;
 // Public admission entry points intentionally live outside the authenticated admin group.
 Route::get('/admission', [AdmissionController::class, 'publicForm'])->name('public.admission.form');
 Route::post('/admission/applications', [AdmissionController::class, 'publicStore'])->name('public.admission.store');
-Route::get('/admission/search', [AdmissionController::class, 'publicSearch'])->name('public.admission.search');
+Route::get('/admission/preview/{token}', [AdmissionController::class, 'publicPreview'])->name('public.admission.preview');
+Route::post('/admission/preview/{token}/confirm', [AdmissionController::class, 'publicConfirm'])->name('public.admission.confirm');
+Route::get('/admission/confirmation', [AdmissionController::class, 'publicConfirmation'])->name('public.admission.confirmation');
+Route::get('/admission/search', [AdmissionController::class, 'publicSearch'])->middleware('throttle:10,1')->name('public.admission.search');
 Route::get('/admission/applications/{application}/pdf', [AdmissionController::class, 'publicApplicationPdf'])->name('public.admission.application-pdf');
 Route::get('/admission/applications/{application}/admit-card', [AdmissionController::class, 'admitCardPdf'])->name('public.admission.admit-card');
 Route::post('/admission/applications/{application}/payment', [AdmissionController::class, 'publicPayment'])->name('public.admission.payment');
@@ -206,9 +209,11 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/payments', [AdmissionController::class, 'payments'])->name('admissions.payments');
         Route::get('/admit-cards', [AdmissionController::class, 'admitCards'])->name('admissions.admit-cards');
         Route::get('/results', [AdmissionController::class, 'results'])->name('admissions.results');
+        Route::get('/results/pdf', [AdmissionController::class, 'resultsPdf'])->name('admissions.results.pdf');
     });
     Route::middleware('permission:view_admission_exams')->prefix('admissions/exams')->group(function () {
         Route::get('/', [AdmissionController::class, 'exams'])->name('admissions.exams');
+        Route::get('/{exam}/details', [AdmissionController::class, 'examDetails'])->name('admissions.exams.details');
     });
     Route::middleware('permission:create_admission_exams')->prefix('admissions/exams')->group(function () {
         Route::get('/create', [AdmissionController::class, 'createExam'])->name('admissions.exams.create');
@@ -223,6 +228,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:verify_admission_payments')->post('/admissions/payments/{payment}', [AdmissionController::class, 'updatePayment'])->name('admissions.payments.update');
     Route::middleware('permission:verify_admission_payments')->post('/admissions/applications/{application}/collect-payment', [AdmissionController::class, 'collectPayment'])->name('admissions.applications.collect-payment');
     Route::middleware('permission:enter_admission_marks')->get('/admissions/exams/{exam}/marks', [AdmissionController::class, 'marks'])->name('admissions.marks');
+    Route::middleware('permission:enter_admission_marks')->post('/admissions/exams/{exam}/marks', [AdmissionController::class, 'storeMarksBatch'])->name('admissions.marks.batch');
     Route::middleware('permission:enter_admission_marks')->post('/admissions/applications/{application}/marks', [AdmissionController::class, 'storeMarks'])->name('admissions.marks.store');
     Route::middleware('permission:review_admission_applications')->post('/admissions/applications/{application}/review', [AdmissionController::class, 'review'])->name('admissions.applications.review');
     Route::middleware('permission:view_admission_applications')->get('/admissions/applications/{application}/download', [AdmissionController::class, 'applicationPdf'])->name('admissions.applications.download');

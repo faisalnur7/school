@@ -50,6 +50,9 @@
         @csrf
         @if(!empty($publicAdmissionMode))
             <input type="hidden" name="academic_session_id" value="{{ $exam->academic_session_id }}">
+            @if(!empty($draftToken))
+                <input type="hidden" name="draft_token" value="{{ $draftToken }}">
+            @endif
         @endif
         @if ($errors->any())
             <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700 shadow-sm">
@@ -197,7 +200,7 @@
                                         <option value="">Class</option>
                                         @foreach ($classes as $class)
                                             @if($exam->classSettings->contains('school_class_id', (int) $class->id))
-                                                <option value="{{ $class->id }}" @selected(old('school_class_id') == $class->id)>{{ $class->name_en }}</option>
+                                        <option value="{{ $class->id }}" @selected(old('school_class_id', $draftData['school_class_id'] ?? '') == $class->id)>{{ $class->name_en }}</option>
                                             @endif
                                         @endforeach
                                     </select>

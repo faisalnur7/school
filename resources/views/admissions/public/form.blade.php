@@ -66,7 +66,7 @@
             <div>
                 <div class="text-uppercase" style="font-size:.75rem;letter-spacing:.2em;color:#99f6e4;font-weight:800;">{{ $exam ? 'Admissions ' . $exam->academicSession?->name_en : 'Admissions' }}</div>
                 <h1>{{ $exam?->name ?? 'New Admission' }}</h1>
-                <p>Complete the application carefully. Your application number will be generated after submission, and you can use it to track payment and download your admit card.</p>
+                <p>Complete the application carefully. A sequential four-digit application number will be generated after confirmation for tracking payment and results.</p>
             </div>
             @if($exam)
                 <div class="rounded-3xl border border-white/20 bg-white/10 px-5 py-4 backdrop-blur-sm">
@@ -82,6 +82,7 @@
         @php
             $admissionMode = true;
             $publicAdmissionMode = true;
+            $draftData = $draft?->applicant_data ?? [];
         @endphp
         @include('pages.students.form')
     @else
@@ -126,6 +127,19 @@
                 });
                 setPermanentAddressReadOnly(sameAddressCheckbox.checked);
             }
+
+            const guardianTypeInputs = form.querySelectorAll('input[name="guardian_type"]');
+            const guardianInfoFields = form.querySelector('#guardianInfoFields');
+            const syncGuardianValidation = () => {
+                const isOtherGuardian = form.querySelector('input[name="guardian_type"]:checked')?.value === '3';
+                ['guardian_name', 'guardian_relation', 'guardian_phone'].forEach((name) => {
+                    const input = form.querySelector(`[name="${name}"]`);
+                    if (input) input.required = isOtherGuardian;
+                });
+                if (guardianInfoFields) guardianInfoFields.classList.toggle('guardian-validation-active', isOtherGuardian);
+            };
+            guardianTypeInputs.forEach((input) => input.addEventListener('change', syncGuardianValidation));
+            syncGuardianValidation();
 
             const dropzoneElement = form.querySelector('#studentImageDropzone');
             const imageInput = form.querySelector('#studentImageInput');

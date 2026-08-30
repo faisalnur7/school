@@ -1,126 +1,35 @@
 @extends('layouts.master')
 
 @section('contents')
-<div class="container-fluid py-3">
-    <div class="row">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h2 class="mb-1">{{ $exam ? 'Edit' : 'Create' }} Admission Exam</h2>
-                    <p class="text-muted">Configure the exam and the minimum total marks for every class.</p>
+<div class="container-fluid py-4 exam-form-page">
+    <div class="form-hero mb-4"><div><span class="eyebrow"><i class="fas fa-sliders-h mr-2"></i>Admission management</span><h1>{{ $exam ? 'Edit admission exam' : 'Create admission exam' }}</h1><p>Set the examination schedule, admission fee, instructions, and classwise marks.</p></div><a href="{{ route('admissions.exams') }}" class="btn btn-light"><i class="fas fa-arrow-left mr-1"></i>Back to exams</a></div>
 
-                    <form method="POST" action="{{ $exam ? route('admissions.exams.update', $exam) : route('admissions.exams.store') }}">
-                        @csrf
-                        @if($exam) @method('PUT') @endif
+    @if($errors->any())<div class="alert alert-danger border-0 shadow-sm"><strong>Please review the form.</strong><ul class="mb-0 mt-2">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Exam name</label>
-                                <input class="form-control" name="name" required value="{{ old('name', $exam?->name) }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Academic session</label>
-                                <select class="form-control" name="academic_session_id" required>
-                                    @foreach($sessions as $session)
-                                        <option value="{{ $session->id }}" @selected(old('academic_session_id', $exam?->academic_session_id) == $session->id)>{{ $session->name_en }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
+    <form method="POST" action="{{ $exam ? route('admissions.exams.update', $exam) : route('admissions.exams.store') }}">
+        @csrf
+        @if($exam) @method('PUT') @endif
+        <div class="setup-card mb-4"><div class="setup-heading"><span class="step-number">01</span><div><h3>Exam information</h3><p>Identify the examination and connect it to an academic session.</p></div></div><div class="setup-body"><div class="form-row"><div class="form-group col-md-6"><label for="examName">Exam name <b>*</b></label><input id="examName" class="form-control" name="name" required value="{{ old('name', $exam?->name) }}" placeholder="e.g. Admission Exam 2027"></div><div class="form-group col-md-6"><label for="academicSession">Academic session <b>*</b></label><select id="academicSession" class="form-control" name="academic_session_id" required>@foreach($sessions as $session)<option value="{{ $session->id }}" @selected(old('academic_session_id', $exam?->academic_session_id) == $session->id)>{{ $session->name_en }}</option>@endforeach</select></div></div></div></div>
 
-                        <div class="form-row">
-                            <div class="form-group col-md-4">
-                                <label>Exam date</label>
-                                <input type="date" class="form-control" name="exam_date" required value="{{ old('exam_date', $exam?->exam_date?->format('Y-m-d')) }}">
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label>Admission form fee</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend"><span class="input-group-text">৳</span></div>
-                                    <input type="number" min="0.01" step="0.01" class="form-control" name="form_fee" required value="{{ old('form_fee', $exam?->form_fee) }}">
-                                </div>
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label>Venue</label>
-                                <input class="form-control" name="venue" value="{{ old('venue', $exam?->venue) }}">
-                            </div>
-                        </div>
+        <div class="setup-card mb-4"><div class="setup-heading"><span class="step-number">02</span><div><h3>Schedule and payment</h3><p>Provide the exam logistics and the admission form price.</p></div></div><div class="setup-body"><div class="form-row"><div class="form-group col-md-4"><label for="examDate">Exam date <b>*</b></label><input id="examDate" type="date" class="form-control" name="exam_date" required value="{{ old('exam_date', $exam?->exam_date?->format('Y-m-d')) }}"></div><div class="form-group col-md-4"><label for="formFee">Admission form fee <b>*</b></label><div class="input-group"><div class="input-group-prepend"><span class="input-group-text">৳</span></div><input id="formFee" type="number" min="0.01" step="0.01" class="form-control" name="form_fee" required value="{{ old('form_fee', $exam?->form_fee) }}"></div></div><div class="form-group col-md-4"><label for="venue">Venue</label><input id="venue" class="form-control" name="venue" value="{{ old('venue', $exam?->venue) }}" placeholder="Exam venue"></div></div><div class="form-row mb-0"><div class="form-group col-md-4 mb-md-0"><label for="reportingTime">Reporting time</label><input id="reportingTime" class="form-control" name="reporting_time" value="{{ old('reporting_time', $exam?->reporting_time) }}" placeholder="08:30 AM"></div></div></div></div>
 
-                        <div class="form-row">
-                            <div class="form-group col-md-4">
-                                <label>Reporting time</label>
-                                <input class="form-control" name="reporting_time" value="{{ old('reporting_time', $exam?->reporting_time) }}" placeholder="08:30 AM">
-                            </div>
-                        </div>
+        <div class="setup-card mb-4"><div class="setup-heading"><span class="step-number">03</span><div><h3>Exam instructions</h3><p>Share important instructions that will appear on the application and admit card.</p></div></div><div class="setup-body"><textarea id="admissionInstructions" class="form-control" name="instructions" rows="7">{{ old('instructions', $exam?->instructions) }}</textarea></div></div>
 
-                        <div class="form-group">
-                            <label>Instructions</label>
-                            <textarea id="admissionInstructions" class="form-control" name="instructions" rows="8">{{ old('instructions', $exam?->instructions) }}</textarea>
-                        </div>
+        <div class="setup-card mb-4"><div class="setup-heading"><span class="step-number">04</span><div><h3>Classwise marks</h3><p>Set the maximum marks and minimum pass mark for each applicable class.</p></div><span class="marks-hint"><i class="fas fa-info-circle mr-1"></i>Whole numbers only</span></div><div class="setup-body"><div class="row">@foreach($classes as $class)@php $setting = $exam?->classSettings?->firstWhere('school_class_id', $class->id); @endphp<div class="col-md-6 col-xl-4 mb-3"><div class="class-mark-card"><div class="class-name"><span class="class-dot"></span>{{ $class->name_en }}</div><div class="form-row mb-0"><div class="form-group col-6 mb-0"><label for="totalMarks{{ $class->id }}">Total marks <b>*</b></label><input id="totalMarks{{ $class->id }}" type="number" min="1" step="1" class="form-control" name="total_marks[{{ $class->id }}]" required value="{{ old('total_marks.' . $class->id, number_format((float) ($setting?->total_mark ?? 100), 0, '.', '')) }}"></div><div class="form-group col-6 mb-0"><label for="passMarks{{ $class->id }}">Pass mark <b>*</b></label><input id="passMarks{{ $class->id }}" type="number" min="0" step="1" class="form-control" name="pass_marks[{{ $class->id }}]" required value="{{ old('pass_marks.' . $class->id, number_format((float) ($setting?->pass_mark ?? 0), 0, '.', '')) }}"></div></div></div></div>@endforeach</div></div></div>
 
-                        <h5 class="mt-4">Classwise pass marks</h5>
-                        <div class="row">
-                            @foreach($classes as $class)
-                                @php $currentMark = $exam?->classSettings?->firstWhere('school_class_id', $class->id)?->pass_mark; @endphp
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>{{ $class->name_en }}</label>
-                                        <input type="number" min="0" step="0.01" class="form-control" name="pass_marks[{{ $class->id }}]" required value="{{ old('pass_marks.' . $class->id, $currentMark) }}">
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <div class="custom-control custom-switch mb-4">
-                            <input type="checkbox" class="custom-control-input" id="status" name="status" value="1" @checked(old('status', $exam?->status ?? true))>
-                            <label class="custom-control-label" for="status">Make this the active exam</label>
-                        </div>
-
-                        <button class="btn btn-primary">{{ $exam ? 'Update' : 'Create' }} Exam</button>
-                        <a class="btn btn-light" href="{{ route('admissions.exams') }}">Cancel</a>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+        <div class="form-footer"><div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="status" name="status" value="1" @checked(old('status', $exam?->status ?? true))><label class="custom-control-label" for="status"><strong>Make this the active exam</strong><small>Only one admission exam can be active at a time.</small></label></div><div><a class="btn btn-light mr-2" href="{{ route('admissions.exams') }}">Cancel</a><button class="btn btn-primary"><i class="fas fa-check mr-1"></i>{{ $exam ? 'Update exam' : 'Create exam' }}</button></div></div>
+    </form>
 </div>
+
+<style>
+    .exam-form-page{color:#172033}.form-hero{align-items:center;background:linear-gradient(118deg,#102c46,#116b70 60%,#1599a1);border-radius:16px;box-shadow:0 11px 25px rgba(15,91,100,.17);color:#fff;display:flex;justify-content:space-between;min-height:150px;overflow:hidden;padding:28px 34px;position:relative}.form-hero:after{border:1px solid rgba(255,255,255,.16);border-radius:50%;content:'';height:280px;position:absolute;right:-80px;top:-170px;width:280px}.form-hero>div,.form-hero>a{position:relative;z-index:1}.eyebrow{color:#a7f3d0;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase}.form-hero h1{font-size:28px;margin:9px 0 5px}.form-hero p{color:rgba(255,255,255,.76);font-size:13px;margin:0}.form-hero .btn{color:#0b5962;font-weight:600}.setup-card{background:#fff;border:1px solid #e5ebf2;border-radius:14px;box-shadow:0 4px 13px rgba(30,41,59,.05);overflow:hidden}.setup-heading{align-items:flex-start;border-bottom:1px solid #edf1f5;display:flex;padding:18px 22px}.setup-heading h3{font-size:16px;font-weight:700;margin:0}.setup-heading p{color:#8492a6;font-size:11px;margin:4px 0 0}.step-number{align-items:center;background:#e8f7f5;border-radius:9px;color:#0f766e;display:inline-flex;font-size:11px;font-weight:700;height:32px;justify-content:center;margin-right:12px;width:32px}.setup-body{padding:22px}.setup-body label{color:#526174;font-size:11px;font-weight:600;margin-bottom:6px}.setup-body label b{color:#dc2626}.setup-body .form-control{border-color:#d9e2ec;border-radius:7px;font-size:12px;height:40px}.setup-body textarea.form-control{height:auto}.input-group-text{background:#f8fafc;border-color:#d9e2ec;color:#64748b;font-size:12px}.marks-hint{color:#8492a6;font-size:10px;margin-left:auto}.class-mark-card{background:#f8fafc;border:1px solid #e7edf3;border-radius:10px;padding:14px}.class-name{color:#26364a;font-size:12px;font-weight:700;margin-bottom:12px}.class-dot{background:#1599a1;border-radius:50%;display:inline-block;height:7px;margin:0 7px 1px 0;width:7px}.class-mark-card .form-control{background:#fff}.form-footer{align-items:center;background:#fff;border:1px solid #e5ebf2;border-radius:14px;box-shadow:0 4px 13px rgba(30,41,59,.05);display:flex;justify-content:space-between;padding:17px 22px}.custom-control-label{color:#334155;font-size:12px;padding-top:2px}.custom-control-label small{color:#8492a6;display:block;font-size:10px;font-weight:400;margin-top:3px}.custom-switch .custom-control-label:before{top:3px}.custom-switch .custom-control-label:after{top:calc(3px + 2px)}
+    @media (max-width:767.98px){.form-hero{align-items:flex-start;display:block;padding:24px}.form-hero .btn{margin-top:20px}.setup-heading{padding:16px}.setup-body{padding:16px}.marks-hint{display:none}.form-footer{align-items:flex-start;display:block;padding:16px}.form-footer>div:last-child{margin-top:18px}.form-footer .btn{margin-bottom:4px}}
+</style>
 @endsection
 
 @section('scripts')
-<style>
-    #admissionInstructions + .note-editor .note-editable ul {
-        list-style-type: disc !important;
-        padding-left: 2rem !important;
-    }
-
-    #admissionInstructions + .note-editor .note-editable ol {
-        list-style-type: decimal !important;
-        padding-left: 2rem !important;
-    }
-
-    #admissionInstructions + .note-editor .note-editable li {
-        display: list-item !important;
-    }
-</style>
+<style>#admissionInstructions + .note-editor .note-editable ul{list-style-type:disc!important;padding-left:2rem!important}#admissionInstructions + .note-editor .note-editable ol{list-style-type:decimal!important;padding-left:2rem!important}#admissionInstructions + .note-editor .note-editable li{display:list-item!important}</style>
 <script>
-    $(document).ready(function () {
-        var instructionsEditor = $('#admissionInstructions');
-
-        if (!instructionsEditor.length || typeof $.fn.summernote !== 'function' || instructionsEditor.next('.note-editor').length) {
-            return;
-        }
-
-        instructionsEditor.summernote({
-            height: 220,
-            minHeight: 180,
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'italic', 'underline', 'clear']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['link']],
-                ['view', ['fullscreen', 'codeview']]
-            ]
-        });
-    });
+$(document).ready(function(){var editor=$('#admissionInstructions');if(!editor.length||typeof $.fn.summernote!=='function'||editor.next('.note-editor').length)return;editor.summernote({height:220,minHeight:180,toolbar:[['style',['style']],['font',['bold','italic','underline','clear']],['para',['ul','ol','paragraph']],['insert',['link']],['view',['fullscreen','codeview']]]});});
 </script>
 @endsection
