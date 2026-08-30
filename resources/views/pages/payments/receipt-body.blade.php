@@ -14,7 +14,7 @@
     $academicInfo = $payment->student?->latestAcademicInformation;
     $paymentDate = \Carbon\Carbon::parse($payment->payment_date);
     $paymentDateLabel = $paymentDate->format('d M Y');
-    $paymentTimeLabel = $paymentDate->format('h:iA');
+    $generatedAtLabel = optional($payment->created_at)->format('d M Y h:i A');
 @endphp
 <div class="school-logo-row">
     <div class="school-header-main">
@@ -39,12 +39,14 @@
                 <div class="receipt-tag-label">Receipt No.</div>
                 <div class="receipt-tag-no">{{ $payment->receipt_no }}</div>
             </div>
-            <div class="receipt-tag" style="margin-top:0;color:#000;">
-                <div class="receipt-tag-no" style="color:#000;font-size:13px;font-weight:700;line-height:1.1;">
-                    {{ $paymentDateLabel }}
+            <div class="receipt-dates">
+                <div class="receipt-date-row">
+                    <span class="receipt-date-label">Payment Date:</span>
+                    <span class="receipt-date-value">{{ $paymentDateLabel }}</span>
                 </div>
-                <div class="receipt-tag-no" style="color:#000;font-size:15px;font-weight:900;line-height:1.1;">
-                    {{ $paymentTimeLabel }}
+                <div class="receipt-date-row">
+                    <span class="receipt-date-label">Generated Date:</span>
+                    <span class="receipt-date-value">{{ $generatedAtLabel ?? '—' }}</span>
                 </div>
             </div>
         </div>
