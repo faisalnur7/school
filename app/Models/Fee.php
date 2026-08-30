@@ -42,6 +42,11 @@ class Fee extends Model
         return $this->hasMany(\App\Models\PaymentItem::class);
     }
 
+    public function amountHistories()
+    {
+        return $this->hasMany(FeeAmountHistory::class)->latest();
+    }
+
     public function scholarship()
     {
         return $this->belongsTo(Scholarship::class);

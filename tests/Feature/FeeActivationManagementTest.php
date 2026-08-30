@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\AcademicSession;
 use App\Models\Fee;
+use App\Models\FeeAmountHistory;
 use App\Models\FeeSet;
 use App\Models\SchoolClass;
 use App\Models\Section;
@@ -80,6 +81,83 @@ class FeeActivationManagementTest extends TestCase
             'is_active' => 1,
             'status' => 'paid',
         ]);
+    }
+
+    public function test_pending_fee_amount_can_be_updated_from_collection_flow(): void
+    {
+        $user = User::factory()->create();
+        $context = $this->createStudentContext('FEE-ACT-EDIT-001');
+        $fee = Fee::create([
+            'student_id' => $context['student']->id,
+            'fee_set_id' => $context['feeSet']->id,
+            'amount' => 500,
+            'paid_amount' => 0,
+            'status' => 'pending',
+            'is_active' => true,
+        ]);
+
+        $this->withoutMiddleware()
+            ->actingAs($user)
+            ->post(route('fees.update', $fee->id), [
+                'amount' => 650,
+                'return_to_collect' => 1,
+            ])
+            ->assertRedirect(route('fees.collect_payment', ['student_id' => $context['student']->id]));
+
+        $this->assertDatabaseHas('fees', [
+            'id' => $fee->id,
+            'amount' => 650,
+            'status' => 'pending',
+        ]);
+        $this->assertDatabaseHas('fee_amount_histories', [
+            'fee_id' => $fee->id,
+            'edited_by' => $user->id,
+            'old_amount' => 500,
+            'new_amount' => 650,
+        ]);
+        $this->assertSame(1, FeeAmountHistory::where('fee_id', $fee->id)->count());
+    }
+
+    public function test_partial_fee_amount_cannot_be_lower_than_paid_amount(): void
+    {
+        $user = User::factory()->create();
+        $context = $this->createStudentContext('FEE-ACT-EDIT-002');
+        $fee = Fee::create([
+            'student_id' => $context['student']->id,
+            'fee_set_id' => $context['feeSet']->id,
+            'amount' => 800,
+            'paid_amount' => 300,
+            'status' => 'partial',
+            'is_active' => true,
+        ]);
+
+        $this->withoutMiddleware()
+            ->actingAs($user)
+            ->post(route('fees.update', $fee->id), ['amount' => 250])
+            ->assertSessionHasErrors('amount');
+
+        $this->assertDatabaseHas('fees', ['id' => $fee->id, 'amount' => 800, 'status' => 'partial']);
+    }
+
+    public function test_paid_fee_cannot_be_updated(): void
+    {
+        $user = User::factory()->create();
+        $context = $this->createStudentContext('FEE-ACT-EDIT-003');
+        $fee = Fee::create([
+            'student_id' => $context['student']->id,
+            'fee_set_id' => $context['feeSet']->id,
+            'amount' => 800,
+            'paid_amount' => 800,
+            'status' => 'paid',
+            'is_active' => true,
+        ]);
+
+        $this->withoutMiddleware()
+            ->actingAs($user)
+            ->post(route('fees.update', $fee->id), ['amount' => 900])
+            ->assertSessionHas('error', 'Paid fees cannot be edited.');
+
+        $this->assertDatabaseHas('fees', ['id' => $fee->id, 'amount' => 800, 'status' => 'paid']);
     }
 
     public function test_bulk_toggle_updates_unpaid_fees_and_skips_paid_fees(): void

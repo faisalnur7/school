@@ -58,7 +58,6 @@
             <h2 class="mb-1 mt-1 text-white">Application desk</h2>
             <p class="mb-0" style="opacity:.78;">Track applicants, payments, results, and admit-card readiness from one view.</p>
         </div>
-        <a class="btn btn-light mt-3 mt-md-0" href="{{ route('admissions.payments') }}"><i class="fas fa-receipt mr-1"></i> Payment register</a>
     </div>
 
     <div class="row mb-3">

@@ -9,7 +9,6 @@ use App\Models\AdmissionApplication;
 use App\Models\AdmissionApplicationDraft;
 use App\Models\AdmissionExam;
 use App\Models\AdmissionExamClassSetting;
-use App\Models\AdmissionPayment;
 use App\Models\Account;
 use App\Models\HandCash;
 use App\Models\Income;
@@ -171,12 +170,6 @@ class AdmissionController extends Controller
         abort_if($exam->applications()->exists(), 422, 'An exam with applications cannot be deleted.');
         $exam->delete();
         return back()->with('success', 'Admission exam deleted.');
-    }
-
-    public function payments(Request $request)
-    {
-        $payments = AdmissionPayment::with('application')->latest()->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))->paginate(20)->withQueryString();
-        return view('pages.admissions.payments.index', compact('payments'));
     }
 
     public function updatePayment(Request $request, AdmissionPayment $payment)
@@ -755,7 +748,6 @@ class AdmissionController extends Controller
         return [
             ['icon' => 'fa-calendar-alt', 'title' => 'Admission Exams', 'subtitle' => 'Create exams and classwise pass marks', 'route' => 'admissions.exams', 'permission' => 'view_admission_exams', 'from' => '#0f766e', 'to' => '#0d9488'],
             ['icon' => 'fa-file-alt', 'title' => 'Applications', 'subtitle' => 'Review every submitted application', 'route' => 'admissions.applications', 'permission' => 'view_admission_applications', 'from' => '#2563eb', 'to' => '#1d4ed8'],
-            ['icon' => 'fa-coins', 'title' => 'Admission Payments', 'subtitle' => 'Verify application form payments', 'route' => 'admissions.payments', 'permission' => 'view_admission_payments', 'from' => '#d97706', 'to' => '#b45309'],
             ['icon' => 'fa-id-card', 'title' => 'Admit Cards', 'subtitle' => 'Generate and print paid applicants cards', 'route' => 'admissions.admit-cards', 'permission' => 'manage_admission_admit_cards', 'from' => '#7c3aed', 'to' => '#6d28d9'],
             ['icon' => 'fa-pen', 'title' => 'Merit and Results', 'subtitle' => 'Enter marks and view passed or failed lists', 'route' => 'admissions.results', 'permission' => 'view_admission_results', 'from' => '#dc2626', 'to' => '#b91c1c'],
             ['icon' => 'fa-user-check', 'title' => 'Approved Students', 'subtitle' => 'Track approvals and proceed to admission', 'route' => 'admissions.approved', 'permission' => 'view_approved_admission_students', 'from' => '#059669', 'to' => '#047857'],

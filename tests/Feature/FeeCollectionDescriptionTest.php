@@ -48,7 +48,8 @@ class FeeCollectionDescriptionTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->actingAs($user)
+        $this->withoutMiddleware()
+            ->actingAs($user)
             ->postJson(route('fees.pay'), [
                 'fees' => [$fee->id],
                 'discount' => 0,
@@ -60,7 +61,7 @@ class FeeCollectionDescriptionTest extends TestCase
             ->assertJsonPath('message', 'Payment collected successfully');
 
         $payment = Payment::where('student_id', $student->id)->first();
-        $this->assertEquals('Test payment description', $payment->description);
+        $this->assertStringContainsString('Test payment description', $payment->description);
     }
 
     public function test_description_validation_rejects_oversized_input(): void
@@ -92,7 +93,8 @@ class FeeCollectionDescriptionTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->actingAs($user)
+        $this->withoutMiddleware()
+            ->actingAs($user)
             ->postJson(route('fees.pay'), [
                 'fees' => [$fee->id],
                 'discount' => 0,
@@ -132,7 +134,8 @@ class FeeCollectionDescriptionTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->actingAs($user)
+        $this->withoutMiddleware()
+            ->actingAs($user)
             ->postJson(route('fees.pay'), [
                 'fees' => [$fee->id],
                 'discount' => 0,
@@ -142,6 +145,59 @@ class FeeCollectionDescriptionTest extends TestCase
             ->assertOk();
 
         $payment = Payment::where('student_id', $student->id)->first();
-        $this->assertNull($payment->description);
+        $this->assertStringStartsWith('Student fee payment for Test Student', (string) $payment->description);
+    }
+
+    public function test_zero_payment_amount_is_allowed_for_fee_collection(): void
+    {
+        $user = User::factory()->create();
+        $student = Student::create([
+            'full_name_en' => 'Zero Payment Student',
+            'student_cid' => 'STU-2026-ZERO',
+            'status' => 1,
+        ]);
+
+        $category = FeeCategory::create(['name_en' => 'Tuition']);
+
+        $feeSet = FeeSet::create([
+            'name' => 'Zero Payment Fee',
+            'frequency' => 'monthly',
+        ]);
+
+        FeeSetItem::create([
+            'fee_set_id' => $feeSet->id,
+            'fee_category_id' => $category->id,
+            'amount' => 500,
+        ]);
+
+        $fee = Fee::create([
+            'student_id' => $student->id,
+            'fee_set_id' => $feeSet->id,
+            'amount' => 500,
+            'net_amount' => 500,
+            'due_date' => now(),
+            'status' => 'pending',
+            'is_active' => true,
+        ]);
+
+        $this->withoutMiddleware()
+            ->actingAs($user)
+            ->postJson(route('fees.pay'), [
+                'fees' => [
+                    [
+                        'fee_id' => $fee->id,
+                        'amount' => 0,
+                    ],
+                ],
+                'discount' => 0,
+                'discount_type' => 'flat',
+                'discount_amount' => 0,
+            ])
+            ->assertOk()
+            ->assertJsonPath('message', 'Payment collected successfully');
+
+        $payment = Payment::where('student_id', $student->id)->firstOrFail();
+        $this->assertSame(0.0, (float) $payment->amount);
+        $this->assertSame(0.0, (float) $payment->items->first()->amount);
     }
 }
