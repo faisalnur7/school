@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap-datepicker.min.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>body{font-family:'DM Sans',sans-serif}.mesh{background:radial-gradient(circle at 10% 10%,#ccfbf1 0,transparent 32%),radial-gradient(circle at 90% 0,#dbeafe 0,transparent 30%),#f8fafc}.public-site-main,.public-site-container{width:100%;max-width:90rem!important}</style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>body{font-family:'DM Sans','Noto Sans Bengali',sans-serif}.mesh{background:radial-gradient(circle at 10% 10%,#ccfbf1 0,transparent 32%),radial-gradient(circle at 90% 0,#dbeafe 0,transparent 30%),#f8fafc}.public-site-main,.public-site-container{width:100%;max-width:90rem!important}</style>
     @yield('styles')
 </head>
 <body class="mesh min-h-screen text-slate-800">

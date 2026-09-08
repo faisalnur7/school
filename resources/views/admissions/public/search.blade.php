@@ -8,6 +8,41 @@
         .public-site-main { max-width: none !important; padding: 0 !important; }
         .public-print-sheet { border: 0 !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
         .public-print-section { break-inside: avoid; }
+        .result-header { margin: 0 !important; }
+        .result-actions { margin-top: 14px; }
+    }
+    .application-qr { height: 120px; width: 120px; }
+    .public-search-tools { background: linear-gradient(135deg, rgba(255,255,255,.86), rgba(240,253,250,.78)); border: 1px solid rgba(255,255,255,.95); border-radius: 28px; padding: 28px; box-shadow: 0 18px 45px rgba(15,23,42,.08); }
+    .search-eyebrow { align-items: center; display: flex; gap: 8px; }
+    .search-eyebrow:before { background: #0f766e; border-radius: 999px; content: ''; height: 8px; width: 8px; }
+    .search-form { background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 10px 24px rgba(15,23,42,.06); }
+    .search-form input { border: 1px solid transparent; outline: 0; transition: border-color .18s ease, box-shadow .18s ease; }
+    .search-form input:focus { border-color: #5eead4; box-shadow: 0 0 0 3px rgba(20,184,166,.13); }
+    .result-sheet { overflow: hidden; }
+    .result-header { background: linear-gradient(135deg, #f0fdfa, #f8fafc 55%, #eff6ff); display: flex; flex-wrap: wrap; gap: 18px; justify-content: space-between; margin: -28px -28px 0; padding: 28px; }
+    .result-kicker { color: #0f766e; font-size: .7rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .application-number { align-items: center; color: #0f172a; display: flex; font-size: 2rem; gap: 10px; line-height: 1; }
+    .application-number:before { background: #14b8a6; border-radius: 5px; content: ''; height: 28px; width: 5px; }
+    .result-meta { color: #64748b; font-size: .88rem; }
+    .result-visuals { align-items: center; display: flex; gap: 18px; }
+    .result-qr { background: #fff; border: 1px solid #dbe5ec; border-radius: 16px; padding: 9px; box-shadow: 0 8px 20px rgba(15,23,42,.08); }
+    .result-photo { border: 4px solid #fff; box-shadow: 0 8px 20px rgba(15,23,42,.1); }
+    .result-actions { align-items: center; border-top: 1px solid rgba(148,163,184,.28); display: flex; flex-basis: 100%; flex-wrap: wrap; gap: 10px; justify-content: space-between; margin-top: 22px; padding-top: 20px; }
+    .result-actions .action-links { display: flex; flex-wrap: wrap; gap: 8px; }
+    .status-badge { border-radius: 999px; display: inline-flex; font-size: .75rem; font-weight: 800; padding: 9px 13px; }
+    .summary-card { border: 1px solid #e2e8f0; box-shadow: 0 5px 16px rgba(15,23,42,.04); }
+    .application-section { border-top: 1px solid #e2e8f0; padding-top: 24px; }
+    .application-section h3 { align-items: center; border: 0; display: flex; gap: 10px; padding: 0; }
+    .application-section h3:before { background: #ccfbf1; border-radius: 8px; content: ''; height: 10px; width: 10px; }
+    .field-value { color: #1e293b; margin-top: 3px; }
+    @media (max-width: 767px) {
+        .public-search-tools { border-radius: 22px; padding: 20px; }
+        .result-header { margin: -28px -28px 0; padding: 22px; }
+        .application-number { font-size: 1.55rem; }
+        .result-visuals { align-items: flex-start; margin-top: 22px; }
+        .result-actions { align-items: flex-start; display: block; }
+        .result-actions .status-badge { margin-bottom: 12px; }
+        .result-actions .action-links a, .result-actions .action-links button { flex: 1 1 100%; text-align: center; }
     }
 </style>
 @endsection
@@ -24,10 +59,10 @@
         </div>
     @endif
     <div class="public-search-tools mb-8">
-        <p class="text-sm font-bold uppercase tracking-[.2em] text-teal-700">Applicant portal</p>
+        <p class="search-eyebrow text-sm font-bold uppercase tracking-[.2em] text-teal-700">Applicant portal</p>
         <h1 class="mt-2 text-4xl font-extrabold text-slate-950">Search your application</h1>
         <p class="mt-3 text-slate-600">Enter the application number and any phone number submitted with the application.</p>
-        <form class="mt-6 grid gap-3 rounded-3xl border border-white bg-white/90 p-3 shadow-xl sm:grid-cols-[1fr_1.3fr_auto]">
+        <form class="search-form mt-6 grid gap-3 rounded-3xl p-3 sm:grid-cols-[1fr_1.3fr_auto]">
             <input name="application_number" required placeholder="Application number e.g. 0472" value="{{ $searchTerm ?? '' }}" class="min-w-0 rounded-2xl border-0 bg-slate-50 px-5 py-4">
             <input name="phone" required placeholder="Father, mother, guardian, or contact phone" value="{{ $phone ?? '' }}" class="min-w-0 rounded-2xl border-0 bg-slate-50 px-5 py-4">
             <button class="rounded-2xl bg-slate-950 px-6 py-4 font-bold text-white">Search</button>
@@ -44,19 +79,27 @@
     @endif
 
     @if($application)
-        <div class="public-print-sheet rounded-3xl border border-white bg-white/90 p-7 shadow-xl">
-            <div class="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-5">
+        <div class="public-print-sheet result-sheet rounded-3xl border border-white bg-white/90 p-7 shadow-xl">
+            <div class="result-header">
                 <div>
-                    <p class="text-sm text-slate-500">Admission application</p>
-                    <h2 class="text-2xl font-extrabold text-slate-950">{{ $application->application_number }}</h2>
-                    <p class="mt-1 text-slate-600">{{ $data['full_name_en'] ?? $application->full_name_en ?? '-' }} · {{ $application->schoolClass?->name_en ?? '-' }}</p>
+                    <p class="result-kicker">Admission application</p>
+                    <h2 class="application-number mt-3 font-extrabold">{{ $application->application_number }}</h2>
+                    <p class="result-meta mt-3"><strong class="text-slate-900">{{ $data['full_name_en'] ?? $application->full_name_en ?? '-' }}</strong> <span class="mx-1 text-slate-300">/</span> {{ $application->schoolClass?->name_en ?? '-' }}</p>
                 </div>
-                @if($application->image || !empty($data['image']))
-                    <img src="{{ asset($application->image ?? $data['image']) }}" alt="Student photo" class="h-20 w-16 rounded-lg object-cover">
-                @endif
-                <div class="flex items-center gap-3">
-                    <span class="rounded-full {{ $application->payment_status === 'paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }} px-4 py-2 text-sm font-bold">Payment: {{ ucfirst(str_replace('_', ' ', $application->payment_status)) }}</span>
-                    <div class="public-print-button flex gap-2">
+                <div class="result-visuals">
+                    @if(!empty($qrDataUri))
+                        <div class="text-center">
+                            <div class="result-qr"><img src="{{ $qrDataUri }}" alt="QR code for this application" class="application-qr"></div>
+                            <span class="mt-2 block text-xs font-bold text-slate-500">Scan for details</span>
+                        </div>
+                    @endif
+                    @if($application->image || !empty($data['image']))
+                        <img src="{{ asset($application->image ?? $data['image']) }}" alt="Student photo" class="result-photo h-36 w-28 rounded-2xl object-cover">
+                    @endif
+                </div>
+                <div class="result-actions">
+                    <span class="status-badge {{ $application->payment_status === 'paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">Payment: {{ ucfirst(str_replace('_', ' ', $application->payment_status)) }}</span>
+                    <div class="public-print-button action-links">
                         <button type="button" onclick="window.print()" class="rounded-xl bg-slate-950 px-4 py-2 font-bold text-white">Print Application</button>
                         <a href="{{ route('public.admission.application-pdf', $application) }}" class="rounded-xl bg-teal-700 px-4 py-2 font-bold text-white">Export as PDF</a>
                         @if($application->admitCard && $application->payment_status === 'paid')
@@ -67,12 +110,12 @@
             </div>
 
             <div class="mt-6 grid gap-4 sm:grid-cols-3">
-                <div class="rounded-2xl bg-slate-50 p-4"><span class="block text-xs text-slate-500">Admission exam</span><b>{{ $application->exam?->name ?? '-' }}</b></div>
-                <div class="rounded-2xl bg-slate-50 p-4"><span class="block text-xs text-slate-500">Exam date</span><b>{{ $application->exam?->exam_date?->format('d M Y') ?? '-' }}</b></div>
-                <div class="rounded-2xl bg-slate-50 p-4"><span class="block text-xs text-slate-500">Application status</span><b>{{ ucfirst(str_replace('_', ' ', $application->application_status ?: $application->status)) }}</b></div>
+                <div class="summary-card rounded-2xl bg-slate-50 p-4"><span class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Admission exam</span><b class="mt-2 block text-slate-800">{{ $application->exam?->name ?? '-' }}</b></div>
+                <div class="summary-card rounded-2xl bg-slate-50 p-4"><span class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Exam date</span><b class="mt-2 block text-slate-800">{{ $application->exam?->exam_date?->format('d M Y') ?? '-' }}</b></div>
+                <div class="summary-card rounded-2xl bg-slate-50 p-4"><span class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Application status</span><b class="mt-2 block text-slate-800">{{ ucfirst(str_replace('_', ' ', $application->application_status ?: $application->status)) }}</b></div>
             </div>
 
-            <div class="public-print-section mt-7">
+            <div class="public-print-section application-section mt-7">
                 <h3 class="border-b border-slate-200 pb-2 text-lg font-extrabold">Basic information</h3>
                 <div class="mt-4 grid gap-x-8 gap-y-3 sm:grid-cols-2">
                     <div><span class="text-xs text-slate-500">Full name</span><p class="font-semibold">{{ $data['full_name_en'] ?? $application->full_name_en ?? '-' }}</p></div>
@@ -87,7 +130,7 @@
                 </div>
             </div>
 
-            <div class="public-print-section mt-7">
+            <div class="public-print-section application-section mt-7">
                 <h3 class="border-b border-slate-200 pb-2 text-lg font-extrabold">Parents and contact</h3>
                 <div class="mt-4 grid gap-x-8 gap-y-3 sm:grid-cols-2">
                     <div><span class="text-xs text-slate-500">Father</span><p class="font-semibold">{{ $data['father_name'] ?? $application->father_name ?? '-' }}</p></div>
@@ -102,7 +145,7 @@
                 </div>
             </div>
 
-            <div class="public-print-section mt-7">
+            <div class="public-print-section application-section mt-7">
                 <h3 class="border-b border-slate-200 pb-2 text-lg font-extrabold">Guardian information · {{ $guardianLabel }}</h3>
                 <div class="mt-4 grid gap-x-8 gap-y-3 sm:grid-cols-2">
                     @if($guardianType === 1 || $guardianType === 2)
@@ -120,7 +163,7 @@
                 </div>
             </div>
 
-            <div class="public-print-section mt-7">
+            <div class="public-print-section application-section mt-7">
                 <h3 class="border-b border-slate-200 pb-2 text-lg font-extrabold">Address and previous school</h3>
                 <div class="mt-4 grid gap-x-8 gap-y-3 sm:grid-cols-2">
                     <div><span class="text-xs text-slate-500">Present address</span><p class="font-semibold">{{ $data['present_address'] ?? $application->present_address ?? '-' }}</p></div>
@@ -130,7 +173,7 @@
                 </div>
             </div>
 
-            <div class="public-print-section mt-7 rounded-2xl bg-slate-50 p-5">
+            <div class="public-print-section application-section mt-7 rounded-2xl bg-slate-50 p-5">
                 <h3 class="font-extrabold">Payment status</h3>
                 <div class="mt-3 grid gap-3 sm:grid-cols-3">
                     <div><span class="text-xs text-slate-500">Status</span><p class="font-semibold">{{ ucfirst(str_replace('_', ' ', $application->payment_status)) }}</p></div>

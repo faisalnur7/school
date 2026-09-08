@@ -32,6 +32,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Mpdf\Mpdf;
+use Mpdf\QrCode\Output\Png;
+use Mpdf\QrCode\QrCode;
 
 class AdmissionController extends Controller
 {
@@ -65,22 +67,68 @@ class AdmissionController extends Controller
         return view('pages.admissions.applications.index', compact('applications', 'search', 'classId', 'classes'));
     }
 
-    public function approved()
+    public function approved(Request $request)
     {
-        $applications = AdmissionApplication::with(['exam', 'schoolClass'])->where('review_status', 'approved')->where('conversion_status', 'not_converted')->latest()->paginate(20);
-        return view('pages.admissions.applications.approved', compact('applications'));
+        $search = trim((string) $request->input('search', ''));
+        $classId = $request->integer('school_class_id');
+        $sessionId = $request->integer('academic_session_id');
+        $applications = AdmissionApplication::with(['exam', 'schoolClass'])
+            ->where('review_status', 'approved')
+            ->where('conversion_status', 'not_converted')
+            ->when($classId, fn ($query) => $query->where('school_class_id', $classId))
+            ->when($sessionId, fn ($query) => $query->where('academic_session_id', $sessionId))
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('full_name_en', 'like', "%{$search}%")
+                        ->orWhere('full_name_bn', 'like', "%{$search}%")
+                        ->orWhere('father_phone', 'like', "%{$search}%")
+                        ->orWhere('mother_phone', 'like', "%{$search}%")
+                        ->orWhere('guardian_phone', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+        $classes = SchoolClass::where('status', 1)->orderBy('order')->get();
+        $sessions = AcademicSession::orderByDesc('id')->get();
+        return view('pages.admissions.applications.approved', compact('applications', 'search', 'classId', 'sessionId', 'classes', 'sessions'));
     }
 
-    public function converted()
+    public function converted(Request $request)
     {
-        $applications = AdmissionApplication::with(['exam', 'schoolClass', 'convertedStudent'])->where('conversion_status', 'converted')->latest()->paginate(20);
-        return view('pages.admissions.applications.converted', compact('applications'));
+        $search = trim((string) $request->input('search', ''));
+        $classId = $request->integer('school_class_id');
+        $sessionId = $request->integer('academic_session_id');
+        $applications = AdmissionApplication::with(['exam', 'schoolClass', 'convertedStudent'])
+            ->where('conversion_status', 'converted')
+            ->when($classId, fn ($query) => $query->where('school_class_id', $classId))
+            ->when($sessionId, fn ($query) => $query->where('academic_session_id', $sessionId))
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('full_name_en', 'like', "%{$search}%")
+                        ->orWhere('full_name_bn', 'like', "%{$search}%")
+                        ->orWhere('father_phone', 'like', "%{$search}%")
+                        ->orWhere('mother_phone', 'like', "%{$search}%")
+                        ->orWhere('guardian_phone', 'like', "%{$search}%")
+                        ->orWhereHas('convertedStudent', fn ($studentQuery) => $studentQuery->where('student_cid', 'like', "%{$search}%"));
+                });
+            })
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+        $classes = SchoolClass::where('status', 1)->orderBy('order')->get();
+        $sessions = AcademicSession::orderByDesc('id')->get();
+        return view('pages.admissions.applications.converted', compact('applications', 'search', 'classId', 'sessionId', 'classes', 'sessions'));
     }
 
     public function showApplication(AdmissionApplication $application)
     {
-        $application->load(['exam', 'schoolClass', 'academicSession', 'payment', 'admitCard', 'reviews']);
-        return view('pages.admissions.applications.show', compact('application'));
+        $application->load(['exam', 'schoolClass', 'academicSession', 'payment', 'admitCard', 'reviews', 'convertedStudent']);
+        $sections = Section::where('school_class_id', $application->school_class_id)->orderBy('name_en')->get();
+        if ($application->convertedStudent) {
+            $application->setAttribute('converted_student_id', $application->convertedStudent->student_cid);
+        }
+        return view('pages.admissions.applications.show', compact('application', 'sections'));
     }
 
     public function exams()
@@ -428,9 +476,48 @@ class AdmissionController extends Controller
         return back()->with('success', 'Application review updated.');
     }
 
+    public function bulkReview(Request $request)
+    {
+        $data = $request->validate([
+            'application_ids' => 'required|array|min:1',
+            'application_ids.*' => 'integer|exists:admission_applications,id',
+            'decision' => 'required|in:approved,rejected,pending',
+            'notes' => 'nullable|string',
+        ]);
+
+        DB::transaction(function () use ($data, $request) {
+            $applications = $this->resultsQuery($request)
+                ->whereIn('id', $data['application_ids'])
+                ->lockForUpdate()
+                ->get();
+
+            abort_if($applications->count() !== count(array_unique($data['application_ids'])), 422, 'One or more selected applications are outside the current result filters.');
+
+            $approved = $data['decision'] === 'approved';
+            foreach ($applications as $application) {
+                $application->update([
+                    'review_status' => $data['decision'],
+                    'approved_by' => $approved ? auth()->id() : null,
+                    'approved_at' => $approved ? now() : null,
+                    'admin_notes' => $data['notes'] ?? null,
+                ]);
+                $application->reviews()->create([
+                    'decision' => $data['decision'],
+                    'notes' => $data['notes'] ?? null,
+                    'reviewed_by' => auth()->id(),
+                    'reviewed_at' => now(),
+                ]);
+            }
+        });
+
+        return back()->with('success', count($data['application_ids']) . ' applications marked ' . ucfirst($data['decision']) . '.');
+    }
+
     public function convert(AdmissionApplication $application, AdmissionConversionService $service)
     {
-        $service->convert($application, auth()->id());
+        $data = request()->validate(['section_id' => 'required|integer|exists:sections,id']);
+        abort_unless(Section::whereKey($data['section_id'])->where('school_class_id', $application->school_class_id)->exists(), 422, 'The selected section does not belong to this student class.');
+        $service->convert($application, auth()->id(), (int) $data['section_id']);
         return back()->with('success', 'Application proceeded to admission successfully.');
     }
 
@@ -499,16 +586,18 @@ class AdmissionController extends Controller
             return $card->fresh();
         });
         $application->setRelation('admitCard', $admitCard);
+        $qrDataUri = $this->applicationQrDataUri($this->applicationQrUrl($application));
         $pdf = new Mpdf(['format' => 'A4', 'margin_top' => 12, 'margin_bottom' => 12, 'margin_left' => 12, 'margin_right' => 12]);
-        $pdf->WriteHTML(view('pages.admissions.admit-cards.pdf', compact('application'))->render());
+        $pdf->WriteHTML(view('pages.admissions.admit-cards.pdf', compact('application', 'qrDataUri'))->render());
         return response($pdf->Output('', 'S'))->header('Content-Type', 'application/pdf')->header('Content-Disposition', 'attachment; filename="admit-card-' . $application->application_number . '.pdf"');
     }
 
     public function applicationPdf(AdmissionApplication $application)
     {
         $application->load(['exam', 'schoolClass', 'academicSession']);
+        $qrDataUri = $this->applicationQrDataUri($this->applicationQrUrl($application));
         $pdf = new Mpdf(['format' => 'A4', 'margin_top' => 12, 'margin_bottom' => 12, 'margin_left' => 12, 'margin_right' => 12]);
-        $pdf->WriteHTML(view('pages.admissions.applications.pdf', compact('application'))->render());
+        $pdf->WriteHTML(view('pages.admissions.applications.pdf', compact('application', 'qrDataUri'))->render());
         return response($pdf->Output('', 'S'))->header('Content-Type', 'application/pdf')->header('Content-Disposition', 'attachment; filename="application-' . $application->application_number . '.pdf"');
     }
 
@@ -729,18 +818,60 @@ class AdmissionController extends Controller
             'searchTerm' => $applicationNumber,
             'phone' => $phone,
             'searchErrors' => $searchErrors,
+            'qrDataUri' => $application ? $this->applicationQrDataUri($this->applicationQrUrl($application, $phone)) : null,
         ]);
     }
 
     public function publicApplicationPdf(AdmissionApplication $application)
     {
         $application->load(['exam', 'schoolClass', 'payment']);
-        $pdf = new Mpdf(['format' => 'A4', 'margin_top' => 12, 'margin_bottom' => 12, 'margin_left' => 12, 'margin_right' => 12]);
-        $pdf->WriteHTML(view('admissions.public.application-pdf', compact('application'))->render());
+        $qrDataUri = $this->applicationQrDataUri($this->applicationQrUrl($application));
+        $pdf = new Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'fontDir' => [base_path('resources/fonts')],
+            'fontdata' => [
+                'lohitbengali' => [
+                    'R' => 'Lohit-Bengali.ttf',
+                    'B' => 'Lohit-Bengali.ttf',
+                ],
+            ],
+            'default_font' => 'lohitbengali',
+            'margin_top' => 12,
+            'margin_bottom' => 12,
+            'margin_left' => 12,
+            'margin_right' => 12,
+        ]);
+        $pdf->WriteHTML(view('admissions.public.application-pdf', compact('application', 'qrDataUri'))->render());
 
         return response($pdf->Output('', 'S'))
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'attachment; filename="application-' . $application->application_number . '.pdf"');
+    }
+
+    private function applicationQrUrl(AdmissionApplication $application, ?string $phone = null): string
+    {
+        $data = $application->applicant_data ?? [];
+        $phone ??= data_get($data, 'father_phone')
+            ?: data_get($data, 'mother_phone')
+            ?: data_get($data, 'guardian_phone')
+            ?: $application->father_phone
+            ?: $application->mother_phone
+            ?: $application->guardian_phone
+            ?: '';
+
+        return route('public.admission.search', [
+            'application_number' => $application->application_number,
+            'phone' => $phone,
+        ]);
+    }
+
+    private function applicationQrDataUri(string $url): string
+    {
+        $qrCode = new QrCode($url, 'M');
+        $png = (new Png())->output($qrCode, 1200, [255, 255, 255], [0, 0, 0], 9);
+
+        return 'data:image/png;base64,' . base64_encode($png);
     }
 
     private function cards(): array

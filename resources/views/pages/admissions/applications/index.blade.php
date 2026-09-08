@@ -40,8 +40,14 @@
     .admissions-applications-page .status-unpaid { background: #fef3c7; color: #92400e; }
     .admissions-applications-page .status-result { background: #eef2ff; color: #4338ca; }
     .admissions-applications-page .status-pending { background: #f1f5f9; color: #64748b; }
-    .admissions-applications-page .action-cell { min-width: 155px; }
+    .admissions-applications-page .action-cell { min-width: 225px; }
     .admissions-applications-page .empty-state { padding: 56px 20px; }
+    .admissions-applications-page .details-modal .modal-header { background: linear-gradient(120deg, #10233d, #155e75); color: #fff; }
+    .admissions-applications-page .details-modal .modal-body { background: #f8fafc; }
+    .admissions-applications-page .details-modal .detail-panel { background: #fff; border: 1px solid #e5eaf1; border-radius: 12px; height: 100%; padding: 16px; }
+    .admissions-applications-page .details-modal .detail-label { color: #8490a3; display: block; font-size: .68rem; font-weight: 700; letter-spacing: .05em; margin-bottom: 3px; text-transform: uppercase; }
+    .admissions-applications-page .details-modal .detail-value { color: #26364a; font-size: .9rem; font-weight: 600; }
+    .admissions-applications-page .details-modal .detail-photo { border: 4px solid #fff; box-shadow: 0 5px 14px rgba(23,32,51,.12); height: 128px; object-fit: cover; width: 100px; }
 </style>
 
 @php
@@ -150,6 +156,10 @@
                                 @endif
                             </td>
                             <td class="text-right text-nowrap action-cell">
+                                <button type="button" class="btn btn-sm btn-outline-primary mr-1" data-toggle="modal"
+                                    data-target="#applicationDetailsModal{{ $application->id }}">
+                                    <i class="fas fa-eye mr-1"></i> View details
+                                </button>
                                 @if($application->payment_status === 'paid')
                                     <a class="btn btn-sm btn-outline-success" href="{{ route('admissions.applications.admit-card', $application) }}">
                                         <i class="fas fa-id-card mr-1"></i> Print Admit Card
@@ -246,6 +256,67 @@
             </div>
         </div>
     @endif
+@endforeach
+
+@foreach($applications as $application)
+    @php
+        $detailsData = $application->applicant_data ?? [];
+        $detailsName = $detailsData['full_name_en'] ?? $application->full_name_en ?? '-';
+        $detailsImage = $application->image ?? ($detailsData['image'] ?? null);
+        $detailsGender = \App\Models\Student::GENDERS[(int) ($detailsData['gender'] ?? $application->gender)] ?? '-';
+        $detailsReligion = \App\Models\Student::RELIGIONS[(int) ($detailsData['religion'] ?? $application->religion)] ?? '-';
+    @endphp
+    <div class="modal fade details-modal" id="applicationDetailsModal{{ $application->id }}" tabindex="-1" role="dialog"
+        aria-labelledby="applicationDetailsModalLabel{{ $application->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" role="document">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title mb-1" id="applicationDetailsModalLabel{{ $application->id }}">Application details</h5>
+                        <small>{{ $application->application_number }} · {{ $detailsName }}</small>
+                    </div>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <div class="detail-panel text-center">
+                                @if($detailsImage)
+                                    <img src="{{ asset($detailsImage) }}" alt="{{ $detailsName }}" class="detail-photo rounded-lg mb-3">
+                                @else
+                                    <div class="applicant-avatar mx-auto mb-3" style="height:128px;width:100px;font-size:32px;">{{ strtoupper(substr($detailsName, 0, 1)) }}</div>
+                                @endif
+                                <h5 class="mb-1">{{ $detailsName }}</h5>
+                                <span class="text-muted d-block">{{ $application->schoolClass?->name_en ?? 'Unassigned' }}</span>
+                                <span class="status-badge {{ $application->payment_status === 'paid' ? 'status-paid' : 'status-unpaid' }} mt-3">{{ ucfirst(str_replace('_', ' ', $application->payment_status)) }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="detail-panel">
+                                <div class="row">
+                                    <div class="col-sm-6 mb-3"><span class="detail-label">Admission exam</span><span class="detail-value">{{ $application->exam?->name ?? '-' }}</span></div>
+                                    <div class="col-sm-6 mb-3"><span class="detail-label">Exam date</span><span class="detail-value">{{ $application->exam?->exam_date?->format('d M Y') ?? '-' }}</span></div>
+                                    <div class="col-sm-6 mb-3"><span class="detail-label">Application status</span><span class="detail-value">{{ ucfirst(str_replace('_', ' ', $application->application_status ?: $application->status)) }}</span></div>
+                                    <div class="col-sm-6 mb-3"><span class="detail-label">Result</span><span class="detail-value">{{ ucfirst(str_replace('_', ' ', $application->result_status)) }}{{ $application->total_marks !== null ? ' · ' . $application->total_marks . '/' . $application->pass_mark_snapshot : '' }}</span></div>
+                                    <div class="col-sm-6 mb-3"><span class="detail-label">Date of birth</span><span class="detail-value">{{ $detailsData['date_of_birth'] ?? $application->date_of_birth?->format('d/m/Y') ?? '-' }}</span></div>
+                                    <div class="col-sm-6 mb-3"><span class="detail-label">Gender / religion</span><span class="detail-value">{{ $detailsGender }} / {{ $detailsReligion }}</span></div>
+                                    <div class="col-sm-6 mb-3"><span class="detail-label">Father</span><span class="detail-value">{{ $detailsData['father_name'] ?? $application->father_name ?? '-' }}</span></div>
+                                    <div class="col-sm-6 mb-3"><span class="detail-label">Father phone</span><span class="detail-value">{{ $detailsData['father_phone'] ?? $application->father_phone ?? '-' }}</span></div>
+                                    <div class="col-sm-6 mb-3"><span class="detail-label">Mother</span><span class="detail-value">{{ $detailsData['mother_name'] ?? $application->mother_name ?? '-' }}</span></div>
+                                    <div class="col-sm-6 mb-3"><span class="detail-label">Mother phone</span><span class="detail-value">{{ $detailsData['mother_phone'] ?? $application->mother_phone ?? '-' }}</span></div>
+                                    <div class="col-12 mb-0"><span class="detail-label">Present address</span><span class="detail-value">{{ $detailsData['present_address'] ?? $application->present_address ?? '-' }}</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white">
+                    <a href="{{ route('admissions.applications.show', $application) }}" class="btn btn-primary"><i class="fas fa-external-link-alt mr-1"></i>Open full application</a>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endforeach
 
 <script>

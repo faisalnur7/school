@@ -118,7 +118,7 @@ Route::post('/admission/applications', [AdmissionController::class, 'publicStore
 Route::get('/admission/preview/{token}', [AdmissionController::class, 'publicPreview'])->name('public.admission.preview');
 Route::post('/admission/preview/{token}/confirm', [AdmissionController::class, 'publicConfirm'])->name('public.admission.confirm');
 Route::get('/admission/confirmation', [AdmissionController::class, 'publicConfirmation'])->name('public.admission.confirmation');
-Route::get('/admission/search', [AdmissionController::class, 'publicSearch'])->middleware('throttle:10,1')->name('public.admission.search');
+Route::get('/admission/search', [AdmissionController::class, 'publicSearch'])->middleware('throttle:30,1')->name('public.admission.search');
 Route::get('/admission/applications/{application}/pdf', [AdmissionController::class, 'publicApplicationPdf'])->name('public.admission.application-pdf');
 Route::get('/admission/applications/{application}/admit-card', [AdmissionController::class, 'admitCardPdf'])->name('public.admission.admit-card');
 Route::post('/admission/applications/{application}/payment', [AdmissionController::class, 'publicPayment'])->name('public.admission.payment');
@@ -230,6 +230,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:enter_admission_marks')->post('/admissions/exams/{exam}/marks', [AdmissionController::class, 'storeMarksBatch'])->name('admissions.marks.batch');
     Route::middleware('permission:enter_admission_marks')->post('/admissions/applications/{application}/marks', [AdmissionController::class, 'storeMarks'])->name('admissions.marks.store');
     Route::middleware('permission:review_admission_applications')->post('/admissions/applications/{application}/review', [AdmissionController::class, 'review'])->name('admissions.applications.review');
+    Route::middleware('permission:review_admission_applications')->post('/admissions/applications/bulk-review', [AdmissionController::class, 'bulkReview'])->name('admissions.applications.bulk-review');
     Route::middleware('permission:view_admission_applications')->get('/admissions/applications/{application}/download', [AdmissionController::class, 'applicationPdf'])->name('admissions.applications.download');
     Route::middleware('permission:view_admission_applications')->get('/admissions/applications/{application}/admit-card', [AdmissionController::class, 'admitCardPdf'])->name('admissions.applications.admit-card');
     Route::middleware('permission:proceed_admission')->post('/admissions/applications/{application}/convert', [AdmissionController::class, 'convert'])->name('admissions.applications.convert');
@@ -588,6 +589,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/', [FeeSetController::class, 'index'])->name('fee-sets.index');
         Route::get('/create', [FeeSetController::class, 'create'])->name('fee-sets.create');
         Route::post('/', [FeeSetController::class, 'store'])->name('fee-sets.store');
+        Route::post('/duplicate', [FeeSetController::class, 'duplicate'])->name('fee-sets.duplicate');
         Route::get('{id}/edit', [FeeSetController::class, 'edit'])->name('fee-sets.edit');
         Route::put('{id}', [FeeSetController::class, 'update'])->name('fee-sets.update');
         Route::delete('{id}', [FeeSetController::class, 'destroy'])->name('fee-sets.destroy');
