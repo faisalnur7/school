@@ -2491,9 +2491,11 @@
                                 </div>
                             </div>
                             <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
-                                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addIndividualFeeModal">
-                                    <i class="fas fa-plus mr-1"></i>Add Individual Fee
-                                </button>
+                                @if ($student)
+                                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addIndividualFeeModal">
+                                        <i class="fas fa-plus mr-1"></i>Add Individual Fee
+                                    </button>
+                                @endif
                                 <button type="button" class="btn btn-sm btn-outline-success js-set-all-fees" data-state="1">
                                     Activate All
                                 </button>
@@ -2674,6 +2676,7 @@
                 </div>
             </div>
 
+            @if ($student)
             <div class="modal fade" id="addIndividualFeeModal" tabindex="-1" role="dialog" aria-labelledby="addIndividualFeeModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
@@ -2729,6 +2732,7 @@
                     </div>
                 </div>
             </div>
+            @endif
 
             <div class="modal fade" id="editAssignedFeeModal" tabindex="-1" role="dialog" aria-labelledby="editAssignedFeeModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered" role="document">
