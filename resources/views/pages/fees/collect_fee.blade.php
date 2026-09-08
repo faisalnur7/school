@@ -2,6 +2,16 @@
 
 @section('styles')
     <style>
+        html.individual-fee-modal-open,
+        body.individual-fee-modal-open {
+            overflow: hidden !important;
+        }
+
+        body.individual-fee-modal-open {
+            position: fixed;
+            width: 100%;
+        }
+
         .fee-collect-page {
             color: #334155;
         }
@@ -2481,6 +2491,9 @@
                                 </div>
                             </div>
                             <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
+                                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addIndividualFeeModal">
+                                    <i class="fas fa-plus mr-1"></i>Add Individual Fee
+                                </button>
                                 <button type="button" class="btn btn-sm btn-outline-success js-set-all-fees" data-state="1">
                                     Activate All
                                 </button>
@@ -2570,7 +2583,7 @@
                                                         <tbody>
                                                             @foreach ($group['fees'] as $fee)
                                                                 @php
-                                                                    $feeCategories = $fee->feeSet?->items
+                                                                    $feeCategoryNames = $fee->feeSet?->items
                                                                         ?->map(fn ($item) => $item->category?->name_en ?? $item->category?->name ?? null)
                                                                         ->filter()
                                                                         ->unique()
@@ -2582,7 +2595,7 @@
                                                                         <div class="fw-semibold">{{ $fee->feeSet->name ?? 'N/A' }}</div>
                                                                         <div class="small text-muted">{{ $fee->remarks ?? 'Fee assigned to this student' }}</div>
                                                                         <div class="assigned-fees-pill-group">
-                                                                            @forelse ($feeCategories as $categoryName)
+                                                                            @forelse ($feeCategoryNames as $categoryName)
                                                                                 <span class="assigned-fees-pill">{{ $categoryName }}</span>
                                                                             @empty
                                                                                 <span class="assigned-fees-pill assigned-fees-pill--muted">Uncategorized</span>
@@ -2657,6 +2670,62 @@
                                 </div>
                             </form>
                         @endif
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="addIndividualFeeModal" tabindex="-1" role="dialog" aria-labelledby="addIndividualFeeModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <form method="POST" action="{{ route('fees.individual.store', $student) }}">
+                            @csrf
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addIndividualFeeModalLabel">Add Individual Fee</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="individualFeeCategory">Fee Category</label>
+                                    <select class="form-control" id="individualFeeCategory" name="fee_category_id" required>
+                                        <option value="">Select category</option>
+                                        @foreach (($feeCategories ?? collect()) as $category)
+                                            <option value="{{ $category->id }}" {{ old('fee_category_id') == $category->id ? 'selected' : '' }}>
+                                                {{ $category->name_en ?? $category->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="individualFeeName">Fee Name</label>
+                                    <input type="text" class="form-control" id="individualFeeName" name="name" value="{{ old('name') }}" required maxlength="255">
+                                </div>
+                                <div class="form-group">
+                                    <label>Frequency</label>
+                                    <input type="text" class="form-control" value="Specific Month" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="individualFeeMonth">Month</label>
+                                    <select class="form-control" id="individualFeeMonth" name="month" required>
+                                        <option value="">Select month</option>
+                                        @foreach (range(1, 12) as $month)
+                                            <option value="{{ $month }}" {{ old('month') == $month ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $month, 1)) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="individualFeeAmount">Amount</label>
+                                    <input type="number" class="form-control" id="individualFeeAmount" name="amount" value="{{ old('amount') }}" min="0" step="0.01" required>
+                                </div>
+                                <div class="form-group mb-0">
+                                    <label for="individualFeeDescription">Description</label>
+                                    <textarea class="form-control" id="individualFeeDescription" name="description" rows="3" maxlength="1000">{{ old('description') }}</textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Add Fee</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -4134,6 +4203,20 @@
                     </div>
                 `);
                 $(this).find('input[name="student_id"]').trigger('focus');
+            });
+
+            // Lock the page behind the individual-fee dialog, including mobile touch scrolling.
+            $('#addIndividualFeeModal').on('show.bs.modal', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                $('body').data('individual-fee-scroll-top', scrollTop)
+                    .css('top', -scrollTop + 'px')
+                    .addClass('individual-fee-modal-open');
+                $('html').addClass('individual-fee-modal-open');
+            }).on('hidden.bs.modal', function() {
+                const scrollTop = $('body').data('individual-fee-scroll-top') || 0;
+                $('body').removeClass('individual-fee-modal-open').css('top', '');
+                $('html').removeClass('individual-fee-modal-open');
+                window.scrollTo(0, scrollTop);
             });
 
             // Activate tab based on URL hash (e.g., /fees/collect_payment/1#tabHistory)

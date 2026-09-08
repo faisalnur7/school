@@ -23,6 +23,7 @@ class FeeSetController extends Controller
     public function index(Request $request)
     {
         $feeSets = FeeSet::with(['schoolClass', 'items.category'])
+                    ->where('scope', 'global')
                     ->when($request->integer('academic_session_id'), fn ($query, $sessionId) => $query->where('academic_session_id', $sessionId))
                     ->latest()
                     ->get();
@@ -64,6 +65,7 @@ class FeeSetController extends Controller
         DB::transaction(function () use ($data, &$copied, &$skipped) {
             $feeSets = FeeSet::with('items')
                 ->where('academic_session_id', $data['source_session_id'])
+                ->where('scope', 'global')
                 ->get();
 
             foreach ($feeSets as $source) {
@@ -253,6 +255,7 @@ class FeeSetController extends Controller
     public function edit($id)
     {
         $feeSet = FeeSet::with('items.category')->findOrFail($id);
+        abort_if($feeSet->scope === 'individual', 404);
         $feeSets = FeeSet::with(['schoolClass', 'items.category'])
                     ->latest()
                     ->get();
@@ -298,6 +301,7 @@ class FeeSetController extends Controller
         DB::transaction(function () use ($request, $id) {
 
             $feeSet = FeeSet::findOrFail($id);
+            abort_if($feeSet->scope === 'individual', 404);
 
             /* ============================
             1️⃣ Update Fee Set
@@ -383,6 +387,7 @@ class FeeSetController extends Controller
         DB::transaction(function () use ($id) {
 
             $feeSet = FeeSet::findOrFail($id);
+            abort_if($feeSet->scope === 'individual', 404);
             Fee::where('fee_set_id', $feeSet->id)->delete();
             $feeSet->items()->delete();
             $feeSet->delete();

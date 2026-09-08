@@ -13,6 +13,8 @@ class FeeSet extends Model
         'name',
         'bn_name',
         'academic_session_id',
+        'student_id',
+        'scope',
         'school_class_id',
         'group_id',
         'frequency',
@@ -26,6 +28,11 @@ class FeeSet extends Model
         'months' => 'array',
         'due_date' => 'date',
     ];
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
 
     public function schoolClass()
     {

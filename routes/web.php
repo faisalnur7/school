@@ -696,6 +696,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:view_fees,view_card_collect_fees')->group(function () {
         Route::get('/fees/collect', [FeeCollectionController::class, 'index'])->name('fees.collect');
         Route::get('/fees/collect_payment', [FeeCollectionController::class, 'collect_payment'])->name('fees.collect_payment');
+        Route::post('/fees/{student}/individual', [FeeCollectionController::class, 'storeIndividualFee'])->name('fees.individual.store');
         Route::post('/fees/switch-student', [FeeCollectionController::class, 'switchStudent'])->name('fees.switch_student');
         Route::get('/fees/search-student', [FeeCollectionController::class, 'searchStudents'])->name('fees.search-student');
         Route::post('/fees/pay', [FeeCollectionController::class, 'pay'])->name('fees.pay');
