@@ -249,6 +249,7 @@ class FeeCollectionController extends Controller
                 'sections' => $sections,
                 'groups' => $groups,
                 'sessions' => $sessions,
+                'feeCategories' => FeeCategory::where('status', 1)->where('is_transport', 0)->orderBy('name')->get(),
             ]);
         }
 
@@ -272,6 +273,10 @@ class FeeCollectionController extends Controller
         $payments = $student->payments;
 
         $sessionId = optional($this->currentAcademicInformation($student))->academic_session_id;
+        $feeCategories = FeeCategory::where('status', 1)
+            ->where('is_transport', 0)
+            ->orderBy('name')
+            ->get();
 
         $pendingFees = Fee::with(['feeSet.items.category', 'scholarship'])
             ->where('student_id', $student->id)
@@ -518,9 +523,81 @@ class FeeCollectionController extends Controller
             'classes',
             'sections',
             'groups',
-            'sessions'
+            'sessions',
+            'feeCategories'
         ));
 
+    }
+
+    public function storeIndividualFee(Request $request, Student $student)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'fee_category_id' => ['required', 'integer', 'exists:fee_categories,id'],
+            'month' => ['required', 'integer', 'between:1,12'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'amount' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        $category = FeeCategory::where('status', 1)
+            ->where('is_transport', 0)
+            ->findOrFail($validated['fee_category_id']);
+        $academicInformation = $this->currentAcademicInformation($student);
+
+        if (!$academicInformation?->academic_session_id) {
+            return back()->withInput()->with('error', 'This student has no active academic session.');
+        }
+
+        $studentType = $student->academicInformations()->count() > 1 ? 'old' : 'new';
+        if (!in_array($category->student_type ?? 'both', ['both', $studentType], true)) {
+            return back()->withInput()->with('error', 'The selected fee category is not applicable to this student.');
+        }
+
+        $dueDate = Carbon::create(now()->year, (int) $validated['month'], 1)
+            ->endOfMonth()
+            ->toDateString();
+
+        $duplicate = Fee::where('student_id', $student->id)
+            ->where('due_date', $dueDate)
+            ->whereHas('feeSet', function ($query) use ($academicInformation, $validated) {
+                $query->where('scope', 'individual')
+                    ->where('academic_session_id', $academicInformation->academic_session_id)
+                    ->whereHas('items', fn ($items) => $items->where('fee_category_id', $validated['fee_category_id']));
+            })
+            ->exists();
+
+        if ($duplicate) {
+            return back()->withInput()->with('error', 'An individual fee for this category and month already exists for this student.');
+        }
+
+        DB::transaction(function () use ($validated, $student, $academicInformation, $category, $dueDate) {
+            $feeSet = FeeSet::create([
+                'name' => $validated['name'],
+                'academic_session_id' => $academicInformation->academic_session_id,
+                'student_id' => $student->id,
+                'scope' => 'individual',
+                'frequency' => 'others',
+                'month' => $validated['month'],
+                'description' => $validated['description'] ?? null,
+            ]);
+
+            $feeSet->items()->create([
+                'fee_category_id' => $category->id,
+                'amount' => $validated['amount'],
+            ]);
+
+            Fee::create([
+                'student_id' => $student->id,
+                'fee_set_id' => $feeSet->id,
+                'amount' => $validated['amount'],
+                'due_date' => $dueDate,
+                'status' => 'pending',
+                'remarks' => $validated['description'] ?? null,
+            ]);
+        });
+
+        return redirect()->route('fees.collect_payment', ['student_id' => $student->id])
+            ->with('success', 'Individual fee added successfully.');
     }
 
     public function searchStudents(Request $request)

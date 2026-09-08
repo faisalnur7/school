@@ -20,9 +20,11 @@ class FeeSetController extends Controller
     /**
      * List + Create Form
      */
-    public function index()
+    public function index(Request $request)
     {
         $feeSets = FeeSet::with(['schoolClass', 'items.category'])
+                    ->where('scope', 'global')
+                    ->when($request->integer('academic_session_id'), fn ($query, $sessionId) => $query->where('academic_session_id', $sessionId))
                     ->latest()
                     ->get();
 
@@ -31,18 +33,118 @@ class FeeSetController extends Controller
         $sessions = AcademicSession::all(); 
         $groups = Group::all();
 
+        $sessionId = $request->integer('academic_session_id');
         return view('pages.fee_sets.create', compact(
             'feeSets',
             'classes',
             'feeCategories',
             'sessions',
-            'groups'
+            'groups',
+            'sessionId'
         ));
     }
 
     public function create()
     {
         return redirect()->route('fee-sets.index');
+    }
+
+    /**
+     * Copy all fee-set definitions from one academic session to another.
+     */
+    public function duplicate(Request $request)
+    {
+        $data = $request->validate([
+            'source_session_id' => 'required|exists:academic_sessions,id|different:target_session_id',
+            'target_session_id' => 'required|exists:academic_sessions,id',
+        ]);
+
+        $copied = 0;
+        $skipped = 0;
+
+        DB::transaction(function () use ($data, &$copied, &$skipped) {
+            $feeSets = FeeSet::with('items')
+                ->where('academic_session_id', $data['source_session_id'])
+                ->where('scope', 'global')
+                ->get();
+
+            foreach ($feeSets as $source) {
+                $alreadyExists = FeeSet::where('academic_session_id', $data['target_session_id'])
+                    ->where('name', $source->name)
+                    ->where('school_class_id', $source->school_class_id)
+                    ->where('group_id', $source->group_id)
+                    ->exists();
+
+                if ($alreadyExists) {
+                    $skipped++;
+                    continue;
+                }
+
+                $copy = $source->replicate();
+                $copy->academic_session_id = $data['target_session_id'];
+                $copy->save();
+
+                foreach ($source->items as $item) {
+                    $copy->items()->create([
+                        'fee_category_id' => $item->fee_category_id,
+                        'amount' => $item->amount,
+                    ]);
+                }
+
+                $this->assignFeesToStudents($copy);
+                $copied++;
+            }
+        });
+
+        $message = "{$copied} fee set(s) duplicated successfully.";
+        if ($skipped > 0) {
+            $message .= " {$skipped} existing fee set(s) skipped.";
+        }
+
+        return redirect()->route('fee-sets.index', ['academic_session_id' => $data['target_session_id']])
+            ->with('success', $message);
+    }
+
+    private function assignFeesToStudents(FeeSet $feeSet): void
+    {
+        if (!$feeSet->school_class_id) {
+            return;
+        }
+
+        $academicInfos = StudentAcademicInformation::where('school_class_id', $feeSet->school_class_id)
+            ->when($feeSet->group_id, fn ($query) => $query->where('group_id', $feeSet->group_id))
+            ->get();
+        $items = $feeSet->items()->with('category')->get();
+        $dueDates = $this->generateDueDates($feeSet->frequency, $feeSet->month, $feeSet->due_date);
+        $entryCounts = StudentAcademicInformation::whereIn('student_id', $academicInfos->pluck('student_id'))
+            ->selectRaw('student_id, COUNT(*) as cnt')
+            ->groupBy('student_id')
+            ->pluck('cnt', 'student_id');
+
+        foreach ($academicInfos as $info) {
+            $studentType = ($entryCounts[$info->student_id] ?? 1) > 1 ? 'old' : 'new';
+            $applicableAmount = $items->filter(fn ($item) =>
+                in_array($item->category->student_type ?? 'both', ['both', $studentType])
+            )->sum('amount');
+
+            if ($applicableAmount <= 0) {
+                continue;
+            }
+
+            foreach ($dueDates as $dueDate) {
+                Fee::firstOrCreate(
+                    [
+                        'student_id' => $info->student_id,
+                        'fee_set_id' => $feeSet->id,
+                        'due_date' => $dueDate,
+                    ],
+                    [
+                        'amount' => $applicableAmount,
+                        'status' => 'pending',
+                    ]
+                );
+            }
+        }
     }
 
     /**
@@ -153,6 +255,7 @@ class FeeSetController extends Controller
     public function edit($id)
     {
         $feeSet = FeeSet::with('items.category')->findOrFail($id);
+        abort_if($feeSet->scope === 'individual', 404);
         $feeSets = FeeSet::with(['schoolClass', 'items.category'])
                     ->latest()
                     ->get();
@@ -198,6 +301,7 @@ class FeeSetController extends Controller
         DB::transaction(function () use ($request, $id) {
 
             $feeSet = FeeSet::findOrFail($id);
+            abort_if($feeSet->scope === 'individual', 404);
 
             /* ============================
             1️⃣ Update Fee Set
@@ -283,6 +387,7 @@ class FeeSetController extends Controller
         DB::transaction(function () use ($id) {
 
             $feeSet = FeeSet::findOrFail($id);
+            abort_if($feeSet->scope === 'individual', 404);
             Fee::where('fee_set_id', $feeSet->id)->delete();
             $feeSet->items()->delete();
             $feeSet->delete();

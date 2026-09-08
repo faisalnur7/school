@@ -10,6 +10,10 @@
     $logoPath = !empty($school->logo) && file_exists(public_path($school->logo))
         ? public_path($school->logo)
         : null;
+    $image = $application->image ?? data_get($data, 'image');
+    $imagePath = !empty($image) && file_exists(public_path($image))
+        ? public_path($image)
+        : null;
 @endphp
 
 <!doctype html>
@@ -19,7 +23,7 @@
     <style>
         body {
             color: #172033;
-            font-family: Arial;
+            font-family: lohitbengali;
             font-size: 10px;
         }
 
@@ -30,7 +34,7 @@
 
         .head {
             border-bottom: 2px solid #0f766e;
-            padding-bottom: 14px;
+            padding-bottom: 10px;
         }
 
         .head-table {
@@ -39,9 +43,9 @@
         }
 
         .head-logo {
-            height: 58px;
+            height: 52px;
             object-fit: contain;
-            width: 58px;
+            width: 52px;
         }
 
         .head-copy {
@@ -50,7 +54,7 @@
 
         .head h1 {
             color: #0f766e;
-            font-size: 20px;
+            font-size: 19px;
             margin: 0;
         }
 
@@ -67,17 +71,19 @@
         }
 
         .section {
+            background: #fff;
             border: 1px solid #dbe3ee;
-            margin-top: 16px;
-            padding: 10px;
+            margin-top: 12px;
+            padding: 9px 11px;
         }
 
         .section h2 {
-            border-bottom: 1px solid #dbe3ee;
+            border-bottom: 1px solid #cbd5e1;
             color: #0f766e;
-            font-size: 12px;
-            margin: 0 0 8px;
-            padding: 0 0 6px;
+            font-size: 11px;
+            letter-spacing: .2px;
+            margin: 0 0 5px;
+            padding: 0 0 5px;
         }
 
         .grid {
@@ -87,19 +93,18 @@
 
         .grid td {
             border-bottom: 1px solid #edf1f5;
-            padding: 8px;
+            padding: 6px 8px;
             vertical-align: top;
             width: 50%;
         }
 
         .label {
-            color: #000;
-            display: inline;
-            font-size: 14px;
+            color: #0f766e;
+            display: block;
+            font-size: 9px;
             font-weight: bold;
-            line-height: 13px;
-            padding-right: 14px;
-            white-space: nowrap;
+            line-height: 11px;
+            white-space: normal;
         }
 
         .label:after {
@@ -107,11 +112,12 @@
         }
 
         .value {
-            display: inline;
-            font-size: 14px;
-            font-weight: 400;
+            color: #172033;
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
             line-height: 13px;
-            margin-left: 10px;
+            margin-top: 2px;
         }
 
         .value ul {
@@ -137,6 +143,20 @@
             font-weight: bold;
             line-height: 13px;
         }
+
+        .qr-image {
+            height: 27mm;
+            width: 27mm;
+        }
+
+        .applicant-photo {
+            height: 27mm;
+            object-fit: cover;
+            width: 22mm;
+        }
+
+        .header-visuals { border-collapse: collapse; width: 58mm; }
+        .header-visuals td { padding-left: 3mm; vertical-align: top; }
     </style>
 </head>
 <body>
@@ -157,7 +177,22 @@
                         <p>Application No: <b>{{ $application->application_number }}</b></p>
                         <p class="address">{{ $school->address ?? '' }}</p>
                     </td>
-                    <td style="width: 70px"></td>
+                    <td style="width: 58mm">
+                        <table class="header-visuals">
+                            <tr>
+                                <td>
+                                    @if($imagePath)
+                                        <img class="applicant-photo" src="{{ $imagePath }}" alt="Applicant photo">
+                                    @endif
+                                </td>
+                                <td>
+                                    @if(!empty($qrDataUri))
+                                        <img class="qr-image" src="{{ $qrDataUri }}" alt="Application QR code">
+                                    @endif
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
                 </tr>
             </table>
         </div>

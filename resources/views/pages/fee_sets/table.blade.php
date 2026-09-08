@@ -2,7 +2,7 @@
     $showHeader = $showHeader ?? true;
 @endphp
 
-<div class="card">
+<div class="card fee-set-table-card {{ $showHeader ? '' : 'fee-set-table-card--embedded' }}">
     @if($showHeader)
         <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3">
             <h3 class="card-title mb-0 text-white text-lg">Fee Sets</h3>

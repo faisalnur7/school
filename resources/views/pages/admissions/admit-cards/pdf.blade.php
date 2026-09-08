@@ -21,42 +21,45 @@
     <meta charset="utf-8">
     <style>
         /* A4 is configured by AdmissionController; mPDF loops when size is repeated here. */
-        body { color: #000; font-family: Arial; font-size: 10px; margin: 0; }
-        .card { height: 273mm; padding: 0; width: 100%; }
-        .admission-information { border: 1.5px solid #000; box-sizing: border-box; height: 142mm; padding: 9px 12px 7px; page-break-inside: avoid; }
-        .header { border-bottom: 1.5px solid #000; padding-bottom: 8px; }
+        body { color: #000; font-family: Arial; font-size: 11px; margin: 0; }
+        .card { height: 270mm; padding: 0; width: 100%; }
+        .admission-information { border: 1.5px solid #000; box-sizing: border-box; height: 137mm; padding: 6px 10px 5px; page-break-inside: avoid; }
+        .header { border-bottom: 1.5px solid #000; padding-bottom: 5px; }
         .header-table, .data-table, .candidate-table { border-collapse: collapse; width: 100%; }
-        .logo-cell { width: 70px; }
-        .logo { height: 48px; object-fit: contain; width: 48px; }
-        .student-photo { border: 1px solid #000; height: 58px; object-fit: cover; width: 45px; }
+        .logo-cell { width: 62px; }
+        .logo { height: 46px; object-fit: contain; width: 46px; }
+        .student-photo { border: 1px solid #000; height: 36mm; object-fit: cover; width: 27mm; }
         .header-copy { text-align: center; }
         .header h1 { color: #000; font-size: 19px; margin: 0; }
-        .header p { font-size: 10px; margin: 3px 0; }
+        .header p { font-size: 10px; margin: 2px 0; }
         .address { color: #000; font-size: 10px !important; }
-        .title { background: #f1f1f1; border-left: 4px solid #000; color: #000; font-size: 11px; font-weight: bold; margin: 6px 0 0; padding: 5px 8px; }
+        .title { background: #f1f1f1; border-left: 3px solid #000; color: #000; font-size: 10px; font-weight: bold; margin: 3px 0 0; padding: 4px 7px; }
         .data-table td { border-bottom: 1px solid #555; padding: 4px 7px; vertical-align: top; width: 50%; }
-        .label { color: #000; display: inline; font-size: 10px; font-weight: bold; padding-right: 10px; }
+        .label { color: #000; display: inline; font-size: 9px; font-weight: bold; padding-right: 5px; }
         .label:after { content: ''; }
-        .value { display: inline; font-size: 10px; font-weight: bold; }
-        .instructions { background: #fff; border: 1px solid #000; color: #000; line-height: 13px; padding: 7px; white-space: normal; }
-        .instructions ul { list-style-type: disc; margin: 3px 0; padding-left: 18px; }
-        .instructions ol { list-style-type: decimal; margin: 3px 0; padding-left: 18px; }
+        .value { display: inline; font-size: 9px; font-weight: bold; }
+        .instructions { background: #fff; border: 1px solid #000; color: #000; font-size: 9px; line-height: 11px; padding: 5px 7px; white-space: normal; }
+        .instructions ul { list-style-type: disc; margin: 2px 0; padding-left: 14px; }
+        .instructions ol { list-style-type: decimal; margin: 2px 0; padding-left: 14px; }
         .instructions li { display: list-item; }
-        .cut-mark { border-top: 1px dashed #000; color: #000; font-size: 9px; letter-spacing: 1px; margin: 8px 0 7px; text-align: center; }
+        .cut-mark { border-top: 1px dashed #000; color: #000; font-size: 8px; letter-spacing: 1px; margin: 40px 0 5px; text-align: center; }
         .cut-mark span { background: #fff; padding: 0 8px; position: relative; top: -6px; }
-        .admit-card-section { background: #fff; border: 2px solid #000; box-sizing: border-box; height: 104mm; padding: 7px; page-break-inside: avoid; }
-        .candidate-strip { background: #fff; margin-top: 9px; padding: 0; }
-        .candidate-strip h2 { background: #f1f1f1; border-bottom: 2px solid #000; color: #000; font-size: 12px; margin: 0 -7px 7px; padding: 6px 8px; }
+        .admit-card-section { background: #fff; border: 2px solid #000; box-sizing: border-box; height: auto; margin-top: 40px; padding: 5px; page-break-inside: avoid; }
+        .candidate-strip { background: #fff; margin-top: 4px; padding: 0; }
+        .candidate-strip h2 { background: #f1f1f1; border-bottom: 2px solid #000; color: #000; font-size: 10px; margin: 0 -5px 4px; padding: 4px 6px; }
         .candidate-strip .candidate-table { background: #fff; border: 1px solid #555; }
-        .candidate-table td { border-bottom: 1px solid #555; padding: 5px 7px; width: 42%; }
+        .candidate-table td { border-bottom: 1px solid #555; padding: 4px 6px; width: 42%; }
         .candidate-table .photo-cell { border-bottom: 0; text-align: right; vertical-align: top; width: 82px; }
         .candidate-table .label { font-size: 9px; }
-        .candidate-table .value { color: #000; font-size: 10px; }
-        .student-header { background: #fff; border: 1px solid #000; margin-top: 0; padding: 8px; }
+        .candidate-table .value { color: #000; font-size: 9px; }
+        .student-header { background: #fff; border: 1px solid #000; margin-top: 0; padding: 4px 6px; }
         .student-header-table { border-collapse: collapse; width: 100%; }
         .student-header-copy { text-align: center; }
         .student-header h1 { color: #000; font-size: 16px; margin: 0; }
-        .student-header p { font-size: 9px; margin: 2px 0; }
+        .student-header p { font-size: 9px; margin: 1px 0; }
+        .qr-image { height: 25mm; width: 25mm; }
+        .office-visuals { border-collapse: collapse; width: 58mm; }
+        .office-visuals td { padding-left: 2mm; text-align: right; vertical-align: top; }
     </style>
 </head>
 <body>
@@ -75,10 +78,21 @@
                         <p>Admission Application · Office Copy</p>
                         <p>{{ $school->address ?? '' }}</p>
                     </td>
-                    <td class="logo-cell" style="text-align: right;">
-                        @if($imagePath)
-                            <img class="student-photo" src="{{ $imagePath }}" alt="Student photo">
-                        @endif
+                    <td style="width: 50mm">
+                        <table class="office-visuals">
+                            <tr>
+                                <td>
+                                    @if($imagePath)
+                                        <img class="student-photo" src="{{ $imagePath }}" alt="Student photo">
+                                    @endif
+                                </td>
+                                <td>
+                                    @if(!empty($qrDataUri))
+                                        <img class="qr-image" src="{{ $qrDataUri }}" alt="Application QR code">
+                                    @endif
+                                </td>
+                            </tr>
+                        </table>
                     </td>
                 </tr>
             </table>
@@ -167,7 +181,11 @@
                         <p>Application No: <b>{{ $application->application_number }}</b></p>
                         <p>{{ $school->address ?? '' }}</p>
                     </td>
-                    <td class="logo-cell"></td>
+                    <td class="logo-cell" style="text-align: right;">
+                        @if(!empty($qrDataUri))
+                            <img class="qr-image" src="{{ $qrDataUri }}" alt="Application QR code">
+                        @endif
+                    </td>
                 </tr>
             </table>
         </div>
@@ -180,7 +198,7 @@
                     <td><span class="label">Roll number :</span> <span class="value">{{ $application->admitCard?->roll_number ?? '-' }}</span></td>
                     <td class="photo-cell" rowspan="4">
                         @if($imagePath)
-                            <img src="{{ $imagePath }}" alt="Student photo" style="height: 70px; width: 54px; object-fit: cover;">
+                            <img src="{{ $imagePath }}" alt="Student photo" style="height: 90px; width: 68px; object-fit: cover;">
                         @endif
                     </td>
                 </tr>
@@ -197,7 +215,7 @@
                     <td><span class="label">Reporting time :</span> <span class="value">{{ $application->exam?->reporting_time ?? '-' }}</span></td>
                 </tr>
             </table>
-            <div class="instructions" style="margin-top: 8px;">{!! strip_tags($application->exam?->instructions ?? 'Bring this admit card and arrive before the reporting time.', '<p><br><strong><b><em><i><u><ul><ol><li><blockquote>') !!}</div>
+            <div class="instructions" style="margin-top: 4px;">{!! strip_tags($application->exam?->instructions ?? 'Bring this admit card and arrive before the reporting time.', '<p><br><strong><b><em><i><u><ul><ol><li><blockquote>') !!}</div>
         </div>
         </div>
     </div>
