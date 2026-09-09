@@ -163,7 +163,8 @@ class ExamController extends Controller
         $subjectId = $request->integer('subject_id') ?: null;
         $entryMode = $request->input('entry_mode', 'subject');
         $entryMode = in_array($entryMode, ['subject', 'student'], true) ? $entryMode : 'subject';
-
+        $showAbsent = filter_var($request->input('show_absent', '1'), FILTER_VALIDATE_BOOLEAN);
+        $showSubjectTotal = filter_var($request->input('show_subject_total', '1'), FILTER_VALIDATE_BOOLEAN);
         $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
         $sections = collect();
         $groups = collect();
@@ -197,7 +198,6 @@ class ExamController extends Controller
 
                 if ($cohortReady) {
                     $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id);
-
                     if (! $subjectId && $subjects->isNotEmpty()) {
                         $subjectId = $subjects->first()->id;
                     }
@@ -244,7 +244,7 @@ class ExamController extends Controller
             'selectedGroup', 'subjects', 'subject', 'students', 'existingMarks',
             'subjectConfig', 'classId', 'sectionId', 'groupId', 'subjectId', 'cohortReady',
             'entryMode', 'studentWiseMarks'
-            , 'studentSubjectEligibility'
+            , 'studentSubjectEligibility', 'showAbsent', 'showSubjectTotal'
         ));
     }
 
@@ -357,7 +357,9 @@ class ExamController extends Controller
         ?int $studentId = null
     ): void {
         $studentId ??= (int) ($row['student_id'] ?? 0);
-        $isAbsent = ! empty($row['is_absent']);
+        $isAbsent = $isTutorial
+            ? ! empty($row['is_absent'])
+            : (array_key_exists('is_present', $row) ? empty($row['is_present']) : ! empty($row['is_absent']));
         $limits = $isTutorial
             ? ['tutorial_marks' => (float) ($config['tutorial_marks'] ?? $subject->tutorial_marks ?? 0)]
             : [
