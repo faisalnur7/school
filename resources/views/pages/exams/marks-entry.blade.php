@@ -92,6 +92,18 @@
         </div>
 
         @if ($classId && $cohortReady)
+            <div class="d-flex justify-content-end mb-3">
+                <div class="btn-group" role="group" aria-label="Marks entry view">
+                    <a href="{{ route('exams.marks-entry', array_filter(['exam' => $exam->id, 'class_id' => $classId, 'section_id' => $sectionId, 'group_id' => $groupId, 'subject_id' => $subjectId, 'entry_mode' => 'subject'], fn($value) => ! is_null($value))) }}"
+                       class="btn btn-sm {{ $entryMode === 'subject' ? 'btn-primary' : 'btn-outline-primary' }}">
+                        <i class="fas fa-book mr-1"></i>Subject-wise
+                    </a>
+                    <a href="{{ route('exams.marks-entry', array_filter(['exam' => $exam->id, 'class_id' => $classId, 'section_id' => $sectionId, 'group_id' => $groupId, 'entry_mode' => 'student'], fn($value) => ! is_null($value))) }}"
+                       class="btn btn-sm {{ $entryMode === 'student' ? 'btn-primary' : 'btn-outline-primary' }}">
+                        <i class="fas fa-user-graduate mr-1"></i>Student-wise
+                    </a>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-md-2">
                     <div class="card h-100">
@@ -120,7 +132,108 @@
                 </div>
 
                 <div class="col-md-10">
-                    @if ($subject)
+                    @if ($entryMode === 'student')
+                        @php
+                            $isTutorial = $exam->type === \App\Models\Exam::TYPE_TUTORIAL;
+                            $studentWiseColumns = $subjects->map(function ($studentWiseSubject) use ($isTutorial) {
+                                $config = $studentWiseSubject->getEffectiveMarksForClass($classId);
+                                $components = $isTutorial
+                                    ? [['field' => 'tutorial_marks', 'label' => 'Tutorial', 'max' => (float) ($config['tutorial_marks'] ?? $studentWiseSubject->tutorial_marks ?? 0)]]
+                                    : array_values(array_filter([
+                                        ['field' => 'cq_marks', 'label' => 'CQ', 'max' => (float) ($config['creative_marks'] ?? 0)],
+                                        ['field' => 'mcq_marks', 'label' => 'MCQ', 'max' => (float) ($config['mcq_marks'] ?? 0)],
+                                        ['field' => 'viva_marks', 'label' => 'Viva', 'max' => (float) ($config['viva_marks'] ?? 0)],
+                                        ['field' => 'practical_marks', 'label' => 'Practical', 'max' => (float) ($config['practical_marks'] ?? 0)],
+                                    ], fn ($component) => $component['max'] > 0));
+
+                                return ['subject' => $studentWiseSubject, 'config' => $config, 'components' => $components];
+                            });
+                            $studentWiseColumnCount = $studentWiseColumns->sum(fn ($column) => count($column['components']) + 2);
+                        @endphp
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>All Subjects</strong>
+                                    <span class="badge badge-light ml-2">{{ $isTutorial ? 'Tutorial Exam' : 'Terminal Exam' }}</span>
+                                </div>
+                                <small class="text-muted"><kbd>Tab</kbd> / <kbd>Enter</kbd> to move between cells</small>
+                            </div>
+                            <form method="POST" action="{{ route('exams.save-student-wise-marks', $exam) }}">
+                                @csrf
+                                <input type="hidden" name="class_id" value="{{ $classId }}">
+                                <input type="hidden" name="section_id" value="{{ $sectionId }}">
+                                <input type="hidden" name="group_id" value="{{ $groupId }}">
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-sm mb-0 student-wise-table">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th rowspan="2" class="text-center sticky-col" style="width:90px; min-width:90px;">Roll</th>
+                                                    <th rowspan="2" class="sticky-col student-name-col">Student Name</th>
+                                                    <th rowspan="2" class="text-center" style="width:70px; min-width:70px;">Section</th>
+                                                    @foreach ($studentWiseColumns as $column)
+                                                        <th colspan="{{ count($column['components']) + 2 }}" class="text-center subject-group-header">{{ $column['subject']->name }}</th>
+                                                    @endforeach
+                                                    <th rowspan="2" class="text-center" style="width:80px; min-width:80px;">Overall<br>Total</th>
+                                                </tr>
+                                                <tr>
+                                                    @foreach ($studentWiseColumns as $column)
+                                                        @foreach ($column['components'] as $component)
+                                                            <th class="text-center component-header" style="min-width:85px;">{{ $component['label'] }}<br><small class="text-warning">/{{ $component['max'] }}</small></th>
+                                                        @endforeach
+                                                        <th class="text-center" style="min-width:75px;">Subject<br>Total</th>
+                                                        <th class="text-center" style="min-width:60px;">Absent</th>
+                                                    @endforeach
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse ($students as $student)
+                                                    @php
+                                                        $info = $student->academicInformations->first();
+                                                        $studentMarks = $studentWiseMarks[$student->id] ?? [];
+                                                    @endphp
+                                                    <tr class="student-mark-row" data-student="{{ $student->id }}">
+                                                        <td class="text-center sticky-col">{{ $info?->roll ?? '—' }}</td>
+                                                        <td class="sticky-col student-name-col">
+                                                            <strong>{{ $student->full_name_en }}</strong>
+                                                            @if ($student->full_name_bn)<br><small class="text-muted">{{ $student->full_name_bn }}</small>@endif
+                                                        </td>
+                                                        <td class="text-center"><small>{{ $info?->section?->name_en ?? '—' }}</small></td>
+                                                        @foreach ($studentWiseColumns as $column)
+                                                            @php
+                                                                $studentWiseSubject = $column['subject'];
+                                                                $mark = $studentMarks[$studentWiseSubject->id] ?? null;
+                                                                $eligible = in_array($student->id, $studentSubjectEligibility[$studentWiseSubject->id] ?? [], true);
+                                                                $isAbsent = (bool) ($mark?->is_absent ?? false);
+                                                            @endphp
+                                                            @foreach ($column['components'] as $component)
+                                                                <td class="p-1 {{ $eligible ? '' : 'table-light' }} student-subject-group" data-subject-id="{{ $studentWiseSubject->id }}">
+                                                                    <input type="number" name="marks[{{ $student->id }}][{{ $studentWiseSubject->id }}][{{ $component['field'] }}]" class="form-control form-control-sm text-center mark-input student-component-input" value="{{ $eligible ? $mark?->{$component['field']} : '' }}" min="0" max="{{ $component['max'] }}" step="0.5" {{ (!$eligible || $isAbsent) ? 'disabled' : '' }}>
+                                                                </td>
+                                                            @endforeach
+                                                            <td class="text-center px-1 {{ $eligible ? '' : 'table-light' }} student-subject-group" data-subject-id="{{ $studentWiseSubject->id }}">
+                                                                <strong class="subject-total-display text-success">{{ $eligible && $mark && ! $isAbsent ? number_format($mark->total, 1) : ($isAbsent ? 'AB' : '—') }}</strong>
+                                                            </td>
+                                                            <td class="text-center px-1 {{ $eligible ? '' : 'table-light' }} student-subject-group" data-subject-id="{{ $studentWiseSubject->id }}">
+                                                                <input type="checkbox" name="marks[{{ $student->id }}][{{ $studentWiseSubject->id }}][is_absent]" class="absent-checkbox student-absent-checkbox" value="1" {{ $isAbsent ? 'checked' : '' }} {{ !$eligible ? 'disabled' : '' }}>
+                                                            </td>
+                                                        @endforeach
+                                                        <td class="text-center"><strong class="overall-total-display text-success">—</strong></td>
+                                                    </tr>
+                                                @empty
+                                                    <tr><td colspan="{{ $studentWiseColumnCount + 4 }}" class="text-center text-muted py-4">No students found for this cohort.</td></tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="card-footer d-flex justify-content-between align-items-center">
+                                    <span class="text-muted"><i class="fas fa-users mr-1"></i>{{ $students->count() }} students</span>
+                                    <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-save mr-2"></i>Save All Student Marks</button>
+                                </div>
+                            </form>
+                        </div>
+                    @elseif ($subject)
                         @php
                             $isTutorial = $exam->type === \App\Models\Exam::TYPE_TUTORIAL;
                             $hasCq = ($subjectConfig['creative_marks'] ?? 0) > 0;
@@ -295,6 +408,13 @@
 @endsection
 
 @section('scripts')
+    <style>
+        .student-wise-table { min-width: max-content; }
+        .student-wise-table .sticky-col { position: sticky; left: 0; z-index: 2; background: #343a40; }
+        .student-wise-table tbody .sticky-col { background: #fff; }
+        .student-wise-table .student-name-col { left: 90px; min-width: 220px; }
+        .student-wise-table .subject-group-header { min-width: 180px; }
+    </style>
     <script>
         const IS_TUTORIAL = {{ ($exam->type === \App\Models\Exam::TYPE_TUTORIAL) ? 'true' : 'false' }};
         const FULL_MARKS = {{ $fullMarks ?? 100 }};
@@ -346,21 +466,44 @@
             if (IS_TUTORIAL) {
                 totalEl.className = 'total-display font-weight-bold text-success';
             } else {
-                const g = getGrade(total);
-                const gradeEl = row.querySelector('.grade-badge');
                 totalEl.className = `total-display font-weight-bold ${total < PASS_MARK ? 'text-danger' : 'text-success'}`;
-                gradeEl.textContent = total > 0 ? g.letter : '—';
-                gradeEl.className = `grade-badge badge badge-${total > 0 ? g.cls : 'secondary'}`;
             }
         }
 
+        function recalcStudentRow(row) {
+            let overall = 0;
+            const groups = [...row.querySelectorAll('.student-subject-group[data-subject-id]')]
+                .reduce((map, cell) => {
+                    (map[cell.dataset.subjectId] ??= []).push(cell);
+                    return map;
+                }, {});
+
+            Object.values(groups).forEach(cells => {
+                const total = cells.reduce((sum, cell) => {
+                    const input = cell.querySelector('.mark-input');
+                    return sum + (input && !input.disabled ? (parseFloat(input.value) || 0) : 0);
+                }, 0);
+                const totalEl = cells.find(cell => cell.querySelector('.subject-total-display'))?.querySelector('.subject-total-display');
+                const absent = cells.some(cell => cell.querySelector('.student-absent-checkbox')?.checked);
+                if (totalEl) totalEl.textContent = absent ? 'AB' : (total > 0 ? total.toFixed(1) : '—');
+                if (!absent) overall += total;
+            });
+
+            const overallEl = row.querySelector('.overall-total-display');
+            if (overallEl) overallEl.textContent = overall > 0 ? overall.toFixed(1) : '—';
+        }
+
         document.querySelectorAll('.mark-input').forEach(inp => {
-            inp.addEventListener('input', () => recalcRow(inp.closest('tr')));
+            inp.addEventListener('input', () => {
+                const row = inp.closest('tr');
+                row.classList.contains('student-mark-row') ? recalcStudentRow(row) : recalcRow(row);
+            });
             inp.addEventListener('blur', function() {
                 const max = parseFloat(this.max);
                 if (!isNaN(max) && parseFloat(this.value) > max) {
                     this.value = max;
-                    recalcRow(this.closest('tr'));
+                    const row = this.closest('tr');
+                    row.classList.contains('student-mark-row') ? recalcStudentRow(row) : recalcRow(row);
                 }
             });
             inp.addEventListener('keydown', function(e) {
@@ -376,24 +519,27 @@
         document.querySelectorAll('.absent-checkbox').forEach(cb => {
             cb.addEventListener('change', function() {
                 const row = this.closest('tr');
-                row.querySelectorAll('.mark-input').forEach(i => {
+                const subjectId = this.classList.contains('student-absent-checkbox') ? this.closest('td').dataset.subjectId : null;
+                const inputs = subjectId
+                    ? [...row.querySelectorAll(`.student-subject-group[data-subject-id="${subjectId}"] .mark-input`)]
+                    : [...row.querySelectorAll('.mark-input')];
+                inputs.forEach(i => {
                     i.disabled = this.checked;
                     if (this.checked) i.value = '';
                 });
-                row.classList.toggle('table-secondary', this.checked);
-                const totalEl = row.querySelector('.total-display');
-                if (this.checked) {
-                    totalEl.textContent = 'AB';
-                    totalEl.className = 'total-display text-muted';
-                    if (!IS_TUTORIAL) {
-                        const gradeEl = row.querySelector('.grade-badge');
-                        gradeEl.textContent = 'AB';
-                        gradeEl.className = 'grade-badge badge badge-secondary';
+                if (row.classList.contains('student-mark-row')) recalcStudentRow(row);
+                else {
+                    row.classList.toggle('table-secondary', this.checked);
+                    const totalEl = row.querySelector('.total-display');
+                    if (totalEl) {
+                        totalEl.textContent = this.checked ? 'AB' : '—';
+                        totalEl.className = this.checked ? 'total-display text-muted' : 'total-display font-weight-bold text-success';
                     }
-                } else {
-                    recalcRow(row);
+                    if (!this.checked) recalcRow(row);
                 }
             });
         });
+
+        document.querySelectorAll('.student-mark-row').forEach(recalcStudentRow);
     </script>
 @endsection

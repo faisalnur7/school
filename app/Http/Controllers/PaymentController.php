@@ -391,7 +391,7 @@ class PaymentController extends Controller
             $payment->delete();
 
             foreach ($affectedFeeIds as $feeId) {
-                $this->syncFeePaymentState((int) $feeId);
+                $this->syncFeePaymentState((int) $feeId, true);
             }
         });
 
@@ -467,7 +467,7 @@ class PaymentController extends Controller
         return redirect()->back()->with('success', 'Inventory item removed successfully');
     }
 
-    private function syncFeePaymentState(int $feeId): void
+    private function syncFeePaymentState(int $feeId, bool $deactivateWhenUnpaid = false): void
     {
         $fee = \App\Models\Fee::find($feeId);
         if (!$fee) {
@@ -478,6 +478,9 @@ class PaymentController extends Controller
         $netAmount = max(0, (float) $fee->net_amount);
         $fee->paid_amount = max(0, min($paid, $netAmount));
         $fee->status = $fee->paid_amount <= 0 ? 'pending' : ($fee->paid_amount >= $netAmount ? 'paid' : 'partial');
+        if ($deactivateWhenUnpaid && $paid <= 0) {
+            $fee->is_active = false;
+        }
         $fee->save();
     }
 
@@ -500,15 +503,19 @@ class PaymentController extends Controller
 
     private function deletePaymentIncomeTrail(Payment $payment, ?string $receiptNo): void
     {
-        if (! filled($receiptNo)) {
-            return;
-        }
-
         $incomes = Income::withTrashed()
-            ->whereIn('title', ['Student Payment', 'Transport Fee', 'Inventory Sale', 'Inventory Sales'])
-            ->where(function ($query) use ($receiptNo) {
-                $query->where('description', 'like', '%' . $receiptNo . '%')
-                    ->orWhere('reference_no', $receiptNo);
+            ->where(function ($query) use ($payment, $receiptNo) {
+                $query->where('payment_id', $payment->id);
+
+                if (filled($receiptNo)) {
+                    $query->orWhere(function ($legacy) use ($receiptNo) {
+                        $legacy->whereIn('title', ['Student Payment', 'Transport Fee', 'Inventory Sale', 'Inventory Sales'])
+                            ->where(function ($match) use ($receiptNo) {
+                                $match->where('description', 'like', '%' . $receiptNo . '%')
+                                    ->orWhere('reference_no', $receiptNo);
+                            });
+                    });
+                }
             })
             ->get();
 

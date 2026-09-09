@@ -200,6 +200,27 @@
             letter-spacing: .03em;
         }
 
+        .receipt-dates {
+            min-width: 158px;
+            margin-top: 1px;
+            color: #000;
+            font-size: 9px;
+            line-height: 1.35;
+            text-align: right;
+        }
+
+        .receipt-date-row {
+            white-space: nowrap;
+        }
+
+        .receipt-date-label {
+            font-weight: 600;
+        }
+
+        .receipt-date-value {
+            font-weight: 400;
+        }
+
         /* ── Dividers ── */
         .divider-solid {
             border: none;
@@ -430,12 +451,14 @@
                 <div class="receipt-tag-label">Receipt No.</div>
                 <div class="receipt-tag-no"></div>
             </div>
-            <div class="receipt-tag" style="margin-top:0;color:#000;">
-                <div class="receipt-tag-no" style="color:#000;font-size:13px;font-weight:700;line-height:1.1;">
-                    30 Aug 2026
+            <div class="receipt-dates">
+                <div class="receipt-date-row">
+                    <span class="receipt-date-label">Payment Date:</span>
+                    <span class="receipt-date-value">09 Sep 2026</span>
                 </div>
-                <div class="receipt-tag-no" style="color:#000;font-size:15px;font-weight:900;line-height:1.1;">
-                    01:53PM
+                <div class="receipt-date-row">
+                    <span class="receipt-date-label">Generated Date:</span>
+                    <span class="receipt-date-value">—</span>
                 </div>
             </div>
         </div>
@@ -537,12 +560,14 @@
                 <div class="receipt-tag-label">Receipt No.</div>
                 <div class="receipt-tag-no"></div>
             </div>
-            <div class="receipt-tag" style="margin-top:0;color:#000;">
-                <div class="receipt-tag-no" style="color:#000;font-size:13px;font-weight:700;line-height:1.1;">
-                    30 Aug 2026
+            <div class="receipt-dates">
+                <div class="receipt-date-row">
+                    <span class="receipt-date-label">Payment Date:</span>
+                    <span class="receipt-date-value">09 Sep 2026</span>
                 </div>
-                <div class="receipt-tag-no" style="color:#000;font-size:15px;font-weight:900;line-height:1.1;">
-                    01:53PM
+                <div class="receipt-date-row">
+                    <span class="receipt-date-label">Generated Date:</span>
+                    <span class="receipt-date-value">—</span>
                 </div>
             </div>
         </div>

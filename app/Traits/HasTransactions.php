@@ -22,13 +22,20 @@ trait HasTransactions
         $incomeDate = $data['income_date'] ?? now()->toDateString();
         $transactionDate = $data['transaction_date'] ?? $incomeDate;
 
-        $income = Income::create(array_merge([
+        $incomeData = array_merge([
             'income_category_id' => $categoryId,
             'title'              => $title,
             'reference_no'       => $reference,
             'income_date'        => $incomeDate,
             'recorded_by'        => auth()->id(),
-        ], $data));
+        ], $data);
+
+        // Payment-created income must be linked directly for reliable reversal.
+        if ($this instanceof \App\Models\Payment) {
+            $incomeData['payment_id'] = $this->id;
+        }
+
+        $income = Income::create($incomeData);
 
         $txn = $this->transactions()->create(array_merge([
             'reference_no'       => $reference,

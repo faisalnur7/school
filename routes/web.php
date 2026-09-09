@@ -760,6 +760,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('/{exam}', [\App\Http\Controllers\ExamController::class, 'destroy'])->name('destroy');
         Route::get('/{exam}/marks-entry', [\App\Http\Controllers\ExamController::class, 'marksEntry'])->name('marks-entry');
         Route::post('/{exam}/marks-entry', [\App\Http\Controllers\ExamController::class, 'saveMarks'])->name('save-marks');
+        Route::post('/{exam}/marks-entry/student-wise', [\App\Http\Controllers\ExamController::class, 'saveStudentWiseMarks'])->name('save-student-wise-marks');
         Route::get('/{exam}/preview', [\App\Http\Controllers\ExamController::class, 'preview'])->name('preview');
         Route::get('/{exam}/preview/pdf', [\App\Http\Controllers\ExamController::class, 'previewPdf'])->name('preview-pdf');
         Route::get('/{exam}/terminal-result', [\App\Http\Controllers\ExamController::class, 'terminalResult'])->name('terminal-result');

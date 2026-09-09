@@ -161,6 +161,8 @@ class ExamController extends Controller
         $sectionId = $request->integer('section_id') ?: null;
         $groupId = $request->integer('group_id') ?: null;
         $subjectId = $request->integer('subject_id') ?: null;
+        $entryMode = $request->input('entry_mode', 'subject');
+        $entryMode = in_array($entryMode, ['subject', 'student'], true) ? $entryMode : 'subject';
 
         $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
         $sections = collect();
@@ -174,6 +176,8 @@ class ExamController extends Controller
         $selectedSection = null;
         $selectedGroup = null;
         $cohortReady = false;
+        $studentWiseMarks = [];
+        $studentSubjectEligibility = [];
 
         if ($classId) {
             $selectedClass = SchoolClass::find($classId);
@@ -199,9 +203,28 @@ class ExamController extends Controller
                     }
 
                     $subject = $subjectId ? $subjects->firstWhere('id', $subjectId) : null;
-                    $students = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId);
+                    $students = $this->getStudentsForClass(
+                        $exam,
+                        $classId,
+                        $sectionId,
+                        $groupId,
+                        $entryMode === 'student' ? null : $subjectId
+                    );
 
-                    if ($subject) {
+                    if ($entryMode === 'student') {
+                        foreach ($subjects as $studentWiseSubject) {
+                            $studentSubjectEligibility[$studentWiseSubject->id] = $this->getStudentsForClass(
+                                $exam, $classId, $sectionId, $groupId, $studentWiseSubject->id
+                            )->pluck('id')->map(fn ($id) => (int) $id)->all();
+                        }
+                        $studentWiseMarks = ExamMark::where('exam_id', $exam->id)
+                            ->whereIn('student_id', $students->pluck('id'))
+                            ->whereIn('subject_id', $subjects->pluck('id'))
+                            ->get()
+                            ->groupBy('student_id')
+                            ->map(fn ($marks) => $marks->keyBy('subject_id')->all())
+                            ->all();
+                    } elseif ($subject) {
                         ExamMark::where('exam_id', $exam->id)
                             ->where('subject_id', $subject->id)
                             ->whereIn('student_id', $students->pluck('id'))
@@ -219,7 +242,9 @@ class ExamController extends Controller
         return view('pages.exams.marks-entry', compact(
             'exam', 'classes', 'selectedClass', 'sections', 'groups', 'selectedSection',
             'selectedGroup', 'subjects', 'subject', 'students', 'existingMarks',
-            'subjectConfig', 'classId', 'sectionId', 'groupId', 'subjectId', 'cohortReady'
+            'subjectConfig', 'classId', 'sectionId', 'groupId', 'subjectId', 'cohortReady',
+            'entryMode', 'studentWiseMarks'
+            , 'studentSubjectEligibility'
         ));
     }
 
@@ -258,46 +283,7 @@ class ExamController extends Controller
 
         DB::transaction(function () use ($request, $exam, $subject, $subjectId, $classId, $config, $isTutorial) {
             foreach ($request->marks as $row) {
-                $studentId = $row['student_id'];
-                $isAbsent  = ! empty($row['is_absent']);
-
-                $cq = null;
-                $mcq = null;
-                $practical = null;
-                $viva = null;
-                $tutorial = null;
-
-                if ($isTutorial) {
-                    $tutorial  = $isAbsent ? 0 : (float) ($row['tutorial_marks'] ?? 0);
-                    $total     = $tutorial;
-                    $fullMarks = (float) ($config['tutorial_marks'] ?? $subject->tutorial_marks ?? 0);
-                } else {
-                    $cq        = $isAbsent ? 0 : (float) ($row['cq_marks'] ?? 0);
-                    $mcq       = $isAbsent ? 0 : (float) ($row['mcq_marks'] ?? 0);
-                    $practical = $isAbsent ? 0 : (float) ($row['practical_marks'] ?? 0);
-                    $viva      = $isAbsent ? 0 : (float) ($row['viva_marks'] ?? 0);
-                    $total     = $cq + $mcq + $practical + $viva;
-                    $fullMarks = (float) ($config['total_marks'] ?: 100);
-                }
-
-                $grade = (!$isTutorial && $fullMarks > 0)
-                    ? GradingService::getGrade($total, $fullMarks)
-                    : null;
-
-                ExamMark::updateOrCreate(
-                    ['exam_id' => $exam->id, 'student_id' => $studentId, 'subject_id' => $subjectId],
-                    [
-                        'cq_marks'        => $cq,
-                        'mcq_marks'       => $mcq,
-                        'practical_marks' => $practical,
-                        'viva_marks'      => $viva,
-                        'tutorial_marks'  => $tutorial,
-                        'total'           => $total,
-                        'is_absent'       => $isAbsent,
-                        'letter_grade'    => $isAbsent ? 'AB' : ($grade['letter'] ?? null),
-                        'gpa'             => $isAbsent ? 0 : ($grade['gpa'] ?? null),
-                    ]
-                );
+                $this->persistExamMark($exam, $subject, $subjectId, $classId, $config, $row, $isTutorial);
             }
         });
 
@@ -308,6 +294,109 @@ class ExamController extends Controller
             'group_id'   => $groupId,
             'subject_id' => $subjectId,
         ])->with('success', 'Marks saved successfully.');
+    }
+
+    /**
+     * Save all subjects for a cohort in student-wise mode.
+     */
+    public function saveStudentWiseMarks(Request $request, Exam $exam)
+    {
+        $request->validate([
+            'class_id' => 'required|exists:school_classes,id',
+            'section_id' => 'nullable|exists:sections,id',
+            'group_id' => 'nullable|exists:groups,id',
+            'marks' => 'array',
+        ]);
+
+        $classId = (int) $request->class_id;
+        $sectionId = $request->filled('section_id') ? (int) $request->section_id : null;
+        $groupId = $request->filled('group_id') ? (int) $request->group_id : null;
+        $subjects = $this->getSubjectsForClass($classId, $groupId);
+        $subjectMap = $subjects->keyBy('id');
+        $allowedStudents = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId)
+            ->keyBy('id');
+
+        foreach ((array) $request->input('marks', []) as $studentId => $studentMarks) {
+            abort_unless($allowedStudents->has((int) $studentId), 422, 'One or more submitted students do not belong to the selected cohort.');
+
+            foreach ((array) $studentMarks as $subjectId => $row) {
+                abort_unless($subjectMap->has((int) $subjectId), 422, 'One or more submitted subjects do not belong to the selected class or group.');
+
+                $eligibleStudentIds = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, (int) $subjectId)->pluck('id');
+                abort_unless($eligibleStudentIds->contains((int) $studentId), 422, 'A submitted student is not eligible for the selected subject.');
+            }
+        }
+
+        DB::transaction(function () use ($request, $exam, $classId, $subjectMap) {
+            foreach ((array) $request->input('marks', []) as $studentId => $studentMarks) {
+                foreach ((array) $studentMarks as $subjectId => $row) {
+                    $subject = $subjectMap->get((int) $subjectId);
+                    $config = $subject->getEffectiveMarksForClass($classId);
+                    $this->persistExamMark($exam, $subject, (int) $subjectId, $classId, $config, $row, $exam->type === Exam::TYPE_TUTORIAL, (int) $studentId);
+                }
+            }
+        });
+
+        return redirect()->route('exams.marks-entry', [
+            'exam' => $exam->id,
+            'class_id' => $classId,
+            'section_id' => $sectionId,
+            'group_id' => $groupId,
+            'entry_mode' => 'student',
+        ])->with('success', 'All student marks saved successfully.');
+    }
+
+    private function persistExamMark(
+        Exam $exam,
+        Subject $subject,
+        int $subjectId,
+        int $classId,
+        array $config,
+        array $row,
+        bool $isTutorial,
+        ?int $studentId = null
+    ): void {
+        $studentId ??= (int) ($row['student_id'] ?? 0);
+        $isAbsent = ! empty($row['is_absent']);
+        $limits = $isTutorial
+            ? ['tutorial_marks' => (float) ($config['tutorial_marks'] ?? $subject->tutorial_marks ?? 0)]
+            : [
+                'cq_marks' => (float) ($config['creative_marks'] ?? 0),
+                'mcq_marks' => (float) ($config['mcq_marks'] ?? 0),
+                'practical_marks' => (float) ($config['practical_marks'] ?? 0),
+                'viva_marks' => (float) ($config['viva_marks'] ?? 0),
+            ];
+
+        foreach ($limits as $field => $max) {
+            if ($isAbsent || ! array_key_exists($field, $row) || $row[$field] === '' || $row[$field] === null) {
+                continue;
+            }
+            abort_unless(is_numeric($row[$field]) && (float) $row[$field] >= 0 && (float) $row[$field] <= $max, 422, ucfirst(str_replace('_', ' ', $field)) . " must be between 0 and {$max}.");
+        }
+
+        $tutorial = $isTutorial ? ($isAbsent ? 0 : (float) ($row['tutorial_marks'] ?? 0)) : null;
+        $cq = ! $isTutorial ? ($isAbsent ? 0 : (float) ($row['cq_marks'] ?? 0)) : null;
+        $mcq = ! $isTutorial ? ($isAbsent ? 0 : (float) ($row['mcq_marks'] ?? 0)) : null;
+        $practical = ! $isTutorial ? ($isAbsent ? 0 : (float) ($row['practical_marks'] ?? 0)) : null;
+        $viva = ! $isTutorial ? ($isAbsent ? 0 : (float) ($row['viva_marks'] ?? 0)) : null;
+        $total = $isTutorial ? $tutorial : $cq + $mcq + $practical + $viva;
+        $fullMarks = $isTutorial ? $limits['tutorial_marks'] : (float) ($config['total_marks'] ?: 100);
+        $grade = ! $isTutorial && $fullMarks > 0 ? GradingService::getGrade($total, $fullMarks) : null;
+
+        ExamMark::updateOrCreate(
+            ['exam_id' => $exam->id, 'student_id' => $studentId, 'subject_id' => $subjectId],
+            [
+                'cq_marks' => $cq,
+                'mcq_marks' => $mcq,
+                'practical_marks' => $practical,
+                'viva_marks' => $viva,
+                'tutorial_marks' => $tutorial,
+                'total' => $total,
+                'is_absent' => $isAbsent,
+                'letter_grade' => $isAbsent ? 'AB' : ($grade['letter'] ?? null),
+                'gpa' => $isAbsent ? 0 : ($grade['gpa'] ?? null),
+            ]
+        );
     }
 
     /**
