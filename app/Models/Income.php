@@ -16,6 +16,7 @@ class Income extends Model
 
     protected $fillable = [
         'income_category_id',
+        'payment_id',
         'title',
         'amount',
         'income_date',
@@ -36,6 +37,11 @@ class Income extends Model
     public function category()
     {
         return $this->belongsTo(IncomeCategory::class, 'income_category_id');
+    }
+
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class);
     }
 
     public function recorder()
