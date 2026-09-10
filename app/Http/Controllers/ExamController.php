@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicSession;
+use App\Models\Attendance;
+use App\Models\AttendanceItem;
 use App\Models\Exam;
 use App\Models\ExamMark;
 use App\Models\Group;
@@ -12,12 +14,88 @@ use App\Models\Student;
 use App\Models\StudentAcademicInformation;
 use App\Models\Subject;
 use App\Models\SubjectClassAssignment;
+use App\Models\SchoolSetting;
 use App\Services\GradingService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ExamController extends Controller
 {
+    public function resultSheets(Request $request)
+    {
+        $sessionId = $request->integer('session_id') ?: null;
+        $examTypeLabels = [
+            'terminal' => 'Terminal Exam',
+            'tutorial' => 'Tutorial Exam',
+        ];
+        $examType = array_key_exists($request->input('exam_type'), $examTypeLabels)
+            ? $request->input('exam_type')
+            : null;
+        $examId = $request->integer('exam_id') ?: null;
+
+        $examRows = Exam::query()
+            ->whereNotNull('academic_session_id')
+            ->whereIn('exam_category', array_keys($examTypeLabels))
+            ->get(['id', 'exam_category', 'academic_session_id']);
+        $sessionIds = $examRows->pluck('academic_session_id')->unique()->values();
+        $sessions = AcademicSession::whereIn('id', $sessionIds)->orderByDesc('id')->get();
+        $examTypes = $examRows->pluck('exam_category')->unique()->mapWithKeys(
+            fn ($type) => [$type => $examTypeLabels[$type]]
+        );
+        $sessionExams = $sessionId
+            ? Exam::query()
+                ->where('academic_session_id', $sessionId)
+                ->whereIn('exam_category', array_keys($examTypeLabels))
+                ->orderByDesc('pair_no')
+                ->orderByDesc('id')
+                ->get()
+            : collect();
+        $exams = collect();
+
+        if ($sessionId && $examType) {
+            $exams = $sessionExams->where('exam_category', $examType)->values();
+        }
+
+        $selectedExam = $exams->firstWhere('id', $examId);
+        if ($selectedExam) {
+            return redirect()->route('exams.terminal-result', array_filter([
+                'exam' => $selectedExam->id,
+            ], fn ($value) => ! is_null($value)));
+        }
+
+        return view('pages.results.result-sheets', compact(
+            'sessions', 'examTypes', 'sessionExams', 'exams', 'sessionId', 'examType', 'examId'
+        ));
+    }
+
+    public function resultSheetExams(Request $request)
+    {
+        $sessionId = $request->integer('session_id') ?: null;
+        $examCategory = $request->input('exam_type');
+
+        if (! $sessionId || ! in_array($examCategory, ['terminal', 'tutorial'], true)) {
+            return response()->json(['exams' => []]);
+        }
+
+        $exams = Exam::query()
+            ->where('academic_session_id', $sessionId)
+            ->where('exam_category', $examCategory)
+            ->orderByDesc('pair_no')
+            ->orderByDesc('id')
+            ->get(['id', 'name', 'type', 'exam_category'])
+            ->map(fn (Exam $exam) => [
+                'id' => $exam->id,
+                'name' => $exam->name,
+                'type' => $exam->type,
+                'exam_category' => $exam->exam_category,
+                'type_label' => $examCategory === 'terminal' ? 'Terminal Exam' : 'Tutorial Exam',
+            ])
+            ->values();
+
+        return response()->json(['exams' => $exams]);
+    }
+
     public function index(Request $request)
     {
         $query = Exam::with(['academicSession'])->latest();
@@ -160,9 +238,9 @@ class ExamController extends Controller
         $classId = $request->integer('class_id') ?: null;
         $sectionId = $request->integer('section_id') ?: null;
         $groupId = $request->integer('group_id') ?: null;
-        $subjectId = $request->integer('subject_id') ?: null;
         $entryMode = $request->input('entry_mode', 'subject');
         $entryMode = in_array($entryMode, ['subject', 'student'], true) ? $entryMode : 'subject';
+        $subjectId = $entryMode === 'subject' ? ($request->integer('subject_id') ?: null) : null;
         $showAbsent = filter_var($request->input('show_absent', '1'), FILTER_VALIDATE_BOOLEAN);
         $showSubjectTotal = filter_var($request->input('show_subject_total', '1'), FILTER_VALIDATE_BOOLEAN);
         $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
@@ -179,6 +257,21 @@ class ExamController extends Controller
         $cohortReady = false;
         $studentWiseMarks = [];
         $studentSubjectEligibility = [];
+        $csvImportPreview = session('csv_import_preview', []);
+        $csvImportErrors = session('csv_import_errors', []);
+        $csvImportContext = session('csv_import_context');
+        $currentCsvContext = [
+            'class_id' => $classId,
+            'section_id' => $sectionId,
+            'group_id' => $groupId,
+            'subject_id' => $entryMode === 'subject' ? $subjectId : null,
+            'entry_mode' => $entryMode,
+        ];
+        if ($csvImportContext !== $currentCsvContext) {
+            session()->forget(['csv_import_preview', 'csv_import_errors', 'csv_import_context']);
+            $csvImportPreview = [];
+            $csvImportErrors = [];
+        }
 
         if ($classId) {
             $selectedClass = SchoolClass::find($classId);
@@ -244,7 +337,8 @@ class ExamController extends Controller
             'selectedGroup', 'subjects', 'subject', 'students', 'existingMarks',
             'subjectConfig', 'classId', 'sectionId', 'groupId', 'subjectId', 'cohortReady',
             'entryMode', 'studentWiseMarks'
-            , 'studentSubjectEligibility', 'showAbsent', 'showSubjectTotal'
+            , 'studentSubjectEligibility', 'showAbsent', 'showSubjectTotal',
+            'csvImportPreview', 'csvImportErrors'
         ));
     }
 
@@ -287,6 +381,10 @@ class ExamController extends Controller
             }
         });
 
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Marks saved successfully.']);
+        }
+
         return redirect()->route('exams.marks-entry', [
             'exam'       => $exam->id,
             'class_id'   => $classId,
@@ -315,6 +413,9 @@ class ExamController extends Controller
         $subjectMap = $subjects->keyBy('id');
         $allowedStudents = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId)
             ->keyBy('id');
+        $eligibleStudentIdsBySubject = $subjects->mapWithKeys(fn ($subject) => [
+            $subject->id => $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, (int) $subject->id)->pluck('id')->map(fn ($id) => (int) $id)->all(),
+        ])->all();
 
         foreach ((array) $request->input('marks', []) as $studentId => $studentMarks) {
             abort_unless($allowedStudents->has((int) $studentId), 422, 'One or more submitted students do not belong to the selected cohort.');
@@ -322,20 +423,33 @@ class ExamController extends Controller
             foreach ((array) $studentMarks as $subjectId => $row) {
                 abort_unless($subjectMap->has((int) $subjectId), 422, 'One or more submitted subjects do not belong to the selected class or group.');
 
-                $eligibleStudentIds = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, (int) $subjectId)->pluck('id');
-                abort_unless($eligibleStudentIds->contains((int) $studentId), 422, 'A submitted student is not eligible for the selected subject.');
+                $eligible = in_array((int) $studentId, $eligibleStudentIdsBySubject[(int) $subjectId] ?? [], true);
+                if (! $eligible && ! $this->hasStudentWiseMarkValues((array) $row)) {
+                    continue;
+                }
+                abort_unless($eligible, 422, 'A submitted student is not eligible for the selected subject.');
             }
         }
 
-        DB::transaction(function () use ($request, $exam, $classId, $subjectMap) {
+        DB::transaction(function () use ($request, $exam, $classId, $subjectMap, $eligibleStudentIdsBySubject) {
             foreach ((array) $request->input('marks', []) as $studentId => $studentMarks) {
                 foreach ((array) $studentMarks as $subjectId => $row) {
+                    if (
+                        ! in_array((int) $studentId, $eligibleStudentIdsBySubject[(int) $subjectId] ?? [], true)
+                        && ! $this->hasStudentWiseMarkValues((array) $row)
+                    ) {
+                        continue;
+                    }
                     $subject = $subjectMap->get((int) $subjectId);
                     $config = $subject->getEffectiveMarksForClass($classId);
                     $this->persistExamMark($exam, $subject, (int) $subjectId, $classId, $config, $row, $exam->type === Exam::TYPE_TUTORIAL, (int) $studentId);
                 }
             }
         });
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'All student marks saved successfully.']);
+        }
 
         return redirect()->route('exams.marks-entry', [
             'exam' => $exam->id,
@@ -344,6 +458,247 @@ class ExamController extends Controller
             'group_id' => $groupId,
             'entry_mode' => 'student',
         ])->with('success', 'All student marks saved successfully.');
+    }
+
+    private function hasStudentWiseMarkValues(array $row): bool
+    {
+        foreach (['tutorial_marks', 'cq_marks', 'mcq_marks', 'viva_marks', 'practical_marks'] as $field) {
+            if (array_key_exists($field, $row) && $row[$field] !== '' && $row[$field] !== null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Export the selected marks-entry cohort as a component-aware CSV.
+     */
+    public function exportMarksCsv(Request $request, Exam $exam)
+    {
+        $context = $this->marksCsvContext($request, $exam);
+        $filename = 'marks-' . $exam->id . '-' . ($context['subject']?->id ?? 'all') . '-' . now()->format('Ymd-His') . '.csv';
+        $headers = ['student_id', 'roll', 'student_name', 'subject_id', 'subject_name', 'tutorial_marks', 'cq_marks', 'mcq_marks', 'viva_marks', 'practical_marks'];
+
+        return response()->streamDownload(function () use ($headers, $context, $exam) {
+            $output = fopen('php://output', 'w');
+            fwrite($output, "\xEF\xBB\xBF");
+            fputcsv($output, $headers, ',', '"', '\\');
+
+            $marks = $exam->marks()
+                ->whereIn('student_id', $context['students']->pluck('id'))
+                ->whereIn('subject_id', $context['subjects']->pluck('id'))
+                ->get()
+                ->keyBy(fn ($mark) => $mark->student_id . ':' . $mark->subject_id);
+
+            foreach ($context['students'] as $student) {
+                foreach ($context['subjects'] as $subject) {
+                    if (! in_array($student->id, $context['eligibility'][$subject->id] ?? [], true)) {
+                        continue;
+                    }
+                    $mark = $marks->get($student->id . ':' . $subject->id);
+                    $info = $student->academicInformations->first();
+                    fputcsv($output, [
+                        $student->id, $info?->roll ?? '', $student->full_name_en,
+                        $subject->id, $subject->name,
+                        $this->csvNumber($mark?->tutorial_marks),
+                        $this->csvNumber($mark?->cq_marks),
+                        $this->csvNumber($mark?->mcq_marks),
+                        $this->csvNumber($mark?->viva_marks),
+                        $this->csvNumber($mark?->practical_marks),
+                    ], ',', '"', '\\');
+                }
+            }
+            fclose($output);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /**
+     * Import marks from the component-aware CSV generated by exportMarksCsv.
+     */
+    public function importMarksCsv(Request $request, Exam $exam)
+    {
+        $request->validate([
+            'class_id' => 'required|exists:school_classes,id',
+            'section_id' => 'nullable|exists:sections,id',
+            'group_id' => 'nullable|exists:groups,id',
+            'entry_mode' => 'nullable|in:subject,student',
+            'subject_id' => 'nullable|exists:subjects,id',
+            'confirm' => 'nullable|boolean',
+            'marks_csv' => $request->boolean('confirm') ? 'nullable' : 'required|file|mimes:csv,txt|max:5120',
+        ]);
+
+        $context = $this->marksCsvContext($request, $exam);
+        $rawRows = [];
+        if ($request->boolean('confirm')) {
+            $payload = $request->input('preview_payload');
+            $rawRows = $payload ? json_decode($payload, true) : array_values((array) $request->input('preview_rows', []));
+            abort_unless(is_array($rawRows), 422, 'The CSV preview data is invalid. Please upload the CSV again.');
+        } else {
+            $handle = fopen($request->file('marks_csv')->getRealPath(), 'rb');
+            $headers = fgetcsv($handle, 0, ',', '"', '\\');
+            $headers = array_map(fn ($header) => trim(preg_replace('/^\xEF\xBB\xBF/', '', (string) $header)), $headers ?: []);
+            $requiredHeaders = ['student_id', 'subject_id', 'tutorial_marks', 'cq_marks', 'mcq_marks', 'viva_marks', 'practical_marks'];
+            $missingHeaders = array_values(array_diff($requiredHeaders, $headers));
+            if ($missingHeaders) {
+                fclose($handle);
+                return $this->csvImportPreflightResponse($exam, $context, [], ['CSV headers are invalid or incomplete. Missing: ' . implode(', ', $missingHeaders) . '.']);
+            }
+            $headerIndex = array_flip($headers);
+            while (($values = fgetcsv($handle, 0, ',', '"', '\\')) !== false) {
+                if (count(array_filter($values, fn ($value) => trim((string) $value) !== '')) === 0) {
+                    continue;
+                }
+                $row = [];
+                foreach ($headerIndex as $header => $index) {
+                    $row[$header] = isset($values[$index]) ? trim((string) $values[$index]) : '';
+                }
+                $rawRows[] = $row;
+            }
+            fclose($handle);
+        }
+
+        [$rows, $errors] = $this->preflightCsvRows($rawRows, $exam, $context);
+        if ($errors || ! $request->boolean('confirm')) {
+            return $this->csvImportPreflightResponse($exam, $context, $rows, $errors);
+        }
+
+        DB::transaction(function () use ($rows, $exam, $context) {
+            foreach ($rows as $row) {
+                $subject = $context['subjects']->firstWhere('id', (int) $row['subject_id']);
+                $config = $subject->getEffectiveMarksForClass($context['classId']);
+                $this->persistExamMark($exam, $subject, (int) $row['subject_id'], $context['classId'], $config, $row, $exam->type === Exam::TYPE_TUTORIAL, (int) $row['student_id']);
+            }
+        });
+
+        return redirect()->route('exams.marks-entry', array_filter([
+            'exam' => $exam->id, 'class_id' => $context['classId'], 'section_id' => $context['sectionId'],
+            'group_id' => $context['groupId'], 'subject_id' => $context['subject']?->id, 'entry_mode' => $context['entryMode'],
+        ], fn ($value) => ! is_null($value)))->with('success', count($rows) . ' CSV mark rows imported successfully.');
+    }
+
+    private function preflightCsvRows(array $rawRows, Exam $exam, array $context): array
+    {
+        $allowedStudents = $context['students']->keyBy('id');
+        $allowedSubjects = $context['subjects']->keyBy('id');
+        $existingMarks = $exam->marks()
+            ->whereIn('student_id', $allowedStudents->keys())
+            ->whereIn('subject_id', $allowedSubjects->keys())
+            ->get()
+            ->keyBy(fn ($mark) => $mark->student_id . ':' . $mark->subject_id);
+        $rows = [];
+        $errors = [];
+        $seen = [];
+        $fields = $exam->type === Exam::TYPE_TUTORIAL
+            ? ['tutorial_marks' => 'Tutorial']
+            : ['cq_marks' => 'CQ', 'mcq_marks' => 'MCQ', 'practical_marks' => 'Practical', 'viva_marks' => 'Viva'];
+
+        foreach ($rawRows as $index => $rawRow) {
+            $rowNumber = $index + 2;
+            $hasAbsentColumn = array_key_exists('is_absent', $rawRow);
+            $row = array_merge([
+                'student_id' => '', 'roll' => '', 'student_name' => '', 'subject_id' => '', 'subject_name' => '',
+                'tutorial_marks' => '', 'cq_marks' => '', 'mcq_marks' => '', 'practical_marks' => '', 'viva_marks' => '', 'is_absent' => '1',
+            ], array_map(fn ($value) => is_scalar($value) ? trim((string) $value) : '', (array) $rawRow));
+            $row['is_absent'] = $row['is_absent'] === '' ? '1' : $row['is_absent'];
+            $rowErrors = [];
+            $studentId = (int) $row['student_id'];
+            $subjectId = (int) $row['subject_id'];
+            if (! $hasAbsentColumn) {
+                $existingMark = $existingMarks->get($studentId . ':' . $subjectId);
+                $row['is_absent'] = $existingMark ? ($existingMark->is_absent ? '1' : '0') : '1';
+            }
+            $student = $allowedStudents->get($studentId);
+            $subject = $allowedSubjects->get($subjectId);
+
+            if (! $student) {
+                $rowErrors[] = 'Student is outside the selected cohort.';
+            }
+            if (! $subject) {
+                $rowErrors[] = 'Subject is outside the selected class/group.';
+            }
+            if ($student && $subject && ! in_array($studentId, $context['eligibility'][$subjectId] ?? [], true)) {
+                $rowErrors[] = 'Student is not eligible for this subject.';
+            }
+            $key = $studentId . ':' . $subjectId;
+            if (isset($seen[$key])) {
+                $rowErrors[] = 'Duplicate student and subject row.';
+            }
+            $seen[$key] = true;
+
+            $absentValue = strtolower($row['is_absent']);
+            if (! in_array($absentValue, ['0', '1', 'yes', 'no', 'true', 'false', 'ab', 'absent', 'present'], true)) {
+                $rowErrors[] = 'is_absent must be 0 or 1.';
+            }
+            $isAbsent = in_array($absentValue, ['1', 'yes', 'true', 'ab', 'absent'], true);
+            if ($subject) {
+                $config = $subject->getEffectiveMarksForClass($context['classId']);
+                $configKeys = [
+                    'cq_marks' => 'creative_marks',
+                    'mcq_marks' => 'mcq_marks',
+                    'practical_marks' => 'practical_marks',
+                    'viva_marks' => 'viva_marks',
+                    'tutorial_marks' => 'tutorial_marks',
+                ];
+                foreach ($fields as $field => $label) {
+                    $max = $exam->type === Exam::TYPE_TUTORIAL
+                        ? (float) ($config['tutorial_marks'] ?? $subject->tutorial_marks ?? 0)
+                        : (float) ($config[$configKeys[$field]] ?? 0);
+                    if (! $isAbsent && $row[$field] !== '' && (! is_numeric($row[$field]) || (float) $row[$field] < 0 || (float) $row[$field] > $max)) {
+                        $rowErrors[] = "{$label} must be between 0 and {$max}.";
+                    }
+                }
+            }
+            if ($student) {
+                $row['roll'] = $student->academicInformations->first()?->roll ?? $row['roll'];
+                $row['student_name'] = $student->full_name_en;
+            }
+            if ($subject) {
+                $row['subject_name'] = $subject->name;
+            }
+            $row['is_absent'] = $isAbsent ? 1 : 0;
+            $row['_errors'] = $rowErrors;
+            if ($rowErrors) {
+                $errors[] = 'CSV row ' . $rowNumber . ': ' . implode(' ', $rowErrors);
+            }
+            $rows[] = $row;
+        }
+        return [$rows, $errors];
+    }
+
+    private function csvImportPreflightResponse(Exam $exam, array $context, array $rows, array $errors)
+    {
+        return redirect()->route('exams.marks-entry', array_filter([
+            'exam' => $exam->id, 'class_id' => $context['classId'], 'section_id' => $context['sectionId'],
+            'group_id' => $context['groupId'], 'subject_id' => $context['subject']?->id, 'entry_mode' => $context['entryMode'],
+        ], fn ($value) => ! is_null($value)))->with('csv_import_preview', $rows)
+            ->with('csv_import_errors', $errors)
+            ->with('csv_import_context', [
+                'class_id' => $context['classId'], 'section_id' => $context['sectionId'], 'group_id' => $context['groupId'],
+                'subject_id' => $context['subject']?->id, 'entry_mode' => $context['entryMode'],
+            ]);
+    }
+
+    private function marksCsvContext(Request $request, Exam $exam): array
+    {
+        $classId = $request->integer('class_id');
+        $sectionId = $request->filled('section_id') ? $request->integer('section_id') : null;
+        $groupId = $request->filled('group_id') ? $request->integer('group_id') : null;
+        $entryMode = $request->input('entry_mode', 'student');
+        $subjectId = $entryMode === 'subject' ? ($request->integer('subject_id') ?: null) : null;
+        $subject = $subjectId ? Subject::find($subjectId) : null;
+        $subjects = $entryMode === 'subject' && $subject ? collect([$subject]) : $this->getSubjectsForClass($classId, $groupId);
+        $students = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $entryMode === 'subject' ? $subjectId : null);
+        $eligibility = [];
+        foreach ($subjects as $csvSubject) {
+            $eligibility[$csvSubject->id] = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $csvSubject->id)->pluck('id')->map(fn ($id) => (int) $id)->all();
+        }
+        return compact('classId', 'sectionId', 'groupId', 'entryMode', 'subject', 'subjects', 'students', 'eligibility');
+    }
+
+    private function csvNumber($value): string
+    {
+        return $value === null ? '' : number_format((float) $value, 1, '.', '');
     }
 
     private function persistExamMark(
@@ -496,27 +851,43 @@ class ExamController extends Controller
         $groups = collect();
         $selectedSection = null;
         $selectedGroup = null;
+        $cohortReady = false;
 
         $results = [];
         $subjects = collect();
+        $totalWorkingDays = 0;
 
         if ($classId) {
             $sections = $this->getSectionsForClass($classId);
             $selectedSection = $sectionId ? $sections->firstWhere('id', $sectionId) : null;
             $groups = $selectedSection ? $this->getGroupsForClassAndSection($exam, $classId, $selectedSection->id) : collect();
             $selectedGroup = $groupId ? $groups->firstWhere('id', $groupId) : null;
-            $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id);
+            $cohortReady = true;
+            if ($sections->isNotEmpty() && ! $selectedSection) {
+                $cohortReady = false;
+            } elseif ($groups->isNotEmpty() && ! $selectedGroup) {
+                $cohortReady = false;
+            }
 
-            $students = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId);
+            $subjects = $cohortReady
+                ? $this->getSubjectsForClass($classId, $selectedGroup?->id)
+                : collect();
+
+            $students = $cohortReady
+                ? $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId)
+                : collect();
             $studentIds = $students->pluck('id');
 
             $allMarks = ExamMark::where('exam_id', $exam->id)
                 ->whereIn('student_id', $studentIds)
                 ->get()
                 ->groupBy('student_id');
+            $attendanceData = $this->getTerminalAttendanceData($exam, $classId, $studentIds);
+            $totalWorkingDays = $attendanceData['working_days'];
 
             foreach ($students as $student) {
                 $studentMarks = $allMarks->get($student->id, collect());
+                $academicInfo = $student->academicInformations->first();
                 $subjectResults = [];
                 $totalObtained = 0;
                 $totalFull = 0;
@@ -524,6 +895,10 @@ class ExamController extends Controller
                 $failedSubjectCount = 0;
 
                 foreach ($subjects as $subject) {
+                    if (! $this->subjectAppliesToResultStudent($subject, $student, $academicInfo)) {
+                        continue;
+                    }
+
                     $config = $subject->getEffectiveMarksForClass($classId);
                     $fullMarks = (float) ($config['total_marks'] ?: 100);
                     $passMark = (float) ($config['pass_mark'] ?? 33);
@@ -565,6 +940,7 @@ class ExamController extends Controller
                     'failed_subject_count' => $failedSubjectCount,
                     'has_failed'      => $failedSubjectCount > 0,
                     'status'          => $failedSubjectCount > 0 ? 'Failed' : 'Passed',
+                    'attendance_present' => $attendanceData['present_by_student'][$student->id] ?? 0,
                 ];
             }
 
@@ -580,16 +956,36 @@ class ExamController extends Controller
                     return $totalCompare;
                 }
 
-                return ($b['percentage'] ?? 0) <=> ($a['percentage'] ?? 0);
+                $gpaCompare = ($b['gpa'] ?? 0) <=> ($a['gpa'] ?? 0);
+                if ($gpaCompare !== 0) {
+                    return $gpaCompare;
+                }
+
+                $attendanceCompare = ($b['attendance_present'] ?? 0) <=> ($a['attendance_present'] ?? 0);
+                if ($attendanceCompare !== 0) {
+                    return $attendanceCompare;
+                }
+
+                $studentIdA = (string) ($a['student']->student_cid ?? $a['student']->id);
+                $studentIdB = (string) ($b['student']->student_cid ?? $b['student']->id);
+
+                return strnatcmp($studentIdA, $studentIdB);
             });
             $rank = 1;
             $prevFailedCount = null;
             $prevTotal = null;
+            $prevGpa = null;
+            $prevAttendancePresent = null;
+            $prevStudentId = null;
             foreach ($results as &$row) {
+                $studentId = (string) ($row['student']->student_cid ?? $row['student']->id);
                 if (
                     $prevFailedCount !== null
                     && (int) $row['failed_subject_count'] === (int) $prevFailedCount
                     && (float) $row['total_obtained'] === (float) $prevTotal
+                    && (float) $row['gpa'] === (float) $prevGpa
+                    && (int) $row['attendance_present'] === (int) $prevAttendancePresent
+                    && $studentId === $prevStudentId
                 ) {
                     $row['rank'] = $rank - 1;
                 } else {
@@ -597,10 +993,19 @@ class ExamController extends Controller
                 }
                 $prevFailedCount = $row['failed_subject_count'];
                 $prevTotal = $row['total_obtained'];
+                $prevGpa = $row['gpa'];
+                $prevAttendancePresent = $row['attendance_present'];
+                $prevStudentId = $studentId;
                 $rank++;
             }
             unset($row);
         }
+
+        $displaySubjects = $subjects->filter(
+            fn (Subject $subject) => collect($results)->contains(
+                fn ($result) => array_key_exists($subject->id, $result['subject_results'])
+            )
+        )->values();
 
         $displayResults = match ($filter) {
             'passed' => array_filter($results, fn($r) => ! $r['has_failed']),
@@ -610,7 +1015,8 @@ class ExamController extends Controller
 
         return view('pages.exams.terminal-result', compact(
             'exam', 'classes', 'selectedClass', 'sections', 'groups', 'selectedSection', 'selectedGroup',
-            'subjects', 'displayResults', 'results', 'filter', 'classId', 'sectionId', 'groupId'
+            'subjects', 'displaySubjects', 'displayResults', 'results', 'filter', 'classId', 'sectionId', 'groupId',
+            'totalWorkingDays', 'cohortReady'
         ));
     }
 
@@ -655,6 +1061,7 @@ class ExamController extends Controller
         $groupId = $request->integer('group_id') ?: null;
         $subjectId = null;
         $exam->load(['academicSession']);
+        $school = SchoolSetting::current();
 
         $selectedClass = SchoolClass::find($classId);
 
@@ -671,10 +1078,13 @@ class ExamController extends Controller
             ->whereIn('student_id', $studentIds)
             ->get()
             ->groupBy('student_id');
+        $attendanceData = $this->getTerminalAttendanceData($exam, $classId, $studentIds);
+        $totalWorkingDays = $attendanceData['working_days'];
 
         $results = [];
         foreach ($students as $student) {
             $studentMarks   = $allMarks->get($student->id, collect());
+            $academicInfo   = $student->academicInformations->first();
             $subjectResults = [];
             $totalObtained  = 0;
             $totalFull      = 0;
@@ -682,6 +1092,10 @@ class ExamController extends Controller
             $failedSubjectCount = 0;
 
             foreach ($subjects as $subject) {
+                if (! $this->subjectAppliesToResultStudent($subject, $student, $academicInfo)) {
+                    continue;
+                }
+
                 $config    = $subject->getEffectiveMarksForClass($classId);
                 $fullMarks = (float) ($config['total_marks'] ?: 100);
                 $passMark  = (float) ($config['pass_mark'] ?? 33);
@@ -721,6 +1135,7 @@ class ExamController extends Controller
                 'failed_subject_count' => $failedSubjectCount,
                 'has_failed'      => $failedSubjectCount > 0,
                 'status'          => $failedSubjectCount > 0 ? 'Failed' : 'Passed',
+                'attendance_present' => $attendanceData['present_by_student'][$student->id] ?? 0,
             ];
         }
 
@@ -735,16 +1150,36 @@ class ExamController extends Controller
                 return $totalCompare;
             }
 
-            return ($b['percentage'] ?? 0) <=> ($a['percentage'] ?? 0);
+            $gpaCompare = ($b['gpa'] ?? 0) <=> ($a['gpa'] ?? 0);
+            if ($gpaCompare !== 0) {
+                return $gpaCompare;
+            }
+
+            $attendanceCompare = ($b['attendance_present'] ?? 0) <=> ($a['attendance_present'] ?? 0);
+            if ($attendanceCompare !== 0) {
+                return $attendanceCompare;
+            }
+
+            $studentIdA = (string) ($a['student']->student_cid ?? $a['student']->id);
+            $studentIdB = (string) ($b['student']->student_cid ?? $b['student']->id);
+
+            return strnatcmp($studentIdA, $studentIdB);
         });
         $rank = 1;
         $prevFailedCount = null;
         $prevTotal = null;
+        $prevGpa = null;
+        $prevAttendancePresent = null;
+        $prevStudentId = null;
         foreach ($results as &$row) {
+            $studentId = (string) ($row['student']->student_cid ?? $row['student']->id);
             if (
                 $prevFailedCount !== null
                 && (int) $row['failed_subject_count'] === (int) $prevFailedCount
                 && (float) $row['total_obtained'] === (float) $prevTotal
+                && (float) $row['gpa'] === (float) $prevGpa
+                && (int) $row['attendance_present'] === (int) $prevAttendancePresent
+                && $studentId === $prevStudentId
             ) {
                 $row['rank'] = $rank - 1;
             } else {
@@ -752,12 +1187,21 @@ class ExamController extends Controller
             }
             $prevFailedCount = $row['failed_subject_count'];
             $prevTotal = $row['total_obtained'];
+            $prevGpa = $row['gpa'];
+            $prevAttendancePresent = $row['attendance_present'];
+            $prevStudentId = $studentId;
             $rank++;
         }
         unset($row);
 
+        $displaySubjects = $subjects->filter(
+            fn (Subject $subject) => collect($results)->contains(
+                fn ($result) => array_key_exists($subject->id, $result['subject_results'])
+            )
+        )->values();
+
         $mpdf = new \Mpdf\Mpdf(['orientation' => 'L', 'margin_top' => 15, 'margin_bottom' => 15]);
-        $html = view('pages.exams.pdf.terminal-result', compact('exam', 'subjects', 'results', 'selectedClass'))->render();
+        $html = view('pages.exams.pdf.terminal-result', compact('exam', 'subjects', 'displaySubjects', 'results', 'selectedClass', 'totalWorkingDays', 'school'))->render();
         $mpdf->WriteHTML($html);
         $mpdf->Output('terminal_result.pdf', 'D');
         exit;
@@ -770,6 +1214,69 @@ class ExamController extends Controller
     {
         $sections = Section::where('school_class_id', $request->class_id)->get(['id', 'name_en']);
         return response()->json($sections);
+    }
+
+    /**
+     * Get attendance for the period immediately preceding this terminal exam.
+     * Attendance records are the source of truth for school-opened days.
+     */
+    private function getTerminalAttendanceData(Exam $exam, int $classId, $studentIds): array
+    {
+        $empty = ['working_days' => 0, 'present_by_student' => []];
+
+        if (! $exam->start_date || ! $exam->academic_session_id) {
+            return $empty;
+        }
+
+        $year = (int) ($exam->year ?: $exam->start_date->year);
+        $pairNo = (int) ($exam->pair_no ?: 1);
+        $periodStart = Carbon::create($year, 1, 1)->startOfDay();
+
+        if ($pairNo > 1) {
+            $previousExam = Exam::query()
+                ->where('academic_session_id', $exam->academic_session_id)
+                ->where('type', Exam::TYPE_TERMINAL)
+                ->where('pair_no', $pairNo - 1)
+                ->first();
+
+            if (! $previousExam?->end_date) {
+                return $empty;
+            }
+
+            $periodStart = $previousExam->end_date->copy()->addDay()->startOfDay();
+        }
+
+        $periodEnd = $exam->start_date->copy()->subDay()->endOfDay();
+        if ($periodStart->greaterThan($periodEnd)) {
+            return $empty;
+        }
+
+        $attendanceQuery = Attendance::query()
+            ->where('session_id', $exam->academic_session_id)
+            ->where('class_id', $classId)
+            ->whereBetween('date', [$periodStart->toDateString(), $periodEnd->toDateString()]);
+
+        $attendanceIds = (clone $attendanceQuery)->pluck('id');
+        $workingDays = (clone $attendanceQuery)->distinct('date')->count('date');
+
+        if ($attendanceIds->isEmpty() || $studentIds->isEmpty()) {
+            return ['working_days' => $workingDays, 'present_by_student' => []];
+        }
+
+        $presentByStudent = AttendanceItem::query()
+            ->whereIn('attendance_id', $attendanceIds)
+            ->whereIn('student_id', $studentIds)
+            ->where('status', 'present')
+            ->selectRaw('student_id, COUNT(*) as present_days')
+            ->groupBy('student_id')
+            ->pluck('present_days', 'student_id')
+            ->map(fn ($days) => (int) $days)
+            ->all();
+
+        return [
+            'working_days' => $workingDays,
+            'present_by_student' => $presentByStudent,
+        ];
     }
 
     private function getSectionsForClass(int $classId): \Illuminate\Support\Collection
@@ -829,7 +1336,34 @@ class ExamController extends Controller
             }
         }
 
-        return $subjects->unique('id')->values();
+        return $subjects->unique('id')->values()->map(function (Subject $subject) use ($assignments) {
+            $assignmentSubjectIds = collect([$subject->id, $subject->parent_id])->filter();
+
+            return $subject->setRelation(
+                'resultAssignments',
+                $assignments->whereIn('subject_id', $assignmentSubjectIds->all())->values()
+            );
+        });
+    }
+
+    /**
+     * Check whether a subject assignment applies to this student for the result.
+     * The assignments are attached while building the class subject list so the
+     * terminal result does not issue a query for every student and subject.
+     */
+    private function subjectAppliesToResultStudent(
+        Subject $subject,
+        Student $student,
+        ?StudentAcademicInformation $academicInfo
+    ): bool {
+        if (! $academicInfo) {
+            return false;
+        }
+
+        return $subject->resultAssignments->contains(function (SubjectClassAssignment $assignment) use ($student, $academicInfo) {
+            return (! $assignment->group_id || (int) $assignment->group_id === (int) $academicInfo->group_id)
+                && $assignment->appliesToStudent($student->gender, $student->religion);
+        });
     }
 
     private function getStudentsForClass(

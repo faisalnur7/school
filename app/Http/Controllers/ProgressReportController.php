@@ -18,6 +18,7 @@ use App\Models\SchoolSetting;
 use App\Models\ProgressReportTemplateSetting;
 use App\Models\StudentAcademicInformation;
 use App\Services\GradingService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 class ProgressReportController extends Controller
@@ -59,8 +60,9 @@ class ProgressReportController extends Controller
         if ($isPreview) {
             $students = $students->take(1);
         }
+        $attendanceData = $this->getTerminalAttendanceData($exam, (int) $filters['class_id'], $students->pluck('id'));
         $studentsData = $this->rankProgressReports(
-            $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters))
+            $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters, $attendanceData))
         );
 
         if (! empty($filters['student_id'])) {
@@ -101,8 +103,9 @@ class ProgressReportController extends Controller
         unset($cohortFilters['student_id']);
 
         $students = $this->getStudents($cohortFilters);
+        $attendanceData = $this->getTerminalAttendanceData($exam, (int) $filters['class_id'], $students->pluck('id'));
         $studentsData = $this->rankProgressReports(
-            $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters))
+            $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters, $attendanceData))
         );
 
         if (! empty($filters['student_id'])) {
@@ -239,29 +242,43 @@ class ProgressReportController extends Controller
                 return $totalCompare;
             }
 
-            $percentageCompare = (float) data_get($b, 'summary.percentage', 0) <=> (float) data_get($a, 'summary.percentage', 0);
-            if ($percentageCompare !== 0) {
-                return $percentageCompare;
+            $gpaCompare = (float) data_get($b, 'summary.gpa', 0) <=> (float) data_get($a, 'summary.gpa', 0);
+            if ($gpaCompare !== 0) {
+                return $gpaCompare;
             }
 
-            return strcmp((string) data_get($a, 'student.full_name_en', ''), (string) data_get($b, 'student.full_name_en', ''));
+            $attendanceCompare = (int) ($b['attendancePresent'] ?? 0) <=> (int) ($a['attendancePresent'] ?? 0);
+            if ($attendanceCompare !== 0) {
+                return $attendanceCompare;
+            }
+
+            $studentIdA = (string) ($a['student']->student_cid ?? $a['student']->id);
+            $studentIdB = (string) ($b['student']->student_cid ?? $b['student']->id);
+
+            return strnatcmp($studentIdA, $studentIdB);
         });
 
         $rank = 1;
         $prevFailedCount = null;
         $prevTotal = null;
-        $prevPercentage = null;
+        $prevGpa = null;
+        $prevAttendancePresent = null;
+        $prevStudentId = null;
 
         foreach ($rows as &$row) {
             $currentFailedCount = (int) ($row['failed_subject_count'] ?? 0);
             $currentTotal = (float) data_get($row, 'summary.obtained', 0);
-            $currentPercentage = (float) data_get($row, 'summary.percentage', 0);
+            $currentGpa = (float) data_get($row, 'summary.gpa', 0);
+            $currentAttendancePresent = (int) ($row['attendancePresent'] ?? 0);
+            $currentStudentId = (string) ($row['student']->student_cid ?? $row['student']->id);
 
             if (
                 $prevFailedCount !== null
                 && $currentFailedCount === $prevFailedCount
                 && $currentTotal === $prevTotal
-                && $currentPercentage === $prevPercentage
+                && $currentGpa === $prevGpa
+                && $currentAttendancePresent === $prevAttendancePresent
+                && $currentStudentId === $prevStudentId
             ) {
                 $row['rank'] = $rank - 1;
             } else {
@@ -270,7 +287,9 @@ class ProgressReportController extends Controller
 
             $prevFailedCount = $currentFailedCount;
             $prevTotal = $currentTotal;
-            $prevPercentage = $currentPercentage;
+            $prevGpa = $currentGpa;
+            $prevAttendancePresent = $currentAttendancePresent;
+            $prevStudentId = $currentStudentId;
             $rank++;
         }
         unset($row);
@@ -322,6 +341,7 @@ class ProgressReportController extends Controller
                     $query->where('id', $filters['student_id'])
                         ->orWhere('student_cid', $filters['student_id']);
                 })
+                ->where('status', 1)
                 ->whereHas('academicInformations', function ($query) use ($filters) {
                     $query->where('academic_session_id', $filters['session_id'])
                         ->when($filters['class_id'] ?? null, fn ($q) => $q->where('school_class_id', $filters['class_id']))
@@ -339,10 +359,10 @@ class ProgressReportController extends Controller
             ->where('academic_status', 'active')
             ->pluck('student_id');
 
-        return Student::whereIn('id', $ids)->orderBy('id')->get();
+        return Student::whereIn('id', $ids)->where('status', 1)->orderBy('full_name_en')->get();
     }
 
-    private function buildStudentData(Student $student, Exam $exam, array $filters): array
+    private function buildStudentData(Student $student, Exam $exam, array $filters, array $attendanceData = []): array
     {
         $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession'])
             ->where('student_id', $student->id)
@@ -388,7 +408,7 @@ class ProgressReportController extends Controller
                 'grade'        => $mark->is_absent ? 'AB' : $mark->letter_grade,
                 'gpa'          => $mark->is_absent ? null : (float) $mark->gpa,
                 'is_absent'    => (bool) $mark->is_absent,
-                'paper_fail'   => !$mark->is_absent && ($mark->gpa == 0 || $mark->letter_grade === 'F'),
+                'paper_fail'   => (bool) $mark->is_absent || $mark->gpa == 0 || $mark->letter_grade === 'F',
             ];
 
             if ($subject->is_paper && $subject->parent_id) {
@@ -435,21 +455,15 @@ class ProgressReportController extends Controller
         $fullMarks  = collect($subjectRows)->sum('full_marks');
         $obtained   = $validRows->sum('obtained');
         $percentage = $fullMarks > 0 ? round(($obtained / $fullMarks) * 100, 2) : 0;
-        $gpas       = $validRows->filter(fn($r) => !($r['paper_fail'] ?? false))->pluck('gpa')->toArray();
+        $gpas       = collect($subjectRows)->map(
+            fn ($r) => ($r['is_absent'] || ($r['paper_fail'] ?? false)) ? 0 : (float) $r['gpa']
+        )->values()->toArray();
         $gpa        = GradingService::calculateGpa($gpas);
         $grade      = GradingService::getGpaLabel($gpa);
 
-        // Attendance
-        $attendanceIds = Attendance::where('session_id', $filters['session_id'])
-            ->where('class_id', $filters['class_id'])
-            ->where('section_id', $filters['section_id'])
-            ->pluck('id');
-
-        $attendanceTotal   = $attendanceIds->count();
-        $attendancePresent = AttendanceItem::whereIn('attendance_id', $attendanceIds)
-            ->where('student_id', $student->id)
-            ->where('status', 'present')
-            ->count();
+        // Use the same period as the terminal-result ranking.
+        $attendanceTotal = (int) ($attendanceData['working_days'] ?? 0);
+        $attendancePresent = (int) ($attendanceData['present_by_student'][$student->id] ?? 0);
 
         return [
             'student'           => $student,
@@ -464,5 +478,63 @@ class ProgressReportController extends Controller
             'attendancePresent' => $attendancePresent,
             'attendanceTotal'   => $attendanceTotal,
         ];
+    }
+
+    /**
+     * Get school-opened days and student present days immediately before a terminal exam.
+     */
+    private function getTerminalAttendanceData(Exam $exam, int $classId, $studentIds): array
+    {
+        $empty = ['working_days' => 0, 'present_by_student' => []];
+
+        if (! $exam->start_date || ! $exam->academic_session_id) {
+            return $empty;
+        }
+
+        $year = (int) ($exam->year ?: $exam->start_date->year);
+        $pairNo = (int) ($exam->pair_no ?: 1);
+        $periodStart = Carbon::create($year, 1, 1)->startOfDay();
+
+        if ($pairNo > 1) {
+            $previousExam = Exam::query()
+                ->where('academic_session_id', $exam->academic_session_id)
+                ->where('type', Exam::TYPE_TERMINAL)
+                ->where('pair_no', $pairNo - 1)
+                ->first();
+
+            if (! $previousExam?->end_date) {
+                return $empty;
+            }
+
+            $periodStart = $previousExam->end_date->copy()->addDay()->startOfDay();
+        }
+
+        $periodEnd = $exam->start_date->copy()->subDay()->endOfDay();
+        if ($periodStart->greaterThan($periodEnd)) {
+            return $empty;
+        }
+
+        $attendanceQuery = Attendance::query()
+            ->where('session_id', $exam->academic_session_id)
+            ->where('class_id', $classId)
+            ->whereBetween('date', [$periodStart->toDateString(), $periodEnd->toDateString()]);
+        $attendanceIds = (clone $attendanceQuery)->pluck('id');
+        $workingDays = (clone $attendanceQuery)->distinct('date')->count('date');
+
+        if ($attendanceIds->isEmpty() || $studentIds->isEmpty()) {
+            return ['working_days' => $workingDays, 'present_by_student' => []];
+        }
+
+        $presentByStudent = AttendanceItem::query()
+            ->whereIn('attendance_id', $attendanceIds)
+            ->whereIn('student_id', $studentIds)
+            ->where('status', 'present')
+            ->selectRaw('student_id, COUNT(*) as present_days')
+            ->groupBy('student_id')
+            ->pluck('present_days', 'student_id')
+            ->map(fn ($days) => (int) $days)
+            ->all();
+
+        return ['working_days' => $workingDays, 'present_by_student' => $presentByStudent];
     }
 }
