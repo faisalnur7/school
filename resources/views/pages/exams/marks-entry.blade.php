@@ -124,7 +124,87 @@
                         </label>
                     </div>
                 </form>
-            @endif
+                @endif
+                @if (!empty($csvImportPreview) || !empty($csvImportErrors))
+                    <div class="card border-warning mb-3 csv-import-preview">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong><i class="fas fa-shield-alt text-warning mr-1"></i>CSV import preflight</strong>
+                                <small class="text-muted ml-2">Review and correct the rows before importing.</small>
+                            </div>
+                            <span class="badge badge-{{ empty($csvImportErrors) ? 'success' : 'danger' }}">
+                                {{ empty($csvImportErrors) ? 'Ready to import' : count($csvImportErrors) . ' issue(s)' }}
+                            </span>
+                        </div>
+                        @if (!empty($csvImportErrors))
+                            <div class="card-body pb-0">
+                                <div class="alert alert-danger py-2 mb-2">
+                                    <strong>Please correct these rows:</strong>
+                                    <ul class="mb-0 pl-3">
+                                        @foreach ($csvImportErrors as $csvError)<li>{{ $csvError }}</li>@endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        @endif
+                        <form method="POST" action="{{ route('exams.marks-entry.csv-import', $exam) }}">
+                            @csrf
+                            <input type="hidden" name="confirm" value="1">
+                            <input type="hidden" name="class_id" value="{{ $classId }}">
+                            <input type="hidden" name="section_id" value="{{ $sectionId }}">
+                            <input type="hidden" name="group_id" value="{{ $groupId }}">
+                            <input type="hidden" name="subject_id" value="{{ $entryMode === 'subject' ? $subjectId : '' }}">
+                            <input type="hidden" name="entry_mode" value="{{ $entryMode }}">
+                            <div class="table-responsive csv-preview-scroll">
+                                <table class="table table-sm table-bordered mb-0 csv-preview-table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Row</th><th>Student</th><th>Subject</th>
+                                            @if ($exam->type === \App\Models\Exam::TYPE_TUTORIAL)
+                                                <th>Tutorial<br><small>Max</small></th>
+                                            @else
+                                                <th>CQ<br><small>Max</small></th><th>MCQ<br><small>Max</small></th>
+                                                <th>Viva<br><small>Max</small></th><th>Practical<br><small>Max</small></th>
+                                            @endif
+                                            <th>is_absent<br><small>0/1</small></th><th>Issue</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($csvImportPreview as $index => $csvRow)
+                                            @php
+                                                $csvSubject = $subjects->firstWhere('id', (int) ($csvRow['subject_id'] ?? 0));
+                                                $csvConfig = $csvSubject?->getEffectiveMarksForClass($classId) ?? [];
+                                                $csvErrors = $csvRow['_errors'] ?? [];
+                                            @endphp
+                                            <tr class="{{ !empty($csvErrors) ? 'table-danger' : '' }}">
+                                                <td>{{ $index + 2 }}</td>
+                                                <td>{{ $csvRow['student_name'] ?: 'ID '.$csvRow['student_id'] }}<br><small>ID: {{ $csvRow['student_id'] }}</small></td>
+                                                <td>{{ $csvRow['subject_name'] ?: 'ID '.$csvRow['subject_id'] }}<br><small>ID: {{ $csvRow['subject_id'] }}</small></td>
+                                                @if ($exam->type === \App\Models\Exam::TYPE_TUTORIAL)
+                                                    <td><input type="number" name="preview_rows[{{ $index }}][tutorial_marks]" value="{{ $csvRow['tutorial_marks'] }}" min="0" max="{{ $csvConfig['tutorial_marks'] ?? 0 }}" step="0.1" class="form-control form-control-sm"></td>
+                                                @else
+                                                    <td><input type="number" name="preview_rows[{{ $index }}][cq_marks]" value="{{ $csvRow['cq_marks'] }}" min="0" max="{{ $csvConfig['creative_marks'] ?? 0 }}" step="0.1" class="form-control form-control-sm"></td>
+                                                    <td><input type="number" name="preview_rows[{{ $index }}][mcq_marks]" value="{{ $csvRow['mcq_marks'] }}" min="0" max="{{ $csvConfig['mcq_marks'] ?? 0 }}" step="0.1" class="form-control form-control-sm"></td>
+                                                    <td><input type="number" name="preview_rows[{{ $index }}][viva_marks]" value="{{ $csvRow['viva_marks'] }}" min="0" max="{{ $csvConfig['viva_marks'] ?? 0 }}" step="0.1" class="form-control form-control-sm"></td>
+                                                    <td><input type="number" name="preview_rows[{{ $index }}][practical_marks]" value="{{ $csvRow['practical_marks'] }}" min="0" max="{{ $csvConfig['practical_marks'] ?? 0 }}" step="0.1" class="form-control form-control-sm"></td>
+                                                @endif
+                                                <td><input type="number" name="preview_rows[{{ $index }}][is_absent]" value="{{ $csvRow['is_absent'] }}" min="0" max="1" step="1" class="form-control form-control-sm"></td>
+                                                <td class="small text-danger">{{ implode(' ', $csvErrors) ?: '—' }}</td>
+                                                <input type="hidden" name="preview_rows[{{ $index }}][student_id]" value="{{ $csvRow['student_id'] }}">
+                                                <input type="hidden" name="preview_rows[{{ $index }}][subject_id]" value="{{ $csvRow['subject_id'] }}">
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="card-footer d-flex align-items-center">
+                                <small class="text-muted">Totals and grades will be recalculated during import.</small>
+                                <button type="submit" class="btn btn-success btn-sm ml-auto" {{ empty($csvImportPreview) ? 'disabled' : '' }}>
+                                    <i class="fas fa-check mr-1"></i>Validate &amp; Import
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                @endif
             <div class="row">
                 @if ($entryMode === 'subject')
                     <div class="col-md-2">
@@ -181,6 +261,21 @@
                                 </div>
                                 <div class="d-flex align-items-center ml-auto">
                                     <small class="text-muted mr-3"><kbd>Tab</kbd> / <kbd>Enter</kbd> to move between cells</small>
+                                    <a href="{{ route('exams.marks-entry.csv-export', array_filter(['exam' => $exam->id, 'class_id' => $classId, 'section_id' => $sectionId, 'group_id' => $groupId, 'entry_mode' => 'student'], fn ($value) => ! is_null($value))) }}" class="btn btn-outline-secondary btn-sm mr-1">
+                                        <i class="fas fa-file-export mr-1"></i>Export CSV
+                                    </a>
+                                    <form method="POST" action="{{ route('exams.marks-entry.csv-import', $exam) }}" enctype="multipart/form-data" class="d-inline-flex align-items-center mr-1">
+                                        @csrf
+                                        <input type="hidden" name="class_id" value="{{ $classId }}">
+                                        <input type="hidden" name="section_id" value="{{ $sectionId }}">
+                                        <input type="hidden" name="group_id" value="{{ $groupId }}">
+                                        <input type="hidden" name="entry_mode" value="student">
+                                        <label class="btn btn-outline-secondary btn-sm mb-0 mr-1" title="Choose a CSV file">
+                                            <i class="fas fa-file-import mr-1"></i>Choose CSV
+                                            <input type="file" name="marks_csv" accept=".csv,.txt" class="csv-file-input" required>
+                                        </label>
+                                        <button type="submit" class="btn btn-outline-success btn-sm">Import</button>
+                                    </form>
                                     <button type="submit" form="student-wise-marks-form" class="btn btn-success btn-sm">
                                         <i class="fas fa-save mr-1"></i>Save All Student Marks
                                     </button>
@@ -298,9 +393,25 @@
                                         <span class="badge badge-warning ml-1">Pass: {{ $passMark }}</span>
                                     @endif
                                 </div>
-                                <small class="text-muted">
-                                    <kbd>Tab</kbd> / <kbd>Enter</kbd> to move between cells
-                                </small>
+                                <div class="d-flex align-items-center">
+                                    <small class="text-muted mr-3"><kbd>Tab</kbd> / <kbd>Enter</kbd> to move between cells</small>
+                                    <a href="{{ route('exams.marks-entry.csv-export', array_filter(['exam' => $exam->id, 'class_id' => $classId, 'section_id' => $sectionId, 'group_id' => $groupId, 'subject_id' => $subject->id, 'entry_mode' => 'subject'], fn ($value) => ! is_null($value))) }}" class="btn btn-outline-secondary btn-sm mr-1">
+                                        <i class="fas fa-file-export mr-1"></i>Export CSV
+                                    </a>
+                                    <form method="POST" action="{{ route('exams.marks-entry.csv-import', $exam) }}" enctype="multipart/form-data" class="d-inline-flex align-items-center">
+                                        @csrf
+                                        <input type="hidden" name="class_id" value="{{ $classId }}">
+                                        <input type="hidden" name="section_id" value="{{ $sectionId }}">
+                                        <input type="hidden" name="group_id" value="{{ $groupId }}">
+                                        <input type="hidden" name="subject_id" value="{{ $subject->id }}">
+                                        <input type="hidden" name="entry_mode" value="subject">
+                                        <label class="btn btn-outline-secondary btn-sm mb-0 mr-1" title="Choose a CSV file">
+                                            <i class="fas fa-file-import mr-1"></i>Choose CSV
+                                            <input type="file" name="marks_csv" accept=".csv,.txt" class="csv-file-input" required>
+                                        </label>
+                                        <button type="submit" class="btn btn-outline-success btn-sm">Import</button>
+                                    </form>
+                                </div>
                             </div>
 
                             <form method="POST" action="{{ route('exams.save-marks', $exam) }}">
@@ -465,6 +576,9 @@
         .marks-entry-page h4 { font-size: 18px; letter-spacing: -.01em; }
         .marks-entry-page .btn { border-radius: 7px; font-weight: 600; }
         .marks-entry-page .btn-sm { padding: 5px 10px; }
+        .marks-entry-page .csv-file-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+        .marks-entry-page .csv-file-input:focus + * { outline: 2px solid #2563eb; }
+        .marks-entry-page .csv-file-input-label { cursor: pointer; }
         .marks-entry-page .list-group-item { border-color: #eef0f3; padding: 9px 12px; }
         .marks-entry-page .list-group-item.active { background: #2563eb; border-color: #2563eb; }
         .marks-entry-page .student-wise-table,
@@ -506,6 +620,12 @@
         .student-wise-table tbody .sticky-col { background: #fff; }
         .student-wise-table .student-name-col { left: 90px; min-width: 220px; }
         .student-wise-table .subject-group-header { white-space: normal; line-height: 1.25; }
+        @media (max-width: 992px) {
+            .marks-entry-page .student-wise-card > .card-header,
+            .marks-entry-page .card-header > .d-flex { align-items: flex-start !important; flex-wrap: wrap; gap: 6px; }
+            .marks-entry-page .student-wise-card > .card-header > .d-flex,
+            .marks-entry-page .card-header > .d-flex { margin-left: 0 !important; }
+        }
     </style>
     <script>
         const IS_TUTORIAL = {{ ($exam->type === \App\Models\Exam::TYPE_TUTORIAL) ? 'true' : 'false' }};
