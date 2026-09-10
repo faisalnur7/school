@@ -243,6 +243,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:view_fees')->get('/fees/hub', [FeesHubController::class, 'index'])->name('fees.hub');
     Route::middleware('permission:view_financials')->get('/financials/hub', [FinancialsHubController::class, 'index'])->name('financials.hub');
     Route::middleware('permission:view_results')->get('/results/hub', [ResultsHubController::class, 'index'])->name('results.hub');
+    Route::middleware('permission:view_results')->get('/results/result-sheets', [\App\Http\Controllers\ExamController::class, 'resultSheets'])->name('results.result-sheets');
+    Route::middleware('permission:view_results')->get('/results/result-sheets/exams', [\App\Http\Controllers\ExamController::class, 'resultSheetExams'])->name('results.result-sheets.exams');
     Route::middleware('permission:view_hr')->get('/hr/hub', [HrHubController::class, 'index'])->name('hr.hub');
     Route::middleware('permission:view_accounts')->get('/accounts/hub', [AccountsHubController::class, 'index'])->name('accounts.hub');
     Route::middleware('permission:view_assets')->get('/assets/hub', [AssetsHubController::class, 'index'])->name('assets.hub');
