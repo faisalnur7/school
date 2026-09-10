@@ -303,6 +303,10 @@ class ExamController extends Controller
             }
         });
 
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Marks saved successfully.']);
+        }
+
         return redirect()->route('exams.marks-entry', [
             'exam'       => $exam->id,
             'class_id'   => $classId,
@@ -331,6 +335,9 @@ class ExamController extends Controller
         $subjectMap = $subjects->keyBy('id');
         $allowedStudents = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId)
             ->keyBy('id');
+        $eligibleStudentIdsBySubject = $subjects->mapWithKeys(fn ($subject) => [
+            $subject->id => $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, (int) $subject->id)->pluck('id')->map(fn ($id) => (int) $id)->all(),
+        ])->all();
 
         foreach ((array) $request->input('marks', []) as $studentId => $studentMarks) {
             abort_unless($allowedStudents->has((int) $studentId), 422, 'One or more submitted students do not belong to the selected cohort.');
@@ -338,20 +345,33 @@ class ExamController extends Controller
             foreach ((array) $studentMarks as $subjectId => $row) {
                 abort_unless($subjectMap->has((int) $subjectId), 422, 'One or more submitted subjects do not belong to the selected class or group.');
 
-                $eligibleStudentIds = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, (int) $subjectId)->pluck('id');
-                abort_unless($eligibleStudentIds->contains((int) $studentId), 422, 'A submitted student is not eligible for the selected subject.');
+                $eligible = in_array((int) $studentId, $eligibleStudentIdsBySubject[(int) $subjectId] ?? [], true);
+                if (! $eligible && ! $this->hasStudentWiseMarkValues((array) $row)) {
+                    continue;
+                }
+                abort_unless($eligible, 422, 'A submitted student is not eligible for the selected subject.');
             }
         }
 
-        DB::transaction(function () use ($request, $exam, $classId, $subjectMap) {
+        DB::transaction(function () use ($request, $exam, $classId, $subjectMap, $eligibleStudentIdsBySubject) {
             foreach ((array) $request->input('marks', []) as $studentId => $studentMarks) {
                 foreach ((array) $studentMarks as $subjectId => $row) {
+                    if (
+                        ! in_array((int) $studentId, $eligibleStudentIdsBySubject[(int) $subjectId] ?? [], true)
+                        && ! $this->hasStudentWiseMarkValues((array) $row)
+                    ) {
+                        continue;
+                    }
                     $subject = $subjectMap->get((int) $subjectId);
                     $config = $subject->getEffectiveMarksForClass($classId);
                     $this->persistExamMark($exam, $subject, (int) $subjectId, $classId, $config, $row, $exam->type === Exam::TYPE_TUTORIAL, (int) $studentId);
                 }
             }
         });
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'All student marks saved successfully.']);
+        }
 
         return redirect()->route('exams.marks-entry', [
             'exam' => $exam->id,
@@ -362,6 +382,17 @@ class ExamController extends Controller
         ])->with('success', 'All student marks saved successfully.');
     }
 
+    private function hasStudentWiseMarkValues(array $row): bool
+    {
+        foreach (['tutorial_marks', 'cq_marks', 'mcq_marks', 'viva_marks', 'practical_marks'] as $field) {
+            if (array_key_exists($field, $row) && $row[$field] !== '' && $row[$field] !== null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * Export the selected marks-entry cohort as a component-aware CSV.
      */
@@ -369,7 +400,7 @@ class ExamController extends Controller
     {
         $context = $this->marksCsvContext($request, $exam);
         $filename = 'marks-' . $exam->id . '-' . ($context['subject']?->id ?? 'all') . '-' . now()->format('Ymd-His') . '.csv';
-        $headers = ['student_id', 'roll', 'student_name', 'subject_id', 'subject_name', 'tutorial_marks', 'cq_marks', 'mcq_marks', 'viva_marks', 'practical_marks', 'is_absent'];
+        $headers = ['student_id', 'roll', 'student_name', 'subject_id', 'subject_name', 'tutorial_marks', 'cq_marks', 'mcq_marks', 'viva_marks', 'practical_marks'];
 
         return response()->streamDownload(function () use ($headers, $context, $exam) {
             $output = fopen('php://output', 'w');
@@ -397,7 +428,6 @@ class ExamController extends Controller
                         $this->csvNumber($mark?->mcq_marks),
                         $this->csvNumber($mark?->viva_marks),
                         $this->csvNumber($mark?->practical_marks),
-                        $mark?->is_absent ? 1 : 0,
                     ], ',', '"', '\\');
                 }
             }
@@ -423,12 +453,14 @@ class ExamController extends Controller
         $context = $this->marksCsvContext($request, $exam);
         $rawRows = [];
         if ($request->boolean('confirm')) {
-            $rawRows = array_values((array) $request->input('preview_rows', []));
+            $payload = $request->input('preview_payload');
+            $rawRows = $payload ? json_decode($payload, true) : array_values((array) $request->input('preview_rows', []));
+            abort_unless(is_array($rawRows), 422, 'The CSV preview data is invalid. Please upload the CSV again.');
         } else {
             $handle = fopen($request->file('marks_csv')->getRealPath(), 'rb');
             $headers = fgetcsv($handle, 0, ',', '"', '\\');
             $headers = array_map(fn ($header) => trim(preg_replace('/^\xEF\xBB\xBF/', '', (string) $header)), $headers ?: []);
-            $requiredHeaders = ['student_id', 'subject_id', 'tutorial_marks', 'cq_marks', 'mcq_marks', 'viva_marks', 'practical_marks', 'is_absent'];
+            $requiredHeaders = ['student_id', 'subject_id', 'tutorial_marks', 'cq_marks', 'mcq_marks', 'viva_marks', 'practical_marks'];
             $missingHeaders = array_values(array_diff($requiredHeaders, $headers));
             if ($missingHeaders) {
                 fclose($handle);
@@ -471,6 +503,11 @@ class ExamController extends Controller
     {
         $allowedStudents = $context['students']->keyBy('id');
         $allowedSubjects = $context['subjects']->keyBy('id');
+        $existingMarks = $exam->marks()
+            ->whereIn('student_id', $allowedStudents->keys())
+            ->whereIn('subject_id', $allowedSubjects->keys())
+            ->get()
+            ->keyBy(fn ($mark) => $mark->student_id . ':' . $mark->subject_id);
         $rows = [];
         $errors = [];
         $seen = [];
@@ -480,13 +517,19 @@ class ExamController extends Controller
 
         foreach ($rawRows as $index => $rawRow) {
             $rowNumber = $index + 2;
+            $hasAbsentColumn = array_key_exists('is_absent', $rawRow);
             $row = array_merge([
                 'student_id' => '', 'roll' => '', 'student_name' => '', 'subject_id' => '', 'subject_name' => '',
-                'tutorial_marks' => '', 'cq_marks' => '', 'mcq_marks' => '', 'practical_marks' => '', 'viva_marks' => '', 'is_absent' => '0',
+                'tutorial_marks' => '', 'cq_marks' => '', 'mcq_marks' => '', 'practical_marks' => '', 'viva_marks' => '', 'is_absent' => '1',
             ], array_map(fn ($value) => is_scalar($value) ? trim((string) $value) : '', (array) $rawRow));
+            $row['is_absent'] = $row['is_absent'] === '' ? '1' : $row['is_absent'];
             $rowErrors = [];
             $studentId = (int) $row['student_id'];
             $subjectId = (int) $row['subject_id'];
+            if (! $hasAbsentColumn) {
+                $existingMark = $existingMarks->get($studentId . ':' . $subjectId);
+                $row['is_absent'] = $existingMark ? ($existingMark->is_absent ? '1' : '0') : '1';
+            }
             $student = $allowedStudents->get($studentId);
             $subject = $allowedSubjects->get($subjectId);
 
