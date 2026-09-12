@@ -51,10 +51,10 @@ class StudentPaymentReportController extends Controller
 
     public function receiveIndex(Request $request)
     {
-        [$sessions, $classes, $sections, $rows, $months, $totals, $fromDate, $toDate] = $this->buildReceiveData($request);
+        [$sessions, $classes, $sections, $rows, $months, $totals, $fromDate, $toDate, $availableCategories, $selectedCategoryKeys] = $this->buildReceiveData($request);
 
         return view('pages.student-receive-report.index', compact(
-            'sessions', 'classes', 'sections', 'rows', 'months', 'totals', 'fromDate', 'toDate'
+            'sessions', 'classes', 'sections', 'rows', 'months', 'totals', 'fromDate', 'toDate', 'availableCategories', 'selectedCategoryKeys'
         ));
     }
 
@@ -81,11 +81,23 @@ class StudentPaymentReportController extends Controller
         $rows = collect();
         $months = [];
         $totals = ['months' => [], 'total' => 0.0];
+        $availableCategories = FeeCategory::where('status', 1)->orderBy('name')->get()
+            ->map(fn ($category) => (object) ['key' => 'fee_' . $category->id, 'name' => $category->name])
+            ->concat(InventoryCategory::where('is_active', 1)->orderBy('name')->get()
+                ->map(fn ($category) => (object) ['key' => 'inventory_' . $category->id, 'name' => $category->name]))
+            ->push((object) ['key' => 'unassigned', 'name' => 'Other / Unclassified'])
+            ->sortBy('name')->values();
+        $validCategoryKeys = $availableCategories->pluck('key')->all();
+        $selectedCategoryKeys = !$request->has('columns_present') ? $validCategoryKeys : array_values(array_unique(array_filter(array_map(
+            fn ($value) => in_array((string) $value, $validCategoryKeys, true) ? (string) $value : null,
+            (array) $request->input('columns', [])
+        ))));
+        $selectedCategoryLookup = array_flip($selectedCategoryKeys);
         $fromDate = $request->filled('from_date') ? Carbon::parse($request->from_date) : null;
         $toDate = $request->filled('to_date') ? Carbon::parse($request->to_date) : null;
 
         if (!$fromDate || !$toDate) {
-            return [$sessions, $classes, $sections, $rows, $months, $totals, $fromDate?->toDateString(), $toDate?->toDateString()];
+            return [$sessions, $classes, $sections, $rows, $months, $totals, $fromDate?->toDateString(), $toDate?->toDateString(), $availableCategories, $selectedCategoryKeys];
         }
 
         if ($toDate->lt($fromDate)) {
@@ -104,7 +116,7 @@ class StudentPaymentReportController extends Controller
         }
 
         if (empty($months)) {
-            return [$sessions, $classes, $sections, $rows, $months, $totals, $fromDate->toDateString(), $toDate->toDateString()];
+            return [$sessions, $classes, $sections, $rows, $months, $totals, $fromDate->toDateString(), $toDate->toDateString(), $availableCategories, $selectedCategoryKeys];
         }
 
         $studentIdFilter = trim((string) $request->input('student_id', ''));
@@ -113,6 +125,8 @@ class StudentPaymentReportController extends Controller
         $payments = Payment::with([
                 'student.academicInformations.schoolClass',
                 'student.academicInformations.section',
+                'items.fee.feeSet.items.category',
+                'inventorySale.items.inventoryItem.category',
             ])
             ->when($studentIdFilter !== '', function ($q) use ($studentIdFilter) {
                 $q->whereHas('student', function ($studentQuery) use ($studentIdFilter) {
@@ -163,32 +177,55 @@ class StudentPaymentReportController extends Controller
                 ];
             }
 
-            $lineKey = 'payment:' . $payment->id;
-            if (! isset($studentMap[$studentKey]['lines'][$lineKey])) {
-                $lineDescription = trim(
-                    ($payment->receipt_no ? 'Receipt ' . $payment->receipt_no : 'Payment')
-                    . ($payment->description ? ' - ' . $payment->description : '')
-                );
-
-                $studentMap[$studentKey]['lines'][$lineKey] = [
-                    'acc_code' => $payment->receipt_no ?? $payment->id,
-                    'description' => $lineDescription ?: 'Payment',
-                    'monthTotals' => array_fill_keys(array_keys($months), 0.0),
-                    'total' => 0.0,
-                ];
-            }
-
             $amount = (float) $payment->amount;
             if ($amount <= 0) {
                 continue;
             }
 
-            $studentMap[$studentKey]['lines'][$lineKey]['monthTotals'][$monthKey] += $amount;
-            $studentMap[$studentKey]['lines'][$lineKey]['total'] += $amount;
-            $studentMap[$studentKey]['monthTotals'][$monthKey] += $amount;
-            $studentMap[$studentKey]['student_total'] += $amount;
-            $totals['months'][$monthKey] += $amount;
-            $totals['total'] += $amount;
+            $allocations = collect();
+            foreach ($payment->items as $paymentItem) {
+                $items = $paymentItem->fee?->feeSet?->items ?? collect();
+                $setTotal = (float) $items->sum('amount');
+                if ($setTotal <= 0) continue;
+                foreach ($items as $item) {
+                    $key = $item->category ? 'fee_' . $item->category->id : null;
+                    if ($key && isset($selectedCategoryLookup[$key])) {
+                        $allocations->push([$key, $item->category->name, (float) $paymentItem->amount * (float) $item->amount / $setTotal]);
+                    }
+                }
+            }
+            if ($payment->inventorySale) {
+                $items = $payment->inventorySale->items;
+                $saleTotal = (float) $items->sum('subtotal');
+                foreach ($items as $item) {
+                    $category = $item->inventoryItem?->category;
+                    $key = $category ? 'inventory_' . $category->id : null;
+                    if ($key && $saleTotal > 0 && isset($selectedCategoryLookup[$key])) {
+                        $allocations->push([$key, $category->name, $amount * (float) $item->subtotal / $saleTotal]);
+                    }
+                }
+            }
+            if ($allocations->isEmpty()) {
+                if (!isset($selectedCategoryLookup['unassigned'])) continue;
+                $allocations->push(['unassigned', 'Other / Unclassified', $amount]);
+            }
+            foreach ($allocations->groupBy(fn ($allocation) => $allocation[0]) as $key => $categoryAllocations) {
+                $lineAmount = $categoryAllocations->sum(fn ($allocation) => $allocation[2]);
+                $lineKey = 'payment:' . $payment->id . ':' . $key;
+                $studentMap[$studentKey]['lines'][$lineKey] ??= [
+                    'acc_code' => $payment->receipt_no ?? $payment->id,
+                    'description' => ($payment->receipt_no ? 'Receipt ' . $payment->receipt_no : 'Payment') . ' - ' . $categoryAllocations->first()[1],
+                    'category_key' => $key,
+                    'monthTotals' => array_fill_keys(array_keys($months), 0.0),
+                    'total' => 0.0,
+                ];
+                $studentMap[$studentKey]['lines'][$lineKey]['monthTotals'][$monthKey] += $lineAmount;
+                $studentMap[$studentKey]['lines'][$lineKey]['total'] += $lineAmount;
+                $studentMap[$studentKey]['monthTotals'][$monthKey] += $lineAmount;
+                $studentMap[$studentKey]['student_total'] += $lineAmount;
+                $totals['months'][$monthKey] += $lineAmount;
+                $totals['total'] += $lineAmount;
+            }
         }
 
         foreach ($studentMap as &$student) {
@@ -203,7 +240,7 @@ class StudentPaymentReportController extends Controller
             ->sortBy('student_name')
             ->values();
 
-        return [$sessions, $classes, $sections, $rows, $months, $totals, $fromDate->toDateString(), $toDate->toDateString()];
+        return [$sessions, $classes, $sections, $rows, $months, $totals, $fromDate->toDateString(), $toDate->toDateString(), $availableCategories, $selectedCategoryKeys];
     }
 
     public function buildData(Request $request): array
