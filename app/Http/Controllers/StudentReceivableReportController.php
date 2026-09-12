@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AcademicSession;
 use App\Models\Fee;
 use App\Models\FeeSet;
+use App\Models\FeeCategory;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use Carbon\Carbon;
@@ -49,6 +50,8 @@ class StudentReceivableReportController extends Controller
         $availableCategories = collect();
         $selectedCategoryKeys = [];
         $totals     = ['months' => [], 'categories' => [], 'total' => 0.0];
+        $availableCategories = FeeCategory::where('status', 1)->orderBy('name')->get();
+        $selectedCategoryKeys = $this->resolveSelectedReceivableReportColumns($request, $availableCategories);
         $fromDate   = $request->filled('from_date') ? Carbon::parse($request->from_date) : null;
         $toDate     = $request->filled('to_date')   ? Carbon::parse($request->to_date)   : null;
 
