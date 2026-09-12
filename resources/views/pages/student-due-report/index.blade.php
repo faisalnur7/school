@@ -268,6 +268,7 @@
 <div class="container-fluid fees-report-page">
     @php
         $reportTitle = 'Student Due Report';
+        $selectedCategoryKeys = collect($selectedCategoryKeys ?? [])->map(fn ($key) => (string) $key)->values()->all();
     @endphp
     @include('partials.report-header')
     <div class="fees-report-shell">
@@ -322,7 +323,7 @@
                         </div>
                         <div class="row">
                             @foreach($availableCategories as $category)
-                                <div class="col-md-3 col-sm-6 mb-2"><div class="form-check"><input class="form-check-input student-due-category-checkbox" type="checkbox" name="columns[]" value="{{ $category->key }}" id="student-due-category-{{ $category->key }}" {{ in_array($category->key, $selectedCategoryKeys, true) ? 'checked' : '' }}><label class="form-check-label font-weight-bold" for="student-due-category-{{ $category->key }}">{{ $category->name }}</label></div></div>
+                                <div class="col-md-3 col-sm-6 mb-2"><div class="form-check"><input class="form-check-input student-due-category-checkbox" type="checkbox" name="columns[]" value="{{ $category->key }}" id="student-due-category-{{ $category->key }}" @checked(in_array((string) $category->key, $selectedCategoryKeys, true))><label class="form-check-label font-weight-bold" for="student-due-category-{{ $category->key }}">{{ $category->name }}</label></div></div>
                             @endforeach
                         </div>
                     </div>

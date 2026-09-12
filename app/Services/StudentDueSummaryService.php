@@ -8,6 +8,7 @@ use App\Models\Section;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Payment;
+use App\Models\FeeCategory;
 use App\Models\InventoryCategory;
 use Illuminate\Http\Request;
 
@@ -33,6 +34,16 @@ class StudentDueSummaryService
         $selectedCategoryKeys = [];
 
         if (!$request->filled('session_id')) {
+            foreach (FeeCategory::where('status', 1)->orderBy('name')->get() as $category) {
+                $key = 'fee_' . $category->id;
+                $availableCategories->put($key, (object) ['key' => $key, 'name' => $category->name]);
+            }
+            foreach (InventoryCategory::where('is_active', 1)->orderBy('name')->get() as $category) {
+                $key = 'inventory_' . $category->id;
+                $availableCategories->put($key, (object) ['key' => $key, 'name' => $category->name]);
+            }
+            $availableCategories = $availableCategories->sortBy('name')->values();
+            $selectedCategoryKeys = $this->resolveSelectedCategoryKeys($request, $availableCategories);
             return [$sessions, $classes, $sections, $rows, $totals, $availableCategories, $selectedCategoryKeys];
         }
 

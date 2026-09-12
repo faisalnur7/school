@@ -44,6 +44,10 @@ class FeeDueReportController extends Controller
         $selectedCategoryKeys = [];
         $fromDate = $request->filled('from_date') ? Carbon::parse($request->from_date) : null;
         $toDate = $request->filled('to_date') ? Carbon::parse($request->to_date) : null;
+        if (!$fromDate && !$toDate) {
+            $availableCategories = \App\Models\FeeCategory::where('status', 1)->orderBy('name')->get()->values();
+            $selectedCategoryKeys = $this->resolveSelectedCategoryKeys($request, $availableCategories);
+        }
 
         if ($fromDate && $toDate) {
             if ($toDate->lt($fromDate)) {

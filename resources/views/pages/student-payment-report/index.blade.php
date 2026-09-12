@@ -755,7 +755,7 @@
                         </div>
                     @endif
 
-                    <div class="payment-report-advanced-filters hidden" id="paymentReportAdvancedFilters">
+                    <div class="payment-report-advanced-filters" id="paymentReportAdvancedFilters">
                         <div class="payment-report-pdf-panel">
                             <div class="payment-report-pdf-header">
                                 <div class="payment-report-pdf-copy">

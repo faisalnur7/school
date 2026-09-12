@@ -22,6 +22,7 @@ class FeesHubController extends Controller
                 ['icon' => 'fa-layer-group',    'title' => __('All In One Report'),    'subtitle' => __('Payment, receive and receivable reports'), 'route' => 'fees.all-in-one-report', 'permission' => 'view_card_student_payment_report', 'from' => '#8b5cf6', 'to' => '#4f46e5'],
                 ['icon' => 'fa-file-invoice',   'title' => __('Classwise Due'),      'subtitle' => __('Classwise due report'),        'route' => 'fees.due-report', 'permission' => 'view_card_classwise_due_report', 'from' => '#0f766e', 'to' => '#0d9488'],
                 ['icon' => 'fa-user-clock',     'title' => __('Student Due'),        'subtitle' => __('Fee and inventory due report'), 'route' => 'fees.student-due-report', 'permission' => 'view_card_student_due_report', 'from' => '#b45309', 'to' => '#92400e'],
+                ['icon' => 'fa-book-open',       'title' => __('Student Ledger'),     'subtitle' => __('Monthwise fee and inventory ledger'), 'route' => 'fees.student-ledger.index', 'permission' => 'view_card_student_due_report', 'from' => '#7c3aed', 'to' => '#5b21b6'],
                 ['icon' => 'fa-percentage',     'title' => __('Discount List'),      'subtitle' => __('View discount list'),          'route' => 'fees.discount-list', 'permission' => 'view_card_discount_list', 'from' => '#be185d', 'to' => '#9d174d'],
             ],
         ];

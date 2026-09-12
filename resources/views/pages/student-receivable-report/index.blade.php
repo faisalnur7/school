@@ -113,6 +113,10 @@
             .fees-report-page .fees-report-grid--primary {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
+
+            .fees-report-category-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
 
         @media (max-width: 767.98px) {
@@ -129,6 +133,10 @@
             .fees-report-page .fees-report-filter-actions--submit > * {
                 width: 100%;
                 justify-content: center;
+            }
+
+            .fees-report-category-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -178,7 +186,7 @@
 
         .fees-report-category-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 0.7rem 1rem;
         }
 
