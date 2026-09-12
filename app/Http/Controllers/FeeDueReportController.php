@@ -14,9 +14,9 @@ class FeeDueReportController extends Controller
 {
     public function index(Request $request)
     {
-        [$sessions, $classes, $classSections, $categories, $grandTotals] = $this->buildData($request);
+        [$sessions, $classes, $classSections, $categories, $grandTotals, $availableCategories, $selectedCategoryKeys] = $this->buildData($request);
 
-        return view('pages.fee-due-report.index', compact('sessions', 'classes', 'classSections', 'categories', 'grandTotals'));
+        return view('pages.fee-due-report.index', compact('sessions', 'classes', 'classSections', 'categories', 'grandTotals', 'availableCategories', 'selectedCategoryKeys'));
     }
 
     public function pdf(Request $request)
@@ -40,6 +40,8 @@ class FeeDueReportController extends Controller
         $classSections = collect();
         $categories = collect();
         $grandTotals = ['fees' => 0, 'paid' => 0, 'due' => 0];
+        $availableCategories = collect();
+        $selectedCategoryKeys = [];
         $fromDate = $request->filled('from_date') ? Carbon::parse($request->from_date) : null;
         $toDate = $request->filled('to_date') ? Carbon::parse($request->to_date) : null;
 
@@ -75,14 +77,17 @@ class FeeDueReportController extends Controller
                     }
                 }
             }
-            $categories = $allCategories->sortBy('name');
+            $availableCategories = $allCategories->sortBy('name')->values();
+            $selectedCategoryKeys = $this->resolveSelectedCategoryKeys($request, $availableCategories);
+            $selectedLookup = array_flip($selectedCategoryKeys);
+            $categories = $availableCategories->filter(fn ($category) => isset($selectedLookup[(string) $category->id]))->values();
 
             $grouped = $students->groupBy(function ($s) {
                 $ai = $s->academicInformations->first();
                 return ($ai?->school_class_id ?? 0) . '|' . ($ai?->section_id ?? 0);
             });
 
-            $classSections = $grouped->map(function ($sectionStudents) use ($categories) {
+            $classSections = $grouped->map(function ($sectionStudents) use ($categories, $selectedLookup) {
                 $ai = $sectionStudents->first()->academicInformations->first();
 
                 $catTotals = [];
@@ -97,9 +102,6 @@ class FeeDueReportController extends Controller
                     foreach ($student->fees as $fee) {
                         $netAmount = (float) $fee->amount - (float) $fee->scholarship_discount;
                         $paidAmount = $fee->paymentItems->sum('amount');
-                        $totalFees += $netAmount;
-                        $totalPaid += $paidAmount;
-
                         $feeSetItems = $fee->feeSet->items;
                         $feeSetTotal = $feeSetItems->sum('amount');
 
@@ -109,12 +111,15 @@ class FeeDueReportController extends Controller
                             }
 
                             $catId = $item->category->id;
+                            if (!isset($selectedLookup[(string) $catId])) continue;
                             $catShare = $feeSetTotal > 0 ? ($item->amount / $feeSetTotal) : 0;
                             $catFee = $netAmount * $catShare;
                             $catPaid = $paidAmount * $catShare;
                             $catTotals[$catId]['fees'] += $catFee;
                             $catTotals[$catId]['paid'] += $catPaid;
                             $catTotals[$catId]['due']  += max(0, $catFee - $catPaid);
+                            $totalFees += $catFee;
+                            $totalPaid += $catPaid;
                         }
                     }
                 }
@@ -141,11 +146,11 @@ class FeeDueReportController extends Controller
                 'due'  => $classSections->sum('due'),
             ];
 
-            return [$sessions, $classes, $classSections, $categories, $grandTotals];
+            return [$sessions, $classes, $classSections, $categories, $grandTotals, $availableCategories, $selectedCategoryKeys];
         }
 
         if (!$request->filled('session_id')) {
-            return [$sessions, $classes, $classSections, $categories, $grandTotals];
+            return [$sessions, $classes, $classSections, $categories, $grandTotals, $availableCategories, $selectedCategoryKeys];
         }
 
         $students = Student::query()
@@ -184,7 +189,10 @@ class FeeDueReportController extends Controller
                 }
             }
         }
-        $categories = $allCategories->sortBy('name');
+        $availableCategories = $allCategories->sortBy('name')->values();
+        $selectedCategoryKeys = $this->resolveSelectedCategoryKeys($request, $availableCategories);
+        $selectedLookup = array_flip($selectedCategoryKeys);
+        $categories = $availableCategories->filter(fn ($category) => isset($selectedLookup[(string) $category->id]))->values();
 
         // Group students by class+section
         $grouped = $students->groupBy(function ($s) {
@@ -192,7 +200,7 @@ class FeeDueReportController extends Controller
             return ($ai?->school_class_id ?? 0) . '|' . ($ai?->section_id ?? 0);
         });
 
-        $classSections = $grouped->map(function ($sectionStudents) use ($categories) {
+        $classSections = $grouped->map(function ($sectionStudents) use ($categories, $selectedLookup) {
             $ai = $sectionStudents->first()->academicInformations->first();
 
             // Per-category totals for this class+section
@@ -208,9 +216,6 @@ class FeeDueReportController extends Controller
                 foreach ($student->fees as $fee) {
                     $netAmount = (float)$fee->amount - (float)$fee->scholarship_discount;
                     $paidAmount = $fee->paymentItems->sum('amount');
-                    $totalFees += $netAmount;
-                    $totalPaid += $paidAmount;
-
                     // Distribute paid proportionally across categories in this fee set
                     $feeSetItems = $fee->feeSet->items;
                     $feeSetTotal = $feeSetItems->sum('amount');
@@ -218,12 +223,15 @@ class FeeDueReportController extends Controller
                     foreach ($feeSetItems as $item) {
                         if (!$item->category) continue;
                         $catId = $item->category->id;
+                        if (!isset($selectedLookup[(string) $catId])) continue;
                         $catShare = $feeSetTotal > 0 ? ($item->amount / $feeSetTotal) : 0;
                         $catFee = $netAmount * $catShare;
                         $catPaid = $paidAmount * $catShare;
                         $catTotals[$catId]['fees'] += $catFee;
                         $catTotals[$catId]['paid'] += $catPaid;
                         $catTotals[$catId]['due']  += max(0, $catFee - $catPaid);
+                        $totalFees += $catFee;
+                        $totalPaid += $catPaid;
                     }
                 }
             }
@@ -250,6 +258,17 @@ class FeeDueReportController extends Controller
             'due'  => $classSections->sum('due'),
         ];
 
-        return [$sessions, $classes, $classSections, $categories, $grandTotals];
+        return [$sessions, $classes, $classSections, $categories, $grandTotals, $availableCategories, $selectedCategoryKeys];
+    }
+
+    private function resolveSelectedCategoryKeys(Request $request, $availableCategories): array
+    {
+        $validKeys = $availableCategories->pluck('id')->map(fn ($id) => (string) $id)->all();
+        if (!$request->has('columns_present')) return $validKeys;
+
+        return array_values(array_unique(array_filter(array_map(
+            fn ($value) => in_array((string) $value, $validKeys, true) ? (string) $value : null,
+            (array) $request->input('columns', [])
+        ))));
     }
 }

@@ -14,10 +14,10 @@ class StudentDueReportController extends Controller
 {
     public function index(Request $request, StudentDueSummaryService $service)
     {
-        [$sessions, $classes, $sections, $rows, $totals] = $service->build($request);
+        [$sessions, $classes, $sections, $rows, $totals, $availableCategories, $selectedCategoryKeys] = $service->build($request);
 
         return view('pages.student-due-report.index', compact(
-            'sessions', 'classes', 'sections', 'rows', 'totals'
+            'sessions', 'classes', 'sections', 'rows', 'totals', 'availableCategories', 'selectedCategoryKeys'
         ));
     }
 

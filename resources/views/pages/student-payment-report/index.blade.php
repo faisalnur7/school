@@ -756,8 +756,6 @@
                     @endif
 
                     <div class="payment-report-advanced-filters hidden" id="paymentReportAdvancedFilters">
-                        <input type="hidden" name="columns_present" value="1">
-
                         <div class="payment-report-pdf-panel">
                             <div class="payment-report-pdf-header">
                                 <div class="payment-report-pdf-copy">
@@ -794,6 +792,10 @@
 
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
+                        const form = document.querySelector('form[action*="payment-report"]');
+                        if (form) form.addEventListener('submit', function () {
+                            const marker = document.createElement('input'); marker.type = 'hidden'; marker.name = 'columns_present'; marker.value = '1'; form.appendChild(marker);
+                        });
                         const toggleAll = document.getElementById('payment-report-toggle-all');
                         const checks = Array.from(document.querySelectorAll('.payment-report-column-checkbox'));
                         const toggleButton = document.getElementById('payment-report-toggle-filters');

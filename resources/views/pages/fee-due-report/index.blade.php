@@ -231,6 +231,40 @@
             background: #1e293b;
             color: #f8fafc;
         }
+        .fees-report-category-card .form-check-input,
+        .payment-report-pdf-panel .form-check-input {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.05rem;
+            height: 1.05rem;
+            margin-top: 0.1rem;
+            border: 2px solid #111111;
+            border-radius: 50%;
+            background: #ffffff center / 0.72rem 0.72rem no-repeat;
+            box-shadow: none;
+            cursor: pointer;
+            transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+        }
+
+        .fees-report-category-card .form-check-input:checked,
+        .payment-report-pdf-panel .form-check-input:checked {
+            background-color: #111111;
+            border-color: #111111;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M6.2 11.2 2.9 8l-1.1 1.1 4.4 4.4L14.2 5.5 13.1 4.4 6.2 11.2Z' fill='%23ffffff'/%3E%3C/svg%3E");
+        }
+
+        .fees-report-category-card .form-check-input:indeterminate {
+            background-color: #111111;
+            border-color: #111111;
+            background-image: linear-gradient(#ffffff, #ffffff);
+            background-size: .6rem 2px;
+        }
+
+        .fees-report-category-card .form-check-input:focus,
+        .payment-report-pdf-panel .form-check-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(17, 17, 17, .12);
+        }
     </style>
 @endsection
 
@@ -276,6 +310,31 @@
                         @endif
                     </div>
                 </div>
+
+                @if($availableCategories->isNotEmpty())
+                    <div class="fees-report-category-card mt-3 p-3" style="border:1px solid #e5e7eb;border-radius:12px;">
+                        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap" style="gap:.75rem;">
+                            <div>
+                                <p class="mb-0 font-weight-bold">PDF Column Selection</p>
+                                <small class="text-muted">Choose which fee categories should appear in the classwise due report and PDF.</small>
+                            </div>
+                            <div class="form-check mb-0">
+                                <input class="form-check-input due-report-toggle-all" type="checkbox" id="due-report-toggle-all" {{ count($selectedCategoryKeys) === count($availableCategories) ? 'checked' : '' }}>
+                                <label class="form-check-label font-weight-bold" for="due-report-toggle-all">Select all</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            @foreach($availableCategories as $category)
+                                <div class="col-md-3 col-sm-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input due-report-category-checkbox" type="checkbox" name="columns[]" value="{{ $category->id }}" id="due-report-category-{{ $category->id }}" {{ in_array((string) $category->id, $selectedCategoryKeys, true) ? 'checked' : '' }}>
+                                        <label class="form-check-label font-weight-bold" for="due-report-category-{{ $category->id }}">{{ $category->name }}</label>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </form>
         </div>
 
@@ -498,6 +557,25 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     refreshAdvancedPanelState();
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('form[action*="fees/due-report"]');
+    if (form) form.addEventListener('submit', function () {
+        const marker = document.createElement('input'); marker.type = 'hidden'; marker.name = 'columns_present'; marker.value = '1'; form.appendChild(marker);
+    });
+    const toggle = document.getElementById('due-report-toggle-all');
+    const checks = Array.from(document.querySelectorAll('.due-report-category-checkbox'));
+    if (!toggle) return;
+    const sync = () => {
+        toggle.checked = checks.length > 0 && checks.every(check => check.checked);
+        toggle.indeterminate = checks.some(check => check.checked) && !toggle.checked;
+    };
+    toggle.addEventListener('change', () => checks.forEach(check => check.checked = toggle.checked));
+    checks.forEach(check => check.addEventListener('change', sync));
+    sync();
 });
 </script>
 

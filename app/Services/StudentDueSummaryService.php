@@ -8,6 +8,7 @@ use App\Models\Section;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Payment;
+use App\Models\InventoryCategory;
 use Illuminate\Http\Request;
 
 class StudentDueSummaryService
@@ -28,9 +29,11 @@ class StudentDueSummaryService
             'fees' => ['amount' => 0.0, 'paid' => 0.0, 'due' => 0.0],
             'inventory' => ['amount' => 0.0, 'paid' => 0.0, 'due' => 0.0],
         ];
+        $availableCategories = collect();
+        $selectedCategoryKeys = [];
 
         if (!$request->filled('session_id')) {
-            return [$sessions, $classes, $sections, $rows, $totals];
+            return [$sessions, $classes, $sections, $rows, $totals, $availableCategories, $selectedCategoryKeys];
         }
 
         $students = Student::query()
@@ -41,7 +44,7 @@ class StudentDueSummaryService
             'fees' => fn($q) => $q
                     ->whereHas('feeSet', fn($fs) => $fs->where('academic_session_id', $request->session_id))
                     ->where('is_active', 1)
-                    ->with('feeSet'),
+                    ->with('feeSet.items.category'),
         ])
             ->whereHas('academicInformations', fn($q) =>
                 $q->where('academic_session_id', $request->session_id)
@@ -60,20 +63,47 @@ class StudentDueSummaryService
             ->get();
 
         foreach ($students as $student) {
+            foreach ($student->fees as $fee) {
+                foreach ($fee->feeSet?->items ?? [] as $item) {
+                    if ($item->category && $item->category->status) {
+                        $key = 'fee_' . $item->category->id;
+                        $availableCategories->put($key, (object) ['key' => $key, 'name' => $item->category->name]);
+                    }
+                }
+            }
+        }
+        foreach (InventoryCategory::where('is_active', 1)->orderBy('name')->get() as $category) {
+            $key = 'inventory_' . $category->id;
+            $availableCategories->put($key, (object) ['key' => $key, 'name' => $category->name]);
+        }
+        $availableCategories = $availableCategories->sortBy('name')->values();
+        $selectedCategoryKeys = $this->resolveSelectedCategoryKeys($request, $availableCategories);
+        $selectedLookup = array_flip($selectedCategoryKeys);
+
+        foreach ($students as $student) {
             $academicInfo = $student->academicInformations->first();
 
             $feeLines = $student->fees
                 ->groupBy('fee_set_id')
-                ->map(function ($group) {
-                    $amount = $group->sum(fn($f) => (float) $f->amount - (float) $f->scholarship_discount);
-                    $paid   = $group->sum(fn($f) => (float) $f->paid_amount);
-                    return (object)[
-                        'type'        => 'fee',
-                        'description' => $group->first()->feeSet?->name ?? '—',
-                        'amount'      => $amount,
-                        'paid'        => $paid,
-                        'due'         => max(0, $amount - $paid),
-                    ];
+                ->flatMap(function ($group) use ($selectedLookup) {
+                    $feeSet = $group->first()->feeSet;
+                    $items = $feeSet?->items ?? collect();
+                    $setTotal = (float) $items->sum('amount');
+                    if ($setTotal <= 0) return collect();
+                    return $items->filter(fn ($item) => $item->category && $item->category->status && isset($selectedLookup['fee_' . $item->category->id]))
+                        ->map(function ($item) use ($group, $setTotal, $feeSet) {
+                            $share = (float) $item->amount / $setTotal;
+                            $amount = $group->sum(fn($f) => ((float) $f->amount - (float) $f->scholarship_discount) * $share);
+                            $paid = $group->sum(fn($f) => (float) $f->paid_amount * $share);
+                            return (object)[
+                                'type' => 'fee',
+                                'category_key' => 'fee_' . $item->category->id,
+                                'description' => ($feeSet?->name ?? '—') . ' - ' . $item->category->name,
+                                'amount' => $amount,
+                                'paid' => $paid,
+                                'due' => max(0, $amount - $paid),
+                            ];
+                        });
                 })
                 ->filter(fn ($line) => (float) $line->due > 0)
                 ->values();
@@ -97,6 +127,10 @@ class StudentDueSummaryService
                         continue;
                     }
 
+                    $categoryKey = 'inventory_' . $category->id;
+                    $availableCategories->put($categoryKey, (object) ['key' => $categoryKey, 'name' => $category->name]);
+                    if (!isset($selectedLookup[$categoryKey])) continue;
+
                     $amount = (float) $item->subtotal;
                     $paid   = (float) ($item->paid_amount ?? 0);
                     $due    = max(0, $amount - $paid);
@@ -107,6 +141,7 @@ class StudentDueSummaryService
 
                     $inventoryLines->push((object) [
                         'type'        => 'inventory',
+                        'category_key' => $categoryKey,
                         'description' => $category->name . ' - ' . ($inventoryItem->name ?? 'Item'),
                         'amount'      => $amount,
                         'paid'        => $paid,
@@ -152,6 +187,17 @@ class StudentDueSummaryService
         $totals['paid']   = $totals['fees']['paid'] + $totals['inventory']['paid'];
         $totals['due']    = $totals['fees']['due'] + $totals['inventory']['due'];
 
-        return [$sessions, $classes, $sections, $rows, $totals];
+        return [$sessions, $classes, $sections, $rows, $totals, $availableCategories, $selectedCategoryKeys];
+    }
+
+    private function resolveSelectedCategoryKeys(Request $request, $availableCategories): array
+    {
+        $valid = $availableCategories->pluck('key')->values()->all();
+        if (!$request->has('columns_present')) return $valid;
+
+        return array_values(array_unique(array_filter(array_map(
+            fn ($value) => in_array((string) $value, $valid, true) ? (string) $value : null,
+            (array) $request->input('columns', [])
+        ))));
     }
 }

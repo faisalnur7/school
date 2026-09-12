@@ -216,7 +216,6 @@
     <div class="fees-report-shell">
         <div class="fees-report-card fees-report-filter-card">
             <form method="GET" action="{{ route('fees.student-receivable-report') }}" class="fees-report-form">
-                <input type="hidden" name="columns_present" value="1">
                 <div class="fees-report-grid fees-report-grid--primary">
                     <div class="fees-report-field">
                         <label class="font-weight-bold">Student ID</label>
@@ -596,10 +595,45 @@
         color: #111827;
     }
 }
+    .fees-report-category-card .form-check-input {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 1.05rem;
+        height: 1.05rem;
+        margin-top: 0.1rem;
+        border: 2px solid #111111;
+        border-radius: 50%;
+        background: #ffffff center / 0.72rem 0.72rem no-repeat;
+        box-shadow: none;
+        cursor: pointer;
+        transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .fees-report-category-card .form-check-input:checked {
+        background-color: #111111;
+        border-color: #111111;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M6.2 11.2 2.9 8l-1.1 1.1 4.4 4.4L14.2 5.5 13.1 4.4 6.2 11.2Z' fill='%23ffffff'/%3E%3C/svg%3E");
+    }
+
+    .fees-report-category-card .form-check-input:indeterminate {
+        background-color: #111111;
+        border-color: #111111;
+        background-image: linear-gradient(#ffffff, #ffffff);
+        background-size: .6rem 2px;
+    }
+
+    .fees-report-category-card .form-check-input:focus {
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(17, 17, 17, .12);
+    }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('form[action*="student-receivable-report"]');
+    if (form) form.addEventListener('submit', function () {
+        const marker = document.createElement('input'); marker.type = 'hidden'; marker.name = 'columns_present'; marker.value = '1'; form.appendChild(marker);
+    });
     const classSelect = document.getElementById('classSelect');
     const sectionSelect = document.getElementById('sectionSelect');
     const selectedSection = @json(request('section_id'));
