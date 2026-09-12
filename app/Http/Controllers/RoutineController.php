@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClassRoutine;
+use App\Models\ClassSchedule;
 use App\Models\Classroom;
 use App\Models\Employee;
 use App\Models\SchoolClass;
@@ -16,7 +17,7 @@ class RoutineController extends Controller
 {
     public function index(Request $request)
     {
-        $query = ClassRoutine::with(['schoolClass', 'section', 'subject', 'teacher', 'classroom']);
+        $query = ClassRoutine::with(['schoolClass', 'section', 'subject', 'teacher', 'classroom', 'timeSchedule']);
         $days = $this->workingDays();
 
         if ($request->filled('search')) {
@@ -78,6 +79,10 @@ class RoutineController extends Controller
             ->orderBy('name')
             ->get();
         $classrooms = Classroom::orderBy('name_en')->get();
+        $schedules = ClassSchedule::where('kind', 'teaching')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
         $days = $this->workingDays();
 
         return view('pages.routines.create', compact(
@@ -86,6 +91,7 @@ class RoutineController extends Controller
             'subjects',
             'teachers',
             'classrooms',
+            'schedules',
             'days'
         ));
     }
@@ -103,14 +109,14 @@ class RoutineController extends Controller
 
     public function show(int $id)
     {
-        $routine = ClassRoutine::with(['schoolClass', 'section', 'subject', 'teacher', 'classroom'])->findOrFail($id);
+        $routine = ClassRoutine::with(['schoolClass', 'section', 'subject', 'teacher', 'classroom', 'timeSchedule'])->findOrFail($id);
 
         return view('pages.routines.show', compact('routine'));
     }
 
     public function edit(int $id)
     {
-        $routine = ClassRoutine::with(['schoolClass', 'section', 'subject', 'teacher', 'classroom'])->findOrFail($id);
+        $routine = ClassRoutine::with(['schoolClass', 'section', 'subject', 'teacher', 'classroom', 'timeSchedule'])->findOrFail($id);
         $classes = SchoolClass::where('status', 1)->orderBy('name_en')->get();
         $sections = Section::with('schoolClass')->where('status', 1)->orderBy('name_en')->get();
         $subjects = [];
@@ -120,6 +126,10 @@ class RoutineController extends Controller
             ->orderBy('name')
             ->get();
         $classrooms = Classroom::orderBy('name_en')->get();
+        $schedules = ClassSchedule::where('kind', 'teaching')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
         $days = $this->workingDays();
 
         return view('pages.routines.edit', compact(
@@ -129,6 +139,7 @@ class RoutineController extends Controller
             'subjects',
             'teachers',
             'classrooms',
+            'schedules',
             'days'
         ));
     }
@@ -154,7 +165,7 @@ class RoutineController extends Controller
 
     private function validateRoutine(Request $request, ?ClassRoutine $routine = null): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'school_class_id' => ['required', 'exists:school_classes,id'],
             'section_id' => [
                 'required',
@@ -166,9 +177,17 @@ class RoutineController extends Controller
             'teacher_id' => ['nullable', 'exists:employees,id'],
             'classroom_id' => ['nullable', 'exists:classrooms,id'],
             'day' => ['required', 'string', Rule::in($this->workingDays())],
-            'start_time' => ['required', 'date_format:H:i'],
-            'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
+            'time_schedule_id' => [
+                'required',
+                Rule::exists('class_schedules', 'id')->where(fn ($query) => $query->where('kind', 'teaching')->where('is_active', true)),
+            ],
         ]);
+
+        $schedule = ClassSchedule::findOrFail($data['time_schedule_id']);
+        $data['start_time'] = $schedule->start_time;
+        $data['end_time'] = $schedule->end_time;
+
+        return $data;
     }
 
     private function ensureNoScheduleConflict(array $data, ?int $ignoreRoutineId = null): void

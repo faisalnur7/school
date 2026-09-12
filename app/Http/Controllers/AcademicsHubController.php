@@ -14,6 +14,7 @@ class AcademicsHubController extends Controller
             ['icon' => 'fa-book-open',    'title' => __('Subjects'),      'subtitle' => __('Manage subjects & assignments'), 'route' => 'subjects.index', 'permission' => 'view_card_subjects', 'from' => '#dc2626', 'to' => '#b91c1c'],
             ['icon' => 'fa-door-open',    'title' => __('Class Rooms'),   'subtitle' => __('Manage classrooms'),             'route' => 'classrooms.index', 'permission' => 'view_card_class_rooms', 'from' => '#7c3aed', 'to' => '#6d28d9'],
             ['icon' => 'fa-clock',        'title' => __('Class Routine'), 'subtitle' => __('Manage class routines'),         'route' => 'routines.index', 'permission' => 'view_card_class_routine', 'from' => '#0f766e', 'to' => '#0d9488'],
+            ['icon' => 'fa-calendar-alt', 'title' => __('Time Schedule'), 'subtitle' => __('Manage periods and breaks'),       'route' => 'class-schedules.index', 'permission' => 'view_card_class_routine', 'from' => '#be123c', 'to' => '#e11d48'],
         ];
         $cards = array_values(array_filter($cards, fn ($card) => auth()->user()?->hasPermission($card['permission'])));
 

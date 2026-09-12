@@ -5,6 +5,7 @@
     $selectedSubjectId = old('subject_id', $routine?->subject_id);
     $selectedTeacherId = old('teacher_id', $routine?->teacher_id);
     $selectedClassroomId = old('classroom_id', $routine?->classroom_id);
+    $selectedScheduleId = old('time_schedule_id', $routine?->time_schedule_id);
     $selectedDay = old('day', $routine?->day);
 @endphp
 
@@ -88,17 +89,19 @@
         </select>
     </div>
 
-    <div class="col-md-3 mb-3">
-        <label class="font-weight-bold">Start Time <span class="text-danger">*</span></label>
-        <input type="time" name="start_time" id="routine_start_time" class="form-control" value="{{ old('start_time', $routine?->start_time ? \Illuminate\Support\Str::substr($routine->start_time, 0, 5) : '') }}" required>
-    </div>
-
-    <div class="col-md-3 mb-3">
-        <label class="font-weight-bold">End Time <span class="text-danger">*</span></label>
-        <input type="time" name="end_time" id="routine_end_time" class="form-control" value="{{ old('end_time', $routine?->end_time ? \Illuminate\Support\Str::substr($routine->end_time, 0, 5) : '') }}" required>
+    <div class="col-md-6 mb-3">
+        <label class="font-weight-bold">Time Schedule <span class="text-danger">*</span></label>
+        <select name="time_schedule_id" id="routine_time_schedule_id" class="form-control" required>
+            <option value="">Select period</option>
+            @foreach ($schedules as $schedule)
+                <option value="{{ $schedule->id }}" @selected((string) $selectedScheduleId === (string) $schedule->id)>
+                    {{ $schedule->name }} ({{ $schedule->formatted_start_time }} - {{ $schedule->formatted_end_time }})
+                </option>
+            @endforeach
+        </select>
     </div>
 </div>
 
 <div class="alert alert-info mb-0">
-    Select a class first. Sections and subjects will be filtered to that class.
+    Select a class first. Sections and subjects will be filtered to that class. Tiffin, prayer, and assembly slots are not available for class routines.
 </div>

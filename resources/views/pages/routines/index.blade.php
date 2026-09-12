@@ -96,7 +96,7 @@
                                 <td>{{ $routine->teacher?->name ?? '—' }}</td>
                                 <td>{{ $routine->classroom?->name_en ?? '—' }}</td>
                                 <td>{{ $routine->day }}</td>
-                                <td>{{ substr($routine->start_time, 0, 5) }} - {{ substr($routine->end_time, 0, 5) }}</td>
+                                <td>{{ $routine->timeSchedule?->name ?? '—' }}<br><small class="text-muted">{{ substr($routine->start_time, 0, 5) }} - {{ substr($routine->end_time, 0, 5) }}</small></td>
                                 <td class="text-center">
                                     @if(auth()->user()?->hasPermission('view_routines'))
                                         <a href="{{ route('routines.show', $routine->id) }}" class="btn btn-xs btn-info">

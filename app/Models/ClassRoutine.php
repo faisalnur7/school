@@ -13,6 +13,7 @@ class ClassRoutine extends Model
         'subject_id',
         'teacher_id',
         'classroom_id',
+        'time_schedule_id',
         'day',
         'start_time',
         'end_time',
@@ -41,5 +42,10 @@ class ClassRoutine extends Model
     public function classroom(): BelongsTo
     {
         return $this->belongsTo(Classroom::class);
+    }
+
+    public function timeSchedule(): BelongsTo
+    {
+        return $this->belongsTo(ClassSchedule::class, 'time_schedule_id');
     }
 }

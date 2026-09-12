@@ -65,6 +65,7 @@
                     <div class="border rounded p-3 h-100">
                         <div class="text-muted small">Schedule</div>
                         <div class="font-weight-bold">{{ $routine->day }}</div>
+                        <div>{{ $routine->timeSchedule?->name ?? '—' }}</div>
                         <div>{{ substr($routine->start_time, 0, 5) }} - {{ substr($routine->end_time, 0, 5) }}</div>
                     </div>
                 </div>
