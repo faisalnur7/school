@@ -28,6 +28,16 @@
                         <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Search class, section, subject, teacher">
                     </div>
                     <div class="col-md-3 mb-2">
+                        <select name="academic_session_id" class="form-control">
+                            <option value="">All academic sessions</option>
+                            @foreach ($academicSessions as $academicSession)
+                                <option value="{{ $academicSession->id }}" @selected((string) request('academic_session_id') === (string) $academicSession->id)>
+                                    {{ $academicSession->name_en }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
                         <select name="school_class_id" class="form-control">
                             <option value="">All classes</option>
                             @foreach ($classes as $class)
@@ -71,6 +81,7 @@
                     <thead class="thead-dark">
                         <tr>
                             <th>#</th>
+                            <th>Academic session</th>
                             <th>Class</th>
                             <th>Section</th>
                             <th>Subject</th>
@@ -85,6 +96,7 @@
                         @forelse ($routines as $routine)
                             <tr>
                                 <td>{{ $routines->firstItem() + $loop->index }}</td>
+                                <td>{{ $routine->academicSession?->name_en ?? '—' }}</td>
                                 <td>{{ $routine->schoolClass?->name_en ?? '—' }}</td>
                                 <td>{{ $routine->section?->name_en ?? '—' }}</td>
                                 <td>
@@ -121,7 +133,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center text-muted py-4">No routines found.</td>
+                                <td colspan="10" class="text-center text-muted py-4">No routines found.</td>
                             </tr>
                         @endforelse
                     </tbody>

@@ -6,7 +6,16 @@
         <div class="card-header bg-gradient-primary text-white py-3">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div><h4 class="card-title mb-0 font-weight-bold text-white"><i class="fas fa-calendar-alt mr-2"></i>Time Schedule</h4><small class="text-white-50">Manage periods, assembly, tiffin, and prayer times.</small></div>
-                @if(auth()->user()?->hasPermission('create_routines'))<a href="{{ route('class-schedules.create') }}" class="btn btn-light btn-sm"><i class="fas fa-plus mr-1"></i>Add Schedule</a>@endif
+                <div class="d-flex justify-content-end align-items-center flex-wrap gap-2">
+                    <a href="{{ route('academics.hub') }}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-arrow-left mr-1"></i>Back
+                    </a>
+                    @if(auth()->user()?->hasPermission('create_routines'))
+                        <a href="{{ route('class-schedules.create') }}" class="btn btn-light btn-sm">
+                            <i class="fas fa-plus mr-1"></i>Add Schedule
+                        </a>
+                    @endif
+                </div>
             </div>
         </div>
         <div class="card-body">

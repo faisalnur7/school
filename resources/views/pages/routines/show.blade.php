@@ -30,6 +30,12 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <div class="border rounded p-3 h-100">
+                        <div class="text-muted small">Academic session</div>
+                        <div class="font-weight-bold">{{ $routine->academicSession?->name_en ?? '—' }}</div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="border rounded p-3 h-100">
                         <div class="text-muted small">Class</div>
                         <div class="font-weight-bold">{{ $routine->schoolClass?->name_en ?? '—' }}</div>
                     </div>
