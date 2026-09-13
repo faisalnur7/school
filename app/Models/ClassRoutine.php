@@ -8,15 +8,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ClassRoutine extends Model
 {
     protected $fillable = [
+        'academic_session_id',
         'school_class_id',
         'section_id',
         'subject_id',
         'teacher_id',
         'classroom_id',
+        'time_schedule_id',
         'day',
         'start_time',
         'end_time',
     ];
+
+    public function academicSession(): BelongsTo
+    {
+        return $this->belongsTo(AcademicSession::class);
+    }
 
     public function schoolClass(): BelongsTo
     {
@@ -41,5 +48,10 @@ class ClassRoutine extends Model
     public function classroom(): BelongsTo
     {
         return $this->belongsTo(Classroom::class);
+    }
+
+    public function timeSchedule(): BelongsTo
+    {
+        return $this->belongsTo(ClassSchedule::class, 'time_schedule_id');
     }
 }

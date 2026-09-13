@@ -1,0 +1,4 @@
+@extends('layouts.master')
+@section('contents')
+<div class="container-fluid"><div class="card shadow-sm border-0"><div class="card-header bg-gradient-primary text-white py-3"><h4 class="card-title mb-0 text-white"><i class="fas fa-edit mr-2"></i>Edit Time Schedule</h4></div><form method="POST" action="{{ route('class-schedules.update', $schedule->id) }}">@csrf<div class="card-body">@if($errors->any())<div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif @include('pages.class-schedules._form')</div><div class="card-footer d-flex justify-content-between"><a href="{{ route('class-schedules.index') }}" class="btn btn-secondary btn-sm">Cancel</a><button class="btn btn-primary btn-sm"><i class="fas fa-save mr-1"></i>Update</button></div></form></div></div>
+@endsection

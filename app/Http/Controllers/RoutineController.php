@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClassRoutine;
+use App\Models\ClassSchedule;
 use App\Models\Classroom;
+use App\Models\AcademicSession;
 use App\Models\Employee;
 use App\Models\SchoolClass;
 use App\Models\Section;
@@ -16,7 +18,7 @@ class RoutineController extends Controller
 {
     public function index(Request $request)
     {
-        $query = ClassRoutine::with(['schoolClass', 'section', 'subject', 'teacher', 'classroom']);
+        $query = ClassRoutine::with(['academicSession', 'schoolClass', 'section', 'subject', 'teacher', 'classroom', 'timeSchedule']);
         $days = $this->workingDays();
 
         if ($request->filled('search')) {
@@ -49,6 +51,10 @@ class RoutineController extends Controller
             $query->where('section_id', $request->integer('section_id'));
         }
 
+        if ($request->filled('academic_session_id')) {
+            $query->where('academic_session_id', $request->integer('academic_session_id'));
+        }
+
         if ($request->filled('day')) {
             $query->where('day', $request->day);
         }
@@ -61,16 +67,18 @@ class RoutineController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        $classes = SchoolClass::where('status', 1)->orderBy('name_en')->get();
-        $sections = Section::with('schoolClass')->where('status', 1)->orderBy('name_en')->get();
+        $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
+        $sections = Section::with('schoolClass')->orderBy('name_en')->get();
+        $academicSessions = AcademicSession::orderByDesc('id')->get();
 
-        return view('pages.routines.index', compact('routines', 'classes', 'sections', 'days'));
+        return view('pages.routines.index', compact('routines', 'classes', 'sections', 'academicSessions', 'days'));
     }
 
     public function create()
     {
-        $classes = SchoolClass::where('status', 1)->orderBy('name_en')->get();
-        $sections = Section::with('schoolClass')->where('status', 1)->orderBy('name_en')->get();
+        $academicSessions = AcademicSession::where('status', 1)->orderByDesc('id')->get();
+        $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
+        $sections = Section::with('schoolClass')->orderBy('name_en')->get();
         $subjects = [];
         $teachers = Employee::active()
             ->where('employee_type', 'teacher')
@@ -78,14 +86,20 @@ class RoutineController extends Controller
             ->orderBy('name')
             ->get();
         $classrooms = Classroom::orderBy('name_en')->get();
+        $schedules = ClassSchedule::where('kind', 'teaching')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
         $days = $this->workingDays();
 
         return view('pages.routines.create', compact(
             'classes',
             'sections',
+            'academicSessions',
             'subjects',
             'teachers',
             'classrooms',
+            'schedules',
             'days'
         ));
     }
@@ -103,16 +117,17 @@ class RoutineController extends Controller
 
     public function show(int $id)
     {
-        $routine = ClassRoutine::with(['schoolClass', 'section', 'subject', 'teacher', 'classroom'])->findOrFail($id);
+        $routine = ClassRoutine::with(['academicSession', 'schoolClass', 'section', 'subject', 'teacher', 'classroom', 'timeSchedule'])->findOrFail($id);
 
         return view('pages.routines.show', compact('routine'));
     }
 
     public function edit(int $id)
     {
-        $routine = ClassRoutine::with(['schoolClass', 'section', 'subject', 'teacher', 'classroom'])->findOrFail($id);
-        $classes = SchoolClass::where('status', 1)->orderBy('name_en')->get();
-        $sections = Section::with('schoolClass')->where('status', 1)->orderBy('name_en')->get();
+        $routine = ClassRoutine::with(['academicSession', 'schoolClass', 'section', 'subject', 'teacher', 'classroom', 'timeSchedule'])->findOrFail($id);
+        $academicSessions = AcademicSession::where('status', 1)->orderByDesc('id')->get();
+        $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
+        $sections = Section::with('schoolClass')->orderBy('name_en')->get();
         $subjects = [];
         $teachers = Employee::active()
             ->where('employee_type', 'teacher')
@@ -120,15 +135,21 @@ class RoutineController extends Controller
             ->orderBy('name')
             ->get();
         $classrooms = Classroom::orderBy('name_en')->get();
+        $schedules = ClassSchedule::where('kind', 'teaching')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
         $days = $this->workingDays();
 
         return view('pages.routines.edit', compact(
             'routine',
             'classes',
             'sections',
+            'academicSessions',
             'subjects',
             'teachers',
             'classrooms',
+            'schedules',
             'days'
         ));
     }
@@ -154,7 +175,8 @@ class RoutineController extends Controller
 
     private function validateRoutine(Request $request, ?ClassRoutine $routine = null): array
     {
-        return $request->validate([
+        $data = $request->validate([
+            'academic_session_id' => ['required', 'exists:academic_sessions,id'],
             'school_class_id' => ['required', 'exists:school_classes,id'],
             'section_id' => [
                 'required',
@@ -162,18 +184,34 @@ class RoutineController extends Controller
                     $query->where('school_class_id', $request->integer('school_class_id'));
                 }),
             ],
-            'subject_id' => ['required', 'exists:subjects,id'],
+            'subject_id' => [
+                'required',
+                Rule::exists('subject_class_assignments', 'subject_id')->where(function ($query) use ($request) {
+                    $query->where('school_class_id', $request->integer('school_class_id'))
+                        ->where('is_active', true);
+                }),
+            ],
             'teacher_id' => ['nullable', 'exists:employees,id'],
             'classroom_id' => ['nullable', 'exists:classrooms,id'],
             'day' => ['required', 'string', Rule::in($this->workingDays())],
-            'start_time' => ['required', 'date_format:H:i'],
-            'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
+            'time_schedule_id' => [
+                'required',
+                Rule::exists('class_schedules', 'id')->where(fn ($query) => $query->where('kind', 'teaching')->where('is_active', true)),
+            ],
         ]);
+
+        $schedule = ClassSchedule::findOrFail($data['time_schedule_id']);
+        $data['start_time'] = $schedule->start_time;
+        $data['end_time'] = $schedule->end_time;
+
+        return $data;
     }
 
     private function ensureNoScheduleConflict(array $data, ?int $ignoreRoutineId = null): void
     {
-        $baseQuery = ClassRoutine::query()->where('day', $data['day']);
+        $baseQuery = ClassRoutine::query()
+            ->where('academic_session_id', $data['academic_session_id'])
+            ->where('day', $data['day']);
 
         if ($ignoreRoutineId) {
             $baseQuery->where('id', '<>', $ignoreRoutineId);

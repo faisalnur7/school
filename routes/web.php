@@ -22,6 +22,7 @@ use App\Http\Controllers\{
     AcademicSessionController,
     SubjectController,
     RoutineController,
+    ClassScheduleController,
     ClassroomController,
     LessonController,
     TopicController,
@@ -337,8 +338,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:view_subjects')->prefix('subjects')->group(function () {
         Route::get('/', [SubjectController::class, 'index'])->name('subjects.index');
         Route::get('/classwise', [SubjectController::class, 'indexClasswise'])->name('subjects.classwise');
-        Route::get('/{subject}', [SubjectController::class, 'show'])->name('subjects.show');
         Route::get('/by-class', [SubjectController::class, 'getSubjectsByClass'])->name('subjects.by-class');
+        Route::get('/{subject}', [SubjectController::class, 'show'])->name('subjects.show');
     });
 
     Route::middleware('permission:create_subjects')->prefix('subjects')->group(function () {
@@ -358,23 +359,41 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('/{subject}', [SubjectController::class, 'destroy'])->name('subjects.delete');
     });
 
-    Route::middleware('permission:view_routines')->prefix('routines')->group(function () {
-        Route::get('/', [RoutineController::class, 'index'])->name('routines.index');
-        Route::get('/{id}', [RoutineController::class, 'show'])->name('routines.show');
-    });
-
     Route::middleware('permission:create_routines')->prefix('routines')->group(function () {
         Route::get('/create', [RoutineController::class, 'create'])->name('routines.create');
         Route::post('/store', [RoutineController::class, 'store'])->name('routines.store');
     });
 
+    Route::middleware('permission:view_routines')->prefix('routines')->group(function () {
+        Route::get('/', [RoutineController::class, 'index'])->name('routines.index');
+        Route::get('/{id}', [RoutineController::class, 'show'])->whereNumber('id')->name('routines.show');
+    });
+
     Route::middleware('permission:edit_routines')->prefix('routines')->group(function () {
-        Route::get('/{id}/edit', [RoutineController::class, 'edit'])->name('routines.edit');
-        Route::post('/{id}/update', [RoutineController::class, 'update'])->name('routines.update');
+        Route::get('/{id}/edit', [RoutineController::class, 'edit'])->whereNumber('id')->name('routines.edit');
+        Route::post('/{id}/update', [RoutineController::class, 'update'])->whereNumber('id')->name('routines.update');
     });
 
     Route::middleware('permission:delete_routines')->prefix('routines')->group(function () {
-        Route::delete('/{id}/delete', [RoutineController::class, 'destroy'])->name('routines.delete');
+        Route::delete('/{id}/delete', [RoutineController::class, 'destroy'])->whereNumber('id')->name('routines.delete');
+    });
+
+    Route::middleware('permission:view_routines')->prefix('class-schedules')->group(function () {
+        Route::get('/', [ClassScheduleController::class, 'index'])->name('class-schedules.index');
+    });
+
+    Route::middleware('permission:create_routines')->prefix('class-schedules')->group(function () {
+        Route::get('/create', [ClassScheduleController::class, 'create'])->name('class-schedules.create');
+        Route::post('/store', [ClassScheduleController::class, 'store'])->name('class-schedules.store');
+    });
+
+    Route::middleware('permission:edit_routines')->prefix('class-schedules')->group(function () {
+        Route::get('/{id}/edit', [ClassScheduleController::class, 'edit'])->whereNumber('id')->name('class-schedules.edit');
+        Route::post('/{id}/update', [ClassScheduleController::class, 'update'])->whereNumber('id')->name('class-schedules.update');
+    });
+
+    Route::middleware('permission:delete_routines')->prefix('class-schedules')->group(function () {
+        Route::delete('/{id}/delete', [ClassScheduleController::class, 'destroy'])->whereNumber('id')->name('class-schedules.delete');
     });
 
     Route::middleware('permission:view_classrooms')->prefix('classrooms')->group(function () {

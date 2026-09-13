@@ -643,6 +643,18 @@
         .marks-entry-page .marks-entry-table .form-control { height: 34px; padding: 4px 6px; border-radius: 7px; }
         .marks-entry-page .student-wise-table .overall-total-display { font-weight: 800; }
         .marks-entry-page .table-responsive { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+        .marks-entry-page .marks-table-scroll {
+            max-height: 60vh;
+            overflow: auto;
+        }
+        .marks-entry-page .marks-entry-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 4;
+        }
+        .marks-entry-page .marks-entry-table thead th {
+            background-color: #343a40;
+        }
         .marks-entry-page .marks-table-scroll,
         .marks-entry-page .marks-table-scrollbar-top { cursor: grab; touch-action: pan-y; }
         .marks-entry-page .marks-table-scroll.is-grabbing,

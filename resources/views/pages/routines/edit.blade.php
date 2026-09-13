@@ -66,13 +66,18 @@
             }
             sectionSelect.appendChild(option);
         });
+        if (window.jQuery && $(sectionSelect).hasClass('select2-hidden-accessible')) {
+            $(sectionSelect).trigger('change.select2');
+        }
     }
 
     function fillSubjects(items, selectedId) {
         resetOptions(subjectSelect, 'Select subject');
+        const subjectIds = new Set();
         items.forEach((item) => {
             const subject = item.subject || item;
-            if (!subject) return;
+            if (!subject || subjectIds.has(String(subject.id))) return;
+            subjectIds.add(String(subject.id));
 
             const option = document.createElement('option');
             option.value = subject.id;
@@ -82,46 +87,56 @@
             }
             subjectSelect.appendChild(option);
         });
+        if (window.jQuery && $(subjectSelect).hasClass('select2-hidden-accessible')) {
+            $(subjectSelect).trigger('change.select2');
+        }
     }
 
-    async function loadClassData(classId, selectedSectionId = null, selectedSubjectId = null) {
+    function loadSections(classId, selectedSectionId = null) {
         if (!classId) {
             resetOptions(sectionSelect, 'Select section');
             resetOptions(subjectSelect, 'Select subject');
             return;
         }
 
-        const sectionsUrl = sectionSelect.dataset.sectionsUrl + '?class_id=' + encodeURIComponent(classId);
-        const subjectsUrl = subjectSelect.dataset.subjectsUrl + '?class_id=' + encodeURIComponent(classId);
+        sectionSelect.innerHTML = '<option value="">Loading...</option>';
+        if (window.jQuery && $(sectionSelect).hasClass('select2-hidden-accessible')) {
+            $(sectionSelect).trigger('change.select2');
+        }
 
-        const [sectionsResponse, subjectsResponse] = await Promise.all([
-            fetch(sectionsUrl),
-            fetch(subjectsUrl)
-        ]);
-
-        const sections = await sectionsResponse.json();
-        const subjects = await subjectsResponse.json();
-
-        fillSections(sections, selectedSectionId);
-        fillSubjects(subjects, selectedSubjectId);
+        return fetch(`{{ route('load_section_groups') }}?school_class_id=${encodeURIComponent(classId)}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Unable to load sections.');
+                return response.json();
+            })
+            .then(data => fillSections(Array.isArray(data?.sections) ? data.sections : [], selectedSectionId))
+            .catch(() => fillSections([], selectedSectionId));
     }
 
-    classSelect.addEventListener('change', function () {
-        loadClassData(this.value);
+    async function loadSubjects(classId, selectedSubjectId = null) {
+        resetOptions(subjectSelect, 'Select subject');
+        if (!classId || !sectionSelect.value) return;
+
+        const subjectsUrl = subjectSelect.dataset.subjectsUrl + '?class_id=' + encodeURIComponent(classId);
+        const response = await fetch(subjectsUrl);
+        if (!response.ok) throw new Error('Unable to load subjects.');
+        fillSubjects(await response.json(), selectedSubjectId);
+    }
+
+    $(document).on('change', '#routine_class_id', function () {
+        loadSections(this.value);
     });
 
-    sectionSelect.addEventListener('change', function () {
+    $(document).on('change', '#routine_section_id', function () {
         if (classSelect.value) {
-            loadClassData(classSelect.value, this.value, subjectSelect.value);
+            loadSubjects(classSelect.value).catch(console.error);
         }
     });
 
     if (classSelect.value) {
-        loadClassData(
-            classSelect.value,
-            @json(old('section_id', $routine->section_id)),
-            @json(old('subject_id', $routine->subject_id))
-        );
+        loadSections(classSelect.value, @json(old('section_id', $routine->section_id)))
+            .then(() => loadSubjects(classSelect.value, @json(old('subject_id', $routine->subject_id))))
+            .catch(console.error);
     }
 })();
 </script>
