@@ -4,6 +4,17 @@
 @include('layouts.partials._head')
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
+    <script>
+        (function () {
+            try {
+                if (window.innerWidth >= 992 && window.localStorage.getItem('school-sidebar-collapsed') === '1') {
+                    document.body.classList.add('sidebar-collapse');
+                }
+            } catch (error) {
+                // Keep the default expanded state when storage is unavailable.
+            }
+        })();
+    </script>
     <div class="wrapper">
         @include('layouts.partials._top-nav')
         @include('layouts.partials._side-nav')
@@ -12,6 +23,9 @@
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
             @include('layouts.partials._header')
+            @auth
+                @include('components.hub-switcher')
+            @endauth
             @if (!empty($hubRoute) && !empty($routeName ?? null) && ($routeName ?? null) !== $hubRoute)
                 <div class="container-fluid px-3 pt-2">
                     <div class="d-flex justify-content-end">
@@ -127,8 +141,35 @@
             function closeSidebar() {
                 sidebar.removeClass('mobile-open');
                 overlay.removeClass('active');
-                $('body').removeClass('sidebar-open sidebar-collapse');
+                $('body').removeClass('sidebar-open');
                 $('#sidebar-overlay').remove();
+            }
+
+            function applyDesktopSidebarState() {
+                if ($(window).width() < 992) {
+                    return;
+                }
+
+                var isCollapsed = false;
+                try {
+                    isCollapsed = window.localStorage.getItem('school-sidebar-collapsed') === '1';
+                } catch (error) {
+                    // Keep the default expanded state when storage is unavailable.
+                }
+
+                $('body').toggleClass('sidebar-collapse', isCollapsed);
+            }
+
+            function rememberDesktopSidebarState() {
+                if ($(window).width() < 992) {
+                    return;
+                }
+
+                try {
+                    window.localStorage.setItem('school-sidebar-collapsed', $('body').hasClass('sidebar-collapse') ? '1' : '0');
+                } catch (error) {
+                    // Sidebar navigation continues to work when storage is unavailable.
+                }
             }
 
             function openSidebar() {
@@ -141,6 +182,7 @@
             // Ensure sidebar starts in correct state based on screen size
             if ($(window).width() >= 992) {
                 closeSidebar();
+                applyDesktopSidebarState();
             }
             
             // Mobile sidebar toggle
@@ -164,7 +206,11 @@
                     toggleSidebar();
                     return false;
                 }
+
+                window.setTimeout(rememberDesktopSidebarState, 80);
             });
+
+            $(document).on('collapsed.lte.pushmenu expanded.lte.pushmenu', rememberDesktopSidebarState);
             
             // Close sidebar when overlay is clicked
             $(document).on('click', '#sidebarOverlay', function(e) {
@@ -187,6 +233,7 @@
             $(window).on('resize', function() {
                 if ($(window).width() >= 992) {
                     closeSidebar();
+                    applyDesktopSidebarState();
                 }
             }).trigger('resize'); // Trigger on load to set initial state
 
