@@ -112,15 +112,10 @@
                     <input type="hidden" name="entry_mode" value="student">
                     <div class="d-flex flex-wrap align-items-center">
                         <strong class="mr-3">Column control:</strong>
-                                <label class="mb-0 mr-4">
+                        <label class="mb-0 mr-4">
                             <input type="hidden" name="show_absent" value="0">
                             <input type="checkbox" name="show_absent" value="1" {{ $showAbsent ? 'checked' : '' }} onchange="this.form.submit()">
                             Show Absent columns
-                        </label>
-                        <label class="mb-0 mr-4">
-                            <input type="hidden" name="show_subject_total" value="0">
-                            <input type="checkbox" name="show_subject_total" value="1" {{ $showSubjectTotal ? 'checked' : '' }} onchange="this.form.submit()">
-                            Show Subject Total columns
                         </label>
                     </div>
                 </form>
@@ -251,7 +246,7 @@
 
                                 return ['subject' => $studentWiseSubject, 'config' => $config, 'components' => $components];
                             });
-                            $studentWiseColumnCount = $studentWiseColumns->sum(fn ($column) => count($column['components']) + ($showSubjectTotal ? 1 : 0) + ($showAbsent ? 1 : 0));
+                            $studentWiseColumnCount = $studentWiseColumns->sum(fn ($column) => count($column['components']) + ($showAbsent ? 1 : 0));
                         @endphp
                         <div class="card student-wise-card marks-workspace-card">
                             <div class="card-header d-flex justify-content-between align-items-center">
@@ -301,7 +296,7 @@
                                                     <th rowspan="{{ $isTutorial ? 1 : 2 }}" class="text-center sticky-col" style="width:90px; min-width:90px;">Roll</th>
                                                     <th rowspan="{{ $isTutorial ? 1 : 2 }}" class="sticky-col student-name-col">Student Name</th>
                                                     @foreach ($studentWiseColumns as $column)
-                                                        <th colspan="{{ count($column['components']) + ($showSubjectTotal ? 1 : 0) + ($showAbsent ? 1 : 0) }}" class="text-center subject-group-header">
+                                                        <th colspan="{{ count($column['components']) + ($showAbsent ? 1 : 0) }}" class="text-center subject-group-header">
                                                             {!! preg_replace('/\s+/', '<br>', e($column['subject']->name)) !!}
                                                             @if ($isTutorial)
                                                                 <small class="subject-mode-label">({{ number_format($column['components'][0]['max'], 0) }})</small>
@@ -319,9 +314,6 @@
                                                         @foreach ($column['components'] as $component)
                                                             <th class="text-center component-header" style="min-width:85px;">{{ $isTutorial ? 'Marks' : $component['label'] }}<br><small class="mark-full-label">{{ $component['max'] }}</small></th>
                                                         @endforeach
-                                                        @if ($showSubjectTotal)
-                                                            <th class="text-center" style="min-width:75px;">Subject<br>Total</th>
-                                                        @endif
                                                         @if ($showAbsent)
                                                             <th class="text-center" style="min-width:60px;">Absent<br><input type="checkbox" class="subject-present-all" data-subject-id="{{ $column['subject']->id }}" checked aria-label="Mark all students present for {{ $column['subject']->name }}"></th>
                                                         @endif
@@ -353,11 +345,6 @@
                                                                     <input type="number" name="marks[{{ $student->id }}][{{ $studentWiseSubject->id }}][{{ $component['field'] }}]" class="form-control form-control-sm text-center mark-input student-component-input" value="{{ $eligible && $mark?->{$component['field']} !== null ? number_format((float) $mark->{$component['field']}, 1) : '' }}" min="0" max="{{ $component['max'] }}" step="0.5" {{ (!$eligible || $isAbsent) ? 'disabled' : '' }}>
                                                                 </td>
                                                             @endforeach
-                                                            @if ($showSubjectTotal)
-                                                                <td class="text-center px-1 {{ $eligible ? '' : 'table-light' }} student-subject-group" data-subject-id="{{ $studentWiseSubject->id }}">
-                                                                    <strong class="subject-total-display text-success">{{ $eligible && $mark && ! $isAbsent ? number_format($mark->total, 1) : ($isAbsent ? 'AB' : '—') }}</strong>
-                                                                </td>
-                                                            @endif
                                                             @if ($showAbsent)
                                                                 <td class="text-center px-1 {{ $eligible ? '' : 'table-light' }} student-subject-group" data-subject-id="{{ $studentWiseSubject->id }}">
                                                                     <input type="checkbox" name="marks[{{ $student->id }}][{{ $studentWiseSubject->id }}][is_present]" class="student-present-checkbox" data-subject-id="{{ $studentWiseSubject->id }}" value="1" {{ !$isAbsent ? 'checked' : '' }} {{ !$eligible ? 'disabled' : '' }}>
@@ -376,7 +363,7 @@
                                                         <td class="text-center"><strong class="overall-total-display text-success">—</strong></td>
                                                     </tr>
                                                 @empty
-                                                    <tr><td colspan="{{ $studentWiseColumnCount + ($showAbsent ? 3 : 2) }}" class="text-center text-muted py-4">No students found for this cohort.</td></tr>
+                                                    <tr><td colspan="{{ $studentWiseColumnCount + ($showAbsent ? 2 : 1) }}" class="text-center text-muted py-4">No students found for this cohort.</td></tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
@@ -887,6 +874,214 @@
             border-radius: 6px;
             font-size: 13px;
         }
+
+        /* Keep the marks workspace readable when the global theme is dark. */
+        html[data-theme='dark'] .marks-entry-page {
+            color: #e2e8f0;
+        }
+        html[data-theme='dark'] .marks-entry-page .card {
+            border-color: #263449;
+            background: #111827;
+            box-shadow: 0 8px 24px rgba(2, 6, 23, .28);
+        }
+        html[data-theme='dark'] .marks-entry-page .card-header,
+        html[data-theme='dark'] .marks-entry-page .card-footer {
+            background: #111827;
+            border-color: #263449;
+        }
+        html[data-theme='dark'] .marks-entry-page .marks-entry-hero {
+            background: linear-gradient(135deg, #172554 0%, #111827 52%, #052e25 100%);
+        }
+        html[data-theme='dark'] .marks-entry-page .marks-entry-hero > .card-header {
+            border-bottom-color: rgba(148, 163, 184, .2);
+        }
+        html[data-theme='dark'] .marks-entry-page .text-dark,
+        html[data-theme='dark'] .marks-entry-page .marks-entry-title,
+        html[data-theme='dark'] .marks-entry-page .marks-workspace-card > .card-header strong,
+        html[data-theme='dark'] .marks-entry-page .subject-mode-label {
+            color: #f8fafc !important;
+        }
+        html[data-theme='dark'] .marks-entry-page .text-muted,
+        html[data-theme='dark'] .marks-entry-page .marks-entry-meta,
+        html[data-theme='dark'] .marks-entry-page .mark-full-label {
+            color: #94a3b8 !important;
+        }
+        html[data-theme='dark'] .marks-entry-page .marks-entry-hero label,
+        html[data-theme='dark'] .marks-entry-page .column-control-card strong {
+            color: #cbd5e1;
+        }
+        html[data-theme='dark'] .marks-entry-page .cohort-panel,
+        html[data-theme='dark'] .marks-entry-page .column-control-card,
+        html[data-theme='dark'] .marks-entry-page .marks-view-switcher {
+            border-color: #334155 !important;
+            background: #0f172a !important;
+        }
+        html[data-theme='dark'] .marks-entry-page .column-control-card {
+            box-shadow: 0 4px 14px rgba(2, 6, 23, .2);
+        }
+        html[data-theme='dark'] .marks-entry-page .column-control-card label {
+            border-color: #334155;
+            background: #1e293b;
+            color: #cbd5e1;
+        }
+        html[data-theme='dark'] .marks-entry-page .marks-view-switcher .btn-outline-primary {
+            color: #cbd5e1;
+        }
+        html[data-theme='dark'] .marks-entry-page .marks-workspace-card > .card-header {
+            background: linear-gradient(90deg, #111827, #172554);
+        }
+        html[data-theme='dark'] .marks-entry-page .marks-workspace-card > .card-header .badge {
+            border-color: #1d4ed8;
+            color: #bfdbfe;
+            background: #172554;
+        }
+        html[data-theme='dark'] .marks-entry-page .student-wise-table,
+        html[data-theme='dark'] .marks-entry-page .marks-entry-table,
+        html[data-theme='dark'] .marks-entry-page .student-wise-table td,
+        html[data-theme='dark'] .marks-entry-page .student-wise-table th,
+        html[data-theme='dark'] .marks-entry-page .marks-entry-table td,
+        html[data-theme='dark'] .marks-entry-page .marks-entry-table th {
+            border-color: #334155 !important;
+        }
+        html[data-theme='dark'] .marks-entry-page .student-wise-table tbody td,
+        html[data-theme='dark'] .marks-entry-page .marks-entry-table tbody td {
+            background: #111827;
+            color: #cbd5e1;
+        }
+        html[data-theme='dark'] .marks-entry-page .student-wise-table thead th {
+            background: #1e293b;
+            color: #cbd5e1;
+        }
+        html[data-theme='dark'] .marks-entry-page .student-wise-table thead .sticky-col {
+            background: #1e293b;
+        }
+        html[data-theme='dark'] .marks-entry-page .student-wise-table tbody tr:hover,
+        html[data-theme='dark'] .marks-entry-page .marks-entry-table tbody tr:hover,
+        html[data-theme='dark'] .marks-entry-page .marks-entry-table .table-light {
+            background: #1e293b !important;
+        }
+        html[data-theme='dark'] .marks-entry-page .student-wise-table .sticky-col,
+        html[data-theme='dark'] .marks-entry-page .student-wise-table tbody .sticky-col {
+            background: #111827;
+        }
+        html[data-theme='dark'] .marks-entry-page .student-wise-table tbody tr:hover .sticky-col {
+            background: #1e293b;
+        }
+        html[data-theme='dark'] .marks-entry-page .student-wise-table .component-header {
+            background: #1e3a8a;
+            color: #dbeafe;
+            border-color: #38549b;
+        }
+        html[data-theme='dark'] .marks-entry-page .form-control,
+        html[data-theme='dark'] .marks-entry-page select,
+        html[data-theme='dark'] .marks-entry-page textarea,
+        html[data-theme='dark'] .marks-entry-page input:not([type='checkbox']):not([type='hidden']) {
+            border-color: #475569;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        html[data-theme='dark'] .marks-entry-page .student-wise-table .mark-input,
+        html[data-theme='dark'] .marks-entry-page .marks-entry-table .mark-input,
+        html[data-theme='dark'] .marks-entry-page .csv-preview-table .form-control {
+            border-color: #475569;
+            background: #0f172a;
+            color: #f8fafc;
+        }
+        html[data-theme='dark'] .marks-entry-page .mark-input::placeholder {
+            color: #64748b;
+        }
+        html[data-theme='dark'] .marks-entry-page .student-wise-footer {
+            background: rgba(15, 23, 42, .97);
+            border-color: #334155;
+            box-shadow: 0 -5px 14px rgba(2, 6, 23, .35);
+        }
+        html[data-theme='dark'] .marks-entry-page .marks-table-scrollbar-top {
+            border-bottom-color: #334155;
+            background: #0f172a;
+            scrollbar-color: #64748b #1e293b;
+        }
+        html[data-theme='dark'] .marks-entry-page .marks-table-scrollbar-top::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        html[data-theme='dark'] .marks-entry-page .marks-table-scrollbar-top::-webkit-scrollbar-thumb {
+            background: #64748b;
+            border-color: #1e293b;
+        }
+        html[data-theme='dark'] .marks-entry-page .csv-import-preview > .card-header {
+            background: linear-gradient(90deg, #422006, #1c1917);
+        }
+        html[data-theme='dark'] .marks-entry-page .csv-import-preview .csv-preview-table th {
+            color: #cbd5e1;
+            background: #1e293b;
+            box-shadow: 0 1px 0 #334155;
+        }
+        html[data-theme='dark'] .marks-entry-page .csv-import-preview .csv-preview-table td,
+        html[data-theme='dark'] .marks-entry-page .csv-import-preview .csv-preview-table td small {
+            color: #cbd5e1;
+        }
+
+        /* Force the two theme markers used by the layouts to win the table cascade. */
+        html[data-theme='dark'] .marks-entry-page .student-wise-table thead th,
+        html[data-theme='dark'] .marks-entry-page .student-wise-table thead .sticky-col,
+        html.dark .marks-entry-page .student-wise-table thead th,
+        html.dark .marks-entry-page .student-wise-table thead .sticky-col {
+            background: #1e293b !important;
+            color: #cbd5e1 !important;
+        }
+        html[data-theme='dark'] .marks-entry-page .student-wise-table .subject-group-header,
+        html.dark .marks-entry-page .student-wise-table .subject-group-header {
+            background: linear-gradient(135deg, #172554, #1e40af) !important;
+            color: #fff !important;
+        }
+        html[data-theme='dark'] .marks-entry-page .student-wise-table .component-header,
+        html.dark .marks-entry-page .student-wise-table .component-header {
+            background: #1e3a8a !important;
+            color: #dbeafe !important;
+        }
+        html[data-theme='dark'] .marks-entry-page .autosave-switch,
+        html[data-theme='dark'] .marks-entry-page .autosave-status,
+        html[data-theme='dark'] .marks-entry-page .autosave-status.text-muted,
+        html[data-theme='dark'] .marks-entry-page .marks-workspace-card > .card-header small.text-muted,
+        html.dark .marks-entry-page .autosave-switch,
+        html.dark .marks-entry-page .autosave-status,
+        html.dark .marks-entry-page .autosave-status.text-muted,
+        html.dark .marks-entry-page .marks-workspace-card > .card-header small.text-muted {
+            color: #cbd5e1 !important;
+        }
+        html[data-theme='dark'] .marks-entry-page .autosave-status.is-saving { color: #60a5fa !important; }
+        html[data-theme='dark'] .marks-entry-page .autosave-status.is-saved { color: #4ade80 !important; }
+        html[data-theme='dark'] .marks-entry-page .autosave-status.is-error { color: #f87171 !important; }
+        html.dark .marks-entry-page .autosave-status.is-saving { color: #60a5fa !important; }
+        html.dark .marks-entry-page .autosave-status.is-saved { color: #4ade80 !important; }
+        html.dark .marks-entry-page .autosave-status.is-error { color: #f87171 !important; }
+        html[data-theme='dark'] .marks-entry-page .autosave-switch span,
+        html.dark .marks-entry-page .autosave-switch span {
+            color: #e2e8f0 !important;
+        }
+        html[data-theme='dark'] .marks-entry-page .autosave-status,
+        html.dark .marks-entry-page .autosave-status {
+            color: #cbd5e1 !important;
+        }
+        html[data-theme='dark'] .marks-entry-page .autosave-status.is-saving,
+        html.dark .marks-entry-page .autosave-status.is-saving { color: #60a5fa !important; }
+        html[data-theme='dark'] .marks-entry-page .autosave-status.is-saved,
+        html.dark .marks-entry-page .autosave-status.is-saved { color: #4ade80 !important; }
+        html[data-theme='dark'] .marks-entry-page .autosave-status.is-error,
+        html.dark .marks-entry-page .autosave-status.is-error { color: #f87171 !important; }
+        html[data-theme='dark'] .content-wrapper .marks-entry-page .card .card-header .autosave-switch span,
+        html.dark .content-wrapper .marks-entry-page .card .card-header .autosave-switch span {
+            color: #e2e8f0 !important;
+        }
+        html[data-theme='dark'] .content-wrapper .marks-entry-page .card .card-header .autosave-status,
+        html.dark .content-wrapper .marks-entry-page .card .card-header .autosave-status {
+            color: #cbd5e1 !important;
+        }
+        html[data-theme='dark'] .content-wrapper .marks-entry-page .card .card-header .autosave-status.is-saving,
+        html.dark .content-wrapper .marks-entry-page .card .card-header .autosave-status.is-saving { color: #60a5fa !important; }
+        html[data-theme='dark'] .content-wrapper .marks-entry-page .card .card-header .autosave-status.is-saved,
+        html.dark .content-wrapper .marks-entry-page .card .card-header .autosave-status.is-saved { color: #4ade80 !important; }
+        html[data-theme='dark'] .content-wrapper .marks-entry-page .card .card-header .autosave-status.is-error,
+        html.dark .content-wrapper .marks-entry-page .card .card-header .autosave-status.is-error { color: #f87171 !important; }
         @media (max-width: 992px) {
             .marks-entry-page .student-wise-card > .card-header,
             .marks-entry-page .card-header > .d-flex { align-items: flex-start !important; flex-wrap: wrap; gap: 6px; }
@@ -962,12 +1157,10 @@
                     const input = cell.querySelector('.mark-input');
                     return sum + (input && !input.disabled ? (parseFloat(input.value) || 0) : 0);
                 }, 0);
-                const totalEl = cells.find(cell => cell.querySelector('.subject-total-display'))?.querySelector('.subject-total-display');
                 const absent = cells.some(cell => {
                     const presence = cell.querySelector('.student-present-checkbox');
                     return presence && !presence.checked;
                 });
-                if (totalEl) totalEl.textContent = absent ? 'AB' : (total > 0 ? total.toFixed(1) : '—');
                 if (!absent) overall += total;
             });
 

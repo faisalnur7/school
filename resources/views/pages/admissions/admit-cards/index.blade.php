@@ -29,6 +29,43 @@
 
 <style>
     .admit-cards-page { color:#172033; }.page-hero { align-items:center; background:linear-gradient(120deg,#102c46,#175e69); border-radius:15px; box-shadow:0 10px 24px rgba(16,44,70,.14); color:#fff; display:flex; justify-content:space-between; min-height:145px; overflow:hidden; padding:28px 32px; position:relative; }.page-hero:after { border:1px solid rgba(255,255,255,.14); border-radius:50%; content:''; height:250px; position:absolute; right:-55px; top:-140px; width:250px; }.page-hero > div { position:relative; z-index:1; }.eyebrow { color:#a7f3d0; font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; }.page-hero h1 { font-size:29px; margin:9px 0 5px; }.page-hero p { color:rgba(255,255,255,.75); font-size:13px; margin:0; }.hero-count { border-left:1px solid rgba(255,255,255,.25); padding-left:28px; text-align:right; }.hero-count strong { display:block; font-size:31px; line-height:1; }.hero-count span { color:rgba(255,255,255,.7); font-size:11px; }.filter-panel,.list-panel { background:#fff; border:1px solid #e5ebf2; border-radius:14px; box-shadow:0 4px 13px rgba(30,41,59,.05); }.filter-panel { padding:20px; }.filter-title,.list-heading { align-items:flex-start; display:flex; justify-content:space-between; margin-bottom:18px; }.filter-title h4,.list-heading h4 { font-size:16px; font-weight:700; margin:0; }.filter-title p,.list-heading p { color:#8492a6; font-size:11px; margin:4px 0 0; }.filter-title > i { color:#b7c4d3; font-size:17px; }.filter-panel label { color:#526174; font-size:11px; font-weight:600; margin-bottom:6px; }.filter-panel .form-control { border-color:#d9e2ec; border-radius:7px; font-size:12px; height:40px; }.list-heading { border-bottom:1px solid #edf1f5; margin:0; padding:18px 20px 15px; }.result-count { background:#f1f5f9; border-radius:20px; color:#64748b; font-size:10px; padding:6px 10px; }.applicant-table thead th { background:#f8fafc; border-bottom:1px solid #e8edf3; color:#718096; font-size:10px; letter-spacing:.3px; padding:12px 20px; text-transform:uppercase; white-space:nowrap; }.applicant-table tbody td { border-top:1px solid #f0f3f6; color:#526174; font-size:12px; padding:14px 20px; vertical-align:middle; }.applicant-cell { align-items:center; display:flex; }.applicant-avatar { align-items:center; background:#e8f7f5; border-radius:9px; color:#0f766e; display:inline-flex; font-size:12px; font-weight:700; height:34px; justify-content:center; margin-right:10px; width:34px; }.applicant-table td strong { color:#26364a; display:block; font-weight:600; }.applicant-table td small { color:#94a3b8; display:block; font-size:10px; margin-top:3px; }.class-badge,.status-badge { border-radius:15px; display:inline-block; font-size:10px; padding:5px 9px; }.class-badge { background:#eef5ff; color:#2563eb; }.status-ready { background:#eaf8ef; color:#16803c; }.status-pending { background:#fff7e5; color:#b45309; }.empty-state { color:#94a3b8 !important; padding:55px 20px !important; text-align:center; }.empty-state i,.empty-state strong,.empty-state span { display:block; }.empty-state i { color:#cbd5e1; font-size:30px; margin-bottom:12px; }.empty-state strong { color:#526174; font-size:14px; }.empty-state span { font-size:11px; margin-top:4px; }.list-footer { padding:14px 20px; }.list-footer nav { margin:0; }.list-footer .pagination { margin-bottom:0; }
+    html[data-theme='dark'] .admit-cards-page .filter-panel,
+    html.dark .admit-cards-page .filter-panel,
+    html[data-theme='dark'] .admit-cards-page .list-panel,
+    html.dark .admit-cards-page .list-panel {
+        background: #111827 !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+    html[data-theme='dark'] .admit-cards-page .filter-panel form,
+    html.dark .admit-cards-page .filter-panel form,
+    html[data-theme='dark'] .admit-cards-page .filter-panel .form-control,
+    html.dark .admit-cards-page .filter-panel .form-control {
+        background: #0f172a !important;
+        border-color: #475569 !important;
+        color: #f8fafc !important;
+    }
+    html[data-theme='dark'] .admit-cards-page .filter-title h4,
+    html.dark .admit-cards-page .filter-title h4,
+    html[data-theme='dark'] .admit-cards-page .filter-title p,
+    html.dark .admit-cards-page .filter-title p,
+    html[data-theme='dark'] .admit-cards-page .list-heading h4,
+    html.dark .admit-cards-page .list-heading h4,
+    html[data-theme='dark'] .admit-cards-page .list-heading p,
+    html.dark .admit-cards-page .list-heading p {
+        color: #cbd5e1 !important;
+    }
+    html[data-theme='dark'] .admit-cards-page .list-heading,
+    html.dark .admit-cards-page .list-heading,
+    html[data-theme='dark'] .admit-cards-page .applicant-table thead th,
+    html.dark .admit-cards-page .applicant-table thead th,
+    html[data-theme='dark'] .admit-cards-page .applicant-table tbody td,
+    html.dark .admit-cards-page .applicant-table tbody td {
+        background: #111827 !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
     @media (max-width:767.98px) { .page-hero { align-items:flex-start; display:block; padding:24px; }.hero-count { border-left:0; border-top:1px solid rgba(255,255,255,.25); margin-top:20px; padding:15px 0 0; text-align:left; }.filter-title,.list-heading { display:block; }.result-count { display:inline-block; margin-top:10px; }.applicant-table tbody td,.applicant-table thead th { padding-left:12px; padding-right:12px; } }
 </style>
 @endsection

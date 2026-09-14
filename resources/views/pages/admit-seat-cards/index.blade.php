@@ -443,7 +443,7 @@
         }
 
         .admit-seat-cards-page .admit-seat-cards-filter-header {
-            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
             border-bottom: 1px solid #eef2f7;
             padding: 0.95rem 1rem;
         }
@@ -456,12 +456,16 @@
             display: flex;
             flex-direction: column;
             gap: 0.85rem;
+            padding: 0.9rem;
+            border: 1px solid #eef2f7;
+            border-radius: 16px;
+            background: #fcfcfd;
         }
 
         .admit-seat-cards-page .admit-seat-cards-filter-grid {
             display: grid;
             grid-template-columns: repeat(6, minmax(0, 1fr));
-            gap: 0.75rem;
+            gap: 12px;
             align-items: end;
         }
 
@@ -474,8 +478,8 @@
         }
 
         .admit-seat-cards-page .admit-seat-cards-filter-control {
-            min-height: 46px;
-            border-radius: 12px;
+            min-height: 42px;
+            border-radius: 10px;
             border: 1px solid #e5e7eb;
             background: #fff;
             color: #111827;
@@ -498,13 +502,153 @@
         }
 
         .admit-seat-cards-page .result-filter-icon-btn {
-            min-width: 46px;
-            min-height: 46px;
-            border-radius: 12px;
+            min-width: 42px;
+            min-height: 42px;
+            border-radius: 10px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             padding: 0.7rem 1rem;
+        }
+
+        /* Admin dark-mode treatment for the admit/seat-card workspace. */
+        html[data-theme='dark'] .admit-seat-cards-page,
+        html.dark .admit-seat-cards-page {
+            --asc-surface: #111827;
+            --asc-surface-alt: #0f172a;
+            --asc-border: #334155;
+            --asc-border-strong: #475569;
+            --asc-text: #f8fafc;
+            --asc-muted: #cbd5e1;
+            --asc-muted-2: #94a3b8;
+            --asc-primary-soft: rgba(96, 165, 250, 0.14);
+            --asc-shadow-sm: 0 6px 16px rgba(2, 6, 23, 0.24);
+            --asc-shadow-md: 0 10px 24px rgba(2, 6, 23, 0.3);
+            --asc-shadow-lg: 0 18px 40px rgba(2, 6, 23, 0.38);
+            color: #e2e8f0;
+        }
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-cards-filter-panel,
+        html.dark .admit-seat-cards-page .admit-seat-cards-filter-panel,
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-cards-filter-header,
+        html.dark .admit-seat-cards-page .admit-seat-cards-filter-header,
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-cards-filter-body,
+        html.dark .admit-seat-cards-page .admit-seat-cards-filter-body {
+            background: #111827 !important;
+            border-color: #334155 !important;
+            color: #e2e8f0 !important;
+        }
+        html[data-theme='dark'] .content-wrapper .admit-seat-cards-page .admit-seat-cards-filter-panel,
+        html.dark .content-wrapper .admit-seat-cards-page .admit-seat-cards-filter-panel {
+            background: #111827 !important;
+            border-color: #334155 !important;
+        }
+        html[data-theme='dark'] .content-wrapper .admit-seat-cards-page .admit-seat-cards-filter-panel > .card-header,
+        html[data-theme='dark'] .content-wrapper .admit-seat-cards-page .admit-seat-cards-filter-panel > .card-body,
+        html.dark .content-wrapper .admit-seat-cards-page .admit-seat-cards-filter-panel > .card-body {
+            background: #111827 !important;
+            border-color: #334155 !important;
+            color: #e2e8f0 !important;
+        }
+        html.dark .content-wrapper .admit-seat-cards-page .admit-seat-cards-filter-panel > .card-header,
+        html[data-theme='dark'] .content-wrapper .admit-seat-cards-page .admit-seat-cards-filter-panel > .card-header {
+            background: linear-gradient(135deg, #172554 0%, #111827 100%) !important;
+        }
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-cards-filter-form,
+        html.dark .admit-seat-cards-page .admit-seat-cards-filter-form {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+        }
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-cards-filter-header,
+        html.dark .admit-seat-cards-page .admit-seat-cards-filter-header {
+            background: linear-gradient(135deg, #172554 0%, #111827 100%) !important;
+        }
+        html[data-theme='dark'] .admit-seat-cards-page .card-title,
+        html.dark .admit-seat-cards-page .card-title,
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-cards-filter-label,
+        html.dark .admit-seat-cards-page .admit-seat-cards-filter-label,
+        html[data-theme='dark'] .admit-seat-cards-page label,
+        html.dark .admit-seat-cards-page label {
+            color: #cbd5e1 !important;
+        }
+        html[data-theme='dark'] .admit-seat-cards-page .text-dark,
+        html.dark .admit-seat-cards-page .text-dark,
+        html[data-theme='dark'] .admit-seat-cards-page .text-muted,
+        html.dark .admit-seat-cards-page .text-muted {
+            color: #cbd5e1 !important;
+        }
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-cards-filter-control,
+        html.dark .admit-seat-cards-page .admit-seat-cards-filter-control,
+        html[data-theme='dark'] .admit-seat-cards-page .form-control,
+        html.dark .admit-seat-cards-page .form-control,
+        html[data-theme='dark'] .admit-seat-cards-page select,
+        html.dark .admit-seat-cards-page select,
+        html[data-theme='dark'] .admit-seat-cards-page textarea,
+        html.dark .admit-seat-cards-page textarea {
+            background-color: #0f172a !important;
+            border-color: #475569 !important;
+            color: #f8fafc !important;
+        }
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-cards-filter-control:focus,
+        html.dark .admit-seat-cards-page .admit-seat-cards-filter-control:focus,
+        html[data-theme='dark'] .admit-seat-cards-page .form-control:focus,
+        html.dark .admit-seat-cards-page .form-control:focus,
+        html[data-theme='dark'] .admit-seat-cards-page select:focus,
+        html.dark .admit-seat-cards-page select:focus {
+            border-color: #60a5fa !important;
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, .18) !important;
+        }
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-cards-filter-control option,
+        html.dark .admit-seat-cards-page .admit-seat-cards-filter-control option {
+            background: #0f172a;
+            color: #f8fafc;
+        }
+        html[data-theme='dark'] .admit-seat-cards-page .card-settings-modal-content,
+        html.dark .admit-seat-cards-page .card-settings-modal-content,
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-typography-card,
+        html.dark .admit-seat-cards-page .admit-seat-typography-card,
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-layout-card,
+        html.dark .admit-seat-cards-page .admit-seat-layout-card,
+        html[data-theme='dark'] .admit-seat-cards-page .id-card-upload-box,
+        html.dark .admit-seat-cards-page .id-card-upload-box,
+        html[data-theme='dark'] .admit-seat-cards-page .id-card-upload-preview,
+        html.dark .admit-seat-cards-page .id-card-upload-preview {
+            background: #111827 !important;
+            border-color: #334155 !important;
+            color: #e2e8f0 !important;
+        }
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-typography-header,
+        html.dark .admit-seat-cards-page .admit-seat-typography-header,
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-layout-header,
+        html.dark .admit-seat-cards-page .admit-seat-layout-header,
+        html[data-theme='dark'] .admit-seat-cards-page .card-settings-modal-header,
+        html.dark .admit-seat-cards-page .card-settings-modal-header,
+        html[data-theme='dark'] .admit-seat-cards-page .card-settings-modal-footer,
+        html.dark .admit-seat-cards-page .card-settings-modal-footer {
+            background: #172033 !important;
+            border-color: #334155 !important;
+            color: #e2e8f0 !important;
+        }
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-typography-row,
+        html.dark .admit-seat-cards-page .admit-seat-typography-row,
+        html[data-theme='dark'] .admit-seat-cards-page .admit-seat-layout-field,
+        html.dark .admit-seat-cards-page .admit-seat-layout-field {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+            color: #e2e8f0 !important;
+        }
+        html[data-theme='dark'] .admit-seat-cards-page .select2-container--default .select2-selection--single,
+        html.dark .admit-seat-cards-page .select2-container--default .select2-selection--single {
+            background: #0f172a !important;
+            border-color: #475569 !important;
+        }
+        html[data-theme='dark'] .admit-seat-cards-page .select2-container--default .select2-selection--single .select2-selection__rendered,
+        html.dark .admit-seat-cards-page .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #f8fafc !important;
+        }
+        html[data-theme='dark'] .select2-container--default .select2-dropdown,
+        html.dark .select2-container--default .select2-dropdown {
+            background: #111827 !important;
+            border-color: #475569 !important;
         }
 
         @media (max-width: 1199.98px) {
@@ -541,14 +685,17 @@
 
 @section('contents')
     <div class="container-fluid admit-seat-cards-page">
-        <div class="card card-outline no-print result-filter-panel admit-seat-cards-filter-panel">
+        <div class="card card-outline card-primary no-print result-filter-panel admit-seat-cards-filter-panel">
             <div
-                class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 admit-seat-cards-filter-header">
+                class="card-header d-flex justify-content-start align-items-center flex-wrap gap-2 admit-seat-cards-filter-header">
+                <a href="{{ route('results.hub') }}" class="btn btn-sm btn-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i>Back
+                </a>
                 <div class="flex flex-col">
-                    <h3 class="card-title mb-0 text-dark">
+                    <h4 class="card-title mb-0 font-weight-bold text-white">
                         <i class="fas fa-filter mr-2 text-info"></i>Filter Options
-                    </h3>
-                    <small class="text-muted">Generate admit or seat cards by year, class, exam, and layout.</small>
+                    </h4>
+                    <small class="text-white-50">Generate admit or seat cards by year, class, exam, and layout.</small>
                 </div>
             </div>
             <div class="card-body admit-seat-cards-filter-body">

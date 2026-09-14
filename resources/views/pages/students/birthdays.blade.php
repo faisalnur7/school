@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('contents')
-<div class="container-fluid">
+<div class="container-fluid student-birthdays-page">
     <div class="bg-gradient-to-br from-pink-700 to-pink-900 rounded-2xl p-8 mb-8 flex items-center gap-5">
         <i class="fas fa-birthday-cake text-white text-5xl opacity-80"></i>
         <div>
@@ -201,6 +201,58 @@ $(function () {
 
 @section('styles')
 <style>
+    html[data-theme='dark'] .student-birthdays-page .card,
+    html.dark .student-birthdays-page .card,
+    html[data-theme='dark'] .student-birthdays-page .card-body,
+    html.dark .student-birthdays-page .card-body {
+        background: #111827 !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    html[data-theme='dark'] .student-birthdays-page .form-label,
+    html.dark .student-birthdays-page .form-label {
+        color: #cbd5e1 !important;
+    }
+
+    html[data-theme='dark'] .student-birthdays-page .form-control,
+    html.dark .student-birthdays-page .form-control,
+    html[data-theme='dark'] .student-birthdays-page .form-select,
+    html.dark .student-birthdays-page .form-select {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    html[data-theme='dark'] .student-birthdays-page .form-control option,
+    html.dark .student-birthdays-page .form-control option,
+    html[data-theme='dark'] .student-birthdays-page .form-select option,
+    html.dark .student-birthdays-page .form-select option {
+        background: #0f172a;
+        color: #e2e8f0;
+    }
+
+    html[data-theme='dark'] .student-birthdays-page .table,
+    html.dark .student-birthdays-page .table {
+        --bs-table-bg: #111827;
+        --bs-table-color: #e2e8f0;
+        --bs-table-hover-bg: #1e293b;
+        --bs-table-hover-color: #f8fafc;
+    }
+
+    html[data-theme='dark'] .student-birthdays-page .table-light,
+    html.dark .student-birthdays-page .table-light {
+        --bs-table-bg: #1e293b;
+        --bs-table-color: #e2e8f0;
+    }
+
+    html[data-theme='dark'] .student-birthdays-page .btn-outline-secondary,
+    html.dark .student-birthdays-page .btn-outline-secondary {
+        background: #111827 !important;
+        border-color: #475569 !important;
+        color: #cbd5e1 !important;
+    }
+
     .birthday-student-link {
         display: inline-flex;
         align-items: center;

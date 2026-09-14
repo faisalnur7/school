@@ -242,7 +242,6 @@ class ExamController extends Controller
         $entryMode = in_array($entryMode, ['subject', 'student'], true) ? $entryMode : 'subject';
         $subjectId = $entryMode === 'subject' ? ($request->integer('subject_id') ?: null) : null;
         $showAbsent = filter_var($request->input('show_absent', '1'), FILTER_VALIDATE_BOOLEAN);
-        $showSubjectTotal = filter_var($request->input('show_subject_total', '1'), FILTER_VALIDATE_BOOLEAN);
         $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
         $sections = collect();
         $groups = collect();
@@ -337,7 +336,7 @@ class ExamController extends Controller
             'selectedGroup', 'subjects', 'subject', 'students', 'existingMarks',
             'subjectConfig', 'classId', 'sectionId', 'groupId', 'subjectId', 'cohortReady',
             'entryMode', 'studentWiseMarks'
-            , 'studentSubjectEligibility', 'showAbsent', 'showSubjectTotal',
+            , 'studentSubjectEligibility', 'showAbsent',
             'csvImportPreview', 'csvImportErrors'
         ));
     }

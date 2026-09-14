@@ -21,26 +21,27 @@
 
 <div class="container-fluid px-3 py-3 yearly-report-page">
     @unless($isPreview ?? false)
-    <div class="card shadow-sm border-0 mb-4 no-print">
+    <div class="card card-outline card-primary mb-3 no-print yearly-report-filter-card">
         <div class="card-header bg-gradient-primary text-white py-3">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <h4 class="card-title mb-0 font-weight-bold text-white">
-                    <i class="fas fa-file-alt mr-2"></i>Yearly Final Report
-                </h4>
-                <div class="d-flex gap-2 flex-wrap" role="group" aria-label="Yearly report actions">
-                    <a href="{{ route('results.hub') }}" class="btn btn-light">
-                        <i class="fas fa-arrow-left mr-1"></i>Back to Hub
+                <div class="d-flex align-items-center">
+                    <a href="{{ route('results.hub') }}" class="btn btn-sm btn-secondary mr-3">
+                        <i class="fas fa-arrow-left mr-1"></i>Back
                     </a>
+                    <h4 class="card-title mb-0 font-weight-bold text-white">
+                        <i class="fas fa-file-alt mr-2"></i>Yearly Final Report
+                    </h4>
+                </div>
+                <div class="d-flex gap-2 flex-wrap" role="group" aria-label="Yearly report actions">
                     <a href="{{ route('result.yearly-final-report.template-settings.edit') }}" class="btn btn-outline-light">
                         <i class="fas fa-sliders-h mr-1"></i>Template Settings
                     </a>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="card shadow-sm border-0 mb-4 no-print progress-report-toolbar yearly-report-toolbar">
-        <div class="card-body p-3 yearly-report-toolbar__body">
+        <div class="card-body yearly-report-filter-card-body">
+            <div class="progress-report-toolbar yearly-report-toolbar">
+                <div class="yearly-report-toolbar__body">
             <form method="GET" action="{{ route('result.yearly-final-report.show') }}" class="progress-report-filter-form">
                 <div class="progress-report-filter-row yearly-report-filter-row">
                     <div class="progress-report-filter-group yearly-report-filter-group">
@@ -97,6 +98,8 @@
                     </div>
                 </div>
             </form>
+                </div>
+            </div>
         </div>
     </div>
     @endunless
@@ -135,6 +138,11 @@
         background: linear-gradient(90deg, #1d4ed8, #1e3a8a) !important;
     }
 
+    .yearly-report-filter-card .card-header {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+        border-bottom: 0;
+    }
+
     .yearly-report-toolbar {
         background: #ffffff;
         border: 1px solid #e7e5e4;
@@ -143,9 +151,45 @@
     }
 
     .yearly-report-toolbar__body {
+        background: transparent;
+    }
+
+    .yearly-report-filter-card-body {
         background: #fff;
-        border-bottom-left-radius: 18px;
-        border-bottom-right-radius: 18px;
+    }
+
+    .yearly-report-toolbar {
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .yearly-report-toolbar .progress-report-filter-form {
+        padding: 0.9rem;
+        border: 1px solid #eef2f7;
+        border-radius: 16px;
+        background: #fcfcfd;
+    }
+
+    html[data-theme='dark'] .yearly-report-page .yearly-report-toolbar__body,
+    html.dark .yearly-report-page .yearly-report-toolbar__body,
+    html[data-theme='dark'] .yearly-report-page .progress-report-filter-form,
+    html.dark .yearly-report-page .progress-report-filter-form {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    html[data-theme='dark'] .yearly-report-page .yearly-report-filter-card-body,
+    html.dark .yearly-report-page .yearly-report-filter-card-body,
+    html[data-theme='dark'] .yearly-report-page .yearly-report-filter-card .card-header,
+    html.dark .yearly-report-page .yearly-report-filter-card .card-header {
+        background: #111827 !important;
+        border-color: #334155 !important;
+    }
+    html[data-theme='dark'] .yearly-report-page .yearly-report-filter-card .card-header,
+    html.dark .yearly-report-page .yearly-report-filter-card .card-header {
+        background: linear-gradient(135deg, #172554 0%, #111827 100%) !important;
     }
 
     .yearly-report-filter-row {
@@ -166,8 +210,8 @@
     .yearly-report-filter-select,
     .yearly-report-filter-input {
         width: 100%;
-        min-height: 46px;
-        border-radius: 12px;
+        min-height: 42px;
+        border-radius: 10px;
         border: 1px solid #e5e7eb;
         background: #fff;
         color: #111827;
@@ -190,9 +234,9 @@
     }
 
     .yearly-report-action-btn {
-        min-width: 46px;
-        min-height: 46px;
-        border-radius: 12px;
+        min-width: 42px;
+        min-height: 42px;
+        border-radius: 10px;
     }
 
     .yearly-report-action-btn--primary {

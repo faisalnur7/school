@@ -1,17 +1,21 @@
 <style>
     .tutorial-report-toolbar {
-        background: #ffffff;
-        border: 1px solid #e7e5e4;
-        border-radius: 18px;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
-        padding: 0.9rem;
-        margin-bottom: 1rem;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
+        margin-bottom: 0;
     }
 
     .tutorial-report-filter-form {
         display: flex;
         flex-direction: column;
         gap: 0.85rem;
+        padding: 0.9rem;
+        border: 1px solid #eef2f7;
+        border-radius: 16px;
+        background: #fcfcfd;
     }
 
     .tutorial-report-filter-row {
@@ -32,8 +36,8 @@
     .tutorial-report-filter-select,
     .tutorial-report-filter-input {
         width: 100%;
-        min-height: 46px;
-        border-radius: 12px;
+        min-height: 42px;
+        border-radius: 10px;
         border: 1px solid #e5e7eb;
         background: #fff;
         color: #111827;
@@ -56,9 +60,9 @@
     }
 
     .tutorial-report-action-btn {
-        min-width: 46px;
-        min-height: 46px;
-        border-radius: 12px;
+        min-width: 42px;
+        min-height: 42px;
+        border-radius: 10px;
     }
 
     .tutorial-report-action-btn--primary {
@@ -82,6 +86,24 @@
     .tutorial-report-action-btn--ghost:hover {
         background: #f8fafc;
         color: #111827;
+    }
+
+    html[data-theme='dark'] .tutorial-report-page .tutorial-report-toolbar,
+    html.dark .tutorial-report-page .tutorial-report-toolbar,
+    html[data-theme='dark'] .tutorial-report-page .tutorial-report-filter-form,
+    html.dark .tutorial-report-page .tutorial-report-filter-form {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    html[data-theme='dark'] .tutorial-report-page .tutorial-report-filter-card .card-header,
+    html.dark .tutorial-report-page .tutorial-report-filter-card .card-header {
+        background: linear-gradient(135deg, #172554 0%, #111827 100%) !important;
+        border-color: #334155 !important;
+    }
+    html[data-theme='dark'] .tutorial-report-page .tutorial-report-filter-card-body,
+    html.dark .tutorial-report-page .tutorial-report-filter-card-body {
+        background: #111827 !important;
+        border-color: #334155 !important;
     }
 
     @media (max-width: 1280px) {

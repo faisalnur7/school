@@ -90,16 +90,119 @@
             line-height: 1;
             margin: 0;
         }
+
+        .exams-filter-card .card-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-bottom: 0;
+        }
+
+        html[data-theme='dark'] .exams-page .card,
+        html[data-theme='dark'] .exams-page .card-header,
+        html[data-theme='dark'] .exams-page .card-body,
+        html[data-theme='dark'] .exams-page .card-footer {
+            background-color: #111827 !important;
+            border-color: rgba(148, 163, 184, 0.18) !important;
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .exams-page .exams-filter-card .card-header {
+            background: linear-gradient(135deg, #172554 0%, #111827 100%) !important;
+            border-color: rgba(148, 163, 184, 0.18) !important;
+        }
+
+        html[data-theme='dark'] .exams-page .card-body > form[method='GET'] {
+            background-color: #0f172a !important;
+            border-color: rgba(148, 163, 184, 0.18) !important;
+        }
+
+        html[data-theme='dark'] .exams-page .form-control {
+            background-color: #0f172a !important;
+            border-color: rgba(148, 163, 184, 0.28) !important;
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .exams-page .form-control option {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .exams-page .select2-container--default .select2-selection--single {
+            background-color: #0f172a !important;
+            border-color: rgba(148, 163, 184, 0.28) !important;
+        }
+
+        html[data-theme='dark'] .exams-page .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .exams-page .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #94a3b8 !important;
+        }
+
+        html[data-theme='dark'] .exams-page .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-top-color: #94a3b8;
+        }
+
+        html[data-theme='dark'] .exams-page .select2-container--default .select2-dropdown,
+        html[data-theme='dark'] .exams-page .select2-container--default .select2-results__option {
+            background-color: #111827 !important;
+            border-color: rgba(148, 163, 184, 0.18) !important;
+            color: #cbd5e1 !important;
+        }
+
+        html[data-theme='dark'] .exams-page .select2-container--default .select2-results__option--highlighted {
+            background-color: #2563eb !important;
+            color: #fff !important;
+        }
+
+        html[data-theme='dark'] .exams-page .btn-light {
+            background-color: #1e293b;
+            border-color: rgba(148, 163, 184, 0.3);
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .exams-page .btn-secondary {
+            background: #2563eb !important;
+            border-color: #2563eb !important;
+            color: #fff !important;
+        }
+
+        html[data-theme='dark'] .exams-page .btn-secondary:hover,
+        html[data-theme='dark'] .exams-page .btn-secondary:focus {
+            background: #1d4ed8 !important;
+            border-color: #1d4ed8 !important;
+            color: #fff !important;
+        }
+
+        html[data-theme='dark'] .exams-page .thead-light th {
+            background-color: #1e293b !important;
+            border-color: rgba(148, 163, 184, 0.18) !important;
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .exams-page .table tbody tr {
+            background-color: #111827;
+            border-color: rgba(148, 163, 184, 0.14);
+        }
+
+        html[data-theme='dark'] .exams-page .table tbody tr:hover {
+            background-color: #1e293b;
+        }
     </style>
 @endsection
 
 @section('contents')
-    <div class="container-fluid">
+    <div class="container-fluid exams-page">
 
-        <div class="card card-outline  mb-3">
+        <div class="card card-outline card-primary mb-3 exams-filter-card">
             <div class="card-header">
                 <div class="col-12 d-flex justify-content-between align-items-center">
-                    <h4 class="font-weight-bold mb-0 text-white"><i class="fas fa-file-alt text-primary mr-2"></i>Exams</h4>
+                    <div class="d-flex align-items-center">
+                        <a href="{{ route('results.hub') }}" class="btn btn-sm btn-secondary mr-3">
+                            <i class="fas fa-arrow-left mr-1"></i>Back
+                        </a>
+                        <h4 class="font-weight-bold mb-0 text-white"><i class="fas fa-file-alt text-primary mr-2"></i>Exams</h4>
+                    </div>
                     <a href="{{ route('exams.create') }}" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus mr-1"></i> New Exam
                     </a>

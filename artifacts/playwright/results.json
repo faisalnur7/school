@@ -1,0 +1,4849 @@
+{
+  "generated_at": "2026-09-13T07:12:21.571Z",
+  "baseURL": "http://127.0.0.1",
+  "authenticated": false,
+  "route_candidates": 511,
+  "results": [
+    {
+      "uri": "/",
+      "name": null,
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "001-home.png",
+      "duration_ms": 502,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/academics",
+      "name": "academics.hub",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "002-academics.png",
+      "duration_ms": 497,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/account-groups",
+      "name": "account-groups.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "003-account_groups.png",
+      "duration_ms": 495,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/account/change-password",
+      "name": "account.password.edit",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "004-account_change_password.png",
+      "duration_ms": 485,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/account/change-password/verify",
+      "name": "account.password.verify.form",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "005-account_change_password_verify.png",
+      "duration_ms": 508,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/account/leave/apply",
+      "name": "account.leave.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "006-account_leave_apply.png",
+      "duration_ms": 523,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/account/profile",
+      "name": "account.profile.edit",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "007-account_profile.png",
+      "duration_ms": 500,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/accounting-periods",
+      "name": "accounting-periods.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "008-accounting_periods.png",
+      "duration_ms": 505,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/accounts",
+      "name": "accounts.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "009-accounts.png",
+      "duration_ms": 516,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/accounts-list",
+      "name": "accounts-list.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "010-accounts_list.png",
+      "duration_ms": 501,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/accounts-list/create",
+      "name": "accounts-list.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "011-accounts_list_create.png",
+      "duration_ms": 481,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/accounts-list/1/edit",
+      "name": "accounts-list.edit",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "012-accounts_list_accounts_list_edit.png",
+      "duration_ms": 481,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/accounts/hub",
+      "name": "accounts.hub",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "013-accounts_hub.png",
+      "duration_ms": 504,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/activities",
+      "name": "activities.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "014-activities.png",
+      "duration_ms": 501,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/activities/create",
+      "name": "activities.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "015-activities_create.png",
+      "duration_ms": 478,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/activities/1/edit",
+      "name": "activities.edit",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "016-activities_id_edit.png",
+      "duration_ms": 506,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admission",
+      "name": "public.admission.form",
+      "status": 200,
+      "title": "Admission · Green Chartered School and College",
+      "screenshot": "017-admission.png",
+      "duration_ms": 903,
+      "redirected_to": "http://127.0.0.1/admission",
+      "console_errors": [],
+      "body_excerpt": "Green Chartered School and College\nNew Admission\nSearch Application\nADMISSIONS\nNew Admission\n\nComplete the application carefully. A sequential four-digit application number will be generated after confirmation for tracking payment and results.\n\nThere is no active admission exam at the moment.\nAdmissions office · 2026"
+    },
+    {
+      "uri": "/admission/applications/1/admit-card",
+      "name": "public.admission.admit-card",
+      "status": 404,
+      "title": "Not Found",
+      "screenshot": "018-admission_applications_application_admit_card.png",
+      "duration_ms": 381,
+      "redirected_to": "http://127.0.0.1/admission/applications/1/admit-card",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "body_excerpt": "404\nNOT FOUND"
+    },
+    {
+      "uri": "/admission/applications/1/pdf",
+      "name": "public.admission.application-pdf",
+      "status": 404,
+      "title": "Not Found",
+      "screenshot": "019-admission_applications_application_pdf.png",
+      "duration_ms": 366,
+      "redirected_to": "http://127.0.0.1/admission/applications/1/pdf",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "body_excerpt": "404\nNOT FOUND"
+    },
+    {
+      "uri": "/admission/confirmation",
+      "name": "public.admission.confirmation",
+      "status": 404,
+      "title": "Not Found",
+      "screenshot": "020-admission_confirmation.png",
+      "duration_ms": 369,
+      "redirected_to": "http://127.0.0.1/admission/confirmation",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "body_excerpt": "404\nNOT FOUND"
+    },
+    {
+      "uri": "/admission/preview/invalid-token",
+      "name": "public.admission.preview",
+      "status": 404,
+      "title": "Not Found",
+      "screenshot": "021-admission_preview_token.png",
+      "duration_ms": 381,
+      "redirected_to": "http://127.0.0.1/admission/preview/invalid-token",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "body_excerpt": "404\nNOT FOUND"
+    },
+    {
+      "uri": "/admission/search",
+      "name": "public.admission.search",
+      "status": 200,
+      "title": "Admission · Green Chartered School and College",
+      "screenshot": "022-admission_search.png",
+      "duration_ms": 561,
+      "redirected_to": "http://127.0.0.1/admission/search",
+      "console_errors": [],
+      "body_excerpt": "Green Chartered School and College\nNew Admission\nSearch Application\n\nAPPLICANT PORTAL\n\nSearch your application\n\nEnter the application number and any phone number submitted with the application.\n\nSearch\nAdmissions office · 2026"
+    },
+    {
+      "uri": "/admissions",
+      "name": "admissions.hub",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "023-admissions.png",
+      "duration_ms": 500,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admissions/admit-cards",
+      "name": "admissions.admit-cards",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "024-admissions_admit_cards.png",
+      "duration_ms": 503,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admissions/applications",
+      "name": "admissions.applications",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "025-admissions_applications.png",
+      "duration_ms": 517,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admissions/applications/1",
+      "name": "admissions.applications.show",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "026-admissions_applications_application.png",
+      "duration_ms": 514,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admissions/applications/1/admit-card",
+      "name": "admissions.applications.admit-card",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "027-admissions_applications_application_admit_card.png",
+      "duration_ms": 481,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admissions/applications/1/download",
+      "name": "admissions.applications.download",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "028-admissions_applications_application_download.png",
+      "duration_ms": 499,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admissions/approved",
+      "name": "admissions.approved",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "029-admissions_approved.png",
+      "duration_ms": 522,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admissions/converted",
+      "name": "admissions.converted",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "030-admissions_converted.png",
+      "duration_ms": 479,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admissions/exams",
+      "name": "admissions.exams",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "031-admissions_exams.png",
+      "duration_ms": 520,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admissions/exams/create",
+      "name": "admissions.exams.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "032-admissions_exams_create.png",
+      "duration_ms": 516,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admissions/exams/1/details",
+      "name": "admissions.exams.details",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "033-admissions_exams_exam_details.png",
+      "duration_ms": 517,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admissions/exams/1/edit",
+      "name": "admissions.exams.edit",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "034-admissions_exams_exam_edit.png",
+      "duration_ms": 495,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admissions/exams/1/marks",
+      "name": "admissions.marks",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "035-admissions_exams_exam_marks.png",
+      "duration_ms": 485,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admissions/results",
+      "name": "admissions.results",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "036-admissions_results.png",
+      "duration_ms": 537,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/admissions/results/pdf",
+      "name": "admissions.results.pdf",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "037-admissions_results_pdf.png",
+      "duration_ms": 517,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/ajax/sections-by-class",
+      "name": "ajax.sections-by-class",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "038-ajax_sections_by_class.png",
+      "duration_ms": 517,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/alumni",
+      "name": "alumni.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "039-alumni.png",
+      "duration_ms": 513,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/alumni/create",
+      "name": "alumni.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "040-alumni_create.png",
+      "duration_ms": 520,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/analytics/dashboard",
+      "name": "analytics.dashboard",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "041-analytics_dashboard.png",
+      "duration_ms": 514,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/analytics/performance",
+      "name": "analytics.performance",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "042-analytics_performance.png",
+      "duration_ms": 498,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/analytics/predictive",
+      "name": "analytics.predictive",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "043-analytics_predictive.png",
+      "duration_ms": 500,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/analytics/reports",
+      "name": "analytics.reports",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "044-analytics_reports.png",
+      "duration_ms": 501,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/analytics/trends",
+      "name": "analytics.trends",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "045-analytics_trends.png",
+      "duration_ms": 536,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/api",
+      "name": null,
+      "status": 200,
+      "title": "",
+      "screenshot": "046-api.png",
+      "duration_ms": 387,
+      "redirected_to": "http://127.0.0.1/api",
+      "console_errors": [],
+      "body_excerpt": "API Call"
+    },
+    {
+      "uri": "/asset-categories",
+      "name": "asset-categories.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "047-asset_categories.png",
+      "duration_ms": 531,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/asset-issues",
+      "name": "asset-issues.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "048-asset_issues.png",
+      "duration_ms": 529,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/asset-issues/create",
+      "name": "asset-issues.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "049-asset_issues_create.png",
+      "duration_ms": 534,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/asset-purchases",
+      "name": "asset-purchases.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "050-asset_purchases.png",
+      "duration_ms": 566,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/asset-purchases/accounts/load",
+      "name": "asset-purchases.accounts",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "051-asset_purchases_accounts_load.png",
+      "duration_ms": 532,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/asset-purchases/create",
+      "name": "asset-purchases.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "052-asset_purchases_create.png",
+      "duration_ms": 556,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/asset-purchases/1",
+      "name": "asset-purchases.show",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "053-asset_purchases_assetPurchase.png",
+      "duration_ms": 531,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/asset-purchases/1/voucher",
+      "name": "asset-purchases.voucher",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "054-asset_purchases_assetPurchase_voucher.png",
+      "duration_ms": 536,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/asset-stock",
+      "name": "asset-issues.stock",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "055-asset_stock.png",
+      "duration_ms": 533,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/assets/hub",
+      "name": "assets.hub",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "056-assets_hub.png",
+      "duration_ms": 531,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/attendance/hub",
+      "name": "attendance.hub",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "057-attendance_hub.png",
+      "duration_ms": 536,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/attendance/settings",
+      "name": "attendance.settings.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "058-attendance_settings.png",
+      "duration_ms": 512,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/audit-trails",
+      "name": "audit-trails.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "059-audit_trails.png",
+      "duration_ms": 536,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/bank-accounts",
+      "name": "bank-accounts.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "060-bank_accounts.png",
+      "duration_ms": 546,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/bank-accounts/create",
+      "name": "bank-accounts.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "061-bank_accounts_create.png",
+      "duration_ms": 534,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/bank-accounts/1/edit",
+      "name": "bank-accounts.edit",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "062-bank_accounts_bankAccount_edit.png",
+      "duration_ms": 531,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/budget-allocations",
+      "name": "budget-allocations.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "063-budget_allocations.png",
+      "duration_ms": 534,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/budget-allocations/report",
+      "name": "budget-allocations.report",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "064-budget_allocations_report.png",
+      "duration_ms": 536,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/budget-allocations/report/pdf",
+      "name": "budget-allocations.report.pdf",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "065-budget_allocations_report_pdf.png",
+      "duration_ms": 532,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/budget/hub",
+      "name": "budget.hub",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "066-budget_hub.png",
+      "duration_ms": 532,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/buildings",
+      "name": "buildings.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "067-buildings.png",
+      "duration_ms": 535,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/buildings/create",
+      "name": "buildings.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "068-buildings_create.png",
+      "duration_ms": 533,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/buildings/1/edit",
+      "name": "buildings.edit",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "069-buildings_building_edit.png",
+      "duration_ms": 534,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/certificates",
+      "name": "certificates.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "070-certificates.png",
+      "duration_ms": 534,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/certificates/create",
+      "name": "certificates.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "071-certificates_create.png",
+      "duration_ms": 532,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/certificates/1/edit",
+      "name": "certificates.edit",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "072-certificates_certificate_edit.png",
+      "duration_ms": 532,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/chat",
+      "name": "chat.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "073-chat.png",
+      "duration_ms": 518,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/class-schedules",
+      "name": "class-schedules.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "074-class_schedules.png",
+      "duration_ms": 534,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/class-schedules/create",
+      "name": "class-schedules.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "075-class_schedules_create.png",
+      "duration_ms": 549,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/class-schedules/1/edit",
+      "name": "class-schedules.edit",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "076-class_schedules_id_edit.png",
+      "duration_ms": 548,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/classes",
+      "name": "classes.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "077-classes.png",
+      "duration_ms": 536,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/classes/create",
+      "name": "classes.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "078-classes_create.png",
+      "duration_ms": 548,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/classes/1/edit",
+      "name": "classes.edit",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "079-classes_id_edit.png",
+      "duration_ms": 552,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/classrooms",
+      "name": "classrooms.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "080-classrooms.png",
+      "duration_ms": 586,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/classrooms/create",
+      "name": "classrooms.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "081-classrooms_create.png",
+      "duration_ms": 550,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/classrooms/1/edit",
+      "name": "classrooms.edit",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "082-classrooms_id_edit.png",
+      "duration_ms": 562,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/clubs",
+      "name": "clubs.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "083-clubs.png",
+      "duration_ms": 534,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/clubs/create",
+      "name": "clubs.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "084-clubs_create.png",
+      "duration_ms": 550,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/clubs/memberships",
+      "name": "clubs.memberships",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "085-clubs_memberships.png",
+      "duration_ms": 549,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/communication/alumni",
+      "name": "communication.alumni",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "086-communication_alumni.png",
+      "duration_ms": 567,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/communication/emailsms",
+      "name": "communication.emailsms",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "087-communication_emailsms.png",
+      "duration_ms": 553,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/communication/messages",
+      "name": "communication.messages",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "088-communication_messages.png",
+      "duration_ms": 547,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/communication/notices",
+      "name": "communication.notices",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "089-communication_notices.png",
+      "duration_ms": 586,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/communication/notifications",
+      "name": "communication.notifications",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "090-communication_notifications.png",
+      "duration_ms": 603,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/communication/parents",
+      "name": "communication.parent",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "091-communication_parents.png",
+      "duration_ms": 797,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/communication/social-integration",
+      "name": "social.integration",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "092-communication_social_integration.png",
+      "duration_ms": 588,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/communications",
+      "name": "communications.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "093-communications.png",
+      "duration_ms": 562,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/communications/conversations/1",
+      "name": "communications.conversations.show",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "094-communications_conversations_conversation.png",
+      "duration_ms": 572,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/confirm-password",
+      "name": "password.confirm",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "095-confirm_password.png",
+      "duration_ms": 580,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/counseling",
+      "name": "counseling.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "096-counseling.png",
+      "duration_ms": 562,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/counseling/records",
+      "name": "counseling.records",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "097-counseling_records.png",
+      "duration_ms": 550,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/counseling/sessions",
+      "name": "counseling.sessions",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "098-counseling_sessions.png",
+      "duration_ms": 573,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/dashboard",
+      "name": "dashboard",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "099-dashboard.png",
+      "duration_ms": 546,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/dashboard/home",
+      "name": "homepage",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "100-dashboard_home.png",
+      "duration_ms": 532,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/discipline",
+      "name": "discipline.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "101-discipline.png",
+      "duration_ms": 552,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/discipline/create",
+      "name": "discipline.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "102-discipline_create.png",
+      "duration_ms": 565,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/discipline/incidents",
+      "name": "discipline.incidents",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "103-discipline_incidents.png",
+      "duration_ms": 636,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/discipline/reports",
+      "name": "discipline.reports",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "104-discipline_reports.png",
+      "duration_ms": 532,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/district/create",
+      "name": "district.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "105-district_create.png",
+      "duration_ms": 549,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/district/edit/1",
+      "name": "district.edit",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "106-district_edit_id.png",
+      "duration_ms": 549,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/district/list",
+      "name": "district.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "107-district_list.png",
+      "duration_ms": 565,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/division/create",
+      "name": "division.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "108-division_create.png",
+      "duration_ms": 557,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/division/edit/1",
+      "name": "division.edit",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "109-division_edit_id.png",
+      "duration_ms": 545,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/division/list",
+      "name": "division.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "110-division_list.png",
+      "duration_ms": 533,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/dormitory",
+      "name": "dormitory.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "111-dormitory.png",
+      "duration_ms": 550,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/emailsms",
+      "name": "emailsms.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "112-emailsms.png",
+      "duration_ms": 533,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/exams",
+      "name": "exams.index",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "113-exams.png",
+      "duration_ms": 534,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/exams/create",
+      "name": "exams.create",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "114-exams_create.png",
+      "duration_ms": 551,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/exams/1",
+      "name": "exams.show",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "115-exams_exam.png",
+      "duration_ms": 565,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/exams/1/edit",
+      "name": "exams.edit",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "116-exams_exam_edit.png",
+      "duration_ms": 565,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/exams/1/marks-entry",
+      "name": "exams.marks-entry",
+      "status": 200,
+      "title": "Green Chartered School & College",
+      "screenshot": "117-exams_exam_marks_entry.png",
+      "duration_ms": 584,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": [],
+      "body_excerpt": "Dark\nSchool Management System Login\n\nEnter your email and password to access your account\n\nEmail\nPassword\nRemember me\nForgot your password?\nSIGN IN"
+    },
+    {
+      "uri": "/exams/1/marks-entry/csv/export",
+      "name": "exams.marks-entry.csv-export",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1/exams/1/marks-entry/csv/export\", waiting until \"domcontentloaded\"\u001b[22m\n",
+      "duration_ms": 130,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/exams/1/preview",
+      "name": "exams.preview",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/exams/1/preview/pdf",
+      "name": "exams.preview-pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/exams/1/terminal-result",
+      "name": "exams.terminal-result",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/exams/1/terminal-result/pdf",
+      "name": "exams.terminal-result-pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/expense-categories",
+      "name": "expense-categories.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/expense-categories/create",
+      "name": "expense-categories.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/expense-categories/1/edit",
+      "name": "expense-categories.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/expenses",
+      "name": "expenses.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/expenses/create",
+      "name": "expenses.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/expenses/1/edit",
+      "name": "expenses.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/expenses/1/voucher",
+      "name": "expenses.voucher",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/facilities/booking",
+      "name": "facilities.booking",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/facilities/booking/create",
+      "name": "facilities.booking.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/facility-bookings",
+      "name": "facilities.bookings.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/facility-bookings/create",
+      "name": "facilities.bookings.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/facility-bookings/hub",
+      "name": "facilities.bookings.hub",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/facility-bookings/1",
+      "name": "facilities.bookings.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/facility-bookings/1/edit",
+      "name": "facilities.bookings.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fee-categories",
+      "name": "fee-categories.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fee-categories/create",
+      "name": "fee-categories.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fee-categories/1/edit",
+      "name": "fee-categories.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fee-sets",
+      "name": "fee-sets.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fee-sets/create",
+      "name": "fee-sets.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fee-sets/1/edit",
+      "name": "fee-sets.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees",
+      "name": "fees.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/all-in-one-report",
+      "name": "fees.all-in-one-report",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/all-in-one-report/pdf",
+      "name": "fees.all-in-one-report.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/category-pay",
+      "name": "fees.category.pay",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/collect",
+      "name": "fees.collect",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/collect_payment",
+      "name": "fees.collect_payment",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/create",
+      "name": "fees.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/discount-list",
+      "name": "fees.discount-list",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/discount-list/pdf",
+      "name": "fees.discount-list.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/due-report",
+      "name": "fees.due-report",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/due-report/pdf",
+      "name": "fees.due-report.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/hub",
+      "name": "fees.hub",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/load-category-fees",
+      "name": "fees.load.category",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/payment-report",
+      "name": "fees.payment-report",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/payment-report/pdf",
+      "name": "fees.payment-report.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/search",
+      "name": "fees.search",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/search-student",
+      "name": "fees.search-student",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/student-due-report",
+      "name": "fees.student-due-report",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/student-due-report/monthwise-pdf",
+      "name": "fees.student-due-report.monthwise-pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/student-due-report/pdf",
+      "name": "fees.student-due-report.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/student-ledger",
+      "name": "fees.student-ledger.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/student-ledger/1",
+      "name": "fees.student-ledger.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/student-ledger/1/pdf",
+      "name": "fees.student-ledger.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/student-receivable-report",
+      "name": "fees.student-receivable-report",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/student-receivable-report/pdf",
+      "name": "fees.student-receivable-report.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/student-receive-report",
+      "name": "fees.student-receive-report",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/student-receive-report/pdf",
+      "name": "fees.student-receive-report.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/fees/1/edit",
+      "name": "fees.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/financials/hub",
+      "name": "financials.hub",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/forgot-password",
+      "name": "password.request",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/free-studentships",
+      "name": "free-studentships.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/free-studentships/create",
+      "name": "free-studentships.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/free-studentships/pdf",
+      "name": "free-studentships.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/free-studentships/students",
+      "name": "free-studentships.students",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/get_next_roll_cid",
+      "name": "get_next_roll_cid",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/groups",
+      "name": "groups.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/groups/create",
+      "name": "groups.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/groups/1/edit",
+      "name": "groups.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hand-cash",
+      "name": "hand-cash.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hand-cash/create",
+      "name": "hand-cash.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hand-cash/1/edit",
+      "name": "hand-cash.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/health",
+      "name": "health.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/health/create",
+      "name": "health.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/health/1/edit",
+      "name": "health.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/homework",
+      "name": "homework.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/attendance",
+      "name": "attendance.staff",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/dashboard",
+      "name": "hr.dashboard",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/departments",
+      "name": "hr.departments.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/departments/create",
+      "name": "hr.departments.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/departments/1/edit",
+      "name": "hr.departments.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/designations",
+      "name": "hr.designations.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/designations/create",
+      "name": "hr.designations.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/designations/1",
+      "name": "hr.designations.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/designations/1/edit",
+      "name": "hr.designations.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/employees",
+      "name": "hr.employees.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/employees/create",
+      "name": "hr.employees.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 3,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/employees/1",
+      "name": "hr.employees.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/employees/1/edit",
+      "name": "hr.employees.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/employees/1/documents",
+      "name": "hr.employees.documents",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/employees/1/payment",
+      "name": "hr.employees.payment.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/hub",
+      "name": "hr.hub",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/leave",
+      "name": "hr.leave.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/leave/balances",
+      "name": "hr.leave.balances",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/leave/create",
+      "name": "hr.leave.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/payroll",
+      "name": "hr.payroll.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/payroll/1/slip",
+      "name": "hr.payroll.slip",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/payroll/1/1",
+      "name": "hr.payroll.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/reports/hierarchy",
+      "name": "hr.reports.hierarchy",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/reports/leave",
+      "name": "hr.reports.leave",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/reports/payroll-summary",
+      "name": "hr.reports.payroll-summary",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/reports/salary-sheet",
+      "name": "hr.reports.salary-sheet",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/salary-structures",
+      "name": "hr.salary-structures.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/salary-structures/create",
+      "name": "hr.salary-structures.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/salary-structures/1/edit",
+      "name": "hr.salary-structures.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/salary/defaults",
+      "name": "hr.salary.defaults.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/salary/defaults/1",
+      "name": "hr.salary.defaults.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/salary/load-defaults/1",
+      "name": "hr.salary.load-defaults",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/staff",
+      "name": "staff.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/staff/create",
+      "name": "staff.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/hr/staff/1/edit",
+      "name": "staff.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/id-card-templates",
+      "name": "id-card-templates.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/id-card-templates/create",
+      "name": "id-card-templates.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/id-card-templates/1/edit",
+      "name": "id-card-templates.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/idcards",
+      "name": "idcards.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/idcards/create",
+      "name": "idcards.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/idcards/1/edit",
+      "name": "idcards.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/income-categories",
+      "name": "income-categories.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/income-categories/create",
+      "name": "income-categories.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/income-categories/1/edit",
+      "name": "income-categories.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/incomes",
+      "name": "incomes.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/incomes/create",
+      "name": "incomes.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/incomes/1/edit",
+      "name": "incomes.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/incomes/1/voucher",
+      "name": "incomes.voucher",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/institute/hub",
+      "name": "institute.hub",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/categories",
+      "name": "inventory.categories.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/categories/create",
+      "name": "inventory.categories.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/categories/1/edit",
+      "name": "inventory.categories.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/hub",
+      "name": "inventory.hub",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/opening-stock",
+      "name": "inventory.opening-stock.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/products",
+      "name": "inventory.products.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/products/create",
+      "name": "inventory.products.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/products/1/edit",
+      "name": "inventory.products.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/purchases",
+      "name": "inventory.purchases.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/purchases/create",
+      "name": "inventory.purchases.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/purchases/1",
+      "name": "inventory.purchases.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/purchases/1/voucher",
+      "name": "inventory.purchases.voucher",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/reports/low-stock",
+      "name": "inventory.reports.lowStock",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/reports/stock",
+      "name": "inventory.reports.stock",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/sales/hub",
+      "name": "inventory.sales.hub",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/suppliers",
+      "name": "inventory.suppliers.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/suppliers/create",
+      "name": "inventory.suppliers.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/inventory/suppliers/1/edit",
+      "name": "inventory.suppliers.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/journal-entries",
+      "name": "journal-entries.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/journal-entries/1",
+      "name": "journal-entries.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/language/1",
+      "name": "locale.switch",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/ledger",
+      "name": "ledger.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lessonplan",
+      "name": "lessonplan.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lessonplan/create",
+      "name": "lessonplan.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lessonplan/overview",
+      "name": "lessonplan.overview",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lessonplan/1/edit",
+      "name": "lessonplan.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lessonplan/1/view",
+      "name": "lessonplan.view",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lessonplans",
+      "name": "lessonplans.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lessonplans/create",
+      "name": "lessonplans.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lessonplans/1/edit",
+      "name": "lessonplans.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 2,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lessons",
+      "name": "lessons.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lessons/create",
+      "name": "lessons.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lessons/1/edit",
+      "name": "lessons.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/library",
+      "name": "library.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lms/assignments",
+      "name": "lms.assignments",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lms/assignments/create",
+      "name": "lms.assignments.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lms/content-management",
+      "name": "lms.content_management",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lms/courses",
+      "name": "lms.courses",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lms/courses/create",
+      "name": "lms.courses.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lms/digital-classroom",
+      "name": "lms.digital_classroom",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/lms/video-conference",
+      "name": "lms.video_conference",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/load_districts",
+      "name": "load_districts",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/load_groups",
+      "name": "load_groups",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/load_police_stations",
+      "name": "load_police_stations",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/load_post_offices",
+      "name": "load_post_offices",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/load_section_groups",
+      "name": "load_section_groups",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/location/hub",
+      "name": "location.hub",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/login",
+      "name": "login",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/login/verify-code",
+      "name": "login.verify.form",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/manage-assets",
+      "name": "assets.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/manage-assets/create",
+      "name": "assets.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/manage-assets/1/edit",
+      "name": "assets.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/marks",
+      "name": "marks.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/marks/seed",
+      "name": "marks.seed",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/marks/sweep",
+      "name": "marks.sweep",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/mobile-banking-accounts",
+      "name": "mobile-banking-accounts.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/mobile-banking-accounts/create",
+      "name": "mobile-banking-accounts.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/mobile-banking-accounts/1/edit",
+      "name": "mobile-banking-accounts.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/mobile/notifications",
+      "name": "mobile.notifications",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/mobile/offline",
+      "name": "mobile.offline",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/mobile/settings",
+      "name": "mobile.settings",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/notice",
+      "name": "notice.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/notice/create",
+      "name": "notice.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/notice/1/edit",
+      "name": "notice.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/onlineexams",
+      "name": "onlineexams.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/parents",
+      "name": "parents.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/parents/create",
+      "name": "parents.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/payments",
+      "name": "payments.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/payments/1/edit",
+      "name": "payments.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/payments/1/receipt",
+      "name": "payments.receipt",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/permission-categories",
+      "name": "permission-categories.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/permission-categories/create",
+      "name": "permission-categories.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/permission-categories/1/edit",
+      "name": "permission-categories.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/permissions",
+      "name": "permissions.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/permissions/create",
+      "name": "permissions.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/permissions/1/edit",
+      "name": "permissions.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/police-station/create",
+      "name": "police-station.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/police-station/edit/1",
+      "name": "police-station.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/police-station/list",
+      "name": "police-station.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/post-office/create",
+      "name": "post-office.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/post-office/edit/1",
+      "name": "post-office.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/post-office/list",
+      "name": "post-office.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/procurement/allocation",
+      "name": "procurement.allocation",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/procurement/budget",
+      "name": "procurement.budget",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/procurement/orders",
+      "name": "procurement.orders",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/procurement/orders/create",
+      "name": "procurement.orders.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/procurement/vendors",
+      "name": "procurement.vendors",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/procurement/vendors/create",
+      "name": "procurement.vendors.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/professions",
+      "name": "professions.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/profile",
+      "name": "profile.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reboot",
+      "name": null,
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/register",
+      "name": "register",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/balance-sheet",
+      "name": "reports.balance-sheet",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/balance-sheet/pdf",
+      "name": "reports.balance-sheet.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/cash-book",
+      "name": "reports.cash-book",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/cash-book/pdf",
+      "name": "reports.cash-book.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/cash-flow",
+      "name": "reports.cash-flow",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/cash-flow/pdf",
+      "name": "reports.cash-flow.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/cash-summary",
+      "name": "reports.cash-summary",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/cash-summary/pdf",
+      "name": "reports.cash-summary.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/chart-of-accounts",
+      "name": "reports.chart-of-accounts",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/chart-of-accounts/pdf",
+      "name": "reports.chart-of-accounts.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/day-book",
+      "name": "reports.day-book",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/day-book/pdf",
+      "name": "reports.day-book.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/details-trial-balance",
+      "name": "reports.details-trial-balance",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/details-trial-balance/pdf",
+      "name": "reports.details-trial-balance.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/headwise-transactions",
+      "name": "reports.headwise-transactions",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/headwise-transactions/pdf",
+      "name": "reports.headwise-transactions.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/hub",
+      "name": "reports.hub",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/income-expenditure",
+      "name": "reports.income-expenditure",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/income-expenditure/pdf",
+      "name": "reports.income-expenditure.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/receipt-payment",
+      "name": "reports.receipt-payment",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/receipt-payment/pdf",
+      "name": "reports.receipt-payment.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/student",
+      "name": "reports.student",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/student-payment",
+      "name": "reports.student-payment",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/student-payment/pdf",
+      "name": "reports.student-payment.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/supplier-dues",
+      "name": "reports.supplier-dues",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/supplier-dues/pdf",
+      "name": "reports.supplier-dues.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/trial-balance",
+      "name": "reports.trial-balance",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reports/trial-balance/pdf",
+      "name": "reports.trial-balance.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/reset-password/invalid-token",
+      "name": "password.reset",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/result/progress-report",
+      "name": "result.progress-report.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/result/progress-report/pdf",
+      "name": "result.progress-report.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/result/progress-report/results",
+      "name": "result.progress-report.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/result/progress-report/template-settings",
+      "name": "result.progress-report.template-settings.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/result/tutorial-report",
+      "name": "result.tutorial-report.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/result/tutorial-report/pdf",
+      "name": "result.tutorial-report.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/result/tutorial-report/results",
+      "name": "result.tutorial-report.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/result/yearly-final-report",
+      "name": "result.yearly-final-report.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/result/yearly-final-report/pdf",
+      "name": "result.yearly-final-report.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/result/yearly-final-report/preview",
+      "name": "result.yearly-final-report.preview",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/result/yearly-final-report/results",
+      "name": "result.yearly-final-report.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/result/yearly-final-report/template-settings",
+      "name": "result.yearly-final-report.template-settings.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/results",
+      "name": "results.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/results/admit-seat-cards",
+      "name": "results.admit-seat-cards.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/results/admit-seat-cards/exams",
+      "name": "results.admit-seat-cards.exams",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/results/admit-seat-cards/pdf",
+      "name": "results.admit-seat-cards.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/results/create",
+      "name": "results.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/results/hub",
+      "name": "results.hub",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/results/reports",
+      "name": "results.reports",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/results/result-sheets",
+      "name": "results.result-sheets",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/results/result-sheets/exams",
+      "name": "results.result-sheets.exams",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/results/1/edit",
+      "name": "results.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/roles",
+      "name": "roles.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/roles/create",
+      "name": "roles.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/roles/1/edit",
+      "name": "roles.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/rooms",
+      "name": "rooms.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/rooms/create",
+      "name": "rooms.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/rooms/1/edit",
+      "name": "rooms.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/routines",
+      "name": "routines.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/routines/create",
+      "name": "routines.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/routines/1",
+      "name": "routines.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/routines/1/edit",
+      "name": "routines.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/sanctum/csrf-cookie",
+      "name": "sanctum.csrf-cookie",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/scholarships",
+      "name": "scholarships.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/scholarships/create",
+      "name": "scholarships.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/scholarships/pdf",
+      "name": "scholarships.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/scholarships/students",
+      "name": "scholarships.students",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/school-settings",
+      "name": "school-settings.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/sections",
+      "name": "sections.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/sections/create",
+      "name": "sections.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/sections/1/edit",
+      "name": "sections.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/sessions",
+      "name": "sessions.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/sessions/create",
+      "name": "sessions.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/sessions/1/edit",
+      "name": "sessions.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/settings",
+      "name": "settings.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/settings/backup",
+      "name": "backup.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/settings/backup/download/1",
+      "name": "backup.download",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/settings/email",
+      "name": "email.settings",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/settings/general",
+      "name": "general.settings",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/settings/payment",
+      "name": "payment.settings",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/shareholder-transactions",
+      "name": "shareholder-transactions.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/shareholder-transactions/create",
+      "name": "shareholder-transactions.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/shareholder-transactions/1/voucher",
+      "name": "shareholder-transactions.voucher",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/shareholder-transactions/1",
+      "name": "shareholder-transactions.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/shareholder-transactions/1/edit",
+      "name": "shareholder-transactions.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/shareholders",
+      "name": "shareholders.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/shareholders/contribution",
+      "name": "shareholders.contribution",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/shareholders/contribution/pdf",
+      "name": "shareholders.contribution.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/shareholders/create",
+      "name": "shareholders.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/shareholders/hub",
+      "name": "shareholders.hub",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/shareholders/1",
+      "name": "shareholders.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/shareholders/1/edit",
+      "name": "shareholders.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/sports",
+      "name": "sports.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/sports/create",
+      "name": "sports.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/sports/teams",
+      "name": "sports.teams",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/sports/tournaments",
+      "name": "sports.tournaments",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/storage/1",
+      "name": "storage.local",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/student-subjects",
+      "name": "student-subjects.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/student-subjects/ajax/exams-by-session",
+      "name": "student-subjects.ajax.exams-by-session",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/student-subjects/1/assign",
+      "name": "student-subjects.assign",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students",
+      "name": "students.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/admission",
+      "name": "students.admission",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/birthdays",
+      "name": "students.birthdays",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/birthdays/1/card/preview",
+      "name": "students.birthdays.card.preview",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/certificates",
+      "name": "students.certificates",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/certificates/1/tc",
+      "name": "students.tc",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/certificates/1/tc/pdf",
+      "name": "students.tc.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/certificates/1/testimonial",
+      "name": "students.testimonial",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/certificates/1/testimonial/pdf",
+      "name": "students.testimonial.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/certificates/1/types/1",
+      "name": "students.certificate.preview",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/certificates/1/types/1/pdf",
+      "name": "students.certificate.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/checked-out",
+      "name": "students.checked-out",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/checkout",
+      "name": "students.checkout",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/correction",
+      "name": "students.correction",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/create",
+      "name": "students.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/export",
+      "name": "students.export",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/history",
+      "name": "students.history",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/history/1",
+      "name": "students.history.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/hub",
+      "name": "students.hub",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/id-cards",
+      "name": "students.id-cards",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/id-cards/pdf",
+      "name": "students.id-cards.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/pdf/list",
+      "name": "students.list-pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/progress",
+      "name": "students.progress",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/promote",
+      "name": "students.promote",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/1",
+      "name": "students.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/1/edit",
+      "name": "students.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/students/1/pdf",
+      "name": "students.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/subjects",
+      "name": "subjects.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/subjects/by-class",
+      "name": "subjects.by-class",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/subjects/classwise",
+      "name": "subjects.classwise",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/subjects/create",
+      "name": "subjects.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/subjects/1",
+      "name": "subjects.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/subjects/1/edit",
+      "name": "subjects.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/teacher-section-assignments",
+      "name": "teacher-section-assignments.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/teacher/attendance",
+      "name": "attendance.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/teacher/attendance/load",
+      "name": "attendance.load",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/teacher/attendance/report/monthly",
+      "name": "attendance.report.monthly",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/teacher/attendance/report/monthly/load",
+      "name": "attendance.report.monthly.load",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/teacher/attendance/report/monthly/pdf",
+      "name": "attendance.report.monthly.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/teachers",
+      "name": "teachers.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/teachers/create",
+      "name": "teachers.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/teachers/1/edit",
+      "name": "teachers.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/timetable",
+      "name": "timetable.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/timetable/create",
+      "name": "timetable.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/timetable/1/edit",
+      "name": "timetable.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/topics",
+      "name": "topics.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/topics/create",
+      "name": "topics.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/topics/1/edit",
+      "name": "topics.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/transactions",
+      "name": "transactions.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/transactions/create",
+      "name": "transactions.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/transactions/pdf",
+      "name": "transactions.pdf",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/transactions/1/edit",
+      "name": "transactions.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/transport",
+      "name": "transport.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/transports",
+      "name": "transports.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/transports/create",
+      "name": "transports.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/transports/edit/1",
+      "name": "transports.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/transports/students",
+      "name": "transports.get-students",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/up",
+      "name": null,
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/users",
+      "name": "users.index",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/users/create",
+      "name": "users.create",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/users/hub",
+      "name": "users.hub",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/users/1",
+      "name": "users.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/users/1/edit",
+      "name": "users.edit",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/verify-email",
+      "name": "verification.notice",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/verify-email/1/1",
+      "name": "verification.verify",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website",
+      "name": "website.",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/about",
+      "name": "website.about",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/academic-calendar",
+      "name": "website.academic-calendar",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/contact",
+      "name": "website.contact",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/events",
+      "name": "website.events",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/events/1",
+      "name": "website.event.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/exam-schedule",
+      "name": "website.exam-schedule",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/gallery",
+      "name": "website.gallery",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/holidays",
+      "name": "website.holidays",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/home",
+      "name": "website.home",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/notices",
+      "name": "website.notices",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/notices/1",
+      "name": "website.notice.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/page/1",
+      "name": "website.page.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/result",
+      "name": "website.result.check",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 1,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/result/final-report",
+      "name": "website.result.final-report",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/staff",
+      "name": "website.staff",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/staff/1",
+      "name": "website.staff.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/teachers",
+      "name": "website.teachers",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    },
+    {
+      "uri": "/website/teachers/1",
+      "name": "website.teacher.show",
+      "status": null,
+      "error": "page.goto: Target page, context or browser has been closed",
+      "duration_ms": 0,
+      "redirected_to": "http://127.0.0.1/login",
+      "console_errors": []
+    }
+  ]
+}
