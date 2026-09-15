@@ -10,6 +10,9 @@
                 if (window.innerWidth >= 992 && window.localStorage.getItem('school-sidebar-collapsed') === '1') {
                     document.body.classList.add('sidebar-collapse');
                 }
+                if (window.localStorage.getItem('school-hub-switcher-visible') === '0') {
+                    document.body.classList.add('hub-switcher-hidden');
+                }
             } catch (error) {
                 // Keep the default expanded state when storage is unavailable.
             }
@@ -68,6 +71,10 @@
 
     <style>
         @media (max-width: 991.98px) {
+            .hub-mobile-hide-hero {
+                display: none !important;
+            }
+
             #mainSidebar {
                 position: fixed !important;
                 inset: 0 auto 0 0;
@@ -101,8 +108,10 @@
                 pointer-events: auto;
             }
 
+            html.sidebar-open,
             body.sidebar-open {
                 overflow: hidden;
+                overscroll-behavior: none;
             }
         }
 
@@ -141,6 +150,7 @@
             function closeSidebar() {
                 sidebar.removeClass('mobile-open');
                 overlay.removeClass('active');
+                $('html').removeClass('sidebar-open');
                 $('body').removeClass('sidebar-open');
                 $('#sidebar-overlay').remove();
             }
@@ -172,9 +182,47 @@
                 }
             }
 
+            function setHubSwitcherVisibility(isVisible) {
+                $('body').toggleClass('hub-switcher-hidden', !isVisible);
+
+                $('[data-hub-switcher-toggle]').each(function() {
+                    var $toggle = $(this);
+                    var title = isVisible ? '{{ __('Hide module menu') }}' : '{{ __('Show module menu') }}';
+
+                    if ($toggle.is(':checkbox')) {
+                        $toggle.prop('checked', isVisible).attr('title', title);
+                    } else {
+                        $toggle
+                            .attr('aria-pressed', isVisible ? 'true' : 'false')
+                            .attr('title', title)
+                            .find('i')
+                            .toggleClass('fa-eye', isVisible)
+                            .toggleClass('fa-eye-slash', !isVisible);
+                    }
+                });
+
+                try {
+                    window.localStorage.setItem('school-hub-switcher-visible', isVisible ? '1' : '0');
+                } catch (error) {
+                    // The menu remains usable when storage is unavailable.
+                }
+            }
+
+            function applyHubSwitcherVisibility() {
+                var isVisible = true;
+                try {
+                    isVisible = window.localStorage.getItem('school-hub-switcher-visible') !== '0';
+                } catch (error) {
+                    // Keep the default visible state when storage is unavailable.
+                }
+
+                setHubSwitcherVisibility(isVisible);
+            }
+
             function openSidebar() {
                 sidebar.addClass('mobile-open');
                 overlay.addClass('active');
+                $('html').addClass('sidebar-open');
                 $('body').addClass('sidebar-open');
                 $('#sidebar-overlay').remove();
             }
@@ -211,6 +259,14 @@
             });
 
             $(document).on('collapsed.lte.pushmenu expanded.lte.pushmenu', rememberDesktopSidebarState);
+
+            $(document).on('change', '[data-hub-switcher-toggle]', function() {
+                setHubSwitcherVisibility($(this).is(':checkbox')
+                    ? $(this).is(':checked')
+                    : !$('body').hasClass('hub-switcher-hidden'));
+            });
+
+            applyHubSwitcherVisibility();
             
             // Close sidebar when overlay is clicked
             $(document).on('click', '#sidebarOverlay', function(e) {

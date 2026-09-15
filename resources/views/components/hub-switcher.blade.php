@@ -9,11 +9,10 @@
         ['label' => __('Accounts'), 'icon' => 'fa-book', 'route' => 'accounts.hub', 'permission' => 'view_accounts', 'match' => ['accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*', 'transactions.*']],
         ['label' => __('HR'), 'icon' => 'fa-users', 'route' => 'hr.hub', 'permission' => 'view_hr', 'match' => ['hr.*']],
         ['label' => __('Inventory'), 'icon' => 'fa-boxes', 'route' => 'inventory.hub', 'permission' => 'view_inventory', 'match' => ['inventory.*']],
-        ['label' => __('Financials'), 'icon' => 'fa-chart-line', 'route' => 'financials.hub', 'permission' => 'view_financials', 'match' => ['financials.*', 'incomes.*', 'expenses.*', 'income-categories.*', 'expense-categories.*', 'shareholder-transactions.*']],
+        ['label' => __('Financials'), 'icon' => 'fa-chart-line', 'route' => 'financials.hub', 'permission' => 'view_financials', 'match' => ['financials.*', 'incomes.*', 'expenses.*', 'income-categories.*', 'expense-categories.*', 'shareholder-transactions.*', 'shareholders.*']],
         ['label' => __('Assets'), 'icon' => 'fa-building', 'route' => 'assets.hub', 'permission' => 'view_assets', 'match' => ['assets.*', 'asset-categories.*', 'asset-purchases.*', 'asset-issues.*', 'facilities.*']],
-        ['label' => __('Institute'), 'icon' => 'fa-cogs', 'route' => 'institute.hub', 'permission' => 'view_institute_settings', 'match' => ['institute.*', 'school-settings.*', 'certificates.*', 'id-card-templates.*', 'buildings.*', 'rooms.*']],
+        ['label' => __('Settings'), 'icon' => 'fa-cogs', 'route' => 'institute.hub', 'permission' => 'view_institute_settings', 'match' => ['institute.*', 'school-settings.*', 'certificates.*', 'id-card-templates.*', 'buildings.*', 'rooms.*', 'location.*', 'division.*', 'district.*', 'police-station.*', 'post-office.*']],
         ['label' => __('Users'), 'icon' => 'fa-user-cog', 'route' => 'users.hub', 'permission' => 'view_users', 'match' => ['users.*', 'roles.*', 'permissions.*', 'permission-categories.*']],
-        ['label' => __('Locations'), 'icon' => 'fa-map-marker-alt', 'route' => 'location.hub', 'permission' => 'view_location_settings', 'match' => ['location.*', 'division.*', 'district.*', 'police-station.*', 'post-office.*']],
     ];
 
     $hubModules = collect($hubModules)->filter(fn ($module) => \Illuminate\Support\Facades\Route::has($module['route']) && auth()->user()?->hasPermission($module['permission']))->values();
@@ -56,7 +55,6 @@
         'results.hub' => [
             ['label' => __('All Exams'), 'route' => 'exams.index', 'permission' => 'view_card_all_exams', 'match' => ['exams.*']],
             ['label' => __('Admit and Seat Cards'), 'route' => 'results.admit-seat-cards.index', 'permission' => 'view_results', 'match' => ['results.admit-seat-cards.*']],
-            ['label' => __('Subject Assignment'), 'route' => 'student-subjects.index', 'permission' => 'view_card_subject_assignment', 'match' => ['student-subjects.*']],
             ['label' => __('Result Sheets'), 'route' => 'results.result-sheets', 'permission' => 'view_results', 'match' => ['results.result-sheets*']],
             ['label' => __('Terminal Report'), 'route' => 'result.progress-report.index', 'permission' => 'view_card_terminal_report', 'match' => ['result.progress-report.*']],
             ['label' => __('Yearly Report'), 'route' => 'result.yearly-final-report.index', 'permission' => 'view_card_yearly_final_report', 'match' => ['result.yearly-final-report.*']],
@@ -113,6 +111,9 @@
             ['label' => __('Capital'), 'route' => 'shareholder-transactions.index', 'permission' => 'view_card_capital', 'params' => ['type' => 'capital'], 'match' => ['shareholder-transactions.*']],
             ['label' => __('Income Categories'), 'route' => 'income-categories.index', 'permission' => 'view_card_income_categories', 'match' => ['income-categories.*']],
             ['label' => __('Expense Categories'), 'route' => 'expense-categories.index', 'permission' => 'view_card_expense_categories', 'match' => ['expense-categories.*']],
+            ['label' => __('All Shareholders'), 'route' => 'shareholders.index', 'permission' => 'view_card_all_shareholders', 'match' => ['shareholders.index', 'shareholders.show']],
+            ['label' => __('Add Shareholder'), 'route' => 'shareholders.create', 'permission' => 'view_card_add_shareholder', 'match' => ['shareholders.create']],
+            ['label' => __('Contribution'), 'route' => 'shareholders.contribution', 'permission' => 'view_card_all_shareholders', 'match' => ['shareholders.contribution']],
         ],
         'shareholders.hub' => [
             ['label' => __('All Shareholders'), 'route' => 'shareholders.index', 'permission' => 'view_card_all_shareholders', 'match' => ['shareholders.index', 'shareholders.show']],
@@ -138,21 +139,18 @@
         'institute.hub' => [
             ['label' => __('School Settings'), 'route' => 'school-settings.index', 'permission' => 'view_card_school_settings', 'match' => ['school-settings.*']],
             ['label' => __('Certificate Types'), 'route' => 'certificates.index', 'permission' => 'view_card_school_settings', 'match' => ['certificates.*']],
-            ['label' => __('Principal Signature'), 'route' => 'school-settings.index', 'permission' => 'view_card_school_settings', 'anchor' => 'principal-signature', 'match' => ['school-settings.*']],
             ['label' => __('Buildings'), 'route' => 'buildings.index', 'permission' => 'view_card_buildings', 'match' => ['buildings.*']],
             ['label' => __('Rooms'), 'route' => 'rooms.index', 'permission' => 'view_card_rooms', 'match' => ['rooms.*']],
+            ['label' => __('Division'), 'route' => 'division.index', 'permission' => 'view_card_divisions', 'match' => ['division.*']],
+            ['label' => __('District'), 'route' => 'district.index', 'permission' => 'view_card_districts', 'match' => ['district.*']],
+            ['label' => __('Police Station'), 'route' => 'police-station.index', 'permission' => 'view_card_police_stations', 'match' => ['police-station.*']],
+            ['label' => __('Post Office'), 'route' => 'post-office.index', 'permission' => 'view_card_post_offices', 'match' => ['post-office.*']],
         ],
         'users.hub' => [
             ['label' => __('Users'), 'route' => 'users.index', 'permission' => 'view_card_users', 'match' => ['users.*']],
             ['label' => __('Roles'), 'route' => 'roles.index', 'permission' => 'view_card_roles', 'match' => ['roles.*']],
             ['label' => __('Permissions'), 'route' => 'permissions.index', 'permission' => 'view_card_permissions', 'match' => ['permissions.*']],
             ['label' => __('Audit Trail'), 'route' => 'audit-trails.index', 'permission' => 'view_audit_trail', 'match' => ['audit-trails.*']],
-        ],
-        'location.hub' => [
-            ['label' => __('Division'), 'route' => 'division.index', 'permission' => 'view_card_divisions', 'match' => ['division.*']],
-            ['label' => __('District'), 'route' => 'district.index', 'permission' => 'view_card_districts', 'match' => ['district.*']],
-            ['label' => __('Police Station'), 'route' => 'police-station.index', 'permission' => 'view_card_police_stations', 'match' => ['police-station.*']],
-            ['label' => __('Post Office'), 'route' => 'post-office.index', 'permission' => 'view_card_post_offices', 'match' => ['post-office.*']],
         ],
     ];
 
@@ -211,6 +209,10 @@
 
 @once
     <style>
+        .hub-switcher-hidden .hub-switcher {
+            display: none !important;
+        }
+
         .hub-switcher {
             position: relative;
             z-index: 1020;

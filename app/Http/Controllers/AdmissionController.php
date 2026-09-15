@@ -829,14 +829,6 @@ class AdmissionController extends Controller
         $pdf = new Mpdf([
             'mode' => 'utf-8',
             'format' => 'A4',
-            'fontDir' => [base_path('resources/fonts')],
-            'fontdata' => [
-                'lohitbengali' => [
-                    'R' => 'Lohit-Bengali.ttf',
-                    'B' => 'Lohit-Bengali.ttf',
-                ],
-            ],
-            'default_font' => 'lohitbengali',
             'margin_top' => 12,
             'margin_bottom' => 12,
             'margin_left' => 12,

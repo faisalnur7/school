@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('contents')
-<div class="container-fluid">
+<div class="container-fluid classrooms-page">
     <div class="card">
         <div class="card-header bg-gradient-primary text-white py-3">
             <div class="d-flex justify-content-between align-items-center">
@@ -72,7 +72,7 @@
                             <td>{{ $classroom->location ?: '—' }}</td>
                             <td class="text-center">
                                 @if(auth()->user()?->hasPermission('edit_classrooms'))
-                                    <a href="{{ route('classrooms.edit', $classroom->id) }}" class="btn btn-xs btn-warning">
+                                    <a href="{{ route('classrooms.edit', $classroom->id) }}" class="btn btn-xs classroom-action-btn classroom-action-edit" title="Edit" aria-label="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 @endif
@@ -80,7 +80,7 @@
                                     <form action="{{ route('classrooms.delete', $classroom->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this classroom?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button class="btn btn-xs btn-danger">
+                                        <button class="btn btn-xs classroom-action-btn classroom-action-delete" title="Delete" aria-label="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -100,4 +100,102 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('styles')
+<style>
+    html[data-theme='dark'] .classrooms-page .card,
+    html.dark .classrooms-page .card,
+    html[data-theme='dark'] .classrooms-page .card-body,
+    html.dark .classrooms-page .card-body,
+    html[data-theme='dark'] .classrooms-page .classrooms-filter-panel,
+    html.dark .classrooms-page .classrooms-filter-panel {
+        background: #111827 !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    html[data-theme='dark'] .classrooms-page .card-header,
+    html.dark .classrooms-page .card-header {
+        background: linear-gradient(135deg, #172554 0%, #111827 100%) !important;
+        border-color: #334155 !important;
+    }
+
+    html[data-theme='dark'] .classrooms-page .classrooms-filter-input,
+    html.dark .classrooms-page .classrooms-filter-input {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    html[data-theme='dark'] .classrooms-page .classrooms-filter-input::placeholder,
+    html.dark .classrooms-page .classrooms-filter-input::placeholder {
+        color: #94a3b8 !important;
+    }
+
+    html[data-theme='dark'] .classrooms-page .classrooms-filter-icon,
+    html.dark .classrooms-page .classrooms-filter-icon {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        color: #93c5fd !important;
+    }
+
+    html[data-theme='dark'] .classrooms-page .table,
+    html.dark .classrooms-page .table {
+        --bs-table-bg: #111827;
+        --bs-table-color: #e2e8f0;
+        --bs-table-hover-bg: #1e293b;
+        --bs-table-hover-color: #f8fafc;
+        border-color: #334155 !important;
+    }
+
+    html[data-theme='dark'] .classrooms-page .table thead,
+    html.dark .classrooms-page .table thead,
+    html[data-theme='dark'] .classrooms-page .table thead th,
+    html.dark .classrooms-page .table thead th {
+        background: #1e293b !important;
+        border-color: #475569 !important;
+        color: #e2e8f0 !important;
+    }
+
+    html[data-theme='dark'] .classrooms-page .table td,
+    html.dark .classrooms-page .table td {
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    html[data-theme='dark'] .classrooms-page .text-muted,
+    html.dark .classrooms-page .text-muted {
+        color: #94a3b8 !important;
+    }
+
+    html[data-theme='dark'] .classrooms-page .btn-outline-secondary,
+    html.dark .classrooms-page .btn-outline-secondary {
+        background: #111827 !important;
+        border-color: #475569 !important;
+        color: #cbd5e1 !important;
+    }
+
+    .classrooms-page .classroom-action-btn {
+        width: 2.15rem;
+        height: 2.15rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 0;
+        border-radius: 0.55rem;
+        color: #fff !important;
+        box-shadow: none;
+    }
+
+    .classrooms-page .classroom-action-edit {
+        background: #334155 !important;
+        border: 1px solid #475569 !important;
+    }
+
+    .classrooms-page .classroom-action-delete {
+        background: #ef3340 !important;
+    }
+</style>
 @endsection

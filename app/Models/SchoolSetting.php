@@ -9,7 +9,7 @@ class SchoolSetting extends Model
     protected $fillable = [
         'name', 'short_name', 'address', 'eiin',
         'from_class', 'to_class', 'slogan',
-        'website', 'email', 'facebook_page', 'whatsapp_number', 'whatsapp_qr',
+        'website', 'email', 'facebook_page', 'whatsapp_number', 'whatsapp_qr', 'principal_signature',
         'contact_number_1', 'contact_number_2',
         'primary_color', 'secondary_color',
         'logo', 'favicon', 'letter_head',

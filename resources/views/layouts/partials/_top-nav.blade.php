@@ -82,9 +82,9 @@
             @include('layouts.partials._theme-toggle', ['buttonClass' => 'topnav-theme-toggle'])
         </li>
 
-        <li class="nav-item dropdown">
-            <a class="nav-link" data-toggle="dropdown" href="#" aria-label="{{ __('User menu') }}">
-                <img src="{{ auth()->user()->image_url }}" alt="{{ __('User') }}" class="img-circle" style="width:28px;height:28px;object-fit:cover;">
+        <li class="nav-item dropdown topnav-user-item">
+            <a class="nav-link topnav-user-toggle" data-toggle="dropdown" href="#" aria-label="{{ __('User menu') }}">
+                <img src="{{ auth()->user()->image_url }}" alt="{{ __('User') }}" class="img-circle topnav-user-avatar" style="width:28px;height:28px;object-fit:cover;">
             </a>
             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right topnav-user-menu shadow-lg border-0 p-2">
                 <a href="#" class="dropdown-item topnav-user-menu__profile">
@@ -174,6 +174,28 @@
         box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
         color: #0f172a;
         backdrop-filter: blur(14px);
+    }
+
+    .topnav-user-avatar {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px;
+        aspect-ratio: 1 / 1;
+        display: block;
+        flex: 0 0 28px;
+        border-radius: 50% !important;
+        object-fit: cover;
+        overflow: hidden;
+    }
+
+    .topnav-user-item,
+    .topnav-user-toggle {
+        flex: 0 0 auto;
+    }
+
+    .topnav-user-toggle {
+        display: flex;
+        align-items: center;
     }
 
     .admin-topnav-datetime__inner {

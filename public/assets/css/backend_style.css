@@ -386,7 +386,7 @@ body.sidebar-collapse .nav-icon {
     position: fixed !important;
     inset: 0 !important;
     background: rgba(0, 0, 0, 0.6) !important;
-    z-index: 1001 !important;
+    z-index: 1060 !important;
     opacity: 0 !important;
     visibility: hidden !important;
     transition: opacity 0.3s ease, visibility 0.3s ease !important;
