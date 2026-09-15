@@ -171,6 +171,50 @@
                                     @enderror
                                 </div>
                             </div>
+
+                            <h5 class="mb-3 mt-2 text-muted border-bottom pb-2" id="principal-signature">Principal Signature</h5>
+                            <div class="row">
+                                    <div class="col-md-4 form-group">
+                                        <label class="font-weight-bold">Designation</label>
+                                        <input type="text" name="principal_designation"
+                                            class="form-control @error('principal_designation') is-invalid @enderror"
+                                            value="{{ old('principal_designation', $setting->principal_designation ?? 'Principal') }}"
+                                            placeholder="Principal">
+                                        @error('principal_designation')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-4 form-group">
+                                        <label class="font-weight-bold">Name</label>
+                                        <input type="text" name="principal_name"
+                                            class="form-control @error('principal_name') is-invalid @enderror"
+                                            value="{{ old('principal_name', $setting->principal_name) }}"
+                                            placeholder="Md. Raqib Hossain">
+                                        @error('principal_name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-4 form-group">
+                                        <label class="font-weight-bold">School Name</label>
+                                        <input type="text" name="principal_school_name"
+                                            class="form-control @error('principal_school_name') is-invalid @enderror"
+                                            value="{{ old('principal_school_name', $setting->principal_school_name ?? $setting->name) }}"
+                                            placeholder="Green Chartered School & College">
+                                        @error('principal_school_name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-4 form-group mb-0">
+                                        <label class="font-weight-bold">Phone</label>
+                                        <input type="text" name="principal_phone"
+                                            class="form-control @error('principal_phone') is-invalid @enderror"
+                                            value="{{ old('principal_phone', $setting->principal_phone) }}"
+                                            placeholder="Phone-01886-780641, 01886-780642">
+                                        @error('principal_phone')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                            </div>
                         </div>
 
 
@@ -270,54 +314,23 @@
                                 <small class="text-muted">Upload QR code image. Max 100KB.</small>
                             </div>
 
-                            <div class="card border shadow-sm mb-3" id="principal-signature">
-                                <div class="card-header bg-light py-2">
-                                    <h5 class="mb-0 text-dark">
-                                        <i class="fas fa-signature mr-1"></i> Principal Signature
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="form-group">
-                                        <label class="font-weight-bold">Designation</label>
-                                        <input type="text" name="principal_designation"
-                                            class="form-control @error('principal_designation') is-invalid @enderror"
-                                            value="{{ old('principal_designation', $setting->principal_designation ?? 'Principal') }}"
-                                            placeholder="Principal">
-                                        @error('principal_designation')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                            <div class="form-group mt-3">
+                                <label class="font-weight-bold">Principal Signature</label>
+                                @if ($setting->principal_signature)
+                                    <div class="mb-2">
+                                        <img src="{{ asset($setting->principal_signature) }}" alt="Principal Signature"
+                                            class="img-thumbnail" style="max-height:100px">
                                     </div>
-                                    <div class="form-group">
-                                        <label class="font-weight-bold">Name</label>
-                                        <input type="text" name="principal_name"
-                                            class="form-control @error('principal_name') is-invalid @enderror"
-                                            value="{{ old('principal_name', $setting->principal_name) }}"
-                                            placeholder="Md. Raqib Hossain">
-                                        @error('principal_name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="font-weight-bold">School Name</label>
-                                        <input type="text" name="principal_school_name"
-                                            class="form-control @error('principal_school_name') is-invalid @enderror"
-                                            value="{{ old('principal_school_name', $setting->principal_school_name ?? $setting->name) }}"
-                                            placeholder="Green Chartered School & College">
-                                        @error('principal_school_name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group mb-0">
-                                        <label class="font-weight-bold">Phone</label>
-                                        <input type="text" name="principal_phone"
-                                            class="form-control @error('principal_phone') is-invalid @enderror"
-                                            value="{{ old('principal_phone', $setting->principal_phone) }}"
-                                            placeholder="Phone-01886-780641, 01886-780642">
-                                        @error('principal_phone')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
+                                @endif
+                                <input type="file" name="principal_signature"
+                                    class="form-control-file @error('principal_signature') is-invalid @enderror"
+                                    accept="image/*" onchange="previewImage(this,'principalSignaturePreview')">
+                                <img id="principalSignaturePreview" src="#" alt="Preview"
+                                    class="img-thumbnail mt-2 d-none" style="max-height:100px">
+                                @error('principal_signature')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted">Upload principal signature image. Max 100KB.</small>
                             </div>
 
                             <h5 class="mb-3 mt-3 text-muted border-bottom pb-2">Theme & ID Card Colors</h5>
@@ -362,6 +375,26 @@
                                 </div>
                             </div>
 
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-4 pt-3 border-top">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap">
+                            <div class="pr-3">
+                                <label for="hubSwitcherVisibilityToggle" class="font-weight-bold mb-1">
+                                    Top Menu Bar
+                                </label>
+                                <small class="text-muted d-block">
+                                    Show or hide the hub navigation menu across the application.
+                                </small>
+                            </div>
+                            <div class="custom-control custom-switch mt-2 mt-md-0">
+                                <input type="checkbox" class="custom-control-input" id="hubSwitcherVisibilityToggle"
+                                    data-hub-switcher-toggle checked>
+                                <label class="custom-control-label" for="hubSwitcherVisibilityToggle">
+                                    Show menu
+                                </label>
+                            </div>
                         </div>
                     </div>
 

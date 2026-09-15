@@ -59,6 +59,15 @@ class SchoolSettingController extends Controller
             unset($validated['whatsapp_qr']);
         }
 
+        if ($request->hasFile('principal_signature')) {
+            $image    = $request->file('principal_signature');
+            $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('uploads/school_settings'), $filename);
+            $validated['principal_signature'] = 'uploads/school_settings/' . $filename;
+        } else {
+            unset($validated['principal_signature']);
+        }
+
         $setting = SchoolSetting::firstOrNew(['id' => 1]);
         $setting->fill($validated);
         $setting->save();

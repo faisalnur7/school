@@ -2,7 +2,7 @@
 
 @section('contents')
 <div class="container-fluid hub-container">
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-sky-700 via-indigo-700 to-purple-600 p-8 mb-8">
+    <div class="hub-mobile-hide-hero relative overflow-hidden rounded-3xl bg-gradient-to-br from-sky-700 via-indigo-700 to-purple-600 p-8 mb-8">
         <div class="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-white/10 blur-3xl animate-pulse"></div>
         <div class="absolute -left-20 -bottom-20 w-72 h-72 rounded-full bg-pink-500/20 blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
         

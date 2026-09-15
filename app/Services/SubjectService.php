@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Group;
+use App\Models\ExamMark;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\StudentSubject;
@@ -25,7 +26,18 @@ class SubjectService
             $classConfigsData = $data['class_configs'] ?? [];
             
             // Remove non-subject fields
-            unset($data['papers'], $data['class_configs']);
+            unset(
+                $data['papers'],
+                $data['class_configs'],
+                $data['assign_to_class'],
+                $data['school_class_ids'],
+                $data['group_id'],
+                $data['gender'],
+                $data['religion'],
+                $data['is_optional'],
+                $data['exclusive_group_key'],
+                $data['confirm_unassignment_with_marks']
+            );
             
             // Create the subject
             $subject = Subject::create($data);
@@ -72,7 +84,18 @@ class SubjectService
             $classConfigsData = $data['class_configs'] ?? [];
             
             // Remove non-subject fields
-            unset($data['papers'], $data['class_configs']);
+            unset(
+                $data['papers'],
+                $data['class_configs'],
+                $data['assign_to_class'],
+                $data['school_class_ids'],
+                $data['group_id'],
+                $data['gender'],
+                $data['religion'],
+                $data['is_optional'],
+                $data['exclusive_group_key'],
+                $data['confirm_unassignment_with_marks']
+            );
             
             // Update subject
             $subject->update($data);
@@ -109,6 +132,116 @@ class SubjectService
 
             return $fresh;
         });
+    }
+
+    /**
+     * Return active assignments that would be removed and have historical marks.
+     */
+    public function getAssignmentsWithExamMarksToRemove(Subject $subject, array $selectedClassIds): \Illuminate\Support\Collection
+    {
+        $selectedClassIds = collect($selectedClassIds)
+            ->map(fn ($classId) => (int) $classId)
+            ->unique()
+            ->values();
+
+        return $subject->classAssignments()
+            ->with('schoolClass')
+            ->where('is_active', true)
+            ->when($selectedClassIds->isNotEmpty(), fn ($query) => $query->whereNotIn('school_class_id', $selectedClassIds->all()))
+            ->get()
+            ->filter(fn (SubjectClassAssignment $assignment) => $this->hasExamMarksForAssignment($assignment))
+            ->values();
+    }
+
+    /**
+     * Synchronize a subject's class assignments with the edit form selection.
+     * Existing marks are preserved; assignments with marks are archived.
+     */
+    public function syncClassAssignments(Subject $subject, array $selectedClassIds, array $options = []): array
+    {
+        return DB::transaction(function () use ($subject, $selectedClassIds, $options) {
+            $selectedClassIds = collect($selectedClassIds)
+                ->map(fn ($classId) => (int) $classId)
+                ->unique()
+                ->values();
+
+            $activeAssignments = $subject->classAssignments()
+                ->where('is_active', true)
+                ->get();
+
+            $removed = [];
+            $archived = [];
+
+            foreach ($activeAssignments->whereNotIn('school_class_id', $selectedClassIds->all()) as $assignment) {
+                $this->removeCurrentSessionStudentAssignments($assignment);
+
+                if ($this->hasExamMarksForAssignment($assignment)) {
+                    $assignment->update(['is_active' => false]);
+                    $archived[] = $assignment->id;
+                } else {
+                    $assignment->delete();
+                    $removed[] = $assignment->id;
+                }
+            }
+
+            $assignmentData = [
+                'subject_id' => $subject->id,
+                'group_id' => $options['group_id'] ?? null,
+                'gender' => $options['gender'] ?? 'all',
+                'religion' => $options['religion'] ?? 'all',
+                'is_optional' => (bool) ($options['is_optional'] ?? false),
+                'is_compulsory' => (bool) ($options['is_compulsory'] ?? true),
+                'exclusive_group_key' => $options['exclusive_group_key'] ?? null,
+                'is_active' => true,
+            ];
+
+            foreach ($selectedClassIds as $classId) {
+                $this->assignToClass(array_merge($assignmentData, [
+                    'school_class_id' => $classId,
+                ]));
+            }
+
+            Log::info('Subject class assignments synchronized', [
+                'subject_id' => $subject->id,
+                'selected_class_ids' => $selectedClassIds->all(),
+                'removed_assignment_ids' => $removed,
+                'archived_assignment_ids' => $archived,
+            ]);
+
+            return compact('removed', 'archived');
+        });
+    }
+
+    private function hasExamMarksForAssignment(SubjectClassAssignment $assignment): bool
+    {
+        $subjectIds = Subject::query()
+            ->where('id', $assignment->subject_id)
+            ->orWhere('parent_id', $assignment->subject_id)
+            ->pluck('id');
+
+        return ExamMark::query()
+            ->join('exams', 'exams.id', '=', 'exam_marks.exam_id')
+            ->join('student_academic_information as sai', function ($join) {
+                $join->on('sai.student_id', '=', 'exam_marks.student_id')
+                    ->on('sai.academic_session_id', '=', 'exams.academic_session_id');
+            })
+            ->whereIn('exam_marks.subject_id', $subjectIds)
+            ->where('sai.school_class_id', $assignment->school_class_id)
+            ->exists();
+    }
+
+    private function removeCurrentSessionStudentAssignments(SubjectClassAssignment $assignment): void
+    {
+        $sessionId = \App\Models\AcademicSession::where('status', 1)->value('id');
+
+        if (! $sessionId) {
+            return;
+        }
+
+        StudentSubject::where('subject_id', $assignment->subject_id)
+            ->where('school_class_id', $assignment->school_class_id)
+            ->where('academic_session_id', $sessionId)
+            ->delete();
     }
 
     /**
@@ -498,21 +631,23 @@ class SubjectService
     /**
      * Remove subject from class and clean up student assignments
      */
-    public function removeFromClass(int $assignmentId): bool
+    public function removeFromClass(int $assignmentId): array
     {
-        $assignment = SubjectClassAssignment::findOrFail($assignmentId);
+        return DB::transaction(function () use ($assignmentId) {
+            $assignment = SubjectClassAssignment::findOrFail($assignmentId);
 
-        $session = \App\Models\AcademicSession::where('status', 1)->first();
+            $this->removeCurrentSessionStudentAssignments($assignment);
 
-        // Remove student assignments for this subject-class combination
-        StudentSubject::where('subject_id', $assignment->subject_id)
-            ->where('school_class_id', $assignment->school_class_id)
-            ->where('academic_session_id', $session?->id)
-            ->delete();
+            if ($this->hasExamMarksForAssignment($assignment)) {
+                $assignment->update(['is_active' => false]);
+                $archived = true;
+            } else {
+                $assignment->delete();
+                $archived = false;
+            }
 
-        $assignment->delete();
-
-        return true;
+            return compact('archived');
+        });
     }
 
     /**

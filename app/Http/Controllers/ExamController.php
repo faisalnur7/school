@@ -868,14 +868,13 @@ class ExamController extends Controller
                 $cohortReady = false;
             }
 
-            $subjects = $cohortReady
-                ? $this->getSubjectsForClass($classId, $selectedGroup?->id)
-                : collect();
-
             $students = $cohortReady
                 ? $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId)
                 : collect();
             $studentIds = $students->pluck('id');
+            $subjects = $cohortReady
+                ? $this->getSubjectsForClass($classId, $selectedGroup?->id, $exam, $studentIds)
+                : collect();
 
             $allMarks = ExamMark::where('exam_id', $exam->id)
                 ->whereIn('student_id', $studentIds)
@@ -1068,10 +1067,9 @@ class ExamController extends Controller
         $selectedSection = $sectionId ? $sections->firstWhere('id', $sectionId) : null;
         $groups = $selectedSection ? $this->getGroupsForClassAndSection($exam, $classId, $selectedSection->id) : collect();
         $selectedGroup = $groupId ? $groups->firstWhere('id', $groupId) : null;
-        $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id);
-
         $students   = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId);
         $studentIds = $students->pluck('id');
+        $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id, $exam, $studentIds);
 
         $allMarks = ExamMark::where('exam_id', $exam->id)
             ->whereIn('student_id', $studentIds)
@@ -1310,10 +1308,32 @@ class ExamController extends Controller
      * Get subjects for a class, expanding parent subjects into their individual papers.
      * e.g. "Bangla" (parent) → ["Bangla 1st Paper", "Bangla 2nd Paper"]
      */
-    private function getSubjectsForClass(int $classId, ?int $groupId = null): \Illuminate\Support\Collection
+    private function getSubjectsForClass(
+        int $classId,
+        ?int $groupId = null,
+        ?Exam $exam = null,
+        ?\Illuminate\Support\Collection $studentIds = null
+    ): \Illuminate\Support\Collection
     {
+        $historicalSubjectIds = collect();
+
+        if ($exam && $studentIds?->isNotEmpty()) {
+            $historicalSubjectIds = ExamMark::where('exam_id', $exam->id)
+                ->whereIn('student_id', $studentIds)
+                ->pluck('subject_id')
+                ->unique()
+                ->values();
+        }
+
         $assignments = SubjectClassAssignment::where('school_class_id', $classId)
-            ->where('is_active', true)
+            ->where(function ($query) use ($historicalSubjectIds) {
+                $query->where('is_active', true);
+
+                if ($historicalSubjectIds->isNotEmpty()) {
+                    $query->orWhereIn('subject_id', $historicalSubjectIds->all())
+                        ->orWhereHas('subject.papers', fn ($paperQuery) => $paperQuery->whereIn('id', $historicalSubjectIds->all()));
+                }
+            })
             ->when($groupId, fn ($query) => $query->where(function ($subQuery) use ($groupId) {
                 $subQuery->whereNull('group_id')->orWhere('group_id', $groupId);
             }), fn ($query) => $query->whereNull('group_id'))
