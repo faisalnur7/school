@@ -26,6 +26,16 @@
     .approved-admissions-page .filter-card { border: 1px solid #e5eaf1; border-radius: 14px; box-shadow: 0 6px 20px rgba(23,32,51,.05); }
     .approved-admissions-page .filter-card label { color: #536176; font-size: .78rem; font-weight: 700; }
     .approved-admissions-page .filter-card .form-control { border-color: #d9e1eb; border-radius: 9px; min-height: 42px; }
+    html[data-theme='dark'] .approved-admissions-page .filter-card,
+    html.dark .approved-admissions-page .filter-card,
+    html[data-theme='dark'] .approved-admissions-page .filter-card .card-body,
+    html.dark .approved-admissions-page .filter-card .card-body { background: #111827 !important; border-color: #334155 !important; color: #e2e8f0 !important; }
+    html[data-theme='dark'] .approved-admissions-page .filter-card form,
+    html.dark .approved-admissions-page .filter-card form { background: #0f172a !important; border-color: #334155 !important; }
+    html[data-theme='dark'] .approved-admissions-page .filter-card .form-control,
+    html.dark .approved-admissions-page .filter-card .form-control { background: #0f172a !important; border-color: #475569 !important; color: #f8fafc !important; }
+    html[data-theme='dark'] .approved-admissions-page .filter-card label,
+    html.dark .approved-admissions-page .filter-card label { color: #cbd5e1 !important; }
 </style>
 
 @php

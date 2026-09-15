@@ -1,17 +1,30 @@
 <style>
+    .progress-report-filter-card .card-header {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+        border-bottom: 0;
+    }
+
+    .progress-report-filter-card .progress-report-filter-card-body {
+        background: #fff;
+    }
+
     .progress-report-toolbar {
-        background: #ffffff;
-        border: 1px solid #e7e5e4;
-        border-radius: 18px;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
-        padding: 0.9rem;
-        margin-bottom: 1rem;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
+        margin-bottom: 0;
     }
 
     .progress-report-filter-form {
         display: flex;
         flex-direction: column;
         gap: 0.85rem;
+        padding: 0.9rem;
+        border: 1px solid #eef2f7;
+        border-radius: 16px;
+        background: #fcfcfd;
     }
 
     .progress-report-filter-row {
@@ -32,8 +45,8 @@
     .progress-report-filter-select,
     .progress-report-filter-input {
         width: 100%;
-        min-height: 46px;
-        border-radius: 12px;
+        min-height: 42px;
+        border-radius: 10px;
         border: 1px solid #e5e7eb;
         background: #fff;
         color: #111827;
@@ -56,9 +69,9 @@
     }
 
     .progress-report-action-btn {
-        min-width: 46px;
-        min-height: 46px;
-        border-radius: 12px;
+        min-width: 42px;
+        min-height: 42px;
+        border-radius: 10px;
     }
 
     .progress-report-action-btn--primary {
@@ -82,6 +95,50 @@
     .progress-report-action-btn--ghost:hover {
         background: #f8fafc;
         color: #111827;
+    }
+
+    html[data-theme='dark'] .progress-report-page .progress-report-toolbar,
+    html.dark .progress-report-page .progress-report-toolbar {
+        background: transparent !important;
+        border-color: transparent !important;
+        color: #e2e8f0;
+        box-shadow: none;
+    }
+    html[data-theme='dark'] .progress-report-page .progress-report-filter-card-body,
+    html.dark .progress-report-page .progress-report-filter-card-body {
+        background: #111827 !important;
+        border-color: #334155 !important;
+        color: #e2e8f0;
+    }
+    html[data-theme='dark'] .progress-report-page .progress-report-filter-card .card-header,
+    html.dark .progress-report-page .progress-report-filter-card .card-header {
+        background: linear-gradient(135deg, #172554 0%, #111827 100%) !important;
+        border-color: #334155 !important;
+    }
+    html[data-theme='dark'] .progress-report-page .progress-report-filter-form,
+    html.dark .progress-report-page .progress-report-filter-form {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    html[data-theme='dark'] .progress-report-page .progress-report-filter-group label,
+    html.dark .progress-report-page .progress-report-filter-group label,
+    html[data-theme='dark'] .progress-report-page .text-muted,
+    html.dark .progress-report-page .text-muted { color: #cbd5e1 !important; }
+    html[data-theme='dark'] .progress-report-page .progress-report-filter-select,
+    html.dark .progress-report-page .progress-report-filter-select,
+    html[data-theme='dark'] .progress-report-page .progress-report-filter-input,
+    html.dark .progress-report-page .progress-report-filter-input {
+        background: #0f172a !important;
+        border-color: #475569 !important;
+        color: #f8fafc !important;
+    }
+    html[data-theme='dark'] .progress-report-page .progress-report-filter-select option,
+    html.dark .progress-report-page .progress-report-filter-select option { background: #0f172a; color: #f8fafc; }
+    html[data-theme='dark'] .progress-report-page .progress-report-action-btn--ghost,
+    html.dark .progress-report-page .progress-report-action-btn--ghost {
+        background: #1e293b;
+        border-color: #475569;
+        color: #e2e8f0;
     }
 
     @media (max-width: 1280px) {

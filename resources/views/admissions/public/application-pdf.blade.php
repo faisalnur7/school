@@ -23,7 +23,7 @@
     <style>
         body {
             color: #172033;
-            font-family: lohitbengali;
+            font-family: sans-serif;
             font-size: 10px;
         }
 

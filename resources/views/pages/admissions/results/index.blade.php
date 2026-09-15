@@ -25,6 +25,45 @@
     .admission-results-page .bulk-review-action[data-decision="pending"]:disabled { background: #eef2f7; border-color: #aeb9c7; color: #475569 !important; opacity: .9; }
     .admission-results-page .column-menu { min-width: 210px; padding: 10px; }
     .admission-results-page .column-menu .custom-control-label { color: #344054; font-size: .8rem; font-weight: 600; }
+
+    html[data-theme='dark'] .admission-results-page .filter-card,
+    html.dark .admission-results-page .filter-card,
+    html[data-theme='dark'] .admission-results-page .filter-card .card-body,
+    html.dark .admission-results-page .filter-card .card-body,
+    html[data-theme='dark'] .admission-results-page .results-card,
+    html.dark .admission-results-page .results-card {
+        background: #111827 !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+    html[data-theme='dark'] .admission-results-page .filter-card form,
+    html.dark .admission-results-page .filter-card form {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    html[data-theme='dark'] .admission-results-page .filter-card label,
+    html.dark .admission-results-page .filter-card label,
+    html[data-theme='dark'] .admission-results-page .filter-card h5,
+    html.dark .admission-results-page .filter-card h5,
+    html[data-theme='dark'] .admission-results-page .filter-card .text-muted,
+    html.dark .admission-results-page .filter-card .text-muted {
+        color: #cbd5e1 !important;
+    }
+    html[data-theme='dark'] .admission-results-page .filter-card .form-control,
+    html.dark .admission-results-page .filter-card .form-control {
+        background: #0f172a !important;
+        border-color: #475569 !important;
+        color: #f8fafc !important;
+    }
+    html[data-theme='dark'] .admission-results-page .bulk-review-bar,
+    html.dark .admission-results-page .bulk-review-bar {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    html[data-theme='dark'] .admission-results-page .bulk-review-bar .selected-count,
+    html.dark .admission-results-page .bulk-review-bar .selected-count {
+        color: #cbd5e1 !important;
+    }
 </style>
 
 @php

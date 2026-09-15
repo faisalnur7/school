@@ -184,21 +184,6 @@
                 </li>
                 @endif
 
-                <!-- Shareholders -->
-                @if(auth()->user()?->hasPermission('view_shareholders'))
-                <li class="nav-item-modern">
-                    <a href="{{ route('shareholders.hub') }}"
-                       class="nav-link-modern {{ request()->routeIs('shareholders.hub', 'shareholders.*') ? 'active' : '' }}">
-                        <span class="nav-icon"><i class="fas fa-handshake"></i></span>
-                        <span class="nav-text">{{ __('Shareholders') }}</span>
-                        
-                        @if(request()->routeIs('shareholders.hub', 'shareholders.*'))
-                        <span class="nav-indicator"></span>
-                        @endif
-                    </a>
-                </li>
-                @endif
-
                 <!-- HR & Payroll -->
                 @if(auth()->user()?->hasPermission('view_hr'))
                 <li class="nav-item-modern">
@@ -244,15 +229,15 @@
                 </li> --}}
                 @endif
 
-                <!-- Institute Settings -->
+                <!-- Settings -->
                 @if(auth()->user()?->hasPermission('view_institute_settings'))
                 <li class="nav-item-modern">
                     <a href="{{ route('institute.hub') }}"
-                       class="nav-link-modern {{ request()->routeIs('institute.hub', 'school-settings.*', 'certificates.*', 'id-card-templates.*', 'buildings.*') ? 'active' : '' }}">
+                       class="nav-link-modern {{ request()->routeIs('institute.hub', 'school-settings.*', 'certificates.*', 'id-card-templates.*', 'buildings.*', 'rooms.*', 'location.*', 'division.*', 'district.*', 'police-station.*', 'post-office.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-cogs"></i></span>
-                        <span class="nav-text">{{ __('Institute Settings') }}</span>
+                        <span class="nav-text">{{ __('Settings') }}</span>
                         
-                        @if(request()->routeIs('institute.hub', 'school-settings.*', 'certificates.*', 'id-card-templates.*', 'buildings.*'))
+                        @if(request()->routeIs('institute.hub', 'school-settings.*', 'certificates.*', 'id-card-templates.*', 'buildings.*', 'rooms.*', 'location.*', 'division.*', 'district.*', 'police-station.*', 'post-office.*'))
                         <span class="nav-indicator"></span>
                         @endif
                     </a>
@@ -283,21 +268,6 @@
                         <span class="nav-text">{{ __('Audit Trail') }}</span>
 
                         @if(request()->routeIs('audit-trails.*'))
-                        <span class="nav-indicator"></span>
-                        @endif
-                    </a>
-                </li>
-                @endif
-
-                <!-- Location Settings -->
-                @if(auth()->user()?->hasPermission('view_location_settings'))
-                <li class="nav-item-modern">
-                    <a href="{{ route('location.hub') }}"
-                       class="nav-link-modern {{ request()->routeIs('location.hub', 'division.*', 'district.*', 'police-station.*', 'post-office.*') ? 'active' : '' }}">
-                        <span class="nav-icon"><i class="fas fa-map-marker-alt"></i></span>
-                        <span class="nav-text">{{ __('Location Settings') }}</span>
-                        
-                        @if(request()->routeIs('location.hub', 'division.*', 'district.*', 'police-station.*', 'post-office.*'))
                         <span class="nav-indicator"></span>
                         @endif
                     </a>

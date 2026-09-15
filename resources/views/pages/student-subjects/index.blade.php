@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('contents')
-    <div class="container-fluid">
+    <div class="container-fluid student-subjects-page">
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show">
                 <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
@@ -13,8 +13,11 @@
 
         {{-- Filter --}}
         <div class="card card-outline card-primary mb-3 student-subjects-filter-card">
-            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <div>
+            <div class="card-header d-flex justify-content-start align-items-center flex-wrap gap-2">
+                <a href="{{ route('results.hub') }}" class="btn btn-sm btn-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i>Back
+                </a>
+                <div class="flex flex-col">
                     <h4 class="card-title mb-0 font-weight-bold text-white">
                         <i class="fas fa-user-graduate mr-2"></i>Student Subject Assignment
                     </h4>
@@ -349,6 +352,57 @@
             justify-content: center;
             border-radius: 10px;
         }
+
+        html[data-theme='dark'] .student-subjects-page,
+        html.dark .student-subjects-page { color: #e2e8f0; }
+        html[data-theme='dark'] .student-subjects-page .card,
+        html.dark .student-subjects-page .card {
+            background: #111827 !important;
+            border-color: #334155 !important;
+            color: #e2e8f0;
+        }
+        html[data-theme='dark'] .student-subjects-page .student-subjects-filter-card .card-header,
+        html.dark .student-subjects-page .student-subjects-filter-card .card-header {
+            background: linear-gradient(135deg, #172554 0%, #111827 100%) !important;
+            border-color: #334155 !important;
+        }
+        html[data-theme='dark'] .student-subjects-page .student-subjects-filter-form,
+        html.dark .student-subjects-page .student-subjects-filter-form {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+        }
+        html[data-theme='dark'] .student-subjects-page .card-title,
+        html.dark .student-subjects-page .card-title,
+        html[data-theme='dark'] .student-subjects-page label,
+        html.dark .student-subjects-page label,
+        html[data-theme='dark'] .student-subjects-page .text-muted,
+        html.dark .student-subjects-page .text-muted { color: #cbd5e1 !important; }
+        html[data-theme='dark'] .student-subjects-page .form-control,
+        html.dark .student-subjects-page .form-control,
+        html[data-theme='dark'] .student-subjects-page select,
+        html.dark .student-subjects-page select {
+            background-color: #0f172a !important;
+            border-color: #475569 !important;
+            color: #f8fafc !important;
+        }
+        html[data-theme='dark'] .student-subjects-page select option,
+        html.dark .student-subjects-page select option { background: #0f172a; color: #f8fafc; }
+        html[data-theme='dark'] .student-subjects-page .table,
+        html.dark .student-subjects-page .table { color: #cbd5e1; background: #111827; }
+        html[data-theme='dark'] .student-subjects-page .table thead th,
+        html.dark .student-subjects-page .table thead th {
+            background: #1e293b !important;
+            color: #e2e8f0 !important;
+            border-color: #475569 !important;
+        }
+        html[data-theme='dark'] .student-subjects-page .table tbody td,
+        html.dark .student-subjects-page .table tbody td {
+            background: #111827 !important;
+            color: #cbd5e1 !important;
+            border-color: #334155 !important;
+        }
+        html[data-theme='dark'] .student-subjects-page .table-hover tbody tr:hover td,
+        html.dark .student-subjects-page .table-hover tbody tr:hover td { background: #1e293b !important; }
 
         @media (max-width: 1200px) {
             .student-subjects-filter-grid {

@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateSubjectRequest;
 use App\Models\Subject;
 use App\Services\SubjectService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class SubjectController extends Controller
@@ -20,7 +21,7 @@ class SubjectController extends Controller
      */
      public function index(Request $request)
      {
-         $query = Subject::with(['classAssignments.schoolClass', 'classAssignments.group'])
+         $query = Subject::with(['classAssignments' => fn ($q) => $q->where('is_active', true)->with(['schoolClass', 'group'])])
              ->withCount('papers');
 
          if ($request->filled('search')) {
@@ -41,13 +42,15 @@ class SubjectController extends Controller
 
         if ($request->filled('school_class_id')) {
             $query->whereHas('classAssignments', function ($q) use ($request) {
-                $q->where('school_class_id', $request->school_class_id);
+                $q->where('school_class_id', $request->school_class_id)
+                    ->where('is_active', true);
             });
         }
         
         if ($request->filled('group_id')) {
             $query->whereHas('classAssignments', function ($q) use ($request) {
-                $q->where('group_id', $request->group_id);
+                $q->where('group_id', $request->group_id)
+                    ->where('is_active', true);
             });
         }
 
@@ -60,7 +63,7 @@ class SubjectController extends Controller
 
     public function indexClasswise(Request $request)
     {
-        $query = Subject::with(['classAssignments.schoolClass', 'classAssignments.group'])
+        $query = Subject::with(['classAssignments' => fn ($q) => $q->where('is_active', true)->with(['schoolClass', 'group'])])
             ->withCount('papers');
 
         if ($request->filled('search')) {
@@ -81,13 +84,15 @@ class SubjectController extends Controller
 
         if ($request->filled('school_class_id')) {
             $query->whereHas('classAssignments', function ($q) use ($request) {
-                $q->where('school_class_id', $request->school_class_id);
+                $q->where('school_class_id', $request->school_class_id)
+                    ->where('is_active', true);
             });
         }
         
         if ($request->filled('group_id')) {
             $query->whereHas('classAssignments', function ($q) use ($request) {
-                $q->where('group_id', $request->group_id);
+                $q->where('group_id', $request->group_id)
+                    ->where('is_active', true);
             });
         }
 
@@ -139,7 +144,12 @@ class SubjectController extends Controller
         $classes = $this->subjectService->getClassOptions();
         $groups = $this->subjectService->getGroupOptions();
 
-        return view('pages.subjects.create', compact('classes', 'groups'));
+        return view('pages.subjects.edit', [
+            'subject' => new Subject(),
+            'classes' => $classes,
+            'groups' => $groups,
+            'isCreate' => true,
+        ]);
     }
 
     /**
@@ -220,6 +230,36 @@ class SubjectController extends Controller
     public function update(UpdateSubjectRequest $request, Subject $subject)
     {
         try {
+            $assignToClass = $request->boolean('assign_to_class');
+            $classIds = $assignToClass
+                ? collect($request->input('school_class_ids', []))
+                    ->filter(fn ($classId) => $classId !== null && $classId !== '')
+                    ->map(fn ($classId) => (int) $classId)
+                    ->unique()
+                    ->values()
+                    ->all()
+                : [];
+
+            $assignmentOptions = [
+                'group_id' => $request->input('group_id'),
+                'gender' => $request->input('gender', 'all'),
+                'religion' => $request->input('religion', 'all'),
+                'is_optional' => $request->boolean('is_optional'),
+                'is_compulsory' => ! $request->boolean('is_optional'),
+                'exclusive_group_key' => $request->input('exclusive_group_key'),
+            ];
+
+            $assignmentsWithMarks = $this->subjectService->getAssignmentsWithExamMarksToRemove($subject, $classIds);
+
+            if ($assignmentsWithMarks->isNotEmpty() && ! $request->boolean('confirm_unassignment_with_marks')) {
+                return back()
+                    ->withInput()
+                    ->with('unassignment_warning', $assignmentsWithMarks->map(fn ($assignment) => [
+                        'class_name' => $assignment->schoolClass?->name_en ?? 'Selected class',
+                        'assignment_id' => $assignment->id,
+                    ])->values()->all());
+            }
+
             Log::info('Subject update STARTED', [
                 'subject_id' => $subject->id,
                 'subject_name' => $subject->name,
@@ -229,69 +269,24 @@ class SubjectController extends Controller
                 'school_class_ids_input' => $request->input('school_class_ids', []),
             ]);
 
-            $this->subjectService->updateSubject($subject, $request->validated());
+            $syncResult = DB::transaction(function () use ($subject, $request, $classIds, $assignmentOptions) {
+                $this->subjectService->updateSubject($subject, $request->validated());
+                return $this->subjectService->syncClassAssignments($subject, $classIds, $assignmentOptions);
+            });
 
             Log::info('Subject basic info UPDATED', [
                 'subject_id' => $subject->id,
                 'fresh_subject' => $subject->fresh()->toArray(),
             ]);
 
-            // Handle class assignments - multiple classes
-            if ($request->filled('assign_to_class') && $request->has('school_class_ids')) {
-                $classIds = $request->input('school_class_ids', []);
-
-                Log::info('Processing class assignments', [
-                    'subject_id' => $subject->id,
-                    'class_ids' => $classIds,
-                    'is_optional' => $request->boolean('is_optional'),
-                    'is_compulsory' => ! $request->boolean('is_optional', false),
-                ]);
-
-                foreach ($classIds as $classId) {
-                    $assignmentData = [
-                        'subject_id' => $subject->id,
-                        'school_class_id' => $classId,
-                        'group_id' => $request->group_id,
-                        'gender' => $request->gender ?? 'all',
-                        'religion' => $request->religion ?? 'all',
-                        'is_optional' => $request->boolean('is_optional'),
-                        'is_compulsory' => ! $request->boolean('is_optional', false),
-                        'exclusive_group_key' => $request->exclusive_group_key,
-                        'is_active' => true,
-                    ];
-
-                    Log::info('Attempting assignment', [
-                        'subject_id' => $subject->id,
-                        'class_id' => $classId,
-                        'data' => $assignmentData,
-                    ]);
-
-                    try {
-                        $result = $this->subjectService->assignToClass($assignmentData);
-                        Log::info('Class assignment SUCCESS', [
-                            'subject_id' => $subject->id,
-                            'class_id' => $classId,
-                            'assignment_id' => $result->id ?? null,
-                        ]);
-                    } catch (\Exception $e) {
-                        Log::error('Class assignment FAILED', [
-                            'subject_id' => $subject->id,
-                            'class_id' => $classId,
-                            'error' => $e->getMessage(),
-                            'trace' => $e->getTraceAsString(),
-                        ]);
-                    }
-                }
-            } else {
-                Log::info('No class assignments processed - checkbox or array missing', [
-                    'assign_to_class' => $request->filled('assign_to_class'),
-                    'has_school_class_ids' => $request->has('school_class_ids'),
-                ]);
-            }
-
             Log::info('Subject update COMPLETED', ['subject_id' => $subject->id]);
 
-            return redirect()->route('subjects.index')->with('success', 'Subject updated successfully');
+            $message = 'Subject updated successfully';
+            if (! empty($syncResult['archived'])) {
+                $message .= ' Existing exam marks were preserved.';
+            }
+
+            return redirect()->route('subjects.index')->with('success', $message);
         } catch (\Exception $e) {
             Log::error('Subject update FAILED', [
                 'subject_id' => $subject->id,
@@ -310,10 +305,14 @@ class SubjectController extends Controller
     {
         try {
             Log::info('removeAssignment called', ['assignment_id' => $assignmentId]);
-            $this->subjectService->removeFromClass($assignmentId);
+            $result = $this->subjectService->removeFromClass($assignmentId);
             Log::info('Assignment removed successfully', ['assignment_id' => $assignmentId]);
 
-            return back()->with('success', 'Class assignment removed successfully');
+            $message = ! empty($result['archived'])
+                ? 'Class assignment archived; existing exam marks were preserved.'
+                : 'Class assignment removed successfully';
+
+            return back()->with('success', $message);
         } catch (\Exception $e) {
             Log::error('Assignment removal failed', [
                 'assignment_id' => $assignmentId,

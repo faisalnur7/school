@@ -48,6 +48,31 @@
     .admissions-applications-page .details-modal .detail-label { color: #8490a3; display: block; font-size: .68rem; font-weight: 700; letter-spacing: .05em; margin-bottom: 3px; text-transform: uppercase; }
     .admissions-applications-page .details-modal .detail-value { color: #26364a; font-size: .9rem; font-weight: 600; }
     .admissions-applications-page .details-modal .detail-photo { border: 4px solid #fff; box-shadow: 0 5px 14px rgba(23,32,51,.12); height: 128px; object-fit: cover; width: 100px; }
+
+    html[data-theme='dark'] .admissions-applications-page .filter-card,
+    html.dark .admissions-applications-page .filter-card,
+    html[data-theme='dark'] .admissions-applications-page .filter-card .card-body,
+    html.dark .admissions-applications-page .filter-card .card-body {
+        background: #111827 !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+    html[data-theme='dark'] .admissions-applications-page .filter-card form,
+    html.dark .admissions-applications-page .filter-card form {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+    html[data-theme='dark'] .admissions-applications-page .filter-card label,
+    html.dark .admissions-applications-page .filter-card label {
+        color: #cbd5e1 !important;
+    }
+    html[data-theme='dark'] .admissions-applications-page .filter-card .form-control,
+    html.dark .admissions-applications-page .filter-card .form-control {
+        background: #0f172a !important;
+        border-color: #475569 !important;
+        color: #f8fafc !important;
+    }
 </style>
 
 @php

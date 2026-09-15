@@ -13,6 +13,16 @@
     .converted-admissions-page .filter-card label { color: #536176; font-size: .78rem; font-weight: 700; }
     .converted-admissions-page .filter-card .form-control { border-color: #d9e1eb; border-radius: 9px; min-height: 42px; }
     .converted-admissions-page .converted-card { overflow: hidden; }
+    html[data-theme='dark'] .converted-admissions-page .filter-card,
+    html.dark .converted-admissions-page .filter-card,
+    html[data-theme='dark'] .converted-admissions-page .filter-card .card-body,
+    html.dark .converted-admissions-page .filter-card .card-body { background: #111827 !important; border-color: #334155 !important; color: #e2e8f0 !important; }
+    html[data-theme='dark'] .converted-admissions-page .filter-card form,
+    html.dark .converted-admissions-page .filter-card form { background: #0f172a !important; border-color: #334155 !important; }
+    html[data-theme='dark'] .converted-admissions-page .filter-card .form-control,
+    html.dark .converted-admissions-page .filter-card .form-control { background: #0f172a !important; border-color: #475569 !important; color: #f8fafc !important; }
+    html[data-theme='dark'] .converted-admissions-page .filter-card label,
+    html.dark .converted-admissions-page .filter-card label { color: #cbd5e1 !important; }
     .converted-admissions-page .converted-card .table { margin-bottom: 0; }
     .converted-admissions-page .converted-card .table thead th { background: #f7f9fc; border-bottom: 1px solid #e5eaf1; color: #667085; font-size: .7rem; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
     .converted-admissions-page .converted-card .table tbody td { border-top: 1px solid #edf1f5; padding: 14px 12px; vertical-align: middle; }

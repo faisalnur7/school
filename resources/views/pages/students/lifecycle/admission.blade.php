@@ -22,6 +22,77 @@
     @include('components.form-styles')
     @include('pages.students._modern-styles')
     <link rel="stylesheet" href="{{ asset('assets/plugins/dropzone/min/dropzone.min.css') }}">
+    <style>
+        html[data-theme='dark'] .student-form-page,
+        html.dark .student-form-page {
+            background: #0b1220 !important;
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .student-form-page .student-form-shell,
+        html.dark .student-form-page .student-form-shell,
+        html[data-theme='dark'] .student-form-page .student-form-body,
+        html.dark .student-form-page .student-form-body,
+        html[data-theme='dark'] .student-form-page .student-section,
+        html.dark .student-form-page .student-section,
+        html[data-theme='dark'] .student-form-page .student-basic-fields,
+        html.dark .student-form-page .student-basic-fields {
+            background: #111827 !important;
+            border-color: #334155 !important;
+            color: #e2e8f0 !important;
+            box-shadow: none;
+        }
+
+        html[data-theme='dark'] .student-form-page .student-section__head,
+        html.dark .student-form-page .student-section__head {
+            border-color: #334155 !important;
+        }
+
+        html[data-theme='dark'] .student-form-page .student-section__head h5,
+        html.dark .student-form-page .student-section__head h5,
+        html[data-theme='dark'] .student-form-page .student-section__head p,
+        html.dark .student-form-page .student-section__head p,
+        html[data-theme='dark'] .student-form-page label,
+        html.dark .student-form-page label,
+        html[data-theme='dark'] .student-form-page .student-basic-media__title,
+        html.dark .student-form-page .student-basic-media__title,
+        html[data-theme='dark'] .student-form-page .student-basic-media__note,
+        html.dark .student-form-page .student-basic-media__note {
+            color: #cbd5e1 !important;
+        }
+
+        html[data-theme='dark'] .student-form-page .student-floating-label,
+        html.dark .student-form-page .student-floating-label {
+            background: #111827 !important;
+            color: #cbd5e1 !important;
+        }
+
+        html[data-theme='dark'] .student-form-page input,
+        html.dark .student-form-page input,
+        html[data-theme='dark'] .student-form-page select,
+        html.dark .student-form-page select,
+        html[data-theme='dark'] .student-form-page textarea,
+        html.dark .student-form-page textarea {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .student-form-page select option,
+        html.dark .student-form-page select option {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .student-form-page .student-basic-media__card,
+        html.dark .student-form-page .student-basic-media__card,
+        html[data-theme='dark'] .student-form-page .student-image-dropzone,
+        html.dark .student-form-page .student-image-dropzone {
+            background: #172033 !important;
+            border-color: #334155 !important;
+            color: #cbd5e1 !important;
+        }
+    </style>
 @endsection
 
 @section('scripts')

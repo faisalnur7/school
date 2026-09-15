@@ -45,18 +45,20 @@
                             </td>
                             <td class="d-flex flex-column flex-sm-row justify-content-center align-items-stretch align-items-sm-start gap-1">
                                 @if(auth()->user()?->hasPermission('edit_groups'))
-                                    <a href="{{ route('groups.edit', $group->id) }}" class="btn btn-sm btn-dark">
+                                    <a href="{{ route('groups.edit', $group->id) }}" class="btn btn-sm groups-action-btn groups-action-edit" title="Edit" aria-label="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 @endif
 
                                 @if(auth()->user()?->hasPermission('delete_groups'))
                                     <form action="{{ route('groups.delete', $group->id) }}" method="POST"
-                                        class="btn btn-sm btn-danger d-inline m-0"
+                                        class="groups-action-form d-inline m-0"
                                         onsubmit="return confirm('Delete this group?')">
                                         @csrf
                                         @method('DELETE')
-                                        <i class="fas fa-trash"></i>
+                                        <button type="submit" class="groups-action-btn groups-action-delete" title="Delete" aria-label="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </form>
                                 @endif
                             </td>

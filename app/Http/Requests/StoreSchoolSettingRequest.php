@@ -23,6 +23,7 @@ class StoreSchoolSettingRequest extends FormRequest
             'facebook_page'    => 'nullable|url|max:255',
             'whatsapp_number'  => 'nullable|string|max:20',
             'whatsapp_qr'      => 'nullable|image|max:100',
+            'principal_signature' => 'nullable|image|max:100',
             'contact_number_1' => 'nullable|string|max:20',
             'contact_number_2' => 'nullable|string|max:20',
             'primary_color'    => 'nullable|string|max:20',

@@ -17,6 +17,47 @@
         .result-sheets-exam-card { min-width: 170px; padding: 10px 14px; border: 1px solid #2563eb; border-radius: 9px; background: #fff; color: #1d4ed8; font-weight: 700; text-align: left; transition: .15s ease; }
         .result-sheets-exam-card:hover, .result-sheets-exam-card.is-selected { background: #2563eb; color: #fff; box-shadow: 0 4px 10px rgba(37, 99, 235, .18); }
         .result-sheets-exam-card small { display: block; margin-top: 2px; opacity: .75; font-weight: 600; }
+
+        html[data-theme='dark'] .result-sheets-page,
+        html.dark .result-sheets-page { color: #e2e8f0; }
+        html[data-theme='dark'] .result-sheets-page .result-sheets-card,
+        html.dark .result-sheets-page .result-sheets-card {
+            background: #111827 !important;
+            border-color: #334155 !important;
+            box-shadow: 0 8px 24px rgba(2, 6, 23, .3);
+        }
+        html[data-theme='dark'] .result-sheets-page .result-sheets-card .card-header,
+        html.dark .result-sheets-page .result-sheets-card .card-header {
+            background: linear-gradient(135deg, #172554 0%, #111827 100%) !important;
+            border-color: #334155 !important;
+        }
+        html[data-theme='dark'] .result-sheets-page .result-sheets-card > .card-body > form,
+        html.dark .result-sheets-page .result-sheets-card > .card-body > form {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+        }
+        html[data-theme='dark'] .result-sheets-page .result-sheets-title,
+        html.dark .result-sheets-page .result-sheets-title,
+        html[data-theme='dark'] .result-sheets-page .result-sheets-choice-label,
+        html.dark .result-sheets-page .result-sheets-choice-label,
+        html[data-theme='dark'] .result-sheets-page .text-muted,
+        html.dark .result-sheets-page .text-muted { color: #cbd5e1 !important; }
+        html[data-theme='dark'] .result-sheets-page .result-sheets-select,
+        html.dark .result-sheets-page .result-sheets-select {
+            background: #0f172a !important;
+            border-color: #475569 !important;
+            color: #f8fafc !important;
+        }
+        html[data-theme='dark'] .result-sheets-page .result-sheets-select option,
+        html.dark .result-sheets-page .result-sheets-select option { background: #0f172a; color: #f8fafc; }
+        html[data-theme='dark'] .result-sheets-page .result-sheets-actions,
+        html.dark .result-sheets-page .result-sheets-actions { border-color: #334155; }
+        html[data-theme='dark'] .result-sheets-page .result-sheets-exam-card:not(:hover):not(.is-selected),
+        html.dark .result-sheets-page .result-sheets-exam-card:not(:hover):not(.is-selected) {
+            background: #0f172a;
+            border-color: #3b82f6;
+            color: #bfdbfe;
+        }
     </style>
 
     <div class="container-fluid result-sheets-page">
