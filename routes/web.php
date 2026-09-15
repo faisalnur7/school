@@ -339,12 +339,15 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/', [SubjectController::class, 'index'])->name('subjects.index');
         Route::get('/classwise', [SubjectController::class, 'indexClasswise'])->name('subjects.classwise');
         Route::get('/by-class', [SubjectController::class, 'getSubjectsByClass'])->name('subjects.by-class');
-        Route::get('/{subject}', [SubjectController::class, 'show'])->name('subjects.show');
     });
 
     Route::middleware('permission:create_subjects')->prefix('subjects')->group(function () {
         Route::get('/create', [SubjectController::class, 'create'])->name('subjects.create');
         Route::post('/store', [SubjectController::class, 'store'])->name('subjects.store');
+    });
+
+    Route::middleware('permission:view_subjects')->prefix('subjects')->group(function () {
+        Route::get('/{subject}', [SubjectController::class, 'show'])->name('subjects.show');
     });
 
     Route::middleware('permission:edit_subjects')->prefix('subjects')->group(function () {

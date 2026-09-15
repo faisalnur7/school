@@ -115,14 +115,14 @@
                                                                                 <div class="d-inline-flex align-items-center gap-1">
                                                                                     @if(auth()->user()?->hasPermission('view_subjects'))
                                                                                         <a href="{{ route('subjects.show', $subject->id) }}"
-                                                                                            class="btn btn-info btn-xs p-1 d-inline-flex align-items-center justify-content-center"
+                                                                                            class="btn btn-xs classwise-action-btn classwise-action-view"
                                                                                             title="View" aria-label="View subject">
                                                                                             <i class="fas fa-eye"></i>
                                                                                         </a>
                                                                                     @endif
                                                                                     @if(auth()->user()?->hasPermission('edit_subjects'))
                                                                                         <a href="{{ route('subjects.edit', $subject->id) }}"
-                                                                                            class="btn btn-warning btn-xs p-1 d-inline-flex align-items-center justify-content-center"
+                                                                                            class="btn btn-xs classwise-action-btn classwise-action-edit"
                                                                                             title="Edit" aria-label="Edit subject">
                                                                                             <i class="fas fa-pen"></i>
                                                                                         </a>
@@ -197,6 +197,35 @@
         .classwise-subjects-card .nav-tabs::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 999px;
+        }
+
+        .classwise-subjects-card .classwise-action-btn {
+            width: 2.15rem;
+            height: 2.15rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            border-radius: 0.55rem;
+            color: #fff !important;
+            line-height: 1;
+            box-shadow: none;
+        }
+
+        .classwise-subjects-card .classwise-action-view {
+            background: #16a6b9 !important;
+        }
+
+        .classwise-subjects-card .classwise-action-edit {
+            background: #334155 !important;
+            border: 1px solid #475569 !important;
+        }
+
+        .classwise-subjects-card .classwise-action-btn:hover,
+        .classwise-subjects-card .classwise-action-btn:focus {
+            filter: brightness(1.08);
+            transform: translateY(-1px);
         }
     </style>
 @endsection
