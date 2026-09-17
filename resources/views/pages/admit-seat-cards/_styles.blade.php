@@ -182,20 +182,27 @@
 
 .admit-card__body {
     flex: 1;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--admit-card-photo-width, 20mm);
-    grid-template-rows: minmax(0, 1fr) auto;
+    display: flex;
+    flex-direction: column;
     padding: var(--admit-card-front-padding, 2mm);
     gap: 2mm;
-    align-items: start;
     text-align: var(--admit-card-front-align, center);
     position: relative;
     z-index: 1;
 }
 
+.admit-card__content {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--admit-card-photo-width, 20mm);
+    gap: 2mm;
+    align-items: start;
+}
+
 .admit-card__photo-wrap {
-    height: 100%;
-    min-height: 100%;
+    height: auto;
+    min-height: 0;
     width: var(--admit-card-photo-width, 20mm);
     min-width: var(--admit-card-photo-width, 20mm);
     display: flex;
@@ -266,10 +273,11 @@
 }
 
 .admit-card__signature {
-    position: absolute;
-    grid-column: 1 / -1;
-    justify-self: center;
-    width: min(100%, 44mm);
+    position: relative;
+    align-self: center;
+    flex: 0 0 12mm;
+    width: 20mm;
+    height: 12mm;
     min-height: 12mm;
     display: flex;
     flex-direction: column;
@@ -277,40 +285,27 @@
     margin-top: 0;
     padding-top: 0;
     z-index: 1;
-    bottom: 0;
-}
-
-.admit-card__signature-line {
-    width: 100%;
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 4.8mm;
-    border-top: 0.35mm solid #525252;
+    bottom: 4mm;
 }
 
 .admit-card__signature-image {
-    position: absolute;
-    left: 50%;
-    bottom: 4mm;
-    transform: translateX(-50%);
+    position: static;
     width: 100%;
+    height: 8mm;
     max-height: 8mm;
     object-fit: contain;
     display: block;
-    z-index: 2;
+    flex: 0 0 8mm;
 }
 
 .admit-card__signature-label {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    transform: translateX(-50%);
+    position: static;
     font-size: 5.2pt;
     font-weight: 700;
     color: #3f3f46;
     text-transform: capitalize;
     line-height: 1;
+    text-align: center;
 }
 
 .admit-card__footer {

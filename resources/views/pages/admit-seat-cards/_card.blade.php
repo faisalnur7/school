@@ -78,46 +78,47 @@
     </div>
 
     <div class="admit-card__body">
-        <div class="admit-card__info">
-            <div class="admit-card__name{{ $previewClass }}"{!! $previewAttr($focusFor('name')) !!}>{{ $studentName }}</div>
+        <div class="admit-card__content">
+            <div class="admit-card__info">
+                <div class="admit-card__name{{ $previewClass }}"{!! $previewAttr($focusFor('name')) !!}>{{ $studentName }}</div>
 
-            <div class="admit-card__rows{{ $previewClass }}"{!! $previewAttr($focusFor('student_detail_color')) !!}>
-                <div class="admit-card__row">
-                    <span class="admit-card__lbl">ID</span>
-                    <span class="admit-card__val">{{ $studentCid }}</span>
-                </div>
-                @if($studentRoll)
+                <div class="admit-card__rows{{ $previewClass }}"{!! $previewAttr($focusFor('student_detail_color')) !!}>
                     <div class="admit-card__row">
-                        <span class="admit-card__lbl">Roll</span>
-                        <span class="admit-card__val">{{ $studentRoll }}</span>
+                        <span class="admit-card__lbl">ID</span>
+                        <span class="admit-card__val">{{ $studentCid }}</span>
                     </div>
-                @endif
-                <div class="admit-card__row">
-                    <span class="admit-card__lbl">Class</span>
-                    <span class="admit-card__val">{{ $studentClass }}</span>
-                </div>
-                <div class="admit-card__row">
-                    <span class="admit-card__lbl">Section</span>
-                    <span class="admit-card__val">{{ $studentSection }}</span>
-                </div>
-                <div class="admit-card__row">
-                    <span class="admit-card__lbl">Session</span>
-                    <span class="admit-card__val">{{ $studentSession }}</span>
+                    @if($studentRoll)
+                        <div class="admit-card__row">
+                            <span class="admit-card__lbl">Roll</span>
+                            <span class="admit-card__val">{{ $studentRoll }}</span>
+                        </div>
+                    @endif
+                    <div class="admit-card__row">
+                        <span class="admit-card__lbl">Class</span>
+                        <span class="admit-card__val">{{ $studentClass }}</span>
+                    </div>
+                    <div class="admit-card__row">
+                        <span class="admit-card__lbl">Section</span>
+                        <span class="admit-card__val">{{ $studentSection }}</span>
+                    </div>
+                    <div class="admit-card__row">
+                        <span class="admit-card__lbl">Session</span>
+                        <span class="admit-card__val">{{ $studentSession }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="admit-card__photo-wrap{{ $previewClass }}"{!! $previewAttr($focusFor('logo')) !!}>
-            @if($showPhotoFront ?? true)
-                <img src="{{ $photoPath }}" class="admit-card__photo" alt="{{ $photoAlt }}">
-            @endif
+            <div class="admit-card__photo-wrap{{ $previewClass }}"{!! $previewAttr($focusFor('logo')) !!}>
+                @if($showPhotoFront ?? true)
+                    <img src="{{ $photoPath }}" class="admit-card__photo" alt="{{ $photoAlt }}">
+                @endif
+            </div>
         </div>
 
         <div class="admit-card__signature">
             @if($principalSignaturePath)
                 <img @if(!empty($principalSignatureId)) id="{{ $principalSignatureId }}" @endif src="{{ $principalSignaturePath }}" alt="Principal signature" class="admit-card__signature-image">
             @endif
-            <div class="admit-card__signature-line"></div>
             <div class="admit-card__signature-label">{{ $principalLabel }}</div>
         </div>
     </div>
