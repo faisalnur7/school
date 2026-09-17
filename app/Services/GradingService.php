@@ -44,8 +44,9 @@ class GradingService
         return self::getGrade($marks, $fullMarks)['gpa'];
     }
 
-    public static function calculateGpa(array $subjectGpas): float
+    public static function calculateGpa(array $subjectGpas, bool $hasFailedSubject = false): float
     {
+        if ($hasFailedSubject) return 0.00;
         if (empty($subjectGpas)) return 0.00;
         return round(array_sum($subjectGpas) / count($subjectGpas), 2);
     }

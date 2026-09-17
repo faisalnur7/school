@@ -116,6 +116,7 @@
                         'section_id' => $sectionId,
                         'group_id' => $groupId,
                         'filter' => $filter,
+                        'hide_unassigned' => $hideUnassigned ? 1 : null,
                     ], fn($value) => ! is_null($value))) }}" class="btn btn-sm btn-danger ml-auto mr-2">
                         <i class="fas fa-file-pdf mr-1"></i>PDF
                     </a>
@@ -127,7 +128,11 @@
                     <label class="font-weight-bold mr-2">Select Class:</label>
                     <div class="d-flex flex-wrap">
                         @foreach ($classes as $class)
-                            <a href="{{ route('exams.terminal-result', ['exam' => $exam->id, 'class_id' => $class->id]) }}"
+                            <a href="{{ route('exams.terminal-result', array_filter([
+                                'exam' => $exam->id,
+                                'class_id' => $class->id,
+                                'hide_unassigned' => $hideUnassigned ? 1 : null,
+                            ], fn($value) => ! is_null($value))) }}"
                                class="btn btn-sm mr-1 mb-1 {{ $classId == $class->id ? 'btn-primary' : 'btn-outline-primary' }}">
                                 {{ $class->name_en }}
                             </a>
@@ -152,12 +157,13 @@
                             <div class="mt-3">
                                 <div class="font-weight-bold mb-2">Select Section:</div>
                                 <div class="d-flex flex-wrap">
-                                    @foreach ($sections as $section)
-                                        <a href="{{ route('exams.terminal-result', array_filter([
-                                            'exam' => $exam->id,
-                                            'class_id' => $classId,
-                                            'section_id' => $section->id,
-                                        ], fn($value) => ! is_null($value))) }}"
+                                        @foreach ($sections as $section)
+                                            <a href="{{ route('exams.terminal-result', array_filter([
+                                                'exam' => $exam->id,
+                                                'class_id' => $classId,
+                                                'section_id' => $section->id,
+                                                'hide_unassigned' => $hideUnassigned ? 1 : null,
+                                            ], fn($value) => ! is_null($value))) }}"
                                            class="btn btn-sm mr-1 mb-1 btn-outline-info">
                                             {{ $section->name_en }}
                                         </a>
@@ -174,6 +180,7 @@
                                             'class_id' => $classId,
                                             'section_id' => $sectionId,
                                             'group_id' => $group->id,
+                                            'hide_unassigned' => $hideUnassigned ? 1 : null,
                                         ], fn($value) => ! is_null($value))) }}"
                                            class="btn btn-sm mr-1 mb-1 btn-outline-warning">
                                             {{ $group->name_en }}
@@ -246,12 +253,28 @@
                                 'section_id' => $sectionId,
                                 'group_id' => $groupId,
                                 'filter' => $key,
+                                'hide_unassigned' => $hideUnassigned ? 1 : null,
                             ], fn($value) => ! is_null($value))) }}"
                                 class="btn {{ $filter === $key ? 'btn-primary' : 'btn-outline-primary' }}">
                                 {{ $label }}
                             </a>
                         @endforeach
                     </div>
+                    <form method="GET" action="{{ route('exams.terminal-result', ['exam' => $exam->id]) }}" class="mb-0 mr-4">
+                        <input type="hidden" name="class_id" value="{{ $classId }}">
+                        @if ($sectionId)
+                            <input type="hidden" name="section_id" value="{{ $sectionId }}">
+                        @endif
+                        @if ($groupId)
+                            <input type="hidden" name="group_id" value="{{ $groupId }}">
+                        @endif
+                        <input type="hidden" name="filter" value="{{ $filter }}">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="hide-unassigned" name="hide_unassigned" value="1"
+                                {{ $hideUnassigned ? 'checked' : '' }} onchange="this.form.submit()">
+                            <label class="custom-control-label font-weight-bold" for="hide-unassigned">Hide unassigned subjects</label>
+                        </div>
+                    </form>
                     <div class="d-flex flex-wrap">
                         @foreach (\App\Services\GradingService::allGrades() as $g)
                             <span
