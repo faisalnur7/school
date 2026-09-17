@@ -160,7 +160,7 @@
         ->values();
 @endphp
 
-<div class="hub-switcher" aria-label="{{ __('Module navigation') }}">
+<div class="hub-switcher no-print" aria-label="{{ __('Module navigation') }}">
     <div class="hub-switcher__primary">
         <span class="hub-switcher__current">
             <i class="fas {{ $currentModule['icon'] ?? 'fa-compass' }}" aria-hidden="true"></i>
@@ -243,6 +243,9 @@
         html[data-theme='dark'] .hub-switcher__current { color: #e2e8f0; }
         html[data-theme='dark'] .hub-switcher__link, html[data-theme='dark'] .hub-switcher__more-button, html[data-theme='dark'] .hub-switcher__context-link { color: #94a3b8; }
         html[data-theme='dark'] .hub-switcher__link:hover, html[data-theme='dark'] .hub-switcher__more-button:hover { background: rgba(37, 99, 235, .2); color: #bfdbfe; }
+        @media print {
+            .hub-switcher { display: none !important; }
+        }
         @media (max-width: 767.98px) {
             .hub-switcher { margin: .55rem .65rem 0; border-radius: .8rem; }
             .hub-switcher__current { padding: .45rem .55rem; }

@@ -844,6 +844,7 @@ class ExamController extends Controller
         $groupId = $request->integer('group_id') ?: null;
         $subjectId = null;
         $filter = $request->filter ?? 'all';
+        $hideUnassigned = $request->boolean('hide_unassigned');
         $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
         $selectedClass = $classId ? SchoolClass::find($classId) : null;
         $sections = collect();
@@ -875,6 +876,13 @@ class ExamController extends Controller
             $subjects = $cohortReady
                 ? $this->getSubjectsForClass($classId, $selectedGroup?->id, $exam, $studentIds)
                 : collect();
+            if ($hideUnassigned) {
+                $subjects = $subjects->filter(
+                    fn (Subject $subject) => $subject->resultAssignments->contains(
+                        fn (SubjectClassAssignment $assignment) => (bool) $assignment->is_active
+                    )
+                )->values();
+            }
 
             $allMarks = ExamMark::where('exam_id', $exam->id)
                 ->whereIn('student_id', $studentIds)
@@ -925,7 +933,7 @@ class ExamController extends Controller
                     $gpas[] = $isAbsent ? 0 : $grade['gpa'];
                 }
 
-                $avgGpa = count($gpas) > 0 ? round(array_sum($gpas) / count($gpas), 2) : 0;
+                $avgGpa = GradingService::calculateGpa($gpas, $failedSubjectCount > 0);
 
                 $results[$student->id] = [
                     'student'         => $student,
@@ -1014,7 +1022,7 @@ class ExamController extends Controller
         return view('pages.exams.terminal-result', compact(
             'exam', 'classes', 'selectedClass', 'sections', 'groups', 'selectedSection', 'selectedGroup',
             'subjects', 'displaySubjects', 'displayResults', 'results', 'filter', 'classId', 'sectionId', 'groupId',
-            'totalWorkingDays', 'cohortReady'
+            'totalWorkingDays', 'cohortReady', 'hideUnassigned'
         ));
     }
 
@@ -1058,6 +1066,7 @@ class ExamController extends Controller
         $sectionId = $request->integer('section_id') ?: null;
         $groupId = $request->integer('group_id') ?: null;
         $subjectId = null;
+        $hideUnassigned = $request->boolean('hide_unassigned');
         $exam->load(['academicSession']);
         $school = SchoolSetting::current();
 
@@ -1070,6 +1079,13 @@ class ExamController extends Controller
         $students   = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId);
         $studentIds = $students->pluck('id');
         $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id, $exam, $studentIds);
+        if ($hideUnassigned) {
+            $subjects = $subjects->filter(
+                fn (Subject $subject) => $subject->resultAssignments->contains(
+                    fn (SubjectClassAssignment $assignment) => (bool) $assignment->is_active
+                )
+            )->values();
+        }
 
         $allMarks = ExamMark::where('exam_id', $exam->id)
             ->whereIn('student_id', $studentIds)
@@ -1120,7 +1136,7 @@ class ExamController extends Controller
                 $gpas[]         = $isAbsent ? 0 : $grade['gpa'];
             }
 
-            $avgGpa = count($gpas) > 0 ? round(array_sum($gpas) / count($gpas), 2) : 0;
+            $avgGpa = GradingService::calculateGpa($gpas, $failedSubjectCount > 0);
             $results[$student->id] = [
                 'student'         => $student,
                 'subject_results' => $subjectResults,

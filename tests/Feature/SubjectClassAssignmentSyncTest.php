@@ -142,6 +142,54 @@ class SubjectClassAssignmentSyncTest extends TestCase
         );
     }
 
+    public function test_terminal_result_can_hide_unassigned_subjects_from_columns_and_calculations(): void
+    {
+        $scenario = $this->scenario();
+        app(SubjectService::class)->syncClassAssignments($scenario['subject'], [], $this->assignmentOptions());
+
+        $view = app(ExamController::class)->terminalResult(
+            Request::create('/results/terminal', 'GET', [
+                'class_id' => $scenario['markedClass']->id,
+                'hide_unassigned' => 1,
+            ]),
+            $scenario['exam']
+        );
+
+        $data = $view->getData();
+        $row = $data['results'][$scenario['student']->id];
+
+        $this->assertTrue($data['hideUnassigned']);
+        $this->assertFalse($data['displaySubjects']->contains('id', $scenario['subject']->id));
+        $this->assertSame(0, $row['total_obtained']);
+        $this->assertSame(0, $row['total_full']);
+        $this->assertSame(0, $row['failed_subject_count']);
+        $this->assertSame('Passed', $row['status']);
+    }
+
+    public function test_any_failed_terminal_subject_forces_overall_grade_f_and_gpa_zero(): void
+    {
+        $scenario = $this->scenario();
+        $scenario['examMark']->update([
+            'total' => 20,
+            'letter_grade' => 'F',
+            'gpa' => 0,
+        ]);
+
+        $view = app(ExamController::class)->terminalResult(
+            Request::create('/results/terminal', 'GET', [
+                'class_id' => $scenario['markedClass']->id,
+            ]),
+            $scenario['exam']
+        );
+
+        $row = $view->getData()['results'][$scenario['student']->id];
+
+        $this->assertSame(0.0, $row['gpa']);
+        $this->assertSame('F', $row['gpa_label']);
+        $this->assertSame('Failed', $row['status']);
+        $this->assertSame(1, $row['failed_subject_count']);
+    }
+
     public function test_subject_edit_requires_confirmation_before_archiving_assignments_with_marks(): void
     {
         $scenario = $this->scenario();
@@ -305,7 +353,7 @@ class SubjectClassAssignmentSyncTest extends TestCase
             'year' => 2026,
             'status' => Exam::STATUS_PUBLISHED,
         ]);
-        ExamMark::create([
+        $examMark = ExamMark::create([
             'exam_id' => $exam->id,
             'student_id' => $student->id,
             'subject_id' => $subject->id,
@@ -315,7 +363,7 @@ class SubjectClassAssignmentSyncTest extends TestCase
             'gpa' => 4.5,
         ]);
 
-        return compact('session', 'markedClass', 'unmarkedClass', 'subject', 'markedAssignment', 'unmarkedAssignment', 'student', 'exam');
+        return compact('session', 'markedClass', 'unmarkedClass', 'subject', 'markedAssignment', 'unmarkedAssignment', 'student', 'exam', 'examMark');
     }
 
     private function schoolClass(string $name): SchoolClass
