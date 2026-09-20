@@ -2,6 +2,15 @@
 <html>
 <head>
 <meta charset="utf-8">
+@php
+    $renderForPdf = true;
+    $pdfPageWidthMm = $layout['pageWidthMm'] ?? 210;
+    $pdfPageHeightMm = $layout['pageHeightMm'] ?? 297;
+    $pdfMarginTopMm = $layout['marginTopMm'] ?? 10;
+    $pdfMarginRightMm = $layout['marginRightMm'] ?? 6.35;
+    $pdfMarginBottomMm = $layout['marginBottomMm'] ?? 4;
+    $pdfMarginLeftMm = $layout['marginLeftMm'] ?? 6.35;
+@endphp
 <style>
 * {
     margin: 0;
@@ -16,6 +25,10 @@ body {
 }
 
 @include('pages.admit-seat-cards._styles')
+@page {
+    size: {{ $pdfPageWidthMm }}mm {{ $pdfPageHeightMm }}mm;
+    margin: {{ $pdfMarginTopMm }}mm {{ $pdfMarginRightMm }}mm {{ $pdfMarginBottomMm }}mm {{ $pdfMarginLeftMm }}mm;
+}
 </style>
 </head>
 <body>

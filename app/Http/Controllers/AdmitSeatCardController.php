@@ -16,6 +16,22 @@ use Mpdf\Mpdf;
 
 class AdmitSeatCardController extends Controller
 {
+    private const TYPOGRAPHY_SPACING_FIELDS = [
+        'school_name', 'school_detail', 'slogan', 'title', 'name',
+        'exam_type', 'exam_name', 'student_detail', 'footer', 'logo',
+        'photo', 'signature', 'vertical_label',
+    ];
+
+    private const STUDENT_FIELD_ORDER = [
+        'student_name', 'student_id', 'father_name', 'mother_name',
+        'roll', 'class', 'section', 'session',
+    ];
+
+    private const CARD_ELEMENT_POSITION_KEYS = [
+        'school_name', 'school_detail', 'slogan', 'title', 'name', 'exam_type', 'exam_name',
+        'student_detail', 'footer', 'logo', 'photo', 'signature', 'vertical_label',
+    ];
+
     public function index(Request $request)
     {
         [$sessions, $classes, $sections, $groups, $exams, $students, $setting, $cardType, $cardSettingsMap, $cardSettings, $examType, $selectedExam, $layout] = $this->buildData($request);
@@ -23,6 +39,15 @@ class AdmitSeatCardController extends Controller
         return view('pages.admit-seat-cards.index', compact(
             'sessions', 'classes', 'sections', 'groups', 'exams', 'students', 'setting', 'cardSettings', 'cardSettingsMap', 'cardType', 'examType', 'selectedExam', 'layout'
         ));
+    }
+
+    public function settings(Request $request)
+    {
+        [$sessions, $classes, $sections, $groups, $exams, $students, $setting, $cardType, $cardSettingsMap, $cardSettings, $examType, $selectedExam, $layout] = $this->buildData($request);
+
+        return view('pages.admit-seat-cards.index', compact(
+            'sessions', 'classes', 'sections', 'groups', 'exams', 'students', 'setting', 'cardSettings', 'cardSettingsMap', 'cardType', 'examType', 'selectedExam', 'layout'
+        ))->with('settingsOnly', true);
     }
 
     public function pdf(Request $request)
@@ -37,11 +62,11 @@ class AdmitSeatCardController extends Controller
         $filename = $cardType === 'seat_card' ? 'seat-cards.pdf' : 'admit-cards.pdf';
 
         $mpdf = new Mpdf([
-            'format'                   => 'A4',
-            'margin_top'               => 10,
-            'margin_bottom'            => 4,
-            'margin_left'              => 6.35,
-            'margin_right'             => 6.35,
+            'format'                   => [$layout['pageWidthMm'], $layout['pageHeightMm']],
+            'margin_top'               => $layout['marginTopMm'],
+            'margin_bottom'            => $layout['marginBottomMm'],
+            'margin_left'              => $layout['marginLeftMm'],
+            'margin_right'             => $layout['marginRightMm'],
             'img_dpi'                  => 150,
             'allow_charset_conversion' => false,
         ]);
@@ -175,6 +200,12 @@ class AdmitSeatCardController extends Controller
             'card_height_value' => ['required', 'numeric', 'min:0.1'],
             'grid_gap_value' => ['required', 'numeric', 'min:0.1'],
             'card_dimension_unit' => ['required', 'in:cm,px'],
+            'page_width_mm' => ['nullable', 'numeric', 'min:50', 'max:1000'],
+            'page_height_mm' => ['nullable', 'numeric', 'min:50', 'max:1400'],
+            'page_margin_top_mm' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'page_margin_right_mm' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'page_margin_bottom_mm' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'page_margin_left_mm' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'card_front_alignment' => ['nullable', 'in:left,center,right'],
             'card_back_alignment' => ['nullable', 'in:left,center,right'],
             'card_front_padding_value' => ['nullable', 'numeric', 'min:0'],
@@ -191,10 +222,23 @@ class AdmitSeatCardController extends Controller
             'card_name_text_color' => ['nullable', 'string', 'max:20'],
             'card_exam_type_font_size' => ['nullable', 'numeric', 'min:1'],
             'card_exam_name_font_size' => ['nullable', 'numeric', 'min:1'],
+            'card_footer_font_size' => ['nullable', 'numeric', 'min:1'],
             'card_student_detail_alignment' => ['nullable', 'in:left,center,right'],
             'card_student_detail_font_size' => ['nullable', 'numeric', 'min:1'],
             'card_student_detail_text_color' => ['nullable', 'string', 'max:20'],
+            'card_text_padding_value' => ['nullable', 'numeric', 'min:0', 'max:10'],
+            'card_text_margin_value' => ['nullable', 'numeric', 'min:0', 'max:10'],
             'card_is_transparent' => ['nullable', 'boolean'],
+            'card_student_field_order' => ['nullable', 'array'],
+            'card_student_field_order.*' => ['nullable', 'integer', 'min:1', 'max:8'],
+            'card_element_positions' => ['nullable', 'array'],
+            'card_element_sizes' => ['nullable', 'array'],
+            'card_element_sizes.exam_name' => ['nullable', 'array'],
+            'card_element_sizes.exam_name.width' => ['nullable', 'numeric', 'min:1', 'max:100'],
+            'card_element_sizes.exam_name.height' => ['nullable', 'numeric', 'min:0.5', 'max:30'],
+            'card_border_colors' => ['nullable', 'array'],
+            'card_border_colors.*' => ['nullable', 'string', 'max:20'],
+            'card_border_transparent' => ['nullable', 'array'],
             'card_color_type' => ['required', 'in:gradient,solid'],
             'card_color_gradient_1' => ['nullable', 'string', 'max:20'],
             'card_color_gradient_2' => ['nullable', 'string', 'max:20'],
@@ -205,11 +249,83 @@ class AdmitSeatCardController extends Controller
             'card_title_text_color' => ['nullable', 'string', 'max:20'],
             'card_exam_type_text_color' => ['nullable', 'string', 'max:20'],
             'card_exam_name_text_color' => ['nullable', 'string', 'max:20'],
+            'card_footer_text_color' => ['nullable', 'string', 'max:20'],
             'card_logo' => ['nullable', 'image', 'max:100'],
             'card_principal_signature' => ['nullable', 'file', 'mimes:png,jpg,jpeg', 'max:100'],
         ]);
 
         $isTransparent = $request->boolean('card_is_transparent');
+        $submittedFieldOrder = $request->input('card_student_field_order', []);
+        $studentFieldOrder = collect(self::STUDENT_FIELD_ORDER)
+            ->sortBy(fn (string $field, int $index) => [
+                (int) ($submittedFieldOrder[$field] ?? ($index + 1)),
+                $index,
+            ])
+            ->values()
+            ->all();
+        $submittedPositions = $request->input('card_element_positions', []);
+        $elementPositions = collect(self::CARD_ELEMENT_POSITION_KEYS)->mapWithKeys(function (string $key) use ($submittedPositions): array {
+            $position = data_get($submittedPositions, $key, []);
+
+            return [$key => [
+                'x' => min(100, max(-100, (float) data_get($position, 'x', 0))),
+                'y' => min(100, max(-100, (float) data_get($position, 'y', 0))),
+            ]];
+        })->all();
+        $submittedSizes = $request->input('card_element_sizes', []);
+        $existingSetting = AdmitSeatCardSetting::query()->where('card_type', $cardTypeId)->first();
+        $elementSizes = [
+            'exam_name' => [
+                'width' => min(100, max(1, (float) data_get($submittedSizes, 'exam_name.width', data_get($existingSetting?->card_element_sizes, 'exam_name.width', 1)))),
+                'height' => min(30, max(0.5, (float) data_get($submittedSizes, 'exam_name.height', data_get($existingSetting?->card_element_sizes, 'exam_name.height', 0.5)))),
+            ],
+        ];
+        $borderColorDefaults = [
+            'school_name' => '#ffffff',
+            'school_detail' => '#ffffff',
+            'slogan' => '#ffffff',
+            'title' => '#ffffff',
+            'exam_type' => '#ffffff',
+            'exam_name' => '#fff200',
+            'vertical_label' => '#16a085',
+        ];
+        $submittedBorderColors = $request->input('card_border_colors', []);
+        $borderColors = collect($borderColorDefaults)->mapWithKeys(function (string $default, string $key) use ($submittedBorderColors, $existingSetting): array {
+            return [$key => data_get($submittedBorderColors, $key)
+                ?: data_get($existingSetting?->card_border_colors, $key, $default)];
+        })->all();
+        $submittedBorderTransparency = $request->input('card_border_transparent', []);
+        $borderTransparent = collect($borderColorDefaults)->mapWithKeys(function (string $default, string $key) use ($submittedBorderTransparency, $existingSetting, $request): array {
+            return [$key => array_key_exists($key, $submittedBorderTransparency)
+                ? $request->boolean("card_border_transparent.$key")
+                : (bool) data_get($existingSetting?->card_border_transparent, $key, false)];
+        })->all();
+        $submittedSpacing = $request->input('card_typography_spacing', []);
+        $spacingSides = ['top', 'right', 'bottom', 'left'];
+        $textSpacing = collect(self::TYPOGRAPHY_SPACING_FIELDS)->mapWithKeys(function (string $field) use ($submittedSpacing, $request, $spacingSides) {
+            $fallback = [
+                'padding' => (float) $request->input('card_text_padding_value', 0),
+                'margin' => (float) $request->input('card_text_margin_value', 0),
+            ];
+
+            $normalizeBox = static function ($value, float $default, string $spacingType) use ($spacingSides): array {
+                if (!is_array($value)) {
+                    $value = array_fill_keys($spacingSides, $value ?? $default);
+                }
+
+                $minimum = $spacingType === 'margin' ? -100 : 0;
+                $maximum = $spacingType === 'margin' ? 100 : 10;
+
+                return collect($spacingSides)->mapWithKeys(fn (string $side) => [
+                    $side => min($maximum, max($minimum, (float) ($value[$side] ?? $default))),
+                ])->all();
+            };
+
+            return [$field => [
+                'padding' => $normalizeBox(data_get($submittedSpacing, "$field.padding"), $fallback['padding'], 'padding'),
+                'margin' => $normalizeBox(data_get($submittedSpacing, "$field.margin"), $fallback['margin'], 'margin'),
+            ]];
+        })->all();
 
         $payload = [
             'card_type' => $cardTypeId,
@@ -219,6 +335,12 @@ class AdmitSeatCardController extends Controller
             'card_height_value' => $validated['card_height_value'],
             'grid_gap_value' => $validated['grid_gap_value'],
             'card_dimension_unit' => $validated['card_dimension_unit'],
+            'page_width_mm' => data_get($validated, 'page_width_mm', 210),
+            'page_height_mm' => data_get($validated, 'page_height_mm', 297),
+            'page_margin_top_mm' => data_get($validated, 'page_margin_top_mm', 10),
+            'page_margin_right_mm' => data_get($validated, 'page_margin_right_mm', 6.35),
+            'page_margin_bottom_mm' => data_get($validated, 'page_margin_bottom_mm', 4),
+            'page_margin_left_mm' => data_get($validated, 'page_margin_left_mm', 6.35),
             'card_front_alignment' => data_get($validated, 'card_front_alignment', 'center'),
             'card_back_alignment' => data_get($validated, 'card_back_alignment', 'center'),
             'card_front_padding_value' => data_get($validated, 'card_front_padding_value', 0.8),
@@ -235,9 +357,18 @@ class AdmitSeatCardController extends Controller
             'card_name_text_color' => data_get($validated, 'card_name_text_color') ?: '#111827',
             'card_exam_type_font_size' => data_get($validated, 'card_exam_type_font_size', 7.4),
             'card_exam_name_font_size' => data_get($validated, 'card_exam_name_font_size', 6.8),
+            'card_footer_font_size' => data_get($validated, 'card_footer_font_size', 4.5),
             'card_student_detail_alignment' => data_get($validated, 'card_student_detail_alignment', 'left'),
             'card_student_detail_font_size' => data_get($validated, 'card_student_detail_font_size', 8.5),
             'card_student_detail_text_color' => data_get($validated, 'card_student_detail_text_color') ?: ($isTransparent ? '#111827' : '#111827'),
+            'card_text_padding_value' => data_get($validated, 'card_text_padding_value', 0),
+            'card_text_margin_value' => data_get($validated, 'card_text_margin_value', 0),
+            'card_typography_spacing' => $textSpacing,
+            'card_student_field_order' => $studentFieldOrder,
+            'card_element_positions' => $elementPositions,
+            'card_element_sizes' => $elementSizes,
+            'card_border_colors' => $borderColors,
+            'card_border_transparent' => $borderTransparent,
             'card_is_transparent' => $isTransparent,
             'card_color_type' => $validated['card_color_type'],
             'card_color_gradient_1' => $validated['card_color_gradient_1'] ?: '#1e3a5f',
@@ -249,9 +380,19 @@ class AdmitSeatCardController extends Controller
             'card_title_text_color' => data_get($validated, 'card_title_text_color') ?: ($isTransparent ? '#111827' : '#ffffff'),
             'card_exam_type_text_color' => data_get($validated, 'card_exam_type_text_color') ?: ($isTransparent ? '#111827' : '#ffffff'),
             'card_exam_name_text_color' => data_get($validated, 'card_exam_name_text_color') ?: ($isTransparent ? '#334155' : '#e5e7eb'),
+            'card_footer_text_color' => data_get($validated, 'card_footer_text_color') ?: ($isTransparent ? '#334155' : '#e5e7eb'),
             'card_show_logo_front' => $request->boolean('card_show_logo_front'),
             'card_show_logo_back' => $request->boolean('card_show_logo_back'),
             'card_show_photo_front' => $request->boolean('card_show_photo_front'),
+            'card_show_father_name_front' => $request->boolean('card_show_father_name_front'),
+            'card_show_mother_name_front' => $request->boolean('card_show_mother_name_front'),
+            'card_show_student_name_label_front' => $request->boolean('card_show_student_name_label_front'),
+            'card_show_roll_front' => $request->boolean('card_show_roll_front'),
+            'card_show_class_front' => $request->boolean('card_show_class_front'),
+            'card_show_section_front' => $request->boolean('card_show_section_front'),
+            'card_show_session_front' => $request->boolean('card_show_session_front'),
+            'card_show_vertical_label_front' => $request->boolean('card_show_vertical_label_front'),
+            'card_exam_name_badge_front' => $request->boolean('card_exam_name_badge_front'),
             'card_show_footer_front' => $request->boolean('card_show_footer_front'),
             'card_show_footer_back' => $request->boolean('card_show_footer_back'),
             'card_show_school_detail_front' => $request->boolean('card_show_school_detail_front'),
@@ -313,12 +454,14 @@ class AdmitSeatCardController extends Controller
         $requestedCardsPerRow = min($requestedCardsPerRow, $requestedCardsPerPage);
         $requestedPageRows = (int) ceil($requestedCardsPerPage / $requestedCardsPerRow);
 
-        $marginLeftMm = 6.35; // 24px at 96dpi
-        $marginRightMm = 6.35;
-        $marginTopMm = 10;
-        $marginBottomMm = 4;
-        $pageWidthMm = 210 - ($marginLeftMm + $marginRightMm);
-        $pageHeightMm = 297 - ($marginTopMm + $marginBottomMm);
+        $pageDocumentWidthMm = max(50, (float) ($settings->page_width_mm ?? 210));
+        $pageDocumentHeightMm = max(50, (float) ($settings->page_height_mm ?? 297));
+        $marginLeftMm = max(0, (float) ($settings->page_margin_left_mm ?? 6.35));
+        $marginRightMm = max(0, (float) ($settings->page_margin_right_mm ?? 6.35));
+        $marginTopMm = max(0, (float) ($settings->page_margin_top_mm ?? 10));
+        $marginBottomMm = max(0, (float) ($settings->page_margin_bottom_mm ?? 4));
+        $pageWidthMm = max(1, $pageDocumentWidthMm - ($marginLeftMm + $marginRightMm));
+        $pageHeightMm = max(1, $pageDocumentHeightMm - ($marginTopMm + $marginBottomMm));
 
         $dimensionUnit = strtolower((string) ($settings->card_dimension_unit ?? 'cm'));
         $dimensionUnit = in_array($dimensionUnit, ['cm', 'px'], true) ? $dimensionUnit : 'cm';
@@ -336,6 +479,87 @@ class AdmitSeatCardController extends Controller
         $maxPageRows = max(1, (int) floor(($pageHeightMm + $gapMm) / ($cardHeightMm + $gapMm)));
         $maxCardsPerPage = max(1, $maxCardsPerRow * $maxPageRows);
 
+        $recommendedCardHeightMm = max(0, ($pageHeightMm - (max(0, $requestedPageRows - 1) * $gapMm)) / $requestedPageRows);
+        $recommendedCardHeightValue = $dimensionUnit === 'px'
+            ? ($recommendedCardHeightMm / 25.4) * 96
+            : $recommendedCardHeightMm / 10;
+
+        $typographySpacing = is_array($settings->card_typography_spacing ?? null)
+            ? $settings->card_typography_spacing
+            : [];
+        $spacingVertical = static function (string $key, string $type) use ($typographySpacing): float {
+            $value = data_get($typographySpacing, "$key.$type", 0);
+
+            if (is_array($value)) {
+                return max(0, (float) ($value['top'] ?? 0)) + max(0, (float) ($value['bottom'] ?? 0));
+            }
+
+            return max(0, (float) $value) * 2;
+        };
+        $ptToMm = static fn ($value): float => max(0, (float) $value) * 0.352778;
+        $isVisible = static fn (string $key, bool $default = true): bool => (bool) ($settings->{$key} ?? $default);
+
+        $schoolNameFont = $settings->card_school_name_font_size ?? 7.2;
+        $schoolDetailFont = $settings->card_school_detail_font_size ?? 5.4;
+        $sloganFont = $settings->card_slogan_font_size ?? 4.8;
+        $titleFont = $settings->card_title_font_size ?? 4.7;
+        $examTypeFont = $settings->card_exam_type_font_size ?? 7.4;
+        $examNameFont = $settings->card_exam_name_font_size ?? 6.8;
+        $nameFont = $settings->card_name_font_size ?? 7.2;
+        $studentDetailFont = $settings->card_student_detail_font_size ?? 8.5;
+        $frontPaddingMm = (float) ($settings->card_front_padding_value ?? 0.8);
+        $photoHeightMm = (float) ($settings->card_photo_height_value ?? 2.7) * 10;
+        $logoSizeMm = (float) ($settings->card_logo_size_value ?? 0.8) * 10;
+
+        $brandHeightMm = $ptToMm($schoolNameFont) + $spacingVertical('school_name', 'padding') + $spacingVertical('school_name', 'margin');
+        if ($isVisible('card_show_school_detail_front')) {
+            $brandHeightMm += $ptToMm($schoolDetailFont * 1.15) + 0.55 + $spacingVertical('school_detail', 'padding') + $spacingVertical('school_detail', 'margin');
+        }
+        if ($isVisible('card_show_slogan_front')) {
+            $brandHeightMm += $ptToMm($sloganFont * 1.1) + $spacingVertical('slogan', 'padding') + $spacingVertical('slogan', 'margin');
+        }
+        if ($isVisible('card_show_logo_front')) {
+            $brandHeightMm = max($brandHeightMm, $logoSizeMm);
+        }
+
+        $examHeightMm = 0;
+        if ($isVisible('card_show_title_front')) {
+            $examHeightMm += $ptToMm($titleFont) + 1.5 + $spacingVertical('title', 'padding') + $spacingVertical('title', 'margin');
+        }
+        if ($isVisible('card_show_exam_type_front')) {
+            $examHeightMm += $ptToMm($examTypeFont * 1.05) + 0.6 + $spacingVertical('exam_type', 'padding') + $spacingVertical('exam_type', 'margin');
+        }
+        if ($isVisible('card_show_exam_name_front') && $isVisible('card_exam_name_badge_front', false)) {
+            $examHeightMm += $ptToMm($examNameFont * 1.08) + 1.5 + 0.35 + $spacingVertical('exam_name', 'padding') + $spacingVertical('exam_name', 'margin');
+        }
+
+        $visibleStudentRows = 1;
+        foreach ([
+            'card_show_father_name_front',
+            'card_show_mother_name_front',
+            'card_show_roll_front',
+            'card_show_class_front',
+            'card_show_section_front',
+            'card_show_session_front',
+        ] as $visibilityKey) {
+            if ($isVisible($visibilityKey, str_contains($visibilityKey, 'roll') || str_contains($visibilityKey, 'class') || str_contains($visibilityKey, 'section') || str_contains($visibilityKey, 'session'))) {
+                $visibleStudentRows++;
+            }
+        }
+
+        $studentRowHeightMm = $ptToMm($studentDetailFont * 1.08) + $spacingVertical('student_detail', 'padding') + $spacingVertical('student_detail', 'margin');
+        $studentNameHeightMm = $ptToMm(max($nameFont, $studentDetailFont)) + $spacingVertical('name', 'padding') + $spacingVertical('name', 'margin');
+        $infoHeightMm = $studentNameHeightMm + 1.3 + ($visibleStudentRows * $studentRowHeightMm) + max(0, $visibleStudentRows - 1) * 1.05;
+        $contentHeightMm = max($infoHeightMm, $isVisible('card_show_photo_front') ? $photoHeightMm : 0);
+        $bodyHeightMm = (2 * $frontPaddingMm) + $contentHeightMm + 2 + 12;
+        $footerHeightMm = $isVisible('card_show_footer_front')
+            ? 1.4 + $ptToMm($settings->card_footer_font_size ?? 4.5) * 1.05 + $spacingVertical('footer', 'padding') + $spacingVertical('footer', 'margin')
+            : 0;
+        $minimumCardHeightMm = 0.9 + (2 * $frontPaddingMm) + max($brandHeightMm, $examHeightMm) + $bodyHeightMm + $footerHeightMm + 1;
+        $minimumCardHeightValue = $dimensionUnit === 'px'
+            ? ($minimumCardHeightMm / 25.4) * 96
+            : $minimumCardHeightMm / 10;
+
         $cardsPerRow = min($requestedCardsPerRow, $maxCardsPerRow);
         $pageRows = min($requestedPageRows, $maxPageRows);
         $cardsPerPage = min($requestedCardsPerPage, max(1, $cardsPerRow * $pageRows));
@@ -350,6 +574,12 @@ class AdmitSeatCardController extends Controller
             'maxCardsPerPage' => $maxCardsPerPage,
             'maxCardsPerRow' => $maxCardsPerRow,
             'maxPageRows' => $maxPageRows,
+            'recommendedCardHeightMm' => round($recommendedCardHeightMm, 2),
+            'recommendedCardHeightValue' => round($recommendedCardHeightValue, 2),
+            'minimumCardHeightMm' => round($minimumCardHeightMm, 2),
+            'minimumCardHeightValue' => round($minimumCardHeightValue, 2),
+            'contentFitsRecommendedHeight' => $recommendedCardHeightMm >= $minimumCardHeightMm,
+            'requestedColumnsFit' => $maxCardsPerRow >= $requestedCardsPerRow,
             'cardWidthMm' => round($cardWidthMm, 2),
             'cardHeightMm' => round($cardHeightMm, 2),
             'gridGapMm' => round($gapMm, 2),
@@ -368,6 +598,12 @@ class AdmitSeatCardController extends Controller
             'marginMm' => $marginLeftMm,
             'marginTopMm' => $marginTopMm,
             'marginBottomMm' => $marginBottomMm,
+            'marginLeftMm' => $marginLeftMm,
+            'marginRightMm' => $marginRightMm,
+            'pageWidthMm' => round($pageDocumentWidthMm, 2),
+            'pageHeightMm' => round($pageDocumentHeightMm, 2),
+            'usableWidthMm' => round($pageWidthMm, 2),
+            'usableHeightMm' => round($pageHeightMm, 2),
         ];
     }
 
@@ -399,6 +635,12 @@ class AdmitSeatCardController extends Controller
             'card_is_transparent' => $settings->card_is_transparent ?? false,
             'card_color_type' => $settings->card_color_type ?? 'gradient',
             'card_front_alignment' => $settings->card_front_alignment ?? 'center',
+            'page_width_mm' => $settings->page_width_mm ?? 210,
+            'page_height_mm' => $settings->page_height_mm ?? 297,
+            'page_margin_top_mm' => $settings->page_margin_top_mm ?? 10,
+            'page_margin_right_mm' => $settings->page_margin_right_mm ?? 6.35,
+            'page_margin_bottom_mm' => $settings->page_margin_bottom_mm ?? 4,
+            'page_margin_left_mm' => $settings->page_margin_left_mm ?? 6.35,
             'card_back_alignment' => $settings->card_back_alignment ?? 'center',
             'card_front_padding_value' => $settings->card_front_padding_value ?? 0.8,
             'card_back_padding_value' => $settings->card_back_padding_value ?? 0.8,
@@ -414,9 +656,15 @@ class AdmitSeatCardController extends Controller
             'card_name_text_color' => $settings->card_name_text_color ?? '#111827',
             'card_exam_type_font_size' => $settings->card_exam_type_font_size ?? 7.4,
             'card_exam_name_font_size' => $settings->card_exam_name_font_size ?? 6.8,
+            'card_footer_font_size' => $settings->card_footer_font_size ?? 4.5,
             'card_student_detail_alignment' => $settings->card_student_detail_alignment ?? 'left',
             'card_student_detail_font_size' => $settings->card_student_detail_font_size ?? 8.5,
             'card_student_detail_text_color' => $settings->card_student_detail_text_color ?? '#111827',
+            'card_text_padding_value' => $settings->card_text_padding_value ?? 0,
+            'card_text_margin_value' => $settings->card_text_margin_value ?? 0,
+            'card_typography_spacing' => $settings->card_typography_spacing ?? [],
+            'card_student_field_order' => $settings->card_student_field_order ?? self::STUDENT_FIELD_ORDER,
+            'card_element_positions' => $settings->card_element_positions ?? [],
             'card_color_gradient_1' => $settings->card_color_gradient_1 ?? '#1e3a5f',
             'card_color_gradient_2' => $settings->card_color_gradient_2 ?? '#2563eb',
             'card_solid_color' => $settings->card_solid_color ?? '#1e3a5f',
@@ -425,9 +673,19 @@ class AdmitSeatCardController extends Controller
             'card_title_text_color' => $settings->card_title_text_color ?? '#ffffff',
             'card_exam_type_text_color' => $settings->card_exam_type_text_color ?? '#ffffff',
             'card_exam_name_text_color' => $settings->card_exam_name_text_color ?? '#e5e7eb',
+            'card_footer_text_color' => $settings->card_footer_text_color ?? '#e5e7eb',
             'card_show_logo_front' => $settings->card_show_logo_front ?? true,
             'card_show_logo_back' => $settings->card_show_logo_back ?? true,
             'card_show_photo_front' => $settings->card_show_photo_front ?? true,
+            'card_show_father_name_front' => $settings->card_show_father_name_front ?? false,
+            'card_show_mother_name_front' => $settings->card_show_mother_name_front ?? false,
+            'card_show_student_name_label_front' => $settings->card_show_student_name_label_front ?? false,
+            'card_show_roll_front' => $settings->card_show_roll_front ?? true,
+            'card_show_class_front' => $settings->card_show_class_front ?? true,
+            'card_show_section_front' => $settings->card_show_section_front ?? true,
+            'card_show_session_front' => $settings->card_show_session_front ?? true,
+            'card_show_vertical_label_front' => $settings->card_show_vertical_label_front ?? false,
+            'card_exam_name_badge_front' => $settings->card_exam_name_badge_front ?? false,
             'card_show_footer_front' => $settings->card_show_footer_front ?? true,
             'card_show_footer_back' => $settings->card_show_footer_back ?? true,
             'card_show_school_detail_front' => $settings->card_show_school_detail_front ?? true,

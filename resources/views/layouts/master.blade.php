@@ -39,8 +39,8 @@
                 </div>
             @endif
             <!-- Main content -->
-            <section class="content">
-                <div class="container-fluid m-1">
+            <section class="content {{ request()->routeIs('results.admit-seat-cards.settings.edit') ? 'admit-seat-settings-content' : '' }}">
+                <div class="container-fluid {{ request()->routeIs('results.admit-seat-cards.settings.edit') ? 'admit-seat-settings-container' : 'm-1' }}">
 
                     <!-- Main row -->
                     <div class="row">

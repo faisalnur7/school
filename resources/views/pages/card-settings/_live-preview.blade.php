@@ -34,10 +34,21 @@
     $showLogoFront = $showLogoFront ?? true;
     $showLogoBack = $showLogoBack ?? true;
     $showPhotoFront = $showPhotoFront ?? true;
+    $showFatherNameFront = $showFatherNameFront ?? false;
+    $showMotherNameFront = $showMotherNameFront ?? false;
+    $showStudentNameLabelFront = $showStudentNameLabelFront ?? false;
+    $showRollFront = $showRollFront ?? true;
+    $showClassFront = $showClassFront ?? true;
+    $showSectionFront = $showSectionFront ?? true;
+    $showSessionFront = $showSessionFront ?? true;
+    $showVerticalLabelFront = $showVerticalLabelFront ?? false;
+    $examNameBadgeFront = $examNameBadgeFront ?? false;
     $showExamTypeFront = $showExamTypeFront ?? true;
     $showExamNameFront = $showExamNameFront ?? true;
     $showBackNotice = $showBackNotice ?? true;
     $showFooterFront = $showFooterFront ?? true;
+    $studentFieldOrder = $studentFieldOrder ?? [];
+    $cardElementPositions = $cardElementPositions ?? [];
     $showFooterBack = $showFooterBack ?? true;
     $principalLabel = $setting?->principal_designation ?: 'Principal';
     $principalSignatureUrl = $principalSignatureUrl ?? null;
@@ -203,12 +214,19 @@
         --admit-card-name-font-size:7.2pt;
         --admit-card-exam-type-font-size:7.4pt;
         --admit-card-exam-name-font-size:6.8pt;
+        --admit-card-footer-font-size:4.5pt;
     "
 >
     <div class="card-preview-shell__header">
         <div>
             <div class="card-preview-shell__title">Live Preview</div>
-            <div class="card-preview-shell__subtitle">Click an element to edit its setting.</div>
+            <div class="card-preview-shell__subtitle">
+                Click an element to edit its setting.
+                @if($isAdmitOrSeatCard)
+                    Drag student rows up or down to change their order. Drag content to reposition it;
+                    hold Shift to adjust padding, or Alt to adjust margin.
+                @endif
+            </div>
         </div>
         <div class="d-flex align-items-center" style="gap:8px; flex-wrap: wrap; justify-content:flex-end;">
             @if($previewLabel)
@@ -222,6 +240,10 @@
             @endif
         </div>
     </div>
+
+    @if($isAdmitOrSeatCard)
+        <div class="card-preview-safety-note d-none" role="alert" aria-live="polite"></div>
+    @endif
 
     <div class="card-preview-shell__grid card-preview-shell__grid--single">
         @if($isIdPreview)
@@ -465,6 +487,8 @@
                         'examTypeLabel' => $examTypeLabel,
                         'examName' => $examName,
                         'studentName' => 'Student Name',
+                        'studentFatherName' => $studentFatherName,
+                        'studentMotherName' => $studentMotherName,
                         'studentCid' => '0001',
                         'studentRoll' => '12',
                         'studentClass' => 'One',
@@ -482,9 +506,21 @@
                         'showSloganFront' => $showSloganFront,
                         'showTitleFront' => $showTitleFront,
                         'showPhotoFront' => $showPhotoFront,
+                        'showFatherNameFront' => $showFatherNameFront,
+                        'showMotherNameFront' => $showMotherNameFront,
+                        'showStudentNameLabelFront' => $showStudentNameLabelFront,
+                        'showRollFront' => $showRollFront,
+                        'showClassFront' => $showClassFront,
+                        'showSectionFront' => $showSectionFront,
+                        'showSessionFront' => $showSessionFront,
+                        'showVerticalLabelFront' => $showVerticalLabelFront,
+                        'examNameBadgeFront' => $examNameBadgeFront,
                         'showExamTypeFront' => $showExamTypeFront,
                         'showExamNameFront' => $showExamNameFront,
                         'showFooterFront' => $showFooterFront,
+                        'studentFieldOrder' => $studentFieldOrder,
+                        'cardElementPositions' => $cardElementPositions,
+                        'cardElementSizes' => $cardElementSizes ?? [],
                         'footerLines' => $footerLines,
                         'focusTargets' => $focusTargets,
                         'frontTitleId' => $frontTitleId,
@@ -496,6 +532,16 @@
 </div>
 
 <style>
+.card-preview-safety-note {
+    margin: 8px 0 0;
+    padding: 7px 10px;
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    background: #fffbeb;
+    color: #92400e;
+    font-size: 12px;
+}
+
 .card-preview-shell {
     position: sticky;
     top: 0;
@@ -613,11 +659,10 @@
 
 .card-preview-clickable {
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, outline-color 0.15s ease;
+    transition: box-shadow 0.15s ease, outline-color 0.15s ease;
 }
 
 .card-preview-clickable:hover {
-    transform: translateY(-1px);
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
 }
 

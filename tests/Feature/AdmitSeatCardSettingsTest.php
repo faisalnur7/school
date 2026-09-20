@@ -261,8 +261,8 @@ class AdmitSeatCardSettingsTest extends TestCase
         $html = $response->render();
 
         $this->assertStringContainsString('6 cards/page', $html);
-        $this->assertStringContainsString('Requested 8 cards/page, but only 6 fit on A4', $html);
-        $this->assertStringContainsString('Only 6 cards fit on A4 with the current layout.', $html);
+        $this->assertStringContainsString('Requested 8 cards/page, but only 6 fit on', $html);
+        $this->assertStringContainsString('Only 6 cards fit on the configured page', $html);
     }
 
     public function test_exam_name_starts_empty_until_an_exam_type_is_selected(): void
