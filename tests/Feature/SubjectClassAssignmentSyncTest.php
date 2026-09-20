@@ -109,6 +109,7 @@ class SubjectClassAssignmentSyncTest extends TestCase
         $view = app(ExamController::class)->terminalResult(
             Request::create('/results/terminal', 'GET', [
                 'class_id' => $scenario['markedClass']->id,
+                'show_unassigned' => 1,
             ]),
             $scenario['exam']
         );
@@ -150,7 +151,7 @@ class SubjectClassAssignmentSyncTest extends TestCase
         $view = app(ExamController::class)->terminalResult(
             Request::create('/results/terminal', 'GET', [
                 'class_id' => $scenario['markedClass']->id,
-                'hide_unassigned' => 1,
+                'show_unassigned' => 0,
             ]),
             $scenario['exam']
         );
@@ -158,7 +159,7 @@ class SubjectClassAssignmentSyncTest extends TestCase
         $data = $view->getData();
         $row = $data['results'][$scenario['student']->id];
 
-        $this->assertTrue($data['hideUnassigned']);
+        $this->assertFalse($data['showUnassigned']);
         $this->assertFalse($data['displaySubjects']->contains('id', $scenario['subject']->id));
         $this->assertSame(0, $row['total_obtained']);
         $this->assertSame(0, $row['total_full']);
