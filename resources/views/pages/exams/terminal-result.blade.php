@@ -116,7 +116,7 @@
                         'section_id' => $sectionId,
                         'group_id' => $groupId,
                         'filter' => $filter,
-                        'hide_unassigned' => $hideUnassigned ? 1 : null,
+                        'show_unassigned' => $showUnassigned ? 1 : 0,
                     ], fn($value) => ! is_null($value))) }}" class="btn btn-sm btn-danger ml-auto mr-2">
                         <i class="fas fa-file-pdf mr-1"></i>PDF
                     </a>
@@ -131,7 +131,7 @@
                             <a href="{{ route('exams.terminal-result', array_filter([
                                 'exam' => $exam->id,
                                 'class_id' => $class->id,
-                                'hide_unassigned' => $hideUnassigned ? 1 : null,
+                                'show_unassigned' => $showUnassigned ? 1 : 0,
                             ], fn($value) => ! is_null($value))) }}"
                                class="btn btn-sm mr-1 mb-1 {{ $classId == $class->id ? 'btn-primary' : 'btn-outline-primary' }}">
                                 {{ $class->name_en }}
@@ -162,7 +162,7 @@
                                                 'exam' => $exam->id,
                                                 'class_id' => $classId,
                                                 'section_id' => $section->id,
-                                                'hide_unassigned' => $hideUnassigned ? 1 : null,
+                                                'show_unassigned' => $showUnassigned ? 1 : 0,
                                             ], fn($value) => ! is_null($value))) }}"
                                            class="btn btn-sm mr-1 mb-1 btn-outline-info">
                                             {{ $section->name_en }}
@@ -180,7 +180,7 @@
                                             'class_id' => $classId,
                                             'section_id' => $sectionId,
                                             'group_id' => $group->id,
-                                            'hide_unassigned' => $hideUnassigned ? 1 : null,
+                                            'show_unassigned' => $showUnassigned ? 1 : 0,
                                         ], fn($value) => ! is_null($value))) }}"
                                            class="btn btn-sm mr-1 mb-1 btn-outline-warning">
                                             {{ $group->name_en }}
@@ -253,7 +253,7 @@
                                 'section_id' => $sectionId,
                                 'group_id' => $groupId,
                                 'filter' => $key,
-                                'hide_unassigned' => $hideUnassigned ? 1 : null,
+                                'show_unassigned' => $showUnassigned ? 1 : 0,
                             ], fn($value) => ! is_null($value))) }}"
                                 class="btn {{ $filter === $key ? 'btn-primary' : 'btn-outline-primary' }}">
                                 {{ $label }}
@@ -270,9 +270,10 @@
                         @endif
                         <input type="hidden" name="filter" value="{{ $filter }}">
                         <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="hide-unassigned" name="hide_unassigned" value="1"
-                                {{ $hideUnassigned ? 'checked' : '' }} onchange="this.form.submit()">
-                            <label class="custom-control-label font-weight-bold" for="hide-unassigned">Hide unassigned subjects</label>
+                        <input type="hidden" name="show_unassigned" value="0">
+                        <input type="checkbox" class="custom-control-input" id="show-unassigned" name="show_unassigned" value="1"
+                                {{ $showUnassigned ? 'checked' : '' }} onchange="this.form.submit()">
+                            <label class="custom-control-label font-weight-bold" for="show-unassigned">Show unassigned subjects</label>
                         </div>
                     </form>
                     <div class="d-flex flex-wrap">

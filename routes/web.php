@@ -843,6 +843,7 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
         Route::delete('/{id}', [ResultController::class, 'destroy'])->name('results.destroy');
         Route::get('/reports', [ResultController::class, 'reports'])->name('results.reports');
         Route::get('/admit-seat-cards', [\App\Http\Controllers\AdmitSeatCardController::class, 'index'])->name('results.admit-seat-cards.index');
+        Route::get('/admit-seat-cards/settings', [\App\Http\Controllers\AdmitSeatCardController::class, 'settings'])->name('results.admit-seat-cards.settings.edit');
         Route::get('/admit-seat-cards/exams', [\App\Http\Controllers\AdmitSeatCardController::class, 'examsByType'])->name('results.admit-seat-cards.exams');
         Route::post('/admit-seat-cards/settings', [\App\Http\Controllers\AdmitSeatCardController::class, 'saveSettings'])->name('results.admit-seat-cards.settings');
         Route::get('/admit-seat-cards/pdf', [\App\Http\Controllers\AdmitSeatCardController::class, 'pdf'])->name('results.admit-seat-cards.pdf');
