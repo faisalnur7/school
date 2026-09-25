@@ -45,6 +45,12 @@
 
     <div class="bg-white rounded-2xl shadow p-5 mb-5">
         <form method="GET" action="{{ route('students.promote') }}" id="promotion-filter-form">
+            @if(!empty($filters['subject_settings_applied']))
+                <input type="hidden" name="subject_settings_applied" value="1">
+                @foreach($filters['subject_ids'] ?? [] as $subjectId)
+                    <input type="hidden" name="subject_ids[]" value="{{ $subjectId }}">
+                @endforeach
+            @endif
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="form-label text-sm font-medium text-slate-600">Source Session <span class="text-red-500">*</span></label>
@@ -113,10 +119,61 @@
                     <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg">
                         <i class="fas fa-search mr-1"></i> Load Students
                     </button>
+                    @if($sourceReady && $availableSubjects->isNotEmpty())
+                        <button type="button" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg" data-toggle="modal" data-target="#meritSubjectSettingsModal">
+                            <i class="fas fa-cog mr-1"></i> Subjects
+                        </button>
+                    @endif
                 </div>
             </div>
         </form>
     </div>
+
+    @if($sourceReady && $availableSubjects->isNotEmpty())
+        <div class="modal fade" id="meritSubjectSettingsModal" tabindex="-1" role="dialog" aria-labelledby="meritSubjectSettingsTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <form method="GET" action="{{ route('students.promote') }}">
+                        <div class="modal-header">
+                            <div>
+                                <h5 class="modal-title mb-1" id="meritSubjectSettingsTitle"><i class="fas fa-sliders-h mr-2"></i>Merit List Subjects</h5>
+                                <small class="text-muted">Unchecked subjects will be ignored when calculating merit totals, failures, GPA, and rank.</small>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body">
+                            @foreach(['source_session_id', 'source_class_id', 'target_session_id', 'target_class_id', 'student_id', 'promotion_mode', 'fail_threshold'] as $filterKey)
+                                <input type="hidden" name="{{ $filterKey }}" value="{{ $filters[$filterKey] ?? '' }}">
+                            @endforeach
+                            <input type="hidden" name="subject_settings_applied" value="1">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <strong>Select subjects</strong>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-secondary" id="meritSubjectsSelectAll">All</button>
+                                    <button type="button" class="btn btn-outline-secondary" id="meritSubjectsClearAll">None</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                @foreach($availableSubjects as $subject)
+                                    <div class="col-md-6 mb-2">
+                                        <label class="d-flex align-items-center mb-0 p-2 border rounded bg-light">
+                                            <input type="checkbox" name="subject_ids[]" value="{{ $subject->id }}" class="mr-2 merit-subject-check"
+                                                @checked(!($filters['subject_settings_applied'] ?? false) || in_array((int) $subject->id, $filters['subject_ids'] ?? [], true))>
+                                            <span>{{ $subject->name }}</span>
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-dark"><i class="fas fa-check mr-1"></i>Apply Subjects</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
 
     @if($students->isNotEmpty())
         <div class="bg-white rounded-2xl shadow p-5">
@@ -238,6 +295,15 @@
     @endif
 </div>
 @endsection
+
+<script>
+document.getElementById('meritSubjectsSelectAll')?.addEventListener('click', () => {
+    document.querySelectorAll('.merit-subject-check').forEach((input) => input.checked = true);
+});
+document.getElementById('meritSubjectsClearAll')?.addEventListener('click', () => {
+    document.querySelectorAll('.merit-subject-check').forEach((input) => input.checked = false);
+});
+</script>
 
 @section('scripts')
 <script>

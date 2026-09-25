@@ -79,7 +79,7 @@ class ProgressReportTemplateSetting extends Model
     {
         $defaults = [
             'paper_orientation' => 'portrait',
-            'margin_top_mm' => 0.8,
+            'margin_top_mm' => 0.9,
             'margin_right_mm' => 0.8,
             'margin_bottom_mm' => 0.8,
             'margin_left_mm' => 0.8,

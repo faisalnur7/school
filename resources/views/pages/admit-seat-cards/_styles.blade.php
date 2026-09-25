@@ -98,6 +98,9 @@
 }
 
 .admit-card__header {
+    width: 100%;
+    height: var(--admit-card-header-height, auto);
+    box-sizing: border-box;
     padding: var(--admit-card-front-padding, 1.7mm);
     text-align: var(--admit-card-front-align, center);
     @if ($renderForPdf ?? false)
@@ -107,7 +110,24 @@
     @endif
     background: var(--admit-card-theme-bg, #ffffff);
     position: relative;
-    z-index: 1;
+    /* Keep the header resize handle above the body at the shared boundary. */
+    z-index: 2;
+}
+
+.admit-card__element-resize-handle {
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 13px;
+    height: 13px;
+    z-index: 20;
+    cursor: nwse-resize;
+    touch-action: none;
+    background: linear-gradient(135deg, transparent 0 42%, #2563eb 43% 50%, transparent 51% 63%, #2563eb 64% 71%, transparent 72%);
+}
+
+.admit-card__header-resize-handle {
+    cursor: ns-resize;
 }
 
 .admit-card__brand {
@@ -274,9 +294,9 @@
     z-index: 3;
     padding: 1mm 0.7mm;
     border: 0.3mm solid var(--admit-card-vertical-label-border-color, #16a085);
-    color: var(--admit-card-title-color, #16a085);
+    color: var(--admit-card-vertical-label-color, #16a085);
     background: #ffffff;
-    font-size: var(--admit-card-title-font-size, 5.2pt);
+    font-size: var(--admit-card-vertical-label-font-size, 5.2pt);
     font-weight: 800;
     letter-spacing: 0.04em;
     writing-mode: vertical-rl;
