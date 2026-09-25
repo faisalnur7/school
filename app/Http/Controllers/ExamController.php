@@ -16,6 +16,7 @@ use App\Models\Subject;
 use App\Models\SubjectClassAssignment;
 use App\Models\SchoolSetting;
 use App\Services\GradingService;
+use App\Services\ResultRankingService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -912,7 +913,7 @@ class ExamController extends Controller
                     $obtained = $mark ? (float) $mark->total : 0;
                     $isAbsent = $mark ? $mark->is_absent : false;
                     $grade = GradingService::getGrade($obtained, $fullMarks);
-                    $passed = ! $isAbsent && $obtained >= $passMark;
+                    $passed = ! $isAbsent && $obtained >= $passMark && $grade['letter'] !== 'F';
 
                     if (! $passed) {
                         $failedSubjectCount++;
@@ -950,61 +951,16 @@ class ExamController extends Controller
                 ];
             }
 
-            // Merit order: all-passed students first, then 1 failed subject, 2 failed subjects, etc.
-            uasort($results, function ($a, $b) {
-                $failedCompare = ($a['failed_subject_count'] ?? 0) <=> ($b['failed_subject_count'] ?? 0);
-                if ($failedCompare !== 0) {
-                    return $failedCompare;
-                }
-
-                $totalCompare = ($b['total_obtained'] ?? 0) <=> ($a['total_obtained'] ?? 0);
-                if ($totalCompare !== 0) {
-                    return $totalCompare;
-                }
-
-                $gpaCompare = ($b['gpa'] ?? 0) <=> ($a['gpa'] ?? 0);
-                if ($gpaCompare !== 0) {
-                    return $gpaCompare;
-                }
-
-                $attendanceCompare = ($b['attendance_present'] ?? 0) <=> ($a['attendance_present'] ?? 0);
-                if ($attendanceCompare !== 0) {
-                    return $attendanceCompare;
-                }
-
-                $studentIdA = (string) ($a['student']->student_cid ?? $a['student']->id);
-                $studentIdB = (string) ($b['student']->student_cid ?? $b['student']->id);
-
-                return strnatcmp($studentIdA, $studentIdB);
-            });
-            $rank = 1;
-            $prevFailedCount = null;
-            $prevTotal = null;
-            $prevGpa = null;
-            $prevAttendancePresent = null;
-            $prevStudentId = null;
-            foreach ($results as &$row) {
-                $studentId = (string) ($row['student']->student_cid ?? $row['student']->id);
-                if (
-                    $prevFailedCount !== null
-                    && (int) $row['failed_subject_count'] === (int) $prevFailedCount
-                    && (float) $row['total_obtained'] === (float) $prevTotal
-                    && (float) $row['gpa'] === (float) $prevGpa
-                    && (int) $row['attendance_present'] === (int) $prevAttendancePresent
-                    && $studentId === $prevStudentId
-                ) {
-                    $row['rank'] = $rank - 1;
-                } else {
-                    $row['rank'] = $rank;
-                }
-                $prevFailedCount = $row['failed_subject_count'];
-                $prevTotal = $row['total_obtained'];
-                $prevGpa = $row['gpa'];
-                $prevAttendancePresent = $row['attendance_present'];
-                $prevStudentId = $studentId;
-                $rank++;
-            }
-            unset($row);
+            $results = app(ResultRankingService::class)->rank(
+                $results,
+                fn (array $row) => [
+                    'failed_subjects' => $row['failed_subject_count'] ?? 0,
+                    'total' => $row['total_obtained'] ?? 0,
+                    'gpa' => $row['gpa'] ?? 0,
+                    'attendance' => $row['attendance_present'] ?? 0,
+                ],
+                fn (array $row) => $row['student']->student_cid ?? $row['student']->id,
+            );
         }
 
         $displaySubjects = $subjects->filter(
@@ -1116,7 +1072,7 @@ class ExamController extends Controller
                 $obtained  = $mark ? (float) $mark->total : 0;
                 $isAbsent  = $mark ? $mark->is_absent : false;
                 $grade     = GradingService::getGrade($obtained, $fullMarks);
-                $passed    = ! $isAbsent && $obtained >= $passMark;
+                $passed    = ! $isAbsent && $obtained >= $passMark && $grade['letter'] !== 'F';
 
                 if (! $passed) {
                     $failedSubjectCount++;
@@ -1152,60 +1108,16 @@ class ExamController extends Controller
             ];
         }
 
-        uasort($results, function ($a, $b) {
-            $failedCompare = ($a['failed_subject_count'] ?? 0) <=> ($b['failed_subject_count'] ?? 0);
-            if ($failedCompare !== 0) {
-                return $failedCompare;
-            }
-
-            $totalCompare = ($b['total_obtained'] ?? 0) <=> ($a['total_obtained'] ?? 0);
-            if ($totalCompare !== 0) {
-                return $totalCompare;
-            }
-
-            $gpaCompare = ($b['gpa'] ?? 0) <=> ($a['gpa'] ?? 0);
-            if ($gpaCompare !== 0) {
-                return $gpaCompare;
-            }
-
-            $attendanceCompare = ($b['attendance_present'] ?? 0) <=> ($a['attendance_present'] ?? 0);
-            if ($attendanceCompare !== 0) {
-                return $attendanceCompare;
-            }
-
-            $studentIdA = (string) ($a['student']->student_cid ?? $a['student']->id);
-            $studentIdB = (string) ($b['student']->student_cid ?? $b['student']->id);
-
-            return strnatcmp($studentIdA, $studentIdB);
-        });
-        $rank = 1;
-        $prevFailedCount = null;
-        $prevTotal = null;
-        $prevGpa = null;
-        $prevAttendancePresent = null;
-        $prevStudentId = null;
-        foreach ($results as &$row) {
-            $studentId = (string) ($row['student']->student_cid ?? $row['student']->id);
-            if (
-                $prevFailedCount !== null
-                && (int) $row['failed_subject_count'] === (int) $prevFailedCount
-                && (float) $row['total_obtained'] === (float) $prevTotal
-                && (float) $row['gpa'] === (float) $prevGpa
-                && (int) $row['attendance_present'] === (int) $prevAttendancePresent
-                && $studentId === $prevStudentId
-            ) {
-                $row['rank'] = $rank - 1;
-            } else {
-                $row['rank'] = $rank;
-            }
-            $prevFailedCount = $row['failed_subject_count'];
-            $prevTotal = $row['total_obtained'];
-            $prevGpa = $row['gpa'];
-            $prevAttendancePresent = $row['attendance_present'];
-            $prevStudentId = $studentId;
-            $rank++;
-        }
-        unset($row);
+        $results = app(ResultRankingService::class)->rank(
+            $results,
+            fn (array $row) => [
+                'failed_subjects' => $row['failed_subject_count'] ?? 0,
+                'total' => $row['total_obtained'] ?? 0,
+                'gpa' => $row['gpa'] ?? 0,
+                'attendance' => $row['attendance_present'] ?? 0,
+            ],
+            fn (array $row) => $row['student']->student_cid ?? $row['student']->id,
+        );
 
         $displaySubjects = $subjects->filter(
             fn (Subject $subject) => collect($results)->contains(

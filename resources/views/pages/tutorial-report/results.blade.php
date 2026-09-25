@@ -136,6 +136,8 @@
                     <span class="tutorial-student-value tutorial-student-mono" style="color: var(--tutorial-student-value-color) !important;">{{ $academicInfo?->roll ?? '—' }}</span>
                 </div>
                 <div class="ml-auto tutorial-student-total">
+                    <span class="badge badge-primary mr-1">Position: {{ $data['rank'] ?? '—' }}</span>
+                    <span class="badge badge-secondary mr-1">GPA: {{ number_format($data['gpa'], 2) }} ({{ $data['grade'] }})</span>
                     <span class="badge badge-info">Total Obtained: {{ number_format($data['total_obtained'], 1) }}</span>
                     {{-- <span class="badge ml-2 js-email-status {{ !empty($statusMap[$student->id]) ? 'badge-success' : 'badge-secondary' }}"
                         id="tutorial-email-status-{{ $student->id }}">

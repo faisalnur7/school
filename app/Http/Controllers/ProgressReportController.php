@@ -17,7 +17,10 @@ use App\Models\AttendanceItem;
 use App\Models\SchoolSetting;
 use App\Models\ProgressReportTemplateSetting;
 use App\Models\StudentAcademicInformation;
+use App\Models\Subject;
+use App\Models\SubjectClassAssignment;
 use App\Services\GradingService;
+use App\Services\ResultRankingService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 
@@ -44,6 +47,7 @@ class ProgressReportController extends Controller
         ]);
 
         $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id']);
+        $request->validate(['subject_ids' => ['sometimes', 'array'], 'subject_ids.*' => ['integer']]);
         $isPreview = $request->boolean('preview');
         $exam     = Exam::with('academicSession')
             ->where('type', Exam::TYPE_TERMINAL)
@@ -57,6 +61,9 @@ class ProgressReportController extends Controller
         unset($cohortFilters['student_id']);
 
         $students = $this->getStudents($cohortFilters);
+        $availableSubjects = $this->availableSubjectsForSelection((int) $filters['class_id']);
+        $filters['subject_settings_applied'] = $request->boolean('subject_settings_applied');
+        $filters['subject_ids'] = $this->selectedSubjectIds($request, $availableSubjects);
         if ($isPreview) {
             $students = $students->take(1);
         }
@@ -73,7 +80,7 @@ class ProgressReportController extends Controller
 
         $statusMap = $this->buildStatusMap($studentsData->pluck('student.id')->all(), (int) $filters['exam_id']);
 
-        return view('pages.progress-report.results', compact('studentsData', 'exam', 'school', 'gradeScale', 'filters', 'statusMap', 'sections', 'templateSettings', 'isPreview'))
+        return view('pages.progress-report.results', compact('studentsData', 'exam', 'school', 'gradeScale', 'filters', 'statusMap', 'sections', 'templateSettings', 'isPreview', 'availableSubjects'))
             ->with([
                 'sessions' => AcademicSession::orderByDesc('id')->get(),
                 'classes'  => SchoolClass::all(),
@@ -92,6 +99,7 @@ class ProgressReportController extends Controller
         ]);
 
         $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id']);
+        $request->validate(['subject_ids' => ['sometimes', 'array'], 'subject_ids.*' => ['integer']]);
         $exam     = Exam::with('academicSession')
             ->where('type', Exam::TYPE_TERMINAL)
             ->findOrFail($filters['exam_id']);
@@ -103,6 +111,9 @@ class ProgressReportController extends Controller
         unset($cohortFilters['student_id']);
 
         $students = $this->getStudents($cohortFilters);
+        $availableSubjects = $this->availableSubjectsForSelection((int) $filters['class_id']);
+        $filters['subject_settings_applied'] = $request->boolean('subject_settings_applied');
+        $filters['subject_ids'] = $this->selectedSubjectIds($request, $availableSubjects);
         $attendanceData = $this->getTerminalAttendanceData($exam, (int) $filters['class_id'], $students->pluck('id'));
         $studentsData = $this->rankProgressReports(
             $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters, $attendanceData))
@@ -118,6 +129,7 @@ class ProgressReportController extends Controller
 
         $mpdf = new \Mpdf\Mpdf([
             'format' => 'A4',
+            'orientation' => strtolower((string) $templateSettings->paper_orientation) === 'landscape' ? 'L' : 'P',
             'margin_top' => $templateSettings->margin_top_mm * 10,
             'margin_bottom' => $templateSettings->margin_bottom_mm * 10,
             'margin_left' => $templateSettings->margin_left_mm * 10,
@@ -231,68 +243,16 @@ class ProgressReportController extends Controller
             return $row;
         })->values()->all();
 
-        usort($rows, function (array $a, array $b) {
-            $failedCompare = ($a['failed_subject_count'] ?? 0) <=> ($b['failed_subject_count'] ?? 0);
-            if ($failedCompare !== 0) {
-                return $failedCompare;
-            }
-
-            $totalCompare = (float) data_get($b, 'summary.obtained', 0) <=> (float) data_get($a, 'summary.obtained', 0);
-            if ($totalCompare !== 0) {
-                return $totalCompare;
-            }
-
-            $gpaCompare = (float) data_get($b, 'summary.gpa', 0) <=> (float) data_get($a, 'summary.gpa', 0);
-            if ($gpaCompare !== 0) {
-                return $gpaCompare;
-            }
-
-            $attendanceCompare = (int) ($b['attendancePresent'] ?? 0) <=> (int) ($a['attendancePresent'] ?? 0);
-            if ($attendanceCompare !== 0) {
-                return $attendanceCompare;
-            }
-
-            $studentIdA = (string) ($a['student']->student_cid ?? $a['student']->id);
-            $studentIdB = (string) ($b['student']->student_cid ?? $b['student']->id);
-
-            return strnatcmp($studentIdA, $studentIdB);
-        });
-
-        $rank = 1;
-        $prevFailedCount = null;
-        $prevTotal = null;
-        $prevGpa = null;
-        $prevAttendancePresent = null;
-        $prevStudentId = null;
-
-        foreach ($rows as &$row) {
-            $currentFailedCount = (int) ($row['failed_subject_count'] ?? 0);
-            $currentTotal = (float) data_get($row, 'summary.obtained', 0);
-            $currentGpa = (float) data_get($row, 'summary.gpa', 0);
-            $currentAttendancePresent = (int) ($row['attendancePresent'] ?? 0);
-            $currentStudentId = (string) ($row['student']->student_cid ?? $row['student']->id);
-
-            if (
-                $prevFailedCount !== null
-                && $currentFailedCount === $prevFailedCount
-                && $currentTotal === $prevTotal
-                && $currentGpa === $prevGpa
-                && $currentAttendancePresent === $prevAttendancePresent
-                && $currentStudentId === $prevStudentId
-            ) {
-                $row['rank'] = $rank - 1;
-            } else {
-                $row['rank'] = $rank;
-            }
-
-            $prevFailedCount = $currentFailedCount;
-            $prevTotal = $currentTotal;
-            $prevGpa = $currentGpa;
-            $prevAttendancePresent = $currentAttendancePresent;
-            $prevStudentId = $currentStudentId;
-            $rank++;
-        }
-        unset($row);
+        $rows = app(ResultRankingService::class)->rank(
+            $rows,
+            fn (array $row) => [
+                'failed_subjects' => $row['failed_subject_count'] ?? 0,
+                'total' => data_get($row, 'summary.obtained', 0),
+                'gpa' => data_get($row, 'summary.gpa', 0),
+                'attendance' => $row['attendancePresent'] ?? 0,
+            ],
+            fn (array $row) => $row['student']->student_cid ?? $row['student']->id,
+        );
 
         return collect($rows);
     }
@@ -334,6 +294,34 @@ class ProgressReportController extends Controller
             ->all();
     }
 
+    private function availableSubjectsForSelection(int $classId): \Illuminate\Support\Collection
+    {
+        return SubjectClassAssignment::with('subject')
+            ->where('school_class_id', $classId)
+            ->where('is_active', true)
+            ->get()
+            ->map(fn (SubjectClassAssignment $assignment) => $assignment->subject)
+            ->filter()
+            ->unique('id')
+            ->sortBy(fn (Subject $subject) => $subject->name)
+            ->values();
+    }
+
+    private function selectedSubjectIds(Request $request, \Illuminate\Support\Collection $availableSubjects): array
+    {
+        $availableIds = $availableSubjects->pluck('id')->map(fn ($id) => (int) $id);
+
+        if (! $request->boolean('subject_settings_applied')) {
+            return $availableIds->all();
+        }
+
+        return collect($request->input('subject_ids', []))
+            ->map(fn ($id) => (int) $id)
+            ->intersect($availableIds)
+            ->values()
+            ->all();
+    }
+
     private function getStudents(array $filters)
     {
         if (!empty($filters['student_id'])) {
@@ -369,10 +357,24 @@ class ProgressReportController extends Controller
             ->where('academic_session_id', $filters['session_id'])
             ->first();
 
+        $applicableSubjectIds = SubjectClassAssignment::query()
+            ->where('school_class_id', $filters['class_id'])
+            ->where('is_active', true)
+            ->get()
+            ->filter(function (SubjectClassAssignment $assignment) use ($student, $academicInfo) {
+                return ($assignment->group_id === null || (int) $assignment->group_id === (int) ($academicInfo?->group_id))
+                    && $assignment->appliesToStudent($student->gender, $student->religion);
+            })
+            ->pluck('subject_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
         $marks = ExamMark::with(['subject'])
             ->where('exam_id', $exam->id)
             ->where('student_id', $student->id)
-            ->get();
+            ->get()
+            ->filter(fn (ExamMark $mark) => in_array((int) $mark->subject_id, $applicableSubjectIds, true)
+                && in_array((int) $mark->subject_id, $filters['subject_ids'] ?? [], true));
 
         $examSubjects = ExamSubject::with('subject')
             ->where('exam_id', $exam->id)
@@ -395,7 +397,11 @@ class ProgressReportController extends Controller
 
             $examSubject = $examSubjects[$subject->id] ?? null;
             $fullMarks   = $subject ? (float) $subject->total_marks : 0;
+            $passMark    = (float) ($subject->getEffectiveMarksForClass((int) $filters['class_id'])['pass_mark'] ?? 33);
             $highest     = (float) ($highestMarks[$subject->id] ?? 0);
+
+            $obtained = $mark->is_absent ? null : (float) $mark->total;
+            $passed = ! $mark->is_absent && $obtained >= $passMark && $mark->letter_grade !== 'F';
 
             $row = [
                 'subject_id'   => $subject->id,
@@ -403,12 +409,13 @@ class ProgressReportController extends Controller
                 'is_paper'     => (bool) $subject->is_paper,
                 'parent_id'    => $subject->parent_id,
                 'full_marks'   => $fullMarks,
-                'obtained'     => $mark->is_absent ? null : (float) $mark->total,
+                'obtained'     => $obtained,
                 'highest'      => $highest,
+                'pass_mark'    => $passMark,
                 'grade'        => $mark->is_absent ? 'AB' : $mark->letter_grade,
                 'gpa'          => $mark->is_absent ? null : (float) $mark->gpa,
                 'is_absent'    => (bool) $mark->is_absent,
-                'paper_fail'   => (bool) $mark->is_absent || $mark->gpa == 0 || $mark->letter_grade === 'F',
+                'paper_fail'   => ! $passed,
             ];
 
             if ($subject->is_paper && $subject->parent_id) {
@@ -458,7 +465,10 @@ class ProgressReportController extends Controller
         $gpas       = collect($subjectRows)->map(
             fn ($r) => ($r['is_absent'] || ($r['paper_fail'] ?? false)) ? 0 : (float) $r['gpa']
         )->values()->toArray();
-        $gpa        = GradingService::calculateGpa($gpas);
+        $hasFailedSubject = collect($subjectRows)->contains(
+            fn ($r) => (bool) ($r['is_absent'] || ($r['paper_fail'] ?? false))
+        );
+        $gpa        = GradingService::calculateGpa($gpas, $hasFailedSubject);
         $grade      = GradingService::getGpaLabel($gpa);
 
         // Use the same period as the terminal-result ranking.

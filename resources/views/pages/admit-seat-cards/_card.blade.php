@@ -44,6 +44,7 @@
     $cardElementPositions = $cardElementPositions ?? [];
     $cardElementSizes = $cardElementSizes ?? [];
     $examNameSize = data_get($cardElementSizes, 'exam_name', []);
+    $headerSize = data_get($cardElementSizes, 'header', []);
     $elementPositionVars = static function () use ($cardElementPositions): string {
         $keys = ['school_name', 'school_detail', 'slogan', 'title', 'name', 'exam_type', 'exam_name', 'student_detail', 'footer', 'logo', 'photo', 'signature', 'vertical_label'];
 
@@ -113,14 +114,14 @@
     $previewClass = $isPreview ? ' card-preview-clickable' : '';
 @endphp
 
-<div class="admit-card" style="width: {{ $cardWidthStyle }}; height: {{ $cardHeightStyle }}; --admit-card-element-exam-name-width: {{ filled(data_get($examNameSize, 'width')) ? ((float) data_get($examNameSize, 'width')) . 'mm' : 'auto' }}; --admit-card-element-exam-name-height: {{ filled(data_get($examNameSize, 'height')) ? ((float) data_get($examNameSize, 'height')) . 'mm' : 'auto' }}; {!! $elementPositionVars() !!}">
+<div class="admit-card" style="width: {{ $cardWidthStyle }}; height: {{ $cardHeightStyle }}; --admit-card-vertical-label-color: {{ $cardVerticalLabelColor ?? '#16a085' }}; --admit-card-vertical-label-font-size: {{ $cardVerticalLabelFontSize ?? 5.2 }}pt; --admit-card-element-exam-name-width: {{ filled(data_get($examNameSize, 'width')) ? ((float) data_get($examNameSize, 'width')) . 'mm' : 'auto' }}; --admit-card-element-exam-name-height: {{ filled(data_get($examNameSize, 'height')) ? ((float) data_get($examNameSize, 'height')) . 'mm' : 'auto' }}; {!! $elementPositionVars() !!}">
     @if($logoPath)
         <div class="admit-card__watermark">
             <img src="{{ $logoPath }}" alt="" class="admit-card__watermark-logo">
         </div>
     @endif
 
-    <div class="admit-card__header">
+    <div class="admit-card__header" @if($isPreview) data-preview-resize-key="header" @endif style="--admit-card-header-height: {{ filled(data_get($headerSize, 'height')) ? ((float) data_get($headerSize, 'height')) . 'mm' : 'auto' }};">
         <div class="admit-card__brand">
             @if((($showLogoFront ?? true) || $isPreview) && $logoPath)
                 <div class="admit-card__logo-wrap{{ $previewClass }}"{!! $previewAttr($focusFor('logo')) !!}>
@@ -152,6 +153,10 @@
                 </div>
             @endif
         </div>
+        @if($isPreview)
+            <span class="admit-card__element-resize-handle admit-card__header-resize-handle" data-preview-resize-handle role="button" tabindex="0"
+                aria-label="Resize card header" title="Drag to resize header"></span>
+        @endif
     </div>
 
     <div class="admit-card__body{{ $showVerticalLabelFront ? ' admit-card__body--with-vertical-label' : '' }}">

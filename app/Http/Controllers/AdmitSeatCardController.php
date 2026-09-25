@@ -218,6 +218,7 @@ class AdmitSeatCardController extends Controller
             'card_school_detail_font_size' => ['nullable', 'numeric', 'min:1'],
             'card_slogan_font_size' => ['nullable', 'numeric', 'min:1'],
             'card_title_font_size' => ['nullable', 'numeric', 'min:1'],
+            'card_vertical_label_font_size' => ['nullable', 'numeric', 'min:1'],
             'card_name_font_size' => ['nullable', 'numeric', 'min:1'],
             'card_name_text_color' => ['nullable', 'string', 'max:20'],
             'card_exam_type_font_size' => ['nullable', 'numeric', 'min:1'],
@@ -236,6 +237,8 @@ class AdmitSeatCardController extends Controller
             'card_element_sizes.exam_name' => ['nullable', 'array'],
             'card_element_sizes.exam_name.width' => ['nullable', 'numeric', 'min:1', 'max:100'],
             'card_element_sizes.exam_name.height' => ['nullable', 'numeric', 'min:0.5', 'max:30'],
+            'card_element_sizes.header' => ['nullable', 'array'],
+            'card_element_sizes.header.height' => ['nullable', 'numeric', 'min:1', 'max:100'],
             'card_border_colors' => ['nullable', 'array'],
             'card_border_colors.*' => ['nullable', 'string', 'max:20'],
             'card_border_transparent' => ['nullable', 'array'],
@@ -247,6 +250,7 @@ class AdmitSeatCardController extends Controller
             'card_school_detail_text_color' => ['nullable', 'string', 'max:20'],
             'card_slogan_text_color' => ['nullable', 'string', 'max:20'],
             'card_title_text_color' => ['nullable', 'string', 'max:20'],
+            'card_vertical_label_text_color' => ['nullable', 'string', 'max:20'],
             'card_exam_type_text_color' => ['nullable', 'string', 'max:20'],
             'card_exam_name_text_color' => ['nullable', 'string', 'max:20'],
             'card_footer_text_color' => ['nullable', 'string', 'max:20'],
@@ -279,6 +283,11 @@ class AdmitSeatCardController extends Controller
                 'width' => min(100, max(1, (float) data_get($submittedSizes, 'exam_name.width', data_get($existingSetting?->card_element_sizes, 'exam_name.width', 1)))),
                 'height' => min(30, max(0.5, (float) data_get($submittedSizes, 'exam_name.height', data_get($existingSetting?->card_element_sizes, 'exam_name.height', 0.5)))),
             ],
+            'header' => [
+                'height' => filled(data_get($submittedSizes, 'header.height'))
+                    ? min(100, max(1, (float) data_get($submittedSizes, 'header.height')))
+                    : data_get($existingSetting?->card_element_sizes, 'header.height'),
+            ],
         ];
         $borderColorDefaults = [
             'school_name' => '#ffffff',
@@ -294,11 +303,8 @@ class AdmitSeatCardController extends Controller
             return [$key => data_get($submittedBorderColors, $key)
                 ?: data_get($existingSetting?->card_border_colors, $key, $default)];
         })->all();
-        $submittedBorderTransparency = $request->input('card_border_transparent', []);
-        $borderTransparent = collect($borderColorDefaults)->mapWithKeys(function (string $default, string $key) use ($submittedBorderTransparency, $existingSetting, $request): array {
-            return [$key => array_key_exists($key, $submittedBorderTransparency)
-                ? $request->boolean("card_border_transparent.$key")
-                : (bool) data_get($existingSetting?->card_border_transparent, $key, false)];
+        $borderTransparent = collect($borderColorDefaults)->mapWithKeys(function (string $default, string $key) use ($request): array {
+            return [$key => $request->boolean("card_border_transparent.$key")];
         })->all();
         $submittedSpacing = $request->input('card_typography_spacing', []);
         $spacingSides = ['top', 'right', 'bottom', 'left'];
@@ -353,6 +359,7 @@ class AdmitSeatCardController extends Controller
             'card_school_detail_font_size' => data_get($validated, 'card_school_detail_font_size', 5.4),
             'card_slogan_font_size' => data_get($validated, 'card_slogan_font_size', 4.8),
             'card_title_font_size' => data_get($validated, 'card_title_font_size', 4.7),
+            'card_vertical_label_font_size' => data_get($validated, 'card_vertical_label_font_size', 5.2),
             'card_name_font_size' => data_get($validated, 'card_name_font_size', 7.2),
             'card_name_text_color' => data_get($validated, 'card_name_text_color') ?: '#111827',
             'card_exam_type_font_size' => data_get($validated, 'card_exam_type_font_size', 7.4),
@@ -378,6 +385,7 @@ class AdmitSeatCardController extends Controller
             'card_school_detail_text_color' => data_get($validated, 'card_school_detail_text_color') ?: ($isTransparent ? '#334155' : '#e5e7eb'),
             'card_slogan_text_color' => data_get($validated, 'card_slogan_text_color') ?: ($isTransparent ? '#334155' : '#e5e7eb'),
             'card_title_text_color' => data_get($validated, 'card_title_text_color') ?: ($isTransparent ? '#111827' : '#ffffff'),
+            'card_vertical_label_text_color' => data_get($validated, 'card_vertical_label_text_color') ?: '#16a085',
             'card_exam_type_text_color' => data_get($validated, 'card_exam_type_text_color') ?: ($isTransparent ? '#111827' : '#ffffff'),
             'card_exam_name_text_color' => data_get($validated, 'card_exam_name_text_color') ?: ($isTransparent ? '#334155' : '#e5e7eb'),
             'card_footer_text_color' => data_get($validated, 'card_footer_text_color') ?: ($isTransparent ? '#334155' : '#e5e7eb'),
@@ -652,6 +660,7 @@ class AdmitSeatCardController extends Controller
             'card_school_detail_font_size' => $settings->card_school_detail_font_size ?? 5.4,
             'card_slogan_font_size' => $settings->card_slogan_font_size ?? 4.8,
             'card_title_font_size' => $settings->card_title_font_size ?? 4.7,
+            'card_vertical_label_font_size' => $settings->card_vertical_label_font_size ?? 5.2,
             'card_name_font_size' => $settings->card_name_font_size ?? 7.2,
             'card_name_text_color' => $settings->card_name_text_color ?? '#111827',
             'card_exam_type_font_size' => $settings->card_exam_type_font_size ?? 7.4,
@@ -671,6 +680,7 @@ class AdmitSeatCardController extends Controller
             'card_school_name_text_color' => $settings->card_school_name_text_color ?? '#ffffff',
             'card_school_detail_text_color' => $settings->card_school_detail_text_color ?? '#e5e7eb',
             'card_title_text_color' => $settings->card_title_text_color ?? '#ffffff',
+            'card_vertical_label_text_color' => $settings->card_vertical_label_text_color ?? '#16a085',
             'card_exam_type_text_color' => $settings->card_exam_type_text_color ?? '#ffffff',
             'card_exam_name_text_color' => $settings->card_exam_name_text_color ?? '#e5e7eb',
             'card_footer_text_color' => $settings->card_footer_text_color ?? '#e5e7eb',

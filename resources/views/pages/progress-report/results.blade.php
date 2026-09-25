@@ -56,7 +56,7 @@
 
         @unless($isPreview ?? false)
             {{-- ══ Top Action Bar ══ --}}
-            <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+            <div class="d-flex justify-content-between align-items-center mb-4 no-print progress-report-legacy-action-bar">
                 <div class="d-flex align-items-center gap-3">
                     <div class="rounded-circle d-flex align-items-center justify-content-center shadow"
                         style="width:52px;height:52px;background:linear-gradient(135deg,#1a6b3c,#2d9e5f);flex-shrink:0">
@@ -69,9 +69,9 @@
                     </div>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('result.progress-report.pdf', $filters) }}" target="_blank" class="btn btn-danger btn-sm result-filter-icon-btn" title="PDF" aria-label="PDF">
-                        <i class="fas fa-file-pdf"></i>
-                    </a>
+                    <button type="button" class="btn btn-dark btn-sm result-filter-icon-btn" data-toggle="modal" data-target="#progressSubjectSettingsModal" title="Subject Settings" aria-label="Subject Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
                     <button onclick="window.print()" class="btn btn-info btn-sm no-print result-filter-icon-btn" title="Print" aria-label="Print">
                         <i class="fas fa-print"></i>
                     </button>
@@ -81,6 +81,52 @@
                     <a href="{{ route('result.progress-report.template-settings.edit') }}" class="btn btn-outline-light btn-sm no-print result-filter-icon-btn" title="Template Settings" aria-label="Template Settings">
                         <i class="fas fa-sliders-h"></i>
                     </a>
+                </div>
+            </div>
+        @endunless
+
+        @unless($isPreview ?? false)
+            <div class="modal fade" id="progressSubjectSettingsModal" tabindex="-1" role="dialog" aria-labelledby="progressSubjectSettingsTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                    <div class="modal-content">
+                        <form method="GET" action="{{ route('result.progress-report.index') }}">
+                            <div class="modal-header">
+                                <div>
+                                    <h5 class="modal-title mb-1" id="progressSubjectSettingsTitle"><i class="fas fa-sliders-h mr-2"></i>Report Subjects</h5>
+                                    <small class="text-muted">Unchecked subjects will be hidden and ignored in totals, GPA, grade, and ranking.</small>
+                                </div>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            </div>
+                            <div class="modal-body">
+                                @foreach(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id'] as $filterKey)
+                                    <input type="hidden" name="{{ $filterKey }}" value="{{ $filters[$filterKey] ?? '' }}">
+                                @endforeach
+                                <input type="hidden" name="subject_settings_applied" value="1">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <strong>Select subjects</strong>
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-secondary" id="progressSubjectsSelectAll">All</button>
+                                        <button type="button" class="btn btn-outline-secondary" id="progressSubjectsClearAll">None</button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    @foreach($availableSubjects as $subject)
+                                        <div class="col-md-6 mb-2">
+                                            <label class="progress-subject-option d-flex align-items-center mb-0">
+                                                <input type="checkbox" name="subject_ids[]" value="{{ $subject->id }}" class="mr-2 progress-subject-check"
+                                                    @checked(in_array((int) $subject->id, $filters['subject_ids'] ?? [], true))>
+                                                <span>{{ $subject->name }}</span>
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-dark"><i class="fas fa-check mr-1"></i>Apply Subjects</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         @endunless
@@ -179,29 +225,6 @@
                                 </p>
                             </div>
                         </div>
-
-                        @if($templateSettings->show_grade_scale)
-                        <div class="classic-grade-table">
-                            <table class="text-xs border border-gray-700" style="border-color: {{ $templateSettings->table_border_color }};">
-                                <thead style="background: {{ $templateSettings->table_header_bg_color }}; color: {{ $templateSettings->table_header_text_color }};">
-                                    <tr>
-                                        <th class="px-3 py-1 text-center">Range</th>
-                                        <th class="px-1 py-1 text-center">Grade</th>
-                                        <th class="px-1 py-1 text-center">Point</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($gradeScale as $grade)
-                                        <tr>
-                                            <td class="px-3 py-0 text-center">{{ $grade['min'] }}-{{ $grade['max'] }}</td>
-                                            <td class="px-1 py-0 text-center">{{ $grade['letter'] }}</td>
-                                            <td class="px-1 py-0 text-center">{{ number_format($grade['gpa'], 1) }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        @endif
                     </div>
                     <h2 class="text-2xl font-bold italic mt-5 uppercase text-center" style="font-size: {{ $templateSettings->report_title_font_size }}px; color: {{ $templateSettings->report_title_color }};">
                         {{ $templateSettings->report_title_text }}
@@ -209,7 +232,7 @@
                 </div>
 
                 @if($templateSettings->show_student_info)
-                <div class="mt-6 flex justify-between items-start">
+                <div class="classic-student-row">
                     <div>
                         <h3 class="font-bold text-xl underline" style="color: {{ $templateSettings->student_value_color }};">{{ $exam->name }}</h3>
                         <div class="mt-4 space-y-1 text-sm">
@@ -218,6 +241,28 @@
                             <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">ID</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $student->student_cid ?? $student->id }}</span></p>
                         </div>
                     </div>
+                    @if($templateSettings->show_grade_scale)
+                    <div class="classic-grade-table">
+                        <table class="text-xs border border-gray-700" style="border-color: {{ $templateSettings->table_border_color }};">
+                            <thead style="background: {{ $templateSettings->table_header_bg_color }}; color: #000000;">
+                                <tr>
+                                    <th class="px-3 py-1 text-center">Range</th>
+                                    <th class="px-1 py-1 text-center">Letter Grade</th>
+                                    <th class="px-1 py-1 text-center">Point</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($gradeScale as $grade)
+                                    <tr>
+                                        <td class="px-3 py-0 text-center">{{ $grade['min'] }}-{{ $grade['max'] }}</td>
+                                        <td class="px-1 py-0 text-center">{{ $grade['letter'] }}</td>
+                                        <td class="px-1 py-0 text-center">{{ number_format($grade['gpa'], 1) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    @endif
                 </div>
                 @endif
 
@@ -239,7 +284,7 @@
                                 @if (!empty($row['papers']))
                                     @foreach ($row['papers'] as $paperIndex => $paper)
                                         <tr class="{{ $paper['paper_fail'] ?? false ? 'table-danger' : '' }}">
-                                            <td class="px-3 py-2 font-medium">{{ $paper['subject_name'] }}</td>
+                                            <td class="px-3 py-2 font-medium text-base">{{ $paper['subject_name'] }}</td>
                                             <td class="text-center">{{ number_format($paper['full_marks'], 0) }}</td>
                                             <td class="text-center">
                                                 {{ $paper['obtained'] ? number_format($paper['obtained'], 0) : '—' }}</td>
@@ -262,7 +307,7 @@
                                     @endforeach
                                 @else
                                     <tr>
-                                        <td class="px-3 py-2 font-medium">{{ $row['subject_name'] }}</td>
+                                        <td class="px-3 py-2  font-medium text-base">{{ $row['subject_name'] }}</td>
                                         <td class="text-center">{{ number_format($row['full_marks'], 0) }}</td>
                                         <td class="text-center">
                                             {{ $row['obtained'] ? number_format($row['obtained'], 0) : '—' }}</td>
@@ -304,27 +349,30 @@
                 </div>
                 @endif
 
-                @if(!is_null($rank))
-                    <div class="mt-4 mb-4 px-4 py-3 rounded-lg d-flex justify-content-between align-items-center" style="border:1px solid var(--rc-border, #d1d5db); background:#f8fafc;">
-                        <div style="font-size:.85rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color: var(--rc-green, #1a6b3c);">Position</div>
-                        <div style="font-size:1.4rem; font-weight:800; color: var(--rc-ink, #111827);">#{{ $rank }}</div>
+                @if($templateSettings->show_remarks || !is_null($rank))
+                <div class="classic-results-meta">
+                    @if($templateSettings->show_remarks)
+                    <div class="classic-remarks">
+                        <h4>Remarks:</h4>
+                        <div>
+                            @if ($summary['gpa'] >= 4.0)
+                                <p class="is-active">{{ $templateSettings->remark_excellent_text }}</p>
+                            @elseif($summary['gpa'] >= 3.0)
+                                <p class="is-active">{{ $templateSettings->remark_good_text }}</p>
+                            @elseif($summary['gpa'] >= 2.0)
+                                <p>{{ $templateSettings->remark_satisfactory_text }}</p>
+                            @else
+                                <p>{{ $templateSettings->remark_improve_text }}</p>
+                            @endif
+                        </div>
                     </div>
-                @endif
-
-                @if($templateSettings->show_remarks)
-                <div class="mt-6 text-sm">
-                    <h4 class="font-bold underline mb-2" style="color: {{ $templateSettings->remarks_title_color }};">Remarks:</h4>
-                    <div class="space-y-1">
-                        @if ($summary['gpa'] >= 4.0)
-                            <p class="inline-block bg-green-200 px-2 rounded" style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_excellent_text }}</p>
-                        @elseif($summary['gpa'] >= 3.0)
-                            <p class="inline-block bg-green-200 px-2 rounded" style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_good_text }}</p>
-                        @elseif($summary['gpa'] >= 2.0)
-                            <p style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_satisfactory_text }}</p>
-                        @else
-                            <p style="color: {{ $templateSettings->remarks_text_color }};">{{ $templateSettings->remark_improve_text }}</p>
-                        @endif
+                    @endif
+                    @if(!is_null($rank))
+                    <div class="classic-position">
+                        <div class="classic-position-label">Position</div>
+                        <div class="classic-position-value">#{{ $rank }}</div>
                     </div>
+                    @endif
                 </div>
                 @endif
 
@@ -345,7 +393,7 @@
                 @endif
 
                 @if($templateSettings->show_signature || $templateSettings->show_print_date)
-                <div class="mt-10 flex justify-between items-end text-sm">
+                <div class="mt-20 flex justify-between items-end text-sm">
                     <div>
                         @if($templateSettings->show_print_date)
                             <p class="font-semibold">Published Date: {{ now()->format('d-m-Y') }}</p>
@@ -849,6 +897,300 @@
         .classic-grade-table th:nth-child(3),
         .classic-grade-table td:nth-child(3) { width: 28%; }
 
+        .report-card-classic {
+            font-family: 'Times New Roman', Times, serif;
+            max-width: 680px;
+            padding: 1rem;
+            border: 1px solid #b7cdb7;
+            border-top: 3px solid #4f7d55;
+            border-radius: 5px;
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(52, 93, 58, .08);
+            color: #000;
+        }
+
+        .report-card-classic,
+        .design-b.rc-wrap {
+            width: 210mm;
+            max-width: 210mm;
+            min-height: 297mm;
+            height: 297mm;
+            margin-left: auto;
+            margin-right: auto;
+            page-break-after: always;
+            break-after: page;
+        }
+
+        @media (max-width: 520px) {
+            .report-card-classic,
+            .design-b.rc-wrap {
+                width: calc(100vw - 2rem);
+                max-width: calc(100vw - 2rem);
+                min-height: auto;
+                height: auto;
+            }
+        }
+
+        /* A4 typography scale */
+        .report-card-classic {
+            font-size: 11px;
+        }
+
+        .classic-header-copy h1 {
+            font-size: 23px !important;
+        }
+
+        .classic-header-copy p {
+            font-size: 15px !important;
+        }
+
+        .classic-header-inner > h2 {
+            font-size: 19px !important;
+        }
+
+        .classic-student-row h3 {
+            font-size: 18px !important;
+        }
+
+        .classic-student-row p {
+            font-size: 16px;
+        }
+
+        .classic-grade-table table {
+            font-size: 8.5px;
+        }
+
+        .classic-grade-table th,
+        .classic-grade-table td {
+            white-space: normal;
+            overflow-wrap: normal;
+        }
+
+        .classic-grade-table th:nth-child(1),
+        .classic-grade-table td:nth-child(1) {
+            width: 38%;
+        }
+
+        .classic-grade-table th:nth-child(2),
+        .classic-grade-table td:nth-child(2) {
+            width: 38%;
+        }
+
+        .classic-grade-table th:nth-child(3),
+        .classic-grade-table td:nth-child(3) {
+            width: 24%;
+        }
+
+        .report-card-classic > .mt-6 table {
+            font-size: 12px;
+        }
+
+        .report-card-classic > .mt-6 table th,
+        .report-card-classic > .mt-6 table td {
+            padding: .17rem .2rem !important;
+        }
+
+        .classic-remarks h4 {
+            font-size: 16px;
+        }
+
+        .classic-remarks p {
+            font-size: 12px;
+        }
+
+        .classic-position-label {
+            font-size: 10px;
+        }
+
+        .classic-position-value {
+            font-size: 14px;
+        }
+
+        .report-card-classic .border-gray-400 {
+            font-size: 15px;
+        }
+
+        .classic-header-inner {
+            border: 0;
+            border-radius: 3px;
+            padding: .65rem .75rem .45rem;
+            background: linear-gradient(135deg, #e6f2e6 0%, #d5e9d5 100%);
+        }
+
+        .classic-header-top {
+            display: block;
+        }
+
+        .classic-header-brand {
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .classic-header-logo {
+            width: 52px;
+            height: 52px;
+            border-color: #a8c5a9;
+            border-radius: 5px;
+        }
+
+        .classic-header-copy {
+            text-align: center;
+        }
+
+        .classic-header-copy h1 {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 22px !important;
+            font-weight: 700;
+            color: #2e6f35 !important;
+            line-height: 1.1;
+        }
+
+        .classic-header-copy p {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14px !important;
+            font-style: italic;
+            color: #56805a !important;
+        }
+
+        .classic-header-inner > h2 {
+            margin: .55rem 0 .1rem !important;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 18px !important;
+            font-weight: 700;
+            color: #4f7d55 !important;
+        }
+
+        .classic-student-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 172px;
+            gap: 1rem;
+            align-items: start;
+            margin-top: 1rem;
+        }
+
+        .classic-student-row h3 {
+            font-family: 'Times New Roman', Times, serif;
+            margin: 0 0 .55rem;
+            font-size: 16px !important;
+            color: #000 !important;
+        }
+
+        .classic-student-row p {
+            margin: .18rem 0;
+            font-size: 14px;
+            color: #000 !important;
+        }
+
+        .classic-grade-table {
+            width: 172px;
+        }
+
+        .classic-grade-table table,
+        .report-card-classic .classic-grade-table th,
+        .report-card-classic .classic-grade-table td {
+            font-family: 'Times New Roman', Times, serif;
+            color: #000 !important;
+            border-color: #9fbe9f !important;
+            border-width: 1px !important;
+            border-style: solid !important;
+        }
+
+        .classic-grade-table table {
+            font-size: 9px;
+        }
+
+        .classic-grade-table thead {
+            background: #dceedd !important;
+        }
+
+        .report-card-classic > .mt-6 {
+            margin-top: .75rem !important;
+        }
+
+        .report-card-classic > .mt-6 table {
+            width: 100%;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 13px;
+            color: #000;
+            border-collapse: collapse;
+        }
+
+        .report-card-classic > .mt-6 table th,
+        .report-card-classic > .mt-6 table td {
+            border-color: #9fbe9f !important;
+            border-width: 1px !important;
+            border-style: solid !important;
+            padding: .23rem .28rem !important;
+            color: #000 !important;
+            line-height: 1.1;
+        }
+
+        .report-card-classic > .mt-6 table thead {
+            background: #dceedd !important;
+        }
+
+        .classic-results-meta {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 172px;
+            gap: 1rem;
+            align-items: start;
+            margin-top: .55rem;
+        }
+
+        .classic-remarks h4 {
+            margin: 0 0 .2rem;
+            font-size: 15px;
+            font-weight: 700;
+            color: #2e6f35;
+        }
+
+        .classic-remarks p {
+            margin: .08rem 0;
+            font-size: 13px;
+            color: #000;
+        }
+
+        .classic-remarks p.is-active {
+            display: inline-block;
+            margin: 0;
+            padding: .05rem .22rem;
+            border-radius: 3px;
+            background: #4f7d55;
+            color: #fff;
+        }
+
+        .classic-position {
+            border: 1px solid #9fbe9f;
+            text-align: center;
+        }
+
+        .classic-position-label {
+            padding: .28rem;
+            background: #dceedd;
+            color: #000;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .classic-position-value {
+            padding: .28rem;
+            background: #f0f8f0;
+            color: #000;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .report-card-classic .border-gray-400 {
+            border-color: #9fbe9f !important;
+            background: #f0f9f0;
+        }
+
+        .report-card-classic .mt-10 {
+            margin-top: 1.5rem !important;
+        }
+
         .report-card-watermark,
         .rc-watermark {
             position: absolute;
@@ -861,11 +1203,34 @@
             opacity: var(--pr-watermark-opacity, 0.08);
         }
 
+        /* Keep the classic watermark elegant and safely behind every report element. */
+        .report-card-classic {
+            isolation: isolate;
+        }
+
+        .report-card-classic > .report-card-watermark {
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .report-card-classic > .report-card-watermark ~ * {
+            position: relative;
+            z-index: 1;
+        }
+
         .report-card-watermark__img,
         .rc-watermark__img {
             width: min(560px, var(--pr-watermark-scale, 78%));
             max-width: var(--pr-watermark-scale, 78%);
             max-height: 78%;
+            object-fit: contain;
+            filter: grayscale(100%);
+        }
+
+        .report-card-classic > .report-card-watermark .report-card-watermark__img {
+            width: min(62%, 430px) !important;
+            max-width: 62% !important;
+            max-height: 62%;
             object-fit: contain;
             filter: grayscale(100%);
         }
@@ -1466,6 +1831,11 @@
 
         /* ════ PRINT ════════════════════════════════════ */
         @media print {
+            @page {
+                size: A4 portrait;
+                margin: 9mm;
+            }
+
             body {
                 background: white !important;
             }
@@ -1476,8 +1846,16 @@
             }
 
             .report-card-classic {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: 279mm !important;
+                min-height: 279mm !important;
+                margin: 0 auto !important;
+                padding: 5mm !important;
                 box-shadow: none !important;
-                border: none !important;
+                border: 1px solid #b7cdb7 !important;
+                page-break-after: always;
+                break-after: page;
             }
 
             .rc-wrap {
@@ -1494,6 +1872,168 @@
 
         table {
             border-collapse: collapse;
+        }
+
+        /* Final A4 refinement pass */
+        .report-card-classic {
+            display: flex;
+            flex-direction: column;
+            min-height: 297mm;
+            font-size: 14px;
+        }
+
+        .classic-header-inner {
+            padding: .8rem .9rem .55rem;
+            border: 1px solid #c4dec5;
+        }
+
+        .classic-header-brand {
+            min-height: 58px;
+        }
+
+        .classic-grade-table {
+            width: 180px;
+        }
+
+        .classic-grade-table table {
+            font-size: 12px;
+        }
+
+        .classic-student-row {
+            margin-top: .9rem;
+            grid-template-columns: minmax(0, 1fr) 180px;
+        }
+
+        .report-card-classic > .mt-6 table {
+            font-size: 14.5px;
+        }
+
+        .report-card-classic > .mt-6 table th,
+        .report-card-classic > .mt-6 table td {
+            padding: .2rem .24rem !important;
+        }
+
+        .classic-results-meta {
+            grid-template-columns: minmax(0, 1fr) 180px;
+            margin-top: .7rem;
+        }
+
+        .classic-remarks p {
+            font-size: 14.5px;
+        }
+
+        .classic-remarks p.is-active {
+            padding: .08rem .28rem;
+        }
+
+        .classic-position-label {
+            padding: .32rem;
+            font-size: 13px;
+        }
+
+        .classic-position-value {
+            padding: .38rem;
+            font-size: 17px;
+        }
+
+        .report-card-classic .border-gray-400 {
+            margin-top: .8rem !important;
+            padding: .75rem 1rem !important;
+            border-radius: 4px;
+        }
+
+        .report-card-classic > .mt-10 {
+            margin-top: auto !important;
+            padding-top: 1.25rem;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .report-card-classic > .mt-10 .mt-12 {
+            margin-top: .85rem !important;
+        }
+
+        .report-card-classic > .mt-10 .w-40 {
+            width: 20mm !important;
+        }
+
+        .report-card-classic > .mt-10 p {
+            margin-bottom: 0;
+            font-size: 14px;
+        }
+
+        /* User-requested +4px typography scale */
+        .report-card-classic {
+            font-size: 18px;
+        }
+
+        .classic-header-copy h1 {
+            font-size: 23px !important;
+        }
+
+        .classic-header-copy p {
+            font-size: 15px !important;
+        }
+
+        .classic-header-inner > h2 {
+            font-size: 19px !important;
+        }
+
+        .classic-student-row h3 {
+            font-size: 22px !important;
+        }
+
+        .classic-student-row p {
+            font-size: 20px;
+        }
+
+        .classic-grade-table table {
+            font-size: 16px;
+        }
+
+        .report-card-classic > .mt-6 table {
+            font-size: 21.5px;
+        }
+
+        .classic-remarks h4 {
+            font-size: 20px;
+        }
+
+        .classic-remarks p {
+            font-size: 18.5px;
+        }
+
+        .classic-position-label {
+            font-size: 17px;
+        }
+
+        .classic-position-value {
+            font-size: 21px;
+        }
+
+        .report-card-classic .border-gray-400 {
+            font-size: 19px;
+        }
+
+        .report-card-classic > .mt-10 p {
+            font-size: 18px;
+        }
+
+        @media (max-width: 520px) {
+            .report-card-classic {
+                min-height: auto;
+                height: auto;
+            }
+
+            .classic-student-row,
+            .classic-results-meta {
+                grid-template-columns: minmax(0, 1fr) 150px;
+                gap: .6rem;
+            }
+
+            .classic-grade-table {
+                width: 150px;
+            }
         }
     </style>
 
@@ -2388,6 +2928,13 @@ document.querySelectorAll('.js-send-result-email').forEach((btn) => {
             btn.dataset.sending = '0';
         }
     });
+});
+
+document.getElementById('progressSubjectsSelectAll')?.addEventListener('click', () => {
+    document.querySelectorAll('.progress-subject-check').forEach((input) => input.checked = true);
+});
+document.getElementById('progressSubjectsClearAll')?.addEventListener('click', () => {
+    document.querySelectorAll('.progress-subject-check').forEach((input) => input.checked = false);
 });
 
 </script>
