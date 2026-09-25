@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Mail\StudentResultReportMail;
 use App\Models\AcademicSession;
+use App\Models\Attendance;
+use App\Models\AttendanceItem;
 use App\Models\Exam;
 use App\Models\ExamMark;
 use App\Models\ResultEmailStatus;
@@ -11,6 +13,9 @@ use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\StudentAcademicInformation;
+use App\Services\GradingService;
+use App\Services\ResultRankingService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -53,11 +58,12 @@ class TutorialReportController extends Controller
         }
 
         $students = $this->getStudents($filters);
+        $attendanceData = $this->getAttendanceData($exam, (int) $filters['class_id'], $students->pluck('id'));
         $sessions = AcademicSession::orderByDesc('id')->get();
         $classes = SchoolClass::all();
         $exams = Exam::where('type', Exam::TYPE_TUTORIAL)->orderByDesc('id')->get();
 
-        $studentsData = $students->map(function ($student) use ($exam) {
+        $studentsData = $students->map(function ($student) use ($exam, $attendanceData) {
             $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession'])
                 ->where('student_id', $student->id)
                 ->where('academic_session_id', $exam->academic_session_id)
@@ -79,14 +85,27 @@ class TutorialReportController extends Controller
             })->values();
 
             $totalObtained = $rows->filter(fn ($r) => ! $r['is_absent'])->sum('obtained');
+            $failedSubjectCount = $marks->filter(fn ($mark) =>
+                $mark->is_absent || (float) $mark->gpa === 0.0 || $mark->letter_grade === 'F'
+            )->count();
+            $gpa = GradingService::calculateGpa(
+                $marks->map(fn ($mark) => $mark->is_absent ? 0 : (float) $mark->gpa)->values()->all(),
+                $failedSubjectCount > 0,
+            );
 
             return [
                 'student'        => $student,
                 'academicInfo'   => $academicInfo,
                 'rows'           => $rows,
                 'total_obtained' => $totalObtained,
+                'failed_subject_count' => $failedSubjectCount,
+                'gpa'            => $gpa,
+                'grade'          => GradingService::getGpaLabel($gpa),
+                'attendance_present' => $attendanceData['present_by_student'][$student->id] ?? 0,
             ];
         });
+
+        $studentsData = $this->rankStudentsData($studentsData);
 
         $statusMap = $this->buildStatusMap($studentsData->pluck('student.id')->all(), (int) $filters['exam_id']);
 
@@ -112,8 +131,9 @@ class TutorialReportController extends Controller
         }
 
         $students = $this->getStudents($filters);
+        $attendanceData = $this->getAttendanceData($exam, (int) $filters['class_id'], $students->pluck('id'));
 
-        $studentsData = $students->map(function ($student) use ($exam) {
+        $studentsData = $students->map(function ($student) use ($exam, $attendanceData) {
             $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession'])
                 ->where('student_id', $student->id)
                 ->where('academic_session_id', $exam->academic_session_id)
@@ -135,14 +155,27 @@ class TutorialReportController extends Controller
             })->values();
 
             $totalObtained = $rows->filter(fn ($r) => ! $r['is_absent'])->sum('obtained');
+            $failedSubjectCount = $marks->filter(fn ($mark) =>
+                $mark->is_absent || (float) $mark->gpa === 0.0 || $mark->letter_grade === 'F'
+            )->count();
+            $gpa = GradingService::calculateGpa(
+                $marks->map(fn ($mark) => $mark->is_absent ? 0 : (float) $mark->gpa)->values()->all(),
+                $failedSubjectCount > 0,
+            );
 
             return [
                 'student'        => $student,
                 'academicInfo'   => $academicInfo,
                 'rows'           => $rows,
                 'total_obtained' => $totalObtained,
+                'failed_subject_count' => $failedSubjectCount,
+                'gpa'            => $gpa,
+                'grade'          => GradingService::getGpaLabel($gpa),
+                'attendance_present' => $attendanceData['present_by_student'][$student->id] ?? 0,
             ];
         });
+
+        $studentsData = $this->rankStudentsData($studentsData);
 
         $html = view('pages.tutorial-report.print', compact('studentsData', 'exam', 'filters', 'reportContext'))->render();
         $mpdf = new \Mpdf\Mpdf(['format' => 'A4', 'margin_top' => 15, 'margin_bottom' => 15, 'margin_left' => 15, 'margin_right' => 15]);
@@ -264,6 +297,66 @@ class TutorialReportController extends Controller
             ->pluck('is_sent', 'student_id')
             ->map(fn ($v) => (bool) $v)
             ->all();
+    }
+
+    private function rankStudentsData(\Illuminate\Support\Collection $studentsData): \Illuminate\Support\Collection
+    {
+        $ranked = app(ResultRankingService::class)->rank(
+            $studentsData->values()->all(),
+            fn (array $row) => [
+                'failed_subjects' => $row['failed_subject_count'] ?? 0,
+                'total' => $row['total_obtained'] ?? 0,
+                'gpa' => $row['gpa'] ?? 0,
+                'attendance' => $row['attendance_present'] ?? 0,
+            ],
+            fn (array $row) => $row['student']->student_cid ?? $row['student']->id,
+        );
+
+        return collect($ranked);
+    }
+
+    private function getAttendanceData(Exam $exam, int $classId, $studentIds): array
+    {
+        if (! $exam->start_date || ! $exam->academic_session_id || $studentIds->isEmpty()) {
+            return ['present_by_student' => []];
+        }
+
+        $periodStart = Carbon::create((int) ($exam->year ?: $exam->start_date->year), 1, 1)->startOfDay();
+        $pairNo = (int) ($exam->pair_no ?: 1);
+        if ($pairNo > 1) {
+            $previousExam = Exam::query()
+                ->where('academic_session_id', $exam->academic_session_id)
+                ->where('type', Exam::TYPE_TUTORIAL)
+                ->where('pair_no', $pairNo - 1)
+                ->first();
+            if (! $previousExam?->end_date) {
+                return ['present_by_student' => []];
+            }
+            $periodStart = $previousExam->end_date->copy()->addDay()->startOfDay();
+        }
+
+        $periodEnd = $exam->start_date->copy()->subDay()->endOfDay();
+        if ($periodStart->greaterThan($periodEnd)) {
+            return ['present_by_student' => []];
+        }
+
+        $attendanceIds = Attendance::query()
+            ->where('session_id', $exam->academic_session_id)
+            ->where('class_id', $classId)
+            ->whereBetween('date', [$periodStart->toDateString(), $periodEnd->toDateString()])
+            ->pluck('id');
+
+        return [
+            'present_by_student' => AttendanceItem::query()
+                ->whereIn('attendance_id', $attendanceIds)
+                ->whereIn('student_id', $studentIds)
+                ->where('status', 'present')
+                ->selectRaw('student_id, COUNT(*) as present_days')
+                ->groupBy('student_id')
+                ->pluck('present_days', 'student_id')
+                ->map(fn ($days) => (int) $days)
+                ->all(),
+        ];
     }
 
     private function getStudents(array $filters)

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicSession;
+use App\Models\Attendance;
+use App\Models\AttendanceItem;
 use App\Models\Certificate;
 use App\Models\Division;
 use App\Models\District;
@@ -23,6 +25,8 @@ use App\Models\Student;
 use App\Models\StudentAcademicInformation;
 use App\Models\StudentSubject;
 use App\Models\CertificateTemplate;
+use App\Services\GradingService;
+use App\Services\ResultRankingService;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -215,6 +219,8 @@ class StudentLifecycleController extends Controller
         $studentId = trim((string) $request->input('student_id', $request->input('student_cid', '')));
         $mode = $this->normalizePromotionMode($request->input('promotion_mode'));
         $failThreshold = $request->input('fail_threshold', 1);
+        $subjectSettingsApplied = $request->boolean('subject_settings_applied');
+        $subjectIds = collect($request->input('subject_ids', []))->map(fn ($id) => (int) $id)->values()->all();
 
         return [
             'source_session_id' => $sourceSessionId !== null && $sourceSessionId !== '' ? (string) $sourceSessionId : null,
@@ -224,6 +230,8 @@ class StudentLifecycleController extends Controller
             'student_id' => $studentId !== '' ? $studentId : null,
             'promotion_mode' => $mode,
             'fail_threshold' => $failThreshold !== null && $failThreshold !== '' ? (int) $failThreshold : 1,
+            'subject_settings_applied' => $subjectSettingsApplied,
+            'subject_ids' => $subjectIds,
         ];
     }
 
@@ -282,6 +290,23 @@ class StudentLifecycleController extends Controller
             ->values();
     }
 
+    private function promotionAvailableSubjects(int $classId): \Illuminate\Support\Collection
+    {
+        return $this->promotionSubjectPool($classId)
+            ->flatMap(function (SubjectClassAssignment $assignment) {
+                $subject = $assignment->subject;
+                if (! $subject) {
+                    return [];
+                }
+                return $subject->is_parent && $subject->papers->isNotEmpty()
+                    ? $subject->papers
+                    : [$subject];
+            })
+            ->unique('id')
+            ->sortBy(fn (Subject $subject) => $subject->name)
+            ->values();
+    }
+
     private function promotionCurrentAcademicInfos(array $filters): \Illuminate\Support\Collection
     {
         $student = $this->resolvePromotionStudent($filters['student_id'] ?? null);
@@ -303,7 +328,7 @@ class StudentLifecycleController extends Controller
             ->values();
     }
 
-    private function promotionMetrics(int $sourceSessionId, int $sourceClassId, \Illuminate\Support\Collection $infos): array
+    private function promotionMetrics(int $sourceSessionId, int $sourceClassId, \Illuminate\Support\Collection $infos, array $filters = []): array
     {
         $assignments = $this->promotionSubjectPool($sourceClassId);
         $exam = Exam::query()
@@ -334,15 +359,20 @@ class StudentLifecycleController extends Controller
             ->whereIn('student_id', $studentIds)
             ->get()
             ->groupBy('student_id');
+        $attendanceData = $this->getMeritAttendanceData($exam, $sourceClassId, $studentIds);
 
         $metrics = [];
         foreach ($infos as $info) {
             $subjects = $this->promotionSubjectsForAcademicInfo($info, $assignments);
+            if (! empty($filters['subject_settings_applied'])) {
+                $subjects = $subjects->whereIn('id', $filters['subject_ids'] ?? [])->values();
+            }
             $studentMarks = $marks->get($info->student_id, collect());
 
             $total = 0.0;
             $failedSubjects = 0;
             $subjectCount = 0;
+            $gpas = [];
 
             foreach ($subjects as $subject) {
                 $subjectCount++;
@@ -354,56 +384,92 @@ class StudentLifecycleController extends Controller
                 $isFailed = $isAbsent || $obtained < $passMark || (($mark->letter_grade ?? null) === 'F');
 
                 $total += $obtained;
+                $gpas[] = $isFailed ? 0 : (float) ($mark?->gpa ?? 0);
                 if ($isFailed) {
                     $failedSubjects++;
                 }
             }
+
+            $gpa = GradingService::calculateGpa($gpas, $failedSubjects > 0);
 
             $metrics[$info->student_id] = [
                 'source_rank' => 0,
                 'source_total' => round($total, 2),
                 'failed_subjects' => $failedSubjects,
                 'subject_count' => $subjectCount,
+                'gpa' => $gpa,
+                'attendance' => $attendanceData['present_by_student'][$info->student_id] ?? 0,
                 'source_fail_status' => $failedSubjects > 0 ? 'Failed in ' . $failedSubjects . ' subject(s)' : 'Passed',
             ];
         }
 
-        $sorted = $infos->sort(function (StudentAcademicInformation $a, StudentAcademicInformation $b) use ($metrics) {
-            $aMetrics = $metrics[$a->student_id];
-            $bMetrics = $metrics[$b->student_id];
-
-            if ($aMetrics['source_total'] !== $bMetrics['source_total']) {
-                return $bMetrics['source_total'] <=> $aMetrics['source_total'];
-            }
-
-            if ($aMetrics['failed_subjects'] !== $bMetrics['failed_subjects']) {
-                return $aMetrics['failed_subjects'] <=> $bMetrics['failed_subjects'];
-            }
-
-            return strcasecmp($a->student?->full_name_en ?? '', $b->student?->full_name_en ?? '');
-        })->values();
-
-        $rank = 1;
-        $prevTotal = null;
-        $sameCount = 0;
-        foreach ($sorted as $info) {
-            $total = $metrics[$info->student_id]['source_total'];
-
-            if ($prevTotal !== null && $total === $prevTotal) {
-                $metrics[$info->student_id]['source_rank'] = $rank - $sameCount;
-                $sameCount++;
-            } else {
-                $metrics[$info->student_id]['source_rank'] = $rank;
-                $sameCount = 1;
-            }
-
-            $prevTotal = $total;
-            $rank++;
+        $rankRows = $infos->mapWithKeys(fn (StudentAcademicInformation $info) => [
+            $info->student_id => [
+                'student' => $info->student,
+                'metrics' => $metrics[$info->student_id],
+            ],
+        ])->all();
+        $ranked = app(ResultRankingService::class)->rank(
+            $rankRows,
+            fn (array $row) => [
+                'failed_subjects' => $row['metrics']['failed_subjects'],
+                'total' => $row['metrics']['source_total'],
+                'gpa' => $row['metrics']['gpa'],
+                'attendance' => $row['metrics']['attendance'],
+            ],
+            fn (array $row) => $row['student']->student_cid ?? $row['student']->id,
+        );
+        foreach ($ranked as $studentId => $row) {
+            $metrics[$studentId]['source_rank'] = $row['rank'];
         }
 
         return [
             'exam' => $exam,
             'metrics' => $metrics,
+        ];
+    }
+
+    private function getMeritAttendanceData(Exam $exam, int $classId, array $studentIds): array
+    {
+        if (! $exam->start_date || ! $exam->academic_session_id) {
+            return ['present_by_student' => []];
+        }
+
+        $periodStart = Carbon::create((int) ($exam->year ?: $exam->start_date->year), 1, 1)->startOfDay();
+        $pairNo = (int) ($exam->pair_no ?: 1);
+        if ($pairNo > 1) {
+            $previousExam = Exam::query()
+                ->where('academic_session_id', $exam->academic_session_id)
+                ->where('type', Exam::TYPE_TERMINAL)
+                ->where('pair_no', $pairNo - 1)
+                ->first();
+            if (! $previousExam?->end_date) {
+                return ['present_by_student' => []];
+            }
+            $periodStart = $previousExam->end_date->copy()->addDay()->startOfDay();
+        }
+
+        $periodEnd = $exam->start_date->copy()->subDay()->endOfDay();
+        if ($periodStart->greaterThan($periodEnd) || empty($studentIds)) {
+            return ['present_by_student' => []];
+        }
+
+        $attendanceIds = Attendance::query()
+            ->where('session_id', $exam->academic_session_id)
+            ->where('class_id', $classId)
+            ->whereBetween('date', [$periodStart->toDateString(), $periodEnd->toDateString()])
+            ->pluck('id');
+
+        return [
+            'present_by_student' => AttendanceItem::query()
+                ->whereIn('attendance_id', $attendanceIds)
+                ->whereIn('student_id', $studentIds)
+                ->where('status', 'present')
+                ->selectRaw('student_id, COUNT(*) as present_days')
+                ->groupBy('student_id')
+                ->pluck('present_days', 'student_id')
+                ->map(fn ($days) => (int) $days)
+                ->all(),
         ];
     }
 
@@ -424,7 +490,7 @@ class StudentLifecycleController extends Controller
     private function promotionRowsForView(array $filters): \Illuminate\Support\Collection
     {
         $infos = $this->promotionCurrentAcademicInfos($filters);
-        $metricBundle = $this->promotionMetrics((int) $filters['source_session_id'], (int) $filters['source_class_id'], $infos);
+        $metricBundle = $this->promotionMetrics((int) $filters['source_session_id'], (int) $filters['source_class_id'], $infos, $filters);
         $metrics = $metricBundle['metrics'];
         $mode = $filters['promotion_mode'];
         $targetSessionId = $filters['target_session_id'] ? (int) $filters['target_session_id'] : null;
@@ -635,6 +701,9 @@ class StudentLifecycleController extends Controller
             'student_id'        => ['nullable', 'string', 'max:255'],
             'promotion_mode'    => ['nullable'],
             'fail_threshold'    => ['nullable', 'integer', 'min:1'],
+            'subject_settings_applied' => ['nullable', 'boolean'],
+            'subject_ids'       => ['sometimes', 'array'],
+            'subject_ids.*'     => ['integer'],
         ];
     }
 
@@ -693,6 +762,9 @@ class StudentLifecycleController extends Controller
         }
 
         $students = collect();
+        $availableSubjects = ! empty($filters['source_class_id'])
+            ? $this->promotionAvailableSubjects((int) $filters['source_class_id'])
+            : collect();
         if (! empty($filters['source_session_id']) && ! empty($filters['source_class_id'])) {
             $students = $this->promotionRowsForView($filters);
 
@@ -705,6 +777,7 @@ class StudentLifecycleController extends Controller
             'students' => $students,
             'filters' => $filters,
             'promotionModes' => $this->promotionModes(),
+            'availableSubjects' => $availableSubjects,
         ]));
     }
 

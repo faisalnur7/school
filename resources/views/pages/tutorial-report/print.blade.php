@@ -88,7 +88,7 @@
                     <div class="student-card__detail"><span class="student-card__detail-label">Roll:</span> {{ $academicInfo?->roll ?? '—' }}</div>
                 </div>
             </div>
-            <div class="student-card__total">Total Obtained: {{ number_format($data['total_obtained'], 1) }}</div>
+            <div class="student-card__total">Position: {{ $data['rank'] ?? '—' }} &nbsp; | &nbsp; GPA: {{ number_format($data['gpa'], 2) }} ({{ $data['grade'] }}) &nbsp; | &nbsp; Total Obtained: {{ number_format($data['total_obtained'], 1) }}</div>
         </div>
 
         <table>

@@ -1,3 +1,5 @@
+@php($filterExam = $exam ?? null)
+
 <style>
     .progress-report-filter-card .card-header {
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
@@ -66,6 +68,56 @@
         justify-content: flex-end;
         gap: 0.65rem;
         flex-wrap: wrap;
+    }
+
+    .progress-report-merged-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.7rem 0.15rem 0 0.15rem;
+        border-top: 1px solid #eef2f7;
+    }
+
+    .progress-report-merged-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 0;
+    }
+
+    .progress-report-merged-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1a6b3c, #2d9e5f);
+        color: #fff;
+    }
+
+    .progress-report-merged-title h4 {
+        margin: 0;
+        color: #1f2937;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .progress-report-merged-title small {
+        color: #6b7280;
+    }
+
+    .progress-report-merged-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        flex-wrap: wrap;
+    }
+
+    .progress-report-legacy-action-bar {
+        display: none !important;
     }
 
     .progress-report-action-btn {
@@ -155,12 +207,23 @@
         .progress-report-filter-row {
             grid-template-columns: 1fr;
         }
+
+        .progress-report-merged-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
     }
 </style>
 
 <div class="progress-report-toolbar no-print">
     <form action="{{ route('result.progress-report.index') }}" method="GET" class="progress-report-filter-form"
         id="progressReportForm">
+        @if(!empty($filters['subject_settings_applied']))
+            <input type="hidden" name="subject_settings_applied" value="1">
+            @foreach($filters['subject_ids'] ?? [] as $subjectId)
+                <input type="hidden" name="subject_ids[]" value="{{ $subjectId }}">
+            @endforeach
+        @endif
         <div class="progress-report-filter-row">
             <div class="progress-report-filter-group">
                 <label for="progressSessionSelect">Academic Session <span class="text-danger">*</span></label>
@@ -230,10 +293,6 @@
                     title="View Report" aria-label="View Report">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button type="button" id="progressReportPdfBtn" class="btn btn-danger progress-report-action-btn"
-                    title="Download PDF" aria-label="Download PDF">
-                    <i class="fas fa-file-pdf"></i>
-                </button>
                 <a href="{{ route('result.progress-report.index') }}"
                     class="btn progress-report-action-btn progress-report-action-btn--ghost" title="Reset"
                     aria-label="Reset">
@@ -241,10 +300,66 @@
                 </a>
             </div>
         </div>
+        <div class="progress-report-merged-header">
+            <div class="progress-report-merged-title">
+                <span class="progress-report-merged-icon" aria-hidden="true">
+                    <i class="fas fa-file-invoice"></i>
+                </span>
+                <div>
+                    <h4>Progress Report</h4>
+                    <small>{{ $filterExam?->name ?? 'Terminal Exam' }} &mdash;
+                        {{ $filterExam?->academicSession?->name_en ?? ($filterExam?->academicSession?->name_bn ?? '') }}</small>
+                </div>
+            </div>
+            <div class="progress-report-merged-actions">
+                <button type="button" class="btn btn-dark btn-sm progress-report-action-btn"
+                    data-toggle="modal" data-target="#progressSubjectSettingsModal"
+                    title="Subject Settings" aria-label="Subject Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button type="button" onclick="window.print()"
+                    class="btn btn-info btn-sm progress-report-action-btn"
+                    title="Print" aria-label="Print">
+                    <i class="fas fa-print"></i>
+                </button>
+                <button type="button" id="progressReportPdfBtn"
+                    class="btn btn-danger btn-sm progress-report-action-btn"
+                    title="Download PDF" aria-label="Download PDF">
+                    <i class="fas fa-file-pdf"></i>
+                </button>
+                <a href="{{ route('result.progress-report.index') }}"
+                    class="btn btn-secondary btn-sm progress-report-action-btn"
+                    title="Back" aria-label="Back">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <a href="{{ route('result.progress-report.template-settings.edit') }}"
+                    class="btn btn-outline-secondary btn-sm progress-report-action-btn"
+                    title="Template Settings" aria-label="Template Settings">
+                    <i class="fas fa-sliders-h"></i>
+                </a>
+            </div>
+        </div>
     </form>
 </div>
 
 <script>
+    (function () {
+        var pdfForm = document.getElementById('progressReportForm');
+        var pdfButton = document.getElementById('progressReportPdfBtn');
+
+        if (pdfForm && pdfButton) {
+            pdfButton.addEventListener('click', function () {
+                var pdfUrl = new URL('{{ route('result.progress-report.pdf') }}', window.location.origin);
+                new FormData(pdfForm).forEach(function (value, key) {
+                    if (value !== '') {
+                        pdfUrl.searchParams.append(key, value);
+                    }
+                });
+                window.open(pdfUrl.toString(), '_blank', 'noopener');
+            });
+        }
+    })();
+
     $(function() {
         var $ = window.jQuery;
         if (typeof $ === 'undefined') {
@@ -335,11 +450,5 @@
 
         filterExams(selectedExamId);
 
-        if (pdfBtn && form) {
-            $(pdfBtn).on('click', function () {
-                var params = new URLSearchParams(new FormData(form)).toString();
-                window.open('{{ route('result.progress-report.pdf') }}?' + params, '_blank');
-            });
-        }
     });
 </script>
