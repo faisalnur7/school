@@ -11,11 +11,21 @@
                     </h4>
                     <small class="text-white-50">Manage weekly class schedules.</small>
                 </div>
-                @if(auth()->user()?->hasPermission('create_routines'))
-                    <a href="{{ route('routines.create') }}" class="btn btn-light btn-sm">
-                        <i class="fas fa-plus mr-1"></i>Add Routine
-                    </a>
-                @endif
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Routine view type">
+                        <a href="{{ request()->fullUrlWithQuery(['view' => 'list']) }}" class="btn {{ $viewType === 'list' ? 'btn-light' : 'btn-outline-light' }}" title="List view">
+                            <i class="fas fa-list mr-1"></i>List
+                        </a>
+                        <a href="{{ request()->fullUrlWithQuery(['view' => 'timetable']) }}" class="btn {{ $viewType === 'timetable' ? 'btn-light' : 'btn-outline-light' }}" title="Timetable view">
+                            <i class="fas fa-table mr-1"></i>Timetable
+                        </a>
+                    </div>
+                    @if(auth()->user()?->hasPermission('create_routines'))
+                        <a href="{{ route('routines.create') }}" class="btn btn-light btn-sm">
+                            <i class="fas fa-plus mr-1"></i>Add Routine
+                        </a>
+                    @endif
+                </div>
             </div>
         </div>
 
@@ -73,9 +83,54 @@
                             <i class="fas fa-undo"></i>
                         </a>
                     </div>
+                    <input type="hidden" name="view" value="{{ $viewType }}">
                 </div>
             </form>
 
+            @if($viewType === 'timetable')
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover routines-timetable mb-0">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th class="routines-day-column">Day</th>
+                                @foreach($periods as $period)
+                                    <th class="text-center routines-period-column">
+                                        <div>{{ $period->name }}</div>
+                                        <small class="font-weight-normal">{{ substr($period->start_time, 0, 5) }} - {{ substr($period->end_time, 0, 5) }}</small>
+                                    </th>
+                                @endforeach
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($days as $day)
+                                <tr>
+                                    <td class="font-weight-bold routines-day-cell">{{ $day }}</td>
+                                    @foreach($periods as $period)
+                                        @php
+                                            $periodRoutines = $routines->where('day', $day)->filter(fn ($routine) => $routine->time_schedule_id === $period->id || (!$routine->time_schedule_id && $routine->start_time === $period->start_time));
+                                        @endphp
+                                        <td class="routines-period-cell">
+                                            @forelse($periodRoutines as $routine)
+                                                <div class="routines-timetable-entry">
+                                                    <div class="font-weight-bold">{{ $routine->subject?->name ?? '—' }}</div>
+                                                    <div class="routines-timetable-teacher">{{ $routine->teacher?->name ?? '—' }}</div>
+                                                    @if(!request()->filled('school_class_id') || !request()->filled('section_id'))
+                                                        <small class="text-muted">{{ $routine->schoolClass?->name_en ?? '—' }} / {{ $routine->section?->name_en ?? '—' }}</small>
+                                                    @endif
+                                                </div>
+                                            @empty
+                                                <span class="text-muted">—</span>
+                                            @endforelse
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            @empty
+                                <tr><td colspan="{{ $periods->count() + 1 }}" class="text-center text-muted py-4">No working days configured.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            @else
             <div class="table-responsive">
                 <table class="table table-bordered table-hover table-sm">
                     <thead class="thead-dark">
@@ -141,6 +196,7 @@
             </div>
 
             {{ $routines->links() }}
+            @endif
         </div>
     </div>
 </div>
@@ -292,6 +348,61 @@
     .routines-page .routines-action-btn:focus {
         filter: brightness(1.08);
         transform: translateY(-1px);
+    }
+
+    .routines-timetable {
+        min-width: 980px;
+    }
+
+    .routines-timetable .routines-day-column {
+        width: 9rem;
+        vertical-align: middle;
+    }
+
+    .routines-timetable .routines-period-column {
+        min-width: 10rem;
+        vertical-align: middle;
+    }
+
+    .routines-period-column small {
+        color: rgba(255, 255, 255, 0.75);
+    }
+
+    .routines-day-cell {
+        background: #f8fafc;
+        vertical-align: middle !important;
+    }
+
+    .routines-period-cell {
+        min-width: 10rem;
+        height: 5.5rem;
+        vertical-align: top !important;
+    }
+
+    .routines-timetable-entry + .routines-timetable-entry {
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid #dbe3ef;
+    }
+
+    .routines-timetable-teacher {
+        color: #475569;
+        font-size: 0.86rem;
+    }
+
+    html[data-theme='dark'] .routines-day-cell,
+    html.dark .routines-day-cell {
+        background: #0f172a !important;
+    }
+
+    html[data-theme='dark'] .routines-timetable-entry + .routines-timetable-entry,
+    html.dark .routines-timetable-entry + .routines-timetable-entry {
+        border-color: #334155;
+    }
+
+    html[data-theme='dark'] .routines-timetable-teacher,
+    html.dark .routines-timetable-teacher {
+        color: #cbd5e1;
     }
 
     html[data-theme='dark'] .routines-filter-form,

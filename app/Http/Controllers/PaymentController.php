@@ -20,6 +20,7 @@ use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Group;
 use App\Models\SchoolSetting;
+use Mpdf\Mpdf;
 
 class PaymentController extends Controller
 {
@@ -71,7 +72,34 @@ class PaymentController extends Controller
         return view('pages.payments.receipt', compact('payment', 'setting', 'receiptSummary', 'inventorySaleItems'));
     }
 
-    private function buildReceiptSummary(Payment $payment): array
+    public function receiptPdf(Payment $payment)
+    {
+        $payment->load([
+            'items.fee.feeSet.items.category',
+            'student.latestAcademicInformation.academicSession',
+            'student.latestAcademicInformation.schoolClass',
+            'student.latestAcademicInformation.section',
+            'collector',
+            'inventorySale.items.inventoryItem.category',
+            'inventoryDueItems.inventorySaleItem.inventoryItem.category',
+        ]);
+        $setting = SchoolSetting::current();
+        $receiptSummary = $this->buildReceiptSummary($payment);
+        $inventorySaleItems = $payment->inventory_sale_id
+            ? InventorySale::with('items.inventoryItem.category')->find($payment->inventory_sale_id)?->items ?? collect()
+            : collect();
+
+        $html = view('pages.payments.receipt-pdf', compact('payment', 'setting', 'receiptSummary', 'inventorySaleItems'))->render();
+        $pdf = new Mpdf(['mode' => 'utf-8', 'format' => 'A4', 'margin_top' => 10, 'margin_bottom' => 10]);
+        $pdf->WriteHTML($html);
+
+        return response($pdf->Output('', 'S'), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="receipt-' . ($payment->receipt_no ?: $payment->id) . '.pdf"',
+        ]);
+    }
+
+    public function buildReceiptSummary(Payment $payment): array
     {
         $feeRecords = $payment->items
             ->map(fn ($item) => $item->fee)

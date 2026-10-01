@@ -20,6 +20,7 @@ class RoutineController extends Controller
     {
         $query = ClassRoutine::with(['academicSession', 'schoolClass', 'section', 'subject', 'teacher', 'classroom', 'timeSchedule']);
         $days = $this->workingDays();
+        $viewType = $request->string('view')->toString() === 'timetable' ? 'timetable' : 'list';
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -59,11 +60,20 @@ class RoutineController extends Controller
             $query->where('day', $request->day);
         }
 
-        $routines = $query
-            ->orderBy('school_class_id')
+        $query->orderBy('school_class_id')
             ->orderBy('section_id')
             ->orderByRaw("FIELD(day, '" . implode("','", $days) . "')")
+            ->orderBy('start_time');
+
+        $periods = ClassSchedule::where('kind', 'teaching')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
             ->orderBy('start_time')
+            ->get();
+
+        $routines = $viewType === 'timetable'
+            ? $query->get()
+            : $query
             ->paginate(20)
             ->withQueryString();
 
@@ -71,7 +81,7 @@ class RoutineController extends Controller
         $sections = Section::with('schoolClass')->orderBy('name_en')->get();
         $academicSessions = AcademicSession::orderByDesc('id')->get();
 
-        return view('pages.routines.index', compact('routines', 'classes', 'sections', 'academicSessions', 'days'));
+        return view('pages.routines.index', compact('routines', 'classes', 'sections', 'academicSessions', 'days', 'periods', 'viewType'));
     }
 
     public function create()

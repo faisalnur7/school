@@ -61,6 +61,7 @@
     $cardPhotoHeight = $cardSettings?->card_photo_height_value ?? 2.7;
     $cardPhotoFit = in_array($cardSettings?->card_photo_fit ?? 'cover', ['cover', 'contain'], true) ? ($cardSettings?->card_photo_fit ?? 'cover') : 'cover';
     $cardLogoSize = $cardSettings?->card_logo_size_value ?? 0.8;
+    $cardSignatureSize = $cardSettings?->card_signature_size_value ?? 1.4;
     $cardSchoolNameFontSize = $cardSettings?->card_school_name_font_size ?? 7.2;
     $cardSchoolDetailFontSize = $cardSettings?->card_school_detail_font_size ?? 5.4;
     $cardTitleFontSize = $cardSettings?->card_title_font_size ?? 4.7;
@@ -164,6 +165,7 @@
                     'photoAlt' => $student->full_name_en,
                     'principalLabel' => $principalLabel,
                     'principalSignaturePath' => $principalSignaturePath,
+                    'signatureSize' => $cardSignatureSize,
                     'showLogoFront' => $cardSettings?->card_show_logo_front ?? true,
                     'showSchoolDetailFront' => $cardSettings?->card_show_school_detail_front ?? true,
                     'showSloganFront' => $cardSettings?->card_show_slogan_front ?? true,

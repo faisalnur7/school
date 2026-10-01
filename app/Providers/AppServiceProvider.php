@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('student-login', fn ($request) => Limit::perMinute(8)->by(strtolower((string) $request->input('login')).'|'.$request->ip()));
+
         View::composer(['layouts.partials._top-nav', 'layouts.partials._header', 'components.partials._header'], function ($view) {
             $routeName = Route::currentRouteName() ?? '';
             $meta = $this->buildAdminNavigationMeta($routeName);
