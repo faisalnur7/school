@@ -1421,6 +1421,8 @@
                                         'studentFieldOrder' => $cardSettings?->card_student_field_order ?? [],
                                         'cardElementPositions' => $cardSettings?->card_element_positions ?? [],
                                         'cardElementSizes' => $cardSettings?->card_element_sizes ?? [],
+                                        'principalLabelFontSize' => $cardSettings?->card_principal_label_font_size ?? 5.2,
+                                        'principalLabelColor' => $cardSettings?->card_principal_label_text_color ?? '#3f3f46',
                                         'previewCardWidthValue' => $cardSettings?->card_width_value ?? 9.4,
                                         'previewCardHeightValue' => $cardSettings?->card_height_value ?? 6.6,
                                         'previewCardDimensionUnit' => $cardSettings?->card_dimension_unit ?? 'cm',
@@ -1995,6 +1997,28 @@
                                                                         title="Vertical Label border color"
                                                                         value="{{ old('card_border_colors.vertical_label', data_get($cardSettings?->card_border_colors, 'vertical_label', '#16a085')) }}">
                                                                     <label class="border-transparent-toggle" title="Transparent border" aria-label="Transparent border"><input class="sr-only" type="checkbox" name="card_border_transparent[vertical_label]" value="1" {{ old('card_border_transparent.vertical_label', data_get($cardSettings?->card_border_transparent, 'vertical_label', false)) ? 'checked' : '' }}><i class="fas fa-border-none" aria-hidden="true"></i><span class="sr-only">Transparent border</span></label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row align-items-center admit-seat-typography-row">
+                                                            <div class="col-12 col-md-4 mb-1 mb-md-0">
+                                                                <strong class="csm-tc-name d-block">Principal Label</strong>
+                                                            </div>
+                                                            <div class="col-12 col-md-4 mb-1 mb-md-0">
+                                                                <input type="number" name="card_principal_label_font_size"
+                                                                    id="admitSeatPrincipalLabelFontSize"
+                                                                    class="csm-input csm-typography-control form-control form-control-sm"
+                                                                    min="1" step="0.1"
+                                                                    value="{{ old('card_principal_label_font_size', $cardSettings?->card_principal_label_font_size ?? 5.2) }}">
+                                                            </div>
+                                                            <div class="col-12 col-md-4">
+                                                                <div class="csm-color-row flex justify-center items-center flex-row gap-2">
+                                                                    <input type="color" name="card_principal_label_text_color"
+                                                                        id="admitSeatPrincipalLabelColor" class="csm-color-native"
+                                                                        value="{{ old('card_principal_label_text_color', $cardSettings?->card_principal_label_text_color ?? '#3f3f46') }}">
+                                                                    <span id="admitSeatPrincipalLabelColorPreview"
+                                                                        class="d-inline-block rounded ml-0"
+                                                                        style="width:32px;height:32px;border:1px solid #d1d5db;vertical-align:middle;"></span>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -2652,6 +2676,7 @@
                         'card_slogan_text_color' => $setting->card_slogan_text_color,
                         'card_title_font_size' => $setting->card_title_font_size,
                         'card_vertical_label_font_size' => $setting->card_vertical_label_font_size,
+                        'card_principal_label_font_size' => $setting->card_principal_label_font_size,
                         'card_name_font_size' => $setting->card_name_font_size,
                         'card_name_text_color' => $setting->card_name_text_color,
                         'card_exam_type_font_size' => $setting->card_exam_type_font_size,
@@ -2677,6 +2702,7 @@
                         'card_school_detail_text_color' => $setting->card_school_detail_text_color,
                         'card_title_text_color' => $setting->card_title_text_color,
                         'card_vertical_label_text_color' => $setting->card_vertical_label_text_color,
+                        'card_principal_label_text_color' => $setting->card_principal_label_text_color,
                         'card_exam_type_text_color' => $setting->card_exam_type_text_color,
                         'card_exam_name_text_color' => $setting->card_exam_name_text_color,
                         'card_footer_text_color' => $setting->card_footer_text_color,
@@ -2787,6 +2813,7 @@
             const admitSeatSchoolDetailColor = document.getElementById('admitSeatSchoolDetailColor');
             const admitSeatTitleColor = document.getElementById('admitSeatTitleColor');
             const admitSeatVerticalLabelColor = document.getElementById('admitSeatVerticalLabelColor');
+            const admitSeatPrincipalLabelColor = document.getElementById('admitSeatPrincipalLabelColor');
             const admitSeatExamTypeColor = document.getElementById('admitSeatExamTypeColor');
             const admitSeatExamNameColor = document.getElementById('admitSeatExamNameColor');
             const admitSeatFooterColor = document.getElementById('admitSeatFooterColor');
@@ -2796,6 +2823,7 @@
             const admitSeatSloganColor = document.getElementById('admitSeatSloganColor');
             const admitSeatTitleFontSize = document.getElementById('admitSeatTitleFontSize');
             const admitSeatVerticalLabelFontSize = document.getElementById('admitSeatVerticalLabelFontSize');
+            const admitSeatPrincipalLabelFontSize = document.getElementById('admitSeatPrincipalLabelFontSize');
             const admitSeatNameFontSize = document.getElementById('admitSeatNameFontSize');
             const admitSeatNameColor = document.getElementById('admitSeatNameColor');
             const admitSeatExamTypeFontSize = document.getElementById('admitSeatExamTypeFontSize');
@@ -2815,6 +2843,7 @@
             const admitSeatSloganColorPreview = document.getElementById('admitSeatSloganColorPreview');
             const admitSeatTitleColorPreview = document.getElementById('admitSeatTitleColorPreview');
             const admitSeatVerticalLabelColorPreview = document.getElementById('admitSeatVerticalLabelColorPreview');
+            const admitSeatPrincipalLabelColorPreview = document.getElementById('admitSeatPrincipalLabelColorPreview');
             const admitSeatNameColorPreview = document.getElementById('admitSeatNameColorPreview');
             const admitSeatExamTypeColorPreview = document.getElementById('admitSeatExamTypeColorPreview');
             const admitSeatExamNameColorPreview = document.getElementById('admitSeatExamNameColorPreview');
@@ -2890,6 +2919,7 @@
                 card_slogan_text_color: '#e5e7eb',
                 card_title_font_size: 4.7,
                 card_vertical_label_font_size: 5.2,
+                card_principal_label_font_size: 5.2,
                 card_name_font_size: 7.2,
                 card_name_text_color: '#111827',
                 card_exam_type_font_size: 7.4,
@@ -2916,6 +2946,7 @@
                 card_school_detail_text_color: '#e5e7eb',
                 card_title_text_color: '#ffffff',
                 card_vertical_label_text_color: '#16a085',
+                card_principal_label_text_color: '#3f3f46',
                 card_exam_type_text_color: '#ffffff',
                 card_exam_name_text_color: '#e5e7eb',
                 card_footer_text_color: '#e5e7eb',
@@ -3758,6 +3789,7 @@
                     'card_slogan_text_color',
                     'card_title_font_size',
                     'card_vertical_label_font_size',
+                    'card_principal_label_font_size',
                     'card_name_font_size',
                     'card_name_text_color',
                     'card_exam_type_font_size',
@@ -3778,6 +3810,7 @@
                     'card_slogan_text_color',
                     'card_title_text_color',
                     'card_vertical_label_text_color',
+                    'card_principal_label_text_color',
                     'card_exam_type_text_color',
                     'card_exam_name_text_color',
                     'card_footer_text_color',
@@ -4064,6 +4097,10 @@
                     admitSeatVerticalLabelColorPreview.style.background = admitSeatVerticalLabelColor?.value || '#16a085';
                 }
 
+                if (admitSeatPrincipalLabelColorPreview) {
+                    admitSeatPrincipalLabelColorPreview.style.background = admitSeatPrincipalLabelColor?.value || '#3f3f46';
+                }
+
                 if (admitSeatNameColorPreview) {
                     admitSeatNameColorPreview.style.background = admitSeatNameColor?.value || '#111827';
                 }
@@ -4269,6 +4306,10 @@
                         `${parseFloat(admitSeatTitleFontSize?.value || '4.7') || 4.7}pt`);
                     admitSeatLivePreview.style.setProperty('--admit-card-vertical-label-font-size',
                         `${parseFloat(admitSeatVerticalLabelFontSize?.value || '5.2') || 5.2}pt`);
+                    admitSeatLivePreview.style.setProperty('--admit-card-principal-label-font-size',
+                        `${parseFloat(admitSeatPrincipalLabelFontSize?.value || '5.2') || 5.2}pt`);
+                    admitSeatLivePreview.style.setProperty('--admit-card-principal-label-color',
+                        admitSeatPrincipalLabelColor?.value || '#3f3f46');
                     admitSeatLivePreview.style.setProperty('--admit-card-name-font-size',
                         `${parseFloat(admitSeatNameFontSize?.value || '7.2') || 7.2}pt`);
                     admitSeatLivePreview.style.setProperty('--admit-card-exam-type-font-size',

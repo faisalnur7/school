@@ -51,6 +51,8 @@
     $cardElementPositions = $cardElementPositions ?? [];
     $showFooterBack = $showFooterBack ?? true;
     $principalLabel = $setting?->principal_designation ?: 'Principal';
+    $principalLabelFontSize = $principalLabelFontSize ?? 5.2;
+    $principalLabelColor = $principalLabelColor ?? '#3f3f46';
     $principalSignatureUrl = $principalSignatureUrl ?? null;
     $focusTargets = $focusTargets ?? [];
     $previewLabel = $previewLabel ?? null;
@@ -499,6 +501,8 @@
                         'photoPath' => asset('assets/img/male-placeholder.png'),
                         'photoAlt' => 'Student photo preview',
                         'principalLabel' => 'Principal',
+                        'principalLabelFontSize' => $principalLabelFontSize,
+                        'principalLabelColor' => $principalLabelColor,
                         'principalSignaturePath' => $principalSignatureUrl,
                         'principalSignatureId' => $prefix . 'LivePreviewSignatureFront',
                         'showLogoFront' => $showLogoFront,
