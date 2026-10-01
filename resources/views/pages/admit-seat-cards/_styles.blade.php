@@ -460,9 +460,9 @@
 
 .admit-card__signature-label {
     position: static;
-    font-size: 5.2pt;
+    font-size: var(--admit-card-principal-label-font-size, 5.2pt);
     font-weight: 700;
-    color: #3f3f46;
+    color: var(--admit-card-principal-label-color, #3f3f46);
     text-transform: capitalize;
     line-height: 1;
     text-align: center;
