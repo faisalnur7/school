@@ -438,7 +438,7 @@
     left: calc(50% + var(--admit-card-position-signature-x, 0mm));
     top: calc(50% + 20mm + var(--admit-card-position-signature-y, 0mm));
     transform: translateX(-50%);
-    width: 20mm;
+    width: var(--admit-card-signature-size, 14mm);
     height: 12mm;
     min-height: 12mm;
     display: flex;
@@ -451,12 +451,11 @@
 
 .admit-card__signature-image {
     position: static;
-    width: 100%;
-    height: 8mm;
-    max-height: 8mm;
+    width: var(--admit-card-signature-size, 14mm);
+    max-width: 100%;
+    height: auto;
     object-fit: contain;
     display: block;
-    flex: 0 0 8mm;
 }
 
 .admit-card__signature-label {

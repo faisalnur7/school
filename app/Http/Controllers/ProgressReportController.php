@@ -61,7 +61,11 @@ class ProgressReportController extends Controller
         unset($cohortFilters['student_id']);
 
         $students = $this->getStudents($cohortFilters);
-        $availableSubjects = $this->availableSubjectsForSelection((int) $filters['class_id']);
+        $availableSubjects = $this->availableSubjectsForSelection(
+            (int) $filters['class_id'],
+            (int) $filters['exam_id'],
+            $students->pluck('id')
+        );
         $filters['subject_settings_applied'] = $request->boolean('subject_settings_applied');
         $filters['subject_ids'] = $this->selectedSubjectIds($request, $availableSubjects);
         if ($isPreview) {
@@ -111,7 +115,11 @@ class ProgressReportController extends Controller
         unset($cohortFilters['student_id']);
 
         $students = $this->getStudents($cohortFilters);
-        $availableSubjects = $this->availableSubjectsForSelection((int) $filters['class_id']);
+        $availableSubjects = $this->availableSubjectsForSelection(
+            (int) $filters['class_id'],
+            (int) $filters['exam_id'],
+            $students->pluck('id')
+        );
         $filters['subject_settings_applied'] = $request->boolean('subject_settings_applied');
         $filters['subject_ids'] = $this->selectedSubjectIds($request, $availableSubjects);
         $attendanceData = $this->getTerminalAttendanceData($exam, (int) $filters['class_id'], $students->pluck('id'));
@@ -294,15 +302,16 @@ class ProgressReportController extends Controller
             ->all();
     }
 
-    private function availableSubjectsForSelection(int $classId): \Illuminate\Support\Collection
+    private function availableSubjectsForSelection(int $classId, int $examId, $studentIds): \Illuminate\Support\Collection
     {
-        return SubjectClassAssignment::with('subject')
+        $assignedSubjectIds = SubjectClassAssignment::query()
             ->where('school_class_id', $classId)
             ->where('is_active', true)
+            ->pluck('subject_id');
+
+        return Subject::query()
+            ->whereIn('id', $assignedSubjectIds->unique())
             ->get()
-            ->map(fn (SubjectClassAssignment $assignment) => $assignment->subject)
-            ->filter()
-            ->unique('id')
             ->sortBy(fn (Subject $subject) => $subject->name)
             ->values();
     }
@@ -372,8 +381,9 @@ class ProgressReportController extends Controller
         $marks = ExamMark::with(['subject'])
             ->where('exam_id', $exam->id)
             ->where('student_id', $student->id)
-            ->get()
-            ->filter(fn (ExamMark $mark) => in_array((int) $mark->subject_id, $applicableSubjectIds, true)
+            ->get();
+
+        $marks = $marks->filter(fn (ExamMark $mark) => in_array((int) $mark->subject_id, $applicableSubjectIds, true)
                 && in_array((int) $mark->subject_id, $filters['subject_ids'] ?? [], true));
 
         $examSubjects = ExamSubject::with('subject')

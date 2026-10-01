@@ -244,6 +244,16 @@ class Student extends Model
         return $this->hasMany(StudentAcademicInformation::class);
     }
 
+    public function user()
+    {
+        return $this->hasOne(User::class);
+    }
+
+    public function devices()
+    {
+        return $this->hasMany(StudentDevice::class);
+    }
+
     public function latestAcademicInformation()
     {
         return $this->hasOne(StudentAcademicInformation::class)->latestOfMany('id');

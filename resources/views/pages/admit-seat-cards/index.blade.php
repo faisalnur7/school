@@ -1721,6 +1721,16 @@
                                                                 value="{{ old('card_logo_size_value', $cardSettings?->card_logo_size_value ?? 0.8) }}">
                                                         </div>
                                                     </div>
+                                                    <div class="col-12 col-md-3 mb-2">
+                                                        <div class="form-group mb-0">
+                                                            <label class="d-block mb-1 small font-weight-bold text-dark">Signature Size</label>
+                                                            <input type="number" name="card_signature_size_value"
+                                                                id="admitSeatSignatureSize"
+                                                                class="csm-input form-control form-control-sm"
+                                                                min="0.1" step="0.1"
+                                                                value="{{ old('card_signature_size_value', $cardSettings?->card_signature_size_value ?? 1.4) }}">
+                                                        </div>
+                                                    </div>
                                                 </div>
 
                                                 <hr class="my-2">
@@ -2635,6 +2645,7 @@
                         'card_photo_height_value' => $setting->card_photo_height_value,
                         'card_photo_fit' => $setting->card_photo_fit,
                         'card_logo_size_value' => $setting->card_logo_size_value,
+                        'card_signature_size_value' => $setting->card_signature_size_value,
                         'card_school_name_font_size' => $setting->card_school_name_font_size,
                         'card_school_detail_font_size' => $setting->card_school_detail_font_size,
                         'card_slogan_font_size' => $setting->card_slogan_font_size,
@@ -2847,6 +2858,7 @@
             const admitSeatPhotoHeight = document.getElementById('admitSeatPhotoHeight');
             const admitSeatPhotoFit = cardSettingsForm?.elements.namedItem('card_photo_fit');
             const admitSeatLogoSize = document.getElementById('admitSeatLogoSize');
+            const admitSeatSignatureSize = document.getElementById('admitSeatSignatureSize');
             const admitSeatCardLogoPreview = document.getElementById('admitSeatCardLogoPreview');
             const selectedSection = @json(request('section_id'));
             const hasValidationErrors = @json($errors->any());
@@ -2871,6 +2883,7 @@
                 card_photo_height_value: 2.7,
                 card_photo_fit: 'cover',
                 card_logo_size_value: 0.8,
+                card_signature_size_value: 1.4,
                 card_school_name_font_size: 7.2,
                 card_school_detail_font_size: 5.4,
                 card_slogan_font_size: 4.8,
@@ -3738,6 +3751,7 @@
                     'card_photo_height_value',
                     'card_photo_fit',
                     'card_logo_size_value',
+                    'card_signature_size_value',
                     'card_school_name_font_size',
                     'card_school_detail_font_size',
                     'card_slogan_font_size',
@@ -4226,6 +4240,7 @@
                     const heightValue = parseFloat(admitSeatPhotoHeight?.value || '2.7') || 2.7;
                     const photoFitValue = admitSeatPhotoFit?.value || 'cover';
                     const logoSizeValue = parseFloat(admitSeatLogoSize?.value || '0.8') || 0.8;
+                    const signatureSizeValue = parseFloat(admitSeatSignatureSize?.value || '1.4') || 1.4;
                     const frontPaddingRaw = parseFloat(cardSettingsForm?.elements.namedItem(
                         'card_front_padding_value')?.value || '0.8');
                     const frontPaddingMm = Number.isFinite(frontPaddingRaw) ? frontPaddingRaw : 0.8;
@@ -4240,6 +4255,10 @@
                     admitSeatLivePreview.style.setProperty('--admit-card-photo-height', `${heightValue}cm`);
                     admitSeatLivePreview.style.setProperty('--admit-card-photo-fit', photoFitValue);
                     admitSeatLivePreview.style.setProperty('--admit-card-logo-size', `${logoSizeValue}cm`);
+                    admitSeatLivePreview.style.setProperty('--admit-card-signature-size', `${signatureSizeValue}cm`);
+                    admitSeatLivePreview.querySelectorAll('.admit-card__signature').forEach((signature) => {
+                        signature.style.setProperty('--admit-card-signature-size', `${signatureSizeValue}cm`);
+                    });
                     admitSeatLivePreview.style.setProperty('--admit-card-school-name-font-size',
                         `${parseFloat(admitSeatSchoolNameFontSize?.value || '7.2') || 7.2}pt`);
                     admitSeatLivePreview.style.setProperty('--admit-card-school-detail-font-size',
@@ -4399,7 +4418,7 @@
             });
 
             $(document).on('input change',
-                '#admitSeatPhotoWidth, #admitSeatPhotoHeight, #admitSeatLogoSize, select[name="card_dimension_unit"]',
+                '#admitSeatPhotoWidth, #admitSeatPhotoHeight, #admitSeatLogoSize, #admitSeatSignatureSize, select[name="card_dimension_unit"]',
                 refreshCardThemeControls);
 
             $(document).on('change',
