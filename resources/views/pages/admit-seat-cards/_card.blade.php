@@ -36,6 +36,7 @@
     $logoPath = $logoPath ?? null;
     $principalLabel = $principalLabel ?? 'Principal';
     $principalSignaturePath = $principalSignaturePath ?? null;
+    $signatureSize = $signatureSize ?? 1.4;
     $principalSignatureId = $principalSignatureId ?? null;
     $footerLines = array_values(array_filter($footerLines ?? [], function ($line) {
         return filled($line);
@@ -250,7 +251,7 @@
             </div>
         </div>
 
-        <div class="admit-card__signature{{ $previewClass }}"{!! $previewAttr($focusFor('principal_signature')) !!}>
+        <div class="admit-card__signature{{ $previewClass }}" style="--admit-card-signature-size: {{ $signatureSize }}cm;"{!! $previewAttr($focusFor('principal_signature')) !!}>
             @if($principalSignaturePath)
                 <img @if(!empty($principalSignatureId)) id="{{ $principalSignatureId }}" @endif src="{{ $principalSignaturePath }}" alt="Principal signature" class="admit-card__signature-image">
             @endif

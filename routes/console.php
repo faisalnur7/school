@@ -5,6 +5,12 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use App\Services\AttendanceAbsentEmailService;
 use App\Services\ResultMarksImportService;
+use App\Services\StudentPushNotificationService;
+use App\Jobs\SendStudentAbsentPushesJob;
+use App\Models\Role;
+use App\Models\Student;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -16,6 +22,23 @@ Artisan::command('attendance:send-absent-emails', function (AttendanceAbsentEmai
 })->purpose('Send absent student alert emails to fathers/mothers.');
 
 Schedule::command('attendance:send-absent-emails')->everyTenMinutes();
+
+Artisan::command('attendance:send-absent-pushes', function (StudentPushNotificationService $service) {
+    $this->info('Sent '.$service->sendAbsentAttendance().' absent-student push notification(s).');
+})->purpose('Send deduplicated FCM alerts to active students marked absent today.');
+Schedule::job(new SendStudentAbsentPushesJob)->everyTenMinutes()->withoutOverlapping();
+
+Artisan::command('students:create-mobile-account {student : Student ID or CID} {--password= : Initial password; never uses a shared default}', function () {
+    $student = Student::query()->whereKey($this->argument('student'))->orWhere('student_cid', $this->argument('student'))->first();
+    if (!$student) { $this->error('Student not found.'); return 1; }
+    if (!$student->status || !$student->latestAcademicInformation?->is_current || $student->latestAcademicInformation?->academic_status !== 'active') { $this->error('Only an active student can receive a mobile account.'); return 1; }
+    $password = (string) $this->option('password');
+    if (strlen($password) < 8) { $this->error('Provide --password with at least 8 characters.'); return 1; }
+    $role = Role::firstOrCreate(['name' => 'Student'], ['description' => 'Student mobile application accounts']);
+    $email = 'student-'.$student->id.'@student.local';
+    $user = User::updateOrCreate(['student_id' => $student->id], ['name' => $student->full_name_en ?: $student->full_name_bn, 'email' => $email, 'password' => Hash::make($password), 'role_id' => $role->id, 'is_active' => true]);
+    $this->info("Mobile account {$user->email} is ready for {$student->student_cid}.");
+})->purpose('Create or reset one active student mobile account with an explicitly supplied password.');
 
 Artisan::command('results:seed-marks {--session=} {--all}', function (ResultMarksImportService $service) {
     $sessionId = $this->option('session') ? (int) $this->option('session') : null;
