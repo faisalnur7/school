@@ -37,6 +37,8 @@
     $principalLabel = $principalLabel ?? 'Principal';
     $principalSignaturePath = $principalSignaturePath ?? null;
     $signatureSize = $signatureSize ?? 1.4;
+    $principalLabelFontSize = $principalLabelFontSize ?? 5.2;
+    $principalLabelColor = $principalLabelColor ?? '#3f3f46';
     $principalSignatureId = $principalSignatureId ?? null;
     $footerLines = array_values(array_filter($footerLines ?? [], function ($line) {
         return filled($line);
@@ -115,7 +117,7 @@
     $previewClass = $isPreview ? ' card-preview-clickable' : '';
 @endphp
 
-<div class="admit-card" style="width: {{ $cardWidthStyle }}; height: {{ $cardHeightStyle }}; --admit-card-vertical-label-color: {{ $cardVerticalLabelColor ?? '#16a085' }}; --admit-card-vertical-label-font-size: {{ $cardVerticalLabelFontSize ?? 5.2 }}pt; --admit-card-element-exam-name-width: {{ filled(data_get($examNameSize, 'width')) ? ((float) data_get($examNameSize, 'width')) . 'mm' : 'auto' }}; --admit-card-element-exam-name-height: {{ filled(data_get($examNameSize, 'height')) ? ((float) data_get($examNameSize, 'height')) . 'mm' : 'auto' }}; {!! $elementPositionVars() !!}">
+<div class="admit-card" style="width: {{ $cardWidthStyle }}; height: {{ $cardHeightStyle }}; --admit-card-vertical-label-color: {{ $cardVerticalLabelColor ?? '#16a085' }}; --admit-card-vertical-label-font-size: {{ $cardVerticalLabelFontSize ?? 5.2 }}pt; --admit-card-principal-label-color: {{ $principalLabelColor }}; --admit-card-principal-label-font-size: {{ $principalLabelFontSize }}pt; --admit-card-element-exam-name-width: {{ filled(data_get($examNameSize, 'width')) ? ((float) data_get($examNameSize, 'width')) . 'mm' : 'auto' }}; --admit-card-element-exam-name-height: {{ filled(data_get($examNameSize, 'height')) ? ((float) data_get($examNameSize, 'height')) . 'mm' : 'auto' }}; {!! $elementPositionVars() !!}">
     @if($logoPath)
         <div class="admit-card__watermark">
             <img src="{{ $logoPath }}" alt="" class="admit-card__watermark-logo">

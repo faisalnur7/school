@@ -74,12 +74,16 @@ class AdmitSeatCardSettingsTest extends TestCase
             'card_color_gradient_1' => '#1e3a5f',
             'card_color_gradient_2' => '#2563eb',
             'card_solid_color' => '#1e3a5f',
+            'card_principal_label_font_size' => 6.4,
+            'card_principal_label_text_color' => '#b91c1c',
         ]);
 
         $controller->saveSettings($saveRequest);
 
         $setting = AdmitSeatCardSetting::query()->where('card_type', 1)->firstOrFail();
         $this->assertNull($setting->card_logo);
+        $this->assertSame(6.4, (float) $setting->card_principal_label_font_size);
+        $this->assertSame('#b91c1c', $setting->card_principal_label_text_color);
 
         $viewRequest = Request::create('/results/admit-seat-cards', 'GET', [
             'session_id' => $session->id,
@@ -102,6 +106,8 @@ class AdmitSeatCardSettingsTest extends TestCase
         $this->assertStringContainsString($schoolLogoPath, $html);
         $this->assertStringContainsString('name="card_logo"', $html);
         $this->assertStringContainsString('name="card_color_type"', $html);
+        $this->assertStringContainsString('--admit-card-principal-label-font-size: 6.4pt', $html);
+        $this->assertStringContainsString('--admit-card-principal-label-color: #b91c1c', $html);
     }
 
     public function test_transparent_admit_cards_use_custom_text_colors(): void
