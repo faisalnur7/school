@@ -10,6 +10,28 @@
             </a>
         </div>
 
+        <div class="card-body border-bottom py-2 px-3">
+            <ul class="nav nav-tabs users-role-tabs flex-nowrap overflow-auto" role="tablist" aria-label="Users by role">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link {{ $selectedRole === 'all' ? 'active' : '' }}" href="{{ route('users.index', ['role' => 'all']) }}">
+                        All Users <span class="badge badge-light ml-1">{{ $totalUsers }}</span>
+                    </a>
+                </li>
+                @foreach ($roles as $role)
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link {{ $selectedRole === (string) $role->id ? 'active' : '' }}" href="{{ route('users.index', ['role' => $role->id]) }}">
+                            {{ $role->name }} <span class="badge badge-light ml-1">{{ $role->users_count }}</span>
+                        </a>
+                    </li>
+                @endforeach
+                <li class="nav-item ml-auto" role="presentation">
+                    <a class="nav-link text-danger {{ $selectedRole === 'make-super-admin' ? 'active' : '' }}" href="{{ route('users.index', ['role' => 'make-super-admin']) }}">
+                        <i class="fas fa-user-shield mr-1"></i> Make Super Admin
+                    </a>
+                </li>
+            </ul>
+        </div>
+
         <div class="card-body px-0 pb-4 pt-0">
             @if ($users->isEmpty())
                 <div class="text-center text-muted py-4">No users found</div>
@@ -70,6 +92,14 @@
                                         <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-dark">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        @if ($selectedRole === 'make-super-admin' && auth()->user()?->is_super_admin)
+                                            <form action="{{ route('users.make-super-admin', $user->id) }}" method="POST" class="mb-0">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Make Super Admin">
+                                                    <i class="fas fa-user-shield"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
@@ -83,4 +113,11 @@
         </div>
     </div>
 </div>
+<style>
+    .users-role-tabs { border-bottom: 0; gap: .35rem; }
+    .users-role-tabs .nav-link { white-space: nowrap; border: 0; border-radius: .45rem; color: #4b5563; }
+    .users-role-tabs .nav-link.active { background: #eef2ff; color: #1d4ed8; font-weight: 600; }
+    .users-role-tabs .nav-link.text-danger.active { background: #fff1f2; color: #dc2626 !important; }
+    @media (max-width: 768px) { .users-role-tabs .nav-item.ml-auto { margin-left: 0 !important; } }
+</style>
 @endsection

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Certificate designer</title>
+<style>
+:root{--bg:#f3f4f7;--panel:#fff;--ink:#17202e;--mute:#6b7585;--line:#e3e6ec;--acc:#3a4de0;--accbg:#eceefc;--stage:#dfe2ea;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151c;--panel:#1a1e27;--ink:#e8ebf2;--mute:#8d97a8;--line:#2a303c;--acc:#7e8cff;--accbg:#242a45;--stage:#0d1016}}
+:root[data-theme="dark"]{--bg:#12151c;--panel:#1a1e27;--ink:#e8ebf2;--mute:#8d97a8;--line:#2a303c;--acc:#7e8cff;--accbg:#242a45;--stage:#0d1016}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 "Inter",system-ui,-apple-system,"Segoe UI",sans-serif}
+.app{display:grid;grid-template-columns:400px 1fr;height:100%}
+aside{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+header{padding:16px 20px;border-bottom:1px solid var(--line)}
+header h1{font-size:16px;margin:0;font-weight:650}
+header p{margin:2px 0 0;color:var(--mute);font-size:12.5px}
+nav{display:flex;gap:4px;padding:10px 14px;border-bottom:1px solid var(--line)}
+nav button{flex:1;border:0;background:none;color:var(--mute);padding:8px 6px;border-radius:8px;font:inherit;font-weight:550;cursor:pointer}
+nav button[aria-selected=true]{background:var(--accbg);color:var(--acc)}
+.scroll{overflow:auto;flex:1;padding:6px 20px 20px}
+details{border-bottom:1px solid var(--line);padding:4px 0}
+summary{cursor:pointer;list-style:none;padding:12px 0;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary small{display:block;color:var(--mute);font-weight:400;font-size:12px}
+summary::after{content:"";width:7px;height:7px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);transition:transform .15s;margin-right:4px}
+details[open] summary::after{transform:rotate(-135deg)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:2px 0 14px}
+.f{display:flex;flex-direction:column;gap:5px;min-width:0}
+.f.w{grid-column:1/-1}
+.f>label{font-size:12px;color:var(--mute);font-weight:550}
+input[type=number],select{width:100%;height:36px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);padding:0 10px;font:inherit}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.num{position:relative}
+.num span{position:absolute;right:10px;top:9px;color:var(--mute);font-size:12px;pointer-events:none}
+.num input{padding-right:34px}
+.col{display:flex;align-items:center;gap:8px;height:36px;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:4px 8px 4px 4px}
+.col input[type=color]{width:28px;height:28px;border:0;padding:0;border-radius:6px;background:none;cursor:pointer}
+.col code{font:12px ui-monospace,Menlo,monospace;color:var(--mute)}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg)}
+.seg button{flex:1;border:0;background:none;height:34px;color:var(--mute);font:inherit;font-size:12.5px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--acc);color:#fff}
+footer{display:flex;gap:10px;padding:14px 20px;border-top:1px solid var(--line)}
+.btn{height:38px;border-radius:9px;border:1px solid var(--line);background:none;color:var(--ink);padding:0 16px;font:inherit;font-weight:600;cursor:pointer}
+.btn.p{background:var(--acc);border-color:var(--acc);color:#fff;flex:1}
+main{background:var(--stage);overflow:auto;padding:28px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.bar{display:flex;justify-content:space-between;width:100%;max-width:760px;color:var(--mute);font-size:12.5px}
+.wrap{position:relative;flex:none}
+.page{transform-origin:0 0;position:absolute;top:0;left:0;background:#fff;box-shadow:0 8px 30px rgba(0,0,0,.18);display:flex;flex-direction:column}
+.page .tt{align-self:center;margin-bottom:12mm}
+.page p{margin:0 0 7mm}
+.ph{color:var(--ph);font-weight:600}
+.sig{margin-top:auto;padding-top:20mm}
+.sig i{display:block;width:60mm;border-top:1px solid currentColor;margin-bottom:2mm}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:9px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media (max-width:900px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr;height:auto}aside{border-right:0}main{padding:16px}.scroll{max-height:60vh}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <header><h1>Certificate designer</h1><p>Adjust a setting and watch the preview update.</p></header>
+  <nav role="tablist" id="tabs"></nav>
+  <div class="scroll" id="panel"></div>
+  <footer><button class="btn" id="reset">Reset</button><button class="btn p" id="save">Save changes</button></footer>
+</aside>
+<main>
+  <div class="bar"><span id="dims"></span><span>Live preview</span></div>
+  <div class="wrap" id="wrap"><div class="page" id="page">
+    <div class="tt" id="tt">Certificate of appreciation</div>
+    <p id="body">This is to certify that <span class="ph">Amina Rahman</span> of Class Seven has shown outstanding dedication and consistent effort throughout the academic year at <span class="ph">Greenfield Model School</span>.</p>
+    <p id="reason">Awarded in recognition of excellence in science and for leading the school's regional exhibition team.</p>
+    <div class="sig" id="sig"><i></i>Principal, <span class="ph">Greenfield Model School</span></div>
+  </div></div>
+</main>
+</div>
+<div class="toast" id="toast">Settings saved</div>
+<script>
+const FONTS=["Georgia","Arial","Times New Roman","Helvetica","Verdana","Garamond","Courier New"];
+const W=["300","400","500","600","700"];
+const AL=["left","center","right","justify"];
+const D={pw:210,ph:297,mt:28,mr:16,mb:18,ml:16,
+fc:"#141b2a",phc:"#b4540a",rc:"#141b2a",pc:"#141b2a",
+bs:17,bf:"Georgia",ba:"justify",bw:"400",
+pfs:17,pfw:"600",rfs:16,rfw:"400",prs:15,prw:"500",
+tf:"Arial",ts:18,tw:"500",tc:"#141b2a",tbg:"#f1efdc",tbd:"#4a5568",
+tbw:1,tbs:"solid",ta:"center",tls:0.01,ttx:"uppercase",tpt:9,tpr:42,tpb:9,tpl:42};
+const N=(k,l,u,min,max,step=1)=>({k,l,t:"n",u,min,max,step});
+const C=(k,l)=>({k,l,t:"c"});
+const S=(k,l,o)=>({k,l,t:"s",o});
+const G=(k,l,o)=>({k,l,t:"g",o,w:1});
+const TABS={
+Page:[{h:"Paper size",s:"Width and height of the certificate",f:[N("pw","Width","mm",100,500),N("ph","Height","mm",100,700)]},
+ {h:"Margins",s:"Space between the edge and the content",f:[N("mt","Top","mm",0,80),N("mr","Right","mm",0,80),N("mb","Bottom","mm",0,80),N("ml","Left","mm",0,80)]}],
+Colors:[{h:"Text colors",s:"Applies to the certificate text",f:[C("fc","Body text"),C("phc","Placeholders"),C("rc","Reason"),C("pc","Principal")]}],
+Type:[{h:"Body text",s:"Main certificate paragraph",open:1,f:[N("bs","Size","px",8,40),S("bf","Font family",FONTS),S("bw","Weight",W),G("ba","Alignment",AL)]},
+ {h:"Placeholder text",s:"Student and school values",f:[N("pfs","Size","px",8,40),S("pfw","Weight",W)]},
+ {h:"Reason text",s:"The reason block",f:[N("rfs","Size","px",8,40),S("rfw","Weight",W)]},
+ {h:"Principal text",s:"The signature block",f:[N("prs","Size","px",8,40),S("prw","Weight",W)]}],
+Title:[{h:"Title text",s:"Font, size and color",open:1,f:[S("tf","Font",FONTS),N("ts","Size","px",8,60),S("tw","Weight",W),C("tc","Color"),G("ta","Alignment",["left","center","right"]),S("ttx","Case",["none","uppercase","capitalize"]),N("tls","Letter spacing","px",0,10,0.01)]},
+ {h:"Title box",s:"Background, border and padding",f:[C("tbg","Background"),C("tbd","Border color"),N("tbw","Border width","px",0,10),S("tbs","Border style",["solid","dashed","dotted","double","none"]),N("tpt","Padding top","px",0,60),N("tpb","Padding bottom","px",0,60),N("tpl","Padding left","px",0,120),N("tpr","Padding right","px",0,120)]}]};
+let st={...D};
+try{const s=localStorage.getItem("cert-settings");if(s)st={...D,...JSON.parse(s)}}catch(e){}
+let tab="Page";
+const $=id=>document.getElementById(id);
+function ctl(f){
+ const v=st[f.k],d=document.createElement("div");d.className="f"+(f.w?" w":"");
+ const id="i_"+f.k;d.innerHTML=`<label for="${id}">${f.l}</label>`;
+ let el;
+ if(f.t==="n"){el=document.createElement("div");el.className="num";el.innerHTML=`<input id="${id}" type="number" min="${f.min}" max="${f.max}" step="${f.step}" value="${v}"><span>${f.u}</span>`;
+  el.firstChild.oninput=e=>{const n=parseFloat(e.target.value);if(!isNaN(n)){st[f.k]=n;render()}}}
+ else if(f.t==="c"){el=document.createElement("div");el.className="col";el.innerHTML=`<input id="${id}" type="color" value="${v}"><code>${v}</code>`;
+  el.firstChild.oninput=e=>{st[f.k]=e.target.value;el.lastChild.textContent=e.target.value;render()}}
+ else if(f.t==="s"){el=document.createElement("select");el.id=id;el.innerHTML=f.o.map(o=>`<option ${o==v?"selected":""}>${o}</option>`).join("");
+  el.onchange=e=>{st[f.k]=e.target.value;render()}}
+ else{el=document.createElement("div");el.className="seg";el.setAttribute("role","group");
+  f.o.forEach(o=>{const b=document.createElement("button");b.textContent=o[0].toUpperCase()+o.slice(1);b.setAttribute("aria-pressed",o==v);
+   b.onclick=()=>{st[f.k]=o;[...el.children].forEach(c=>c.setAttribute("aria-pressed",c===b));render()};el.appendChild(b)})}
+ d.appendChild(el);return d}
+function build(){
+ $("tabs").innerHTML="";
+ Object.keys(TABS).forEach(t=>{const b=document.createElement("button");b.textContent=t;b.setAttribute("role","tab");b.setAttribute("aria-selected",t===tab);
+  b.onclick=()=>{tab=t;build()};$("tabs").appendChild(b)});
+ const p=$("panel");p.innerHTML="";
+ TABS[tab].forEach((g,i)=>{const dt=document.createElement("details");if(g.open||i===0)dt.open=true;
+  dt.innerHTML=`<summary><span>${g.h}<small>${g.s}</small></span></summary>`;
+  const gr=document.createElement("div");gr.className="grid";g.f.forEach(f=>gr.appendChild(ctl(f)));dt.appendChild(gr);p.appendChild(dt)})}
+function render(){
+ const pg=$("page"),s=st,PX=96/25.4;
+ pg.style.cssText=`width:${s.pw}mm;height:${s.ph}mm;padding:${s.mt}mm ${s.mr}mm ${s.mb}mm ${s.ml}mm;color:${s.fc};font-family:${s.bf},serif;font-size:${s.bs}px;font-weight:${s.bw};text-align:${s.ba};--ph:${s.phc}`;
+ const tt=$("tt");
+ tt.style.cssText=`font-family:${s.tf};font-size:${s.ts}px;font-weight:${s.tw};color:${s.tc};background:${s.tbg};border:${s.tbw}px ${s.tbs} ${s.tbd};text-align:${s.ta};letter-spacing:${s.tls}px;text-transform:${s.ttx};padding:${s.tpt}px ${s.tpr}px ${s.tpb}px ${s.tpl}px`;
+ pg.querySelectorAll(".ph").forEach(e=>{e.style.fontWeight=s.pfw;e.style.fontSize=s.pfs+"px"});
+ $("reason").style.cssText=`color:${s.rc};font-size:${s.rfs}px;font-weight:${s.rfw}`;
+ $("sig").style.cssText=`color:${s.pc};font-size:${s.prs}px;font-weight:${s.prw};text-align:left`;
+ $("dims").textContent=`${s.pw} × ${s.ph} mm`;
+ fit()}
+function fit(){
+ const m=document.querySelector("main"),aw=Math.min(m.clientWidth-56,760),pw=st.pw*96/25.4,ph=st.ph*96/25.4,k=Math.min(1,aw/pw);
+ $("page").style.transform=`scale(${k})`;const w=$("wrap");w.style.width=pw*k+"px";w.style.height=ph*k+"px"}
+addEventListener("resize",fit);
+$("reset").onclick=()=>{st={...D};try{localStorage.removeItem("cert-settings")}catch(e){}build();render();toast("Settings reset")};
+$("save").onclick=()=>{try{localStorage.setItem("cert-settings",JSON.stringify(st))}catch(e){}toast("Settings saved")};
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1600)}
+build();render();
+</script>
+</body>
+</html>
