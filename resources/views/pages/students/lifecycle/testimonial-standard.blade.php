@@ -22,8 +22,6 @@
 </head>
 <body>
 <div class="print-bar">
-    <a href="{{ route('students.testimonial', [$student, 'style' => 'classic']) }}" style="background:#4f46e5;color:#fff;padding:6px 12px;border-radius:6px;text-decoration:none;">Classic</a>
-    <a href="{{ route('students.testimonial', [$student, 'style' => 'modern']) }}" style="background:#0ea5e9;color:#fff;padding:6px 12px;border-radius:6px;text-decoration:none;">Modern</a>
     <a href="{{ route('students.testimonial.pdf', $student) }}" style="background:#dc2626;color:#fff;padding:6px 12px;border-radius:6px;text-decoration:none;">PDF</a>
     <button onclick="window.print()" style="background:#059669;color:#fff;padding:6px 12px;border-radius:6px;border:none;cursor:pointer;">Print</button>
 </div>

@@ -40,6 +40,61 @@ Artisan::command('students:create-mobile-account {student : Student ID or CID} {
     $this->info("Mobile account {$user->email} is ready for {$student->student_cid}.");
 })->purpose('Create or reset one active student mobile account with an explicitly supplied password.');
 
+Artisan::command('students:create-mobile-accounts {--password= : Initial password for every account; use a unique password per student when possible} {--reset-existing : Also reset the password of accounts that already exist}', function () {
+    $password = (string) $this->option('password');
+    if (strlen($password) < 8) {
+        $this->error('Provide --password with at least 8 characters.');
+        return 1;
+    }
+
+    $role = Role::firstOrCreate(
+        ['name' => 'Student'],
+        ['description' => 'Student mobile application accounts']
+    );
+
+    $students = Student::query()
+        ->where('status', 1)
+        ->whereHas('latestAcademicInformation', fn ($query) => $query
+            ->where('is_current', true)
+            ->where('academic_status', 'active'))
+        ->with('user')
+        ->orderBy('student_cid')
+        ->get();
+
+    $created = 0;
+    $skipped = 0;
+    $reset = 0;
+
+    foreach ($students as $student) {
+        $user = $student->user;
+        if ($user && ! $this->option('reset-existing')) {
+            $skipped++;
+            continue;
+        }
+
+        $attributes = [
+            'name' => $student->full_name_en ?: $student->full_name_bn,
+            'email' => 'student-'.$student->id.'@student.local',
+            'role_id' => $role->id,
+            'is_active' => true,
+        ];
+
+        if ($user) {
+            $user->update($attributes + ['password' => Hash::make($password)]);
+            $reset++;
+        } else {
+            User::create($attributes + [
+                'student_id' => $student->id,
+                'password' => Hash::make($password),
+            ]);
+            $created++;
+        }
+    }
+
+    $this->info("Student mobile accounts ready: created={$created}, reset={$reset}, skipped={$skipped}.");
+    $this->line('Students log in to the mobile app with their Student CID and this password.');
+})->purpose('Create mobile accounts for all active students without resetting existing accounts by default.');
+
 Artisan::command('results:seed-marks {--session=} {--all}', function (ResultMarksImportService $service) {
     $sessionId = $this->option('session') ? (int) $this->option('session') : null;
     $all = (bool) $this->option('all');

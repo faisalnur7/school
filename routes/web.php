@@ -504,6 +504,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:create_students')->group(function () {
         Route::get('/students/create', [StudentController::class, 'create'])->name('students.create');
         Route::post('/students/store', [StudentController::class, 'store'])->name('students.store');
+        Route::get('/create_mobile_account', [StudentController::class, 'createMobileAccounts'])->name('students.mobile-accounts.create');
     });
 
     Route::middleware('permission:edit_students')->group(function () {
@@ -1245,6 +1246,7 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
         Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::post('/users/{id}/update', [UserController::class, 'update'])->name('users.update');
         Route::post('/users/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+        Route::post('/users/{id}/make-super-admin', [UserController::class, 'makeSuperAdmin'])->name('users.make-super-admin');
     });
 
     Route::middleware('permission:delete_users')->delete('/users/{id}/delete', [UserController::class, 'destroy'])->name('users.delete');

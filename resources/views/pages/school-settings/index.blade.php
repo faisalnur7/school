@@ -57,10 +57,44 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
+                                <div class="col-md-6 form-group">
+                                    <label class="font-weight-bold">School Name in Bangla</label>
+                                    <input type="text" name="name_bn"
+                                        class="form-control @error('name_bn') is-invalid @enderror"
+                                        value="{{ old('name_bn', $setting->name_bn) }}">
+                                    @error('name_bn')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                                 <div class="col-md-12 form-group">
                                     <label class="font-weight-bold">Address <span class="text-danger">*</span></label>
                                     <textarea name="address" rows="2" class="form-control @error('address') is-invalid @enderror" required>{{ old('address', $setting->address) }}</textarea>
                                     @error('address')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-12 form-group">
+                                    <label class="font-weight-bold">Address in Bangla</label>
+                                    <textarea name="address_bn" rows="2" class="form-control @error('address_bn') is-invalid @enderror">{{ old('address_bn', $setting->address_bn) }}</textarea>
+                                    @error('address_bn')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label class="font-weight-bold">IPEMIS Code</label>
+                                    <input type="text" name="ipemis_code"
+                                        class="form-control @error('ipemis_code') is-invalid @enderror"
+                                        value="{{ old('ipemis_code', $setting->ipemis_code) }}">
+                                    @error('ipemis_code')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label class="font-weight-bold">School Code</label>
+                                    <input type="text" name="school_code"
+                                        class="form-control @error('school_code') is-invalid @enderror"
+                                        value="{{ old('school_code', $setting->school_code) }}">
+                                    @error('school_code')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>

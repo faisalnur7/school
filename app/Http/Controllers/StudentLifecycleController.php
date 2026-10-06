@@ -37,7 +37,7 @@ use Illuminate\Validation\ValidationException;
 
 class StudentLifecycleController extends Controller
 {
-    private const CERTIFICATE_STYLES = ['classic', 'modern'];
+    private const CERTIFICATE_STYLES = ['standard'];
 
     private function baseData(): array
     {
@@ -54,7 +54,7 @@ class StudentLifecycleController extends Controller
         return self::CERTIFICATE_STYLES;
     }
 
-    private function normalizeCertificateStyle(?string $style, string $fallback = 'modern'): string
+    private function normalizeCertificateStyle(?string $style, string $fallback = 'standard'): string
     {
         $style = strtolower(trim((string) $style));
 
@@ -66,11 +66,11 @@ class StudentLifecycleController extends Controller
         return [
             'transfer_certificate' => [
                 'title' => 'Transfer Certificate',
-                'subtitle' => 'Print a transfer certificate in classic or modern style.',
+                'subtitle' => 'Print a transfer certificate using the school certificate design.',
                 'icon' => 'fa-scroll',
                 'route' => 'students.tc',
                 'pdf_route' => 'students.tc.pdf',
-                'default_style' => 'modern',
+                'default_style' => 'standard',
                 'placeholder_group' => 'transfer_certificate',
                 'accent' => ['from' => '#0f766e', 'to' => '#0d9488'],
             ],
@@ -80,7 +80,7 @@ class StudentLifecycleController extends Controller
                 'icon' => 'fa-certificate',
                 'route' => 'students.testimonial',
                 'pdf_route' => 'students.testimonial.pdf',
-                'default_style' => 'modern',
+                'default_style' => 'standard',
                 'placeholder_group' => 'testimonial',
                 'accent' => ['from' => '#7c3aed', 'to' => '#5b21b6'],
             ],
@@ -1100,12 +1100,24 @@ class StudentLifecycleController extends Controller
             ->where('student_id', $student->id)
             ->orderByDesc('id')
             ->first();
+        $setting = SchoolSetting::current();
+        $principalPhone = trim((string) ($setting->principal_phone ?? ''));
+        if ($principalPhone === '') {
+            $principalPhone = trim((string) ($setting->contact_number_1 ?? ''))
+                ?: trim((string) ($setting->contact_number_2 ?? ''));
+        }
 
         return [
             'student'      => $student,
             'academicInfo' => $academicInfo,
             'leavingReason' => $this->certificateLeavingReason($academicInfo),
-            'setting'      => SchoolSetting::current(),
+            'setting'      => $setting,
+            'principal'    => [
+                'designation' => trim((string) ($setting->principal_designation ?? '')) ?: 'Principal',
+                'name'        => trim((string) ($setting->principal_name ?? '')),
+                'school_name' => trim((string) ($setting->principal_school_name ?? '')) ?: trim((string) ($setting->name ?? config('app.name', 'School'))),
+                'phone'       => $principalPhone,
+            ],
             'issueDate'    => now()->format('d F Y'),
             'styles'       => $this->certificateStyles(),
             'isPdf'        => false,
@@ -1221,7 +1233,7 @@ class StudentLifecycleController extends Controller
         );
 
         $html = view('pages.students.lifecycle.certificate-pdf', $data)->render();
-        $mpdf = new \Mpdf\Mpdf(['margin_top' => 15, 'margin_bottom' => 15, 'margin_left' => 20, 'margin_right' => 20]);
+        $mpdf = new \Mpdf\Mpdf(['margin_top' => 0, 'margin_bottom' => 0, 'margin_left' => 0, 'margin_right' => 0]);
         $mpdf->WriteHTML($html);
 
         return $this->pdfDownloadResponse(
@@ -1236,7 +1248,8 @@ class StudentLifecycleController extends Controller
         $style = $this->normalizeCertificateStyle($request->get('style'));
         $data  = $this->certificateData($student);
         $data['style'] = $style;
-        $certificate = $this->certificateBySlug('transfer-certificate');
+        $certificate = $this->certificateBySlug('transfer-certificate')->loadMissing(['templates', 'activeTemplate']);
+        $data['certificate'] = $certificate;
         $data['certificateTextHtml'] = $this->certificateTemplateHtmlForCertificate(
             $certificate,
             $student,
@@ -1244,25 +1257,26 @@ class StudentLifecycleController extends Controller
             $data['setting']
         );
 
-        return view("pages.students.lifecycle.tc-{$style}", $data);
+        return view('pages.students.lifecycle.certificate-preview', $data);
     }
 
     public function transferCertificatePdf(Request $request, Student $student)
     {
         Certificate::ensureDefaults();
-        $style = $this->normalizeCertificateStyle($request->get('style'), 'classic');
+        $style = $this->normalizeCertificateStyle($request->get('style'), 'standard');
         $data = $this->certificateData($student);
         $data['isPdf'] = true;
-        $certificate = $this->certificateBySlug('transfer-certificate');
+        $certificate = $this->certificateBySlug('transfer-certificate')->loadMissing(['templates', 'activeTemplate']);
+        $data['certificate'] = $certificate;
         $data['certificateTextHtml'] = $this->certificateTemplateHtmlForCertificate(
             $certificate,
             $student,
             $data['academicInfo'],
             $data['setting']
         );
-        $html = view("pages.students.lifecycle.tc-{$style}", $data)->render();
+        $html = view('pages.students.lifecycle.certificate-pdf', $data)->render();
 
-        $mpdf = new \Mpdf\Mpdf(['margin_top' => 15, 'margin_bottom' => 15, 'margin_left' => 20, 'margin_right' => 20]);
+        $mpdf = new \Mpdf\Mpdf(['margin_top' => 0, 'margin_bottom' => 0, 'margin_left' => 0, 'margin_right' => 0]);
         $mpdf->WriteHTML($html);
 
         return $this->pdfDownloadResponse(
@@ -1277,7 +1291,8 @@ class StudentLifecycleController extends Controller
         $style = $this->normalizeCertificateStyle($request->get('style'));
         $data  = $this->certificateData($student);
         $data['style'] = $style;
-        $certificate = $this->certificateBySlug('testimonial');
+        $certificate = $this->certificateBySlug('testimonial')->loadMissing(['templates', 'activeTemplate']);
+        $data['certificate'] = $certificate;
         $data['certificateTextHtml'] = $this->certificateTemplateHtmlForCertificate(
             $certificate,
             $student,
@@ -1285,25 +1300,31 @@ class StudentLifecycleController extends Controller
             $data['setting']
         );
 
-        return view("pages.students.lifecycle.testimonial-{$style}", $data);
+        return $style === 'standard'
+            ? view('pages.students.lifecycle.certificate-preview', $data)
+            : view("pages.students.lifecycle.testimonial-{$style}", $data);
     }
 
     public function testimonialPdf(Request $request, Student $student)
     {
         Certificate::ensureDefaults();
-        $style = $this->normalizeCertificateStyle($request->get('style'), 'classic');
+        $style = $this->normalizeCertificateStyle($request->get('style'), 'standard');
         $data = $this->certificateData($student);
         $data['isPdf'] = true;
-        $certificate = $this->certificateBySlug('testimonial');
+        $certificate = $this->certificateBySlug('testimonial')->loadMissing(['templates', 'activeTemplate']);
+        $data['certificate'] = $certificate;
         $data['certificateTextHtml'] = $this->certificateTemplateHtmlForCertificate(
             $certificate,
             $student,
             $data['academicInfo'],
             $data['setting']
         );
-        $html = view("pages.students.lifecycle.testimonial-{$style}", $data)->render();
+        $html = ($style === 'standard'
+            ? view('pages.students.lifecycle.certificate-pdf', $data)
+            : view("pages.students.lifecycle.testimonial-{$style}", $data)
+        )->render();
 
-        $mpdf = new \Mpdf\Mpdf(['margin_top' => 15, 'margin_bottom' => 15, 'margin_left' => 20, 'margin_right' => 20]);
+        $mpdf = new \Mpdf\Mpdf(['margin_top' => 0, 'margin_bottom' => 0, 'margin_left' => 0, 'margin_right' => 0]);
         $mpdf->WriteHTML($html);
 
         return $this->pdfDownloadResponse(
