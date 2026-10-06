@@ -9,10 +9,25 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('role')->paginate(15);
-        return view('pages.users.index', compact('users'));
+        $roles = Role::query()->withCount('users')->orderBy('name')->get();
+        $totalUsers = User::count();
+        $selectedRole = $request->query('role', 'all');
+
+        $usersQuery = User::with('role')->latest('id');
+
+        if ($selectedRole === 'make-super-admin') {
+            $usersQuery->where('is_super_admin', false);
+        } elseif ($selectedRole !== 'all' && ctype_digit((string) $selectedRole)) {
+            $usersQuery->where('role_id', (int) $selectedRole);
+        } else {
+            $selectedRole = 'all';
+        }
+
+        $users = $usersQuery->paginate(15)->withQueryString();
+
+        return view('pages.users.index', compact('users', 'roles', 'selectedRole', 'totalUsers'));
     }
 
     public function create()
@@ -122,6 +137,17 @@ class UserController extends Controller
         $user->save();
 
         return back()->with('success', 'User status updated successfully');
+    }
+
+    public function makeSuperAdmin($id)
+    {
+        abort_unless(auth()->user()?->is_super_admin, 403);
+
+        $user = User::findOrFail($id);
+        $user->update(['is_super_admin' => true]);
+
+        return redirect()->route('users.index', ['role' => 'make-super-admin'])
+            ->with('success', $user->name . ' is now a Super Admin.');
     }
 
     public function destroy($id)

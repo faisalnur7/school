@@ -23,6 +23,7 @@ use App\Models\Transport;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
+use App\Services\StudentMobileAccountService;
 
 class StudentController extends Controller
 {
@@ -325,6 +326,7 @@ class StudentController extends Controller
             // ====== Create Student ======
             $validated['student']['student_cid'] = Student::generateNextCid();
             $student = Student::create($validated['student']);
+            app(StudentMobileAccountService::class)->createOrReset($student);
 
             // ====== Auto-generate roll number if not provided ======
             $roll = $request->roll;
@@ -357,6 +359,32 @@ class StudentController extends Controller
         });
 
         return redirect()->route('students.index')->with('success', 'Student created successfully');
+    }
+
+    /**
+     * Create or reset mobile credentials for every student with a CID.
+     */
+    public function createMobileAccounts(StudentMobileAccountService $accountService)
+    {
+        $created = 0;
+        $reset = 0;
+
+        Student::query()
+            ->whereNotNull('student_cid')
+            ->where('student_cid', '!=', '')
+            ->orderBy('id')
+            ->chunkById(100, function ($students) use ($accountService, &$created, &$reset) {
+                foreach ($students as $student) {
+                    $hadAccount = $student->user()->exists();
+                    $accountService->createOrReset($student);
+                    $hadAccount ? $reset++ : $created++;
+                }
+            });
+
+        return redirect()->back()->with(
+            'success',
+            "Student mobile accounts ready: {$created} created, {$reset} passwords set to CID."
+        );
     }
 
     public function update(Request $request, $id)
