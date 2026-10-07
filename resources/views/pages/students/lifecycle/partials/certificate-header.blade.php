@@ -9,7 +9,7 @@
         @endif
         <div class="certificate-header-names">
             @if($setting->name_bn)
-                <div class="certificate-header-bangla" style="font-family: {{ data_get($headerLayout, 'typography.font_family', 'Arial, Helvetica, sans-serif') }}; font-size: {{ data_get($headerLayout, 'header.bangla.font_size', 29) }}px; font-weight: {{ data_get($headerLayout, 'header.bangla.font_weight', 800) }}; color: {{ data_get($headerLayout, 'header.bangla.color', '#111827') }}; text-align: {{ data_get($headerLayout, 'header.bangla.text_align', 'left') }};">{{ $setting->name_bn }}</div>
+                <div class="certificate-header-bangla" style="font-size: {{ data_get($headerLayout, 'header.bangla.font_size', 29) }}px; font-weight: {{ data_get($headerLayout, 'header.bangla.font_weight', 800) }}; color: {{ data_get($headerLayout, 'header.bangla.color', '#111827') }}; text-align: {{ data_get($headerLayout, 'header.bangla.text_align', 'left') }};">{{ $setting->name_bn }}</div>
             @endif
             @if($setting->name)
                 <div class="certificate-header-english" style="font-family: {{ data_get($headerLayout, 'typography.font_family', 'Arial, Helvetica, sans-serif') }}; font-size: {{ data_get($headerLayout, 'header.english.font_size', 17) }}px; font-weight: {{ data_get($headerLayout, 'header.english.font_weight', 800) }}; color: {{ data_get($headerLayout, 'header.english.color', '#111827') }}; text-align: {{ data_get($headerLayout, 'header.english.text_align', 'left') }};">{{ $setting->name }}</div>
