@@ -487,6 +487,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/students/checkout', [\App\Http\Controllers\StudentLifecycleController::class, 'checkoutIndex'])->name('students.checkout');
         Route::post('/students/checkout/{id}', [\App\Http\Controllers\StudentLifecycleController::class, 'checkoutStore'])->name('students.checkout.store');
         Route::get('/students/checked-out', [\App\Http\Controllers\StudentLifecycleController::class, 'checkedOutIndex'])->name('students.checked-out');
+        Route::post('/students/checked-out/{id}/restore', [\App\Http\Controllers\StudentLifecycleController::class, 'restoreCheckedOut'])->name('students.checked-out.restore');
         Route::get('/students/history', [\App\Http\Controllers\StudentLifecycleController::class, 'historyIndex'])->name('students.history');
         Route::get('/students/history/{student}', [\App\Http\Controllers\StudentLifecycleController::class, 'historyShow'])->name('students.history.show');
         Route::get('/students/certificates', [\App\Http\Controllers\StudentLifecycleController::class, 'certificateIndex'])->name('students.certificates');

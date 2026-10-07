@@ -65,6 +65,16 @@
                         <td><span class="badge badge-secondary">{{ $rec->academic_status }}</span></td>
                         <td class="text-nowrap">
                             <div class="students-checkout-actions">
+                                <form method="POST" action="{{ route('students.checked-out.restore', $rec->id) }}"
+                                    class="d-inline restore-student-form">
+                                    @csrf
+                                    <button type="submit"
+                                        class="btn btn-xs btn-success students-checkout-action-btn"
+                                        title="Restore student" aria-label="Restore student">
+                                        <i class="fas fa-undo students-checkout-action-icon"></i>
+                                        <span>Restore</span>
+                                    </button>
+                                </form>
                                 <a href="{{ route('students.tc', [$rec->student_id, 'style' => 'standard']) }}"
                                     class="btn btn-xs btn-primary students-checkout-action-btn students-checkout-action-btn--tc"
                                     target="_blank">
@@ -95,4 +105,30 @@
         @endif
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script src="{{ asset('assets/plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
+<script>
+    document.querySelectorAll('.restore-student-form').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            Swal.fire({
+                title: 'Restore student?',
+                text: 'The student will become active again. Existing fee records will remain unchanged.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, restore',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                focusCancel: true,
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+</script>
 @endsection

@@ -1034,6 +1034,49 @@ class StudentLifecycleController extends Controller
         return redirect()->route('students.checkout')->with('success', 'Student checked out. Record preserved for history.');
     }
 
+    public function restoreCheckedOut($id)
+    {
+        $studentName = DB::transaction(function () use ($id) {
+            $record = StudentAcademicInformation::query()
+                ->whereKey($id)
+                ->where('is_current', false)
+                ->whereIn('academic_status', ['transferred', 'graduated', 'withdrawn', 'expelled'])
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $student = Student::query()
+                ->whereKey($record->student_id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $hasAnotherCurrentRecord = StudentAcademicInformation::query()
+                ->where('student_id', $record->student_id)
+                ->where('is_current', true)
+                ->exists();
+
+            if ($hasAnotherCurrentRecord) {
+                throw ValidationException::withMessages([
+                    'student' => 'This student already has another current academic record. Review the student history before restoring this record.',
+                ]);
+            }
+
+            $record->update([
+                'academic_status' => 'active',
+                'is_current'      => true,
+                'checkout_date'   => null,
+            ]);
+
+            $student->update(['status' => 1]);
+
+            return $student->full_name_en ?: $student->full_name_bn ?: $student->student_cid;
+        });
+
+        return redirect()->route('students.checked-out')->with(
+            'success',
+            "{$studentName} was restored successfully. Existing fee records were left unchanged."
+        );
+    }
+
     public function checkedOutIndex(Request $request)
     {
         $records = StudentAcademicInformation::with(['student', 'academicSession', 'schoolClass', 'section', 'group'])
