@@ -79,7 +79,7 @@
 </div>
 
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;800&display=swap');
     .certificate-preview-text strong {
         font-weight: 700;
         font-style: italic;
@@ -105,7 +105,7 @@
     .certificate-header-main { display: flex; align-items: flex-end; gap: 10px; padding: 5px 0 8px; border-bottom: 1px solid #111827; }
     .certificate-header-logo { flex: 0 0 auto; width: 48px; height: 48px; object-fit: contain; }
     .certificate-header-names { flex: 1 1 auto; min-width: 0; }
-    .certificate-header-bangla { font-family: 'Noto Sans Bengali', 'SolaimanLipi', sans-serif; font-size: clamp(18px, 2.2vw, 29px); font-weight: 800; line-height: 1.05; white-space: nowrap; }
+    .certificate-header-bangla { font-family: "Noto Sans Bengali", sans-serif; font-size: clamp(18px, 2.2vw, 29px); font-weight: 800; line-height: 1.05; white-space: nowrap; }
     .certificate-header-english { margin-top: 3px; font-size: clamp(11px, 1.25vw, 17px); font-weight: 800; letter-spacing: .04em; white-space: nowrap; }
     .certificate-header-meta { flex: 0 0 31%; min-width: 145px; padding-left: 10px; border-left: 1px solid #111827; font-size: 9px; line-height: 1.35; }
     .certificate-header-meta div { overflow-wrap: anywhere; }

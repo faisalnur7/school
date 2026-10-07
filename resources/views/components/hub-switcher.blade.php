@@ -56,6 +56,7 @@
             ['label' => __('All Exams'), 'route' => 'exams.index', 'permission' => 'view_card_all_exams', 'match' => ['exams.*']],
             ['label' => __('Admit and Seat Cards'), 'route' => 'results.admit-seat-cards.index', 'permission' => 'view_results', 'match' => ['results.admit-seat-cards.*']],
             ['label' => __('Result Sheets'), 'route' => 'results.result-sheets', 'permission' => 'view_results', 'match' => ['results.result-sheets*']],
+            ['label' => __('Exam Routine'), 'route' => 'exam-routines.index', 'permission' => 'view_results', 'match' => ['exam-routines.*']],
             ['label' => __('Terminal Report'), 'route' => 'result.progress-report.index', 'permission' => 'view_card_terminal_report', 'match' => ['result.progress-report.*']],
             ['label' => __('Yearly Report'), 'route' => 'result.yearly-final-report.index', 'permission' => 'view_card_yearly_final_report', 'match' => ['result.yearly-final-report.*']],
             ['label' => __('Tutorial Report'), 'route' => 'result.tutorial-report.index', 'permission' => 'view_card_tutorial_exam_report', 'match' => ['result.tutorial-report.*']],

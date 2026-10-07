@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Http\Middleware\CheckPermission;
 use App\Models\Certificate;
 use App\Models\CertificateTemplate;
+use App\Models\SchoolSetting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -12,6 +13,25 @@ use Tests\TestCase;
 class CertificateTemplateSafetyTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_certificate_header_does_not_override_its_bengali_font(): void
+    {
+        $setting = new SchoolSetting();
+        $setting->name_bn = 'সবুজ চার্টার্ড স্কুল';
+
+        $html = view('pages.students.lifecycle.partials.certificate-header', [
+            'setting' => $setting,
+            'headerLayout' => [
+                'typography' => ['font_family' => 'Georgia, Times New Roman, serif'],
+            ],
+        ])->render();
+
+        preg_match('/<div class="certificate-header-bangla"([^>]*)>/', $html, $matches);
+
+        $this->assertNotEmpty($matches);
+        $this->assertStringNotContainsString('font-family', $matches[1]);
+        $this->assertFileExists(public_path('assets/fonts/Lohit-Bengali.ttf'));
+    }
 
     public function test_the_only_certificate_template_cannot_be_deleted(): void
     {

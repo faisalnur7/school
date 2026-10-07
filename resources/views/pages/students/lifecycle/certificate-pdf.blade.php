@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>{{ $certificate->name }} - {{ $student->full_name_en }}</title>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
     @page { size: {{ data_get($certificate->layoutSettings(), 'page.width', 210) }}mm {{ data_get($certificate->layoutSettings(), 'page.height', 297) }}mm; margin: 0; }
     body {
@@ -20,7 +19,7 @@
     .certificate-header-main { display: table; width: 100%; padding: 5px 0 8px; border-bottom: 1px solid #111827; }
     .certificate-header-logo { display: table-cell; width: 48px; height: 48px; object-fit: contain; vertical-align: bottom; }
     .certificate-header-names { display: table-cell; padding: 0 10px; vertical-align: bottom; }
-    .certificate-header-bangla { font-family: 'Noto Sans Bengali', 'SolaimanLipi', sans-serif; font-size: 24px; font-weight: 800; line-height: 1.05; white-space: nowrap; }
+    .certificate-header-bangla { font-family: "lohitbengali", sans-serif; font-size: 24px; font-weight: 800; line-height: 1.05; white-space: nowrap; }
     .certificate-header-english { margin-top: 3px; font-size: 14px; font-weight: 800; letter-spacing: .04em; white-space: nowrap; }
     .certificate-header-meta { display: table-cell; width: 31%; padding-left: 10px; border-left: 1px solid #111827; font-size: 8px; line-height: 1.35; vertical-align: bottom; }
     .certificate-header-meta div { overflow-wrap: anywhere; }
