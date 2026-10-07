@@ -123,6 +123,14 @@
         color: {{ data_get($certificate->layoutSettings(), 'footer.reason.color', '#111827') }};
     }
 
+    .certificate-reason-options .reason-title {
+        margin-bottom: 6px;
+    }
+
+    .certificate-reason-options > div:not(.reason-title) {
+        line-height: 1.45;
+    }
+
     .signature {
         font-family: {{ data_get($certificate->layoutSettings(), 'typography.font_family', 'Georgia, Times New Roman, serif') }};
         font-size: {{ data_get($certificate->layoutSettings(), 'footer.principal.font_size', 16) }}px;
@@ -193,8 +201,7 @@
 
         <div class="bottom">
             <div class="reason" style="display: {{ data_get($certificate->layoutSettings(), 'visibility.reason', true) ? 'table-cell' : 'none' }};">
-                <div class="reason-title">Reason for Leaving School:</div>
-                <div class="reason-value">{{ $leavingReason ?? 'No reason provided' }}</div>
+                @include('pages.students.lifecycle.partials.reason-for-leaving')
             </div>
 
             <div class="signature" style="display: {{ data_get($certificate->layoutSettings(), 'visibility.principal', true) ? 'table-cell' : 'none' }};">
