@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Exam;
+use App\Models\ExamRoutine;
 use App\Models\AttendanceItem;
 use App\Models\ClassRoutine;
 use App\Models\ExamMark;
@@ -145,6 +146,56 @@ class StudentApiController extends Controller
                 WeekendSetting::current()->days()
             ),
             'items' => $routine->map(fn ($item) => $this->routinePayload($item))->values(),
+        ]);
+    }
+
+    public function examRoutine(Request $request): JsonResponse
+    {
+        $student = $this->activeStudent($request);
+        $data = $request->validate([
+            'exam_id' => ['nullable', 'integer', 'exists:exams,id'],
+        ]);
+        $academic = $student->latestAcademicInformation;
+
+        if (! $academic) {
+            return response()->json([
+                'student' => $this->studentPayload($student),
+                'session' => null,
+                'routines' => [],
+            ]);
+        }
+
+        $routines = ExamRoutine::query()
+            ->with([
+                'exam:id,name,type,exam_category,academic_session_id',
+                'academicSession:id,name_en',
+                'schoolClass:id,name_en',
+                'group:id,name_en',
+                'items' => fn ($query) => $query->with('subject:id,name')->orderBy('exam_date')->orderBy('sort_order'),
+            ])
+            ->where('academic_session_id', $academic->academic_session_id)
+            ->where('school_class_id', $academic->school_class_id)
+            ->where(function ($query) use ($academic) {
+                $query->whereNull('group_id');
+                if ($academic->group_id) {
+                    $query->orWhere('group_id', $academic->group_id);
+                }
+            })
+            ->when($data['exam_id'] ?? null, fn ($query, $examId) => $query->where('exam_id', $examId))
+            ->orderByDesc('exam_id')
+            ->get()
+            ->groupBy('exam_id')
+            ->map(fn (Collection $matches) => $matches->sortByDesc(fn (ExamRoutine $routine) => (int) filled($routine->group_id))->first())
+            ->filter()
+            ->values();
+
+        return response()->json([
+            'student' => $this->studentPayload($student),
+            'session' => $academic->academicSession ? [
+                'id' => $academic->academicSession->id,
+                'name' => $academic->academicSession->name_en,
+            ] : null,
+            'routines' => $routines->map(fn (ExamRoutine $routine) => $this->examRoutinePayload($routine))->values(),
         ]);
     }
 
@@ -433,6 +484,45 @@ class StudentApiController extends Controller
             'teacher' => $item->teacher ? ['id' => $item->teacher->id, 'name' => $item->teacher->name] : null,
             'classroom' => $item->classroom ? ['id' => $item->classroom->id, 'name' => $item->classroom->name] : null,
             'time_schedule' => $item->timeSchedule ? ['id' => $item->timeSchedule->id, 'name' => $item->timeSchedule->name, 'start_time' => $item->timeSchedule->start_time, 'end_time' => $item->timeSchedule->end_time] : null,
+        ];
+    }
+
+    private function examRoutinePayload(ExamRoutine $routine): array
+    {
+        $formatTime = static fn ($value) => $value ? \Carbon\Carbon::parse($value)->format('H:i') : null;
+        $timeRange = static fn (string $slot) => $slot === 'noon'
+            ? [$formatTime($routine->noon_start_time), $formatTime($routine->noon_end_time)]
+            : [$formatTime($routine->morning_start_time), $formatTime($routine->morning_end_time)];
+
+        return [
+            'id' => $routine->id,
+            'exam' => $routine->exam ? [
+                'id' => $routine->exam->id,
+                'name' => $routine->exam->name,
+                'type' => $routine->exam->type,
+                'exam_type' => $routine->exam->exam_category,
+            ] : null,
+            'class' => $routine->schoolClass?->name_en,
+            'group' => $routine->group?->name_en ?: 'All groups',
+            'slot_times' => [
+                'morning' => ['start' => $formatTime($routine->morning_start_time), 'end' => $formatTime($routine->morning_end_time)],
+                'noon' => ['start' => $formatTime($routine->noon_start_time), 'end' => $formatTime($routine->noon_end_time)],
+            ],
+            'items' => $routine->items
+                ->filter(fn ($item) => $item->subject)
+                ->map(function ($item) use ($timeRange) {
+                    [$start, $end] = $timeRange($item->slot);
+
+                    return [
+                        'id' => $item->id,
+                        'subject' => ['id' => $item->subject->id, 'name' => $item->subject->name],
+                        'date' => $item->exam_date?->toDateString(),
+                        'day' => $item->day_name,
+                        'slot' => $item->slot,
+                        'start_time' => $start,
+                        'end_time' => $end,
+                    ];
+                })->values(),
         ];
     }
 

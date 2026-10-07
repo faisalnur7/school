@@ -21,6 +21,7 @@ Route::prefix('v1/student')->group(function () {
         Route::get('dashboard', [StudentApiController::class, 'dashboard']);
         Route::get('attendance', [StudentApiController::class, 'attendance']);
         Route::get('routine', [StudentApiController::class, 'routine']);
+        Route::get('exam-routine', [StudentApiController::class, 'examRoutine']);
         Route::get('holidays', [StudentApiController::class, 'holidays']);
         Route::get('results/options', [StudentApiController::class, 'resultOptions']);
         Route::get('results', [StudentApiController::class, 'results']);

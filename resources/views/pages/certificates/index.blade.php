@@ -62,14 +62,22 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <a href="{{ route('certificates.edit', $certificate) }}" class="btn btn-xs btn-warning">
+                                <a href="{{ route('certificates.edit', $certificate) }}"
+                                    class="btn btn-sm btn-dark"
+                                    title="Edit"
+                                    aria-label="Edit {{ $certificate->name }}">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <form action="{{ route('certificates.destroy', $certificate) }}" method="POST" class="d-inline"
                                     onsubmit="return confirm('Delete this certificate type?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
+                                    <button type="submit"
+                                        class="btn btn-sm btn-danger"
+                                        title="Delete"
+                                        aria-label="Delete {{ $certificate->name }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </form>
                             </td>
                         </tr>

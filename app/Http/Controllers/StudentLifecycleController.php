@@ -1220,6 +1220,23 @@ class StudentLifecycleController extends Controller
         return view('pages.students.lifecycle.certificate-preview', $data);
     }
 
+    private function newCertificatePdfRenderer(): \Mpdf\Mpdf
+    {
+        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+
+        return new \Mpdf\Mpdf([
+            'fontDir' => array_merge($defaultConfig['fontDir'], [resource_path('fonts')]),
+            'fontdata' => $defaultFontConfig['fontdata'] + [
+                'lohitbengali' => ['R' => 'Lohit-Bengali.ttf'],
+            ],
+            'margin_top' => 0,
+            'margin_bottom' => 0,
+            'margin_left' => 0,
+            'margin_right' => 0,
+        ]);
+    }
+
     public function certificatePdf(Request $request, Student $student, Certificate $certificate)
     {
         Certificate::ensureDefaults();
@@ -1233,7 +1250,7 @@ class StudentLifecycleController extends Controller
         );
 
         $html = view('pages.students.lifecycle.certificate-pdf', $data)->render();
-        $mpdf = new \Mpdf\Mpdf(['margin_top' => 0, 'margin_bottom' => 0, 'margin_left' => 0, 'margin_right' => 0]);
+        $mpdf = $this->newCertificatePdfRenderer();
         $mpdf->WriteHTML($html);
 
         return $this->pdfDownloadResponse(
@@ -1276,7 +1293,7 @@ class StudentLifecycleController extends Controller
         );
         $html = view('pages.students.lifecycle.certificate-pdf', $data)->render();
 
-        $mpdf = new \Mpdf\Mpdf(['margin_top' => 0, 'margin_bottom' => 0, 'margin_left' => 0, 'margin_right' => 0]);
+        $mpdf = $this->newCertificatePdfRenderer();
         $mpdf->WriteHTML($html);
 
         return $this->pdfDownloadResponse(
@@ -1324,7 +1341,7 @@ class StudentLifecycleController extends Controller
             : view("pages.students.lifecycle.testimonial-{$style}", $data)
         )->render();
 
-        $mpdf = new \Mpdf\Mpdf(['margin_top' => 0, 'margin_bottom' => 0, 'margin_left' => 0, 'margin_right' => 0]);
+        $mpdf = $this->newCertificatePdfRenderer();
         $mpdf->WriteHTML($html);
 
         return $this->pdfDownloadResponse(

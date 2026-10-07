@@ -5,7 +5,7 @@
 @php($principalPhone = trim((string) ($setting?->principal_phone ?? '')) ?: (trim((string) ($setting?->contact_number_1 ?? '')) ?: trim((string) ($setting?->contact_number_2 ?? ''))))
 <div class="container-fluid certificate-editor-page">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;800&display=swap');
         .certificate-editor-page .workspace-tab { border: 0; border-bottom: 3px solid transparent; background: transparent; color: #64748b; font-weight: 600; padding: .85rem 1rem; }
         .certificate-editor-page .workspace-tab:hover, .certificate-editor-page .workspace-tab.is-active { color: #4f46e5; border-bottom-color: #4f46e5; }
         .certificate-editor-page .template-card.is-default { border-color: #818cf8 !important; box-shadow: 0 0 0 1px rgba(129, 140, 248, .2); }
@@ -1672,7 +1672,7 @@
     .certificate-editor-page .certificate-header-main { display: flex; align-items: flex-end; gap: 10px; padding: 5px 0 8px; border-bottom: 1px solid #111827; }
     .certificate-editor-page .certificate-header-logo { flex: 0 0 auto; width: 48px; height: 48px; object-fit: contain; }
     .certificate-editor-page .certificate-header-names { flex: 1 1 auto; min-width: 0; }
-    .certificate-editor-page .certificate-header-bangla { font-family: 'Noto Sans Bengali', 'SolaimanLipi', sans-serif; font-size: clamp(18px, 2.2vw, 29px); font-weight: 800; line-height: 1.05; white-space: nowrap; }
+    .certificate-editor-page .certificate-header-bangla { font-family: 'Noto Sans Bengali', sans-serif; font-size: clamp(18px, 2.2vw, 29px); font-weight: 800; line-height: 1.05; white-space: nowrap; }
     .certificate-editor-page .certificate-header-english { margin-top: 3px; font-size: clamp(11px, 1.25vw, 17px); font-weight: 800; letter-spacing: .04em; white-space: nowrap; }
     .certificate-editor-page .certificate-header-meta { flex: 0 0 31%; min-width: 145px; padding-left: 10px; border-left: 1px solid #111827; font-size: 9px; line-height: 1.35; }
     .certificate-editor-page .certificate-header-meta div { overflow-wrap: anywhere; }
@@ -1949,7 +1949,7 @@
                 const element = header.querySelector(selector);
                 if (!element) return;
                 Object.assign(element.style, {
-                    fontFamily: family,
+                    fontFamily: group === 'bangla' ? "'Noto Sans Bengali', sans-serif" : family,
                     fontSize: `${value(group, 'font_size', fallbackSize)}px`,
                     fontWeight: value(group, 'font_weight', fallbackWeight),
                     color: value(group, 'color', '#111827'),

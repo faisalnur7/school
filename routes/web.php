@@ -100,6 +100,7 @@ use App\Http\Controllers\{
     FeesHubController,
     FinancialsHubController,
     ResultsHubController,
+    ExamRoutineController,
     YearlyFinalReportController,
     HrHubController,
     AccountsHubController,
@@ -246,6 +247,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:view_results')->get('/results/hub', [ResultsHubController::class, 'index'])->name('results.hub');
     Route::middleware('permission:view_results')->get('/results/result-sheets', [\App\Http\Controllers\ExamController::class, 'resultSheets'])->name('results.result-sheets');
     Route::middleware('permission:view_results')->get('/results/result-sheets/exams', [\App\Http\Controllers\ExamController::class, 'resultSheetExams'])->name('results.result-sheets.exams');
+    Route::middleware('permission:view_results')->prefix('results/exam-routines')->group(function () {
+        Route::get('/', [ExamRoutineController::class, 'index'])->name('exam-routines.index');
+        Route::get('/print', [ExamRoutineController::class, 'print'])->name('exam-routines.print');
+        Route::get('/pdf', [ExamRoutineController::class, 'pdf'])->name('exam-routines.pdf');
+        Route::get('/exams', [ExamRoutineController::class, 'exams'])->name('exam-routines.exams');
+        Route::get('/groups', [ExamRoutineController::class, 'groups'])->name('exam-routines.groups');
+        Route::post('/', [ExamRoutineController::class, 'store'])->name('exam-routines.store');
+    });
     Route::middleware('permission:view_hr')->get('/hr/hub', [HrHubController::class, 'index'])->name('hr.hub');
     Route::middleware('permission:view_accounts')->get('/accounts/hub', [AccountsHubController::class, 'index'])->name('accounts.hub');
     Route::middleware('permission:view_assets')->get('/assets/hub', [AssetsHubController::class, 'index'])->name('assets.hub');
