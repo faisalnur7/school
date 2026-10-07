@@ -14,6 +14,16 @@ class CertificateTemplateSafetyTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_all_certificate_reason_options_are_rendered_for_manual_selection(): void
+    {
+        $html = view('pages.students.lifecycle.partials.reason-for-leaving')->render();
+
+        $this->assertStringContainsString("1. Guardian's desire", $html);
+        $this->assertStringContainsString('2. Transfer of Guardian', $html);
+        $this->assertStringContainsString('3. Transfer of Residence', $html);
+        $this->assertStringNotContainsString('No reason provided', $html);
+    }
+
     public function test_certificate_header_does_not_override_its_bengali_font(): void
     {
         $setting = new SchoolSetting();

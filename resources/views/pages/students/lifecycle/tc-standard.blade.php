@@ -18,6 +18,8 @@
     .signatures { display: flex; justify-content: space-between; margin-top: 50px; }
     .sig { width: 180px; text-align: center; }
     .line { border-top: 1px solid #222; margin-bottom: 6px; }
+    .certificate-reason-options { margin-top: 18px; line-height: 1.55; }
+    .certificate-reason-options .reason-title { font-weight: 700; margin-bottom: 4px; }
     @media print { .print-bar { display: none; } body { background: #fff; } .page { border: 0; margin: 0; padding: 20px; } }
 </style>
 </head>
@@ -58,6 +60,8 @@
     <div class="footer-text">
         The student is hereby released from this institution and this certificate is issued upon request.
     </div>
+
+    @include('pages.students.lifecycle.partials.reason-for-leaving')
 
     <div class="signatures">
         <div class="sig"><div class="line"></div>Class Teacher</div>

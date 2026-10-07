@@ -52,8 +52,7 @@
 
             <div class="certificate-bottom flex items-end justify-between gap-8" style="transform: translate({{ data_get($layout, 'positions.bottom.x', 0) }}mm, {{ data_get($layout, 'positions.bottom.y', 0) }}mm);">
                 <div class="max-w-xs text-slate-600" style="display: {{ data_get($layout, 'visibility.reason', true) ? 'block' : 'none' }}; font-family: {{ data_get($layout, 'typography.font_family', 'Georgia, Times New Roman, serif') }}; font-size: {{ data_get($layout, 'footer.reason.font_size', 15) }}px; font-weight: {{ data_get($layout, 'footer.reason.font_weight', 400) }}; color: {{ data_get($layout, 'footer.reason.color', '#111827') }}; text-align: {{ data_get($layout, 'footer.reason.text_align', 'left') }};">
-                <div class="font-semibold text-slate-800 mb-2" style="font-weight: {{ data_get($layout, 'footer.reason.font_weight', 400) }};">Reason for Leaving School:</div>
-                <div class="font-bold text-slate-700" style="font-weight: {{ data_get($layout, 'footer.reason.font_weight', 400) }};">{{ $leavingReason ?? 'No reason provided' }}</div>
+                @include('pages.students.lifecycle.partials.reason-for-leaving')
             </div>
 
             <div class="text-right" style="display: {{ data_get($layout, 'visibility.principal', true) ? 'block' : 'none' }}; font-family: {{ data_get($layout, 'typography.font_family', 'Georgia, Times New Roman, serif') }}; font-size: {{ data_get($layout, 'footer.principal.font_size', 16) }}px; font-weight: {{ data_get($layout, 'footer.principal.font_weight', 400) }}; color: {{ data_get($layout, 'footer.principal.color', '#111827') }}; text-align: {{ data_get($layout, 'footer.principal.text_align', 'center') }};">
@@ -98,6 +97,15 @@
         text-align: {{ data_get($layout, 'typography.text_align', 'justify') }} !important;
         text-justify: inter-word;
         margin-bottom: 12px;
+    }
+
+    .certificate-reason-options .reason-title {
+        margin-bottom: .45rem;
+        font-weight: {{ data_get($layout, 'footer.reason.font_weight', 400) }};
+    }
+
+    .certificate-reason-options > div:not(.reason-title) {
+        line-height: 1.45;
     }
 
     .certificate-header { position: relative; z-index: 2; margin-bottom: 24px; color: #111827; font-family: Arial, Helvetica, sans-serif; line-height: 1.15; }
