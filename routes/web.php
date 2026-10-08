@@ -378,6 +378,10 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::middleware('permission:view_routines')->prefix('routines')->group(function () {
         Route::get('/', [RoutineController::class, 'index'])->name('routines.index');
+        Route::get('/print', [RoutineController::class, 'print'])->name('routines.print');
+        Route::get('/pdf', [RoutineController::class, 'pdf'])->name('routines.pdf');
+        Route::post('/playground/save', [RoutineController::class, 'savePlayground'])->middleware('permission:edit_routines')->name('routines.playground.save');
+        Route::post('/teacherwise-playground/save', [RoutineController::class, 'saveTeacherwisePlayground'])->middleware('permission:edit_routines')->name('routines.teacherwise-playground.save');
         Route::get('/{id}', [RoutineController::class, 'show'])->whereNumber('id')->name('routines.show');
     });
 
