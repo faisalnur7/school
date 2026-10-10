@@ -151,13 +151,19 @@
             ['label' => __('Users'), 'route' => 'users.index', 'permission' => 'view_card_users', 'match' => ['users.*']],
             ['label' => __('Roles'), 'route' => 'roles.index', 'permission' => 'view_card_roles', 'match' => ['roles.*']],
             ['label' => __('Permissions'), 'route' => 'permissions.index', 'permission' => 'view_card_permissions', 'match' => ['permissions.*']],
-            ['label' => __('Audit Trail'), 'route' => 'audit-trails.index', 'permission' => 'view_audit_trail', 'match' => ['audit-trails.*']],
+            ['label' => __('Audit Trail'), 'route' => 'audit-trails.index', 'permission' => 'view_audit_trail', 'platform_admin_only' => true, 'match' => ['audit-trails.*']],
         ],
     ];
 
     $currentContextLinks = $currentModule ? ($contextLinks[$currentModule['route']] ?? []) : [];
     $currentContextLinks = collect($currentContextLinks)
-        ->filter(fn ($link) => \Illuminate\Support\Facades\Route::has($link['route']) && auth()->user()?->hasPermission($link['permission']))
+        ->filter(function ($link) {
+            if (($link['platform_admin_only'] ?? false) && ! auth()->user()?->isPlatformAdmin()) {
+                return false;
+            }
+
+            return \Illuminate\Support\Facades\Route::has($link['route']) && auth()->user()?->hasPermission($link['permission']);
+        })
         ->values();
 @endphp
 

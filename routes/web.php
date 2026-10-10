@@ -112,6 +112,7 @@ use App\Http\Controllers\{
     BudgetHubController,
     UsersHubController
 };
+use App\Http\Controllers\PlatformAdminController;
 use App\Http\Controllers\Website\PublicWebsiteController;
 
 // Public admission entry points intentionally live outside the authenticated admin group.
@@ -192,6 +193,16 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 Route::group(['middleware' => ['auth']], function () {
+    Route::middleware('platform.admin')->prefix('platform-admins')->name('platform-admins.')->group(function () {
+        Route::get('/', [PlatformAdminController::class, 'index'])->name('index');
+        Route::get('/create', [PlatformAdminController::class, 'create'])->name('create');
+        Route::post('/', [PlatformAdminController::class, 'store'])->name('store');
+        Route::get('/{user}/edit', [PlatformAdminController::class, 'edit'])->name('edit');
+        Route::put('/{user}', [PlatformAdminController::class, 'update'])->name('update');
+        Route::delete('/{user}', [PlatformAdminController::class, 'destroy'])->name('destroy');
+        Route::post('/permissions', [PlatformAdminController::class, 'saveVisibility'])->name('permissions.update');
+    });
+
     Route::get('/dashboard/home', [DashboardController::class, 'index'])->name('homepage');
     Route::get('/', [DashboardController::class, 'index'])->middleware('permission:view_dashboard');
 
@@ -263,7 +274,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:view_shareholders')->get('/shareholders/hub', [ShareholdersHubController::class, 'index'])->name('shareholders.hub');
     Route::middleware('permission:view_budget')->get('/budget/hub', [BudgetHubController::class, 'index'])->name('budget.hub');
     Route::middleware('permission:view_users')->get('/users/hub', [UsersHubController::class, 'index'])->name('users.hub');
-    Route::middleware('permission:view_audit_trail')->get('/audit-trails', [AuditTrailController::class, 'index'])->name('audit-trails.index');
+    Route::middleware('platform.admin')->get('/audit-trails', [AuditTrailController::class, 'index'])->name('audit-trails.index');
     Route::middleware('permission:view_inventory')->get('/inventory/hub', [InventoryController::class, 'hub'])->name('inventory.hub');
     Route::middleware('permission:view_inventory')->get('/inventory/sales/hub', [InventoryController::class, 'salesHub'])->name('inventory.sales.hub');
 
@@ -1248,7 +1259,6 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
     // ------------------- Users & Roles -------------------
     Route::middleware('permission:view_users')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
-        Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
     });
 
     Route::middleware('permission:create_users')->group(function () {

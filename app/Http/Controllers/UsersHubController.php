@@ -12,7 +12,13 @@ class UsersHubController extends Controller
             ['icon' => 'fa-key',        'title' => __('Permissions'),  'subtitle' => __('Manage permissions'),       'route' => 'permissions.index', 'permission' => 'view_card_permissions', 'from' => '#059669', 'to' => '#047857'],
             ['icon' => 'fa-shield-alt', 'title' => __('Audit Trail'),  'subtitle' => __('Review security activity'),  'route' => 'audit-trails.index', 'permission' => 'view_audit_trail', 'from' => '#dc2626', 'to' => '#b91c1c'],
         ];
-        $cards = array_values(array_filter($cards, fn ($card) => auth()->user()?->hasPermission($card['permission'])));
+        $cards = array_values(array_filter($cards, function ($card) {
+            if ($card['route'] === 'audit-trails.index' && ! auth()->user()?->isPlatformAdmin()) {
+                return false;
+            }
+
+            return auth()->user()?->hasPermission($card['permission']);
+        }));
 
         return view('pages.users.hub', compact('cards'));
     }
