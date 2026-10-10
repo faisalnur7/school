@@ -60,13 +60,13 @@ class StudentController extends Controller
     {
         return $students->sortBy(function ($student) {
             $academicInformation = $student->academicInformations->last();
-            $className = mb_strtolower($academicInformation?->schoolClass?->name_en ?? 'zzz unassigned class');
-            $sectionName = mb_strtolower($academicInformation?->section?->name_en ?? 'zzz unassigned section');
+            $classId = str_pad((string) ($academicInformation?->school_class_id ?? PHP_INT_MAX), 10, '0', STR_PAD_LEFT);
+            $sectionId = str_pad((string) ($academicInformation?->section_id ?? PHP_INT_MAX), 10, '0', STR_PAD_LEFT);
             $roll = $academicInformation?->roll;
             $rollSort = is_numeric($roll) ? str_pad((string) (int) $roll, 10, '0', STR_PAD_LEFT) : '9999999999';
             $studentName = mb_strtolower($student->full_name_en ?? '');
 
-            return "{$className}|{$sectionName}|{$rollSort}|{$studentName}";
+            return "{$classId}|{$sectionId}|{$rollSort}|{$studentName}";
         })->values();
     }
 
