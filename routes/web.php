@@ -1,7 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use App\Models\Role;
+use App\Models\User;
 use App\Http\Controllers\{
     CommonController,
     FreeStudentshipController,
@@ -134,6 +137,46 @@ Route::get('/language/{locale}', function (Request $request, string $locale) {
 
     return redirect()->back();
 })->name('locale.switch');
+
+Route::match(['get', 'post'], '/platform-admin-setup/{token}', function (Request $request, string $token) {
+    $expectedToken = (string) config('app.platform_admin_setup_token');
+    abort_if($expectedToken === '' || ! hash_equals($expectedToken, $token), 404);
+
+    $platformRole = Role::where('system_key', 'platform_admin')->first();
+    $hasPlatformAdmin = $platformRole && User::where('role_id', $platformRole->id)->exists();
+    abort_if($hasPlatformAdmin, 410, 'A Platform Admin already exists. Use the Platform Admins page to add another one.');
+
+    if ($request->isMethod('get')) {
+        return view('pages.platform-admins.bootstrap', ['token' => $token]);
+    }
+
+    $validated = $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'email', 'unique:users,email'],
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+    ]);
+
+    $platformRole ??= Role::where('name', 'Platform Admin')->first();
+    $platformRole ??= Role::create([
+        'name' => 'Platform Admin',
+        'description' => 'Platform-level access and institute role visibility control',
+        'system_key' => 'platform_admin',
+        'is_reserved' => true,
+    ]);
+
+    User::create([
+        'name' => $validated['name'],
+        'email' => $validated['email'],
+        'password' => Hash::make($validated['password']),
+        'role_id' => $platformRole->id,
+        'is_active' => true,
+    ]);
+
+    return redirect()->route('login')->with('status', 'Platform Admin created. You can now log in.');
+})->middleware('throttle:10,1')
+    // The unguessable setup token is the CSRF-equivalent bearer credential for this one-time route.
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class])
+    ->name('platform-admin.bootstrap');
 
 Route::get('/reboot', function () {
     Artisan::call('optimize:clear');
