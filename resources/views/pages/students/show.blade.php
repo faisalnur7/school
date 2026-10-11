@@ -122,7 +122,7 @@
 
         .student-profile-stats {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 0.85rem;
             margin-bottom: 1rem;
         }
@@ -203,6 +203,61 @@
 
         .student-profile-panel-body {
             padding: 1rem;
+        }
+
+        .student-profile-tabs-shell {
+            margin-top: 1.25rem;
+        }
+
+        .student-profile-tabs {
+            display: flex;
+            gap: 0.55rem;
+            padding: 0.35rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background: #f8fafc;
+            scrollbar-width: thin;
+        }
+
+        .student-profile-tab {
+            flex: 0 0 auto;
+            border: 1px solid transparent;
+            border-radius: 11px;
+            padding: 0.65rem 0.9rem;
+            color: #64748b;
+            background: transparent;
+            font-size: 0.84rem;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .student-profile-tab:hover,
+        .student-profile-tab:focus-visible {
+            color: #1d4ed8;
+            outline: none;
+            background: #eff6ff;
+        }
+
+        .student-profile-tab.is-active {
+            color: #1d4ed8;
+            border-color: #bfdbfe;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.1);
+        }
+
+        .student-profile-tab-content > .student-profile-panel {
+            margin: 0 !important;
+        }
+
+        .student-profile-grid--tabs-source {
+            display: none !important;
+        }
+
+        .student-profile-tab-panel[hidden] {
+            display: none !important;
         }
 
         .student-profile-info-grid {
@@ -299,11 +354,20 @@
             border-bottom: 0;
         }
 
-        .student-profile-tabs .nav-tabs {
+        .student-profile-fee-tabs {
+            display: block;
+            padding: 0;
+            margin: 0;
+            overflow: visible;
+            border: 0;
+            background: transparent;
+        }
+
+        .student-profile-fee-tabs .nav-tabs {
             border-bottom: 1px solid #e5e7eb;
         }
 
-        .student-profile-tabs .nav-link {
+        .student-profile-fee-tabs .nav-link {
             border: 0;
             border-bottom: 2px solid transparent;
             color: #6b7280;
@@ -313,7 +377,7 @@
             padding-right: 0.2rem;
         }
 
-        .student-profile-tabs .nav-link.active {
+        .student-profile-fee-tabs .nav-link.active {
             color: #111827;
             border-bottom-color: #111827;
             background: transparent;
@@ -344,6 +408,138 @@
             text-decoration: none;
         }
 
+        html[data-theme='dark'] .student-profile-stat,
+        html.dark .student-profile-stat,
+        html[data-theme='dark'] .student-profile-panel,
+        html.dark .student-profile-panel {
+            background: #111827;
+            border-color: #334155;
+            box-shadow: 0 10px 30px rgba(2, 6, 23, 0.28);
+        }
+
+        html[data-theme='dark'] .student-profile-stat-label,
+        html.dark .student-profile-stat-label,
+        html[data-theme='dark'] .student-profile-stat-note,
+        html.dark .student-profile-stat-note,
+        html[data-theme='dark'] .student-profile-panel-subtitle,
+        html.dark .student-profile-panel-subtitle,
+        html[data-theme='dark'] .student-profile-info-label,
+        html.dark .student-profile-info-label {
+            color: #94a3b8;
+        }
+
+        html[data-theme='dark'] .student-profile-stat-value,
+        html.dark .student-profile-stat-value,
+        html[data-theme='dark'] .student-profile-panel-title,
+        html.dark .student-profile-panel-title,
+        html[data-theme='dark'] .student-profile-info-value,
+        html.dark .student-profile-info-value {
+            color: #f8fafc;
+        }
+
+        html[data-theme='dark'] .student-profile-panel-header,
+        html.dark .student-profile-panel-header {
+            border-bottom-color: #334155;
+        }
+
+        html[data-theme='dark'] .student-profile-tabs,
+        html.dark .student-profile-tabs {
+            border-color: #334155;
+            background: #0f172a;
+        }
+
+        html[data-theme='dark'] .student-profile-tab,
+        html.dark .student-profile-tab {
+            color: #cbd5e1;
+        }
+
+        html[data-theme='dark'] .student-profile-tab:hover,
+        html.dark .student-profile-tab:hover,
+        html[data-theme='dark'] .student-profile-tab:focus-visible,
+        html.dark .student-profile-tab:focus-visible {
+            color: #bfdbfe;
+            background: #1e293b;
+        }
+
+        html[data-theme='dark'] .student-profile-tab.is-active,
+        html.dark .student-profile-tab.is-active {
+            color: #bfdbfe;
+            border-color: #60a5fa;
+            background: #1e293b;
+            box-shadow: 0 4px 12px rgba(2, 6, 23, 0.3);
+        }
+
+        html[data-theme='dark'] .student-profile-info-item,
+        html.dark .student-profile-info-item {
+            border-color: #334155;
+            background: #0f172a;
+        }
+
+        html[data-theme='dark'] .student-profile-table thead th,
+        html.dark .student-profile-table thead th {
+            border-bottom-color: #334155;
+            background: #1e293b;
+            color: #cbd5e1;
+        }
+
+        html[data-theme='dark'] .student-profile-table tbody td,
+        html.dark .student-profile-table tbody td {
+            border-color: #334155;
+            color: #cbd5e1;
+        }
+
+        html[data-theme='dark'] .student-profile-fee-tabs .nav-tabs,
+        html.dark .student-profile-fee-tabs .nav-tabs {
+            border-bottom-color: #334155;
+        }
+
+        html[data-theme='dark'] .student-profile-fee-tabs .nav-link,
+        html.dark .student-profile-fee-tabs .nav-link {
+            color: #94a3b8;
+        }
+
+        html[data-theme='dark'] .student-profile-fee-tabs .nav-link.active,
+        html.dark .student-profile-fee-tabs .nav-link.active {
+            color: #f8fafc;
+            border-bottom-color: #93c5fd;
+        }
+
+        html[data-theme='dark'] .student-profile-empty,
+        html.dark .student-profile-empty {
+            border-color: #475569;
+            color: #94a3b8;
+            background: #0f172a;
+        }
+
+        html[data-theme='dark'] .student-profile-page .text-muted,
+        html.dark .student-profile-page .text-muted {
+            color: #94a3b8 !important;
+        }
+
+        html[data-theme='dark'] .student-profile-badge--secondary,
+        html.dark .student-profile-badge--secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        html[data-theme='dark'] .student-profile-badge--info,
+        html.dark .student-profile-badge--info {
+            background: #1e3a8a;
+            color: #bfdbfe;
+        }
+
+        html[data-theme='dark'] .student-profile-badge--success,
+        html.dark .student-profile-badge--success {
+            background: #14532d;
+            color: #bbf7d0;
+        }
+
+        html[data-theme='dark'] .student-profile-badge--warning,
+        html.dark .student-profile-badge--warning {
+            background: #713f12;
+            color: #fde68a;
+        }
+
         @media (max-width: 1199.98px) {
             .student-profile-grid,
             .student-profile-stats {
@@ -369,6 +565,11 @@
             .student-profile-stats,
             .student-profile-info-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .student-profile-tabs {
+                margin-right: -0.25rem;
+                margin-left: -0.25rem;
             }
 
             .student-profile-name {
@@ -477,6 +678,19 @@
                     <p class="student-profile-stat-value">{{ number_format($inventorySaleCount) }}</p>
                     <p class="student-profile-stat-note">Purchased items from inventory</p>
                 </div>
+            </div>
+
+            <div class="student-profile-tabs-shell">
+                <div class="student-profile-tabs" role="tablist" aria-label="Student profile sections">
+                    <button type="button" class="student-profile-tab is-active" id="student-tab-basic" role="tab" aria-controls="student-profile-panel-basic" aria-selected="true" data-student-tab="basic">Basic Information</button>
+                    <button type="button" class="student-profile-tab" id="student-tab-parents" role="tab" aria-controls="student-profile-panel-parents" aria-selected="false" data-student-tab="parents">Parents and Guardian</button>
+                    <button type="button" class="student-profile-tab" id="student-tab-contact" role="tab" aria-controls="student-profile-panel-contact" aria-selected="false" data-student-tab="contact">Contact and Address</button>
+                    <button type="button" class="student-profile-tab" id="student-tab-academic" role="tab" aria-controls="student-profile-panel-academic" aria-selected="false" data-student-tab="academic">Academic Information</button>
+                    <button type="button" class="student-profile-tab" id="student-tab-fees" role="tab" aria-controls="student-profile-panel-fees" aria-selected="false" data-student-tab="fees">Fee Summary</button>
+                    <button type="button" class="student-profile-tab" id="student-tab-transport" role="tab" aria-controls="student-profile-panel-transport" aria-selected="false" data-student-tab="transport">Transport Assignments</button>
+                    <button type="button" class="student-profile-tab" id="student-tab-inventory" role="tab" aria-controls="student-profile-panel-inventory" aria-selected="false" data-student-tab="inventory">Inventory Purchases</button>
+                </div>
+                <div id="student-profile-tab-content" class="student-profile-tab-content"></div>
             </div>
 
             <div class="student-profile-grid">
@@ -778,7 +992,7 @@
                             @endphp
 
                             @if ($feeGroups->isNotEmpty())
-                                <div class="student-profile-tabs">
+                                <div class="student-profile-fee-tabs">
                                     <ul class="nav nav-tabs" role="tablist">
                                         @foreach ($feeGroups as $group => $fees)
                                             <li class="nav-item" role="presentation">
@@ -1072,4 +1286,81 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script>
+        (() => {
+            const initializeStudentProfileTabs = () => {
+                const page = document.querySelector('.student-profile-page');
+                const tabContent = page?.querySelector('#student-profile-tab-content');
+                const tabList = page?.querySelector('[role="tablist"]');
+                const grid = page?.querySelector('.student-profile-grid');
+
+                if (!page || !tabContent || !tabList || !grid) {
+                    return;
+                }
+
+                const tabKeys = ['basic', 'parents', 'contact', 'academic', 'fees', 'transport', 'inventory'];
+                const panels = Array.from(page.querySelectorAll('.student-profile-panel'));
+                const tabs = Array.from(tabList.querySelectorAll('[data-student-tab]'));
+
+                panels.forEach((panel, index) => {
+                    const key = tabKeys[index];
+
+                    if (!key) {
+                        return;
+                    }
+
+                    panel.id = `student-profile-panel-${key}`;
+                    panel.dataset.studentTabPanel = key;
+                    panel.classList.add('student-profile-tab-panel');
+                    tabContent.appendChild(panel);
+                });
+
+                grid.classList.add('student-profile-grid--tabs-source');
+
+                const activateTab = (key, updateHash = true) => {
+                    tabs.forEach((tab) => {
+                        const isActive = tab.dataset.studentTab === key;
+                        tab.classList.toggle('is-active', isActive);
+                        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                        tab.tabIndex = isActive ? 0 : -1;
+                    });
+
+                    page.querySelectorAll('[data-student-tab-panel]').forEach((panel) => {
+                        panel.hidden = panel.dataset.studentTabPanel !== key;
+                    });
+
+                    if (updateHash && window.history.replaceState) {
+                        window.history.replaceState(null, '', `#student-tab-${key}`);
+                    }
+                };
+
+                tabs.forEach((tab, index) => {
+                    tab.addEventListener('click', () => activateTab(tab.dataset.studentTab));
+                    tab.addEventListener('keydown', (event) => {
+                        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+                            return;
+                        }
+
+                        event.preventDefault();
+                        const offset = event.key === 'ArrowLeft' ? -1 : event.key === 'ArrowRight' ? 1 : 0;
+                        const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + offset + tabs.length) % tabs.length;
+                        tabs[nextIndex].focus();
+                        activateTab(tabs[nextIndex].dataset.studentTab);
+                    });
+                });
+
+                const hashKey = window.location.hash.replace('#student-tab-', '');
+                activateTab(tabKeys.includes(hashKey) ? hashKey : 'basic', false);
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeStudentProfileTabs);
+            } else {
+                initializeStudentProfileTabs();
+            }
+        })();
+    </script>
 @endsection

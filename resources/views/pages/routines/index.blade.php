@@ -305,19 +305,24 @@
                         <tbody>
                             @forelse($teacherwisePlaygroundRows as $row)
                                 <tr>
-                                    <th class="routine-board-day-cell">{{ $row['teacher'] }}</th>
+                                    <th class="routine-board-day-cell">
+                                        {{ $row['teacher'] }}
+                                        <span class="teacherwise-teacher-class-count">({{ $row['class_count'] ?? 0 }} {{ ($row['class_count'] ?? 0) === 1 ? 'class' : 'classes' }})</span>
+                                    </th>
                                     @foreach($periods as $period)
                                         @php $periodKey = $period->id ? 'id:' . $period->id : 'start:' . $period->start_time; $cellRoutines = $row['periods'][$periodKey] ?? []; @endphp
                                         <td class="routine-board-dropzone teacherwise-playground-dropzone" data-teacher-id="{{ $row['teacher_id'] }}" data-period-id="{{ $period->id }}">
-                                            @foreach($cellRoutines as $routine)
-                                                <div class="routine-board-card teacherwise-playground-card" draggable="true" data-routine-id="{{ $routine->id }}" data-day="{{ $routine->day }}" data-period-id="{{ $period->id }}" data-subject-id="{{ $routine->subject_id }}" data-class-id="{{ $routine->school_class_id }}" data-section-id="{{ $routine->section_id }}">
-                                                    <button type="button" class="teacherwise-card-remove" title="Remove lesson" aria-label="Remove {{ $routine->subject?->name ?? 'lesson' }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
-                                                    <strong>{{ $routine->subject?->name ?? '—' }}</strong>
-                                                    <span>{{ $routine->schoolClass?->name_en ?? '—' }} - {{ $routine->section?->name_en ?? '—' }}</span>
-                                                    <small>{{ $shortDays[$routine->day] ?? $routine->day }}</small>
-                                                </div>
-                                            @endforeach
-                                            @if(!$cellRoutines)<span class="routine-board-drop-hint"><i class="fas fa-plus"></i></span>@endif
+                                            <div class="teacherwise-playground-cell-grid">
+                                                @foreach($cellRoutines as $routine)
+                                                    <div class="routine-board-card teacherwise-playground-card" draggable="true" data-routine-id="{{ $routine->id }}" data-day="{{ $routine->day }}" data-period-id="{{ $period->id }}" data-subject-id="{{ $routine->subject_id }}" data-class-id="{{ $routine->school_class_id }}" data-section-id="{{ $routine->section_id }}">
+                                                        <button type="button" class="teacherwise-card-remove" title="Remove lesson" aria-label="Remove {{ $routine->subject?->name ?? 'lesson' }}"><i class="fas fa-times" aria-hidden="true"></i></button>
+                                                        <strong>{{ $routine->subject?->name ?? '—' }}</strong>
+                                                        <span>{{ $routine->schoolClass?->name_en ?? '—' }} - {{ $routine->section?->name_en ?? '—' }}</span>
+                                                        <small>{{ $shortDays[$routine->day] ?? $routine->day }}</small>
+                                                    </div>
+                                                @endforeach
+                                                @if(!$cellRoutines)<span class="routine-board-drop-hint"><i class="fas fa-plus"></i></span>@endif
+                                            </div>
                                         </td>
                                     @endforeach
                                 </tr>
@@ -1113,6 +1118,7 @@
     .routine-playground-board tbody td,
     .routine-board-dropzone { position: relative; height: 7.7rem; padding: .5rem; background: #fff; vertical-align: top !important; transition: background .16s ease, box-shadow .16s ease; }
     .routine-board-dropzone.is-over { background: #eff6ff; box-shadow: inset 0 0 0 2px #60a5fa; }
+    .teacherwise-playground-dropzone.is-invalid-drop { background: #fff1f2; box-shadow: inset 0 0 0 2px #ef4444; }
     .routine-board-dropzone.has-routine { background: #fbfdff; }
     .routine-board-drop-hint { display: grid; place-items: center; height: 100%; color: #cbd5e1; font-size: .78rem; opacity: 0; transition: opacity .16s ease; }
     .routine-board-dropzone:hover .routine-board-drop-hint, .routine-board-dropzone.is-over .routine-board-drop-hint { opacity: 1; }
@@ -1129,20 +1135,33 @@
         min-height: 7.7rem;
     }
 
+    .teacherwise-playground-cell-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .35rem;
+        align-content: start;
+    }
+
+    .teacherwise-playground-cell-grid .teacherwise-playground-card:only-child { grid-column: 1 / -1; }
+    .teacherwise-playground-cell-grid .routine-board-drop-hint { grid-column: 1 / -1; }
+    .teacherwise-teacher-class-count { display: inline-block; margin-left: .25rem; color: #64748b; font-size: .7rem; font-weight: 700; white-space: nowrap; }
+
     .teacherwise-playground-board .teacherwise-playground-card {
         position: relative;
         inset: auto;
         min-height: 0;
-        margin-bottom: .45rem;
+        min-width: 0;
+        margin-bottom: 0;
     }
 
     .teacherwise-playground-board .teacherwise-playground-card:last-child { margin-bottom: 0; }
-    .teacherwise-playground-card { padding-right: 2rem; }
-    .teacherwise-card-remove { position: absolute; top: .45rem; right: .45rem; width: 1.35rem; height: 1.35rem; display: grid; place-items: center; padding: 0; border: 0; border-radius: .35rem; background: transparent; color: #ef4444; font-size: .65rem; opacity: .72; cursor: pointer; }
+    .teacherwise-playground-card { padding: .4rem 1.45rem .4rem .45rem; border-radius: .5rem; border-left-width: 2px; }
+    .teacherwise-card-remove { position: absolute; top: .25rem; right: .25rem; width: 1.05rem; height: 1.05rem; display: grid; place-items: center; padding: 0; border: 0; border-radius: .25rem; background: transparent; color: #ef4444; font-size: .55rem; opacity: .72; cursor: pointer; }
     .teacherwise-card-remove:hover, .teacherwise-card-remove:focus { background: #fee2e2; color: #b91c1c; opacity: 1; outline: 0; }
+    .teacherwise-playground-card strong { display: block; overflow: hidden; color: #1e3a8a; font-size: .72rem; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
     .teacherwise-playground-card span,
-    .teacherwise-playground-card small { display: block; margin-top: .35rem; color: #475569; font-size: .68rem; line-height: 1.2; }
-    .teacherwise-playground-card small { color: #2563eb; font-weight: 800; }
+    .teacherwise-playground-card small { display: block; margin-top: .15rem; color: #475569; font-size: .6rem; line-height: 1.05; }
+    .teacherwise-playground-card small { color: #2563eb; font-size: .58rem; font-weight: 800; }
 
     .teacherwise-subject-palette {
         margin-bottom: 1rem;
@@ -1393,6 +1412,28 @@ document.addEventListener('DOMContentLoaded', function () {
     let dirty = false;
 
     const markDirty = () => { dirty = true; };
+    const cellGrid = (cell) => cell?.querySelector('.teacherwise-playground-cell-grid') || cell;
+    const allPlaygroundCards = () => [...board.querySelectorAll('.teacherwise-playground-card')];
+    const flashInvalidDrop = (cell) => {
+        cell?.classList.remove('is-invalid-drop');
+        void cell?.offsetWidth;
+        cell?.classList.add('is-invalid-drop');
+        window.setTimeout(() => cell?.classList.remove('is-invalid-drop'), 900);
+    };
+    const hasSectionConflict = (cardData, targetCell, day, exceptCard = null) => allPlaygroundCards().some((card) =>
+        card !== exceptCard
+        && card.dataset.classId === String(cardData.classId)
+        && card.dataset.sectionId === String(cardData.sectionId)
+        && card.dataset.day === day
+        && card.closest('.teacherwise-playground-dropzone')?.dataset.periodId === targetCell.dataset.periodId
+    );
+    const hasTeacherConflict = (targetCell, day, exceptCard = null) => [...targetCell.querySelectorAll('.teacherwise-playground-card')].some((card) =>
+        card !== exceptCard && card.dataset.day === day
+    );
+    const rejectDrop = (cell, message) => {
+        flashInvalidDrop(cell);
+        notify(message, 'error');
+    };
 
     const notify = (message, type = 'warning') => {
         if (window.toastr) toastr[type](message);
@@ -1435,7 +1476,7 @@ document.addEventListener('DOMContentLoaded', function () {
         card.dataset.subjectId = data.subjectId;
         card.dataset.classId = data.classId;
         card.dataset.sectionId = data.sectionId;
-        card.innerHTML = `<button type="button" class="teacherwise-card-remove" title="Remove lesson" aria-label="Remove lesson"><i class="fas fa-trash" aria-hidden="true"></i></button><strong></strong><span></span><small></small>`;
+        card.innerHTML = `<button type="button" class="teacherwise-card-remove" title="Remove lesson" aria-label="Remove lesson"><i class="fas fa-times" aria-hidden="true"></i></button><strong></strong><span></span><small></small>`;
         card.querySelector('strong').textContent = data.subjectName;
         card.querySelector('span').textContent = `${data.className} - ${data.sectionName}`;
         card.querySelector('small').textContent = day.slice(0, 3);
@@ -1522,7 +1563,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data?.type === 'subject') {
                 const occupiedDays = new Set([...cell.querySelectorAll('.teacherwise-playground-card')].map((card) => card.dataset.day));
                 if (occupiedDays.size >= modalDays.length) {
-                    notify('This teacher already has routines on all available days in this period.');
+                    rejectDrop(cell, 'This teacher already has routines on all available days in this period.');
                     return;
                 }
                 pendingSubject = {...data, periodId: cell.dataset.periodId, cell};
@@ -1534,7 +1575,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
             const card = document.querySelector(`.teacherwise-playground-card[data-routine-id="${CSS.escape(payload)}"]`);
-            if (card) { cell.appendChild(card); markDirty(); }
+            if (!card) return;
+            const sourceCell = card.closest('.teacherwise-playground-dropzone');
+            if (sourceCell === cell) return;
+            if (hasTeacherConflict(cell, card.dataset.day, card)) {
+                rejectDrop(cell, 'This teacher already has a routine on the same day and period.');
+                return;
+            }
+            if (hasSectionConflict(card.dataset, cell, card.dataset.day, card)) {
+                rejectDrop(cell, 'A section can have only one routine in the same period and day.');
+                return;
+            }
+            cellGrid(cell).appendChild(card);
+            markDirty();
         });
     });
 
@@ -1547,7 +1600,17 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!pendingSubject) return;
         const days = selectedDays();
         if (!days.length) { notify('Select at least one teaching day.'); return; }
-        days.forEach((day) => pendingSubject.cell.appendChild(cardTemplate(pendingSubject, day)));
+        for (const day of days) {
+            if (hasTeacherConflict(pendingSubject.cell, day)) {
+                rejectDrop(pendingSubject.cell, 'This teacher already has a routine on the same day and period.');
+                return;
+            }
+            if (hasSectionConflict(pendingSubject, pendingSubject.cell, day)) {
+                rejectDrop(pendingSubject.cell, 'A section can have only one routine in the same period and day.');
+                return;
+            }
+        }
+        days.forEach((day) => cellGrid(pendingSubject.cell).appendChild(cardTemplate(pendingSubject, day)));
         markDirty();
         pendingSubject = null;
         subjectModal.modal('hide');

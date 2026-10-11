@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'audit.trail' => \App\Http\Middleware\RecordAuditTrail::class,
             'student.api' => \App\Http\Middleware\EnsureStudentApiAccount::class,
+            'platform.admin' => \App\Http\Middleware\EnsurePlatformAdmin::class,
         ]);
 
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);

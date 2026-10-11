@@ -86,7 +86,10 @@ class RoleController extends Controller
 
     private function buildPermissionSections(): array
     {
-        $permissions = Permission::with('category')->orderBy('id')->get();
+        $permissions = Permission::with('category')
+            ->when(!auth()->user()?->isPlatformAdmin(), fn ($query) => $query->where('exposed_to_roles', true))
+            ->orderBy('id')
+            ->get();
         $categoryOrder = $this->permissionCategoryOrder();
         $columnKeys = array_keys($this->permissionColumns());
 
@@ -132,7 +135,10 @@ class RoleController extends Controller
 
     public function index()
     {
-        $roles = Role::withCount('permissions')->paginate(15);
+        $roles = Role::query()
+            ->when(!auth()->user()?->isPlatformAdmin(), fn ($query) => $query->where('is_reserved', false))
+            ->withCount('permissions')
+            ->paginate(15);
         return view('pages.roles.index', compact('roles'));
     }
 
@@ -154,6 +160,8 @@ class RoleController extends Controller
             'permissions.*' => 'exists:permissions,id',
         ]);
 
+        $this->validateExposedPermissions($validated['permissions'] ?? []);
+
         DB::transaction(function () use ($validated) {
             $role = Role::create([
                 'name' => $validated['name'],
@@ -168,6 +176,7 @@ class RoleController extends Controller
 
     public function edit(Role $role)
     {
+        abort_if($role->is_reserved && !auth()->user()?->isPlatformAdmin(), 404);
         $rolePermissions = $role->permissions()->pluck('id')->toArray();
         $permissionSections = $this->buildPermissionSections();
         $permissionColumns = $this->permissionColumns();
@@ -178,12 +187,16 @@ class RoleController extends Controller
 
     public function update(Request $request, Role $role)
     {
+        abort_if($role->is_reserved && !auth()->user()?->isPlatformAdmin(), 404);
+
         $validated = $request->validate([
             'name' => 'required|string|max:50|unique:roles,name,' . $role->id,
             'description' => 'nullable|string',
             'permissions' => 'nullable|array',
             'permissions.*' => 'exists:permissions,id',
         ]);
+
+        $this->validateExposedPermissions($validated['permissions'] ?? []);
 
         DB::transaction(function () use ($validated, $role) {
             $role->update([
@@ -199,11 +212,24 @@ class RoleController extends Controller
 
     public function destroy(Role $role)
     {
+        abort_if($role->is_reserved && !auth()->user()?->isPlatformAdmin(), 404);
         if (!auth()->user()->is_super_admin) {
             return redirect()->route('roles.index')->with('error', 'Only Super Admin can delete roles');
         }
 
         $role->delete();
         return redirect()->route('roles.index')->with('success', 'Role deleted successfully');
+    }
+
+    private function validateExposedPermissions(array $permissionIds): void
+    {
+        if (auth()->user()?->isPlatformAdmin()) {
+            return;
+        }
+
+        $allowed = Permission::where('exposed_to_roles', true)->pluck('id')->map(fn ($id) => (int) $id)->all();
+        validator(['permissions' => $permissionIds], [
+            'permissions.*' => ['in:' . implode(',', $allowed)],
+        ])->validate();
     }
 }

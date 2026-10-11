@@ -2777,3 +2777,196 @@ html.dark .admission-exams-page .overview-card strong,
 html.dark .admission-exams-page .exam-card h4 {
     color: #f8fafc !important;
 }
+
+/* Screen-only dark coverage for custom authenticated components.
+ * Printable/PDF templates intentionally remain light and are not targeted here.
+ */
+@media screen {
+    html[data-theme='dark'] .permission-card-tile,
+    html.dark .permission-card-tile {
+        background: #111827 !important;
+        border-color: rgba(148, 163, 184, 0.28) !important;
+        color: #e2e8f0 !important;
+        box-shadow: 0 8px 22px rgba(2, 6, 23, 0.3) !important;
+    }
+
+    html[data-theme='dark'] .permission-card-tile__title,
+    html.dark .permission-card-tile__title,
+    html[data-theme='dark'] .permission-row-label,
+    html.dark .permission-row-label {
+        color: #f8fafc !important;
+    }
+
+    html[data-theme='dark'] .permission-card-tile__subtitle,
+    html.dark .permission-card-tile__subtitle,
+    html[data-theme='dark'] .permission-card-tile__icon,
+    html.dark .permission-card-tile__icon {
+        color: #94a3b8 !important;
+    }
+
+    html[data-theme='dark'] :is(.permission-modal__content, .permission-modal__header, .permission-modal__footer, .permission-modal__body),
+    html.dark :is(.permission-modal__content, .permission-modal__header, .permission-modal__footer, .permission-modal__body) {
+        background: #111827 !important;
+        border-color: rgba(148, 163, 184, 0.2) !important;
+        color: #e2e8f0 !important;
+    }
+
+    html[data-theme='dark'] .permission-matrix th,
+    html[data-theme='dark'] .permission-matrix td,
+    html.dark .permission-matrix th,
+    html.dark .permission-matrix td {
+        border-color: rgba(148, 163, 184, 0.18) !important;
+        color: #cbd5e1 !important;
+    }
+
+    html[data-theme='dark'] .permission-matrix thead th,
+    html.dark .permission-matrix thead th {
+        background: #1e293b !important;
+        color: #cbd5e1 !important;
+    }
+
+    html[data-theme='dark'] .communications-page,
+    html.dark .communications-page {
+        --chat-bg: linear-gradient(180deg, #0f172a 0%, #111827 48%, #0b1220 100%);
+        --chat-surface: rgba(17, 24, 39, 0.96);
+        --chat-border: rgba(148, 163, 184, 0.24);
+        color: #e2e8f0;
+    }
+
+    html[data-theme='dark'] .communications-page .communications-hero,
+    html.dark .communications-page .communications-hero,
+    html[data-theme='dark'] .communications-page .communications-panel,
+    html.dark .communications-page .communications-panel,
+    html[data-theme='dark'] .communications-page .communications-people__item,
+    html.dark .communications-page .communications-people__item,
+    html[data-theme='dark'] .communications-page .communications-search__results,
+    html.dark .communications-page .communications-search__results {
+        background: #111827 !important;
+        border-color: rgba(148, 163, 184, 0.24) !important;
+        color: #e2e8f0 !important;
+        box-shadow: 0 16px 42px rgba(2, 6, 23, 0.3) !important;
+    }
+
+    html[data-theme='dark'] .communications-page :is(.communications-hero__title, .communications-panel__title, .communications-search__input, .communications-search__result-name, .communications-people__title),
+    html.dark .communications-page :is(.communications-hero__title, .communications-panel__title, .communications-search__input, .communications-search__result-name, .communications-people__title) {
+        color: #f8fafc !important;
+    }
+
+    html[data-theme='dark'] .communications-page :is(.communications-panel__subtitle, .communications-search__result-meta, .communications-search__empty, .communications-people__hint),
+    html.dark .communications-page :is(.communications-panel__subtitle, .communications-search__result-meta, .communications-search__empty, .communications-people__hint) {
+        color: #94a3b8 !important;
+    }
+
+    html[data-theme='dark'] .communications-page :is(.communications-search__wrap, .communications-search__result-action),
+    html.dark .communications-page :is(.communications-search__wrap, .communications-search__result-action) {
+        background: #0f172a !important;
+        border-color: rgba(96, 165, 250, 0.35) !important;
+        color: #bfdbfe !important;
+    }
+
+    html[data-theme='dark'] .communications-page .communications-search__result:hover,
+    html.dark .communications-page .communications-search__result:hover,
+    html[data-theme='dark'] .communications-page .communications-people__item:hover,
+    html.dark .communications-page .communications-people__item:hover {
+        background: #1e293b !important;
+    }
+
+    html[data-theme='dark'] .transactions-report :is(.transactions-pdf-panel, .transactions-filter-form, .transactions-mobile-filter-toggle),
+    html.dark .transactions-report :is(.transactions-pdf-panel, .transactions-filter-form, .transactions-mobile-filter-toggle) {
+        background: #111827 !important;
+        border-color: rgba(148, 163, 184, 0.24) !important;
+        color: #e2e8f0 !important;
+    }
+
+    html[data-theme='dark'] .transactions-report :is(.transactions-pdf-title, .transactions-pdf-toggle, .transactions-pdf-option .form-check-label),
+    html.dark .transactions-report :is(.transactions-pdf-title, .transactions-pdf-toggle, .transactions-pdf-option .form-check-label) {
+        color: #f8fafc !important;
+    }
+
+    html[data-theme='dark'] .transactions-report :is(.transactions-pdf-subtitle, .transactions-summary-label),
+    html.dark .transactions-report :is(.transactions-pdf-subtitle, .transactions-summary-label) {
+        color: #94a3b8 !important;
+    }
+
+    html[data-theme='dark'] .transactions-report .transactions-pdf-panel .form-check-input,
+    html.dark .transactions-report .transactions-pdf-panel .form-check-input {
+        background-color: #0f172a !important;
+        border-color: #64748b !important;
+    }
+
+    html[data-theme='dark'] .transactions-report .transactions-pdf-panel .form-check-input:checked,
+    html.dark .transactions-report .transactions-pdf-panel .form-check-input:checked {
+        background-color: #2563eb !important;
+        border-color: #60a5fa !important;
+    }
+
+    html[data-theme='dark'] :is(.product-form-page, .purchase-page, .transport-page) :is(.card, .card-header, .card-body, .card-footer, .section-card, .order-info-card, .product-panel, .product-classwise-box),
+    html.dark :is(.product-form-page, .purchase-page, .transport-page) :is(.card, .card-header, .card-body, .card-footer, .section-card, .order-info-card, .product-panel, .product-classwise-box) {
+        background-color: #111827 !important;
+        border-color: rgba(148, 163, 184, 0.22) !important;
+        color: #e2e8f0 !important;
+    }
+
+    html[data-theme='dark'] :is(.product-form-page, .purchase-page, .transport-page) :is(.product-form-section__title, .product-form-section__eyebrow, .product-form-label, .product-form-subtitle, .product-note, .product-panel, .purchase-header),
+    html.dark :is(.product-form-page, .purchase-page, .transport-page) :is(.product-form-section__title, .product-form-section__eyebrow, .product-form-label, .product-form-subtitle, .product-note, .product-panel, .purchase-header) {
+        color: #e2e8f0 !important;
+    }
+
+    html[data-theme='dark'] :is(.product-form-page, .purchase-page, .transport-page) :is(.product-option-box, .product-stock-summary, .product-input-group .input-group-text, .purchase-table thead th),
+    html.dark :is(.product-form-page, .purchase-page, .transport-page) :is(.product-option-box, .product-stock-summary, .product-input-group .input-group-text, .purchase-table thead th) {
+        background: #0f172a !important;
+        border-color: rgba(148, 163, 184, 0.22) !important;
+        color: #cbd5e1 !important;
+    }
+
+    html[data-theme='dark'] .transport-amount-display,
+    html.dark .transport-amount-display {
+        color: #93c5fd !important;
+    }
+
+    html[data-theme='dark'] .transport-row-actions,
+    html.dark .transport-row-actions {
+        color: #e2e8f0;
+    }
+
+    html[data-theme='dark'] :is(.yearly-template-page, .progress-template-preview) :is(.card, .card-header, .card-body, .yearly-template-tabs, .progress-template-preview-panel),
+    html.dark :is(.yearly-template-page, .progress-template-preview) :is(.card, .card-header, .card-body, .yearly-template-tabs, .progress-template-preview-panel) {
+        background-color: #111827 !important;
+        border-color: rgba(148, 163, 184, 0.22) !important;
+        color: #e2e8f0 !important;
+    }
+
+    html[data-theme='dark'] :is(.yearly-template-page, .progress-template-preview) :is(.text-muted, label, .form-label, p, small, h1, h2, h3, h4, h5, h6),
+    html.dark :is(.yearly-template-page, .progress-template-preview) :is(.text-muted, label, .form-label, p, small, h1, h2, h3, h4, h5, h6) {
+        color: #cbd5e1 !important;
+    }
+
+    html[data-theme='dark'] .certificate-editor-page :is(.certificate-settings-card, .certificate-layout-panel, .certificate-settings-section, .certificate-editor-actionbar, .certificate-sample-toolbar, .certificate-zoom-toolbar, .template-card),
+    html.dark .certificate-editor-page :is(.certificate-settings-card, .certificate-layout-panel, .certificate-settings-section, .certificate-editor-actionbar, .certificate-sample-toolbar, .certificate-zoom-toolbar, .template-card) {
+        background: #111827 !important;
+        border-color: rgba(148, 163, 184, 0.24) !important;
+        color: #e2e8f0 !important;
+    }
+
+    html[data-theme='dark'] .certificate-editor-page :is(.workspace-tab, .certificate-editor-tab, .certificate-settings-section > summary, .certificate-settings-section > summary small, .certificate-settings-presets label, .certificate-position-toolbar label, .certificate-layout-panel .form-label),
+    html.dark .certificate-editor-page :is(.workspace-tab, .certificate-editor-tab, .certificate-settings-section > summary, .certificate-settings-section > summary small, .certificate-settings-presets label, .certificate-position-toolbar label, .certificate-layout-panel .form-label) {
+        color: #cbd5e1 !important;
+    }
+
+    html[data-theme='dark'] .certificate-editor-page :is(.workspace-tab.is-active, .certificate-editor-tab.is-active),
+    html.dark .certificate-editor-page :is(.workspace-tab.is-active, .certificate-editor-tab.is-active) {
+        color: #bfdbfe !important;
+        background: #1e293b !important;
+    }
+
+    html[data-theme='dark'] .certificate-editor-page .certificate-confirm-dialog,
+    html.dark .certificate-editor-page .certificate-confirm-dialog {
+        background: #111827 !important;
+        color: #e2e8f0 !important;
+    }
+
+    html[data-theme='dark'] .certificate-editor-page .certificate-confirm-dialog :is(h5, p),
+    html.dark .certificate-editor-page .certificate-confirm-dialog :is(h5, p) {
+        color: #e2e8f0 !important;
+    }
+}

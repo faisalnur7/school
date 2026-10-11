@@ -6,16 +6,21 @@ use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $roles = Role::query()->withCount('users')->orderBy('name')->get();
-        $totalUsers = User::count();
+        $roles = Role::query()
+            ->when(!auth()->user()?->isPlatformAdmin(), fn ($query) => $query->where('system_key', '!=', 'platform_admin'))
+            ->withCount(['users' => fn ($query) => $query->withoutPlatformAdmins()])
+            ->orderBy('name')
+            ->get();
+        $totalUsers = User::withoutPlatformAdmins()->count();
         $selectedRole = $request->query('role', 'all');
 
-        $usersQuery = User::with('role')->latest('id');
+        $usersQuery = User::withoutPlatformAdmins()->with('role')->latest('id');
 
         if ($selectedRole === 'make-super-admin') {
             $usersQuery->where('is_super_admin', false);
@@ -32,7 +37,7 @@ class UserController extends Controller
 
     public function create()
     {
-        $roles = Role::all();
+        $roles = Role::assignableToInstituteUsers()->get();
         return view('pages.users.create', compact('roles'));
     }
 
@@ -42,7 +47,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6|confirmed',
-            'role_id' => 'nullable|exists:roles,id',
+            'role_id' => ['nullable', Rule::exists('roles', 'id')->where(fn ($query) => $query->where('is_reserved', false))],
             'is_active' => 'nullable|boolean',
             'login_verification_enabled' => 'nullable|boolean',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -71,18 +76,20 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        $roles = Role::all();
+        abort_if($user->role?->is_reserved, 404);
+        $roles = Role::assignableToInstituteUsers()->get();
         return view('pages.users.edit', compact('user', 'roles'));
     }
 
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        abort_if($user->role?->is_reserved, 404);
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
-            'role_id' => 'nullable|exists:roles,id',
+            'role_id' => ['nullable', Rule::exists('roles', 'id')->where(fn ($query) => $query->where('is_reserved', false))],
             'is_active' => 'nullable|boolean',
             'login_verification_enabled' => 'nullable|boolean',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -127,6 +134,7 @@ class UserController extends Controller
     public function toggleStatus($id)
     {
         $user = User::findOrFail($id);
+        abort_if($user->role?->is_reserved, 404);
         $user->is_active = ! $user->is_active;
 
         if (! $user->is_active) {
@@ -152,7 +160,9 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        User::findOrFail($id)->delete();
+        $user = User::findOrFail($id);
+        abort_if($user->role?->is_reserved, 404);
+        $user->delete();
         return redirect()->route('users.index')->with('success', 'User deleted successfully');
     }
 }
