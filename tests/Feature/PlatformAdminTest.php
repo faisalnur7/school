@@ -166,4 +166,28 @@ class PlatformAdminTest extends TestCase
             ->assertSee('platform-admins-header', false)
             ->assertSee('platform-admins-header__action', false);
     }
+
+    public function test_token_protected_bootstrap_route_creates_the_first_platform_admin_without_migrating(): void
+    {
+        config(['app.platform_admin_setup_token' => 'test-bootstrap-token']);
+
+        $this->get(route('platform-admin.bootstrap', ['token' => 'test-bootstrap-token']))
+            ->assertOk()
+            ->assertSee('Create the first Platform Admin');
+
+        $this->post(route('platform-admin.bootstrap', ['token' => 'test-bootstrap-token']), [
+            'name' => 'Bootstrap Platform Admin',
+            'email' => 'bootstrap-platform@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])->assertRedirect(route('login'));
+
+        $this->assertDatabaseHas('roles', [
+            'system_key' => 'platform_admin',
+            'is_reserved' => true,
+        ]);
+        $this->assertDatabaseHas('users', [
+            'email' => 'bootstrap-platform@example.com',
+        ]);
+    }
 }
