@@ -173,7 +173,10 @@ Route::match(['get', 'post'], '/platform-admin-setup/{token}', function (Request
     ]);
 
     return redirect()->route('login')->with('status', 'Platform Admin created. You can now log in.');
-})->middleware('throttle:10,1')->name('platform-admin.bootstrap');
+})->middleware('throttle:10,1')
+    // The unguessable setup token is the CSRF-equivalent bearer credential for this one-time route.
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class])
+    ->name('platform-admin.bootstrap');
 
 Route::get('/reboot', function () {
     Artisan::call('optimize:clear');
