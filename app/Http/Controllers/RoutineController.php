@@ -11,6 +11,7 @@ use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Subject;
 use App\Models\SubjectClassAssignment;
+use App\Models\RoutineTeacherOrder;
 use App\Models\WeekendSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -115,6 +116,9 @@ class RoutineController extends Controller
         }
         if ($viewType === 'teacherwise-playground') {
             $teacherwisePlaygroundRows = $this->buildTeacherwisePlaygroundRows($routines);
+            $savedTeacherOrder = $selectedAcademicSessionId
+                ? RoutineTeacherOrder::where('academic_session_id', $selectedAcademicSessionId)->pluck('sort_order', 'teacher_id')
+                : collect();
             foreach (Employee::active()->where('employee_type', 'teacher')->orderBy('name')->get(['id', 'name']) as $teacher) {
                 $teacherwisePlaygroundRows[(string) $teacher->id] ??= [
                     'teacher' => $teacher->name,
@@ -122,7 +126,14 @@ class RoutineController extends Controller
                     'periods' => [],
                 ];
             }
-            uasort($teacherwisePlaygroundRows, fn ($left, $right) => strnatcasecmp($left['teacher'], $right['teacher']));
+            uasort($teacherwisePlaygroundRows, function ($left, $right) use ($savedTeacherOrder) {
+                $leftOrder = $savedTeacherOrder->get((int) $left['teacher_id'], PHP_INT_MAX);
+                $rightOrder = $savedTeacherOrder->get((int) $right['teacher_id'], PHP_INT_MAX);
+
+                return $leftOrder === $rightOrder
+                    ? strnatcasecmp($left['teacher'], $right['teacher'])
+                    : $leftOrder <=> $rightOrder;
+            });
             $teacherwisePalette = SubjectClassAssignment::query()
                 ->where('is_active', true)
                 ->with(['subject', 'schoolClass'])
@@ -186,6 +197,12 @@ class RoutineController extends Controller
         $data = $request->validate([
             'academic_session_id' => ['required', 'exists:academic_sessions,id'],
             'items' => ['present', 'array'],
+            'teacher_order' => ['present', 'array'],
+            'teacher_order.*' => [
+                'integer',
+                'distinct',
+                Rule::exists('employees', 'id')->where(fn ($query) => $query->where('status', 'active')->where('employee_type', 'teacher')),
+            ],
             'items.*.id' => ['nullable', 'integer'],
             'items.*.subject_id' => ['required', 'exists:subjects,id'],
             'items.*.school_class_id' => ['required', 'exists:school_classes,id'],
@@ -203,6 +220,7 @@ class RoutineController extends Controller
 
         $sessionId = (int) $data['academic_session_id'];
         $items = collect($data['items']);
+        $teacherOrder = collect($data['teacher_order'])->map(fn ($teacherId) => (int) $teacherId)->values();
         $submittedIds = $items->pluck('id')->filter()->map(fn ($id) => (int) $id);
         $routines = ClassRoutine::where('academic_session_id', $sessionId)
             ->whereIn('id', $submittedIds->unique())
@@ -294,7 +312,7 @@ class RoutineController extends Controller
             ->when($submittedIds->isNotEmpty(), fn ($query) => $query->whereNotIn('id', $submittedIds->all()))
             ->pluck('id');
 
-        DB::transaction(function () use ($changes, $deletedIds) {
+        DB::transaction(function () use ($changes, $deletedIds, $sessionId, $teacherOrder) {
             if ($deletedIds->isNotEmpty()) {
                 ClassRoutine::whereIn('id', $deletedIds)->delete();
             }
@@ -321,6 +339,24 @@ class RoutineController extends Controller
                     'start_time' => $change['start_time'],
                     'end_time' => $change['end_time'],
                 ]);
+            }
+
+            RoutineTeacherOrder::where('academic_session_id', $sessionId)
+                ->when($teacherOrder->isNotEmpty(), fn ($query) => $query->whereNotIn('teacher_id', $teacherOrder->all()))
+                ->delete();
+
+            if ($teacherOrder->isNotEmpty()) {
+                RoutineTeacherOrder::upsert(
+                    $teacherOrder->map(fn ($teacherId, $index) => [
+                        'academic_session_id' => $sessionId,
+                        'teacher_id' => $teacherId,
+                        'sort_order' => $index,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ])->all(),
+                    ['academic_session_id', 'teacher_id'],
+                    ['sort_order', 'updated_at']
+                );
             }
         });
 

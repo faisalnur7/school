@@ -277,7 +277,8 @@ class DashboardController extends Controller
                     'name' => $student->full_name_en ?: $student->full_name_bn ?: __('Student'),
                     'date' => $birthDate,
                     'days_until' => $daysUntil,
-                    'label' => $daysUntil === 0 ? __('Today') : __('In :days days', ['days' => $daysUntil]),
+                    'label' => (int) $daysUntil === 0 ? __('Today is birthday') : __('In :days days', ['days' => $daysUntil]),
+                    'link' => route('students.birthdays.card.preview', $student),
                     'class' => $academicInfo?->schoolClass?->name_en,
                     'section' => $academicInfo?->section?->name_en,
                 ];

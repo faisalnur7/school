@@ -274,14 +274,14 @@
                 <div class="card-body-modern dashboard-triple-body">
                     <div class="birthday-list">
                         @forelse($upcoming_birthdays as $birthday)
-                            <div class="birthday-item">
+                            <a class="birthday-item birthday-item-link" href="{{ $birthday['link'] ?? '#' }}">
                                 <div class="birthday-avatar">
                                     <i class="fas fa-user"></i>
                                 </div>
                                 <div class="birthday-content">
                                     <div class="birthday-row">
                                         <strong>{{ $birthday['name'] }}</strong>
-                                        <span class="birthday-badge {{ $birthday['days_until'] === 0 ? 'today' : 'upcoming' }}">{{ $birthday['label'] }}</span>
+                                        <span class="birthday-badge {{ (int) $birthday['days_until'] === 0 ? 'today' : 'upcoming' }}">{{ (int) $birthday['days_until'] === 0 ? __('Today is birthday') : $birthday['label'] }}</span>
                                     </div>
                                     <div class="birthday-meta">
                                         <span>{{ $birthday['date']->format('M d') }}</span>
@@ -292,7 +292,7 @@
                                         @endif
                                     </div>
                                 </div>
-                            </div>
+                            </a>
                         @empty
                             <p class="text-muted text-center py-4 mb-0">{{ __('No birthdays in the next 5 days') }}</p>
                         @endforelse
@@ -738,6 +738,19 @@
     gap: 14px;
     padding: 14px 0;
     border-bottom: 1px solid #f1f5f9;
+}
+
+.birthday-item-link {
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.birthday-item-link:hover,
+.birthday-item-link:focus-visible {
+    color: inherit;
+    background: #fff1f8;
+    transform: translateX(2px);
 }
 
 .birthday-item:last-child {

@@ -304,7 +304,7 @@
                         </thead>
                         <tbody>
                             @forelse($teacherwisePlaygroundRows as $row)
-                                <tr>
+                                <tr class="teacherwise-playground-row" draggable="true" data-teacher-id="{{ $row['teacher_id'] }}" aria-label="Reorder {{ $row['teacher'] }}">
                                     <th class="routine-board-day-cell">
                                         {{ $row['teacher'] }}
                                         <span class="teacherwise-teacher-class-count">({{ $row['class_count'] ?? 0 }} {{ ($row['class_count'] ?? 0) === 1 ? 'class' : 'classes' }})</span>
@@ -1156,6 +1156,10 @@
 
     .teacherwise-playground-board .teacherwise-playground-card:last-child { margin-bottom: 0; }
     .teacherwise-playground-card { padding: .4rem 1.45rem .4rem .45rem; border-radius: .5rem; border-left-width: 2px; }
+    .teacherwise-playground-row { cursor: grab; }
+    .teacherwise-playground-row:active { cursor: grabbing; }
+    .teacherwise-playground-row.is-dragging { opacity: .45; }
+    .teacherwise-playground-row.is-drag-over > * { box-shadow: inset 0 3px 0 #2563eb; }
     .teacherwise-card-remove { position: absolute; top: .25rem; right: .25rem; width: 1.05rem; height: 1.05rem; display: grid; place-items: center; padding: 0; border: 0; border-radius: .25rem; background: transparent; color: #ef4444; font-size: .55rem; opacity: .72; cursor: pointer; }
     .teacherwise-card-remove:hover, .teacherwise-card-remove:focus { background: #fee2e2; color: #b91c1c; opacity: 1; outline: 0; }
     .teacherwise-playground-card strong { display: block; overflow: hidden; color: #1e3a8a; font-size: .72rem; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
@@ -1410,6 +1414,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const paletteEmpty = document.getElementById('teacherwise-palette-empty');
     let pendingSubject = null;
     let dirty = false;
+    let draggedTeacherRow = null;
+    let draggedTeacherRowOriginalIndex = null;
 
     const markDirty = () => { dirty = true; };
     const cellGrid = (cell) => cell?.querySelector('.teacherwise-playground-cell-grid') || cell;
@@ -1439,6 +1445,42 @@ document.addEventListener('DOMContentLoaded', function () {
         if (window.toastr) toastr[type](message);
         else window.alert(message);
     };
+
+    const bindTeacherRowDrag = (row) => {
+        row.addEventListener('dragstart', (event) => {
+            if (event.target.closest('.teacherwise-playground-card, button')) {
+                event.stopPropagation();
+                return;
+            }
+
+            draggedTeacherRow = row;
+            draggedTeacherRowOriginalIndex = [...row.parentElement.children].indexOf(row);
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('application/x-teacher-row', row.dataset.teacherId);
+            row.classList.add('is-dragging');
+        });
+
+        row.addEventListener('dragover', (event) => {
+            if (!draggedTeacherRow || draggedTeacherRow === row) return;
+
+            event.preventDefault();
+            const after = event.clientY > row.getBoundingClientRect().top + row.getBoundingClientRect().height / 2;
+            row.parentElement.insertBefore(draggedTeacherRow, after ? row.nextSibling : row);
+            document.querySelectorAll('.teacherwise-playground-row').forEach((item) => item.classList.toggle('is-drag-over', item === row));
+        });
+
+        row.addEventListener('dragend', () => {
+            if (draggedTeacherRow === row && draggedTeacherRowOriginalIndex !== [...row.parentElement.children].indexOf(row)) {
+                markDirty();
+            }
+            row.classList.remove('is-dragging');
+            document.querySelectorAll('.teacherwise-playground-row').forEach((item) => item.classList.remove('is-drag-over'));
+            draggedTeacherRow = null;
+            draggedTeacherRowOriginalIndex = null;
+        });
+    };
+
+    document.querySelectorAll('.teacherwise-playground-row').forEach(bindTeacherRowDrag);
 
     const selectedDays = () => modalDays.filter((button) => !button.disabled && button.classList.contains('is-selected')).map((button) => button.dataset.day);
     const setSelectedDays = (days) => {
@@ -1632,12 +1674,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 day: card.dataset.day,
             };
         });
+        const teacherOrder = [...document.querySelectorAll('.teacherwise-playground-row')]
+            .map((row) => Number(row.dataset.teacherId));
 
         try {
             const response = await fetch(board.dataset.saveUrl, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf},
-                body: JSON.stringify({academic_session_id: Number(board.dataset.sessionId), items}),
+                body: JSON.stringify({academic_session_id: Number(board.dataset.sessionId), teacher_order: teacherOrder, items}),
             });
             const result = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(result.message || Object.values(result.errors || {}).flat()[0] || 'The teacherwise routine could not be saved.');
