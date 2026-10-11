@@ -7,6 +7,14 @@ use App\Traits\HasTransactions;
 class Payment extends Model
 {
     use HasTransactions;
+
+    protected function casts(): array
+    {
+        return [
+            'payment_date' => 'date',
+        ];
+    }
+
     protected $fillable = [
         'student_id',
         'amount',

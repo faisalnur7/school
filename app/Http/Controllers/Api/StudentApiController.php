@@ -14,7 +14,9 @@ use App\Models\MobileNotificationLog;
 use App\Models\Notice;
 use App\Models\Holiday;
 use App\Models\WeekendSetting;
+use App\Models\AcademicSession;
 use App\Models\Student;
+use App\Models\ClassSchedule;
 use App\Models\StudentDevice;
 use App\Models\Payment;
 use App\Models\SubjectClassAssignment;
@@ -27,6 +29,8 @@ use App\Http\Controllers\PaymentController;
 use App\Services\StudentAudienceService;
 use App\Services\GradingService;
 use App\Services\ResultRankingService;
+use Illuminate\Support\Str;
+use Mpdf\Mpdf;
 
 class StudentApiController extends Controller
 {
@@ -83,10 +87,13 @@ class StudentApiController extends Controller
     public function dashboard(Request $request): JsonResponse
     {
         $student = $this->activeStudent($request);
+        $dueTill = $this->currentMonthEnd();
         $attendance = AttendanceItem::query()->where('student_id', $student->id);
         $totalAttendance = (clone $attendance)->count();
         $absentAttendance = (clone $attendance)->where('status', 'absent')->count();
-        $due = Fee::query()->where('student_id', $student->id)->where('is_active', true)->get()
+        $due = Fee::query()->where('student_id', $student->id)->where('is_active', true)
+            ->where(fn ($query) => $query->whereNull('due_date')->orWhereDate('due_date', '<=', $dueTill))
+            ->get()
             ->sum(fn (Fee $fee) => max(0, (float) $fee->due_amount));
         $todayAttendance = AttendanceItem::query()->with('attendance:id,date')->where('student_id', $student->id)
             ->whereHas('attendance', fn ($query) => $query->whereDate('date', today()))->first();
@@ -136,17 +143,98 @@ class StudentApiController extends Controller
     public function routine(Request $request): JsonResponse
     {
         $student = $this->activeStudent($request);
+        $academic = $student->latestAcademicInformation;
         $routine = $this->routineQuery($student)
             ->orderByRaw("FIELD(day, 'Saturday','Sunday','Monday','Tuesday','Wednesday','Thursday','Friday')")
             ->orderBy('start_time')->get();
+        $periods = ClassSchedule::query()
+            ->where(function ($query) {
+                $query->where('kind', 'teaching')
+                    ->orWhereRaw('LOWER(name) = ?', ['tiffin time']);
+            })
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('start_time')
+            ->get();
 
         return response()->json([
+            'student' => $this->studentPayload($student),
+            'session' => $academic?->academicSession ? [
+                'id' => $academic->academicSession->id,
+                'name' => $academic->academicSession->name_en,
+            ] : null,
+            'class' => $academic?->schoolClass?->name_en,
+            'section' => $academic?->section?->name_en,
+            'periods' => $periods->map(fn (ClassSchedule $period) => [
+                'id' => $period->id,
+                'name' => $period->name,
+                'start_time' => $period->start_time,
+                'end_time' => $period->end_time,
+                'kind' => $period->kind,
+            ])->values(),
             'weekend_days' => array_map(
                 static fn ($day) => (int) $day,
                 WeekendSetting::current()->days()
             ),
             'items' => $routine->map(fn ($item) => $this->routinePayload($item))->values(),
         ]);
+    }
+
+    public function routinePdf(Request $request)
+    {
+        $student = $this->activeStudent($request);
+        $academic = $student->latestAcademicInformation;
+        abort_unless($academic, 404, 'No academic information is available.');
+
+        $academicSession = $academic->academicSession ?? AcademicSession::find($academic->academic_session_id);
+        abort_unless($academicSession, 404, 'No academic session is available.');
+
+        $schoolClass = $academic->schoolClass;
+        $section = $academic->section;
+        $days = $this->workingDaysForStudent();
+        $periods = ClassSchedule::query()
+            ->where(function ($query) {
+                $query->where('kind', 'teaching')
+                    ->orWhereRaw('LOWER(name) = ?', ['tiffin time']);
+            })
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('start_time')
+            ->get();
+        $routines = ClassRoutine::with(['subject', 'teacher', 'classroom', 'timeSchedule'])
+            ->where('academic_session_id', $academic->academic_session_id)
+            ->where('school_class_id', $academic->school_class_id)
+            ->where('section_id', $academic->section_id)
+            ->get();
+
+        $html = view('pages.routines.pdf', [
+            'academicSession' => $academicSession,
+            'schoolClass' => $schoolClass,
+            'section' => $section,
+            'days' => $days,
+            'periods' => $periods,
+            'routines' => $routines,
+            'viewType' => 'timetable',
+            'teacherwiseRows' => [],
+        ])->render();
+
+        $mpdf = new Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4-L',
+            'margin_top' => 10,
+            'margin_right' => 10,
+            'margin_bottom' => 10,
+            'margin_left' => 10,
+            'allow_charset_conversion' => false,
+        ]);
+        $title = 'Class Routine - ' . ($schoolClass?->name_en ?? 'Student')
+            . ($section ? ' - ' . $section->name_en : '');
+        $mpdf->SetTitle($title);
+        $mpdf->WriteHTML($html);
+
+        return response($mpdf->Output('', 'S'))
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="' . Str::slug($title) . '.pdf"');
     }
 
     public function examRoutine(Request $request): JsonResponse
@@ -288,9 +376,12 @@ class StudentApiController extends Controller
     public function fees(Request $request): JsonResponse
     {
         $student = $this->activeStudent($request);
-        $fees = Fee::query()->with('feeSet:id,name')->where('student_id', $student->id)->where('is_active', true)->latest('id')->get();
+        $dueTill = $this->currentMonthEnd();
+        $fees = Fee::query()->with('feeSet:id,name')->where('student_id', $student->id)->where('is_active', true)
+            ->where(fn ($query) => $query->whereNull('due_date')->orWhereDate('due_date', '<=', $dueTill))
+            ->latest('id')->get();
         $payments = $student->payments()->latest('payment_date')->latest('id')->limit(50)->get(['id', 'amount', 'payment_date', 'payment_method', 'receipt_no', 'remarks']);
-        return response()->json(['summary' => ['total' => round((float) $fees->sum(fn ($fee) => $fee->net_amount), 2), 'paid' => round((float) $fees->sum('paid_amount'), 2), 'due' => round((float) $fees->sum(fn ($fee) => max(0, $fee->due_amount)), 2)], 'fees' => $fees->map(fn ($fee) => ['id' => $fee->id, 'name' => $fee->feeSet?->name, 'amount' => (float) $fee->amount, 'discount' => (float) $fee->scholarship_discount, 'paid_amount' => (float) $fee->paid_amount, 'due_amount' => max(0, (float) $fee->due_amount), 'due_date' => $fee->due_date]), 'payments' => $payments->map(fn ($payment) => ['id' => $payment->id, 'amount' => (float) $payment->amount, 'payment_date' => $payment->payment_date, 'payment_method' => $payment->payment_method, 'receipt_no' => $payment->receipt_no])]);
+        return response()->json(['due_till' => $dueTill, 'summary' => ['total' => round((float) $fees->sum(fn ($fee) => $fee->net_amount), 2), 'paid' => round((float) $fees->sum('paid_amount'), 2), 'due' => round((float) $fees->sum(fn ($fee) => max(0, $fee->due_amount)), 2)], 'fees' => $fees->map(fn ($fee) => ['id' => $fee->id, 'name' => $fee->feeSet?->name, 'amount' => (float) $fee->amount, 'discount' => (float) $fee->scholarship_discount, 'paid_amount' => (float) $fee->paid_amount, 'due_amount' => max(0, (float) $fee->due_amount), 'due_date' => $fee->due_date]), 'payments' => $payments->map(fn ($payment) => ['id' => $payment->id, 'amount' => (float) $payment->amount, 'payment_date' => $payment->payment_date, 'payment_method' => $payment->payment_method, 'receipt_no' => $payment->receipt_no])]);
     }
 
     public function payments(Request $request): JsonResponse
@@ -466,6 +557,31 @@ class StudentApiController extends Controller
         return ClassRoutine::query()->with(['subject:id,name,code', 'teacher:id,name', 'classroom:id,name', 'timeSchedule:id,name,start_time,end_time'])
             ->where('school_class_id', $academic->school_class_id)->where('section_id', $academic->section_id)
             ->when($academic->academic_session_id, fn ($query) => $query->where('academic_session_id', $academic->academic_session_id));
+    }
+
+    private function currentMonthEnd(): string
+    {
+        return now()->endOfMonth()->toDateString();
+    }
+
+    private function workingDaysForStudent(): array
+    {
+        $dayNames = [
+            6 => 'Saturday',
+            0 => 'Sunday',
+            1 => 'Monday',
+            2 => 'Tuesday',
+            3 => 'Wednesday',
+            4 => 'Thursday',
+            5 => 'Friday',
+        ];
+        $weekendDays = array_map('intval', WeekendSetting::current()->days());
+
+        return array_values(array_filter(
+            $dayNames,
+            fn ($name, $index) => ! in_array($index, $weekendDays, true),
+            ARRAY_FILTER_USE_BOTH
+        ));
     }
 
     private function attendancePayload(AttendanceItem $item): array

@@ -245,6 +245,18 @@
                 @endif
 
                 <!-- Users & Roles -->
+                @if(auth()->user()?->isPlatformAdmin())
+                <li class="nav-item-modern">
+                    <a href="{{ route('platform-admins.index') }}"
+                       class="nav-link-modern {{ request()->routeIs('platform-admins.*') ? 'active' : '' }}">
+                        <span class="nav-icon"><i class="fas fa-user-shield"></i></span>
+                        <span class="nav-text">{{ __('Platform Admins') }}</span>
+                        @if(request()->routeIs('platform-admins.*'))<span class="nav-indicator"></span>@endif
+                    </a>
+                </li>
+                @endif
+
+                <!-- Users & Roles -->
                 @if(auth()->user()?->hasPermission('view_users'))
                 <li class="nav-item-modern">
                     <a href="{{ route('users.hub') }}"
@@ -260,7 +272,7 @@
                 @endif
 
                 <!-- Audit Trail -->
-                @if(auth()->user()?->hasPermission('view_audit_trail'))
+                @if(auth()->user()?->isPlatformAdmin())
                 <li class="nav-item-modern">
                     <a href="{{ route('audit-trails.index') }}"
                        class="nav-link-modern {{ request()->routeIs('audit-trails.*') ? 'active' : '' }}">

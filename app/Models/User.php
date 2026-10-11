@@ -91,7 +91,7 @@ class User extends Authenticatable
 
     public function hasPermission($permission)
     {
-        if ($this->is_super_admin) {
+        if ($this->is_super_admin || $this->isPlatformAdmin()) {
             return true;
         }
 
@@ -108,7 +108,7 @@ class User extends Authenticatable
 
     public function hasAnyPermission($permissions)
     {
-        if ($this->is_super_admin) {
+        if ($this->is_super_admin || $this->isPlatformAdmin()) {
             return true;
         }
 
@@ -131,5 +131,15 @@ class User extends Authenticatable
                 $query->whereIn('name', $names);
             })
             ->exists();
+    }
+
+    public function isPlatformAdmin(): bool
+    {
+        return $this->role?->isPlatformAdmin() === true;
+    }
+
+    public function scopeWithoutPlatformAdmins($query)
+    {
+        return $query->whereDoesntHave('role', fn ($roleQuery) => $roleQuery->where('system_key', 'platform_admin'));
     }
 }

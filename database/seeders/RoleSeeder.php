@@ -14,7 +14,16 @@ class RoleSeeder extends Seeder
             [
                 'name' => 'Super Admin',
                 'description' => 'Full system access',
+                'system_key' => 'super_admin',
+                'is_reserved' => true,
                 'permissions' => [], // All permissions
+            ],
+            [
+                'name' => 'Platform Admin',
+                'description' => 'Platform-level access and institute role visibility control',
+                'system_key' => 'platform_admin',
+                'is_reserved' => true,
+                'permissions' => [],
             ],
             [
                 'name' => 'Admin',
@@ -113,8 +122,17 @@ class RoleSeeder extends Seeder
         foreach ($roles as $roleData) {
             $role = Role::firstOrCreate(
                 ['name' => $roleData['name']],
-                ['description' => $roleData['description']]
+                [
+                    'description' => $roleData['description'],
+                    'system_key' => $roleData['system_key'] ?? null,
+                    'is_reserved' => $roleData['is_reserved'] ?? false,
+                ]
             );
+
+            $role->update([
+                'system_key' => $roleData['system_key'] ?? $role->system_key,
+                'is_reserved' => $roleData['is_reserved'] ?? $role->is_reserved,
+            ]);
 
             if ($roleData['name'] === 'Super Admin') {
                 // Super Admin gets all permissions

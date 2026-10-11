@@ -423,8 +423,15 @@ class RoutineController extends Controller
 
             $rows[$teacherKey]['teacher'] = $routine->teacher?->name ?? 'Teacher not assigned';
             $rows[$teacherKey]['teacher_id'] = $routine->teacher_id;
+            $rows[$teacherKey]['class_ids'][$routine->school_class_id] = true;
             $rows[$teacherKey]['periods'][$periodKey][] = $routine;
         }
+
+        foreach ($rows as &$row) {
+            $row['class_count'] = count($row['class_ids'] ?? []);
+            unset($row['class_ids']);
+        }
+        unset($row);
 
         uasort($rows, fn ($left, $right) => strnatcasecmp($left['teacher'], $right['teacher']));
 
