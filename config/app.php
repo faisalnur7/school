@@ -54,6 +54,9 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // Temporary token used only for first Platform Admin bootstrap.
+    'platform_admin_setup_token' => env('PLATFORM_ADMIN_SETUP_TOKEN'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
