@@ -150,4 +150,20 @@ class PlatformAdminTest extends TestCase
             ->assertSee('permissionModal_test', false)
             ->assertSee('Permissions visible in institute Roles CRUD');
     }
+
+    public function test_platform_admin_add_action_is_marked_as_a_right_aligned_header_action(): void
+    {
+        $platformRole = Role::create([
+            'name' => 'Platform Admin',
+            'system_key' => 'platform_admin',
+            'is_reserved' => true,
+        ]);
+        $admin = User::factory()->create(['role_id' => $platformRole->id]);
+
+        $this->actingAs($admin)->get(route('platform-admins.index'))
+            ->assertOk()
+            ->assertSee('platform-admins-page', false)
+            ->assertSee('platform-admins-header', false)
+            ->assertSee('platform-admins-header__action', false);
+    }
 }

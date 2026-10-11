@@ -1,11 +1,11 @@
 @extends('layouts.master')
 
 @section('contents')
-<div class="container-fluid px-3 py-3">
+<div class="container-fluid px-3 py-3 platform-admins-page">
     <div class="card shadow-sm border-0 mb-3">
-        <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
+        <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center platform-admins-header">
             <h4 class="mb-0 text-white"><i class="fas fa-user-shield mr-2"></i>Platform Admins</h4>
-            <a href="{{ route('platform-admins.create') }}" class="btn btn-light btn-sm">Add Platform Admin</a>
+            <a href="{{ route('platform-admins.create') }}" class="btn btn-light btn-sm platform-admins-header__action">Add Platform Admin</a>
         </div>
         <div class="card-body px-0">
             <div class="table-responsive"><table class="table table-hover mb-0">
@@ -45,6 +45,16 @@
 
 @section('styles')
 <style>
+    .platform-admins-page .platform-admins-header {
+        justify-content: space-between !important;
+        align-items: center !important;
+        flex-direction: row !important;
+    }
+    .platform-admins-page .platform-admins-header__action {
+        width: auto !important;
+        margin-left: auto !important;
+        flex: 0 0 auto;
+    }
     .permission-card-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.85rem; }
     .permission-card-tile { appearance:none; border:1px solid #dbe4ee; border-radius:1rem; background:#fff; padding:1rem; min-height:86px; display:flex; align-items:center; justify-content:space-between; gap:.75rem; box-shadow:0 8px 22px rgba(15,23,42,.05); text-align:left; width:100%; transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease; }
     .permission-card-tile:hover,.permission-card-tile:focus { border-color:#2563eb; box-shadow:0 12px 26px rgba(37,99,235,.12); transform:translateY(-1px); outline:none; }
