@@ -8,6 +8,7 @@
             <a href="{{ route('website.academic-calendar.create') }}" class="btn btn-primary btn-sm">Add Item</a>
         </div>
         <div class="card-body p-0">
+            <div class="table-responsive">
             <table class="table table-striped mb-0">
                 <thead><tr><th>Title</th><th>Date Range</th><th>Status</th><th>Sort</th><th width="160">Action</th></tr></thead>
                 <tbody>
@@ -30,6 +31,7 @@
                 @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
         <div class="card-footer">{{ $items->links() }}</div>
     </div>

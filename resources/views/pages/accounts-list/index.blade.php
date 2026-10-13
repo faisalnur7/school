@@ -45,6 +45,7 @@
                 </div>
             </form>
 
+            <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead><tr><th>#</th><th>{{ __('Name') }}</th><th>{{ __('Group') }}</th><th>{{ __('Linked Account') }}</th><th>{{ __('Notes') }}</th><th width="100">{{ __('Actions') }}</th></tr></thead>
                 <tbody>
@@ -68,6 +69,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
         <div class="card-footer">{{ $accounts->links() }}</div>
     </div>

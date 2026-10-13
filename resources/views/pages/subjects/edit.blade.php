@@ -1162,14 +1162,14 @@
 
         function updateTotalMarks() {
             let total = 0;
-            $('.marks-input, #tutorial_marks').each(function () {
+            $('.marks-input').each(function () {
                 total += parseFloat($(this).val()) || 0;
             });
             $('#total_marks').val(total.toFixed(2));
             $('#marks_summary').text(translations.totalPreview.replace(':total', total.toFixed(2)));
         }
 
-        $(document).on('input', '.marks-input, #tutorial_marks', updateTotalMarks);
+        $(document).on('input', '.marks-input', updateTotalMarks);
         updateTotalMarks();
 
         if ($('.is-invalid').length > 0) {

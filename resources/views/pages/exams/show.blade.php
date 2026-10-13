@@ -31,6 +31,7 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <div class="table-responsive">
                     <table class="table table-sm table-borderless">
                         <tr><th width="40%">Name</th><td><strong>{{ $exam->name }}</strong></td></tr>
                         <tr><th>Type</th>
@@ -49,6 +50,7 @@
                         </tr>
                         <tr><th>Total Students</th><td><strong>{{ $studentCount }}</strong></td></tr>
                     </table>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <a href="{{ route('exams.edit', $exam) }}" class="btn btn-primary btn-sm">

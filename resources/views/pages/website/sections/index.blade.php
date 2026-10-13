@@ -11,6 +11,7 @@
             </div>
         </div>
         <div class="card-body p-0">
+            <div class="table-responsive">
             <table class="table table-striped mb-0">
                 <thead><tr><th>Title</th><th>Key</th><th>Sort</th><th width="160">Action</th></tr></thead>
                 <tbody>
@@ -32,6 +33,7 @@
                 @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
         <div class="card-footer">{{ $sections->links() }}</div>
     </div>

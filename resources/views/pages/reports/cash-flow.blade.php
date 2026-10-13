@@ -65,6 +65,7 @@
                     <div class="px-3 py-2 mb-0 rounded-top" style="background:{{ $section['color'] }}1a;border-left:4px solid {{ $section['color'] }}">
                         <strong style="color:{{ $section['color'] }};font-size:13px">{{ $section['title'] }}</strong>
                     </div>
+                    <div class="table-responsive">
                     <table class="table table-sm mb-0" style="font-size:13px;border:1px solid #e2e8f0">
                         @foreach($section['rows'] as [$label, $amount, $indent, $bold, $color])
                         <tr @if($bold) style="border-top:1px solid #e2e8f0;background:#f8fafc" @endif>
@@ -77,9 +78,11 @@
                         </tr>
                         @endforeach
                     </table>
+                    </div>
                 </div>
                 @endforeach
 
+                <div class="table-responsive">
                 <table class="table table-sm" style="font-size:13px;border:2px solid #e2e8f0">
                     <tr style="background:#f8fafc">
                         <td>Opening Cash Balance</td>
@@ -98,6 +101,7 @@
                         </td>
                     </tr>
                 </table>
+                </div>
             </div>
         </div>
     </div>

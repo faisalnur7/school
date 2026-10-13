@@ -15,6 +15,7 @@
     <div class="card">
         <div class="card-header shadow p-3"><h3 class="card-title mb-0 text-white text-lg">Current Asset Stock</h3></div>
         <div class="card-body p-0">
+            <div class="table-responsive">
             <table class="table table-hover mb-0" style="font-size:13px">
                 <thead style="background:#f8fafc">
                     <tr>
@@ -47,6 +48,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </div>
