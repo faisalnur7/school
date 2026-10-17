@@ -18,6 +18,7 @@
 
     @if($records->isNotEmpty())
     <div class="bg-white rounded-2xl shadow overflow-hidden">
+        <div class="table-responsive">
         <table class="table table-sm table-bordered mb-0">
             <thead class="bg-slate-100">
                 <tr>
@@ -74,6 +75,7 @@
                 @endforeach
             </tbody>
         </table>
+        </div>
     </div>
     @else
     <div class="bg-white rounded-2xl shadow p-8 text-center text-slate-400">

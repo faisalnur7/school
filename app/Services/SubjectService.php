@@ -39,6 +39,8 @@ class SubjectService
                 $data['confirm_unassignment_with_marks']
             );
             
+            $data = $this->normalizeSubjectPassMarkData($data);
+
             // Create the subject
             $subject = Subject::create($data);
             
@@ -49,7 +51,7 @@ class SubjectService
                     $paperData['is_paper'] = true;
                     $paperData['has_multiple_papers'] = false;
                     $paperData['type'] = $subject->type; // Papers inherit type
-                    Subject::create($paperData);
+                    Subject::create($this->normalizeSubjectPassMarkData($paperData));
                 }
             }
             
@@ -97,19 +99,43 @@ class SubjectService
                 $data['confirm_unassignment_with_marks']
             );
             
+            $data = $this->normalizeSubjectPassMarkData($data, $subject);
+
             // Update subject
             $subject->update($data);
             
-            // Handle papers - delete old ones and recreate (simple strategy)
+            // Synchronize papers in place so existing paper IDs and marks remain attached.
             if ($hasPapersData) {
-                $subject->papers()->delete();
-                if (!empty($papersData)) {
-                    foreach ($papersData as $paperData) {
-                        $paperData['parent_id'] = $subject->id;
-                        $paperData['is_paper'] = true;
-                        $paperData['has_multiple_papers'] = false;
-                        $paperData['type'] = $subject->type;
-                        Subject::create($paperData);
+                $existingPapers = $subject->papers()->get()->keyBy('id');
+                $submittedPaperIds = collect($papersData)
+                    ->pluck('id')
+                    ->filter()
+                    ->map(fn ($id) => (int) $id)
+                    ->all();
+
+                foreach ($existingPapers as $paper) {
+                    if (! in_array($paper->id, $submittedPaperIds, true)) {
+                        $paper->delete();
+                    }
+                }
+
+                foreach ($papersData as $paperData) {
+                    $paperId = isset($paperData['id']) && $paperData['id'] !== ''
+                        ? (int) $paperData['id']
+                        : null;
+
+                    unset($paperData['id']);
+                    $paperData = array_merge($paperData, [
+                        'parent_id' => $subject->id,
+                        'is_paper' => true,
+                        'has_multiple_papers' => false,
+                        'type' => $subject->type,
+                    ]);
+
+                    if ($paperId && $existingPapers->has($paperId)) {
+                        $existingPapers->get($paperId)->update($this->normalizeSubjectPassMarkData($paperData, $existingPapers->get($paperId)));
+                    } else {
+                        Subject::create($this->normalizeSubjectPassMarkData($paperData));
                     }
                 }
             }
@@ -154,6 +180,32 @@ class SubjectService
     }
 
     /**
+     * Find active assignments where a class-wide assignment overlaps a
+     * group-specific assignment for the same subject and class.
+     */
+    public function getDuplicateAssignments(Subject $subject): \Illuminate\Support\Collection
+    {
+        return $subject->classAssignments()
+            ->with(['schoolClass', 'group'])
+            ->where('is_active', true)
+            ->get()
+            ->groupBy('school_class_id')
+            ->filter(fn ($assignments) => $assignments->count() > 1
+                && $assignments->contains(fn (SubjectClassAssignment $assignment) => $assignment->group_id === null)
+                && $assignments->contains(fn (SubjectClassAssignment $assignment) => $assignment->group_id !== null))
+            ->map(function ($assignments) {
+                $recommended = $assignments->first(fn (SubjectClassAssignment $assignment) => $assignment->group_id === null);
+
+                return [
+                    'class' => $recommended->schoolClass,
+                    'assignments' => $assignments->values(),
+                    'recommended' => $recommended,
+                ];
+            })
+            ->values();
+    }
+
+    /**
      * Synchronize a subject's class assignments with the edit form selection.
      * Existing marks are preserved; assignments with marks are archived.
      */
@@ -173,15 +225,7 @@ class SubjectService
             $archived = [];
 
             foreach ($activeAssignments->whereNotIn('school_class_id', $selectedClassIds->all()) as $assignment) {
-                $this->removeCurrentSessionStudentAssignments($assignment);
-
-                if ($this->hasExamMarksForAssignment($assignment)) {
-                    $assignment->update(['is_active' => false]);
-                    $archived[] = $assignment->id;
-                } else {
-                    $assignment->delete();
-                    $removed[] = $assignment->id;
-                }
+                $this->retireAssignment($assignment, $removed, $archived);
             }
 
             $assignmentData = [
@@ -196,6 +240,35 @@ class SubjectService
             ];
 
             foreach ($selectedClassIds as $classId) {
+                $classAssignments = $activeAssignments
+                    ->where('school_class_id', $classId)
+                    ->values();
+
+                $targetAssignment = $classAssignments->first(
+                    fn (SubjectClassAssignment $assignment) => $assignment->group_id === ($assignmentData['group_id'] ?? null)
+                );
+
+                // A subject edit represents one group scope. Reuse an existing
+                // class-wide assignment when changing it to a specific group,
+                // instead of leaving a NULL-group assignment active for everyone.
+                if (! $targetAssignment && ($assignmentData['group_id'] ?? null) !== null) {
+                    $targetAssignment = $classAssignments->first(
+                        fn (SubjectClassAssignment $assignment) => $assignment->group_id === null
+                    );
+                }
+
+                if ($targetAssignment) {
+                    $targetAssignment->update(array_merge($assignmentData, [
+                        'school_class_id' => $classId,
+                    ]));
+
+                    foreach ($classAssignments->reject(fn ($assignment) => $assignment->id === $targetAssignment->id) as $duplicate) {
+                        $this->retireAssignment($duplicate, $removed, $archived);
+                    }
+
+                    continue;
+                }
+
                 $this->assignToClass(array_merge($assignmentData, [
                     'school_class_id' => $classId,
                 ]));
@@ -210,6 +283,19 @@ class SubjectService
 
             return compact('removed', 'archived');
         });
+    }
+
+    private function retireAssignment(SubjectClassAssignment $assignment, array &$removed, array &$archived): void
+    {
+        $this->removeCurrentSessionStudentAssignments($assignment);
+
+        if ($this->hasExamMarksForAssignment($assignment)) {
+            $assignment->update(['is_active' => false]);
+            $archived[] = $assignment->id;
+        } else {
+            $assignment->delete();
+            $removed[] = $assignment->id;
+        }
     }
 
     private function hasExamMarksForAssignment(SubjectClassAssignment $assignment): bool
@@ -313,6 +399,11 @@ class SubjectService
                 if (! empty($data['exclusive_group_key'])) {
                     $this->validateExclusiveGroupRule($data);
                 }
+
+                $data['sort_order'] ??= (int) SubjectClassAssignment::query()
+                    ->where('school_class_id', $data['school_class_id'])
+                    ->when($groupId === null || $groupId === '', fn ($query) => $query->whereNull('group_id'), fn ($query) => $query->where('group_id', $groupId))
+                    ->max('sort_order') + 1;
 
                 $assignment = SubjectClassAssignment::create($data);
 
@@ -797,6 +888,29 @@ class SubjectService
         }
 
         unset($data['class_id']);
+
+        if (array_key_exists('pass_mark_percentage', $data) && $data['pass_mark_percentage'] !== '' && $data['pass_mark_percentage'] !== null) {
+            $total = collect(['creative_marks', 'mcq_marks', 'practical_marks', 'viva_marks'])
+                ->sum(fn ($field) => (float) ($data[$field] ?? 0));
+            $data['pass_mark'] = round($total * ((float) $data['pass_mark_percentage'] / 100), 2);
+        }
+
+        unset($data['pass_mark_percentage']);
+
+        return $data;
+    }
+
+    private function normalizeSubjectPassMarkData(array $data, ?Subject $subject = null): array
+    {
+        if (array_key_exists('pass_mark_percentage', $data) && $data['pass_mark_percentage'] !== '' && $data['pass_mark_percentage'] !== null) {
+            $marks = collect(['creative_marks', 'mcq_marks', 'practical_marks', 'viva_marks']);
+            $total = $marks->sum(function ($field) use ($data, $subject) {
+                return (float) ($data[$field] ?? $subject?->{$field} ?? 0);
+            });
+            $data['pass_mark'] = round($total * ((float) $data['pass_mark_percentage'] / 100), 2);
+        }
+
+        unset($data['pass_mark_percentage']);
 
         return $data;
     }

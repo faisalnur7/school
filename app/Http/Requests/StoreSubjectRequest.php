@@ -27,7 +27,9 @@ class StoreSubjectRequest extends FormRequest
             'practical_marks' => 'nullable|numeric|min:0',
             'viva_marks' => 'nullable|numeric|min:0',
             'tutorial_marks' => 'nullable|numeric|min:0',
+            'include_in_tutorial_exam' => 'nullable|boolean',
             'pass_mark' => 'nullable|numeric|min:0',
+            'pass_mark_percentage' => 'nullable|numeric|min:0|max:100',
             'is_active' => 'nullable|boolean',
             'assign_to_class' => 'nullable|boolean',
             'school_class_ids' => 'nullable|array',
@@ -46,6 +48,7 @@ class StoreSubjectRequest extends FormRequest
             'class_configs.*.viva_marks' => 'nullable|numeric|min:0',
             'class_configs.*.tutorial_marks' => 'nullable|numeric|min:0',
             'class_configs.*.pass_mark' => 'nullable|numeric|min:0',
+            'class_configs.*.pass_mark_percentage' => 'nullable|numeric|min:0|max:100',
             // Papers
             'papers' => 'nullable|array',
             'papers.*.name' => 'required_with:papers|string|max:255',
@@ -56,6 +59,7 @@ class StoreSubjectRequest extends FormRequest
             'papers.*.viva_marks' => 'nullable|numeric|min:0',
             'papers.*.tutorial_marks' => 'nullable|numeric|min:0',
             'papers.*.pass_mark' => 'nullable|numeric|min:0',
+            'papers.*.pass_mark_percentage' => 'nullable|numeric|min:0|max:100',
         ];
     }
 }

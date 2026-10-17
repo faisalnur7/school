@@ -19,6 +19,7 @@
             </div>
         </div>
         <div class="card-body">
+            <div class="table-responsive">
             <table class="table table-bordered table-sm">
                 <tr><th width="200">Title</th><td>{{ $booking->title }}</td></tr>
                 <tr><th>Facility</th><td>{{ $booking->facility_name }}</td></tr>
@@ -34,6 +35,7 @@
                 <tr><th>Recorded By</th><td>{{ $booking->recorder?->name ?? '—' }}</td></tr>
                 <tr><th>Created At</th><td>{{ $booking->created_at->format('d/m/Y H:i') }}</td></tr>
             </table>
+            </div>
         </div>
     </div>
 </div>

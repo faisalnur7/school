@@ -12,6 +12,7 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white fw-bold">Items Purchased</div>
                 <div class="card-body p-0">
+                    <div class="table-responsive">
                     <table class="table table-bordered mb-0">
                         <thead style="background:#f8fafc">
                             <tr>
@@ -40,6 +41,7 @@
                             </tr>
                         </tfoot>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>

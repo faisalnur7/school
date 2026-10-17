@@ -292,6 +292,87 @@ class SubjectClassAssignmentSyncTest extends TestCase
         ]);
     }
 
+    public function test_changing_all_groups_assignment_to_science_does_not_leave_a_global_duplicate(): void
+    {
+        $schoolClass = $this->schoolClass('Nine');
+        $science = \App\Models\Group::create(['name_en' => 'Science', 'name_bn' => 'Science']);
+        $subject = Subject::create([
+            'name' => 'Agriculture',
+            'code' => 'AGRI-GROUP-SYNC',
+            'type' => 'optional',
+            'creative_marks' => 100,
+            'pass_mark' => 33,
+            'is_active' => true,
+        ]);
+        $global = SubjectClassAssignment::create([
+            'subject_id' => $subject->id,
+            'school_class_id' => $schoolClass->id,
+            'group_id' => null,
+            'gender' => 'all',
+            'religion' => 'all',
+            'is_optional' => true,
+            'is_compulsory' => false,
+            'is_active' => true,
+        ]);
+
+        app(SubjectService::class)->syncClassAssignments($subject, [$schoolClass->id], [
+            'group_id' => $science->id,
+            'gender' => 'all',
+            'religion' => 'all',
+            'is_optional' => true,
+            'is_compulsory' => false,
+        ]);
+
+        $this->assertDatabaseHas('subject_class_assignments', [
+            'id' => $global->id,
+            'group_id' => $science->id,
+            'is_active' => true,
+        ]);
+        $this->assertSame(1, SubjectClassAssignment::where('subject_id', $subject->id)
+            ->where('school_class_id', $schoolClass->id)
+            ->where('is_active', true)
+            ->count());
+    }
+
+    public function test_duplicate_assignment_detection_recommends_archiving_the_global_assignment(): void
+    {
+        $schoolClass = $this->schoolClass('Nine');
+        $science = \App\Models\Group::create(['name_en' => 'Science', 'name_bn' => 'Science']);
+        $subject = Subject::create([
+            'name' => 'Agriculture',
+            'code' => 'AGRI-DUPLICATE-DETECT',
+            'type' => 'optional',
+            'creative_marks' => 100,
+            'pass_mark' => 33,
+            'is_active' => true,
+        ]);
+        $global = SubjectClassAssignment::create([
+            'subject_id' => $subject->id,
+            'school_class_id' => $schoolClass->id,
+            'group_id' => null,
+            'gender' => 'all',
+            'religion' => 'all',
+            'is_optional' => true,
+            'is_compulsory' => false,
+            'is_active' => true,
+        ]);
+        SubjectClassAssignment::create([
+            'subject_id' => $subject->id,
+            'school_class_id' => $schoolClass->id,
+            'group_id' => $science->id,
+            'gender' => 'all',
+            'religion' => 'all',
+            'is_optional' => true,
+            'is_compulsory' => false,
+            'is_active' => true,
+        ]);
+
+        $duplicates = app(SubjectService::class)->getDuplicateAssignments($subject);
+
+        $this->assertCount(1, $duplicates);
+        $this->assertSame($global->id, $duplicates->first()['recommended']->id);
+    }
+
     private function scenario(): array
     {
         $session = AcademicSession::create([

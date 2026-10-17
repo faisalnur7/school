@@ -21,6 +21,7 @@
             </div>
             <div class="mb-3"><strong>Description:</strong> {{ $journalEntry->description ?? '—' }}</div>
 
+            <div class="table-responsive">
             <table class="table table-bordered">
                 <thead class="thead-light">
                     <tr>
@@ -57,6 +58,7 @@
                     </tr>
                 </tfoot>
             </table>
+            </div>
         </div>
     </div>
 </div>

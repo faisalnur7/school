@@ -238,6 +238,9 @@
                         <div class="mt-4 space-y-1 text-sm">
                             <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">Name</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $student->full_name_en }}</span></p>
                             <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">Class</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $info?->schoolClass?->name_en ?? '—' }}</span></p>
+                            @if($info?->group)
+                                <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">Group</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $info->group->name_en }}</span></p>
+                            @endif
                             <p><span class="font-semibold" style="color: {{ $templateSettings->student_label_color }};">ID</span> : <span style="color: {{ $templateSettings->student_value_color }};">{{ $student->student_cid ?? $student->id }}</span></p>
                         </div>
                     </div>
@@ -490,6 +493,12 @@
                             <span class="rc-field-label">Class</span>
                             <span class="rc-field-value">{{ $info?->schoolClass?->name_en ?? '—' }}</span>
                         </div>
+                        @if($info?->group)
+                            <div class="rc-field">
+                                <span class="rc-field-label">Group</span>
+                                <span class="rc-field-value">{{ $info->group->name_en }}</span>
+                            </div>
+                        @endif
                         <div class="rc-field">
                             <span class="rc-field-label">Student ID</span>
                             <span class="rc-field-value rc-mono">{{ $student->student_cid ?? $student->id }}</span>
@@ -531,13 +540,7 @@
                         </thead>
                         <tbody>
                             {{-- ── Subjects WITH papers first, then simple subjects ── --}}
-                            @php
-                                $withPapers = array_filter($subjectRows, fn($r) => !empty($r['papers']));
-                                $withoutPapers = array_filter($subjectRows, fn($r) => empty($r['papers']));
-                                $sortedRows = array_merge(array_values($withPapers), array_values($withoutPapers));
-                            @endphp
-
-                            @foreach ($sortedRows as $row)
+                            @foreach ($subjectRows as $row)
                                 @if (!empty($row['papers']))
                                     @foreach ($row['papers'] as $paperIndex => $paper)
                                         <tr class="{{ $paper['paper_fail'] ?? false ? 'rc-row-fail' : '' }}">

@@ -309,11 +309,12 @@ class ProgressReportController extends Controller
             ->where('is_active', true)
             ->pluck('subject_id');
 
-        return Subject::query()
+        $subjects = Subject::query()
             ->whereIn('id', $assignedSubjectIds->unique())
             ->get()
-            ->sortBy(fn (Subject $subject) => $subject->name)
             ->values();
+
+        return app(\App\Services\SubjectOrderingService::class)->sortSubjects($subjects, $classId);
     }
 
     private function selectedSubjectIds(Request $request, \Illuminate\Support\Collection $availableSubjects): array
@@ -361,7 +362,7 @@ class ProgressReportController extends Controller
 
     private function buildStudentData(Student $student, Exam $exam, array $filters, array $attendanceData = []): array
     {
-        $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession'])
+        $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession', 'group'])
             ->where('student_id', $student->id)
             ->where('academic_session_id', $filters['session_id'])
             ->first();
@@ -438,7 +439,9 @@ class ProgressReportController extends Controller
 
         // Merge paper groups into parent rows
         foreach ($parentGroups as $parentId => $group) {
-            $papers     = $group['papers'];
+            $papers     = app(\App\Services\SubjectOrderingService::class)
+                ->sortRows(collect($group['papers']), (int) $filters['class_id'], (int) ($academicInfo?->group_id ?? 0))
+                ->all();
             $anyFail    = collect($papers)->contains(fn($p) => $p['paper_fail']);
             $anyAbsent  = collect($papers)->contains(fn($p) => $p['is_absent']);
             $totalFull  = collect($papers)->sum('full_marks');
@@ -488,12 +491,9 @@ class ProgressReportController extends Controller
         return [
             'student'           => $student,
             'academicInfo'      => $academicInfo,
-            'subjectRows' => array_values(
-                                array_merge(
-                                    array_filter($subjectRows, fn($r) => !empty($r['papers'])),
-                                    array_filter($subjectRows, fn($r) =>  empty($r['papers'])),
-                                )
-                            ),
+            'subjectRows' => app(\App\Services\SubjectOrderingService::class)
+                ->sortRows(collect($subjectRows), (int) $filters['class_id'], (int) ($academicInfo?->group_id ?? 0), true)
+                ->all(),
             'summary'           => compact('fullMarks', 'obtained', 'percentage', 'gpa', 'grade'),
             'attendancePresent' => $attendancePresent,
             'attendanceTotal'   => $attendanceTotal,

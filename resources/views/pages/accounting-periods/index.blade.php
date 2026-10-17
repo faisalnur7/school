@@ -22,6 +22,7 @@
                 <div class="alert alert-danger">{{ $errors->first() }}</div>
             @endif
 
+            <div class="table-responsive">
             <table class="table table-hover table-sm">
                 <thead>
                     <tr>
@@ -69,6 +70,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </div>

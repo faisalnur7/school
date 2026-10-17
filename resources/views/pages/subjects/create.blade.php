@@ -78,7 +78,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <div class="form-check">
                                     <input type="checkbox" name="has_multiple_papers" id="has_multiple_papers"
@@ -92,7 +92,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <div class="form-check">
                                     <input type="checkbox" name="combine_papers_for_result" id="combine_papers_for_result"
@@ -103,6 +103,17 @@
                                     </label>
                                     <small class="d-block text-muted">If checked, total marks = sum of all papers'
                                         marks</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input type="hidden" name="include_in_tutorial_exam" value="0">
+                                    <input type="checkbox" name="include_in_tutorial_exam" id="include_in_tutorial_exam"
+                                        class="form-check-input" value="1" {{ old('include_in_tutorial_exam', '1') == '1' ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="include_in_tutorial_exam">Include in Tutorial Exam</label>
+                                    <small class="d-block text-muted">Uncheck this to hide tutorial mark entry and exclude this subject from tutorial reports.</small>
                                 </div>
                             </div>
                         </div>
@@ -175,9 +186,17 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="pass_mark">Pass Mark</label>
-                                <input type="number" name="pass_mark" id="pass_mark" class="form-control"
-                                    value="{{ old('pass_mark', 0) }}" min="0" step="0.01">
+                                <label for="pass_mark_percentage">Pass Mark Percentage</label>
+                                <input type="hidden" name="pass_mark" value="{{ old('pass_mark', 0) }}">
+                                <input type="number" name="pass_mark_percentage" id="pass_mark_percentage" class="form-control"
+                                    value="{{ old('pass_mark_percentage', 33) }}" min="0" max="100" step="0.01">
+                                <small class="form-text text-muted">The absolute pass mark is calculated from total marks.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Calculated Pass Mark</label>
+                                <input type="text" class="form-control" id="calculated_pass_mark" readonly value="0.00">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -368,7 +387,7 @@
                                 <div class="form-group">
                                     <label>Creative Marks</label>
                                     <input type="number" name="class_configs[${index}][creative_marks]" class="form-control"
-                                        value="0" min="0" step="0.01" placeholder="Override or leave empty for default">
+                                        value="33" min="0" max="100" step="0.01" placeholder="Default: 33">
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -401,8 +420,8 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label>Pass Mark</label>
-                                    <input type="number" name="class_configs[${index}][pass_mark]" class="form-control"
+                                    <label>Pass Mark Percentage</label>
+                                    <input type="number" name="class_configs[${index}][pass_mark_percentage]" class="form-control"
                                         value="0" min="0" step="0.01" placeholder="Override or leave empty for default">
                                 </div>
                             </div>

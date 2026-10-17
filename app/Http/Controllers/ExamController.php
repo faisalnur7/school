@@ -361,6 +361,9 @@ class ExamController extends Controller
         $groupId = $request->filled('group_id') ? (int) $request->group_id : null;
         $subjectId = (int) $request->subject_id;
         $subject = Subject::findOrFail($subjectId);
+        if ($exam->type === Exam::TYPE_TUTORIAL && ! $subject->include_in_tutorial_exam) {
+            abort(422, 'This subject is excluded from tutorial exams.');
+        }
         $config = $subject->getEffectiveMarksForClass($classId);
         $isTutorial = $exam->type === Exam::TYPE_TUTORIAL;
         $submittedStudentIds = collect($request->input('marks', []))
@@ -410,6 +413,9 @@ class ExamController extends Controller
         $sectionId = $request->filled('section_id') ? (int) $request->section_id : null;
         $groupId = $request->filled('group_id') ? (int) $request->group_id : null;
         $subjects = $this->getSubjectsForClass($classId, $groupId);
+        if ($exam->type === Exam::TYPE_TUTORIAL) {
+            $subjects = $subjects->filter(fn (Subject $subject) => $subject->include_in_tutorial_exam)->values();
+        }
         $subjectMap = $subjects->keyBy('id');
         $allowedStudents = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId)
             ->keyBy('id');
@@ -688,6 +694,12 @@ class ExamController extends Controller
         $subjectId = $entryMode === 'subject' ? ($request->integer('subject_id') ?: null) : null;
         $subject = $subjectId ? Subject::find($subjectId) : null;
         $subjects = $entryMode === 'subject' && $subject ? collect([$subject]) : $this->getSubjectsForClass($classId, $groupId);
+        if ($exam->type === Exam::TYPE_TUTORIAL) {
+            $subjects = $subjects->filter(fn (Subject $csvSubject) => $csvSubject->include_in_tutorial_exam)->values();
+            if ($subject && ! $subject->include_in_tutorial_exam) {
+                $subject = null;
+            }
+        }
         $students = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $entryMode === 'subject' ? $subjectId : null);
         $eligibility = [];
         foreach ($subjects as $csvSubject) {
@@ -1283,7 +1295,7 @@ class ExamController extends Controller
             }
         }
 
-        return $subjects->unique('id')->values()->map(function (Subject $subject) use ($assignments) {
+        $subjects = $subjects->unique('id')->values()->map(function (Subject $subject) use ($assignments) {
             $assignmentSubjectIds = collect([$subject->id, $subject->parent_id])->filter();
 
             return $subject->setRelation(
@@ -1291,6 +1303,8 @@ class ExamController extends Controller
                 $assignments->whereIn('subject_id', $assignmentSubjectIds->all())->values()
             );
         });
+
+        return app(\App\Services\SubjectOrderingService::class)->sortSubjects($subjects, $classId, $groupId);
     }
 
     /**

@@ -19,6 +19,7 @@
                 @endif
             </div>
             @if($group->accounts->count())
+            <div class="table-responsive">
             <table class="table table-sm mb-0" style="font-size:13px">
                 <thead style="background:#f8fafc">
                     <tr>
@@ -52,6 +53,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
             @else
             <div class="px-4 py-2 text-muted" style="font-size:12px">No accounts in this group</div>
             @endif
