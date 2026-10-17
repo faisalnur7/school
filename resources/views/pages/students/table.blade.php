@@ -69,6 +69,11 @@
                                         $student->academicInformations && $student->academicInformations->isNotEmpty()
                                             ? $student->academicInformations->last()
                                             : null;
+                                    $isCheckedOut = ! $student->status
+                                        || ($academicInformation && (
+                                            ($academicInformation->academic_status && $academicInformation->academic_status !== 'active')
+                                            || $academicInformation->is_current === false
+                                        ));
                                 @endphp
                                 <tr>
                                     <td class="students-serial">{{ $rowNumber }}</td>
@@ -88,7 +93,12 @@
 
                                             <div class="student-meta-stack">
                                                 <a href="{{ route('students.show', $student->id) }}">
-                                                    <p class="student-name">{{ $student->full_name_en }}</p>
+                                                    <p class="student-name">
+                                                        {{ $student->full_name_en }}
+                                                        @if ($isCheckedOut)
+                                                            <span class="student-chip student-chip--warning ml-1">Checked out</span>
+                                                        @endif
+                                                    </p>
                                                 </a>
 
                                                 @if ($student->full_name_bn)
@@ -305,6 +315,11 @@
                                             $student->academicInformations && $student->academicInformations->isNotEmpty()
                                                 ? $student->academicInformations->last()
                                                 : null;
+                                        $isCheckedOut = ! $student->status
+                                            || ($academicInformation && (
+                                                ($academicInformation->academic_status && $academicInformation->academic_status !== 'active')
+                                                || $academicInformation->is_current === false
+                                            ));
                                     @endphp
 
                                     <article class="border rounded-4 overflow-hidden bg-white shadow-sm">
@@ -325,6 +340,9 @@
                                                     <a href="{{ route('students.show', $student->id) }}" class="text-decoration-none">
                                                         <h4 class="mb-0 text-dark" style="font-size:0.92rem;font-weight:700;line-height:1.15;">
                                                             {{ $student->full_name_en }}
+                                                            @if ($isCheckedOut)
+                                                                <span class="student-chip student-chip--warning ml-1">Checked out</span>
+                                                            @endif
                                                         </h4>
                                                     </a>
 

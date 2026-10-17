@@ -54,6 +54,7 @@
                     <div class="col-md-6">
                         <h5 class="text-muted mb-3" style="font-size:13px;text-transform:uppercase;letter-spacing:1px">
                             Liabilities</h5>
+                        <div class="table-responsive">
                         <table class="table table-sm mb-0">
                             <tr>
                                 <td>Accounts Payable - Suppliers</td>
@@ -68,10 +69,12 @@
                                 </td>
                             </tr>
                         </table>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <h5 class="text-muted mb-3" style="font-size:13px;text-transform:uppercase;letter-spacing:1px">
                             Equity</h5>
+                        <div class="table-responsive">
                         <table class="table table-sm mb-0">
                             <tr>
                                 <td>Capital Contributions</td>
@@ -95,6 +98,7 @@
                                 </td>
                             </tr>
                         </table>
+                        </div>
                     </div>
                     <div class="col-md-12 mt-4">
                         <h5 class="text-muted mb-3" style="font-size:13px;text-transform:uppercase;letter-spacing:1px">

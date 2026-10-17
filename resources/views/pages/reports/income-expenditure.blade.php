@@ -54,6 +54,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <h5 style="color:#16a34a;font-size:13px;text-transform:uppercase;letter-spacing:1px">Income</h5>
+                        <div class="table-responsive">
                         <table class="table table-sm">
                             <thead><tr><th>Category</th><th class="text-right">Amount</th></tr></thead>
                             <tbody>
@@ -68,9 +69,11 @@
                                 </tr>
                             </tfoot>
                         </table>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <h5 style="color:#e11d48;font-size:13px;text-transform:uppercase;letter-spacing:1px">Expenditure</h5>
+                        <div class="table-responsive">
                         <table class="table table-sm">
                             <thead><tr><th>Category</th><th class="text-right">Amount</th></tr></thead>
                             <tbody>
@@ -85,6 +88,7 @@
                                 </tr>
                             </tfoot>
                         </table>
+                        </div>
                     </div>
                 </div>
 

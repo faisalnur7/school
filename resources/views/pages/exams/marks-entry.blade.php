@@ -10,11 +10,11 @@
         @endif
 
         <div class="card card-outline card-primary mb-3 marks-entry-hero">
-            <div class="card-header d-flex justify-content-start align-items-center">
+            <div class="card-header d-flex justify-content-start align-items-center marks-entry-hero-header">
                 <a href="{{ route('exams.show', $exam) }}" class="btn btn-sm btn-secondary marks-entry-back">
                     <i class="fas fa-arrow-left mr-1"></i>Back
                 </a>
-                <div>
+                <div class="marks-entry-details">
                     <h4 class="mb-0 font-weight-bold text-dark marks-entry-title">
                         <i class="fas fa-keyboard text-success mr-2"></i>Marks Entry
                     </h4>
@@ -29,7 +29,7 @@
             <div class="card-body">
                 <div class="form-group mb-0">
                     <label class="font-weight-bold mr-2">Select Class:</label>
-                    <div class="d-flex flex-wrap">
+                    <div class="d-flex flex-wrap marks-entry-class-grid">
                         @foreach ($classes as $class)
                             <a href="{{ route('exams.marks-entry', ['exam' => $exam->id, 'class_id' => $class->id]) }}"
                                class="btn btn-sm mr-1 mb-1 {{ $classId == $class->id ? 'btn-primary' : 'btn-outline-primary' }}">
@@ -41,7 +41,7 @@
 
                 @if ($classId)
                     <div class="mt-3 p-3 border rounded bg-light cohort-panel">
-                        <div class="d-flex flex-wrap align-items-center">
+                        <div class="d-flex flex-wrap align-items-center marks-entry-cohort-summary">
                             <strong class="mr-2 mb-2">Selected Cohort:</strong>
                             <span class="badge badge-primary mr-2 mb-2">{{ $selectedClass?->name_en ?? 'Class' }}</span>
                             @if ($selectedSection)
@@ -53,9 +53,9 @@
                         </div>
 
                         @if ($sections->isNotEmpty() && ! $selectedSection)
-                            <div class="mt-3">
+                            <div class="mt-3 marks-entry-cohort-choice">
                                 <div class="font-weight-bold mb-2">Select Section:</div>
-                                <div class="d-flex flex-wrap">
+                                <div class="d-flex flex-wrap marks-entry-section-grid">
                                     @foreach ($sections as $section)
                                         <a href="{{ route('exams.marks-entry', array_filter([
                                             'exam' => $exam->id,
@@ -69,9 +69,9 @@
                                 </div>
                             </div>
                         @elseif ($groups->isNotEmpty() && ! $selectedGroup)
-                            <div class="mt-3">
+                            <div class="mt-3 marks-entry-cohort-choice">
                                 <div class="font-weight-bold mb-2">Select Group:</div>
-                                <div class="d-flex flex-wrap">
+                                <div class="d-flex flex-wrap marks-entry-section-grid">
                                     @foreach ($groups as $group)
                                         <a href="{{ route('exams.marks-entry', array_filter([
                                             'exam' => $exam->id,
@@ -233,7 +233,10 @@
                     @if ($entryMode === 'student')
                         @php
                             $isTutorial = $exam->type === \App\Models\Exam::TYPE_TUTORIAL;
-                            $studentWiseColumns = $subjects->filter(fn ($studentWiseSubject) => !empty($studentSubjectEligibility[$studentWiseSubject->id] ?? []))->map(function ($studentWiseSubject) use ($isTutorial, $classId) {
+                            $studentWiseColumns = $subjects
+                                ->filter(fn ($studentWiseSubject) => !empty($studentSubjectEligibility[$studentWiseSubject->id] ?? []))
+                                ->filter(fn ($studentWiseSubject) => ! $isTutorial || $studentWiseSubject->include_in_tutorial_exam)
+                                ->map(function ($studentWiseSubject) use ($isTutorial, $classId) {
                                 $config = $studentWiseSubject->getEffectiveMarksForClass($classId);
                                 $components = $isTutorial
                                     ? [['field' => 'tutorial_marks', 'label' => 'Tutorial', 'max' => (float) ($config['tutorial_marks'] ?? $studentWiseSubject->tutorial_marks ?? 0)]]
@@ -249,17 +252,17 @@
                             $studentWiseColumnCount = $studentWiseColumns->sum(fn ($column) => count($column['components']) + ($showAbsent ? 1 : 0));
                         @endphp
                         <div class="card student-wise-card marks-workspace-card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="card-header d-flex justify-content-between align-items-center student-wise-toolbar">
                                 <div>
                                     <strong>All Subjects</strong>
                                     <span class="badge badge-light ml-2">{{ $isTutorial ? 'Tutorial Exam' : 'Terminal Exam' }}</span>
                                 </div>
-                                <div class="d-flex align-items-center ml-auto">
+                                <div class="d-flex align-items-center ml-auto student-wise-toolbar-actions">
                                     <label class="autosave-switch mb-0 mr-3" title="Automatically save changes in the background">
                                         <input type="checkbox" class="autosave-toggle" checked>
                                         <span>Autosave</span>
                                     </label>
-                                    <span class="autosave-status text-muted mr-3" data-autosave-status="student" aria-live="polite">
+                                    <span class="autosave-status text-muted mr-3 student-wise-toolbar-status" data-autosave-status="student" aria-live="polite">
                                         <i class="fas fa-cloud mr-1"></i>All changes saved
                                     </span>
                                     <small class="text-muted mr-3"><kbd>Tab</kbd> / <kbd>Enter</kbd> to move between cells</small>
@@ -289,8 +292,8 @@
                                 <input type="hidden" name="group_id" value="{{ $groupId }}">
                                 <div class="card-body p-0">
                                     <div class="marks-table-scrollbar-top" aria-label="Top horizontal table scrollbar"><div></div></div>
-                                    <div class="table-responsive marks-table-scroll">
-                                        <table class="table table-bordered table-sm mb-0 marks-entry-table student-wise-table">
+                                    <div class="table-responsive marks-table-scroll student-wise-mobile-scroll">
+                                        <table class="table table-bordered table-sm mb-0 marks-entry-table student-wise-table student-wise-mobile-table">
                                             <thead class="thead-dark">
                                                 <tr>
                                                     <th rowspan="{{ $isTutorial ? 1 : 2 }}" class="text-center sticky-col" style="width:90px; min-width:90px;">Roll</th>
@@ -376,6 +379,8 @@
                                 </div>
                             </form>
                         </div>
+                    @elseif ($subject && $exam->type === \App\Models\Exam::TYPE_TUTORIAL && ! $subject->include_in_tutorial_exam)
+                        <div class="alert alert-info">This subject is excluded from tutorial exams, so tutorial mark entry is unavailable.</div>
                     @elseif ($subject)
                         @php
                             $isTutorial = $exam->type === \App\Models\Exam::TYPE_TUTORIAL;
@@ -741,6 +746,323 @@
         .marks-entry-page .marks-view-switcher .btn-primary {
             box-shadow: 0 3px 8px rgba(37, 99, 235, .24);
         }
+        @media (max-width: 576px) {
+            .marks-entry-page {
+                padding: 6px 6px 18px;
+            }
+
+            .marks-entry-page .marks-entry-hero {
+                border-radius: 14px;
+                box-shadow: 0 6px 18px rgba(30, 64, 175, .09);
+            }
+
+            .marks-entry-page .marks-entry-hero > .card-header,
+            .marks-entry-page .marks-entry-hero > .marks-entry-hero-header {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: 10px;
+                align-items: stretch !important;
+                padding: 12px 10px;
+            }
+
+            .marks-entry-page .marks-entry-back {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                min-height: 58px;
+                margin: 0;
+                padding: 8px 6px;
+                font-size: 13px;
+            }
+
+            .marks-entry-page .marks-entry-details {
+                min-width: 0;
+                align-self: center;
+            }
+
+            .marks-entry-page .marks-entry-title {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 15px;
+                white-space: nowrap;
+            }
+
+            .marks-entry-page .marks-entry-title i {
+                flex: 0 0 28px;
+                width: 28px;
+                height: 28px;
+                margin-right: 0 !important;
+                border-radius: 8px;
+                font-size: 13px;
+            }
+
+            .marks-entry-page .marks-entry-meta {
+                display: block;
+                margin-top: 5px;
+                font-size: 11px;
+                line-height: 1.35;
+            }
+
+            .marks-entry-page .marks-entry-meta .badge {
+                display: inline-block;
+                margin: 2px 0;
+                font-size: 10px;
+            }
+
+            .marks-entry-page .marks-entry-hero > .card-body {
+                padding: 12px 10px 14px;
+            }
+
+            .marks-entry-page .marks-entry-hero label {
+                display: block;
+                margin-bottom: 7px !important;
+                font-size: 13px;
+            }
+
+            .marks-entry-page .marks-entry-class-grid {
+                display: grid !important;
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+                gap: 4px;
+            }
+
+            .marks-entry-page .marks-entry-class-grid .btn {
+                width: 100%;
+                min-height: 32px;
+                margin: 0 !important;
+                padding: 5px 2px;
+                border-radius: 7px;
+                font-size: 11px;
+                line-height: 1.1;
+            }
+
+            .marks-entry-page .cohort-panel {
+                margin-top: 12px !important;
+                padding: 12px !important;
+                border-radius: 12px !important;
+            }
+
+            .marks-entry-page .marks-entry-cohort-summary {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 13px;
+            }
+
+            .marks-entry-page .marks-entry-cohort-summary strong {
+                margin: 0 2px 0 0 !important;
+                font-size: 13px;
+            }
+
+            .marks-entry-page .cohort-panel .badge {
+                margin: 0 3px 0 0 !important;
+                padding: 5px 8px;
+                font-size: 11px;
+            }
+
+            .marks-entry-page .marks-entry-cohort-choice {
+                margin-top: 13px !important;
+            }
+
+            .marks-entry-page .marks-entry-cohort-choice .font-weight-bold {
+                margin-bottom: 7px !important;
+                font-size: 13px;
+            }
+
+            .marks-entry-page .marks-entry-section-grid {
+                display: grid !important;
+                grid-template-columns: repeat(auto-fit, minmax(42px, 1fr));
+                gap: 5px;
+            }
+
+            .marks-entry-page .marks-entry-section-grid .btn {
+                width: 100%;
+                min-height: 31px;
+                margin: 0 !important;
+                padding: 5px 6px;
+                border-radius: 7px;
+                font-size: 11px;
+            }
+
+            .marks-entry-page .student-wise-toolbar {
+                display: block !important;
+                padding: 10px 12px;
+            }
+
+            .marks-entry-page .student-wise-toolbar > div:first-child {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 6px;
+                min-width: 0;
+            }
+
+            .marks-entry-page .student-wise-toolbar > div:first-child strong {
+                font-size: 14px;
+            }
+
+            .marks-entry-page .student-wise-toolbar > div:first-child .badge {
+                margin-left: 4px !important;
+                padding: 4px 6px;
+                font-size: 10px;
+                vertical-align: middle;
+            }
+
+            .marks-entry-page .student-wise-toolbar-actions {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: 6px;
+                margin: 10px 0 0 !important;
+            }
+
+            .marks-entry-page .student-wise-toolbar-actions .autosave-switch,
+            .marks-entry-page .student-wise-toolbar-actions .student-wise-toolbar-status,
+            .marks-entry-page .student-wise-toolbar-actions > small,
+            .marks-entry-page .student-wise-toolbar-actions > a,
+            .marks-entry-page .student-wise-toolbar-actions > button {
+                margin: 0 !important;
+            }
+
+            .marks-entry-page .student-wise-toolbar-actions .autosave-switch {
+                grid-column: 1;
+                justify-self: start;
+                font-size: 11px;
+            }
+
+            .marks-entry-page .student-wise-toolbar-actions .student-wise-toolbar-status {
+                grid-column: 2;
+                justify-self: end;
+                font-size: 11px;
+                white-space: nowrap;
+            }
+
+            .marks-entry-page .student-wise-toolbar-actions > small {
+                grid-column: 1 / -1;
+                font-size: 10px;
+                line-height: 1.25;
+            }
+
+            .marks-entry-page .student-wise-toolbar-actions > a {
+                grid-column: 1;
+            }
+
+            .marks-entry-page .student-wise-toolbar-actions > form {
+                display: block !important;
+                grid-column: 2;
+                width: 100%;
+                margin: 0 !important;
+            }
+
+            .marks-entry-page .student-wise-toolbar-actions .btn {
+                width: 100%;
+                min-height: 39px;
+                margin: 0 !important;
+                padding: 8px 7px;
+                font-size: 12px;
+            }
+
+            .marks-entry-page .student-wise-toolbar-actions > button[type="submit"] {
+                grid-column: 1 / -1;
+            }
+
+            .marks-entry-page .student-wise-toolbar-actions > form label.btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .marks-entry-page .student-wise-mobile-scroll {
+                width: 100%;
+                max-width: 100%;
+                overflow-x: auto;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior-x: contain;
+            }
+
+            .marks-entry-page .student-wise-mobile-table {
+                width: max-content;
+                min-width: 720px;
+            }
+
+            .marks-entry-page .student-wise-mobile-table > thead > tr > th,
+            .marks-entry-page .student-wise-mobile-table > tbody > tr > td {
+                font-size: 11px;
+            }
+
+            .marks-entry-page .student-wise-mobile-table > thead > tr > th {
+                padding: 6px 4px;
+                line-height: 1.2;
+            }
+
+            .marks-entry-page .student-wise-mobile-table > tbody > tr > td {
+                height: 43px;
+                padding: 4px;
+            }
+
+            .marks-entry-page .student-wise-mobile-table .sticky-col:first-child {
+                width: 56px !important;
+                min-width: 56px !important;
+                max-width: 56px !important;
+                padding-right: 3px;
+                padding-left: 3px;
+                box-shadow: 2px 0 0 #e5eaf0;
+            }
+
+            .marks-entry-page .student-wise-mobile-table .student-name-col {
+                left: 56px;
+                width: 132px !important;
+                min-width: 132px !important;
+                max-width: 132px !important;
+                padding-right: 7px;
+                padding-left: 7px;
+                overflow: hidden;
+                box-shadow: 2px 0 0 #e5eaf0;
+            }
+
+            .marks-entry-page .student-wise-mobile-table .student-name-col strong {
+                display: block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 11px;
+            }
+
+            .marks-entry-page .student-wise-mobile-table .student-name-col small {
+                display: block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 9px;
+            }
+
+            .marks-entry-page .student-wise-mobile-table .student-component-input {
+                width: 58px !important;
+                min-width: 58px !important;
+                height: 34px;
+                padding: 4px 3px;
+                font-size: 13px;
+            }
+
+            .marks-entry-page .student-wise-mobile-table .sticky-col {
+                position: sticky;
+            }
+
+            .marks-entry-page .student-wise-mobile-table tbody .sticky-col {
+                background: #fff;
+            }
+
+            .marks-entry-page .marks-table-scrollbar-top {
+                height: 13px;
+                margin-bottom: 4px;
+            }
+
+            .marks-entry-page .marks-table-scrollbar-top::-webkit-scrollbar {
+                height: 8px;
+            }
+        }
+
         .marks-entry-page .column-control-card {
             border: 1px solid #dbeafe;
             border-radius: 12px;

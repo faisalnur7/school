@@ -23,6 +23,7 @@
     </div>
 
     <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
                 <tr class="bg-slate-50 border-b border-slate-200">
@@ -61,6 +62,7 @@
             </tfoot>
             @endif
         </table>
+        </div>
     </div>
 </div>
 @endsection

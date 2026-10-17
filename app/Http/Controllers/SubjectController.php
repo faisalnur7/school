@@ -5,15 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSubjectRequest;
 use App\Http\Requests\UpdateSubjectRequest;
 use App\Models\Subject;
+use App\Models\SubjectClassConfig;
 use App\Services\SubjectService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\SubjectClassAssignment;
+use App\Services\SubjectOrderingService;
 
 class SubjectController extends Controller
 {
     public function __construct(
-        private SubjectService $subjectService
+        private SubjectService $subjectService,
+        private SubjectOrderingService $subjectOrderingService
     ) {}
 
     /**
@@ -21,6 +25,10 @@ class SubjectController extends Controller
      */
      public function index(Request $request)
      {
+         if ($request->input('view') !== 'list') {
+             return $this->indexClasswise($request);
+         }
+
          $query = Subject::with(['classAssignments' => fn ($q) => $q->where('is_active', true)->with(['schoolClass', 'group'])])
              ->withCount('papers');
 
@@ -120,7 +128,7 @@ class SubjectController extends Controller
                 if (! isset($classwiseSubjects[$classKey]['groups'][$groupKey])) {
                     $classwiseSubjects[$classKey]['groups'][$groupKey] = [
                         'group' => $assignment->group,
-                        'subjects' => collect(),
+                    'subjects' => collect(),
                     ];
                 }
 
@@ -129,6 +137,17 @@ class SubjectController extends Controller
                 }
             }
         }
+
+        foreach ($classwiseSubjects as $classId => &$classData) {
+            foreach ($classData['groups'] as $groupKey => &$groupData) {
+                $groupData['subjects'] = $this->subjectOrderingService->sortSubjects(
+                    $groupData['subjects'],
+                    (int) $classId,
+                    $groupKey === 'no_group' ? null : (int) $groupKey,
+                );
+            }
+        }
+        unset($classData, $groupData);
 
         $classes = $this->subjectService->getClassOptions();
         $groups = $this->subjectService->getGroupOptions();
@@ -220,8 +239,9 @@ class SubjectController extends Controller
             'papers',
             'classConfigs.schoolClass'
         ]);
+        $duplicateAssignments = $this->subjectService->getDuplicateAssignments($subject);
 
-        return view('pages.subjects.edit', compact('subject', 'classes', 'groups'));
+        return view('pages.subjects.edit', compact('subject', 'classes', 'groups', 'duplicateAssignments'));
     }
 
     /**
@@ -325,6 +345,30 @@ class SubjectController extends Controller
     }
 
     /**
+     * Remove a class-wise marks configuration from a subject.
+     */
+    public function removeClassConfig(Subject $subject, SubjectClassConfig $config)
+    {
+        abort_unless((int) $config->subject_id === (int) $subject->id, 404);
+
+        try {
+            $this->subjectService->deleteClassConfig($config);
+
+            return redirect()->route('subjects.edit', $subject)
+                ->with('success', 'Class-wise marks configuration removed successfully');
+        } catch (\Exception $e) {
+            Log::error('Class-wise marks configuration removal failed', [
+                'subject_id' => $subject->id,
+                'config_id' => $config->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
      * Remove the specified subject from storage (soft delete).
      */
     public function destroy(Subject $subject)
@@ -351,6 +395,20 @@ class SubjectController extends Controller
     }
 
     /**
+     * Toggle whether a subject participates in tutorial exams.
+     */
+    public function toggleTutorialExam(Subject $subject)
+    {
+        $subject->update([
+            'include_in_tutorial_exam' => ! $subject->include_in_tutorial_exam,
+        ]);
+
+        $status = $subject->include_in_tutorial_exam ? 'included in' : 'excluded from';
+
+        return back()->with('success', "Subject {$status} tutorial exams successfully");
+    }
+
+    /**
      * Assign subject to class.
      */
     public function assignToClass(Request $request)
@@ -371,6 +429,36 @@ class SubjectController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    public function reorder(Request $request)
+    {
+        $data = $request->validate([
+            'school_class_id' => ['required', 'exists:school_classes,id'],
+            'group_id' => ['nullable', 'exists:groups,id'],
+            'assignment_ids' => ['required', 'array', 'min:1'],
+            'assignment_ids.*' => ['integer', 'distinct', 'exists:subject_class_assignments,id'],
+        ]);
+
+        $assignments = SubjectClassAssignment::query()
+            ->where('school_class_id', $data['school_class_id'])
+            ->where('is_active', true)
+            ->when(array_key_exists('group_id', $data) && $data['group_id'] !== null,
+                fn ($query) => $query->where('group_id', $data['group_id']),
+                fn ($query) => $query->whereNull('group_id'))
+            ->whereIn('id', $data['assignment_ids'])
+            ->get()
+            ->keyBy('id');
+
+        abort_unless($assignments->count() === count($data['assignment_ids']), 422, 'Invalid subject assignment order.');
+
+        DB::transaction(function () use ($data, $assignments) {
+            foreach ($data['assignment_ids'] as $index => $assignmentId) {
+                $assignments[$assignmentId]->update(['sort_order' => $index + 1]);
+            }
+        });
+
+        return response()->json(['ok' => true]);
     }
 
     /**

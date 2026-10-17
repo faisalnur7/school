@@ -801,6 +801,13 @@
                                             <td>:</td>
                                             <td>{{ $info?->schoolClass?->name_en ?? '—' }}</td>
                                         </tr>
+                                        @if ($info?->group)
+                                            <tr>
+                                                <td>Group</td>
+                                                <td>:</td>
+                                                <td>{{ $info->group->name_en }}</td>
+                                            </tr>
+                                        @endif
                                         <tr>
                                             <td>ID</td>
                                             <td>:</td>

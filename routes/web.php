@@ -417,8 +417,13 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/{subject}/edit', [SubjectController::class, 'edit'])->name('subjects.edit');
         Route::put('/{subject}', [SubjectController::class, 'update'])->name('subjects.update');
         Route::post('/{subject}/toggle-status', [SubjectController::class, 'toggleStatus'])->name('subjects.toggle-status');
+        Route::post('/{subject}/toggle-tutorial-exam', [SubjectController::class, 'toggleTutorialExam'])->name('subjects.toggle-tutorial-exam');
         Route::post('/assign-to-class', [SubjectController::class, 'assignToClass'])->name('subjects.assign');
+        Route::post('/reorder', [SubjectController::class, 'reorder'])->name('subjects.reorder');
         Route::delete('/assignment/{id}', [SubjectController::class, 'removeAssignment'])->name('subjects.removeAssignment');
+        Route::post('/assignment/{id}/archive', [SubjectController::class, 'removeAssignment'])->name('subjects.archiveAssignment');
+        Route::delete('/{subject}/class-config/{config}', [SubjectController::class, 'removeClassConfig'])->name('subjects.class-config.delete');
+        Route::post('/{subject}/class-config/{config}/remove', [SubjectController::class, 'removeClassConfig'])->name('subjects.class-config.remove');
     });
 
     Route::middleware('permission:delete_subjects')->prefix('subjects')->group(function () {

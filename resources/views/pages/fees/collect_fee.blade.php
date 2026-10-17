@@ -13,6 +13,13 @@
         }
 
         .fee-collect-page {
+            --mobile-sheet-surface: #ffffff;
+            --mobile-sheet-subtle: #f8fafc;
+            --mobile-sheet-border: #e2e8f0;
+            --mobile-sheet-primary: #2563eb;
+            --mobile-sheet-primary-text: #ffffff;
+            --mobile-sheet-muted: #64748b;
+            --mobile-sheet-total: #0284c7;
             color: #334155;
         }
 
@@ -40,6 +47,10 @@
         .fee-collect-page .card .card-body {
             padding: 1rem !important;
             background: #fff;
+        }
+
+        .fee-collect-page .category-panel-card > .card-header {
+            padding: 0.75rem 1rem !important;
         }
 
         .fee-collect-page .card form .card-footer,
@@ -95,6 +106,109 @@
 
         .fee-collect-page .discount-row {
             margin-bottom: 1rem;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            row-gap: 0.35rem;
+            align-items: center;
+            padding: 0.55rem;
+            border: 1px solid #dbe4ee;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+
+        .fee-collect-page .discount-row .mobile-discount-head {
+            display: contents !important;
+            margin-bottom: 0 !important;
+        }
+
+        .fee-collect-page .discount-row .mobile-discount-head > span:first-child {
+            grid-column: 1;
+            grid-row: 1;
+            align-self: start;
+            padding-top: 0.55rem;
+            white-space: nowrap;
+        }
+
+        .fee-collect-page .discount-row .mobile-discount-controls {
+            grid-column: 2;
+            grid-row: 1;
+            display: flex;
+            align-items: center;
+            gap: 0 !important;
+            margin-left: auto !important;
+        }
+
+        .fee-collect-page .discount-row #discountInput {
+            width: 78px !important;
+            min-width: 78px;
+            min-height: 34px;
+            padding: 0.2rem 0.5rem;
+            border: 1px solid #dbe4ee;
+            border-radius: 8px 0 0 8px;
+            background: #fff;
+            text-align: right;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .fee-collect-page .discount-row .discount-type-btn {
+            min-width: 38px;
+            height: 36px;
+            padding: 0.15rem 0.4rem;
+            border: 1px solid #dbe4ee;
+            background: #fff;
+            color: #475569;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        .fee-collect-page .discount-row .discount-type-btn.active {
+            border-color: #6366f1;
+            background: #6366f1;
+            color: #fff;
+        }
+
+        .fee-collect-page .discount-row #btnFlat {
+            border-radius: 0;
+        }
+
+        .fee-collect-page .discount-row #btnPercent {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .fee-collect-page .discount-row > .d-flex:last-child {
+            grid-column: 1 / -1;
+            display: flex !important;
+            justify-content: space-between !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+
+        .fee-collect-page .discount-row .discount-amount-line {
+            color: #16a34a !important;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        .fee-collect-page .payment-meta-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem 1rem;
+        }
+
+        .fee-collect-page .payment-meta-row .mobile-payment-amount,
+        .fee-collect-page .payment-meta-row > .mb-3 {
+            min-width: 0;
+        }
+
+        @media (max-width: 575.98px) {
+            .fee-collect-page .payment-meta-row {
+                display: block;
+            }
+
+            .fee-collect-page .payment-meta-row > .mb-3 {
+                margin-bottom: 0.75rem !important;
+            }
         }
 
         .fee-collect-page .discount-type-btn {
@@ -184,15 +298,18 @@
 
         .fee-collect-page .cart-row .remove-btn,
         .fee-collect-page .cart-row-remove {
-            grid-area: remove;
-            align-self: start;
-            justify-self: end;
-            width: 30px;
-            height: 30px;
+            /* grid-area: remove; */
+            /* align-self: start; */
+            /* justify-self: end; */
+            width: 25px;
+            height: 25px;
             padding: 0 !important;
             line-height: 1;
-            border-radius: 999px !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            background: transparent !important;
             display: inline-flex !important;
+            /* border-radius: 999px !important; */
             align-items: center;
             justify-content: center;
             font-size: 13px;
@@ -329,18 +446,127 @@
             max-width: 128px;
         }
 
+        .fee-collect-page .cart-row--inventory {
+            display: flex !important;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            background: #f2fbf5 !important;
+            border: 1px solid #cfe7d8 !important;
+            border-radius: 12px !important;
+            padding: 8px 10px !important;
+        }
+
+        .fee-collect-page .cart-row--inventory .cart-row-main {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 0.08rem;
+            padding-right: 1.35rem;
+            width: 100%;
+        }
+
+        .fee-collect-page .cart-row--inventory .cart-row-remove {
+            position: absolute;
+            top: 0.35rem;
+            right: 0.45rem;
+            width: 24px;
+            height: 24px;
+            display: grid !important;
+            place-items: center;
+            color: #6b7a90 !important;
+            font-size: 13px;
+            border: 0 !important;
+            border-radius: 6px !important;
+            background: transparent !important;
+        }
+
+        .fee-collect-page .cart-row--inventory .cart-line-title {
+            font-size: 0.875rem;
+            line-height: 1.35;
+            font-weight: 600;
+        }
+
+        .fee-collect-page .cart-row--inventory .cart-line-subtitle {
+            display: none !important;
+        }
+
+        .fee-collect-page .cart-row--inventory .cart-row-controls {
+            display: flex !important;
+            flex-wrap: nowrap;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .fee-collect-page .cart-row--inventory .cart-control-group {
+            flex-direction: row;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .fee-collect-page .cart-row--inventory .cart-control-group--unit,
+        .fee-collect-page .cart-row--inventory .cart-control-group--paid {
+            flex: 1 1 0;
+            width: auto;
+        }
+
+        .fee-collect-page .cart-row--inventory .cart-control-group--qty {
+            flex: 0 0 auto;
+            width: auto;
+        }
+
+        .fee-collect-page .cart-row--inventory .cart-control-group--paid .form-control {
+            width: 74px;
+            height: 30px;
+            flex: 0 0 74px;
+            border: 1px solid #cfe7d8 !important;
+            border-radius: 8px !important;
+            background: #fff !important;
+            padding: 0 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            text-align: right;
+        }
+
         .fee-collect-page .assigned-fees-card {
             background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
         }
 
         .fee-collect-page .assigned-fees-toolbar {
             gap: 0.75rem 1rem;
+            flex-wrap: nowrap !important;
         }
 
         .fee-collect-page .assigned-fees-toolbar .btn {
             min-width: 0;
             border-radius: 999px;
             font-weight: 700;
+        }
+
+        .fee-collect-page .assigned-fees-actions {
+            display: flex;
+            flex: 0 0 auto;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .fee-collect-page .assigned-fees-actions > .btn,
+        .fee-collect-page .assigned-fees-bulk-actions > .btn {
+            min-height: 40px;
+            padding: 0.55rem 0.75rem;
+            white-space: nowrap;
+        }
+
+        .fee-collect-page .assigned-fees-bulk-actions {
+            display: flex;
+            flex: 0 0 auto;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .fee-collect-page .assigned-fees-tabs-wrap {
@@ -447,6 +673,10 @@
             box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
         }
 
+        .fee-collect-page .assigned-fees-table-responsive {
+            overflow: visible;
+        }
+
         .fee-collect-page .assigned-fees-table {
             margin-bottom: 0;
         }
@@ -510,15 +740,231 @@
 
         @media (max-width: 575.98px) {
             .fee-collect-page .assigned-fees-summary {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.6rem;
+            }
+
+            .fee-collect-page .assigned-fees-card {
+                overflow: visible;
             }
 
             .fee-collect-page .assigned-fees-toolbar {
                 width: 100%;
+                display: block !important;
             }
 
-            .fee-collect-page .assigned-fees-toolbar .btn {
-                flex: 1 1 auto;
+            .fee-collect-page .assigned-fees-toolbar > .flex-grow-1 {
+                width: 100%;
+            }
+
+            .fee-collect-page .assigned-fees-card > .card-header {
+                padding: 0.75rem !important;
+            }
+
+            .fee-collect-page .assigned-fees-actions {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+                margin-top: 0 !important;
+                margin-left: 0 !important;
+                width: 100%;
+            }
+
+            .fee-collect-page .assigned-fees-actions .btn {
+                width: 100%;
+                min-height: 42px;
+            }
+
+            .fee-collect-page .assigned-fees-actions > .btn,
+            .fee-collect-page .assigned-fees-bulk-actions > .btn {
+                height: 42px;
+                min-height: 42px;
+                padding: 0.55rem 0.75rem !important;
+                line-height: 1;
+                border-radius: 12px !important;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .fee-collect-page .assigned-fees-bulk-actions {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.5rem;
+            }
+
+            .fee-collect-page .assigned-fees-bulk-actions > .btn {
+                margin-top: 0 !important;
+            }
+
+            .fee-collect-page .assigned-fees-save {
+                position: sticky;
+                top: 0.5rem;
+                z-index: 4;
+                box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14);
+            }
+
+            .fee-collect-page .assigned-fees-tabs-wrap {
+                position: sticky;
+                top: var(--mobile-tabs-top, 0px);
+                z-index: 3;
+                padding: 0.25rem !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                background: #f1f5f9;
+                border-radius: 12px;
+                backdrop-filter: blur(10px);
+            }
+
+            .fee-collect-page .assigned-fees-pane {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            .fee-collect-page .assigned-fees-summary,
+            .fee-collect-page .assigned-fees-table-shell {
+                width: 100%;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            .fee-collect-page .assigned-fees-tabs {
+                padding: 0 !important;
+                gap: 0.25rem !important;
+                border-bottom: 0;
+            }
+
+            .fee-collect-page .assigned-fees-tabs .nav-link,
+            .fee-collect-page .assigned-fees-tabs .nav-link:hover,
+            .fee-collect-page .assigned-fees-tabs .nav-link.active {
+                border: 0 !important;
+                border-radius: 8px !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                padding: 0.55rem 0.8rem;
+            }
+
+            .fee-collect-page .assigned-fees-tabs .nav-link.active {
+                background: #ffffff !important;
+                color: #111827;
+                box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12) !important;
+            }
+
+            .fee-collect-page .assigned-fees-tabs .nav-item {
+                min-width: 0;
+                max-width: 9rem;
+            }
+
+            .fee-collect-page .assigned-fees-tabs .nav-link {
+                min-width: 0;
+                max-width: 9rem;
+                font-size: 0.64rem;
+            }
+
+            .fee-collect-page .assigned-fees-tabs .nav-link > span:first-child {
+                min-width: 0;
+                max-width: 7.5rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .fee-collect-page .assigned-fees-summary-card {
+                padding: 0.75rem 0.8rem;
+                border-radius: 14px;
+            }
+
+            .fee-collect-page .assigned-fees-summary-value {
+                font-size: 1rem;
+            }
+
+            .fee-collect-page .assigned-fees-table {
+                width: max-content;
+                min-width: 100%;
+                table-layout: auto;
+                font-size: 0.68rem;
+            }
+
+            .fee-collect-page .assigned-fees-table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .fee-collect-page .assigned-fees-table th,
+            .fee-collect-page .assigned-fees-table td {
+                padding: 0.45rem 0.35rem !important;
+                word-break: break-word;
+            }
+
+            .fee-collect-page .assigned-fees-table th:first-child,
+            .fee-collect-page .assigned-fees-table td:first-child {
+                display: none !important;
+            }
+
+            .fee-collect-page .assigned-fees-table th:nth-child(4),
+            .fee-collect-page .assigned-fees-table td:nth-child(4),
+            .fee-collect-page .assigned-fees-table th:nth-child(5),
+            .fee-collect-page .assigned-fees-table td:nth-child(5),
+            .fee-collect-page .assigned-fees-table th:nth-child(6),
+            .fee-collect-page .assigned-fees-table td:nth-child(6),
+            .fee-collect-page .assigned-fees-table th:nth-child(7),
+            .fee-collect-page .assigned-fees-table td:nth-child(7) {
+                display: table-cell !important;
+                width: auto !important;
+            }
+
+            .fee-collect-page .assigned-fees-table th:nth-child(1),
+            .fee-collect-page .assigned-fees-table td:nth-child(1) {
+                width: 7% !important;
+            }
+
+            .fee-collect-page .assigned-fees-table th:nth-child(2),
+            .fee-collect-page .assigned-fees-table td:nth-child(2) {
+                width: 55% !important;
+            }
+
+            .fee-collect-page .assigned-fees-table th:nth-child(3),
+            .fee-collect-page .assigned-fees-table td:nth-child(3) {
+                width: auto !important;
+                white-space: nowrap;
+                font-size: 0.62rem;
+            }
+
+            .fee-collect-page .assigned-fees-table th:nth-child(8),
+            .fee-collect-page .assigned-fees-table td:nth-child(8),
+            .fee-collect-page .assigned-fees-table th:nth-child(9),
+            .fee-collect-page .assigned-fees-table td:nth-child(9) {
+                width: auto !important;
+            }
+
+            .fee-collect-page .assigned-fees-table th:nth-child(2),
+            .fee-collect-page .assigned-fees-table td:nth-child(2) {
+                width: auto !important;
+            }
+
+            .fee-collect-page .assigned-fees-table .assigned-fees-pill-group {
+                gap: 0.2rem;
+            }
+
+            .fee-collect-page .assigned-fees-table .assigned-fees-pill {
+                padding: 0.2rem 0.35rem;
+                font-size: 0.58rem;
+            }
+
+            .fee-collect-page .assigned-fees-table .js-edit-assigned-fee {
+                width: 32px;
+                height: 32px;
+                padding: 0 !important;
+                border-radius: 8px !important;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .fee-collect-page .assigned-fees-table .js-edit-assigned-fee .assigned-fee-edit-label {
+                display: none;
             }
         }
 
@@ -564,7 +1010,7 @@
         }
 
         .fee-collect-page .payment-history-table-wrap {
-            overflow-x: hidden;
+            overflow: visible;
         }
 
         .fee-collect-page .payment-history-table-wrap > .payment-history-table {
@@ -892,10 +1338,10 @@
 
         .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle {
             width: 100%;
-            border: 0;
+            border: 1px solid #ede9e9;
             background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
             color: #0f172a;
-            padding: 0.9rem 1rem;
+            padding: 0.3rem 1rem;
             text-align: left;
             display: flex;
             align-items: center;
@@ -921,6 +1367,7 @@
 
         .fee-collect-page .mobile-cart-summary {
             display: flex;
+            width: 100%;
             align-items: center;
             justify-content: space-between;
             gap: 0.75rem;
@@ -939,12 +1386,44 @@
             color: #111827;
         }
 
-        .fee-collect-page .mobile-collect-action {
-            width: 100%;
-            min-height: 48px;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            font-weight: 700;
+        .fee-collect-page .mobile-cart-handle {
+            display: block;
+            width: 32px;
+            height: 4px;
+            margin: 0 auto 0.7rem;
+            border-radius: 999px;
+            background: #cbd5e1;
+        }
+
+        .fee-collect-page .mobile-cart-eyebrow {
+            display: block;
+            margin-bottom: 0.2rem;
+            color: #64748b;
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            line-height: 1;
+        }
+
+        .fee-collect-page .mobile-cart-copy {
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .fee-collect-page .mobile-cart-badge {
+            display: none;
+            align-items: center;
+            min-height: 24px;
+            padding: 0.25rem 0.55rem;
+            border: 1px solid #dbeafe;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #2563eb;
+            font-size: 0.68rem;
+            font-weight: 800;
+            white-space: nowrap;
         }
 
         .fee-collect-page .mobile-selection-modal .modal-dialog {
@@ -959,6 +1438,8 @@
             border: 0;
             border-radius: 0;
             background: #f8fafc;
+            display: flex;
+            flex-direction: column;
         }
 
         .fee-collect-page .mobile-selection-modal .modal-header,
@@ -970,12 +1451,19 @@
         .fee-collect-page .mobile-selection-modal .modal-body {
             padding: 1rem;
             overflow-y: auto;
+            flex: 1 1 auto;
         }
 
         .fee-collect-page .mobile-selection-modal .mobile-selection-search {
             border-radius: 14px;
             min-height: 44px;
             font-size: 16px;
+        }
+
+        .fee-collect-page .mobile-selection-modal .mobile-selection-category {
+            color: #64748b;
+            font-size: 0.74rem;
+            line-height: 1.1;
         }
 
         .fee-collect-page .mobile-selection-modal .mobile-selection-footer {
@@ -993,6 +1481,50 @@
             font-size: 0.82rem;
             color: #475569;
             flex: 1 1 140px;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .fee-collect-page .mobile-selection-modal .selection-count {
+            color: #64748b;
+            font-size: 0.74rem;
+        }
+
+        .fee-collect-page .mobile-selection-modal .selection-total {
+            color: #0f172a;
+            font-size: 0.9rem;
+            font-weight: 800;
+        }
+
+        .fee-collect-page .mobile-selection-modal .mobile-selection-mark {
+            width: 26px;
+            height: 26px;
+            min-width: 26px;
+            padding: 0;
+            border: 1px solid #cbd5e1;
+            background: transparent;
+            color: #64748b;
+            font-size: 0;
+        }
+
+        .fee-collect-page .mobile-selection-modal .mobile-selection-mark::before {
+            content: '+';
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1;
+        }
+
+        .fee-collect-page .mobile-selection-modal .mobile-selection-mark.is-selected {
+            border-color: #3b82f6;
+            background: #3b82f6;
+            color: #0f172a;
+        }
+
+        .fee-collect-page .mobile-selection-modal .mobile-selection-mark.is-selected::before {
+            content: '✓';
+            font-size: 0.85rem;
+            font-weight: 800;
         }
 
         .fee-collect-page .mobile-selection-modal .mobile-selection-footer .selection-action {
@@ -1050,8 +1582,7 @@
                 display: none !important;
             }
 
-            .fee-collect-page .mobile-cart-toggle-wrap,
-            .fee-collect-page #collectBtnMobile {
+            .fee-collect-page .mobile-cart-toggle-wrap {
                 display: none !important;
             }
 
@@ -1070,6 +1601,35 @@
 
             .fee-collect-page .payment-history-table td.payment-history-actions {
                 min-width: 150px;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .fee-collect-page .payment-history-table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .fee-collect-page .payment-history-table {
+                width: max-content;
+                min-width: 100%;
+                table-layout: auto;
+                font-size: 0.68rem;
+            }
+
+            .fee-collect-page .payment-history-table th,
+            .fee-collect-page .payment-history-table td {
+                padding: 0.45rem 0.5rem !important;
+                white-space: nowrap;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-items {
+                white-space: normal;
+                min-width: 150px;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-actions {
+                min-width: 72px;
             }
         }
 
@@ -1155,19 +1715,31 @@
                 position: sticky;
                 top: var(--mobile-tabs-top, 0px);
                 z-index: 1035;
+                gap: 0.25rem !important;
                 margin-bottom: 0.85rem !important;
-                background: rgba(248, 250, 252, 0.95);
+                padding: 0.25rem;
+                background: #f1f5f9;
+                border: 0;
+                border-radius: 12px;
                 backdrop-filter: blur(8px);
-                padding-top: 0.35rem;
-                padding-bottom: 0.35rem;
                 margin-left: -0.5rem;
                 margin-right: -0.5rem;
-                padding-left: 0.5rem;
-                padding-right: 0.5rem;
             }
 
-            .fee-collect-page #mainTabs .nav-link {
-                border-radius: 999px;
+            .fee-collect-page #mainTabs .nav-link,
+            .fee-collect-page #mainTabs .nav-link:hover,
+            .fee-collect-page #mainTabs .nav-link.active {
+                border: 0 !important;
+                border-radius: 8px !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                padding: 0.55rem 0.8rem;
+            }
+
+            .fee-collect-page #mainTabs .nav-link.active {
+                background: #ffffff !important;
+                color: #111827;
+                box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12) !important;
             }
 
             .fee-collect-page .mobile-topbar {
@@ -1176,6 +1748,41 @@
                 top: 0;
                 z-index: 1040;
                 margin-bottom: 0.75rem;
+                background: #ffffff !important;
+                border: 1px solid #e2e8f0;
+                border-radius: 16px;
+                box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+            }
+
+            .fee-collect-page .mobile-topbar .mobile-topbar-row {
+                gap: 0.5rem;
+            }
+
+            .fee-collect-page .mobile-topbar .mobile-icon-btn {
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+                border-radius: 12px;
+            }
+
+            .fee-collect-page .mobile-topbar .student-name {
+                font-size: 0.88rem;
+            }
+
+            .fee-collect-page .mobile-meta-row {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 0.35rem;
+                overflow: visible;
+            }
+
+            .fee-collect-page .mobile-meta-chip {
+                min-width: 0;
+                overflow: hidden;
+                padding: 0.4rem 0.2rem;
+                text-align: center;
+                text-overflow: ellipsis;
+                font-size: 0.62rem;
             }
 
             .fee-collect-page .mobile-summary-card {
@@ -1183,28 +1790,126 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet {
+                border: 1px solid #aeaeae;
+                padding-top: 10px;
                 position: fixed;
                 left: 0;
                 right: 0;
                 bottom: 0;
+                --mobile-collapsed-sheet-height: 80px;
+                padding: 0;
+                padding-bottom: env(safe-area-inset-bottom);
                 z-index: 1045;
-                transform: translateY(calc(100% - 148px));
                 transition: transform 0.24s ease, box-shadow 0.24s ease;
-                box-shadow: 0 -12px 32px rgba(15, 23, 42, 0.22);
-                border-radius: 22px 22px 0 0;
+                box-shadow: 0 -16px 40px rgba(23, 32, 51, 0.18);
+                border-radius: 28px 28px 0 0;
                 overflow: hidden;
-                max-height: calc(100dvh - 148px);
+                height: 90dvh;
+                max-height: 90dvh;
+                transform: translateY(calc(100% - var(--mobile-collapsed-sheet-height)));
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open {
                 transform: translateY(0);
-                max-height: calc(100dvh - 0.5rem);
+                max-height: 90dvh;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet > .card,
+            .fee-collect-page .mobile-checkout-sheet #feeForm {
+                min-height: 0;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open > .card,
+            .fee-collect-page .mobile-checkout-sheet.is-open #feeForm {
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #feeForm {
+                flex: 1 1 auto;
+                min-height: 0;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet > .card {
+                background: var(--mobile-sheet-surface);
+                color: var(--mobile-sheet-primary-text);
+            }
+
+            .fee-collect-page .mobile-checkout-sheet:not(.is-open) #feeForm {
+                display: none !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet .card-header {
                 padding: 0 !important;
                 border: 0 !important;
                 background: transparent !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle-wrap {
+                gap: 0.75rem;
+                margin-top: 0 !important;
+                padding: 0.5rem 0.9rem 0.9rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .mobile-cart-handle {
+                margin-bottom: 0.75rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle {
+                min-height: 70px;
+                padding: 0;
+                border: 0;
+                background: transparent;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle strong {
+                font-size: 1.1rem;
+                line-height: 1.1;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle small {
+                font-size: 0.72rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .mobile-cart-chevron {
+                display: inline-flex;
+                width: 34px;
+                height: 34px;
+                flex: 0 0 34px;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid #dbe4ee !important;
+                border-radius: 50%;
+                background: #fff !important;
+                color: #334155;
+                font-size: 0.95rem;
+                font-family: inherit;
+                line-height: 1;
+                padding: 0;
+                appearance: none;
+                -webkit-appearance: none;
+                box-shadow: none !important;
+                cursor: pointer;
+                vertical-align: middle;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .mobile-cart-chevron:hover,
+            .fee-collect-page .mobile-checkout-sheet .mobile-cart-chevron:focus {
+                border-color: #cbd5e1 !important;
+                background: #fff !important;
+                box-shadow: none !important;
+                outline: none;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .card-footer .collect-btn {
+                text-transform: none;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .card-footer .collect-btn:disabled {
+                background: #e2e8f0 !important;
+                color: #475569 !important;
+                opacity: 1;
             }
 
             .fee-collect-page .mobile-checkout-sheet .card-header > .d-flex.align-items-center.gap-2 {
@@ -1217,6 +1922,15 @@
                 padding-bottom: 1rem !important;
             }
 
+            .fee-collect-page .mobile-checkout-sheet.is-open .card-body .scroll-area {
+                max-height: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-empty-cart {
+                min-height: 0;
+                padding: 1.15rem 0.75rem !important;
+            }
+
             .fee-collect-page .mobile-checkout-sheet .card-footer {
                 position: sticky;
                 bottom: 0;
@@ -1224,18 +1938,399 @@
                 padding: 0.8rem 0.9rem !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet .card-body,
-            .fee-collect-page .mobile-checkout-sheet .card-footer {
-                display: none;
+            .fee-collect-page .mobile-checkout-sheet.is-open .card-header {
+                position: sticky;
+                top: 0;
+                z-index: 3;
+                background: #fff !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .card-body,
+            .fee-collect-page .mobile-checkout-sheet .card-body {
+                display: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .card-footer {
+                display: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .card-body {
+                display: flex !important;
+                flex: 1 1 auto;
+                min-height: 0;
+                max-height: none;
+                overflow: hidden;
+            }
+
             .fee-collect-page .mobile-checkout-sheet.is-open .card-footer {
-                display: block;
+                position: static;
+                flex: 0 0 auto;
+                min-height: 0;
+                overflow: visible;
+                display: block !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .card-body .scroll-area {
+                flex: 1 1 auto;
+                min-height: 0;
+                max-height: none !important;
+                overflow-y: auto;
+                scrollbar-width: thin;
+                scrollbar-color: rgba(100, 116, 139, 0.75) transparent;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-toggle {
                 border-radius: 22px 22px 0 0;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-toggle-wrap {
+                padding-bottom: 0.75rem;
+                border-bottom: 1px solid #eef2f7;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-badge {
+                display: inline-flex;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .card-footer {
+                border-top: 1px solid #e2e8f0 !important;
+                box-shadow: 0 -8px 22px rgba(15, 23, 42, 0.06);
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .card-footer .collect-btn {
+                position: sticky;
+                bottom: 0;
+                z-index: 4;
+                min-height: 54px;
+                border-radius: 16px !important;
+                background: #1d4ed8 !important;
+                box-shadow: 0 -10px 20px rgba(255, 255, 255, 0.92), 0 8px 18px rgba(29, 78, 216, 0.22);
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .card-footer .collect-btn:disabled {
+                background: #e2e8f0 !important;
+                color: #475569 !important;
+            }
+
+            /* Compact mobile checkout spacing: preserve touch targets, remove excess whitespace. */
+            .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle-wrap {
+                padding: 0.45rem 0.75rem 0.55rem;
+                gap: 0.45rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .mobile-cart-handle {
+                width: 28px;
+                height: 3px;
+                margin-bottom: 0.45rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle {
+                min-height: 58px;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .card-body {
+                padding: 0.45rem 0.75rem 0.5rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet .card-footer {
+                padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom)) !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #feeForm .card-footer > .mb-3 {
+                margin-bottom: 0.45rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #feeForm .card-footer > .d-flex {
+                margin-bottom: 0.35rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #feeForm .card-footer > hr {
+                margin: 0.45rem 0 !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #feeForm .discount-row {
+                padding: 0.45rem !important;
+                margin-bottom: 0.45rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #feeForm .cart-row {
+                gap: 0.2rem 0.35rem;
+                padding: 0.45rem 0.5rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #feeItems,
+            .fee-collect-page .mobile-checkout-sheet.is-open #cartItems {
+                gap: 0.3rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #feeForm .form-control,
+            .fee-collect-page .mobile-checkout-sheet.is-open #feeForm .input-group-text {
+                min-height: 38px;
+                padding-top: 0.35rem;
+                padding-bottom: 0.35rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .card-footer .collect-btn {
+                min-height: 46px;
+                padding-top: 0.55rem !important;
+                padding-bottom: 0.55rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-subtotal-row {
+                min-height: 34px;
+                align-items: center;
+                padding: 0 0.15rem 0.4rem !important;
+                margin-bottom: 0.45rem !important;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-subtotal-row > span:first-child,
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card > .d-flex > span:first-child {
+                color: #64748b !important;
+                font-size: 0.65rem !important;
+                font-weight: 800 !important;
+                letter-spacing: 0.08em;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-subtotal-row #subtotalAmount {
+                color: #64748b !important;
+                font-size: 1.15rem !important;
+                font-weight: 800 !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-subtotal-row > span:first-child,
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row > span:first-child,
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount > label {
+                font-size: 0.68rem !important;
+                font-weight: 800 !important;
+                letter-spacing: 0.08em;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card {
+                margin-bottom: 0.45rem !important;
+                padding: 0.55rem !important;
+                border: 1px solid #dbe4ee;
+                border-radius: 12px;
+                background: #f8fafc;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card > .d-flex {
+                margin-bottom: 0.45rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-type-btn {
+                min-width: 42px;
+                height: 36px;
+                padding: 0.15rem 0.5rem;
+                border: 1px solid #dbe4ee;
+                border-radius: 8px;
+                background: #fff;
+                color: #475569;
+                font-size: 0.72rem;
+                font-weight: 800;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-type-btn.active {
+                border-color: #6366f1;
+                background: #6366f1;
+                color: #fff;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-head {
+                min-width: 0;
+                margin-bottom: 0.35rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-head > span:first-child {
+                flex: 0 0 auto;
+                white-space: nowrap;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls {
+                min-width: 0;
+                margin-left: auto !important;
+                gap: 0.3rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls #discountInput {
+                width: 78px !important;
+                min-width: 78px;
+                min-height: 34px;
+                padding: 0.2rem 0.5rem;
+                text-align: right;
+                font-size: 0.72rem;
+                font-weight: 700;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls .discount-type-btn {
+                min-width: 38px;
+                height: 36px;
+                padding: 0.15rem 0.4rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls {
+                gap: 0 !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls .discount-type-btn + .discount-type-btn {
+                margin-left: -1px;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls #btnFlat {
+                border-radius: 8px 0 0 8px;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls #btnPercent {
+                border-radius: 0 8px 8px 0;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card > .d-flex:last-child {
+                margin-top: 0.35rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card #discountInput {
+                min-height: 34px;
+                border: 1px solid #dbe4ee;
+                border-radius: 8px;
+                background: #fff;
+                font-size: 0.72rem;
+                font-weight: 600;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-amount-line {
+                color: #16a34a !important;
+                font-size: 0.72rem;
+                font-weight: 800;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                row-gap: 0.35rem;
+                align-items: center;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-head {
+                display: contents !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-head > span:first-child {
+                grid-column: 1;
+                align-self: start;
+                padding-top: 0.55rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls {
+                grid-column: 2;
+                grid-row: 1;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card > .d-flex:last-child {
+                grid-column: 1 / -1;
+                display: flex !important;
+                justify-content: space-between !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card > .d-flex:last-child .text-muted {
+                font-size: 0.78rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row {
+                min-height: 64px;
+                align-items: center;
+                margin: 0.65rem 0 0.75rem !important;
+                padding: 0.15rem 0.15rem 0.65rem !important;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row > div {
+                display: flex;
+                align-items: baseline;
+                gap: 0.25rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row > div > span:first-child {
+                font-size: 0.8rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row #totalAmount {
+                color: var(--mobile-sheet-total) !important;
+                font-size: 1.8rem !important;
+                font-weight: 800 !important;
+                line-height: 0.95;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount {
+                margin-bottom: 0.75rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount #paymentAmount {
+                min-height: 48px;
+                margin-top: 0.25rem;
+                border-radius: 10px !important;
+                font-size: 0.95rem !important;
+                font-weight: 700;
+                letter-spacing: 0.02em;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row {
+                position: relative;
+                margin-top: 1.05rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount small {
+                display: block;
+                margin-top: 0.35rem;
+                font-size: 0.74rem !important;
+                line-height: 1.35;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .payment-meta-row {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.35rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .payment-meta-row > .mb-3,
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount {
+                margin-bottom: 0.35rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount #paymentAmount,
+            .fee-collect-page .mobile-checkout-sheet.is-open .payment-meta-row #paymentDate {
+                height: 34px;
+                min-height: 34px !important;
+                margin-top: 0.15rem;
+                padding: 0.25rem 0.5rem;
+                font-size: 0.82rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card {
+                margin-bottom: 0.35rem !important;
+                padding: 0.45rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-amount-line,
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card > .d-flex:last-child {
+                display: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row {
+                min-height: 48px;
+                margin: 0.35rem 0 0.45rem !important;
+                padding: 0.1rem 0.15rem 0.35rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row #totalAmount {
+                font-size: 1.6rem !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #descriptionInput {
+                min-height: 52px;
+                height: 52px;
+                padding: 0.45rem 0.55rem;
+                font-size: 0.82rem !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-toggle .mobile-cart-chevron {
@@ -1259,6 +2354,167 @@
             .fee-collect-page {
                 padding-left: 0.5rem;
                 padding-right: 0.5rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet,
+            .fee-collect-page .mobile-checkout-sheet > .card,
+            .fee-collect-page .mobile-checkout-sheet #cartItems,
+            .fee-collect-page .mobile-checkout-sheet #cartItems .payment-card {
+                width: 100% !important;
+                max-width: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet > .card {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row {
+                width: 100% !important;
+                max-width: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .cart-line-total {
+                display: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .cart-row-remove {
+                grid-area: remove;
+                align-self: start;
+                justify-self: end;
+                border: 0 !important;
+                padding: 0 !important;
+                background: transparent !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory {
+                display: flex !important;
+                flex-direction: column;
+                gap: 8px;
+                position: relative;
+                background: #f2fbf5 !important;
+                border: 1px solid #cfe7d8 !important;
+                border-radius: 12px !important;
+                padding: 8px 10px !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-row-main {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                justify-content: center;
+                gap: 0.08rem;
+                padding-right: 0.25rem;
+                width: 100%;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-row-remove {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 24px;
+                height: 24px;
+                display: grid !important;
+                place-items: center;
+                color: #6b7a90 !important;
+                font-size: 13px;
+                border: 0 !important;
+                border-radius: 6px !important;
+                background: transparent !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-line-title {
+                padding-right: 1.35rem;
+                font-size: 0.875rem;
+                line-height: 1.35;
+                font-weight: 600;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-line-subtitle {
+                display: none !important;
+                font-size: 0.63rem;
+                line-height: 1.15;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-row-controls {
+                display: flex !important;
+                flex-wrap: nowrap;
+                gap: 8px;
+                align-items: center;
+                width: 100%;
+                flex-direction: row !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-control-group {
+                flex-direction: row !important;
+                align-items: center;
+                min-width: 0;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-control-label {
+                color: #6b7a90;
+                font-size: 12px;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-control-group--unit .mono {
+                color: #14213d !important;
+                font-size: 12px !important;
+                font-weight: 600;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-qty-stepper {
+                height: 30px;
+                border-color: #cfe7d8;
+                border-radius: 8px;
+                background: #fff;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-qty-stepper-btn {
+                background: transparent;
+                color: #6b7a90;
+                border-radius: 7px;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-qty-stepper-input {
+                width: 28px !important;
+                flex: 0 0 28px;
+                border-left-color: #cfe7d8 !important;
+                border-right-color: #cfe7d8 !important;
+                color: #14213d;
+                font-size: 13.5px;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-control-group--paid .form-control {
+                width: 74px;
+                height: 30px;
+                flex: 0 0 74px;
+                border: 1px solid #cfe7d8 !important;
+                border-radius: 8px !important;
+                background: #fff !important;
+                color: #14213d;
+                padding: 0 8px;
+                font-size: 13.5px;
+                font-weight: 600;
+                text-align: right;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-control-group--unit {
+                flex: 1 1 0;
+                width: auto;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-control-group--qty {
+                flex: 0 0 auto;
+                width: auto;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-control-group--paid {
+                flex: 1 1 0;
+                width: auto;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-control-group--paid .input-group {
+                width: 100%;
             }
 
             .fee-collect-page .student-header-card .card-inner {
@@ -1332,6 +2588,24 @@
                 align-items: flex-start;
             }
 
+            .fee-collect-page .mobile-chip-scroll {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.45rem;
+                overflow-x: visible;
+                padding-bottom: 0;
+            }
+
+            .fee-collect-page .mobile-chip-scroll .mobile-select-chip {
+                width: 100%;
+                min-width: 0;
+                flex: 0 0 auto;
+            }
+
+            .fee-collect-page .mobile-chip-scroll::after {
+                display: none;
+            }
+
             .fee-collect-page .mobile-select-chip {
                 min-width: 118px;
                 padding: 0.68rem 0.78rem;
@@ -1339,6 +2613,38 @@
 
             .fee-collect-page .mobile-selection-modal .modal-body {
                 padding: 0.9rem;
+            }
+
+            .fee-collect-page .mobile-selection-modal #mobileSelectionList {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.35rem !important;
+            }
+
+            .fee-collect-page .mobile-selection-modal .mobile-selection-row {
+                display: flex;
+                align-items: center;
+                gap: 0.45rem;
+                padding: 0.55rem 0.7rem;
+                border-radius: 12px;
+            }
+
+            .fee-collect-page .mobile-selection-modal .mobile-selection-title {
+                font-size: 0.8rem;
+                line-height: 1.15;
+                margin-bottom: 0.08rem;
+            }
+
+            .fee-collect-page .mobile-selection-modal .mobile-selection-subtitle,
+            .fee-collect-page .mobile-selection-modal .mobile-selection-price {
+                font-size: 0.65rem;
+                line-height: 1.15;
+            }
+
+            .fee-collect-page .mobile-selection-modal .mobile-selection-mark {
+                min-width: 3.8rem;
+                padding: 0.28rem 0.45rem;
+                font-size: 0.62rem;
             }
 
             .fee-collect-page .mobile-selection-modal .mobile-selection-footer {
@@ -1814,16 +3120,357 @@
             color: rgba(255, 255, 255, 0.82);
         }
 
-        html[data-theme='dark'] .fee-collect-page .mobile-collect-action {
-            background: linear-gradient(135deg, #6366f1, #4338ca) !important;
-            color: #ffffff !important;
-            border-color: transparent !important;
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-subtotal-row {
+            border-bottom-color: rgba(148, 163, 184, 0.22) !important;
         }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-subtotal-row #subtotalAmount {
+            color: #cbd5e1 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card {
+            background: linear-gradient(135deg, #17202c 0%, #111827 100%) !important;
+            border-color: rgba(96, 165, 250, 0.65) !important;
+            box-shadow: 0 0 18px rgba(14, 165, 233, 0.24), inset 0 0 0 1px rgba(148, 163, 184, 0.08) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card #discountInput {
+            background: #1a2332 !important;
+            border-color: rgba(148, 163, 184, 0.42) !important;
+            color: #f8fafc !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-type-btn.active {
+            background: #0284c7 !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 14px rgba(14, 165, 233, 0.62) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row {
+            border-bottom-color: rgba(148, 163, 184, 0.24) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row #totalAmount {
+            color: #22b7f5 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount #paymentAmount {
+            background: #17202c !important;
+            border-color: rgba(148, 163, 184, 0.42) !important;
+            color: #e2e8f0 !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet {
+            --mobile-sheet-surface: #0f172a;
+            --mobile-sheet-subtle: #111827;
+            --mobile-sheet-border: rgba(148, 163, 184, 0.24);
+            --mobile-sheet-primary: #60a5fa;
+            --mobile-sheet-primary-text: #f8fafc;
+            --mobile-sheet-muted: #94a3b8;
+            --mobile-sheet-total: #38bdf8;
+            background: var(--mobile-sheet-surface);
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet > .card,
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet .card-header,
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet .card-footer {
+            background: var(--mobile-sheet-surface) !important;
+            border-color: var(--mobile-sheet-border) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet .mobile-empty-cart {
+            color: var(--mobile-sheet-muted) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet .mobile-cart-chevron {
+            border-color: var(--mobile-sheet-border);
+            color: var(--mobile-sheet-primary-text);
+            background: var(--mobile-sheet-subtle);
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls .discount-type-btn {
+            background: var(--mobile-sheet-subtle);
+            border-color: var(--mobile-sheet-border);
+            color: #cbd5e1;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls .discount-type-btn.active {
+            background: #2563eb;
+            border-color: #60a5fa;
+            color: #ffffff;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-subtotal-row,
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row {
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-subtotal-row > span:first-child,
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row > span:first-child,
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row > div > span:first-child,
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount label,
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount small {
+            color: #cbd5e1 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-subtotal-row #subtotalAmount {
+            color: #f8fafc !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount #paymentAmount,
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open #paymentDate,
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open #descriptionInput {
+            background: #111827 !important;
+            border-color: rgba(148, 163, 184, 0.34) !important;
+            color: #f8fafc !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet .collect-btn {
+            background: #2563eb !important;
+            border: 1px solid #3b82f6 !important;
+            color: #ffffff !important;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.3) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet .collect-btn:disabled {
+            background: #334155 !important;
+            border-color: #475569 !important;
+            color: #cbd5e1 !important;
+            opacity: 1 !important;
+        }
+
+        @media (max-width: 991.98px) {
+            .fee-collect-page .mobile-chip-scroll {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.45rem;
+                overflow-x: visible;
+                padding-bottom: 0;
+            }
+
+            .fee-collect-page .mobile-chip-scroll .mobile-select-chip {
+                width: 100%;
+                min-width: 0;
+                flex: none;
+            }
+
+            .fee-collect-page .mobile-chip-scroll::after {
+                display: none;
+            }
+
+        }
+
+        @media (max-width: 575.98px) {
+            .fee-collect-page .mobile-selection-modal #mobileSelectionList {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.45rem !important;
+            }
+
+            .fee-collect-page .mobile-selection-modal .mobile-selection-row {
+                width: 100% !important;
+                max-width: 100%;
+                flex: 0 0 auto;
+            }
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-topbar,
+        html[data-theme='dark'] .fee-collect-page .mobile-summary-card {
+            background: #0f172a !important;
+            border-color: rgba(148, 163, 184, 0.22) !important;
+            color: #e2e8f0 !important;
+            box-shadow: 0 10px 24px rgba(2, 6, 23, 0.32) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-topbar .mobile-icon-btn {
+            background: #111827 !important;
+            border-color: rgba(96, 165, 250, 0.42) !important;
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-meta-chip {
+            background: #111827 !important;
+            border-color: rgba(148, 163, 184, 0.22) !important;
+            color: #cbd5e1 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-switch-row .form-control {
+            background: #111827 !important;
+            border-color: rgba(148, 163, 184, 0.28) !important;
+            color: #f8fafc !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-switch-row .btn {
+            background: #2563eb !important;
+            border-color: #3b82f6 !important;
+            color: #ffffff !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page #mainTabs {
+            background: #0b1120 !important;
+            border-color: rgba(148, 163, 184, 0.18) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page #mainTabs .nav-link {
+            color: #94a3b8 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page #mainTabs .nav-link.active {
+            background: #1e293b !important;
+            color: #f8fafc !important;
+            box-shadow: 0 1px 4px rgba(2, 6, 23, 0.4) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-select-chip {
+            background: #111827 !important;
+            border-color: rgba(148, 163, 184, 0.24) !important;
+            color: #e2e8f0 !important;
+            box-shadow: 0 4px 14px rgba(2, 6, 23, 0.28) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-select-chip strong {
+            color: #f8fafc !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-select-chip small,
+        html[data-theme='dark'] .fee-collect-page .mobile-summary-line {
+            color: #94a3b8 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-select-chip.is-active {
+            background: #172554 !important;
+            border-color: #60a5fa !important;
+            color: #dbeafe !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .modal-header,
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .modal-body,
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .modal-footer {
+            background: #0f172a !important;
+            border-color: rgba(148, 163, 184, 0.22) !important;
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-search {
+            background: #111827 !important;
+            border-color: rgba(148, 163, 184, 0.28) !important;
+            color: #f8fafc !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-category {
+            color: #94a3b8 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .modal-content {
+            background: #171f2b !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-row {
+            background: #111827 !important;
+            border-color: rgba(148, 163, 184, 0.24) !important;
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-row.is-selected {
+            background: #172554 !important;
+            border-color: #60a5fa !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-title,
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-price {
+            color: #f8fafc !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-subtitle {
+            color: #94a3b8 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-mark {
+            border-color: rgba(96, 165, 250, 0.28) !important;
+            background: transparent !important;
+            color: #94a3b8 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-mark.is-selected {
+            border-color: #4f8df7 !important;
+            background: #4f8df7 !important;
+            color: #0f172a !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .selection-count {
+            color: #94a3b8 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .selection-total {
+            color: #f8fafc !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .cart-line-title {
+            color: #f8fafc !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .cart-line-subtitle,
+        html[data-theme='dark'] .fee-collect-page .cart-control-label {
+            color: #94a3b8 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .cart-row .input-group-text,
+        html[data-theme='dark'] .fee-collect-page .cart-row .form-control,
+        html[data-theme='dark'] .fee-collect-page .cart-row .cart-qty-stepper {
+            background: #0b1120 !important;
+            border-color: rgba(148, 163, 184, 0.28) !important;
+            color: #f8fafc !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .cart-row .cart-qty-stepper-btn {
+            background: #1e293b !important;
+            color: #cbd5e1 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory {
+            background: #14261d !important;
+            border-color: #25402f !important;
+            color: #eef2f8 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-line-title,
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-control-group--unit .mono {
+            color: #eef2f8 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-control-label,
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-row-remove {
+            color: #92a39a !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-qty-stepper,
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-control-group--paid .form-control {
+            background: #0f1a14 !important;
+            border-color: #25402f !important;
+            color: #eef2f8 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-qty-stepper-btn {
+            background: transparent !important;
+            color: #92a39a !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .payment-history-table .payment-history-items .badge {
+            background: #1e293b !important;
+            border-color: rgba(96, 165, 250, 0.35) !important;
+            color: #dbeafe !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .payment-history-table a {
+            color: #a5b4fc !important;
+        }
+
     </style>
 @endsection
 
 @section('contents')
-    <div class="container-fluid py-3 px-3 py-lg-4 px-lg-4 fee-collect-page">
+    <div class="container-fluid py-3 pl-0 pr-1 py-lg-4 px-lg-4 fee-collect-page">
         @php
             $feeSets = $pendingFees->groupBy('fee_set_id');
             $mobileDueCount = isset($inventoryDueItems) ? $inventoryDueItems->flatten(1)->count() : 0;
@@ -1831,14 +3478,13 @@
 
         {{-- ── Student Banner ── --}}
         <div class="student-header-card mb-4">
-                <div class="card-inner">
-                    <button type="button" class="btn btn-outline-primary btn-sm student-search-trigger mr-2" data-toggle="modal" data-target="#studentSearchModal">
-                        Search Student
-                    </button>
-                    <a href="{{ url()->previous() }}" class="back-btn">
+            <div class="card-inner">
+                <button type="button" class="btn btn-outline-primary btn-sm student-search-trigger mr-2" data-toggle="modal" data-target="#studentSearchModal">
+                    Search Student
+                </button>
+                <a href="{{ url()->previous() }}" class="back-btn">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                            stroke-linejoin="round" />
+                        <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                     Back
                 </a>
@@ -1999,8 +3645,8 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <div class="min-w-0">
-                            <p class="panel-eyebrow mb-1">Select Items</p>
-                            <h5 class="modal-title mb-0 text-truncate" id="mobileSelectionTitle">Select Items</h5>
+                            <h5 class="modal-title mb-0" id="mobileSelectionTitle">Select items</h5>
+                            <div class="mobile-selection-category" id="mobileSelectionCategory">Items</div>
                         </div>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -2013,9 +3659,12 @@
                         <div id="mobileSelectionList" class="d-flex flex-column gap-2"></div>
                     </div>
                     <div class="modal-footer mobile-selection-footer">
-                        <div class="selection-meta" id="mobileSelectionMeta">0 selected · BDT 0.00</div>
+                        <div class="selection-meta" id="mobileSelectionMeta">
+                            <span class="selection-count">0 selected</span>
+                            <span class="selection-total">BDT 0.00</span>
+                        </div>
                         <button type="button" class="btn btn-primary selection-action" id="mobileSelectionAddBtn" disabled>
-                            Add to Cart
+                            Add to cart
                         </button>
                     </div>
                 </div>
@@ -2024,15 +3673,15 @@
 
 
         {{-- ── Tabs ── --}}
-        <ul class="nav nav-tabs mb-4" id="mainTabs">
+        <ul class="nav nav-tabs mb-4 px-2" id="mainTabs">
             <li class="nav-item">
                 <a class="nav-link active fw-semibold" href="#tabCollect">
-                    💳 Collect Payment
+                    💳 Collect
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link fw-semibold" href="#tabAssignedFees">
-                    🧾 Assigned Fees
+                    🧾 Fees
                     <span class="badge rounded-pill ms-1"
                         style="font-size:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
                         {{ isset($assignedFees) ? $assignedFees->count() : 0 }}
@@ -2041,7 +3690,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link fw-semibold" href="#tabHistory">
-                    🧾 Payment History
+                    🧾 History
                     <span class="badge rounded-pill ms-1"
                         style="font-size:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
                         {{ $payments->count() }}
@@ -2105,7 +3754,7 @@
                     <div class="col-12 col-lg-3 col-xl-2">
 
                         {{-- Fee Categories --}}
-                        <div class="card border-0 shadow-sm rounded-4 mb-3">
+                        <div class="card border-0 shadow-sm rounded-4 mb-3 category-panel-card">
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
@@ -2133,7 +3782,7 @@
                         </div>
 
                         {{-- Inventory Categories --}}
-                        <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card border-0 shadow-sm rounded-4 category-panel-card">
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
@@ -2364,18 +4013,21 @@
                                         0 items
                                     </span>
                                 </div>
-                                <div class="mobile-only mobile-cart-toggle-wrap mt-3">
-                                    <button type="button" class="mobile-cart-toggle" id="mobileCartToggle">
+                                <div class="mobile-only mobile-cart-toggle-wrap mt-3"
+                                    style="padding: 0 12px !important;">
+                                    <span class="mobile-cart-handle" aria-hidden="true"></span>
+                                    <button type="button" class="mobile-cart-toggle" id="mobileCartToggle"
+                                        aria-label="Expand payment summary" aria-expanded="false">
                                         <div class="mobile-cart-summary">
-                                            <div class="min-w-0">
+                                            <div class="mobile-cart-copy">
+                                                <span id="mobileCartEyebrow" class="mobile-cart-eyebrow"
+                                                    data-collapsed-label="CART" data-expanded-label="TOTAL DUE">CART</span>
                                                 <strong id="mobileCartTotal">BDT 0.00</strong>
                                                 <small class="d-block text-truncate" id="mobileCartCount">No items added yet</small>
                                             </div>
-                                            <span class="mobile-cart-chevron" aria-hidden="true">⌃</span>
+                                            <span id="mobileCartBadge" class="mobile-cart-badge">0 items</span>
+                                            <span class="mobile-cart-chevron" aria-hidden="true">⌄</span>
                                         </div>
-                                    </button>
-                                    <button type="button" class="btn btn-primary mobile-collect-action collect-btn mobile-only" id="collectBtnMobile" disabled>
-                                        ✓ &nbsp;COLLECT PAYMENT
                                     </button>
                                 </div>
                             </div>
@@ -2383,7 +4035,7 @@
                                 @csrf
                                 <div class="card-body p-3">
                                     <div class="scroll-area" style="max-height:280px">
-                                        <div id="cartEmpty" class="text-center py-5 text-muted">
+                                        <div id="cartEmpty" class="mobile-empty-cart text-center py-5 text-muted">
                                             <div style="font-size:40px;opacity:.18">🛒</div>
                                             <p class="mt-3 mb-0 fw-medium" style="font-size:13px">
                                                 No items added yet.<br>Click a fee, inventory item, or due item to add it.
@@ -2393,25 +4045,26 @@
                                     </div>
                                 </div>
                                 <div class="card-footer bg-white border-top p-4" style="border-color:#f1f5f9!important">
-                                    <div class="d-flex justify-content-between align-items-baseline mb-2">
+                                    <div class="mobile-subtotal-row d-flex justify-content-between align-items-baseline mb-2">
                                         <span class="mono text-muted fw-semibold"
                                             style="font-size:11px;letter-spacing:.08em">SUBTOTAL</span>
                                         <span class="mono fw-semibold" id="subtotalAmount"
                                             style="font-size:15px;color:#64748b">0.00</span>
                                     </div>
-                                    <div class="discount-row mb-2" id="discountSection">
-                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                    <div class="discount-row mobile-discount-card mb-2" id="discountSection">
+                                        <div class="mobile-discount-head d-flex align-items-center gap-2 mb-2">
                                             <span class="mono text-muted fw-semibold"
                                                 style="font-size:11px;letter-spacing:.08em">DISCOUNT</span>
-                                            <div class="ms-auto d-flex gap-1">
+                                            <div class="mobile-discount-controls ms-auto d-flex align-items-center gap-1"
+                                                role="tablist" aria-label="Discount type">
+                                                <input type="number" id="discountInput" name="discount" min="0"
+                                                    step="0.01" placeholder="0.00" value="0" autocomplete="off">
                                                 <button type="button" class="discount-type-btn active"
-                                                    id="btnFlat">BDT</button>
+                                                    id="btnFlat" role="tab" aria-selected="true">BDT</button>
                                                 <button type="button" class="discount-type-btn"
-                                                    id="btnPercent">%</button>
+                                                    id="btnPercent" role="tab" aria-selected="false">%</button>
                                             </div>
                                         </div>
-                                        <input type="number" id="discountInput" name="discount" min="0"
-                                            step="0.01" placeholder="0.00" value="0" autocomplete="off">
                                         <div class="d-flex justify-content-between align-items-center mt-2">
                                             <span class="text-muted" style="font-size:11px">Discount applied:</span>
                                             <span class="mono discount-amount-line" id="discountLine">- 0.00 BDT</span>
@@ -2421,9 +4074,9 @@
                                     <input type="hidden" name="discount_amount" id="discountAmountHidden"
                                         value="0">
                                     <hr class="my-2" style="border-color:#f1f5f9">
-                                    <div class="d-flex justify-content-between align-items-baseline mb-3">
+                                    <div class="mobile-total-due-row d-flex justify-content-between align-items-baseline mb-3">
                                         <span class="mono text-muted fw-semibold"
-                                            style="font-size:11px;letter-spacing:.09em">TOTAL DUE</span>
+                                            style="font-size:11px;letter-spacing:.09em">PAYMENT SUMMARY</span>
                                         <div>
                                             <span class="mono text-muted me-1" style="font-size:13px">BDT</span>
                                             <span class="mono fw-bold" id="totalAmount"
@@ -2431,22 +4084,23 @@
                                         </div>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label for="paymentAmount" class="form-label mono text-muted fw-semibold"
-                                            style="font-size:11px;letter-spacing:.08em">PAYMENT AMOUNT</label>
-                                         <input type="number" id="paymentAmount" name="payment_amount" min="0" step="0.01"
-                                             placeholder="Enter payment amount" class="form-control" readonly
-                                             style="font-size:16px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc">
-                                         <small class="text-muted" style="font-size:11px">Auto-calculated from the selected fee and inventory line payments.</small>
-                                    </div>
+                                    <div class="payment-meta-row">
+                                        <div class="mobile-payment-amount mb-3">
+                                            <label for="paymentAmount" class="form-label mono text-muted fw-semibold"
+                                                style="font-size:11px;letter-spacing:.08em">PAYMENT AMOUNT</label>
+                                             <input type="number" id="paymentAmount" name="payment_amount" min="0" step="0.01"
+                                                 placeholder="Enter payment amount" class="form-control" readonly
+                                                 style="font-size:16px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc">
+                                        </div>
 
-                                    <div class="mb-3">
-                                        <label for="paymentDate" class="form-label mono text-muted fw-semibold"
-                                            style="font-size:11px;letter-spacing:.08em">PAYMENT DATE</label>
-                                        <input type="date" id="paymentDate" name="payment_date"
-                                            value="{{ old('payment_date', now()->toDateString()) }}"
-                                            class="form-control" required
-                                            style="font-size:13px;border-radius:8px;border:1px solid #e2e8f0">
+                                        <div class="mb-3">
+                                            <label for="paymentDate" class="form-label mono text-muted fw-semibold"
+                                                style="font-size:11px;letter-spacing:.08em">PAYMENT DATE</label>
+                                            <input type="date" id="paymentDate" name="payment_date"
+                                                value="{{ old('payment_date', now()->toDateString()) }}"
+                                                class="form-control" required
+                                                style="font-size:13px;border-radius:8px;border:1px solid #e2e8f0">
+                                        </div>
                                     </div>
 
                                     <div class="mb-3">
@@ -2457,7 +4111,7 @@
                                     <button type="button" class="collect-btn btn w-100 fw-bold text-white rounded-3 py-3"
                                         id="collectBtn" disabled
                                         style="background:linear-gradient(135deg,#6366f1,#4338ca);font-size:14px">
-                                        ✓ &nbsp;COLLECT PAYMENT
+                                        ✓ &nbsp;Collect payment
                                     </button>
                                 </div>
                             </form>
@@ -2487,22 +4141,24 @@
                                     </span>
                                 </div>
                                 <div class="small text-muted mt-2">
-                                    Paid fees stay locked. Inactive fees will not appear as dues in Collect Payment.
+                                    Paid fees stay locked. Inactive fees are excluded from collection.
                                 </div>
                             </div>
-                            <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
+                            <div class="ms-auto assigned-fees-actions">
                                 @if ($student)
-                                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addIndividualFeeModal">
+                                    <button type="button" class="btn btn-sm btn-primary assigned-fees-add" data-toggle="modal" data-target="#addIndividualFeeModal">
                                         <i class="fas fa-plus mr-1"></i>Add Individual Fee
                                     </button>
                                 @endif
-                                <button type="button" class="btn btn-sm btn-outline-success js-set-all-fees" data-state="1">
-                                    Activate All
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary js-set-all-fees" data-state="0">
-                                    Deactivate All
-                                </button>
-                                <button type="submit" class="btn btn-sm btn-primary" form="feeActivationForm">
+                                <div class="assigned-fees-bulk-actions">
+                                    <button type="button" class="btn btn-sm btn-outline-success js-set-all-fees" data-state="1">
+                                        Activate All
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary js-set-all-fees" data-state="0">
+                                        Deactivate All
+                                    </button>
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-primary assigned-fees-save" form="feeActivationForm">
                                     Save Changes
                                 </button>
                             </div>
@@ -2523,6 +4179,12 @@
                                 <div class="assigned-fees-tabs-wrap px-3">
                                     <ul class="nav nav-pills assigned-fees-tabs" id="assignedFeeCategoryTabs" role="tablist">
                                         @foreach ($assignedFeeGroups as $group)
+                                            @php
+                                                $categoryLabel = preg_split('/\s+/', trim($group['label']))[0] ?? $group['label'];
+                                                $categoryLabel = mb_strlen($categoryLabel) > 10
+                                                    ? mb_substr($categoryLabel, 0, 10) . '..'
+                                                    : $categoryLabel;
+                                            @endphp
                                             <li class="nav-item" role="presentation">
                                                 <a
                                                     href="#assignedFeeCategoryPane-{{ $group['key'] }}"
@@ -2532,7 +4194,7 @@
                                                     aria-controls="assignedFeeCategoryPane-{{ $group['key'] }}"
                                                     aria-selected="{{ $loop->first ? 'true' : 'false' }}"
                                                 >
-                                                    <span>{{ $group['label'] }}</span>
+                                                    <span>{{ $categoryLabel }}</span>
                                                     <span class="badge rounded-pill">{{ $group['count'] }}</span>
                                                 </a>
                                             </li>
@@ -2540,7 +4202,7 @@
                                     </ul>
                                 </div>
 
-                                <div class="px-3 pb-3">
+                                <div class="px-0 pb-3">
                                     @foreach ($assignedFeeGroups as $group)
                                         <div
                                             id="assignedFeeCategoryPane-{{ $group['key'] }}"
@@ -2567,7 +4229,7 @@
                                             </div>
 
                                             <div class="assigned-fees-table-shell">
-                                                <div class="table-responsive">
+                                                <div class="assigned-fees-table-responsive">
                                                     <table class="table assigned-fees-table align-middle">
                                                         <thead>
                                                             <tr>
@@ -2644,7 +4306,8 @@
                                                                                     data-fee-name="{{ $fee->feeSet->name ?? 'Fee' }}"
                                                                                     data-amount="{{ number_format((float) ($fee->amount ?? 0), 2, '.', '') }}"
                                                                                 >
-                                                                                    <i class="fas fa-edit mr-1"></i>Edit
+                                                                                    <i class="fas fa-edit" aria-hidden="true"></i>
+                                                                                    <span class="assigned-fee-edit-label">Edit</span>
                                                                                 </button>
                                                                             @else
                                                                                 <span class="text-muted small mr-1">Locked</span>
@@ -2816,28 +4479,10 @@
                         <div class="d-flex align-items-center gap-2">
                             <span class="fs-5">📑</span>
                             <span class="panel-eyebrow">Payment History</span>
-                            <span class="ms-auto history-summary" style="font-size:12px;color:#64748b">
-                                Total Paid:
-                                <strong style="color:#111827">
-                                    BDT {{ number_format($payments->sum('amount'), 2) }}
-                                </strong>
-                                &nbsp;|&nbsp; Scholarship:
-                                <strong style="color:#111827">
-                                    BDT {{ number_format($payments->sum(fn ($payment) => $payment->scholarship_received_amount), 2) }}
-                                </strong>
-                                &nbsp;|&nbsp; Free Studentship:
-                                <strong style="color:#111827">
-                                    BDT {{ number_format($payments->sum(fn ($payment) => $payment->free_studentship_received_amount), 2) }}
-                                </strong>
-                                &nbsp;|&nbsp; Discount:
-                                <strong style="color:#111827">
-                                    BDT {{ number_format($payments->sum('discount_amount'), 2) }}
-                                </strong>
-                            </span>
                         </div>
                     </div>
                     <div class="card-body p-0">
-                        <div class="table-responsive payment-history-table-wrap">
+                        <div class="payment-history-table-responsive payment-history-table-wrap">
                             <table class="table table-hover align-middle mb-0 payment-history-table">
                                 <thead style="background:#f8fafc;font-size:11px;letter-spacing:.07em">
                                     <tr>
@@ -3034,9 +4679,12 @@
             const $mobileCartBackdrop = $('#mobileCartBackdrop');
             const $mobileCartTotal = $('#mobileCartTotal');
             const $mobileCartCount = $('#mobileCartCount');
+            const $mobileCartEyebrow = $('#mobileCartEyebrow');
+            const $mobileCartBadge = $('#mobileCartBadge');
             const $mobileSummaryText = $('#mobileSummaryText');
             const $mobileSelectionModal = $('#mobileSelectionModal');
             const $mobileSelectionTitle = $('#mobileSelectionTitle');
+            const $mobileSelectionCategory = $('#mobileSelectionCategory');
             const $mobileSelectionSearch = $('#mobileSelectionSearch');
             const $mobileSelectionList = $('#mobileSelectionList');
             const $mobileSelectionMeta = $('#mobileSelectionMeta');
@@ -3267,15 +4915,14 @@
                         const $card = $(this);
                         const id = String($card.data('inv-id'));
                         const stock = parseInt($card.data('stock')) || 0;
-                        const unit = String($card.data('unit') || '').trim();
                         return {
                             kind: 'inventory',
                             id,
                             key: `inv_${id}`,
                             label: String($card.data('name') || 'Inventory Item'),
                             subtitle: String($card.data('stock-type')) === 'made_to_order'
-                                ? `Made to order${unit ? ` · ${unit}` : ''}`
-                                : (stock > 0 ? `${stock} left${unit ? ` · ${unit}` : ''}` : 'Out of stock'),
+                                ? 'Made to order'
+                                : (stock > 0 ? `${stock} left` : 'Out of stock'),
                             amount: parseFloat($card.data('price')) || 0,
                             added: $card.hasClass('in-cart'),
                             disabled: String($card.data('stock-type')) !== 'made_to_order' && stock <= 0,
@@ -3304,7 +4951,8 @@
 
                 const selectedItems = mobileSelectionState.items.filter((item) => mobileSelectionSelected.has(item.key) && !item.added && !item.disabled);
                 const selectedSubtotal = selectedItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
-                $mobileSelectionMeta.text(`${selectedItems.length} selected · BDT ${selectedSubtotal.toFixed(2)}`);
+                $mobileSelectionMeta.find('.selection-count').text(`${selectedItems.length} selected`);
+                $mobileSelectionMeta.find('.selection-total').text(`BDT ${selectedSubtotal.toFixed(2)}`);
                 $mobileSelectionAddBtn.prop('disabled', selectedItems.length === 0);
             }
 
@@ -3335,9 +4983,10 @@
                     const isSelected = mobileSelectionSelected.has(item.key) && !item.added && !item.disabled;
                     const sourceSelector = mobileSelectionSourceSelector(item);
                     const statusLabel = item.added ? 'Added' : (item.disabled ? 'Out of stock' : (isSelected ? 'Selected' : 'Add'));
-                    const rightMeta = item.kind === 'inventory' && item.subtitle
-                        ? `<small class="d-block mt-1 text-muted" style="font-size:10px">${escapeHtml(item.subtitle)}</small>`
-                        : `<small class="d-block mt-1 text-muted" style="font-size:10px">${escapeHtml(item.subtitle || '')}</small>`;
+                    const subtitle = String(item.subtitle || '')
+                        .replace(/\s+\d{2}:\d{2}(?::\d{2})?$/, '')
+                        .trim();
+                    const rightMeta = '';
 
                     return `
                         <button type="button"
@@ -3348,18 +4997,10 @@
                             ${item.added || item.disabled ? 'disabled' : ''}
                             aria-pressed="${isSelected ? 'true' : 'false'}">
                             <div class="flex-grow-1 min-w-0">
-                                <div class="d-flex align-items-start justify-content-between gap-2">
-                                    <div class="min-w-0">
-                                        <div class="mobile-selection-title text-truncate">${escapeHtml(item.label)}</div>
-                                        <div class="mobile-selection-subtitle text-truncate">${escapeHtml(item.kind === 'fee' ? item.subtitle : item.subtitle)}</div>
-                                    </div>
-                                    <div class="text-end flex-shrink-0">
-                                        <div class="mobile-selection-price">BDT ${item.amount.toFixed(2)}</div>
-                                        ${rightMeta}
-                                    </div>
-                                </div>
+                                <div class="mobile-selection-title text-truncate">${escapeHtml(item.label)}</div>
+                                <div class="mobile-selection-subtitle text-truncate"><strong>BDT ${item.amount.toFixed(2)}</strong>${subtitle ? ` · ${escapeHtml(subtitle)}` : ''}</div>
                             </div>
-                            <span class="mobile-selection-mark">${escapeHtml(statusLabel)}</span>
+                            <span class="mobile-selection-mark ${isSelected ? 'is-selected' : ''}" aria-label="${escapeHtml(statusLabel)}"></span>
                         </button>
                     `;
                 }).join('');
@@ -3376,7 +5017,10 @@
                 mobileSelectionSelected.clear();
 
                 if ($mobileSelectionTitle.length) {
-                    $mobileSelectionTitle.text(title);
+                    $mobileSelectionTitle.text('Select items');
+                }
+                if ($mobileSelectionCategory.length) {
+                    $mobileSelectionCategory.text(title);
                 }
 
                 if ($mobileSelectionSearch.length) {
@@ -3415,6 +5059,13 @@
                 $mobileCheckoutSheet.toggleClass('is-open', open);
                 $mobileCartBackdrop.toggleClass('is-visible', open);
                 $('body').toggleClass('mobile-cart-open', open);
+                $mobileCartToggle.attr('aria-expanded', open ? 'true' : 'false');
+                $mobileCartToggle.attr('aria-label', open ? 'Collapse payment summary' : 'Expand payment summary');
+                if ($mobileCartEyebrow.length) {
+                    $mobileCartEyebrow.text(open
+                        ? $mobileCartEyebrow.data('expanded-label')
+                        : $mobileCartEyebrow.data('collapsed-label'));
+                }
             }
 
             function syncMobileCartState(countText, totalText, summaryText) {
@@ -3423,6 +5074,10 @@
                 }
                 if ($mobileCartTotal.length) {
                     $mobileCartTotal.text(totalText);
+                }
+                if ($mobileCartBadge.length) {
+                    $mobileCartBadge.text(countText.replace(' added', ''));
+                    $mobileCartBadge.toggle(countText !== 'No items added yet');
                 }
                 if ($mobileSummaryText.length) {
                     $mobileSummaryText.text(summaryText);
@@ -3595,6 +5250,8 @@
                 discountType = 'flat';
                 $(this).addClass('active');
                 $('#btnPercent').removeClass('active');
+                $(this).attr('aria-selected', 'true');
+                $('#btnPercent').attr('aria-selected', 'false');
                 $('#discountTypeHidden').val('flat');
                 $discountInput.attr('placeholder', '0.00');
                 updateUI();
@@ -3604,6 +5261,8 @@
                 discountType = 'percent';
                 $(this).addClass('active');
                 $('#btnFlat').removeClass('active');
+                $(this).attr('aria-selected', 'true');
+                $('#btnFlat').attr('aria-selected', 'false');
                 $('#discountTypeHidden').val('percent');
                 $discountInput.attr('placeholder', '0');
                 updateUI();
@@ -3635,10 +5294,10 @@
 
                 let itemsBreakdown = '';
                 if (items.length > 0) {
-                    itemsBreakdown = '<div class="mt-1 ps-2" style="font-size:11px;color:#64748b;">';
+                    itemsBreakdown = '<div style="font-size:13px;color:#000;font-weight:600;padding:0;">';
                     items.forEach(function(item) {
-                        itemsBreakdown += '<div class="d-flex justify-content-between"><span>• ' +
-                            item.category + '</span><span>' + parseFloat(item.amount).toFixed(2) +
+                        itemsBreakdown += '<div class="d-flex justify-content-between" style="display: flex !important;"><span>' +
+                            item.category + ' - ' + parseFloat(item.amount).toFixed(2) +
                             '</span></div>';
                     });
                     itemsBreakdown += '</div>';
@@ -3647,10 +5306,10 @@
                 let html = `
                      <div class="cart-row rounded-3 px-3 py-2"
                           id="cart-${id}"
-                          style="background:#f8fafc;border:1.5px solid #e2e8f0">
+                          style="background:#f8fafc;border:1.5px solid #e2e8f0;width:100%;display:flex !important;flex-direction:column;gap:4px;position:relative;">
                          <input type="hidden" name="fees[${id}][fee_id]" value="${id}">
                          <input type="hidden" name="fees[${id}][amount]" class="fee-paid-hidden" value="${amount.toFixed(2)}">
-                         <div class="cart-row-main" style="line-height:1.35">
+                         <div class="cart-row-main" style="display:flex;gap:12px;justify-content:flex-start;align-items:center">
                              <span class="cart-line-title">${name}</span>
                              ${discountHtml}
                              ${itemsBreakdown}
@@ -3673,7 +5332,7 @@
                          <button type="button"
                                  class="remove-btn cart-row-remove btn btn-light btn-sm border rounded-2 px-2 py-1"
                                  data-id="${id}" data-amount="${amount}" data-type="fee"
-                                 style="font-size:13px;line-height:1">✕</button>
+                                 style="font-size:13px;line-height:1;position:absolute;right:0;top:0;">✕</button>
                      </div>`;
                 $cartItemsEl.append(html);
                 updateUI();
@@ -3702,7 +5361,7 @@
 
                 let idx = invItemIndex++;
                 let html = `
-                    <div class="cart-row rounded-3 px-3 py-2"
+                    <div class="cart-row cart-row--inventory rounded-3 px-3 py-2"
                          id="cart-${cartKey}"
                          data-unit-price="${unitPrice}"
                          data-flexible-price="${isFlexible ? 1 : 0}"

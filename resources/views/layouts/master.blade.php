@@ -477,6 +477,7 @@
             // Remove name from original so it doesn't submit
             input.removeAttribute('name');
             input.removeAttribute('required');
+            input.removeAttribute('id');
             input.style.display = 'none';
 
             input.parentNode.insertBefore(hidden, input);

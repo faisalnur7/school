@@ -275,6 +275,7 @@ class DashboardController extends Controller
 
                 return [
                     'name' => $student->full_name_en ?: $student->full_name_bn ?: __('Student'),
+                    'image_url' => $student->photo_url,
                     'date' => $birthDate,
                     'days_until' => $daysUntil,
                     'label' => (int) $daysUntil === 0 ? __('Today is birthday') : __('In :days days', ['days' => $daysUntil]),

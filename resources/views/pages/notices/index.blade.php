@@ -1,13 +1,21 @@
 @extends('layouts.master')
 @section('title', 'Notices')
 @section('contents')
-<div class="col-12">
+<style>
+    @media (max-width: 767.98px) {
+        .notices-page .card-header { align-items: flex-start !important; flex-wrap: wrap; gap: .75rem; }
+        .notices-page .card-header .btn { width: 100%; }
+        .notices-page .table td:last-child { white-space: nowrap; }
+    }
+</style>
+<div class="col-12 notices-page">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title">Notices</h3>
             <a href="{{ route('notice.create') }}" class="btn btn-primary btn-sm">Add Notice</a>
         </div>
         <div class="card-body p-0">
+            <div class="table-responsive">
             <table class="table table-striped mb-0">
                 <thead>
                     <tr>
@@ -48,6 +56,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
         <div class="card-footer">{{ $notices->links() }}</div>
     </div>

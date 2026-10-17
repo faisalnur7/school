@@ -118,6 +118,7 @@
                             Total Budget: {{ number_format($totalBudget, 2) }}
                         </span>
                     </div>
+                    <div class="table-responsive">
                     <table class="table table-hover mb-0" style="font-size:13px">
                         <thead style="background:#f8fafc">
                             <tr>
@@ -240,6 +241,7 @@
                             @endforelse
                         </tbody>
                     </table>
+                    </div>
                 </div>
                 <div class="card-footer">{{ $allocations->links() }}</div>
             </div>

@@ -36,6 +36,7 @@
             <div class="card">
                 <div class="card-header shadow p-3"><h3 class="card-title">Budget Heads</h3></div>
                 <div class="card-body p-0">
+                    <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead><tr><th>#</th><th>Name</th><th>Parent</th><th>Description</th><th width="120">Actions</th></tr></thead>
                         <tbody>
@@ -83,6 +84,7 @@
                             @endforelse
                         </tbody>
                     </table>
+                    </div>
                 </div>
                 <div class="card-footer">{{ $heads->links() }}</div>
             </div>

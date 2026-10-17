@@ -41,6 +41,7 @@
         </div>
 
         <div class="card-body">
+            <div class="table-responsive">
             <table class="table mb-0" style="font-size:13px">
                 <thead style="background:#f8fafc">
                     <tr>
@@ -80,6 +81,7 @@
                 </tfoot>
                 @endif
             </table>
+            </div>
         </div>
     </div>
 </div>
