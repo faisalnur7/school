@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Subject;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateSubjectRequest extends FormRequest
 {
@@ -29,7 +31,9 @@ class UpdateSubjectRequest extends FormRequest
             'practical_marks' => 'nullable|numeric|min:0',
             'viva_marks' => 'nullable|numeric|min:0',
             'tutorial_marks' => 'nullable|numeric|min:0',
+            'include_in_tutorial_exam' => 'nullable|boolean',
             'pass_mark' => 'nullable|numeric|min:0',
+            'pass_mark_percentage' => 'nullable|numeric|min:0|max:100',
             'is_active' => 'nullable|boolean',
             'assign_to_class' => 'nullable|boolean',
             'confirm_unassignment_with_marks' => 'nullable|boolean',
@@ -49,16 +53,41 @@ class UpdateSubjectRequest extends FormRequest
             'class_configs.*.viva_marks' => 'nullable|numeric|min:0',
             'class_configs.*.tutorial_marks' => 'nullable|numeric|min:0',
             'class_configs.*.pass_mark' => 'nullable|numeric|min:0',
+            'class_configs.*.pass_mark_percentage' => 'nullable|numeric|min:0|max:100',
             // Papers
             'papers' => 'nullable|array',
+            'papers.*.id' => [
+                'nullable',
+                'integer',
+                Rule::exists('subjects', 'id')->where(fn ($query) => $query->where('parent_id', $subject->id)),
+            ],
             'papers.*.name' => 'required_with:papers|string|max:255',
-            'papers.*.code' => 'nullable|string|max:50|unique:subjects,code',
+            'papers.*.code' => [
+                'nullable',
+                'string',
+                'max:50',
+                function (string $attribute, mixed $value, \Closure $fail) use ($subject): void {
+                    $index = explode('.', $attribute)[1] ?? null;
+                    $paperId = $index === null ? null : $this->input("papers.{$index}.id");
+                    $ownedPaperId = $subject->papers()->whereKey($paperId)->value('id');
+
+                    $duplicateExists = Subject::query()
+                        ->where('code', $value)
+                        ->when($ownedPaperId, fn ($query) => $query->whereKey('!=', $ownedPaperId))
+                        ->exists();
+
+                    if ($duplicateExists) {
+                        $fail('The :attribute has already been taken.');
+                    }
+                },
+            ],
             'papers.*.creative_marks' => 'nullable|numeric|min:0',
             'papers.*.mcq_marks' => 'nullable|numeric|min:0',
             'papers.*.practical_marks' => 'nullable|numeric|min:0',
             'papers.*.viva_marks' => 'nullable|numeric|min:0',
             'papers.*.tutorial_marks' => 'nullable|numeric|min:0',
             'papers.*.pass_mark' => 'nullable|numeric|min:0',
+            'papers.*.pass_mark_percentage' => 'nullable|numeric|min:0|max:100',
         ];
     }
 }

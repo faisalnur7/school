@@ -13,6 +13,8 @@ use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\StudentAcademicInformation;
+use App\Models\Subject;
+use App\Models\SubjectClassAssignment;
 use App\Services\GradingService;
 use App\Services\ResultRankingService;
 use Carbon\Carbon;
@@ -43,12 +45,18 @@ class TutorialReportController extends Controller
             'section_id' => ['required', 'exists:sections,id'],
             'exam_id'    => ['required', 'exists:exams,id'],
             'student_id' => ['nullable', 'string'],
+            'subject_filter' => ['nullable', 'boolean'],
+            'subject_ids' => ['nullable', 'array'],
+            'subject_ids.*' => ['integer'],
+            'religion_subject' => ['nullable'],
         ]);
 
-        $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id']);
+        $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id', 'subject_filter', 'subject_ids', 'religion_subject']);
         $exam     = Exam::with('academicSession')->findOrFail($filters['exam_id']);
         $reportContext = $this->buildReportContext($filters);
         $sections = Section::where('school_class_id', $filters['class_id'])->orderBy('name_en')->get();
+        $tutorialSubjects = $this->getAssignedTutorialSubjects((int) $filters['class_id']);
+        $filters = $this->normalizeSubjectFilters($request, $filters, $tutorialSubjects);
 
         if ($exam->type !== Exam::TYPE_TUTORIAL) {
             if ($request->ajax() || $request->expectsJson()) {
@@ -58,12 +66,21 @@ class TutorialReportController extends Controller
         }
 
         $students = $this->getStudents($filters);
+        $studentSubjectIds = $students->mapWithKeys(fn ($student) => [
+            $student->id => $this->getStudentTutorialSubjectIds((int) $filters['class_id'], $student),
+        ]);
         $attendanceData = $this->getAttendanceData($exam, (int) $filters['class_id'], $students->pluck('id'));
+        $highestMarks = ExamMark::where('exam_id', $exam->id)
+            ->where('is_absent', false)
+            ->when($filters['subject_filter'], fn ($query) => $query->whereIn('subject_id', $filters['subject_ids']))
+            ->selectRaw('subject_id, MAX(total) as highest')
+            ->groupBy('subject_id')
+            ->pluck('highest', 'subject_id');
         $sessions = AcademicSession::orderByDesc('id')->get();
         $classes = SchoolClass::all();
         $exams = Exam::where('type', Exam::TYPE_TUTORIAL)->orderByDesc('id')->get();
 
-        $studentsData = $students->map(function ($student) use ($exam, $attendanceData) {
+        $studentsData = $students->map(function ($student) use ($exam, $attendanceData, $highestMarks, $filters, $studentSubjectIds) {
             $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession'])
                 ->where('student_id', $student->id)
                 ->where('academic_session_id', $exam->academic_session_id)
@@ -73,25 +90,42 @@ class TutorialReportController extends Controller
                 ->where('exam_id', $exam->id)
                 ->where('student_id', $student->id)
                 ->get()
-                ->filter(fn ($m) => $m->subject)
-                ->sortBy(fn ($m) => $m->subject->name);
+                ->filter(fn ($m) => $m->subject
+                    && $m->subject->include_in_tutorial_exam
+                    && ($studentSubjectIds[$student->id] === null || $studentSubjectIds[$student->id]->contains((int) $m->subject_id))
+                    && (! $filters['subject_filter'] || in_array((int) $m->subject_id, $filters['subject_ids'], true)))
+                ->sortBy(fn ($m) => sprintf('%d:%s', $m->subject->is_paper ? 0 : 1, mb_strtolower($m->subject->name)));
 
-            $rows = $marks->map(function ($mark) {
+            $marks = app(\App\Services\SubjectOrderingService::class)->sortSubjects(
+                $marks->map(fn ($mark) => $mark->subject)->unique('id')->values(),
+                (int) $filters['class_id']
+            )->map(fn ($subject) => $marks->firstWhere('subject_id', $subject->id))->filter()->values();
+
+            $rows = $marks->map(function ($mark) use ($highestMarks, $filters) {
+                $tutorialMarks = $mark->subject->getEffectiveMarksForClass((int) $filters['class_id'])['tutorial_marks']
+                    ?? $mark->subject->tutorial_marks
+                    ?? 0;
+
                 return [
-                    'subject_name' => $mark->subject->name,
+                    'subject_name' => $this->tutorialDisplaySubjectName($mark->subject),
+                    'full_marks'   => (float) $tutorialMarks,
                     'obtained'     => $mark->is_absent ? null : (float) $mark->total,
+                    'highest'      => (float) ($highestMarks[$mark->subject_id] ?? 0),
                     'is_absent'    => (bool) $mark->is_absent,
                 ];
             })->values();
 
             $totalObtained = $rows->filter(fn ($r) => ! $r['is_absent'])->sum('obtained');
             $failedSubjectCount = $marks->filter(fn ($mark) =>
-                $mark->is_absent || (float) $mark->gpa === 0.0 || $mark->letter_grade === 'F'
+                $mark->is_absent || $mark->letter_grade === 'F'
             )->count();
             $gpa = GradingService::calculateGpa(
                 $marks->map(fn ($mark) => $mark->is_absent ? 0 : (float) $mark->gpa)->values()->all(),
                 $failedSubjectCount > 0,
             );
+            $percentage = $rows->sum('full_marks') > 0
+                ? round(($totalObtained / $rows->sum('full_marks')) * 100, 2)
+                : 0.0;
 
             return [
                 'student'        => $student,
@@ -101,6 +135,7 @@ class TutorialReportController extends Controller
                 'failed_subject_count' => $failedSubjectCount,
                 'gpa'            => $gpa,
                 'grade'          => GradingService::getGpaLabel($gpa),
+                'comment'        => $this->tutorialComment($percentage, $failedSubjectCount),
                 'attendance_present' => $attendanceData['present_by_student'][$student->id] ?? 0,
             ];
         });
@@ -108,8 +143,19 @@ class TutorialReportController extends Controller
         $studentsData = $this->rankStudentsData($studentsData);
 
         $statusMap = $this->buildStatusMap($studentsData->pluck('student.id')->all(), (int) $filters['exam_id']);
+        $religionSubjects = $tutorialSubjects->filter(fn ($subject) => $this->isReligionSubject($subject))->values();
+        $regularTutorialSubjects = $tutorialSubjects->reject(fn ($subject) => $this->isReligionSubject($subject))->values();
+        $includedReligionSubjectIds = $religionSubjects
+            ->filter(fn ($subject) => $subject->include_in_tutorial_exam)
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->values();
 
-        return view('pages.tutorial-report.results', compact('studentsData', 'exam', 'filters', 'statusMap', 'reportContext', 'sections', 'sessions', 'classes', 'exams'));
+        return view('pages.tutorial-report.results', compact(
+            'studentsData', 'exam', 'filters', 'statusMap', 'reportContext', 'sections',
+            'sessions', 'classes', 'exams', 'tutorialSubjects', 'regularTutorialSubjects',
+            'religionSubjects', 'includedReligionSubjectIds'
+        ));
     }
 
     public function pdf(Request $request)
@@ -120,20 +166,35 @@ class TutorialReportController extends Controller
             'section_id' => ['required', 'exists:sections,id'],
             'exam_id'    => ['required', 'exists:exams,id'],
             'student_id' => ['nullable', 'string'],
+            'subject_filter' => ['nullable', 'boolean'],
+            'subject_ids' => ['nullable', 'array'],
+            'subject_ids.*' => ['integer'],
+            'religion_subject' => ['nullable'],
         ]);
 
-        $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id']);
+        $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id', 'subject_filter', 'subject_ids', 'religion_subject']);
         $exam     = Exam::with('academicSession')->findOrFail($filters['exam_id']);
         $reportContext = $this->buildReportContext($filters);
+        $tutorialSubjects = $this->getAssignedTutorialSubjects((int) $filters['class_id']);
+        $filters = $this->normalizeSubjectFilters($request, $filters, $tutorialSubjects);
 
         if ($exam->type !== Exam::TYPE_TUTORIAL) {
             return back()->with('error', 'Selected exam is not a tutorial exam.');
         }
 
         $students = $this->getStudents($filters);
+        $studentSubjectIds = $students->mapWithKeys(fn ($student) => [
+            $student->id => $this->getStudentTutorialSubjectIds((int) $filters['class_id'], $student),
+        ]);
         $attendanceData = $this->getAttendanceData($exam, (int) $filters['class_id'], $students->pluck('id'));
+        $highestMarks = ExamMark::where('exam_id', $exam->id)
+            ->where('is_absent', false)
+            ->when($filters['subject_filter'], fn ($query) => $query->whereIn('subject_id', $filters['subject_ids']))
+            ->selectRaw('subject_id, MAX(total) as highest')
+            ->groupBy('subject_id')
+            ->pluck('highest', 'subject_id');
 
-        $studentsData = $students->map(function ($student) use ($exam, $attendanceData) {
+        $studentsData = $students->map(function ($student) use ($exam, $attendanceData, $highestMarks, $filters, $studentSubjectIds) {
             $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession'])
                 ->where('student_id', $student->id)
                 ->where('academic_session_id', $exam->academic_session_id)
@@ -143,25 +204,42 @@ class TutorialReportController extends Controller
                 ->where('exam_id', $exam->id)
                 ->where('student_id', $student->id)
                 ->get()
-                ->filter(fn ($m) => $m->subject)
-                ->sortBy(fn ($m) => $m->subject->name);
+                ->filter(fn ($m) => $m->subject
+                    && $m->subject->include_in_tutorial_exam
+                    && ($studentSubjectIds[$student->id] === null || $studentSubjectIds[$student->id]->contains((int) $m->subject_id))
+                    && (! $filters['subject_filter'] || in_array((int) $m->subject_id, $filters['subject_ids'], true)))
+                ->sortBy(fn ($m) => sprintf('%d:%s', $m->subject->is_paper ? 0 : 1, mb_strtolower($m->subject->name)));
 
-            $rows = $marks->map(function ($mark) {
+            $marks = app(\App\Services\SubjectOrderingService::class)->sortSubjects(
+                $marks->map(fn ($mark) => $mark->subject)->unique('id')->values(),
+                (int) $filters['class_id']
+            )->map(fn ($subject) => $marks->firstWhere('subject_id', $subject->id))->filter()->values();
+
+            $rows = $marks->map(function ($mark) use ($highestMarks, $filters) {
+                $tutorialMarks = $mark->subject->getEffectiveMarksForClass((int) $filters['class_id'])['tutorial_marks']
+                    ?? $mark->subject->tutorial_marks
+                    ?? 0;
+
                 return [
-                    'subject_name' => $mark->subject->name,
+                    'subject_name' => $this->tutorialDisplaySubjectName($mark->subject),
+                    'full_marks'   => (float) $tutorialMarks,
                     'obtained'     => $mark->is_absent ? null : (float) $mark->total,
+                    'highest'      => (float) ($highestMarks[$mark->subject_id] ?? 0),
                     'is_absent'    => (bool) $mark->is_absent,
                 ];
             })->values();
 
             $totalObtained = $rows->filter(fn ($r) => ! $r['is_absent'])->sum('obtained');
             $failedSubjectCount = $marks->filter(fn ($mark) =>
-                $mark->is_absent || (float) $mark->gpa === 0.0 || $mark->letter_grade === 'F'
+                $mark->is_absent || $mark->letter_grade === 'F'
             )->count();
             $gpa = GradingService::calculateGpa(
                 $marks->map(fn ($mark) => $mark->is_absent ? 0 : (float) $mark->gpa)->values()->all(),
                 $failedSubjectCount > 0,
             );
+            $percentage = $rows->sum('full_marks') > 0
+                ? round(($totalObtained / $rows->sum('full_marks')) * 100, 2)
+                : 0.0;
 
             return [
                 'student'        => $student,
@@ -171,6 +249,7 @@ class TutorialReportController extends Controller
                 'failed_subject_count' => $failedSubjectCount,
                 'gpa'            => $gpa,
                 'grade'          => GradingService::getGpaLabel($gpa),
+                'comment'        => $this->tutorialComment($percentage, $failedSubjectCount),
                 'attendance_present' => $attendanceData['present_by_student'][$student->id] ?? 0,
             ];
         });
@@ -178,7 +257,7 @@ class TutorialReportController extends Controller
         $studentsData = $this->rankStudentsData($studentsData);
 
         $html = view('pages.tutorial-report.print', compact('studentsData', 'exam', 'filters', 'reportContext'))->render();
-        $mpdf = new \Mpdf\Mpdf(['format' => 'A4', 'margin_top' => 15, 'margin_bottom' => 15, 'margin_left' => 15, 'margin_right' => 15]);
+        $mpdf = new \Mpdf\Mpdf(['format' => 'A4', 'margin_top' => 10, 'margin_bottom' => 10, 'margin_left' => 12, 'margin_right' => 12]);
         $mpdf->WriteHTML($html);
 
         return response($mpdf->Output('', 'S'))->header('Content-Type', 'application/pdf');
@@ -218,7 +297,12 @@ class TutorialReportController extends Controller
             ->where('student_id', $student->id)
             ->get()
             ->filter(fn ($m) => $m->subject)
-            ->sortBy(fn ($m) => $m->subject->name);
+            ->sortBy(fn ($m) => sprintf('%d:%s', $m->subject->is_paper ? 0 : 1, mb_strtolower($m->subject->name)));
+
+        $marks = app(\App\Services\SubjectOrderingService::class)->sortSubjects(
+            $marks->map(fn ($mark) => $mark->subject)->unique('id')->values(),
+            (int) $data['class_id']
+        )->map(fn ($subject) => $marks->firstWhere('subject_id', $subject->id))->filter()->values();
 
         $rows = $marks->map(function ($mark) {
             return [
@@ -263,6 +347,19 @@ class TutorialReportController extends Controller
         return "tutorial:exam:{$examId}:student:{$studentId}";
     }
 
+    private function tutorialComment(float $percentage, int $failedSubjectCount): string
+    {
+        if ($failedSubjectCount > 0 || $percentage < 40.0) {
+            return 'Needs Improvement';
+        }
+
+        return match (true) {
+            $percentage >= 90.0 => 'Excellent',
+            $percentage >= 70.0 => 'Good',
+            default => 'Satisfactory',
+        };
+    }
+
     private function buildReportContext(array $filters): array
     {
         $session = AcademicSession::find($filters['session_id']);
@@ -274,6 +371,94 @@ class TutorialReportController extends Controller
             'class' => $class?->name_en ?? ($class?->name_bn ?? '—'),
             'section' => $section?->name_en ?? ($section?->name_bn ?? '—'),
         ];
+    }
+
+    private function getAssignedTutorialSubjects(int $classId)
+    {
+        $subjects = SubjectClassAssignment::query()
+            ->with('subject')
+            ->where('school_class_id', $classId)
+            ->where('is_active', true)
+            ->get()
+            ->map(fn ($assignment) => $assignment->subject)
+            ->filter(fn ($subject) => $subject?->is_active)
+            ->unique('id')
+            ->values();
+
+        return app(\App\Services\SubjectOrderingService::class)
+            ->sortSubjects($subjects, $classId);
+    }
+
+    private function normalizeSubjectFilters(Request $request, array $filters, $tutorialSubjects): array
+    {
+        $includedSubjects = $tutorialSubjects
+            ->filter(fn ($subject) => $subject->include_in_tutorial_exam)
+            ->values();
+        $regularIncludedIds = $includedSubjects
+            ->reject(fn ($subject) => $this->isReligionSubject($subject))
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->values();
+        $includedReligionIds = $includedSubjects
+            ->filter(fn ($subject) => $this->isReligionSubject($subject))
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->values();
+        $filterActive = $request->has('subject_filter')
+            || $request->has('subject_ids')
+            || $request->has('religion_subject');
+        $religionSelected = $filterActive
+            ? in_array(strtolower((string) $request->input('religion_subject', '')), ['1', 'true', 'on', 'religion'], true)
+            : $includedReligionIds->isNotEmpty();
+
+        $filters['subject_filter'] = $filterActive;
+        $selectedRegularIds = $filterActive
+            ? collect($request->input('subject_ids', []))
+                ->map(fn ($id) => (int) $id)
+                ->intersect($regularIncludedIds)
+                ->values()
+            : $regularIncludedIds;
+        $filters['subject_ids'] = $selectedRegularIds
+            ->when($religionSelected, fn ($ids) => $ids->merge($includedReligionIds))
+            ->unique()
+            ->values()
+            ->all();
+        $filters['religion_subject'] = $religionSelected;
+
+        return $filters;
+    }
+
+    private function isReligionSubject(?Subject $subject): bool
+    {
+        return $subject !== null
+            && preg_match('/^(islam|hindu|christian|buddha|buddhist)\s+religion$/i', trim($subject->name)) === 1;
+    }
+
+    private function tutorialDisplaySubjectName(Subject $subject): string
+    {
+        return $this->isReligionSubject($subject) ? 'Religion' : $subject->name;
+    }
+
+    private function getStudentTutorialSubjectIds(int $classId, Student $student): ?\Illuminate\Support\Collection
+    {
+        $assignments = SubjectClassAssignment::query()
+            ->with('subject')
+            ->where('school_class_id', $classId)
+            ->where('is_active', true)
+            ->get();
+
+        if ($assignments->isEmpty()) {
+            return null;
+        }
+
+        return $assignments
+            ->filter(fn ($assignment) => $assignment->subject?->is_active
+                && $assignment->subject->include_in_tutorial_exam
+                && $assignment->appliesToStudent($student->gender, $student->religion))
+            ->pluck('subject_id')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
     }
 
     private function hasCompleteFilters(Request $request): bool

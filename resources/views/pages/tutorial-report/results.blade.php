@@ -2,8 +2,6 @@
 
 @section('contents')
 <div class="col-12 tutorial-report-page">
-    @include('partials.report-header')
-
     <div class="tutorial-report-toolbar no-print">
         <form id="reportFormTop" class="tutorial-report-filter-form" method="GET" action="{{ route('result.tutorial-report.show') }}">
             <div class="tutorial-report-filter-row">
@@ -64,12 +62,59 @@
                     <button type="submit" class="btn tutorial-report-action-btn tutorial-report-action-btn--primary" title="View Report" aria-label="View Report">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button type="button" id="tutorialReportPdfBtn" class="btn btn-danger tutorial-report-action-btn" title="Download PDF" aria-label="Download PDF">
-                        <i class="fas fa-file-pdf"></i>
-                    </button>
                     <a href="{{ route('result.tutorial-report.index') }}" class="btn tutorial-report-action-btn tutorial-report-action-btn--ghost" title="Reset" aria-label="Reset">
                         <i class="fas fa-undo-alt"></i>
                     </a>
+                </div>
+            </div>
+
+            <input type="hidden" name="subject_filter" value="1">
+            <div class="tutorial-report-subject-filter is-mobile-collapsed">
+                <div class="tutorial-report-subject-filter__header">
+                    <div>
+                        <label class="mb-0">Subjects</label>
+                        <small class="text-muted d-block">Included subjects are selectable; excluded subjects stay visible for reference.</small>
+                    </div>
+                    <div class="tutorial-report-subject-filter__controls">
+                        @if($tutorialSubjects->isNotEmpty())
+                            <div class="tutorial-report-subject-filter__actions">
+                                <button type="button" class="tutorial-report-subject-filter__action tutorial-report-subject-filter__action--primary" id="tutorialSelectAllSubjects">Select all</button>
+                                <button type="button" class="tutorial-report-subject-filter__action tutorial-report-subject-filter__action--secondary" id="tutorialClearAllSubjects">Clear all</button>
+                            </div>
+                        @endif
+                        <button type="button" id="tutorialToggleSubjects" class="tutorial-report-subject-filter__toggle" aria-expanded="false" aria-controls="tutorialSubjectOptions">
+                            <i class="fas fa-sliders-h mr-1" aria-hidden="true"></i> Subjects
+                        </button>
+                    </div>
+                </div>
+                <div id="tutorialSubjectOptions" class="tutorial-report-subject-filter__options">
+                    @forelse($regularTutorialSubjects as $subject)
+                        @php
+                            $isIncluded = (bool) $subject->include_in_tutorial_exam;
+                        @endphp
+                        <label class="tutorial-report-subject-option">
+                            <input class="form-check-input" type="checkbox" name="subject_ids[]" value="{{ $subject->id }}"
+                                {{ in_array((int) $subject->id, array_map('intval', $filters['subject_ids'] ?? []), true) ? 'checked' : '' }}
+                                {{ $isIncluded ? '' : 'disabled' }}>
+                            <span>{{ $subject->name }} @unless($isIncluded)<small class="text-muted">(Excluded)</small>@endunless</span>
+                        </label>
+                    @empty
+                    @endforelse
+                    @if($religionSubjects->isNotEmpty())
+                        @php
+                            $hasIncludedReligion = $includedReligionSubjectIds->isNotEmpty();
+                        @endphp
+                        <label class="tutorial-report-subject-option">
+                            <input class="form-check-input" type="checkbox" name="religion_subject" value="religion"
+                                {{ !empty($filters['religion_subject']) ? 'checked' : '' }}
+                                {{ $hasIncludedReligion ? '' : 'disabled' }}>
+                            <span>Religion</span>
+                            @unless($hasIncludedReligion)<small class="text-muted">(Excluded)</small>@endunless
+                        </label>
+                    @endif
+                    @if($regularTutorialSubjects->isEmpty() && $religionSubjects->isEmpty())
+                        <span class="text-muted small">No assigned tutorial subjects found.</span>
+                    @endif
                 </div>
             </div>
         </form>
@@ -115,11 +160,20 @@
         </div>
     </div>
 
+    <div class="tutorial-print-only">
+        @include('pages.tutorial-report._print-layout')
+    </div>
+
+    <div class="tutorial-screen-results">
     @foreach($studentsData as $data)
         @php
             $student = $data['student'];
             $academicInfo = $data['academicInfo'] ?? null;
-            $rows = $data['rows'];
+            $rows = collect($data['rows'] ?? []);
+            $totalFullMarks = $rows->sum(fn ($row) => (float) ($row['full_marks'] ?? 0));
+            $overallPercentage = $totalFullMarks > 0
+                ? min(100, round(((float) $data['total_obtained'] / $totalFullMarks) * 100, 1))
+                : 0;
         @endphp
         <div class="card mb-4">
             <div class="card-header tutorial-student-strip">
@@ -137,7 +191,6 @@
                 </div>
                 <div class="ml-auto tutorial-student-total">
                     <span class="badge badge-primary mr-1">Position: {{ $data['rank'] ?? '—' }}</span>
-                    <span class="badge badge-secondary mr-1">GPA: {{ number_format($data['gpa'], 2) }} ({{ $data['grade'] }})</span>
                     <span class="badge badge-info">Total Obtained: {{ number_format($data['total_obtained'], 1) }}</span>
                     {{-- <span class="badge ml-2 js-email-status {{ !empty($statusMap[$student->id]) ? 'badge-success' : 'badge-secondary' }}"
                         id="tutorial-email-status-{{ $student->id }}">
@@ -162,26 +215,37 @@
                     <thead>
                         <tr>
                             <th>Subject</th>
-                            <th class="text-center" style="width:160px">Obtained</th>
+                            <th class="text-center" style="width:130px">Full Marks</th>
+                            <th class="text-center" style="width:160px">Obtained Marks</th>
+                            <th class="text-center" style="width:160px">Highest Marks</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($rows as $r)
                             <tr class="{{ $r['is_absent'] ? 'table-secondary' : '' }}">
                                 <td>{{ $r['subject_name'] }}</td>
-                                <td class="text-center">{{ $r['is_absent'] ? 'AB' : number_format($r['obtained'], 1) }}</td>
+                                <td class="text-center">{{ number_format((float) ($r['full_marks'] ?? 0), 1) }}</td>
+                                <td class="text-center">{{ $r['is_absent'] ? 'AB' : number_format((float) ($r['obtained'] ?? 0), 1) }}</td>
+                                <td class="text-center">{{ number_format((float) ($r['highest'] ?? 0), 1) }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="2" class="text-center text-muted py-3">No marks found.</td>
+                                <td colspan="4" class="text-center text-muted py-3">No marks found.</td>
                             </tr>
                         @endforelse
+                        <tr class="tutorial-report-total">
+                            <td>Total</td>
+                            <td class="text-center">{{ number_format($totalFullMarks, 1) }}</td>
+                            <td class="text-center">{{ number_format((float) $data['total_obtained'], 1) }}</td>
+                            <td class="text-center">{{ number_format($overallPercentage, 1) }}%</td>
+                        </tr>
                     </tbody>
                 </table>
                 </div>
             </div>
         </div>
     @endforeach
+    </div>
 </div>
 @endsection
 
@@ -194,6 +258,10 @@
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
     padding: 0.9rem;
     margin-bottom: 1rem;
+}
+
+.tutorial-print-only {
+    display: none;
 }
 
 .tutorial-report-filter-form {
@@ -272,6 +340,151 @@
     color: #111827;
 }
 
+.tutorial-report-subject-filter {
+    border-top: 1px solid #eef2f1;
+    padding-top: 0.8rem;
+}
+
+.tutorial-report-subject-filter__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.65rem;
+}
+
+.tutorial-report-subject-filter__header label {
+    color: #374151;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.tutorial-report-subject-filter__controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.tutorial-report-subject-filter__actions {
+    display: flex;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.tutorial-report-subject-filter__action {
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 0.38rem 0.7rem;
+    font-size: 0.76rem;
+    font-weight: 700;
+    line-height: 1.2;
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.tutorial-report-subject-filter__action--primary {
+    background: #111827;
+    border-color: #111827;
+    color: #fff;
+}
+
+.tutorial-report-subject-filter__action--primary:hover,
+.tutorial-report-subject-filter__action--primary:focus {
+    background: #000;
+    border-color: #000;
+    color: #fff;
+}
+
+.tutorial-report-subject-filter__action--secondary {
+    background: #fff;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+.tutorial-report-subject-filter__action--secondary:hover,
+.tutorial-report-subject-filter__action--secondary:focus {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+.tutorial-report-subject-filter__options {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.95rem 1rem;
+}
+
+.tutorial-report-subject-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    color: #1f2937;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.tutorial-report-subject-option > span {
+    margin-left: 1.5rem;
+}
+
+.tutorial-report-subject-option input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.05rem;
+    height: 1.05rem;
+    flex: 0 0 auto;
+    margin: 0;
+    border: 2px solid #111111;
+    border-radius: 999px;
+    background-color: #ffffff;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 0.72rem 0.72rem;
+    box-shadow: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tutorial-report-subject-option input:checked {
+    background-color: #111111;
+    border-color: #111111;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M6.2 11.2 2.9 8l-1.1 1.1 4.4 4.4L14.2 5.5 13.1 4.4 6.2 11.2Z' fill='%23ffffff'/%3E%3C/svg%3E");
+}
+
+.tutorial-report-subject-option input:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.12);
+}
+
+.tutorial-report-subject-option input:hover {
+    border-color: #000000;
+}
+
+.tutorial-report-subject-option input:disabled {
+    background: #e5e7eb;
+    border-color: #cbd5e1;
+    cursor: not-allowed;
+}
+
+.tutorial-report-subject-filter__toggle {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    border: 1px solid #dbe4ea;
+    border-radius: 8px;
+    background: #fff;
+    color: #0e7490;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.38rem 0.7rem;
+}
+
 @media (max-width: 1280px) {
     .tutorial-report-filter-row {
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -280,12 +493,33 @@
     .tutorial-report-filter-actions {
         justify-content: flex-start;
     }
+
+    .tutorial-report-subject-filter__options {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 768px) {
     .tutorial-report-filter-row {
         grid-template-columns: 1fr;
     }
+
+    .tutorial-report-subject-filter__header {
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .tutorial-report-subject-filter__toggle {
+        display: inline-block;
+    }
+
+    .tutorial-report-subject-filter__options {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.tutorial-report-subject-filter.is-mobile-collapsed .tutorial-report-subject-filter__options {
+    display: none;
 }
 
 .tutorial-report-table thead th {
@@ -300,6 +534,12 @@
 
 .tutorial-report-table thead th:last-child {
     border-top-right-radius: 0;
+}
+
+.tutorial-report-table .tutorial-report-total td {
+    background: transparent;
+    color: #0f172a;
+    font-weight: 800;
 }
 
 .tutorial-report-context {
@@ -492,7 +732,16 @@ html[data-theme='dark'] .tutorial-report-table tbody td {
     border-color: rgba(148, 163, 184, 0.16) !important;
 }
 
+html[data-theme='dark'] .tutorial-report-table .tutorial-report-total td {
+    color: #f8fafc !important;
+}
+
 @media print {
+    @page {
+        size: A4 landscape;
+        margin: 10mm 12mm;
+    }
+
     body {
         background: #fff !important;
     }
@@ -501,6 +750,14 @@ html[data-theme='dark'] .tutorial-report-table tbody td {
     .btn,
     .card-header .btn-group {
         display: none !important;
+    }
+
+    .tutorial-screen-results {
+        display: none !important;
+    }
+
+    .tutorial-print-only {
+        display: block !important;
     }
 
     .card,
@@ -540,7 +797,8 @@ html[data-theme='dark'] .tutorial-report-table tbody td {
 $(function () {
     var selectedSection = @json($filters['section_id'] ?? null);
     var form = document.getElementById('reportFormTop');
-    var pdfBtn = document.getElementById('tutorialReportPdfBtn');
+    var subjectFilter = document.querySelector('.tutorial-report-subject-filter');
+    var subjectToggle = document.getElementById('tutorialToggleSubjects');
 
     function loadSections(classId, selectedSectionId = null) {
         var $section = $('#sectionSelectTop');
@@ -572,8 +830,24 @@ $(function () {
         loadSections($('#classSelectTop').val(), selectedSection);
     }
 
-    pdfBtn?.addEventListener('click', function () {
-        window.open('{{ route('result.tutorial-report.pdf') }}?' + $(form).serialize(), '_blank');
+    subjectToggle?.addEventListener('click', function () {
+        var isCollapsed = subjectFilter.classList.toggle('is-mobile-collapsed');
+        subjectToggle.setAttribute('aria-expanded', String(!isCollapsed));
+    });
+
+    if (subjectToggle && subjectFilter && window.matchMedia('(min-width: 769px)').matches) {
+        subjectFilter.classList.remove('is-mobile-collapsed');
+        subjectToggle.setAttribute('aria-expanded', 'true');
+    }
+
+    document.getElementById('tutorialSelectAllSubjects')?.addEventListener('click', function () {
+        document.querySelectorAll('.tutorial-report-subject-option input[type="checkbox"]:not(:disabled)')
+            .forEach((checkbox) => checkbox.checked = true);
+    });
+
+    document.getElementById('tutorialClearAllSubjects')?.addEventListener('click', function () {
+        document.querySelectorAll('.tutorial-report-subject-option input[type="checkbox"]:not(:disabled)')
+            .forEach((checkbox) => checkbox.checked = false);
     });
 });
 

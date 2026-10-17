@@ -26,7 +26,9 @@ class GradingService
         $percentage = ($marks / $fullMarks) * 100;
 
         foreach (self::$grades as $grade) {
-            if ($percentage >= $grade['min'] && $percentage <= $grade['max']) {
+            // Grade bands are defined by their lower threshold. This keeps
+            // decimal percentages such as 79.8% inside the 70% band.
+            if ($percentage >= $grade['min']) {
                 return ['letter' => $grade['letter'], 'gpa' => $grade['gpa']];
             }
         }

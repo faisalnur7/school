@@ -8,7 +8,7 @@
                     <div class="card-header flex justify-between items-center">
                         <h3 class="card-title font-bold text-white">Subjects</h3>
                         <div class="card-tools ml-auto">
-                            <a href="{{ route('subjects.classwise') }}" class="btn btn-info btn-sm mr-2">
+                            <a href="{{ route('subjects.classwise', request()->except('view')) }}" class="btn btn-info btn-sm mr-2">
                                 <i class="fas fa-sitemap"></i> Classwise View
                             </a>
                             @if(auth()->user()?->hasPermission('create_subjects'))

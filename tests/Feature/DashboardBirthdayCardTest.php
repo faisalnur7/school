@@ -33,4 +33,25 @@ class DashboardBirthdayCardTest extends TestCase
             ->assertSee('href="' . $cardPreviewUrl . '"', false)
             ->assertDontSee('In 0 days');
     }
+
+    public function test_birthday_row_renders_student_photo_when_available(): void
+    {
+        $user = User::factory()->create(['is_super_admin' => true]);
+
+        $response = $this->actingAs($user)->view('dashboard', [
+            'upcoming_birthdays' => [[
+                'name' => 'Student With Photo',
+                'date' => now()->toImmutable(),
+                'days_until' => 1,
+                'label' => 'In 1 days',
+                'class' => 'Three',
+                'section' => 'A',
+                'link' => '#',
+                'image_url' => 'https://school.local/uploads/students/student.jpg',
+            ]],
+        ]);
+
+        $response->assertSee('src="https://school.local/uploads/students/student.jpg"', false);
+        $response->assertSee('alt="Student With Photo"', false);
+    }
 }

@@ -188,12 +188,12 @@
         <!-- Fee Statistics -->
         @if(auth()->user()?->hasPermission('view_fee_collection'))
         <div class="col-12 col-lg-6">
-            <div class="card-modern h-100">
+            <div class="card-modern h-100 fee-status-card">
                 <div class="card-header-modern fee-header">
                     <span><i class="fas fa-coins me-2"></i>{{ __('Fee Collection Status') }}</span>
                 </div>
                 <div class="card-body-modern">
-                    <div class="attend-grid">
+                    <div class="attend-grid fee-status-grid">
                         <div class="attend-item collected">
                             <span class="attend-num">{{ localized_currency($total_fees_paid, '৳', 0) }}</span>
                             <span class="attend-label">{{ __('Collected') }}</span>
@@ -272,11 +272,15 @@
                     <span class="birthday-header-count badge bg-light text-dark">{{ count($upcoming_birthdays) }}</span>
                 </div>
                 <div class="card-body-modern dashboard-triple-body">
-                    <div class="birthday-list">
+                    <div class="birthday-list birthday-mobile-list">
                         @forelse($upcoming_birthdays as $birthday)
                             <a class="birthday-item birthday-item-link" href="{{ $birthday['link'] ?? '#' }}">
                                 <div class="birthday-avatar">
-                                    <i class="fas fa-user"></i>
+                                    @if(!empty($birthday['image_url']))
+                                        <img src="{{ $birthday['image_url'] }}" alt="{{ $birthday['name'] }}">
+                                    @else
+                                        <i class="fas fa-user"></i>
+                                    @endif
                                 </div>
                                 <div class="birthday-content">
                                     <div class="birthday-row">
@@ -774,6 +778,13 @@
     flex-shrink: 0;
 }
 
+.birthday-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    object-fit: cover;
+}
+
 .birthday-content {
     flex: 1;
     min-width: 0;
@@ -824,7 +835,10 @@
     .dashboard-triple-card { height: auto; }
     .dashboard-triple-body { overflow-y: visible; }
     .quick-actions-section { margin-bottom: 18px; }
-    .stats-grid { gap: 12px; }
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
     .finance-grid { gap: 14px; margin-bottom: 18px; }
     .dashboard-triple-row { row-gap: 14px; }
     .quick-action-card { padding: 14px 16px; gap: 10px; }
@@ -832,6 +846,59 @@
     .action-text { font-size: 0.8rem; }
     .stat-value { font-size: 1.5rem; }
     .attend-num { font-size: 1.25rem; }
+    .fee-status-card,
+    .fee-status-card .card-body-modern,
+    .fee-status-grid {
+        min-width: 0;
+    }
+    .fee-status-card { overflow: hidden; }
+    .fee-status-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+    }
+    .fee-status-grid .attend-item {
+        min-width: 0;
+        padding: 12px 5px;
+        overflow: hidden;
+    }
+    .fee-status-grid .attend-num {
+        max-width: 100%;
+        font-size: clamp(.78rem, 3.8vw, 1.05rem);
+        line-height: 1.15;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        text-align: center;
+    }
+    .birthday-mobile-list .birthday-item {
+        gap: 10px;
+        padding: 9px 0;
+    }
+    .birthday-mobile-list .birthday-item:first-child {
+        padding-top: 0;
+    }
+    .birthday-mobile-list .birthday-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+        font-size: .9rem;
+    }
+    .birthday-mobile-list .birthday-row {
+        gap: 6px;
+    }
+    .birthday-mobile-list .birthday-row strong {
+        font-size: .84rem;
+        line-height: 1.2;
+    }
+    .birthday-mobile-list .birthday-badge {
+        padding: 3px 8px;
+        font-size: .68rem;
+    }
+    .birthday-mobile-list .birthday-meta {
+        gap: 6px;
+        margin-top: 3px;
+        font-size: .7rem;
+        line-height: 1.2;
+    }
     .birthday-row { flex-direction: column; align-items: flex-start; }
     .birthday-header-count { margin-left: 12px; }
 }

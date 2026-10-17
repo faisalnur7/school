@@ -63,6 +63,86 @@
             }
         }
 
+        @media (max-width: 575px) {
+            .exams-mobile-header {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: 8px;
+                padding: 10px 12px;
+            }
+
+            .exams-mobile-header > div:first-child {
+                display: grid;
+                grid-template-columns: auto minmax(0, 1fr);
+                align-items: center;
+                gap: 8px;
+                min-width: 0;
+            }
+
+            .exams-mobile-header > div:first-child .btn {
+                margin-right: 0 !important;
+                white-space: nowrap;
+            }
+
+            .exams-mobile-header h4 {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 15px;
+            }
+
+            .exams-mobile-header > a {
+                width: 100%;
+                min-height: 40px;
+                margin: 0 !important;
+                padding: 8px 6px;
+                white-space: nowrap;
+            }
+
+            .exams-filter-card > .card-body {
+                padding: 12px !important;
+            }
+
+            .exams-mobile-filters {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: 8px;
+                align-items: center;
+            }
+
+            .exams-mobile-filters > div {
+                width: 100%;
+                min-width: 0 !important;
+            }
+
+            .exams-mobile-filters > div:nth-child(1) {
+                grid-column: 1;
+                grid-row: 1;
+            }
+
+            .exams-mobile-filters > div:nth-child(2) {
+                grid-column: 1;
+                grid-row: 2;
+            }
+
+            .exams-mobile-filters > div:nth-child(3) {
+                grid-column: 2;
+                grid-row: 2;
+            }
+
+            .exams-mobile-filters > div:nth-child(4) {
+                grid-column: 1;
+                grid-row: 3;
+            }
+
+            .exams-mobile-filters select,
+            .exams-mobile-filters .btn {
+                width: 100%;
+                min-height: 40px;
+            }
+        }
+
         .exam-actions {
             gap: 0.35rem;
         }
@@ -196,7 +276,7 @@
 
         <div class="card card-outline card-primary mb-3 exams-filter-card">
             <div class="card-header">
-                <div class="col-12 d-flex justify-content-between align-items-center">
+                <div class="col-12 d-flex justify-content-between align-items-center exams-mobile-header">
                     <div class="d-flex align-items-center">
                         <a href="{{ route('results.hub') }}" class="btn btn-sm btn-secondary mr-3">
                             <i class="fas fa-arrow-left mr-1"></i>Back
@@ -210,7 +290,7 @@
             </div>
             <div class="card-body py-2">
 
-                <form method="GET" class="d-flex flex-wrap align-items-center gap-2">
+                <form method="GET" class="d-flex flex-wrap align-items-center gap-2 exams-mobile-filters">
 
                     {{-- Type --}}
                     <div style="min-width: 160px;">

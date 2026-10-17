@@ -24,6 +24,7 @@ class Subject extends Model
         'practical_marks',
         'viva_marks',
         'tutorial_marks',
+        'include_in_tutorial_exam',
         'pass_mark',
         'is_active',
     ];
@@ -39,6 +40,7 @@ class Subject extends Model
         'practical_marks' => 'decimal:2',
         'viva_marks' => 'decimal:2',
         'tutorial_marks' => 'decimal:2',
+        'include_in_tutorial_exam' => 'boolean',
         'pass_mark' => 'decimal:2',
     ];
 

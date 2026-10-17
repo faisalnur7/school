@@ -10,6 +10,7 @@
                 <th>Total Marks</th>
                 <th>Pass Mark</th>
                 <th>Status</th>
+                <th>Tutorial Exam</th>
                 <th>Assigned Classes</th>
                 <th>Actions</th>
             </tr>
@@ -49,6 +50,7 @@
                             {{ $subject->is_active ? 'Active' : 'Inactive' }}
                         </span>
                     </td>
+                    <td>@include('pages.subjects._tutorial-exam-toggle', ['subject' => $subject])</td>
                     <td>
                         @forelse($subject->classAssignments as $assignment)
                             <span class="badge badge-secondary mr-1">
@@ -92,7 +94,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10" class="text-center">No subjects found.</td>
+                    <td colspan="11" class="text-center">No subjects found.</td>
                 </tr>
             @endforelse
         </tbody>

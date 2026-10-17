@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\AcademicSession;
 use App\Models\Exam;
+use App\Models\Group;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Student;
@@ -118,5 +119,33 @@ class ResultReportExcludesCheckedOutStudentsTest extends TestCase
         $response->assertOk();
         $response->assertSee($activeStudent->full_name_en);
         $response->assertDontSee($checkedOutStudent->full_name_en);
+    }
+
+    public function test_progress_report_displays_student_group_under_class(): void
+    {
+        ['user' => $user, 'session' => $session, 'class' => $class, 'section' => $section, 'activeStudent' => $activeStudent, 'terminalExam' => $terminalExam] = $this->scaffold();
+
+        $group = Group::create([
+            'name_en' => 'Science Group',
+            'name_bn' => 'বিজ্ঞান',
+            'status' => 1,
+        ]);
+
+        StudentAcademicInformation::where('student_id', $activeStudent->id)
+            ->where('academic_session_id', $session->id)
+            ->update(['group_id' => $group->id]);
+
+        $response = $this->withoutMiddleware()
+            ->actingAs($user)
+            ->get(route('result.progress-report.show', [
+                'session_id' => $session->id,
+                'class_id'   => $class->id,
+                'section_id' => $section->id,
+                'exam_id'    => $terminalExam->id,
+            ]));
+
+        $response->assertOk();
+        $response->assertSee('Group');
+        $response->assertSee('Science Group');
     }
 }

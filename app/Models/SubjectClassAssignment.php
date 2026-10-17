@@ -18,12 +18,14 @@ class SubjectClassAssignment extends Model
         'is_compulsory',
         'exclusive_group_key',
         'is_active',
+        'sort_order',
     ];
 
     protected $casts = [
         'is_optional' => 'boolean',
         'is_compulsory' => 'boolean',
         'is_active' => 'boolean',
+        'sort_order' => 'integer',
     ];
 
     /**

@@ -55,6 +55,31 @@
                     </div>
                 @endif
 
+                @if(!$isCreate && $duplicateAssignments->isNotEmpty())
+                    <div id="duplicate-assignment-warning" class="alert alert-warning border-0 mb-3" role="alert">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-exclamation-triangle mr-2 mt-1"></i>
+                            <div class="flex-grow-1">
+                                <strong>Duplicate class assignment detected.</strong>
+                                <div class="mt-1">A class-wide assignment and a group-specific assignment are both active. The class-wide assignment applies to every group.</div>
+                                @foreach($duplicateAssignments as $duplicate)
+                                    <div class="mt-2 d-flex flex-wrap align-items-center justify-content-between">
+                                        <span>
+                                            <strong>{{ $duplicate['class']->name_en ?? 'Selected class' }}:</strong>
+                                            archive <strong>All Groups</strong> and keep
+                                            {{ $duplicate['assignments']->first(fn ($assignment) => $assignment->group_id !== null)?->group?->name_en ?? 'the group-specific assignment' }}.
+                                        </span>
+                                        <button type="button" class="btn btn-warning btn-sm duplicate-assignment-archive-btn mt-1 ml-2" data-archive-url="{{ route('subjects.archiveAssignment', $duplicate['recommended']) }}">
+                                            <i class="fas fa-archive mr-1"></i> Archive All Groups
+                                        </button>
+                                    </div>
+                                @endforeach
+                                <small class="d-block mt-2">Historical exam marks will be preserved if the assignment has marks.</small>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 @if(!$isCreate && session('unassignment_warning'))
                     <div id="unassignment-warning" class="alert alert-warning subject-warning border-0 mb-3" role="alert">
                         <i class="fas fa-exclamation-triangle mr-2"></i>
@@ -128,7 +153,7 @@
                         </div>
 
                         <div class="row subject-option-grid">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group subject-option-card">
                                     <div class="form-check">
                                         <input type="checkbox" name="has_multiple_papers" id="has_multiple_papers" 
@@ -140,7 +165,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group subject-option-card">
                                     <div class="form-check">
                                         <input type="checkbox" name="combine_papers_for_result" id="combine_papers_for_result" 
@@ -149,6 +174,20 @@
                                             {{ __('Combine Papers for Result') }}
                                         </label>
                                         <small class="d-block text-muted">{{ __('Use this when the separate papers should be added together in the final result.') }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group subject-option-card">
+                                    <div class="form-check">
+                                        <input type="hidden" name="include_in_tutorial_exam" value="0">
+                                        <input type="checkbox" name="include_in_tutorial_exam" id="include_in_tutorial_exam"
+                                            class="form-check-input" value="1"
+                                            {{ old('include_in_tutorial_exam', $isCreate ? true : ($subject->include_in_tutorial_exam ?? true)) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="include_in_tutorial_exam">
+                                            {{ __('Include in Tutorial Exam') }}
+                                        </label>
+                                        <small class="d-block text-muted">{{ __('Uncheck this to hide tutorial mark entry and exclude this subject from tutorial reports.') }}</small>
                                     </div>
                                 </div>
                             </div>
@@ -234,9 +273,10 @@
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label>{{ __('Pass Mark') }}</label>
-                                                <input type="number" name="papers[{{ $index }}][pass_mark]" class="form-control" 
-                                                    value="{{ old('papers.'.$index.'.pass_mark', $paper->pass_mark) }}" min="0" step="0.01">
+                                                <label>{{ __('Pass Mark Percentage') }}</label>
+                                                <input type="hidden" name="papers[{{ $index }}][pass_mark]" value="{{ old('papers.'.$index.'.pass_mark', $paper->pass_mark) }}">
+                                                <input type="number" name="papers[{{ $index }}][pass_mark_percentage]" class="form-control"
+                                                    value="{{ old('papers.'.$index.'.pass_mark_percentage', $paper->total_marks > 0 ? round(($paper->pass_mark / $paper->total_marks) * 100, 2) : 33) }}" min="0" max="100" step="0.01">
                                             </div>
                                         </div>
                                     </div>
@@ -300,9 +340,18 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="pass_mark">{{ __('Pass Mark') }}</label>
-                                    <input type="number" name="pass_mark" id="pass_mark" class="form-control" 
-                                        value="{{ old('pass_mark', $subject->pass_mark) }}" min="0" step="0.01">
+                                    <label for="pass_mark_percentage">{{ __('Pass Mark Percentage') }}</label>
+                                    <input type="hidden" name="pass_mark" value="{{ old('pass_mark', $subject->pass_mark) }}">
+                                    <input type="number" name="pass_mark_percentage" id="pass_mark_percentage" class="form-control"
+                                        value="{{ old('pass_mark_percentage', $subject->total_marks > 0 ? round(($subject->pass_mark / $subject->total_marks) * 100, 2) : 33) }}" min="0" max="100" step="0.01">
+                                    <small class="form-text text-muted">{{ __('The absolute pass mark is calculated from total marks.') }}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="calculated_pass_mark">{{ __('Calculated Pass Mark') }}</label>
+                                    <input type="text" class="form-control" id="calculated_pass_mark" readonly
+                                        value="{{ number_format((float) $subject->pass_mark, 2) }}">
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -338,30 +387,36 @@
                                         <th scope="col">Viva</th>
                                         <th scope="col">Tutorial</th>
                                         <th scope="col">Total</th>
-                                        <th scope="col">Pass</th>
+                                        <th scope="col">Pass %</th>
                                         <th scope="col" class="text-center">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($subject->classConfigs as $config)
-                                    <tr>
+                                    @foreach($subject->classConfigs as $configIndex => $config)
+                                    <tr data-config-id="{{ $config->id }}">
                                         <td>
+                                            <input type="hidden" name="class_configs[{{ $configIndex }}][class_id]" value="{{ $config->school_class_id }}">
                                             <span class="config-class-name">
                                                 <span class="config-class-dot" aria-hidden="true"></span>
                                                 {{ $config->schoolClass->name_en ?? 'Class #'.$config->school_class_id }}
                                             </span>
                                         </td>
-                                        <td>{{ number_format((float) $config->creative_marks, 2) }}</td>
-                                        <td>{{ number_format((float) $config->mcq_marks, 2) }}</td>
-                                        <td>{{ number_format((float) $config->practical_marks, 2) }}</td>
-                                        <td>{{ number_format((float) $config->viva_marks, 2) }}</td>
-                                        <td>{{ number_format((float) ($config->tutorial_marks ?? 0), 2) }}</td>
+                                        <td><input type="number" name="class_configs[{{ $configIndex }}][creative_marks]" class="form-control form-control-sm config-editable-field" value="{{ $config->creative_marks }}" min="0" step="0.01" readonly></td>
+                                        <td><input type="number" name="class_configs[{{ $configIndex }}][mcq_marks]" class="form-control form-control-sm config-editable-field" value="{{ $config->mcq_marks }}" min="0" step="0.01" readonly></td>
+                                        <td><input type="number" name="class_configs[{{ $configIndex }}][practical_marks]" class="form-control form-control-sm config-editable-field" value="{{ $config->practical_marks }}" min="0" step="0.01" readonly></td>
+                                        <td><input type="number" name="class_configs[{{ $configIndex }}][viva_marks]" class="form-control form-control-sm config-editable-field" value="{{ $config->viva_marks }}" min="0" step="0.01" readonly></td>
+                                        <td><input type="number" name="class_configs[{{ $configIndex }}][tutorial_marks]" class="form-control form-control-sm config-editable-field" value="{{ $config->tutorial_marks ?? 0 }}" min="0" step="0.01" readonly></td>
                                         <td><strong class="config-total-value">{{ number_format((float) $config->total_marks, 2) }}</strong></td>
-                                        <td><span class="config-pass-value">{{ number_format((float) $config->pass_mark, 2) }}</span></td>
+                                        <td><input type="number" name="class_configs[{{ $configIndex }}][pass_mark_percentage]" class="form-control form-control-sm config-editable-field" value="{{ $config->total_marks > 0 ? round(($config->pass_mark / $config->total_marks) * 100, 2) : 33 }}" min="0" max="100" step="0.01" readonly></td>
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-sm btn-danger config-remove-btn" onclick="deleteClassConfig({{ $config->id }})" aria-label="Remove {{ $config->schoolClass->name_en ?? 'class configuration' }}" title="Remove class configuration">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            <div class="d-inline-flex gap-1">
+                                                <button type="button" class="btn btn-sm btn-outline-primary class-config-edit-btn" aria-label="Edit {{ $config->schoolClass->name_en ?? 'class configuration' }}" title="Edit class configuration">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-danger class-config-delete-btn" data-delete-url="{{ route('subjects.class-config.remove', [$subject, $config]) }}" aria-label="Remove {{ $config->schoolClass->name_en ?? 'class configuration' }}" title="Remove class configuration">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -1042,6 +1097,7 @@
 @endsection
 
 @section('scripts')
+<script src="{{ asset('assets/plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
 <script>
     $(function () {
         const $assignToClass = $('#assign_to_class');
@@ -1121,8 +1177,9 @@
                             <input type="text" id="paper_${index}_code" name="papers[${index}][code]" class="form-control" placeholder="Optional">
                         </div></div>
                         <div class="col-md-4"><div class="form-group">
-                            <label for="paper_${index}_pass">Pass mark</label>
-                            <input type="number" id="paper_${index}_pass" name="papers[${index}][pass_mark]" class="form-control" min="0" step="0.01" value="0">
+                            <label for="paper_${index}_pass_percentage">Pass mark percentage</label>
+                            <input type="hidden" name="papers[${index}][pass_mark]" value="0">
+                            <input type="number" id="paper_${index}_pass_percentage" name="papers[${index}][pass_mark_percentage]" class="form-control" min="0" max="100" step="0.01" value="33">
                         </div></div>
                         <div class="col-md-3"><div class="form-group">
                             <label for="paper_${index}_creative">Creative marks</label>
@@ -1166,10 +1223,12 @@
                 total += parseFloat($(this).val()) || 0;
             });
             $('#total_marks').val(total.toFixed(2));
+            const percentage = parseFloat($('#pass_mark_percentage').val()) || 0;
+            $('#calculated_pass_mark').val((total * percentage / 100).toFixed(2));
             $('#marks_summary').text(translations.totalPreview.replace(':total', total.toFixed(2)));
         }
 
-        $(document).on('input', '.marks-input', updateTotalMarks);
+        $(document).on('input', '.marks-input, #pass_mark_percentage', updateTotalMarks);
         updateTotalMarks();
 
         if ($('.is-invalid').length > 0) {
@@ -1180,7 +1239,7 @@
 
         // Class config management (ported from gcsc_old)
         const $classConfigsContainer = $('#class_configs_container');
-        let nextClassConfigIndex = $classConfigsContainer.children('.class-config-item').length;
+        let nextClassConfigIndex = {{ $subject->classConfigs->count() }};
         $('#add_class_config_btn').on('click', function() {
             const index = nextClassConfigIndex++;
             const configHtml = `
@@ -1234,9 +1293,9 @@
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Pass Mark</label>
-                                <input type="number" name="class_configs[${index}][pass_mark]" class="form-control"
-                                    value="0" min="0" step="0.01" placeholder="Default: {{ $subject->pass_mark ?? 0 }}">
+                                <label>Pass Mark Percentage</label>
+                                <input type="number" name="class_configs[${index}][pass_mark_percentage]" class="form-control"
+                                    value="33" min="0" max="100" step="0.01" placeholder="Default: 33">
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -1255,6 +1314,108 @@
 
         $(document).on('click', '.remove-class-config-btn', function() {
             $(this).closest('.class-config-item').remove();
+        });
+
+        $(document).on('click', '.class-config-edit-btn', function () {
+            const $button = $(this);
+            const $row = $button.closest('tr');
+            const isEditing = $button.attr('aria-pressed') === 'true';
+
+            $row.find('.config-editable-field').prop('readonly', isEditing);
+            $button.attr('aria-pressed', isEditing ? 'false' : 'true')
+                .toggleClass('btn-primary', !isEditing)
+                .toggleClass('btn-outline-primary', isEditing)
+                .attr('title', isEditing ? 'Edit class configuration' : 'Editing enabled');
+        });
+
+        $(document).on('click', '.class-config-delete-btn', function () {
+            const button = this;
+            const url = button.dataset.deleteUrl;
+            const token = document.querySelector('#modernForm input[name="_token"]')?.value;
+
+            const removeConfiguration = function () {
+                button.disabled = true;
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                    body: new URLSearchParams({ _token: token }),
+                }).then(function (response) {
+                    if (!response.ok) throw new Error('Configuration could not be removed.');
+                    window.location.reload();
+                }).catch(function () {
+                    button.disabled = false;
+                    if (window.Swal) {
+                        Swal.fire({ icon: 'error', title: 'Could not remove configuration', text: 'Please try again.' });
+                    }
+                });
+            };
+
+            if (!window.Swal) {
+                if (window.confirm('Remove this class-wise marks configuration?')) removeConfiguration();
+                return;
+            }
+
+            Swal.fire({
+                title: 'Remove class-wise marks?',
+                text: 'This class will use the subject\'s general marks again. Saved exam marks will remain unchanged.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, remove it',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                focusCancel: true,
+            }).then(function (result) {
+                if (result.isConfirmed) removeConfiguration();
+            });
+        });
+
+        $(document).on('click', '.duplicate-assignment-archive-btn', function () {
+            const button = this;
+            const url = button.dataset.archiveUrl;
+            const token = document.querySelector('#modernForm input[name="_token"]')?.value;
+
+            const archiveAssignment = function () {
+                button.disabled = true;
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                    body: new URLSearchParams({ _token: token }),
+                }).then(function (response) {
+                    if (!response.ok) throw new Error('Assignment could not be archived.');
+                    window.location.reload();
+                }).catch(function () {
+                    button.disabled = false;
+                    if (window.Swal) {
+                        Swal.fire({ icon: 'error', title: 'Could not archive assignment', text: 'Please try again.' });
+                    }
+                });
+            };
+
+            if (!window.Swal) {
+                if (window.confirm('Archive the All Groups assignment?')) archiveAssignment();
+                return;
+            }
+
+            Swal.fire({
+                title: 'Archive All Groups assignment?',
+                text: 'The more specific group assignment will remain active. Historical exam marks will be preserved.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, archive it',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                focusCancel: true,
+            }).then(function (result) {
+                if (result.isConfirmed) archiveAssignment();
+            });
         });
 
         let formChanged = false;
