@@ -28,4 +28,26 @@ class SubjectFilterLayoutTest extends TestCase
         $this->assertStringContainsString('font-size: 0.82rem;', $classwise);
         $this->assertStringContainsString("row.closest('.subject-group')", $classwise);
     }
+
+    public function test_classwise_subject_tabs_persist_the_selected_tab(): void
+    {
+        $classwise = file_get_contents(resource_path('views/pages/subjects/index_classwise.blade.php'));
+
+        $this->assertStringContainsString("localStorage.getItem('subjects.classwise.activeTab')", $classwise);
+        $this->assertStringContainsString("localStorage.setItem('subjects.classwise.activeTab'", $classwise);
+        $this->assertStringContainsString("shown.bs.tab", $classwise);
+        $this->assertStringContainsString("#classwiseSubjectsTabs", $classwise);
+    }
+
+    public function test_classwise_subject_table_shows_full_marks_and_pass_mark_percentage(): void
+    {
+        $classwise = file_get_contents(resource_path('views/pages/subjects/index_classwise.blade.php'));
+
+        $this->assertStringContainsString('<th>Full Marks</th>', $classwise);
+        $this->assertStringContainsString('<th>Pass Mark</th>', $classwise);
+        $this->assertStringContainsString('<th>Pass Mark %</th>', $classwise);
+        $this->assertStringContainsString('$subject->getEffectiveMarksForClass((int) $classId)', $classwise);
+        $this->assertStringContainsString("\$effectiveMarks['pass_mark']", $classwise);
+        $this->assertStringContainsString('$passMarkPercentage', $classwise);
+    }
 }

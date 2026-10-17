@@ -92,6 +92,9 @@
                                                                         <th>Name</th>
                                                                         <th>Code</th>
                                                                         <th>Type</th>
+                                                                        <th>Full Marks</th>
+                                                                        <th>Pass Mark</th>
+                                                                        <th>Pass Mark %</th>
                                                                         <th>Status</th>
                                                                         <th>Tutorial Exam</th>
                                                                         <th>Papers</th>
@@ -101,6 +104,11 @@
                                                                 <tbody>
                                                                     @forelse ($groupData['subjects'] as $subject)
                                                                         @php
+                                                                            $effectiveMarks = $subject->getEffectiveMarksForClass((int) $classId);
+                                                                            $fullMarks = (float) $effectiveMarks['total_marks'];
+                                                                            $passMarkPercentage = $fullMarks > 0
+                                                                                ? ((float) $effectiveMarks['pass_mark'] / $fullMarks) * 100
+                                                                                : 0;
                                                                             $assignment = $subject->classAssignments->first(fn ($item) =>
                                                                                 (int) $item->school_class_id === (int) $classId
                                                                                 && (($groupData['group']?->id === null && $item->group_id === null)
@@ -112,6 +120,9 @@
                                                                             <td>{{ $subject->name }}</td>
                                                                             <td>{{ $subject->code }}</td>
                                                                             <td>{{ ucfirst($subject->type) }}</td>
+                                                                            <td>{{ number_format($fullMarks, 2) }}</td>
+                                                                            <td>{{ number_format((float) $effectiveMarks['pass_mark'], 2) }}</td>
+                                                                            <td>{{ number_format($passMarkPercentage, 2) }}%</td>
                                                                             <td>
                                                                                 @if($subject->is_active)
                                                                                     <span class="badge badge-success">Active</span>
@@ -142,7 +153,7 @@
                                                                         </tr>
                                                                     @empty
                                                                         <tr>
-                                                                            <td colspan="8" class="text-center">No subjects found</td>
+                                                                            <td colspan="11" class="text-center">No subjects found</td>
                                                                         </tr>
                                                                     @endforelse
                                                                 </tbody>
@@ -288,6 +299,35 @@
 
 @section('scripts')
     <script>
+        (function ($) {
+            const tabs = $('#classwiseSubjectsTabs');
+
+            if (!tabs.length) return;
+
+            const hasTab = function (href) {
+                return Boolean(href) && tabs.find('a[data-toggle="tab"][href="' + href + '"]').length > 0;
+            };
+
+            if (!@json(request()->filled('school_class_id'))) {
+                try {
+                    const rememberedTab = localStorage.getItem('subjects.classwise.activeTab');
+                    if (hasTab(rememberedTab)) {
+                        tabs.find('a[data-toggle="tab"][href="' + rememberedTab + '"]').tab('show');
+                    }
+                } catch (error) {
+                    // Ignore unavailable or restricted browser storage.
+                }
+            }
+
+            tabs.on('shown.bs.tab', 'a[data-toggle="tab"]', function (event) {
+                try {
+                    localStorage.setItem('subjects.classwise.activeTab', event.target.getAttribute('href'));
+                } catch (error) {
+                    // Ignore unavailable or restricted browser storage.
+                }
+            });
+        })(jQuery);
+
         document.querySelectorAll('.subject-order-row').forEach(function (row) {
             row.addEventListener('dragstart', function () {
                 row.classList.add('subject-order-dragging');
