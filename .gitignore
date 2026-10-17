@@ -2,7 +2,7 @@
 .env
 .env.*
 !.env.example
-
+/docs
 # Laravel
 /node_modules/
 /public/storage
