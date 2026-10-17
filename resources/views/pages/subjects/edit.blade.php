@@ -45,7 +45,6 @@
                 @method('PUT')
             @endif
             <input type="hidden" name="assign_to_class" value="0">
-            <input type="hidden" name="school_class_ids[]" value="">
 
             <div class="card-body p-3">
                 @if($errors->any())

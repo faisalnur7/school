@@ -241,6 +241,7 @@ class SubjectService
             $activeAssignments = $subject->classAssignments()
                 ->where('is_active', true)
                 ->get();
+            $allAssignments = $subject->classAssignments()->get();
 
             $removed = [];
             $archived = [];
@@ -264,6 +265,9 @@ class SubjectService
                 $classAssignments = $activeAssignments
                     ->where('school_class_id', $classId)
                     ->values();
+                $classAllAssignments = $allAssignments
+                    ->where('school_class_id', $classId)
+                    ->values();
                 $usedAssignmentIds = [];
 
                 foreach ($groupScopes as $groupId) {
@@ -283,6 +287,19 @@ class SubjectService
                             && $assignment->group_id === $groupId
                     );
 
+                    // Reuse an archived assignment for the same scope when it
+                    // exists. The assignment table has a unique key that also
+                    // includes inactive rows, so converting a common row into
+                    // that group would otherwise fail with a duplicate-key
+                    // error.
+                    if (! $targetAssignment) {
+                        $targetAssignment = $classAllAssignments->first(
+                            fn (SubjectClassAssignment $assignment) => ! $assignment->is_active
+                                && ! in_array($assignment->id, $usedAssignmentIds, true)
+                                && $assignment->group_id === $groupId
+                        );
+                    }
+
                     // Preserve the existing assignment and marks when converting
                     // a class-wide assignment to one or more selected groups.
                     if (! $targetAssignment && $groupId !== null) {
@@ -293,10 +310,16 @@ class SubjectService
                     }
 
                     if ($targetAssignment) {
+                        $wasInactive = ! $targetAssignment->is_active;
                         $targetAssignment->update(array_merge($assignmentData, [
                             'school_class_id' => $classId,
+                            'is_active' => true,
                         ]));
                         $usedAssignmentIds[] = $targetAssignment->id;
+
+                        if ($wasInactive && ($assignmentData['is_compulsory'] ?? true)) {
+                            $this->assignStudentsToSubject($targetAssignment->fresh());
+                        }
                     } else {
                         $this->assignToClass(array_merge($assignmentData, [
                             'school_class_id' => $classId,

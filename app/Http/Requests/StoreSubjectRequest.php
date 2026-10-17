@@ -33,7 +33,7 @@ class StoreSubjectRequest extends FormRequest
             'is_active' => 'nullable|boolean',
             'assign_to_class' => 'nullable|boolean',
             'school_class_ids' => 'nullable|array',
-            'school_class_ids.*' => 'exists:school_classes,id',
+            'school_class_ids.*' => 'nullable|exists:school_classes,id',
             'group_id' => 'nullable|exists:groups,id',
             'group_ids' => 'nullable|array',
             'group_ids.*' => 'integer|exists:groups,id',

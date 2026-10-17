@@ -18,4 +18,14 @@ class SubjectMultipleGroupAssignmentViewTest extends TestCase
         $this->assertStringContainsString('name="group_ids[]"', $view);
         $this->assertStringContainsString('name="all_groups"', $view);
     }
+
+    public function test_subject_assignment_form_does_not_submit_an_empty_class_id(): void
+    {
+        $view = file_get_contents(resource_path('views/pages/subjects/edit.blade.php'));
+
+        $this->assertStringNotContainsString(
+            '<input type="hidden" name="school_class_ids[]" value="">',
+            $view
+        );
+    }
 }

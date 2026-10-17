@@ -374,6 +374,65 @@ class SubjectClassAssignmentSyncTest extends TestCase
         ]);
     }
 
+    public function test_sync_reuses_an_inactive_group_assignment_when_replacing_a_common_assignment(): void
+    {
+        $schoolClass = $this->schoolClass('Nine');
+        $business = \App\Models\Group::create(['name_en' => 'Business Studies', 'name_bn' => 'Business Studies']);
+        $humanities = \App\Models\Group::create(['name_en' => 'Humanities', 'name_bn' => 'Humanities']);
+        $subject = Subject::create([
+            'name' => 'Agriculture',
+            'code' => 'AGRI-INACTIVE-GROUP-SYNC',
+            'type' => 'optional',
+            'creative_marks' => 100,
+            'pass_mark' => 33,
+            'is_active' => true,
+        ]);
+        $common = SubjectClassAssignment::create([
+            'subject_id' => $subject->id,
+            'school_class_id' => $schoolClass->id,
+            'group_id' => null,
+            'gender' => 'all',
+            'religion' => 'all',
+            'is_optional' => true,
+            'is_compulsory' => false,
+            'is_active' => true,
+        ]);
+        $historicalBusiness = SubjectClassAssignment::create([
+            'subject_id' => $subject->id,
+            'school_class_id' => $schoolClass->id,
+            'group_id' => $business->id,
+            'gender' => 'all',
+            'religion' => 'all',
+            'is_optional' => true,
+            'is_compulsory' => false,
+            'is_active' => false,
+        ]);
+
+        app(SubjectService::class)->syncClassAssignments($subject, [$schoolClass->id], [
+            'group_ids' => [$business->id, $humanities->id],
+            'gender' => 'all',
+            'religion' => 'all',
+            'is_optional' => true,
+            'is_compulsory' => false,
+        ]);
+
+        $this->assertDatabaseHas('subject_class_assignments', [
+            'id' => $historicalBusiness->id,
+            'is_active' => true,
+        ]);
+        $this->assertDatabaseHas('subject_class_assignments', [
+            'id' => $common->id,
+            'group_id' => $humanities->id,
+            'is_active' => true,
+        ]);
+        $this->assertDatabaseMissing('subject_class_assignments', [
+            'subject_id' => $subject->id,
+            'school_class_id' => $schoolClass->id,
+            'group_id' => null,
+            'is_active' => true,
+        ]);
+    }
+
     public function test_duplicate_assignment_detection_recommends_archiving_the_global_assignment(): void
     {
         $schoolClass = $this->schoolClass('Nine');
