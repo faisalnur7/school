@@ -27,6 +27,8 @@ class SubjectFilterLayoutTest extends TestCase
         $this->assertStringContainsString('padding: 0.55rem 0.75rem;', $classwise);
         $this->assertStringContainsString('font-size: 0.82rem;', $classwise);
         $this->assertStringContainsString("row.closest('.subject-group')", $classwise);
+        $this->assertStringContainsString("route('subjects.print'", $classwise);
+        $this->assertStringContainsString("route('subjects.pdf'", $classwise);
     }
 
     public function test_classwise_subject_tabs_persist_the_selected_tab(): void
@@ -49,5 +51,15 @@ class SubjectFilterLayoutTest extends TestCase
         $this->assertStringContainsString('$subject->getEffectiveMarksForClass((int) $classId)', $classwise);
         $this->assertStringContainsString("\$effectiveMarks['pass_mark']", $classwise);
         $this->assertStringContainsString('$passMarkPercentage', $classwise);
+    }
+
+    public function test_subject_exports_include_class_name(): void
+    {
+        $print = file_get_contents(resource_path('views/pages/subjects/print.blade.php'));
+
+        $this->assertStringContainsString('Subject List', $print);
+        $this->assertStringContainsString('>Class</th>', $print);
+        $this->assertStringContainsString("\$classData['class']->name_en", $print);
+        $this->assertStringContainsString('window.print()', $print);
     }
 }
