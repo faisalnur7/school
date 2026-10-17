@@ -71,6 +71,40 @@ class SubjectController extends Controller
 
     public function indexClasswise(Request $request)
     {
+        $data = $this->buildClasswiseSubjectData($request);
+
+        return view('pages.subjects.index_classwise', $data);
+    }
+
+    public function print(Request $request)
+    {
+        return view('pages.subjects.print', [
+            ...$this->buildClasswiseSubjectData($request),
+            'autoPrint' => true,
+        ]);
+    }
+
+    public function pdf(Request $request)
+    {
+        $html = view('pages.subjects.print', [
+            ...$this->buildClasswiseSubjectData($request),
+            'autoPrint' => false,
+        ])->render();
+
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => 'A4-L',
+            'margin_top' => 12,
+            'margin_bottom' => 12,
+            'margin_left' => 10,
+            'margin_right' => 10,
+        ]);
+        $mpdf->WriteHTML($html);
+
+        return response($mpdf->Output('', 'S'))->header('Content-Type', 'application/pdf');
+    }
+
+    private function buildClasswiseSubjectData(Request $request): array
+    {
         $query = Subject::with(['classAssignments' => fn ($q) => $q->where('is_active', true)->with(['schoolClass', 'group'])])
             ->withCount('papers');
 
@@ -152,7 +186,7 @@ class SubjectController extends Controller
         $classes = $this->subjectService->getClassOptions();
         $groups = $this->subjectService->getGroupOptions();
 
-        return view('pages.subjects.index_classwise', compact('classwiseSubjects', 'classes', 'groups'));
+        return compact('classwiseSubjects', 'classes', 'groups');
     }
 
     /**
@@ -184,22 +218,24 @@ class SubjectController extends Controller
                 $classIds = $request->input('school_class_ids', []);
 
                 foreach ($classIds as $classId) {
-                    $assignmentData = [
-                        'subject_id' => $subject->id,
-                        'school_class_id' => $classId,
-                        'group_id' => $request->group_id,
-                        'gender' => $request->gender ?? 'all',
-                        'religion' => $request->religion ?? 'all',
-                        'is_optional' => $request->boolean('is_optional'),
-                        'is_compulsory' => ! $request->boolean('is_optional', false),
-                        'exclusive_group_key' => $request->exclusive_group_key,
-                        'is_active' => true,
-                    ];
+                    foreach ($this->groupScopesFromRequest($request) as $groupId) {
+                        $assignmentData = [
+                            'subject_id' => $subject->id,
+                            'school_class_id' => $classId,
+                            'group_id' => $groupId,
+                            'gender' => $request->gender ?? 'all',
+                            'religion' => $request->religion ?? 'all',
+                            'is_optional' => $request->boolean('is_optional'),
+                            'is_compulsory' => ! $request->boolean('is_optional', false),
+                            'exclusive_group_key' => $request->exclusive_group_key,
+                            'is_active' => true,
+                        ];
 
-                    try {
-                        $this->subjectService->assignToClass($assignmentData);
-                    } catch (\Exception $e) {
-                        \Log::error('Subject assignment failed for class '.$classId.': '.$e->getMessage());
+                        try {
+                            $this->subjectService->assignToClass($assignmentData);
+                        } catch (\Exception $e) {
+                            \Log::error('Subject assignment failed for class '.$classId.': '.$e->getMessage());
+                        }
                     }
                 }
             }
@@ -260,8 +296,9 @@ class SubjectController extends Controller
                     ->all()
                 : [];
 
+            $groupScopes = $this->groupScopesFromRequest($request);
             $assignmentOptions = [
-                'group_id' => $request->input('group_id'),
+                'group_ids' => $groupScopes,
                 'gender' => $request->input('gender', 'all'),
                 'religion' => $request->input('religion', 'all'),
                 'is_optional' => $request->boolean('is_optional'),
@@ -269,7 +306,7 @@ class SubjectController extends Controller
                 'exclusive_group_key' => $request->input('exclusive_group_key'),
             ];
 
-            $assignmentsWithMarks = $this->subjectService->getAssignmentsWithExamMarksToRemove($subject, $classIds);
+            $assignmentsWithMarks = $this->subjectService->getAssignmentsWithExamMarksToRemove($subject, $classIds, $groupScopes);
 
             if ($assignmentsWithMarks->isNotEmpty() && ! $request->boolean('confirm_unassignment_with_marks')) {
                 return back()
@@ -429,6 +466,26 @@ class SubjectController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    private function groupScopesFromRequest(Request $request): array
+    {
+        if ($request->boolean('all_groups')) {
+            return [null];
+        }
+
+        $groupIds = collect($request->input('group_ids', []))
+            ->filter(fn ($groupId) => $groupId !== null && $groupId !== '')
+            ->map(fn ($groupId) => (int) $groupId)
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($groupIds) && $request->filled('group_id')) {
+            $groupIds = [(int) $request->input('group_id')];
+        }
+
+        return empty($groupIds) ? [null] : $groupIds;
     }
 
     public function reorder(Request $request)

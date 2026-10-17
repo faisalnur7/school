@@ -29,6 +29,52 @@ class SubjectOrderingTest extends TestCase
         $listResponse->assertOk()->assertViewIs('pages.subjects.index');
     }
 
+    public function test_subject_print_and_pdf_exports_include_class_name(): void
+    {
+        $user = User::factory()->create(['is_super_admin' => true]);
+        [$class] = $this->assignments();
+
+        $printResponse = $this->actingAs($user)->get(route('subjects.print'));
+        $printResponse->assertOk()
+            ->assertSee('>Class</th>', false)
+            ->assertSee($class->name_en, false);
+
+        $pdfResponse = $this->actingAs($user)->get(route('subjects.pdf'));
+        $pdfResponse->assertOk();
+        $pdf = $pdfResponse->getContent();
+        $this->assertStringStartsWith('%PDF-', $pdf);
+        preg_match_all('/\/Type \/Page\b/', $pdf, $pages);
+        $this->assertCount(1, $pages[0]);
+    }
+
+    public function test_subject_exports_separate_each_class_table(): void
+    {
+        $user = User::factory()->create(['is_super_admin' => true]);
+        [$firstClass, $assignments] = $this->assignments();
+        $secondClass = SchoolClass::create(['name_en' => 'Second Class', 'name_bn' => 'দ্বিতীয়', 'status' => 1]);
+
+        SubjectClassAssignment::create([
+            'subject_id' => $assignments->first()->subject_id,
+            'school_class_id' => $secondClass->id,
+            'group_id' => null,
+            'gender' => 'all',
+            'religion' => 'all',
+            'is_optional' => false,
+            'is_compulsory' => true,
+            'is_active' => true,
+        ]);
+
+        $printResponse = $this->actingAs($user)->get(route('subjects.print'));
+        $printResponse->assertOk();
+        $this->assertSame(2, substr_count($printResponse->getContent(), '<section class="class-section'));
+        $printResponse->assertSee($firstClass->name_en, false)->assertSee($secondClass->name_en, false);
+
+        $pdfResponse = $this->actingAs($user)->get(route('subjects.pdf'));
+        $pdfResponse->assertOk();
+        preg_match_all('/\/Type \/Page\b/', $pdfResponse->getContent(), $pages);
+        $this->assertCount(2, $pages[0]);
+    }
+
     public function test_classwise_subject_order_can_be_saved_for_a_class_and_group(): void
     {
         $user = User::factory()->create(['is_super_admin' => true]);

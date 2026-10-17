@@ -19,6 +19,12 @@
                     <div class="card-header flex justify-between items-center">
                         <h3 class="card-title font-bold text-white">Subjects (Classwise & Groupwise)</h3>
                         <div class="card-tools ml-auto">
+                            <a href="{{ route('subjects.print', request()->query()) }}" target="_blank" class="btn btn-light btn-sm mr-1" title="Print subject list">
+                                <i class="fas fa-print"></i> Print
+                            </a>
+                            <a href="{{ route('subjects.pdf', request()->query()) }}" target="_blank" class="btn btn-danger btn-sm mr-2" title="Download subject list PDF">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
                             <a href="{{ route('subjects.index', array_merge(request()->query(), ['view' => 'list'])) }}" class="btn btn-info btn-sm mr-2">
                                 <i class="fas fa-list"></i> List View
                             </a>

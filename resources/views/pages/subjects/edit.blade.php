@@ -6,7 +6,15 @@
         $activeAssignments = $isCreate ? collect() : $subject->classAssignments->where('is_active', true);
         $selectedClassIds = array_map('strval', (array) old('school_class_ids', $activeAssignments->pluck('school_class_id')->all()));
         $currentAssignment = $activeAssignments->first() ?? ($isCreate ? null : $subject->classAssignments->first());
-        $selectedGroupId = old('group_id', $currentAssignment?->group_id);
+        $selectedGroupIds = old('group_ids');
+        if ($selectedGroupIds === null && old('group_id') !== null) {
+            $selectedGroupIds = [old('group_id')];
+        }
+        if ($selectedGroupIds === null) {
+            $selectedGroupIds = $activeAssignments->whereNotNull('group_id')->pluck('group_id')->all();
+        }
+        $selectedGroupIds = array_map('strval', (array) $selectedGroupIds);
+        $allGroupsSelected = (bool) old('all_groups', $isCreate || $activeAssignments->isEmpty() || $activeAssignments->contains(fn ($assignment) => $assignment->group_id === null));
         $selectedGender = old('gender', $currentAssignment?->gender ?? 'all');
         $selectedReligion = old('religion', $currentAssignment?->religion ?? 'all');
         $selectedIsOptional = old('is_optional', $currentAssignment?->is_optional);
@@ -486,18 +494,24 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="group_id">{{ __('Apply to group') }} <span class="field-hint">({{ __('optional') }})</span></label>
-                                        <select name="group_id" id="group_id" class="form-control">
-                                            <option value="">{{ __('All Groups') }}</option>
+                                        <label>{{ __('Apply to groups') }} <span class="field-hint">({{ __('optional') }})</span></label>
+                                        <div class="subject-group-grid" role="group" aria-label="Select groups">
+                                            <label class="subject-group-item subject-group-item--all">
+                                                <input type="checkbox" name="all_groups" value="1" {{ $allGroupsSelected ? 'checked' : '' }}>
+                                                <span class="subject-group-item__icon"><i class="fas fa-check"></i></span>
+                                                <span class="subject-group-item__label">{{ __('All Groups') }}</span>
+                                            </label>
                                             @foreach($groups as $id => $name)
-                                                <option value="{{ $id }}" {{ (string) $selectedGroupId === (string) $id ? 'selected' : '' }}>
-                                                    {{ $name }}
-                                                </option>
+                                                <label class="subject-group-item">
+                                                    <input type="checkbox" name="group_ids[]" value="{{ $id }}" {{ in_array((string) $id, $selectedGroupIds, true) ? 'checked' : '' }}>
+                                                    <span class="subject-group-item__icon"><i class="fas fa-check"></i></span>
+                                                    <span class="subject-group-item__label">{{ $name }}</span>
+                                                </label>
                                             @endforeach
-                                        </select>
-                                        <small class="text-muted">{{ __('Choose a group to limit this subject to students in that group. Leave All Groups to include every group.') }}</small>
+                                        </div>
+                                        <small class="text-muted">{{ __('Choose one or more groups. Select All Groups to include every group.') }}</small>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -825,6 +839,64 @@
         outline-color: rgba(13, 148, 136, .35);
     }
 
+    .subject-group-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: .65rem;
+        padding: .15rem;
+    }
+
+    .subject-group-item {
+        display: flex;
+        align-items: center;
+        gap: .55rem;
+        min-height: 48px;
+        padding: .7rem .8rem;
+        border: 1px solid #e2e8f0;
+        border-radius: .6rem;
+        background: #fff;
+        cursor: pointer;
+        transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+    }
+
+    .subject-group-item:hover,
+    .subject-group-item:has(input:checked) {
+        border-color: #14b8a6;
+        background: #f0fdfa;
+        box-shadow: 0 4px 12px rgba(15, 118, 110, .08);
+    }
+
+    .subject-group-item input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .subject-group-item__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        flex: 0 0 22px;
+        border-radius: 50%;
+        border: 2px solid #cbd5e1;
+        background: #fff;
+        color: #fff;
+        font-size: .7rem;
+    }
+
+    .subject-group-item input:checked + .subject-group-item__icon {
+        border-color: #0f766e;
+        background: #0f766e;
+    }
+
+    .subject-group-item__label {
+        color: #0f172a;
+        font-size: .85rem;
+        font-weight: 700;
+    }
+
     .paper-item,
     .class-config-item {
         border: 1px solid #e2e8f0 !important;
@@ -952,6 +1024,10 @@
         }
 
         .subject-class-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .subject-group-grid {
             grid-template-columns: 1fr;
         }
 
@@ -1103,6 +1179,8 @@
         const $assignToClass = $('#assign_to_class');
         const $classAssignmentFields = $('#class_assignment_fields');
         const $classInputs = $('input[type="checkbox"][name="school_class_ids[]"]');
+        const $allGroupsInput = $('input[name="all_groups"]');
+        const $groupInputs = $('input[name="group_ids[]"]');
         const $papersSection = $('#papers_section');
         const $papersContainer = $('#papers_container');
         const $saveButton = $('#save_subject_btn');
@@ -1131,6 +1209,18 @@
 
         $classInputs.on('change', updateClassCount);
         updateClassCount();
+
+        $allGroupsInput.on('change', function () {
+            if ($(this).is(':checked')) {
+                $groupInputs.prop('checked', false);
+            }
+        });
+
+        $groupInputs.on('change', function () {
+            if ($(this).is(':checked')) {
+                $allGroupsInput.prop('checked', false);
+            }
+        });
 
         $('#select_all_classes').on('click', function () {
             $classInputs.prop('checked', true).trigger('change');

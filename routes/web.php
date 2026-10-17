@@ -401,6 +401,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:view_subjects')->prefix('subjects')->group(function () {
         Route::get('/', [SubjectController::class, 'index'])->name('subjects.index');
         Route::get('/classwise', [SubjectController::class, 'indexClasswise'])->name('subjects.classwise');
+        Route::get('/print', [SubjectController::class, 'print'])->name('subjects.print');
+        Route::get('/pdf', [SubjectController::class, 'pdf'])->name('subjects.pdf');
         Route::get('/by-class', [SubjectController::class, 'getSubjectsByClass'])->name('subjects.by-class');
     });
 
