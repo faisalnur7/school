@@ -32,6 +32,8 @@ class SubjectService
                 $data['assign_to_class'],
                 $data['school_class_ids'],
                 $data['group_id'],
+                $data['group_ids'],
+                $data['all_groups'],
                 $data['gender'],
                 $data['religion'],
                 $data['is_optional'],
@@ -92,6 +94,8 @@ class SubjectService
                 $data['assign_to_class'],
                 $data['school_class_ids'],
                 $data['group_id'],
+                $data['group_ids'],
+                $data['all_groups'],
                 $data['gender'],
                 $data['religion'],
                 $data['is_optional'],
@@ -163,18 +167,35 @@ class SubjectService
     /**
      * Return active assignments that would be removed and have historical marks.
      */
-    public function getAssignmentsWithExamMarksToRemove(Subject $subject, array $selectedClassIds): \Illuminate\Support\Collection
+    public function getAssignmentsWithExamMarksToRemove(Subject $subject, array $selectedClassIds, ?array $selectedGroupIds = null): \Illuminate\Support\Collection
     {
         $selectedClassIds = collect($selectedClassIds)
             ->map(fn ($classId) => (int) $classId)
             ->unique()
             ->values();
 
+        $selectedGroupIds = $selectedGroupIds === null
+            ? null
+            : collect($selectedGroupIds)
+                ->map(fn ($groupId) => $groupId === null || $groupId === '' ? null : (int) $groupId)
+                ->unique()
+                ->values();
+
         return $subject->classAssignments()
             ->with('schoolClass')
             ->where('is_active', true)
-            ->when($selectedClassIds->isNotEmpty(), fn ($query) => $query->whereNotIn('school_class_id', $selectedClassIds->all()))
+            ->when($selectedClassIds->isNotEmpty() && $selectedGroupIds === null,
+                fn ($query) => $query->whereNotIn('school_class_id', $selectedClassIds->all()))
             ->get()
+            ->filter(function (SubjectClassAssignment $assignment) use ($selectedClassIds, $selectedGroupIds) {
+                if ($selectedClassIds->isEmpty() || ! $selectedClassIds->contains((int) $assignment->school_class_id)) {
+                    return true;
+                }
+
+                return $selectedGroupIds !== null && ! $selectedGroupIds->contains(
+                    $assignment->group_id === null ? null : (int) $assignment->group_id
+                );
+            })
             ->filter(fn (SubjectClassAssignment $assignment) => $this->hasExamMarksForAssignment($assignment))
             ->values();
     }
@@ -220,6 +241,7 @@ class SubjectService
             $activeAssignments = $subject->classAssignments()
                 ->where('is_active', true)
                 ->get();
+            $allAssignments = $subject->classAssignments()->get();
 
             $removed = [];
             $archived = [];
@@ -228,55 +250,92 @@ class SubjectService
                 $this->retireAssignment($assignment, $removed, $archived);
             }
 
-            $assignmentData = [
-                'subject_id' => $subject->id,
-                'group_id' => $options['group_id'] ?? null,
-                'gender' => $options['gender'] ?? 'all',
-                'religion' => $options['religion'] ?? 'all',
-                'is_optional' => (bool) ($options['is_optional'] ?? false),
-                'is_compulsory' => (bool) ($options['is_compulsory'] ?? true),
-                'exclusive_group_key' => $options['exclusive_group_key'] ?? null,
-                'is_active' => true,
-            ];
+            $groupScopes = array_key_exists('group_ids', $options)
+                ? collect($options['group_ids'])
+                    ->map(fn ($groupId) => $groupId === null || $groupId === '' ? null : (int) $groupId)
+                    ->unique()
+                    ->values()
+                : collect([$options['group_id'] ?? null]);
+
+            if ($groupScopes->isEmpty()) {
+                $groupScopes = collect([null]);
+            }
 
             foreach ($selectedClassIds as $classId) {
                 $classAssignments = $activeAssignments
                     ->where('school_class_id', $classId)
                     ->values();
+                $classAllAssignments = $allAssignments
+                    ->where('school_class_id', $classId)
+                    ->values();
+                $usedAssignmentIds = [];
 
-                $targetAssignment = $classAssignments->first(
-                    fn (SubjectClassAssignment $assignment) => $assignment->group_id === ($assignmentData['group_id'] ?? null)
-                );
+                foreach ($groupScopes as $groupId) {
+                    $assignmentData = [
+                        'subject_id' => $subject->id,
+                        'group_id' => $groupId,
+                        'gender' => $options['gender'] ?? 'all',
+                        'religion' => $options['religion'] ?? 'all',
+                        'is_optional' => (bool) ($options['is_optional'] ?? false),
+                        'is_compulsory' => (bool) ($options['is_compulsory'] ?? true),
+                        'exclusive_group_key' => $options['exclusive_group_key'] ?? null,
+                        'is_active' => true,
+                    ];
 
-                // A subject edit represents one group scope. Reuse an existing
-                // class-wide assignment when changing it to a specific group,
-                // instead of leaving a NULL-group assignment active for everyone.
-                if (! $targetAssignment && ($assignmentData['group_id'] ?? null) !== null) {
                     $targetAssignment = $classAssignments->first(
-                        fn (SubjectClassAssignment $assignment) => $assignment->group_id === null
+                        fn (SubjectClassAssignment $assignment) => ! in_array($assignment->id, $usedAssignmentIds, true)
+                            && $assignment->group_id === $groupId
                     );
-                }
 
-                if ($targetAssignment) {
-                    $targetAssignment->update(array_merge($assignmentData, [
-                        'school_class_id' => $classId,
-                    ]));
-
-                    foreach ($classAssignments->reject(fn ($assignment) => $assignment->id === $targetAssignment->id) as $duplicate) {
-                        $this->retireAssignment($duplicate, $removed, $archived);
+                    // Reuse an archived assignment for the same scope when it
+                    // exists. The assignment table has a unique key that also
+                    // includes inactive rows, so converting a common row into
+                    // that group would otherwise fail with a duplicate-key
+                    // error.
+                    if (! $targetAssignment) {
+                        $targetAssignment = $classAllAssignments->first(
+                            fn (SubjectClassAssignment $assignment) => ! $assignment->is_active
+                                && ! in_array($assignment->id, $usedAssignmentIds, true)
+                                && $assignment->group_id === $groupId
+                        );
                     }
 
-                    continue;
+                    // Preserve the existing assignment and marks when converting
+                    // a class-wide assignment to one or more selected groups.
+                    if (! $targetAssignment && $groupId !== null) {
+                        $targetAssignment = $classAssignments->first(
+                            fn (SubjectClassAssignment $assignment) => ! in_array($assignment->id, $usedAssignmentIds, true)
+                                && $assignment->group_id === null
+                        );
+                    }
+
+                    if ($targetAssignment) {
+                        $wasInactive = ! $targetAssignment->is_active;
+                        $targetAssignment->update(array_merge($assignmentData, [
+                            'school_class_id' => $classId,
+                            'is_active' => true,
+                        ]));
+                        $usedAssignmentIds[] = $targetAssignment->id;
+
+                        if ($wasInactive && ($assignmentData['is_compulsory'] ?? true)) {
+                            $this->assignStudentsToSubject($targetAssignment->fresh());
+                        }
+                    } else {
+                        $this->assignToClass(array_merge($assignmentData, [
+                            'school_class_id' => $classId,
+                        ]));
+                    }
                 }
 
-                $this->assignToClass(array_merge($assignmentData, [
-                    'school_class_id' => $classId,
-                ]));
+                foreach ($classAssignments->reject(fn ($assignment) => in_array($assignment->id, $usedAssignmentIds, true)) as $staleAssignment) {
+                    $this->retireAssignment($staleAssignment, $removed, $archived);
+                }
             }
 
             Log::info('Subject class assignments synchronized', [
                 'subject_id' => $subject->id,
                 'selected_class_ids' => $selectedClassIds->all(),
+                'selected_group_ids' => $groupScopes->all(),
                 'removed_assignment_ids' => $removed,
                 'archived_assignment_ids' => $archived,
             ]);
