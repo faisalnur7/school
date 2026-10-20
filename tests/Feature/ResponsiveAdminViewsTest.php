@@ -624,6 +624,39 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringNotContainsString("'list'];", $source);
     }
 
+    public function test_hub_heroes_use_the_global_slate_palette(): void
+    {
+        foreach (glob(resource_path('views/pages/*/hub.blade.php')) as $hubFile) {
+            if (str_ends_with($hubFile, '/inventory/hub.blade.php')) {
+                continue;
+            }
+
+            $source = file_get_contents($hubFile);
+
+            $this->assertStringContainsString('from-slate-800', $source, $hubFile);
+        }
+
+        $salesStyles = file_get_contents(resource_path('css/admin.css'));
+
+        $this->assertStringContainsString(
+            'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+            $salesStyles
+        );
+    }
+
+    public function test_hub_heroes_use_compact_standard_dimensions(): void
+    {
+        $styles = file_get_contents(resource_path('css/admin.css'));
+
+        $this->assertStringContainsString('.hub-container > :first-child {', $styles);
+        $this->assertStringContainsString('padding: 1rem !important;', $styles);
+        $this->assertStringContainsString('margin-bottom: 1rem !important;', $styles);
+        $this->assertStringContainsString('.hub-container > :first-child .h-20.w-20 {', $styles);
+        $this->assertStringContainsString('width: 3rem !important;', $styles);
+        $this->assertStringContainsString('font-size: 1.5rem !important;', $styles);
+        $this->assertStringContainsString('.col-12 > .bg-gradient-to-br {', $styles);
+    }
+
     public function test_mobile_hub_view_switcher_is_icon_only_with_accessible_labels(): void
     {
         $source = file_get_contents(resource_path('views/components/hub-card-browser.blade.php'));

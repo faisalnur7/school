@@ -230,7 +230,7 @@
         <div class="col-12 col-lg-4">
             <div class="card-modern dashboard-triple-card">
                 <div class="card-header-modern">
-                    <span><i class="fas fa-list me-2"></i>{{ __("Today's Classwise Attendance") }}</span>
+                    <span><i class="fas fa-list me-2"></i>{{ __('Classwise Attendance') }}</span>
                 </div>
                 <div class="card-body-modern dashboard-triple-body p-0">
                     <div class="table-responsive-modern">
@@ -268,7 +268,7 @@
         <div class="col-12 col-lg-4">
             <div class="card-modern dashboard-triple-card">
                 <div class="card-header-modern birthday-header">
-                    <span class="birthday-header-title"><i class="fas fa-birthday-cake me-2"></i>{{ __('Birthdays Today & Next 5 Days') }}</span>
+                    <span class="birthday-header-title"><i class="fas fa-birthday-cake me-2"></i>{{ __('Recent Birthdays') }}</span>
                     <span class="birthday-header-count badge bg-light text-dark">{{ count($upcoming_birthdays) }}</span>
                 </div>
                 <div class="card-body-modern dashboard-triple-body">
@@ -337,17 +337,31 @@
    MODERN DASHBOARD STYLES
    ===================================================== */
 .dashboard-modern {
-    padding: 20px;
+    padding: 16px;
     width: 100%;
+}
+
+.dashboard-modern > .quick-actions-section,
+.dashboard-modern > .stats-grid,
+.dashboard-modern > .finance-grid,
+.dashboard-modern > .row.mb-4 {
+    margin-bottom: 16px !important;
+}
+
+.dashboard-modern > .quick-actions-section .row,
+.dashboard-modern > .row.mb-4,
+.dashboard-modern > .dashboard-triple-row {
+    --bs-gutter-x: 12px;
+    --bs-gutter-y: 12px;
 }
 
 /* Quick Actions Section */
 .quick-actions-section {
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
 
 .quick-actions-section .row {
-    row-gap: 18px;
+    row-gap: 12px;
 }
 
 .quick-actions-section [class*="col-"] {
@@ -416,7 +430,7 @@
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: clamp(12px, 1.5vw, 16px);
+    gap: 12px;
 }
 
 @media (max-width: 1199px) { .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -521,7 +535,7 @@
 
 .dashboard-triple-row {
     align-items: stretch;
-    margin-top: 0.25rem;
+    margin-top: 0;
 }
 
 .dashboard-triple-card {
@@ -610,7 +624,7 @@
 .finance-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(12px, 1.5vw, 16px);
+    gap: 12px;
 }
 
 @media (max-width: 991px) { .finance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -834,13 +848,13 @@
     .dashboard-modern { padding: 12px; }
     .dashboard-triple-card { height: auto; }
     .dashboard-triple-body { overflow-y: visible; }
-    .quick-actions-section { margin-bottom: 18px; }
+    .quick-actions-section { margin-bottom: 16px; }
     .stats-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 12px;
     }
-    .finance-grid { gap: 14px; margin-bottom: 18px; }
-    .dashboard-triple-row { row-gap: 14px; }
+    .finance-grid { gap: 12px; margin-bottom: 16px; }
+    .dashboard-triple-row { row-gap: 12px; }
     .quick-action-card { padding: 14px 16px; gap: 10px; }
     .action-icon { width: 36px; height: 36px; font-size: 1rem; }
     .action-text { font-size: 0.8rem; }
