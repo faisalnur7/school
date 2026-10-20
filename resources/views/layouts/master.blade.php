@@ -18,6 +18,37 @@
             }
         })();
     </script>
+    <script>
+        window.setHubSwitcherVisibility = function (isVisible) {
+            document.body.classList.toggle('hub-switcher-hidden', !isVisible);
+
+            document.querySelectorAll('[data-hub-switcher-toggle]').forEach(function (toggle) {
+                var title = isVisible ? '{{ __('Collapse module navigation') }}' : '{{ __('Expand module navigation') }}';
+
+                if (toggle.matches(':checkbox')) {
+                    toggle.checked = isVisible;
+                    toggle.title = title;
+                    return;
+                }
+
+                toggle.setAttribute('aria-expanded', isVisible ? 'true' : 'false');
+                toggle.setAttribute('aria-label', title);
+                toggle.setAttribute('title', title);
+                var icon = toggle.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('fa-chevron-up', isVisible);
+                    icon.classList.toggle('fa-chevron-down', !isVisible);
+                }
+            });
+
+            try {
+                window.localStorage.setItem('school-hub-switcher-visible', isVisible ? '1' : '0');
+            } catch (error) {
+                // The menu remains usable when storage is unavailable.
+            }
+        };
+
+    </script>
     <div class="wrapper">
         @include('layouts.partials._top-nav')
         @include('layouts.partials._side-nav')
@@ -182,32 +213,6 @@
                 }
             }
 
-            function setHubSwitcherVisibility(isVisible) {
-                $('body').toggleClass('hub-switcher-hidden', !isVisible);
-
-                $('[data-hub-switcher-toggle]').each(function() {
-                    var $toggle = $(this);
-                    var title = isVisible ? '{{ __('Hide module menu') }}' : '{{ __('Show module menu') }}';
-
-                    if ($toggle.is(':checkbox')) {
-                        $toggle.prop('checked', isVisible).attr('title', title);
-                    } else {
-                        $toggle
-                            .attr('aria-pressed', isVisible ? 'true' : 'false')
-                            .attr('title', title)
-                            .find('i')
-                            .toggleClass('fa-eye', isVisible)
-                            .toggleClass('fa-eye-slash', !isVisible);
-                    }
-                });
-
-                try {
-                    window.localStorage.setItem('school-hub-switcher-visible', isVisible ? '1' : '0');
-                } catch (error) {
-                    // The menu remains usable when storage is unavailable.
-                }
-            }
-
             function applyHubSwitcherVisibility() {
                 var isVisible = true;
                 try {
@@ -216,7 +221,7 @@
                     // Keep the default visible state when storage is unavailable.
                 }
 
-                setHubSwitcherVisibility(isVisible);
+                window.setHubSwitcherVisibility(isVisible);
             }
 
             function openSidebar() {
@@ -261,7 +266,7 @@
             $(document).on('collapsed.lte.pushmenu expanded.lte.pushmenu', rememberDesktopSidebarState);
 
             $(document).on('change', '[data-hub-switcher-toggle]', function() {
-                setHubSwitcherVisibility($(this).is(':checkbox')
+                window.setHubSwitcherVisibility($(this).is(':checkbox')
                     ? $(this).is(':checked')
                     : !$('body').hasClass('hub-switcher-hidden'));
             });

@@ -2041,10 +2041,14 @@ html[data-theme='dark'] .theme-toggle {
 .theme-toggle {
     display: inline-flex;
     align-items: center;
-    gap: 0.55rem;
-    border-radius: 999px;
+    justify-content: center;
+    gap: 0;
+    border-radius: 50%;
     min-height: 38px;
-    padding: 0.42rem 0.82rem;
+    height: 38px;
+    width: 38px;
+    min-width: 38px;
+    padding: 0;
     border: 1px solid rgba(191, 219, 254, 0.9);
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(239, 246, 255, 0.9) 100%);
     color: #0f172a;
@@ -2069,7 +2073,20 @@ html[data-theme='dark'] .theme-toggle:hover {
 }
 
 .theme-toggle__icon {
+    position: absolute;
+    inset: 0;
     display: inline-flex;
+    width: 1.05rem;
+    height: 1.05rem;
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.72);
+    transition: opacity 0.22s ease, transform 0.26s ease;
+}
+
+.theme-toggle__icons {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 1.05rem;
     width: 1.05rem;
     height: 1.05rem;
 }
@@ -2080,6 +2097,7 @@ html[data-theme='dark'] .theme-toggle:hover {
 }
 
 .theme-toggle__label {
+    display: none;
     white-space: nowrap;
     color: inherit;
 }
@@ -2089,21 +2107,52 @@ html[data-theme='dark'] .theme-toggle__label {
     font-weight: 700;
 }
 
-.theme-toggle__icon--sun {
-    display: none;
+.theme-toggle__icon--moon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
 }
 
 html[data-theme='dark'] .theme-toggle__icon--moon {
-    display: none;
+    opacity: 0;
+    transform: rotate(90deg) scale(0.72);
 }
 
 html[data-theme='dark'] .theme-toggle__icon--sun {
-    display: inline-flex;
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+html.theme-fading body,
+html.theme-fading .main-header,
+html.theme-fading .main-sidebar,
+html.theme-fading .content-wrapper,
+html.theme-fading .card,
+html.theme-fading .modal-content,
+html.theme-fading .hub-switcher-shell,
+html.theme-fading .hub-browser__card,
+html.theme-fading .theme-toggle {
+    transition: background-color 0.26s ease, color 0.26s ease, border-color 0.26s ease, box-shadow 0.26s ease !important;
+}
+
+html.theme-fading .theme-toggle__icon,
+html.theme-fading .theme-toggle__label {
+    transition: opacity 0.2s ease, color 0.2s ease, transform 0.26s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.theme-fading *,
+    html.theme-fading *::before,
+    html.theme-fading *::after {
+        transition-duration: 0s !important;
+        animation-duration: 0s !important;
+        animation-iteration-count: 1 !important;
+    }
 }
 
 @media (max-width: 576px) {
     .theme-toggle {
-        width: 100%;
+        width: 38px;
+        min-width: 38px;
         justify-content: center;
     }
 }

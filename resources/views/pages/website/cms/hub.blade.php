@@ -65,7 +65,7 @@
     <div class="card card-outline card-primary mb-4">
         <div class="card-header"><h3 class="card-title font-bold">System Pages</h3></div>
         <div class="card-body">
-            <x-hub-card-browser :cards="$systemPageCards" storage-key="website-cms-system-pages" default-view="medium" />
+            <x-hub-card-browser :cards="$systemPageCards" storage-key="website-cms-system-pages" default-view="card-list" />
         </div>
     </div>
 

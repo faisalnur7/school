@@ -548,6 +548,92 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertSame($sortedSwitcherPositions, $switcherPositions);
     }
 
+    public function test_module_navigation_has_an_accessible_topbar_collapse_control(): void
+    {
+        $topNav = file_get_contents(resource_path('views/layouts/partials/_top-nav.blade.php'));
+        $switcher = file_get_contents(resource_path('views/components/hub-switcher.blade.php'));
+        $master = file_get_contents(resource_path('views/layouts/master.blade.php'));
+
+        $this->assertStringContainsString('data-hub-switcher-toggle', $topNav);
+        $this->assertStringContainsString('aria-controls="hubSwitcher"', $topNav);
+        $this->assertStringContainsString('aria-expanded="true"', $topNav);
+        $this->assertStringContainsString("onclick=\"event.preventDefault(); var hidden = document.body.classList.toggle('hub-switcher-hidden');", $topNav);
+        $this->assertStringContainsString("window.localStorage.setItem('school-hub-switcher-visible'", $topNav);
+        $this->assertStringContainsString('document.body.classList.toggle', $master);
+        $this->assertStringContainsString('hub-switcher-shell', $switcher);
+        $this->assertStringContainsString('id="hubSwitcherShell"', $switcher);
+        $this->assertStringContainsString('id="hubSwitcher"', $switcher);
+        $this->assertStringNotContainsString('class="hub-switcher__toggle"', $switcher);
+        $this->assertStringContainsString('hub-switcher-hidden', $switcher);
+        $this->assertStringContainsString('max-height: 0;', $switcher);
+        $this->assertStringContainsString('min-height:', $switcher);
+        $this->assertStringContainsString('transition:', $switcher);
+        $this->assertStringContainsString('data-hub-switcher-toggle', $master);
+        $this->assertStringContainsString('aria-expanded', $master);
+    }
+
+    public function test_module_navigation_sits_against_the_global_topbar(): void
+    {
+        $switcher = file_get_contents(resource_path('views/components/hub-switcher.blade.php'));
+
+        $this->assertStringContainsString('margin: 0 1rem 0;', $switcher);
+        $this->assertStringContainsString('margin: 0 .65rem 0;', $switcher);
+    }
+
+    public function test_hub_card_browser_has_a_responsive_card_list_view(): void
+    {
+        $source = file_get_contents(resource_path('views/components/hub-card-browser.blade.php'));
+
+        $this->assertStringContainsString("'card-list' => ['label' => __('Card List')", $source);
+        $this->assertStringContainsString("'card-list'", $source);
+        $this->assertStringContainsString('.hub-browser[data-view="card-list"] .hub-browser__grid', $source);
+        $this->assertStringContainsString('grid-template-columns: repeat(6, minmax(0, 1fr));', $source);
+        $this->assertStringContainsString('grid-template-columns: repeat(2, minmax(0, 1fr));', $source);
+        $this->assertStringContainsString('grid-template-columns: repeat(1, minmax(0, 1fr));', $source);
+        $this->assertStringContainsString('@media (min-width: 576px) and (max-width: 1023.98px)', $source);
+        $this->assertStringContainsString('@media (min-width: 1024px) and (max-width: 1439.98px)', $source);
+    }
+
+    public function test_card_list_is_the_default_hub_view(): void
+    {
+        $component = file_get_contents(resource_path('views/components/hub-card-browser.blade.php'));
+
+        $this->assertStringContainsString("'defaultView' => 'card-list'", $component);
+        $this->assertStringContainsString("'hub-view-mode-v2:' + baseKey", $component);
+
+        foreach (glob(resource_path('views/pages/*/hub.blade.php')) as $hubView) {
+            $source = file_get_contents($hubView);
+            $this->assertStringContainsString('default-view="card-list"', $source, basename(dirname($hubView)));
+        }
+
+        $cmsHub = file_get_contents(resource_path('views/pages/website/cms/hub.blade.php'));
+        $this->assertStringContainsString('default-view="card-list"', $cmsHub);
+    }
+
+    public function test_hub_view_modes_follow_the_standard_sequence(): void
+    {
+        $source = file_get_contents(resource_path('views/components/hub-card-browser.blade.php'));
+        $modes = ["'card-list' =>", "'small' =>", "'medium' =>", "'large' =>"];
+        $positions = array_map(fn ($mode) => strpos($source, $mode), $modes);
+
+        $this->assertNotContains(false, $positions);
+        $sortedPositions = $positions;
+        sort($sortedPositions);
+        $this->assertSame($sortedPositions, $positions);
+        $this->assertStringNotContainsString("'list' =>", $source);
+        $this->assertStringNotContainsString("'list'];", $source);
+    }
+
+    public function test_mobile_hub_view_switcher_is_icon_only_with_accessible_labels(): void
+    {
+        $source = file_get_contents(resource_path('views/components/hub-card-browser.blade.php'));
+
+        $this->assertStringContainsString('.hub-browser__switcher-label {', $source);
+        $this->assertStringContainsString('display: none;', $source);
+        $this->assertStringContainsString('.hub-browser__button span {', $source);
+        $this->assertStringContainsString('title="{{ $config[\'label\'] }}"', $source);
+    }
+
     public function test_mobile_student_header_uses_compact_white_arrangement(): void
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
@@ -585,6 +671,40 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString("html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-row", $source);
         $this->assertStringContainsString("html[data-theme='dark'] .fee-collect-page .cart-line-title", $source);
         $this->assertStringContainsString("html[data-theme='dark'] .fee-collect-page .payment-history-table .payment-history-items .badge", $source);
+    }
+
+    public function test_theme_switching_uses_a_fade_with_reduced_motion_fallback(): void
+    {
+        $script = file_get_contents(resource_path('js/app.js'));
+        $adminStyles = file_get_contents(resource_path('css/admin.css'));
+        $appStyles = file_get_contents(resource_path('css/app.css'));
+
+        $this->assertStringContainsString('theme-fading', $script);
+        $this->assertStringNotContainsString('theme-screen-wipe', $script);
+        $this->assertStringNotContainsString('THEME_BUBBLE_COUNT', $script);
+        $this->assertStringContainsString('THEME_FADE_DURATION = 260', $script);
+        $this->assertStringContainsString('requestAnimationFrame', $script);
+        $this->assertStringContainsString('prefers-reduced-motion: reduce', $script);
+
+        foreach ([$adminStyles, $appStyles] as $styles) {
+            $this->assertStringContainsString('theme-fading', $styles);
+            $this->assertStringContainsString('transition: background-color 0.26s ease', $styles);
+            $this->assertStringContainsString('prefers-reduced-motion: reduce', $styles);
+        }
+    }
+
+    public function test_theme_toggle_is_icon_only_but_remains_accessible(): void
+    {
+        $toggle = file_get_contents(resource_path('views/layouts/partials/_theme-toggle.blade.php'));
+        $styles = file_get_contents(resource_path('css/admin.css'));
+
+        $this->assertStringContainsString('data-theme-toggle', $toggle);
+        $this->assertStringContainsString('aria-label="Switch to dark mode"', $toggle);
+        $this->assertStringNotContainsString('theme-toggle__label', $toggle);
+        $this->assertStringContainsString('.theme-toggle__label {', $styles);
+        $this->assertStringContainsString('display: none;', $styles);
+        $this->assertStringContainsString('border-radius: 50%;', $styles);
+        $this->assertStringContainsString('height: 38px;', $styles);
     }
 
     public function test_assigned_fees_mobile_layout_reduces_vertical_scrolling(): void

@@ -167,7 +167,8 @@
         ->values();
 @endphp
 
-<div class="hub-switcher no-print" aria-label="{{ __('Module navigation') }}">
+<div class="hub-switcher-shell no-print" id="hubSwitcherShell" aria-label="{{ __('Module navigation') }}">
+<div class="hub-switcher" id="hubSwitcher">
     <div class="hub-switcher__primary">
         <span class="hub-switcher__current">
             <i class="fas {{ $currentModule['icon'] ?? 'fa-compass' }}" aria-hidden="true"></i>
@@ -197,6 +198,7 @@
                 </div>
             </div>
         @endif
+
     </div>
 
     @if ($currentContextLinks->isNotEmpty())
@@ -213,22 +215,41 @@
         </div>
     @endif
 </div>
+</div>
 
 @once
     <style>
         .hub-switcher-hidden .hub-switcher {
-            display: none !important;
+            max-height: 0;
+            margin-top: 0;
+            opacity: 0;
+            overflow: hidden;
+            pointer-events: none;
+            transform: translateY(-.35rem);
+            visibility: hidden;
+        }
+
+        .hub-switcher-shell {
+            position: relative;
+            z-index: 1020;
+            min-height: 0;
+            margin: 0 1rem 0;
         }
 
         .hub-switcher {
             position: relative;
-            z-index: 1020;
-            margin: .7rem 1rem 0;
+            margin: 0;
             border: 1px solid rgba(148, 163, 184, .24);
             border-radius: 1rem;
             background: rgba(255, 255, 255, .86);
             box-shadow: 0 10px 26px rgba(15, 23, 42, .06);
             backdrop-filter: blur(14px);
+            max-height: 8rem;
+            opacity: 1;
+            overflow: visible;
+            transform: translateY(0);
+            transition: max-height .22s ease, margin-top .22s ease, opacity .18s ease, transform .22s ease, visibility .22s ease;
+            visibility: visible;
         }
         .hub-switcher__primary, .hub-switcher__context { display: flex; align-items: center; gap: .35rem; min-width: 0; }
         .hub-switcher__primary { padding: .35rem .45rem; }
@@ -254,7 +275,8 @@
             .hub-switcher { display: none !important; }
         }
         @media (max-width: 767.98px) {
-            .hub-switcher { margin: .55rem .65rem 0; border-radius: .8rem; }
+            .hub-switcher-shell { margin: 0 .65rem 0; }
+            .hub-switcher { border-radius: .8rem; }
             .hub-switcher__current { padding: .45rem .55rem; }
             .hub-switcher__current span { display: none; }
             .hub-switcher__link { padding: .48rem .55rem; }
