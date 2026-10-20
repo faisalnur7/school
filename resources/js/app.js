@@ -7,6 +7,10 @@ window.Alpine = Alpine;
 Alpine.start();
 
 const THEME_STORAGE_KEY = 'school-theme';
+const THEME_FADE_CLASS = 'theme-fading';
+const THEME_FADE_DURATION = 260;
+let themeTransitionTimer = null;
+let themeTransitionFrame = null;
 
 function normalizeTheme(theme) {
     return theme === 'dark' ? 'dark' : 'light';
@@ -27,17 +31,47 @@ function getPreferredTheme() {
         : 'light';
 }
 
-function applyTheme(theme) {
+function prefersReducedMotion() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function applyTheme(theme, { animate = false } = {}) {
     const nextTheme = normalizeTheme(theme);
     const root = document.documentElement;
+    const shouldAnimate = animate && !prefersReducedMotion();
 
-    root.dataset.theme = nextTheme;
-    root.classList.toggle('dark', nextTheme === 'dark');
-    root.style.colorScheme = nextTheme;
+    window.clearTimeout(themeTransitionTimer);
 
-    document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
-        updateThemeToggleButton(button, nextTheme);
-    });
+    if (themeTransitionFrame !== null && window.cancelAnimationFrame) {
+        window.cancelAnimationFrame(themeTransitionFrame);
+        themeTransitionFrame = null;
+    }
+
+    const updateTheme = () => {
+        root.dataset.theme = nextTheme;
+        root.classList.toggle('dark', nextTheme === 'dark');
+        root.style.colorScheme = nextTheme;
+
+        document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+            updateThemeToggleButton(button, nextTheme);
+        });
+    };
+
+    root.classList.remove(THEME_FADE_CLASS);
+
+    if (shouldAnimate && window.requestAnimationFrame) {
+        root.classList.add(THEME_FADE_CLASS);
+        themeTransitionFrame = window.requestAnimationFrame(() => {
+            themeTransitionFrame = null;
+            updateTheme();
+            themeTransitionTimer = window.setTimeout(() => {
+                root.classList.remove(THEME_FADE_CLASS);
+            }, THEME_FADE_DURATION);
+        });
+        return;
+    }
+
+    updateTheme();
 }
 
 function updateThemeToggleButton(button, activeTheme) {
@@ -68,7 +102,7 @@ function setTheme(theme, persist = true) {
         }
     }
 
-    applyTheme(nextTheme);
+    applyTheme(nextTheme, { animate: true });
 }
 
 window.setThemeMode = setTheme;

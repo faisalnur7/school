@@ -1,19 +1,19 @@
 @props([
     'cards' => [],
     'sections' => [],
-    'defaultView' => 'medium',
+    'defaultView' => 'card-list',
 ])
 
 @php
     $cards = collect($cards);
     $sections = collect($sections);
     $viewModes = [
+        'card-list' => ['label' => __('Card List'), 'icon' => 'fa-grip-horizontal'],
         'small' => ['label' => __('Small Grid'), 'icon' => 'fa-th'],
         'medium' => ['label' => __('Medium Grid'), 'icon' => 'fa-th-large'],
         'large' => ['label' => __('Large Grid'), 'icon' => 'fa-border-all'],
-        'list' => ['label' => __('List'), 'icon' => 'fa-list'],
     ];
-    $defaultView = array_key_exists($defaultView, $viewModes) ? $defaultView : 'medium';
+    $defaultView = array_key_exists($defaultView, $viewModes) ? $defaultView : 'card-list';
 
     $resolveHref = function (array $card): string {
         if (!empty($card['href'])) {
@@ -370,41 +370,44 @@
             transform: translateY(-50%) translateX(.35rem);
         }
 
-        .hub-browser[data-view="list"] .hub-browser__grid {
-            grid-template-columns: 1fr;
+        .hub-browser[data-view="card-list"] .hub-browser__grid {
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 1rem;
         }
 
-        .hub-browser[data-view="list"] .hub-browser__card {
+        .hub-browser[data-view="card-list"] .hub-browser__card {
             flex-direction: row;
             align-items: stretch;
-            min-height: 7.2rem;
+            min-height: 7.5rem;
             max-width: none;
             aspect-ratio: auto;
         }
 
-        .hub-browser[data-view="list"] .hub-browser__media {
-            flex: 0 0 6.25rem;
+        .hub-browser[data-view="card-list"] .hub-browser__media {
+            flex: 0 0 4.25rem;
             min-height: auto;
-            padding: 1rem;
+            height: auto;
+            padding: .8rem;
         }
 
-        .hub-browser[data-view="list"] .hub-browser__body {
+        .hub-browser[data-view="card-list"] .hub-browser__body {
             align-items: flex-start;
             justify-content: center;
-            padding: 1rem 4rem 1rem 1rem;
+            padding: .8rem 2.75rem .8rem .8rem;
             text-align: left;
         }
 
-        .hub-browser[data-view="list"] .hub-browser__arrow {
+        .hub-browser[data-view="card-list"] .hub-browser__arrow {
             opacity: 1;
+            right: .8rem;
         }
 
-        .hub-browser[data-view="list"] .hub-browser__title {
-            font-size: 1rem;
+        .hub-browser[data-view="card-list"] .hub-browser__title {
+            font-size: .88rem;
         }
 
-        .hub-browser[data-view="list"] .hub-browser__subtitle {
-            font-size: .86rem;
+        .hub-browser[data-view="card-list"] .hub-browser__subtitle {
+            font-size: .74rem;
         }
 
         .hub-browser[data-view="small"] .hub-browser__card {
@@ -501,6 +504,18 @@
             color: #94a3b8;
         }
 
+        @media (min-width: 576px) and (max-width: 1023.98px) {
+            .hub-browser[data-view="card-list"] .hub-browser__grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1024px) and (max-width: 1439.98px) {
+            .hub-browser[data-view="card-list"] .hub-browser__grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
         @media (max-width: 575.98px) {
             .hub-browser {
                 --hub-media-height: auto;
@@ -551,8 +566,12 @@
             }
 
             .hub-browser[data-view="large"] .hub-browser__grid,
-            .hub-browser[data-view="list"] .hub-browser__grid {
-                grid-template-columns: 1fr;
+            .hub-browser[data-view="card-list"] .hub-browser__grid {
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+            }
+
+            .hub-browser[data-view="card-list"] .hub-browser__card {
+                min-height: 7rem;
             }
 
             .hub-browser[data-view="small"] .hub-browser__media,
@@ -607,6 +626,8 @@
                     class="hub-browser__button"
                     data-hub-view-option="{{ $mode }}"
                     aria-pressed="false"
+                    aria-label="{{ $config['label'] }}"
+                    title="{{ $config['label'] }}"
                 >
                     <i class="fas {{ $config['icon'] }}" aria-hidden="true"></i>
                     <span>{{ $config['label'] }}</span>
@@ -711,7 +732,7 @@
                 return;
             }
 
-            var modes = ['small', 'medium', 'large', 'list'];
+            var modes = ['card-list', 'small', 'medium', 'large'];
             var mobileQuery = window.matchMedia ? window.matchMedia('(max-width: 575.98px)') : null;
 
             function isMobile() {
@@ -720,7 +741,7 @@
 
             function getStorageKey(container) {
                 var baseKey = container.dataset.hubStorageKey || 'hub';
-                return 'hub-view-mode:' + baseKey + ':' + (isMobile() ? 'mobile' : 'desktop');
+                return 'hub-view-mode-v2:' + baseKey + ':' + (isMobile() ? 'mobile' : 'desktop');
             }
 
             containers.forEach(function (container) {
