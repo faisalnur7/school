@@ -19,6 +19,6 @@
         </div>
     </div>
     
-    <x-hub-card-browser :cards="$cards" storage-key="results" default-view="medium" />
+    <x-hub-card-browser :cards="$cards" storage-key="results" default-view="card-list" />
 </div>
 @endsection
