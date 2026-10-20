@@ -53,7 +53,7 @@
     @endphp
 
     {{-- Hero --}}
-    <div class="bg-gradient-to-br from-slate-800 to-slate-600 rounded-2xl p-8 mb-6 flex items-center gap-5">
+    <div class="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-2xl p-8 mb-6 flex items-center gap-5">
         <i class="fas fa-globe text-white text-5xl opacity-80"></i>
         <div>
             <h3 class="text-white text-3xl font-bold m-0">Website Management</h3>
