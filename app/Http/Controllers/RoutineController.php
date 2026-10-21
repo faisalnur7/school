@@ -119,7 +119,7 @@ class RoutineController extends Controller
             $savedTeacherOrder = $selectedAcademicSessionId
                 ? RoutineTeacherOrder::where('academic_session_id', $selectedAcademicSessionId)->pluck('sort_order', 'teacher_id')
                 : collect();
-            foreach (Employee::active()->where('employee_type', 'teacher')->orderBy('name')->get(['id', 'name']) as $teacher) {
+            foreach ($this->teachersForSession($selectedAcademicSessionId)->orderBy('name')->get(['id', 'name']) as $teacher) {
                 $teacherwisePlaygroundRows[(string) $teacher->id] ??= [
                     'teacher' => $teacher->name,
                     'teacher_id' => $teacher->id,
@@ -155,8 +155,7 @@ class RoutineController extends Controller
                 ->sortBy('name')
                 ->values();
 
-            $playgroundTeachers = Employee::active()
-                ->where('employee_type', 'teacher')
+            $playgroundTeachers = $this->teachersForSession($selectedAcademicSessionId)
                 ->orderBy('name')
                 ->get(['id', 'name']);
 
@@ -193,16 +192,14 @@ class RoutineController extends Controller
 
     public function saveTeacherwisePlayground(Request $request)
     {
-        $routineDays = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
+        $routineDays = $this->workingDays();
         $data = $request->validate([
             'academic_session_id' => ['required', 'exists:academic_sessions,id'],
             'items' => ['present', 'array'],
             'teacher_order' => ['present', 'array'],
-            'teacher_order.*' => [
-                'integer',
-                'distinct',
-                Rule::exists('employees', 'id')->where(fn ($query) => $query->where('status', 'active')->where('employee_type', 'teacher')),
-            ],
+            'teacher_order.*' => ['integer', 'distinct', 'exists:employees,id'],
+            'deleted_routine_ids' => ['present', 'array'],
+            'deleted_routine_ids.*' => ['integer', 'distinct'],
             'items.*.id' => ['nullable', 'integer'],
             'items.*.subject_id' => ['required', 'exists:subjects,id'],
             'items.*.school_class_id' => ['required', 'exists:school_classes,id'],
@@ -222,13 +219,20 @@ class RoutineController extends Controller
         $items = collect($data['items']);
         $teacherOrder = collect($data['teacher_order'])->map(fn ($teacherId) => (int) $teacherId)->values();
         $submittedIds = $items->pluck('id')->filter()->map(fn ($id) => (int) $id);
+        $deletedRoutineIds = collect($data['deleted_routine_ids'])->map(fn ($id) => (int) $id)->values();
         $routines = ClassRoutine::where('academic_session_id', $sessionId)
             ->whereIn('id', $submittedIds->unique())
             ->get()
             ->keyBy('id');
         $allSessionRoutineIds = ClassRoutine::where('academic_session_id', $sessionId)->pluck('id')->all();
+        $declaredRoutineIds = $submittedIds->merge($deletedRoutineIds)->unique();
+        $eligibleTeacherIds = $this->teachersForSession($sessionId)->pluck('id')->map(fn ($id) => (int) $id);
 
         abort_unless($routines->count() === $submittedIds->unique()->count(), 422, 'The teacherwise draft contains an invalid routine. Please reload the page.');
+        abort_if($items->pluck('teacher_id')->filter()->map(fn ($id) => (int) $id)->diff($eligibleTeacherIds)->isNotEmpty(), 422, 'The selected teacher is not assigned to this academic session.');
+        abort_if($submittedIds->intersect($deletedRoutineIds)->isNotEmpty(), 422, 'The teacherwise draft contains a duplicate routine deletion. Please reload the page.');
+        abort_unless($deletedRoutineIds->diff($allSessionRoutineIds)->isEmpty(), 422, 'The teacherwise draft contains an invalid routine deletion. Please reload the page.');
+        $this->assertTeacherwiseSnapshotIsComplete($declaredRoutineIds->all(), $allSessionRoutineIds);
 
         $schedules = ClassSchedule::whereIn('id', $items->pluck('time_schedule_id')->unique())->get()->keyBy('id');
         $changes = [];
@@ -308,9 +312,7 @@ class RoutineController extends Controller
             }
         }
 
-        $deletedIds = ClassRoutine::where('academic_session_id', $sessionId)
-            ->when($submittedIds->isNotEmpty(), fn ($query) => $query->whereNotIn('id', $submittedIds->all()))
-            ->pluck('id');
+        $deletedIds = $deletedRoutineIds;
 
         DB::transaction(function () use ($changes, $deletedIds, $sessionId, $teacherOrder) {
             if ($deletedIds->isNotEmpty()) {
@@ -447,6 +449,13 @@ class RoutineController extends Controller
         return $rows;
     }
 
+    private function assertTeacherwiseSnapshotIsComplete(array $submittedIds, array $allSessionRoutineIds): void
+    {
+        if (array_diff($allSessionRoutineIds, $submittedIds)) {
+            abort(422, 'The teacherwise draft is incomplete. Reload the page before saving.');
+        }
+    }
+
     private function buildTeacherwisePlaygroundRows($routines): array
     {
         $rows = [];
@@ -459,13 +468,12 @@ class RoutineController extends Controller
 
             $rows[$teacherKey]['teacher'] = $routine->teacher?->name ?? 'Teacher not assigned';
             $rows[$teacherKey]['teacher_id'] = $routine->teacher_id;
-            $rows[$teacherKey]['class_ids'][$routine->school_class_id] = true;
+            $rows[$teacherKey]['class_count'] = ($rows[$teacherKey]['class_count'] ?? 0) + 1;
             $rows[$teacherKey]['periods'][$periodKey][] = $routine;
         }
 
         foreach ($rows as &$row) {
-            $row['class_count'] = count($row['class_ids'] ?? []);
-            unset($row['class_ids']);
+            $row['class_count'] ??= 0;
         }
         unset($row);
 
@@ -478,15 +486,23 @@ class RoutineController extends Controller
     {
         $data = $request->validate([
             'academic_session_id' => ['required', 'exists:academic_sessions,id'],
-            'school_class_id' => ['required', 'exists:school_classes,id'],
+            'school_class_id' => [
+                'required',
+                Rule::exists('school_classes', 'id')->where(fn ($query) => $query->where('status', 1)),
+            ],
             'section_id' => [
                 'required',
                 Rule::exists('sections', 'id')->where(fn ($query) => $query->where('school_class_id', $request->integer('school_class_id'))),
             ],
             'items' => ['present', 'array'],
+            'deleted_routine_ids' => ['present', 'array'],
+            'deleted_routine_ids.*' => ['integer', 'distinct'],
             'items.*.id' => ['nullable', 'integer'],
             'items.*.subject_id' => ['required', 'exists:subjects,id'],
-            'items.*.teacher_id' => ['nullable', 'exists:employees,id'],
+            'items.*.teacher_id' => [
+                'nullable',
+                Rule::exists('employees', 'id')->where(fn ($query) => $query->where('status', 'active')->where('employee_type', 'teacher')),
+            ],
             'items.*.classroom_id' => ['nullable', 'exists:classrooms,id'],
             'items.*.day' => ['required', 'string', Rule::in($this->workingDays())],
             'items.*.time_schedule_id' => [
@@ -504,6 +520,7 @@ class RoutineController extends Controller
         $subjectIds = SubjectClassAssignment::query()
             ->where('school_class_id', $context['school_class_id'])
             ->where('is_active', true)
+            ->whereHas('subject', fn ($query) => $query->where('is_active', true))
             ->pluck('subject_id')
             ->map(fn ($id) => (int) $id)
             ->all();
@@ -522,8 +539,15 @@ class RoutineController extends Controller
             ->get();
         $currentIds = $currentRoutines->pluck('id')->map(fn ($id) => (int) $id)->all();
         $submittedIds = collect($data['items'])->pluck('id')->filter()->map(fn ($id) => (int) $id)->all();
+        $deletedRoutineIds = collect($data['deleted_routine_ids'])->map(fn ($id) => (int) $id)->values();
+        $declaredRoutineIds = collect($submittedIds)->merge($deletedRoutineIds)->unique();
+        $eligibleTeacherIds = $this->teachersForSession($context['academic_session_id'])->pluck('id')->map(fn ($id) => (int) $id);
 
         abort_if(array_diff($submittedIds, $currentIds), 422, 'The routine draft contains an invalid record. Please reload the playground.');
+        abort_if(collect($data['items'])->pluck('teacher_id')->filter()->map(fn ($id) => (int) $id)->diff($eligibleTeacherIds)->isNotEmpty(), 422, 'The selected teacher is not assigned to this academic session.');
+        abort_if($deletedRoutineIds->intersect($submittedIds)->isNotEmpty(), 422, 'The routine draft contains a duplicate routine deletion. Please reload the playground.');
+        abort_if($deletedRoutineIds->diff($currentIds)->isNotEmpty(), 422, 'The routine draft contains an invalid routine deletion. Please reload the playground.');
+        abort_if(array_diff($currentIds, $declaredRoutineIds->all()), 422, 'The playground draft is incomplete. Reload the page before saving.');
         abort_if(count($submittedIds) !== count(array_unique($submittedIds)), 422, 'The routine draft contains a duplicate record. Please reload the playground.');
 
         $seenSlots = [];
@@ -734,8 +758,7 @@ class RoutineController extends Controller
         $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
         $sections = Section::with('schoolClass')->orderBy('name_en')->get();
         $subjects = [];
-        $teachers = Employee::active()
-            ->where('employee_type', 'teacher')
+        $teachers = $this->teachersForSession(request()->integer('academic_session_id') ?: AcademicSession::where('status', 1)->latest('id')->value('id'))
             ->with('designation')
             ->orderBy('name')
             ->get();
@@ -783,8 +806,7 @@ class RoutineController extends Controller
         $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
         $sections = Section::with('schoolClass')->orderBy('name_en')->get();
         $subjects = [];
-        $teachers = Employee::active()
-            ->where('employee_type', 'teacher')
+        $teachers = $this->teachersForSession($routine->academic_session_id)
             ->with('designation')
             ->orderBy('name')
             ->get();
@@ -831,7 +853,10 @@ class RoutineController extends Controller
     {
         $data = $request->validate([
             'academic_session_id' => ['required', 'exists:academic_sessions,id'],
-            'school_class_id' => ['required', 'exists:school_classes,id'],
+            'school_class_id' => [
+                'required',
+                Rule::exists('school_classes', 'id')->where(fn ($query) => $query->where('status', 1)),
+            ],
             'section_id' => [
                 'required',
                 Rule::exists('sections', 'id')->where(function ($query) use ($request) {
@@ -845,7 +870,10 @@ class RoutineController extends Controller
                         ->where('is_active', true);
                 }),
             ],
-            'teacher_id' => ['nullable', 'exists:employees,id'],
+            'teacher_id' => [
+                'nullable',
+                Rule::exists('employees', 'id')->where(fn ($query) => $query->where('status', 'active')->where('employee_type', 'teacher')),
+            ],
             'classroom_id' => ['nullable', 'exists:classrooms,id'],
             'day' => ['required', 'string', Rule::in($this->workingDays())],
             'time_schedule_id' => [
@@ -854,11 +882,28 @@ class RoutineController extends Controller
             ],
         ]);
 
+        abort_unless(
+            Subject::whereKey($data['subject_id'])->where('is_active', true)->exists(),
+            422,
+            'The selected subject is inactive.'
+        );
+
         $schedule = ClassSchedule::findOrFail($data['time_schedule_id']);
         $data['start_time'] = $schedule->start_time;
         $data['end_time'] = $schedule->end_time;
 
+        if ($data['teacher_id'] && ! $this->teachersForSession((int) $data['academic_session_id'])->whereKey($data['teacher_id'])->exists()) {
+            abort(422, 'The selected teacher is not assigned to this academic session.');
+        }
+
         return $data;
+    }
+
+    private function teachersForSession(?int $sessionId)
+    {
+        return Employee::active()
+            ->where('employee_type', 'teacher')
+            ->when($sessionId, fn ($query) => $query->whereHas('academicSessions', fn ($sessionQuery) => $sessionQuery->whereKey($sessionId)));
     }
 
     private function ensureNoScheduleConflict(array $data, int|array|null $ignoreRoutineId = null): void

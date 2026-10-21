@@ -11,7 +11,7 @@
                     </h4>
                     <small class="text-white-50">Manage weekly class schedules.</small>
                 </div>
-                <div class="d-flex align-items-center flex-wrap gap-2">
+                <div class="routine-header-actions d-flex align-items-center flex-wrap gap-2">
                     <div class="routine-view-switcher" role="group" aria-label="Routine view type">
                         <a href="{{ request()->fullUrlWithQuery(['view' => 'list']) }}" class="btn {{ $viewType === 'list' ? 'btn-light' : 'btn-outline-light' }}" title="List view">
                             <i class="fas fa-list mr-1"></i>List
@@ -30,7 +30,7 @@
                         </a>
                     </div>
                     @if(auth()->user()?->hasPermission('create_routines'))
-                        <a href="{{ route('routines.create') }}" class="btn btn-light btn-sm">
+                        <a href="{{ route('routines.create') }}" class="routine-add-btn btn btn-light btn-sm">
                             <i class="fas fa-plus mr-1"></i>Add Routine
                         </a>
                     @endif
@@ -343,8 +343,8 @@
                                 <div class="routine-modal-subject" id="teacherwise-modal-subject"></div>
                                 <div class="text-muted small mb-2" id="teacherwise-modal-context"></div>
                                 <div class="routine-modal-days" id="teacherwise-modal-days" role="group" aria-label="Teaching days">
-                                    @foreach(['Saturday' => 'Sat', 'Sunday' => 'Sun', 'Monday' => 'Mon', 'Tuesday' => 'Tue', 'Wednesday' => 'Wed', 'Thursday' => 'Thu'] as $day => $shortDay)
-                                        <button type="button" class="routine-day-toggle teacherwise-modal-day" data-day="{{ $day }}" aria-pressed="false">{{ $shortDay }}</button>
+                                    @foreach($days as $day)
+                                        <button type="button" class="routine-day-toggle teacherwise-modal-day" data-day="{{ $day }}" aria-pressed="false">{{ substr($day, 0, 3) }}</button>
                                     @endforeach
                                 </div>
                             </div>
@@ -515,7 +515,7 @@
                                         </a>
                                     @endif
                                     @if(auth()->user()?->hasPermission('delete_routines'))
-                                        <form action="{{ route('routines.delete', $routine->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this routine?')">
+                                        <form action="{{ route('routines.delete', $routine->id) }}" method="POST" class="d-inline routine-delete-form">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-xs routines-action-btn routines-action-delete" title="Delete" aria-label="Delete">
@@ -1050,9 +1050,31 @@
     }
 
     @media (max-width: 575.98px) {
-        .routine-view-switcher { width: 100%; }
-        .routines-page .routine-view-switcher .btn { flex: 1 1 0; padding-left: .55rem; padding-right: .55rem; }
+        .routines-page .card-header { padding: .75rem !important; }
+        .routines-page .card-header > .d-flex { align-items: stretch !important; }
+        .routine-header-actions { width: 100%; min-width: 0; flex-direction: column; align-items: stretch !important; }
+        .routine-view-switcher {
+            width: 100%;
+            min-width: 0;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            overflow-x: visible;
+            scrollbar-width: none;
+        }
+        .routine-view-switcher::-webkit-scrollbar { display: none; }
+        .routines-page .routine-view-switcher .btn {
+            width: 100%;
+            flex: 0 0 auto;
+            margin-top: 0 !important;
+            white-space: nowrap;
+            padding: .55rem .5rem;
+        }
         .routines-page .routine-view-switcher .btn i { margin-right: 0 !important; }
+        .routines-page .routine-add-btn { width: 100%; }
+        .routines-page .card-body { padding: .75rem !important; }
+        .routines-filter-form { padding: .65rem; }
+        .routines-filter-row { gap: .5rem; }
+        .routines-filter-actions { width: 100%; justify-content: flex-end; }
     }
 
     .routine-playground-layout {
@@ -1318,11 +1340,30 @@
         }
     }
 </style>
+<script src="{{ asset('assets/plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
 @endsection
 
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.routine-delete-form').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Remove routine?',
+                text: 'This routine will be permanently deleted.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, remove it',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                focusCancel: true,
+            }).then((result) => {
+                if (result.isConfirmed) form.submit();
+            });
+        });
+    });
+
     const classSelect = document.querySelector('select[name="school_class_id"]');
     const sectionSelect = document.getElementById('routine-section-filter');
     if (!classSelect || !sectionSelect) return;
@@ -1416,6 +1457,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let dirty = false;
     let draggedTeacherRow = null;
     let draggedTeacherRowOriginalIndex = null;
+    const deletedRoutineIds = new Set();
 
     const markDirty = () => { dirty = true; };
     const cellGrid = (cell) => cell?.querySelector('.teacherwise-playground-cell-grid') || cell;
@@ -1542,8 +1584,24 @@ document.addEventListener('DOMContentLoaded', function () {
         const removeButton = event.target.closest('.teacherwise-card-remove');
         if (!removeButton) return;
         event.preventDefault();
-        removeButton.closest('.teacherwise-playground-card')?.remove();
-        markDirty();
+        const card = removeButton.closest('.teacherwise-playground-card');
+        Swal.fire({
+            title: 'Remove routine?',
+            text: 'This routine will be removed from the draft. Save the playground to apply the change.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, remove it',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            focusCancel: true,
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+            if (card?.dataset.clientOnly !== '1' && card?.dataset.routineId) {
+                deletedRoutineIds.add(Number(card.dataset.routineId));
+            }
+            card?.remove();
+            markDirty();
+        });
     });
 
     document.querySelectorAll('.teacherwise-class-tab').forEach((tab) => {
@@ -1675,13 +1733,14 @@ document.addEventListener('DOMContentLoaded', function () {
             };
         });
         const teacherOrder = [...document.querySelectorAll('.teacherwise-playground-row')]
-            .map((row) => Number(row.dataset.teacherId));
+            .map((row) => Number(row.dataset.teacherId))
+            .filter(Boolean);
 
         try {
             const response = await fetch(board.dataset.saveUrl, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf},
-                body: JSON.stringify({academic_session_id: Number(board.dataset.sessionId), teacher_order: teacherOrder, items}),
+                body: JSON.stringify({academic_session_id: Number(board.dataset.sessionId), teacher_order: teacherOrder, items, deleted_routine_ids: [...deletedRoutineIds]}),
             });
             const result = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(result.message || Object.values(result.errors || {}).flat()[0] || 'The teacherwise routine could not be saved.');
@@ -1726,6 +1785,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const unsavedIndicator = document.getElementById('routine-unsaved-indicator');
     let pending = null;
     let dirty = false;
+    const deletedRoutineIds = new Set();
 
     document.querySelectorAll('.routine-export-link').forEach((link) => {
         link.addEventListener('click', (event) => {
@@ -1884,9 +1944,25 @@ document.addEventListener('DOMContentLoaded', function () {
         if (remove) {
             event.preventDefault();
             const cell = remove.closest('.routine-board-dropzone');
-            remove.closest('.routine-board-card')?.remove();
-            setCellState(cell);
-            markDirty();
+            const card = remove.closest('.routine-board-card');
+            Swal.fire({
+                title: 'Remove routine?',
+                text: 'This routine will be removed from the draft. Save the playground to apply the change.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, remove it',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                focusCancel: true,
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+                if (card?.dataset.clientOnly !== '1' && card?.dataset.routineId) {
+                    deletedRoutineIds.add(Number(card.dataset.routineId));
+                }
+                card?.remove();
+                setCellState(cell);
+                markDirty();
+            });
             return;
         }
 
@@ -2037,6 +2113,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     school_class_id: Number(playground.dataset.classId),
                     section_id: Number(playground.dataset.sectionId),
                     items,
+                    deleted_routine_ids: [...deletedRoutineIds],
                 }),
             });
             const result = await response.json().catch(() => ({}));

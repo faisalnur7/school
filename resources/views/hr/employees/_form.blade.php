@@ -1,4 +1,8 @@
-@php $emp = $employee ?? null; $pi = $emp?->paymentInformation; @endphp
+@php
+    $emp = $employee ?? null;
+    $pi = $emp?->paymentInformation;
+    $assignedSessionIds = old('academic_session_ids', $emp?->academicSessions?->pluck('id')->all() ?? ($activeAcademicSessionId ? [$activeAcademicSessionId] : []));
+@endphp
 <div class="row">
     {{-- Name --}}
     <div class="col-md-6 form-group mb-2">
@@ -55,6 +59,23 @@
             @endforeach
         </select>
         @error('designation_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+    </div>
+
+    {{-- Teacher academic sessions --}}
+    <div class="col-12 form-group mb-2" id="teacherAcademicSessions">
+        <label class="small mb-1 font-weight-bold">Teaching Academic Sessions <span class="text-danger">*</span></label>
+        <div class="d-flex flex-wrap">
+            @foreach($academicSessions as $session)
+                <label class="mr-3 mb-1 font-weight-normal">
+                    <input type="checkbox" name="academic_session_ids[]" value="{{ $session->id }}" {{ in_array($session->id, $assignedSessionIds) ? 'checked' : '' }}>
+                    {{ $session->name_en }}
+                    @if($session->status) <small class="text-success">(Active)</small> @endif
+                </label>
+            @endforeach
+        </div>
+        <small class="form-text text-muted">Teachers are selectable in routines only for the sessions selected here.</small>
+        @error('academic_session_ids')<div class="text-danger small">{{ $message }}</div>@enderror
+        @error('academic_session_ids.*')<div class="text-danger small">{{ $message }}</div>@enderror
     </div>
 
     {{-- Department --}}
@@ -197,6 +218,15 @@ function filterDesignations() {
 }
 document.getElementById('employeeType').addEventListener('change', filterDesignations);
 filterDesignations();
+
+function toggleTeacherAcademicSessions() {
+    const isTeacher = document.getElementById('employeeType').value === 'teacher';
+    const group = document.getElementById('teacherAcademicSessions');
+    group.style.display = isTeacher ? '' : 'none';
+    group.querySelectorAll('input[name="academic_session_ids[]"]').forEach(input => { input.disabled = !isTeacher; });
+}
+document.getElementById('employeeType').addEventListener('change', toggleTeacherAcademicSessions);
+toggleTeacherAcademicSessions();
 
 function previewPhoto(input) {
     const preview = document.getElementById('photoPreview');

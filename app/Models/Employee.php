@@ -27,6 +27,7 @@ class Employee extends Model
     public function leaveRequests()    { return $this->hasMany(LeaveRequest::class); }
     public function paymentInformation(){ return $this->hasOne(PaymentInformation::class); }
     public function documents()        { return $this->hasMany(EmployeeDocument::class); }
+    public function academicSessions() { return $this->belongsToMany(AcademicSession::class, 'employee_academic_session')->withTimestamps(); }
 
     public function getPhotoUrlAttribute(): string
     {

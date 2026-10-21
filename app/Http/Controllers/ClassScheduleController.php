@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ClassSchedule;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class ClassScheduleController extends Controller
 {
@@ -42,7 +43,19 @@ class ClassScheduleController extends Controller
     public function update(Request $request, int $id)
     {
         $schedule = ClassSchedule::findOrFail($id);
-        $schedule->update($this->validateData($request, $schedule));
+        $data = $this->validateData($request, $schedule);
+
+        if ($schedule->routines()->exists() && ($data['kind'] !== 'teaching' || ! $data['is_active'])) {
+            abort(422, 'This schedule is used by routines. Move those routines before deactivating or changing its type.');
+        }
+
+        DB::transaction(function () use ($schedule, $data) {
+            $schedule->update($data);
+            $schedule->routines()->update([
+                'start_time' => $data['start_time'],
+                'end_time' => $data['end_time'],
+            ]);
+        });
 
         return redirect()->route('class-schedules.index')->with('success', 'Time schedule updated successfully.');
     }

@@ -15,6 +15,8 @@ class StoreEmployeeRequest extends FormRequest
             'email'                => 'required|email|unique:users,email',
             'password'             => 'required|string|min:6',
             'employee_type'        => 'required|in:teacher,staff',
+            'academic_session_ids' => 'nullable|required_if:employee_type,teacher|array|min:1',
+            'academic_session_ids.*' => 'integer|distinct|exists:academic_sessions,id',
             'designation_id'       => 'required|exists:designations,id',
             'department_id'        => 'nullable|exists:departments,id',
             'reporting_manager_id' => 'nullable|exists:employees,id',

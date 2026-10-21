@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Department;
 use App\Models\Designation;
 use App\Models\Employee;
+use App\Models\AcademicSession;
 use App\Models\PaymentInformation;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -44,7 +45,10 @@ class EmployeeController extends Controller
         $designations = Designation::active()->orderBy('employee_type')->orderBy('hierarchy_level')->get();
         $departments  = Department::orderBy('name')->get();
         $managers     = Employee::active()->with('designation')->get();
-        return view('hr.employees.create', compact('designations', 'departments', 'managers'));
+        $academicSessions = AcademicSession::orderByDesc('id')->get();
+        $activeAcademicSessionId = AcademicSession::where('status', 1)->latest('id')->value('id')
+            ?? AcademicSession::latest('id')->value('id');
+        return view('hr.employees.create', compact('designations', 'departments', 'managers', 'academicSessions', 'activeAcademicSessionId'));
     }
 
     public function store(StoreEmployeeRequest $request)
@@ -57,6 +61,8 @@ class EmployeeController extends Controller
             ]);
 
             $data = $request->validated();
+            $academicSessionIds = $data['academic_session_ids'] ?? [];
+            unset($data['academic_session_ids']);
             $data['user_id']     = $user->id;
             $data['employee_id'] = $this->generateEmployeeId($request->employee_type);
             unset($data['email'], $data['password']);
@@ -69,6 +75,10 @@ class EmployeeController extends Controller
             }
 
             $employee = Employee::create($data);
+
+            if ($employee->employee_type === 'teacher') {
+                $employee->academicSessions()->sync($academicSessionIds);
+            }
 
             $employee->paymentInformation()->create([
                 'payment_method'         => $request->payment_method ?? 'cash',
@@ -93,7 +103,11 @@ class EmployeeController extends Controller
         $designations = Designation::active()->orderBy('employee_type')->orderBy('hierarchy_level')->get();
         $departments  = Department::orderBy('name')->get();
         $managers     = Employee::active()->where('id', '!=', $employee->id)->with('designation')->get();
-        return view('hr.employees.edit', compact('employee', 'designations', 'departments', 'managers'));
+        $academicSessions = AcademicSession::orderByDesc('id')->get();
+        $activeAcademicSessionId = AcademicSession::where('status', 1)->latest('id')->value('id')
+            ?? AcademicSession::latest('id')->value('id');
+        $employee->load('academicSessions');
+        return view('hr.employees.edit', compact('employee', 'designations', 'departments', 'managers', 'academicSessions', 'activeAcademicSessionId'));
     }
 
     public function update(UpdateEmployeeRequest $request, Employee $employee)
@@ -102,6 +116,8 @@ class EmployeeController extends Controller
             $employee->user->update(['name' => $request->name, 'email' => $request->email]);
 
             $data = $request->validated();
+            $academicSessionIds = $data['academic_session_ids'] ?? [];
+            unset($data['academic_session_ids']);
             unset($data['email']);
 
             if ($request->hasFile('photo')) {
@@ -117,6 +133,12 @@ class EmployeeController extends Controller
             }
 
             $employee->update($data);
+
+            if ($employee->employee_type === 'teacher') {
+                $employee->academicSessions()->sync($academicSessionIds);
+            } else {
+                $employee->academicSessions()->detach();
+            }
 
             $employee->paymentInformation()->updateOrCreate(
                 ['employee_id' => $employee->id],
