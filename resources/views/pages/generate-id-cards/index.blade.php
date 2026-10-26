@@ -1,15 +1,42 @@
 @extends('layouts.master')
 
 @section('contents')
+@php($employeeMode = $employeeMode ?? false)
 <div class="container-fluid">
 
     <div class="card no-print id-card-filter-shell">
         <div class="card-header">
-            <h3 class="card-title mb-0 text-white text-lg">Generate ID Cards</h3>
+            <h3 class="card-title mb-0 text-white text-lg">{{ $employeeMode ? 'Generate Employee ID Cards' : 'Generate ID Cards' }}</h3>
         </div>
         <div class="card-body pb-2 id-card-filter-body">
             <div class="id-card-filter-panel">
-            <form method="GET" action="{{ route('students.id-cards') }}" id="filterForm">
+            <form method="GET" action="{{ $employeeMode ? route('hr.employee-id-cards') : route('students.id-cards') }}" id="filterForm">
+                @if($employeeMode)
+                <div class="row id-card-filter-grid">
+                    <div class="col-md-3 id-card-filter-field">
+                        <div class="form-group">
+                            <label class="font-weight-bold id-card-filter-label">Employee Type</label>
+                            <select name="employee_type" class="form-control form-control-sm">
+                                <option value="all" {{ request('employee_type') === 'all' ? 'selected' : '' }}>All Employees</option>
+                                <option value="teacher" {{ request('employee_type') === 'teacher' ? 'selected' : '' }}>Teachers</option>
+                                <option value="staff" {{ request('employee_type') === 'staff' ? 'selected' : '' }}>Staff</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-5 id-card-filter-field">
+                        <div class="form-group">
+                            <label class="id-card-filter-label">Employee Name or ID</label>
+                            <input type="text" name="employee_search" class="form-control form-control-sm id-card-filter-input" value="{{ request('employee_search') }}" placeholder="Search employee name or ID" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="col-md-4 id-card-filter-field d-flex align-items-end">
+                        <div class="form-group w-100">
+                            <label class="id-card-filter-label">Card Type</label>
+                            <input type="text" class="form-control form-control-sm" value="Employee ID Card" readonly>
+                        </div>
+                    </div>
+                </div>
+                @else
                 <div class="row id-card-filter-grid">
                     <div class="col-md-2 id-card-filter-field">
                         <div class="form-group">
@@ -77,6 +104,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
                 <div class="id-card-filter-actions-row">
                     <div class="d-flex flex-wrap justify-content-end id-card-filter-actions-inner">
                         <button type="button" class="btn btn-outline-primary btn-sm id-card-filter-btn" data-toggle="modal" data-target="#idCardSettingsModal" title="Card settings">
@@ -85,13 +113,16 @@
                         <button type="submit" class="btn btn-primary btn-sm id-card-filter-btn" title="Generate">
                             <i class="fas fa-id-card"></i>
                         </button>
-                        <a href="{{ route('students.id-cards') }}" class="btn btn-secondary btn-sm id-card-filter-btn" title="Reset">
+                        <a href="{{ $employeeMode ? route('hr.employee-id-cards') : route('students.id-cards') }}" class="btn btn-secondary btn-sm id-card-filter-btn" title="Reset">
                             <i class="fas fa-times"></i>
                         </a>
-                        @if($students->isNotEmpty())
+                        @if(($employeeMode ? $employees : $students)->isNotEmpty())
                             <button type="button" class="btn btn-success btn-sm id-card-filter-btn" onclick="window.print()" title="Print">
                                 <i class="fas fa-print"></i>
                             </button>
+                            <a href="{{ route($employeeMode ? 'hr.employee-id-cards.pdf' : 'students.id-cards.pdf', request()->query()) }}" class="btn btn-danger btn-sm id-card-filter-btn" title="PDF">
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
                         @endif
                     </div>
                 </div>
@@ -100,21 +131,26 @@
         </div>
     </div>
 
-    @if(!request('session_id') && !request('student_cid'))
+    @if($employeeMode && !request('employee_type') && !request('employee_search'))
+        <div class="text-center py-5 text-muted no-print">
+            <i class="fas fa-id-card fa-3x mb-3 d-block" style="opacity:.3"></i>
+            <p class="mb-1">Select an employee type or search by employee name/ID to generate cards.</p>
+        </div>
+    @elseif(!$employeeMode && !request('session_id') && !request('student_cid'))
         <div class="text-center py-5 text-muted no-print">
             <i class="fas fa-id-card fa-3x mb-3 d-block" style="opacity:.3"></i>
             <p class="mb-1">Select Academic Year or enter a Student ID to generate a card.</p>
         </div>
-    @elseif($students->isEmpty())
+    @elseif(($employeeMode ? $employees : $students)->isEmpty())
         <div class="text-center py-5 text-muted no-print">
             <i class="fas fa-inbox fa-2x mb-2 d-block" style="opacity:.3"></i>
             <p>No students found for the selected filters.</p>
         </div>
     @else
         <div class="no-print mb-3 d-flex align-items-center" style="gap:8px; flex-wrap: wrap;">
-            <span class="badge badge-primary px-3 py-2" style="font-size:13px">{{ $students->count() }} Students</span>
+            <span class="badge badge-primary px-3 py-2" style="font-size:13px">{{ ($employeeMode ? $employees : $students)->count() }} {{ $employeeMode ? 'Employees' : 'Students' }}</span>
             <span class="badge badge-light border px-3 py-2" style="font-size:12px">
-                {{ ($cardType ?? 'id_card') === 'library_card' ? 'Library card' : 'Front + Back per student' }}
+                {{ $employeeMode ? 'Front + Back per employee' : (($cardType ?? 'id_card') === 'library_card' ? 'Library card' : 'Front + Back per student') }}
             </span>
             <span class="badge badge-light border px-3 py-2" style="font-size:12px">
                 {{ number_format($layout['cardWidthCm'] ?? 5.4, 1) }}cm × {{ number_format($layout['cardHeightCm'] ?? 8.4, 1) }}cm
@@ -124,6 +160,8 @@
 
         @include('pages.generate-id-cards._cards', [
             'students' => $students,
+            'employees' => $employees ?? collect(),
+            'employeeMode' => $employeeMode,
             'setting' => $setting,
             'cardSettings' => $cardSettings ?? null,
             'renderForPdf' => false,
@@ -133,7 +171,7 @@
     @endif
 </div>
 
-@include('pages.generate-id-cards._settings-modal')
+@include('pages.generate-id-cards._settings-modal', ['employeeMode' => $employeeMode])
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -192,6 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const cardHeight = settingsForm?.elements.namedItem('card_height_value');
     const cardDimensionUnit = settingsForm?.elements.namedItem('card_dimension_unit');
     const selectedSection = @json(request('section_id'));
+    const employeeMode = @json($employeeMode);
     const hasValidationErrors = @json($errors->any());
     const cardSettingsMap = @json($cardSettingsPayload);
     const defaultCardType = @json($cardType ?? 'id_card');
@@ -249,14 +288,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const fallbackSchoolLogo = @json($schoolLogoUrl);
 
     function settingKeyFromCardType(cardType) {
+        if (employeeMode) return '5';
         return cardType === 'library_card' ? '4' : '3';
     }
 
     function settingLabelFromCardType(cardType) {
+        if (employeeMode) return 'Employee ID Card Settings';
         return cardType === 'library_card' ? 'Library Card Settings' : 'ID Card Settings';
     }
 
     function previewTitleFromCardType(cardType) {
+        if (employeeMode) return 'EMPLOYEE ID';
         return cardType === 'library_card' ? 'LIBRARY CARD' : 'STUDENT ID';
     }
 

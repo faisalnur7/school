@@ -8,7 +8,7 @@ class HrHubController extends Controller
     {
         $cards = [
             ['icon' => 'fa-users',           'title' => __('All Employees'),        'subtitle' => __('View all employees'),           'route' => 'hr.employees.index', 'permission' => 'view_card_all_employees', 'from' => '#0891b2', 'to' => '#0e7490'],
-            ['icon' => 'fa-user-plus',       'title' => __('Add Employee'),         'subtitle' => __('Enrol a new employee'),         'route' => 'hr.employees.create', 'permission' => 'view_card_add_employee', 'from' => '#059669', 'to' => '#047857'],
+            ['icon' => 'fa-id-card',          'title' => __('Employee ID Cards'),    'subtitle' => __('Print employee ID cards'),      'route' => 'hr.employee-id-cards', 'permission' => 'view_card_employee_id_cards', 'from' => '#059669', 'to' => '#047857'],
             ['icon' => 'fa-sitemap',         'title' => __('Departments'),          'subtitle' => __('Manage departments'),           'route' => 'hr.departments.index', 'permission' => 'view_card_departments', 'from' => '#d97706', 'to' => '#b45309'],
             ['icon' => 'fa-briefcase',       'title' => __('Designations'),         'subtitle' => __('Manage designations'),          'route' => 'hr.designations.index', 'permission' => 'view_card_designations', 'from' => '#dc2626', 'to' => '#b91c1c'],
             ['icon' => 'fa-calendar-times',  'title' => __('Leave Requests'),       'subtitle' => __('Manage leave requests'),        'route' => 'hr.leave.index', 'permission' => 'view_card_leave_requests', 'from' => '#be185d', 'to' => '#9d174d'],

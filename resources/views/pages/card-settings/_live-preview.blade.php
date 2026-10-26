@@ -1,6 +1,7 @@
 @php
     $previewType = $previewType ?? 'id';
     $prefix = $prefix ?? 'card';
+    $employeeMode = $employeeMode ?? false;
     $schoolName = $schoolName ?? 'School Name';
     $slogan = $slogan ?? 'Stay Green, Be Bright';
     $frontTitle = $frontTitle ?? 'STUDENT ID';
@@ -19,7 +20,9 @@
     $cardType = $cardType ?? ($previewType === 'admit' ? 'admit_card' : 'id_card');
     $isLibraryCard = $cardType === 'library_card';
     $isAdmitOrSeatCard = in_array($cardType, ['admit_card', 'seat_card'], true);
-    $backSectionTitle = $isLibraryCard || $isAdmitOrSeatCard ? 'Student Details' : 'Parent / Guardian';
+    $backSectionTitle = $employeeMode
+        ? 'Employee Details'
+        : ($isLibraryCard || $isAdmitOrSeatCard ? 'Student Details' : 'Parent / Guardian');
     $backContactTitle = $isLibraryCard ? 'Library / School Contact' : ($isAdmitOrSeatCard ? 'School / Exam Contact' : 'School Contact');
     $examTypeLabel = $examTypeLabel ?? null;
     $examName = $examName ?? null;
@@ -106,13 +109,23 @@
     $studentMotherName = $studentMotherName ?? 'Hasina Khanom';
     $studentContactLine = $studentContactLine ?? '01712 345678, 01871 567890';
     $studentAddress = $studentAddress ?? 'CIP Tower, Hazari Dighi Par, Dohazari, Chandanaish, Chattogram';
+    $employeeName = $employeeName ?? 'Employee Name';
+    $employeeId = $employeeId ?? 'EMP-0001';
+    $employeeRole = $employeeRole ?? 'Designation';
+    $employeeDepartment = $employeeDepartment ?? 'Department';
+    $employeeType = $employeeType ?? 'Staff';
+    $employeeJoined = $employeeJoined ?? '01 Jan 2025';
+    $employeePhone = $employeePhone ?? '01712 345678';
+    $previewName = $employeeMode ? $employeeName : $studentName;
     $previewSchoolNameFontSize = $fitTextSize($schoolName, 7.2, 5.2, 20, 0.08);
     $previewSchoolDetailFontSize = $fitTextSize($schoolDetailLine ?: $slogan, 5.4, 4.1, 30, 0.05);
     $previewSloganFontSize = $fitTextSize($slogan, 4.8, 3.8, 26, 0.04);
     $previewTitleFontSize = $fitTextSize($frontTitle, 4.7, 4.0, 14, 0.05);
-    $previewNameFontSize = $fitTextSize($studentName, 7.2, 5.4, 20, 0.08);
+    $previewNameFontSize = $fitTextSize($previewName, 7.2, 5.4, 20, 0.08);
     $previewBackTitleFontSize = $fitTextSize([$backSectionTitle, $backContactTitle], 4.7, 4.0, 18, 0.04);
-    $previewBackValues = $isLibraryCard || $isAdmitOrSeatCard
+    $previewBackValues = $employeeMode
+        ? [$employeeName, $employeeId, $employeeRole, $employeeDepartment, $employeeType, $employeeJoined, $employeePhone]
+        : ($isLibraryCard || $isAdmitOrSeatCard
         ? [
             $studentName,
             $studentCid,
@@ -126,7 +139,7 @@
             $studentMotherName,
             $studentContactLine,
             $studentAddress,
-        ];
+        ]);
 
     $previewBackValues = array_merge($previewBackValues, [
         $schoolDetailLine,
@@ -294,29 +307,24 @@
                                 @endif
 
                                 <div class="id-card__info">
-                                    <div class="id-card__name card-preview-clickable" data-preview-focus-target="{{ $focusFor('name') }}">Student Name</div>
+                                    <div class="id-card__name card-preview-clickable" data-preview-focus-target="{{ $focusFor('name') }}">{{ $previewName }}</div>
                                     <div class="id-card__divider"></div>
                                     <div class="id-card__rows">
                                         <div class="id-card__row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">
                                             <span class="id-card__lbl">ID</span>
                                             <span class="id-card__val">0001</span>
                                         </div>
-                                        <div class="id-card__row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">
-                                            <span class="id-card__lbl">Class</span>
-                                            <span class="id-card__val">One / A</span>
-                                        </div>
-                                        <div class="id-card__row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">
-                                            <span class="id-card__lbl">Roll</span>
-                                            <span class="id-card__val">12</span>
-                                        </div>
-                                        <div class="id-card__row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">
-                                            <span class="id-card__lbl">Session</span>
-                                            <span class="id-card__val">2025-2026</span>
-                                        </div>
-                                        <div class="id-card__row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">
-                                            <span class="id-card__lbl">DOB</span>
-                                            <span class="id-card__val">29 Jun 2010</span>
-                                        </div>
+                                        @if($employeeMode)
+                                            <div class="id-card__row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}"><span class="id-card__lbl">Role</span><span class="id-card__val">{{ $employeeRole }}</span></div>
+                                            <div class="id-card__row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}"><span class="id-card__lbl">Dept.</span><span class="id-card__val">{{ $employeeDepartment }}</span></div>
+                                            <div class="id-card__row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}"><span class="id-card__lbl">Type</span><span class="id-card__val">{{ $employeeType }}</span></div>
+                                            <div class="id-card__row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}"><span class="id-card__lbl">Joined</span><span class="id-card__val">{{ $employeeJoined }}</span></div>
+                                        @else
+                                            <div class="id-card__row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}"><span class="id-card__lbl">Class</span><span class="id-card__val">One / A</span></div>
+                                            <div class="id-card__row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}"><span class="id-card__lbl">Roll</span><span class="id-card__val">12</span></div>
+                                            <div class="id-card__row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}"><span class="id-card__lbl">Session</span><span class="id-card__val">2025-2026</span></div>
+                                            <div class="id-card__row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}"><span class="id-card__lbl">DOB</span><span class="id-card__val">29 Jun 2010</span></div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -365,7 +373,15 @@
                                     @if($showBackStudentDetails)
                                     <div class="id-card__back-section id-card__back-section--student-details">
                                         <div class="id-card__back-title card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}">{{ $backSectionTitle }}</div>
-                                        @if($isLibraryCard || $isAdmitOrSeatCard)
+                                        @if($employeeMode)
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('name') }}"><span class="id-card__lbl">Name</span><span class="id-card__val">{{ $employeeName }}</span></div>
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('name') }}"><span class="id-card__lbl">ID</span><span class="id-card__val">{{ $employeeId }}</span></div>
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}"><span class="id-card__lbl">Role</span><span class="id-card__val">{{ $employeeRole }}</span></div>
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}"><span class="id-card__lbl">Dept.</span><span class="id-card__val">{{ $employeeDepartment }}</span></div>
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}"><span class="id-card__lbl">Type</span><span class="id-card__val">{{ $employeeType }}</span></div>
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('school_detail') }}"><span class="id-card__lbl">Joined</span><span class="id-card__val">{{ $employeeJoined }}</span></div>
+                                            <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('footer') }}"><span class="id-card__lbl">Phone</span><span class="id-card__val">{{ $employeePhone }}</span></div>
+                                        @elseif($isLibraryCard || $isAdmitOrSeatCard)
                                             <div class="id-card__back-row card-preview-clickable" data-preview-focus-target="{{ $focusFor('name') }}">
                                                 <span class="id-card__lbl">Name</span>
                                                 <span class="id-card__val">{{ $studentName }}</span>

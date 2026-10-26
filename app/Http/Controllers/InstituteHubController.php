@@ -9,6 +9,7 @@ class InstituteHubController extends Controller
         $cards = [
             ['icon' => 'fa-school',     'title' => __('School Settings'),    'subtitle' => __('General school settings'),    'route' => 'school-settings.index', 'permission' => 'view_card_school_settings', 'from' => '#4f46e5', 'to' => '#7c3aed'],
             ['icon' => 'fa-certificate','title' => __('Certificate Types'),   'subtitle' => __('Manage certificate types and templates'), 'route' => 'certificates.index', 'permission' => 'view_card_school_settings', 'from' => '#0f766e', 'to' => '#0d9488'],
+            ['icon' => 'fa-graduation-cap', 'title' => __('Qualifications'), 'subtitle' => __('Manage educational qualifications'), 'route' => 'educational-qualifications.index', 'permission' => 'view_institute_settings', 'from' => '#7c3aed', 'to' => '#db2777'],
             // ['icon' => 'fa-id-card',    'title' => 'ID Card Templates',  'subtitle' => 'Manage ID card templates',   'route' => 'id-card-templates.index', 'permission' => 'view_card_id_card_templates', 'from' => '#0891b2', 'to' => '#0e7490'],
             ['icon' => 'fa-building',   'title' => __('Buildings'),          'subtitle' => __('Manage school buildings'),    'route' => 'buildings.index', 'permission' => 'view_card_buildings', 'from' => '#059669', 'to' => '#047857'],
             ['icon' => 'fa-door-open',  'title' => __('Rooms'),              'subtitle' => __('Manage rooms'),               'route' => 'rooms.index', 'permission' => 'view_card_rooms', 'from' => '#d97706', 'to' => '#b45309'],

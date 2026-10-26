@@ -8,6 +8,7 @@
         : null;
     $hasPrincipalSignature = $principalSignature && file_exists($principalSignature);
     $formatMark = static fn ($value) => rtrim(rtrim(number_format((float) $value, 1, '.', ''), '0'), '.');
+    $resultsPerPage = in_array((int) ($resultsPerPage ?? 2), [1, 2, 3], true) ? (int) $resultsPerPage : 2;
 @endphp
 
 <style>
@@ -30,7 +31,7 @@
     .tutorial-print-summary-value { margin-top: 2px; color: #000; font-size: 14px; font-weight: 700; line-height: 1.05; }
     .tutorial-print-marks-wrap { width: 96%; margin: 8px auto 0; border: 1px solid #d5ddda; border-radius: 6px; overflow: hidden; }
     .tutorial-print-student { width: 100%; border-collapse: collapse; table-layout: fixed; }
-    .tutorial-print-student th, .tutorial-print-student td { border: 0; border-bottom: 1px solid #e3e8e6; padding: 4px 6px; line-height: 1.05; vertical-align: middle; }
+    .tutorial-print-student th, .tutorial-print-student td { border: 1px solid #e3e8e6; padding: 4px 6px; line-height: 1.05; vertical-align: middle; }
     .tutorial-print-student thead th { height: 25px; background: transparent; color: #000; font-size: 14px; font-weight: 700; letter-spacing: .6px; text-align: left; text-transform: uppercase; white-space: nowrap; }
     .tutorial-print-student tbody tr:nth-child(even) td { background: transparent; }
     .tutorial-print-student tbody td { height: 24px; color: #000; font-size: 14px; font-weight: 700; }
@@ -38,7 +39,7 @@
     .tutorial-print-student .subject-column { width: 55%; font-weight: 600; }
     .tutorial-print-student .marks-column { width: 15%; text-align: center; }
     .tutorial-print-student .obtained { font-weight: 700; }
-    .tutorial-print-total td { height: 27px; background: transparent !important; border-bottom: 0 !important; color: #000 !important; font-size: 14px; font-weight: 700; }
+    .tutorial-print-total td { height: 27px; background: transparent !important; border: 1px solid #e3e8e6 !important; color: #000 !important; font-size: 14px; font-weight: 700; }
     .tutorial-print-total .total-percent { color: #000 !important; font-weight: 600; }
     .tutorial-print-footer { width: 96%; margin: 8px auto 10px; border-collapse: collapse; table-layout: fixed; }
     .tutorial-print-footer td { border: 0; padding: 0; vertical-align: bottom; }
@@ -54,9 +55,55 @@
     .tutorial-print-signature img { display: block; width: 55px; max-height: 18px; object-fit: contain; margin: 0 auto 1px; }
     .tutorial-print-signature__name, .tutorial-print-signature__school, .tutorial-print-signature__details { font-size: 9px; }
     .tutorial-print-signature__name, .tutorial-print-signature__school { font-weight: 700; }
+
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-card { margin-bottom: 12px; }
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-header { height: 72px; padding: 9px 14px 0; }
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-header-table { height: 60px; }
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-school { font-size: 19px; }
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-exam { font-size: 11px; }
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-title { font-size: 15px; }
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-summary,
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-marks-wrap { margin-top: 10px; }
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-summary td { padding: 7px 12px; }
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-student th,
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-student td { padding: 5px 7px; }
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-student thead th { height: 28px; }
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-student tbody td { height: 27px; }
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-total td { height: 30px; }
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-footer { margin-top: 10px; margin-bottom: 12px; }
+    .tutorial-print-layout.tutorial-print-density-1 .tutorial-print-comment { padding: 10px 20px; }
+
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-card { margin-bottom: 5px; border-radius: 6px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-header { height: 54px; padding: 5px 8px 0; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-header-table { height: 45px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-header-logo { width: 30px; height: 30px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-school { font-size: 15px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-exam { margin-top: 2px; font-size: 8px; letter-spacing: .6px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-title { margin-top: 1px; font-size: 11px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-summary,
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-marks-wrap { margin-top: 5px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-summary td { padding: 3px 6px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-summary-label { font-size: 10px; letter-spacing: .6px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-summary-value { font-size: 11px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-student th,
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-student td { padding: 2px 3px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-student thead th { height: 19px; font-size: 9px; letter-spacing: .25px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-student tbody td { height: 18px; font-size: 10px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-total td { height: 20px; font-size: 10px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-footer { margin-top: 5px; margin-bottom: 6px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-comment { padding: 4px 8px; font-size: 10px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-comment-label { margin-right: 5px; font-size: 10px; letter-spacing: .5px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-signature-row td { padding-top: 10px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-signature-table { width: 110px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-signature-space { height: .4in; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-signature { width: 110px; height: 58px; padding-top: 18px; font-size: 8px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-signature img { width: 40px; max-height: 12px; }
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-signature__name,
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-signature__school,
+    .tutorial-print-layout.tutorial-print-density-3 .tutorial-print-signature__details { font-size: 7px; }
 </style>
 
-<div class="tutorial-print-layout">
+<div class="tutorial-print-layout tutorial-print-density-{{ $resultsPerPage }}">
     @foreach($studentsData as $data)
         @php
             $student = $data['student'];
@@ -139,7 +186,7 @@
             </table>
         </div>
 
-        @if($loop->iteration % 3 === 0 && !$loop->last)
+        @if($loop->iteration % $resultsPerPage === 0 && !$loop->last)
             <pagebreak />
         @endif
     @endforeach

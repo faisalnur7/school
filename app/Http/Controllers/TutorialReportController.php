@@ -33,7 +33,7 @@ class TutorialReportController extends Controller
             'sessions' => AcademicSession::orderByDesc('id')->get(),
             'classes'  => SchoolClass::all(),
             'exams'    => Exam::where('type', Exam::TYPE_TUTORIAL)->orderByDesc('id')->get(),
-            'filters'  => $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id']),
+            'filters'  => $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id', 'results_per_page']),
         ]);
     }
 
@@ -49,9 +49,11 @@ class TutorialReportController extends Controller
             'subject_ids' => ['nullable', 'array'],
             'subject_ids.*' => ['integer'],
             'religion_subject' => ['nullable'],
+            'results_per_page' => ['nullable', 'integer', 'in:1,2,3'],
         ]);
 
         $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id', 'subject_filter', 'subject_ids', 'religion_subject']);
+        $filters['results_per_page'] = (int) $request->input('results_per_page', 2);
         $exam     = Exam::with('academicSession')->findOrFail($filters['exam_id']);
         $reportContext = $this->buildReportContext($filters);
         $sections = Section::where('school_class_id', $filters['class_id'])->orderBy('name_en')->get();
@@ -170,9 +172,11 @@ class TutorialReportController extends Controller
             'subject_ids' => ['nullable', 'array'],
             'subject_ids.*' => ['integer'],
             'religion_subject' => ['nullable'],
+            'results_per_page' => ['nullable', 'integer', 'in:1,2,3'],
         ]);
 
         $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id', 'subject_filter', 'subject_ids', 'religion_subject']);
+        $filters['results_per_page'] = (int) $request->input('results_per_page', 2);
         $exam     = Exam::with('academicSession')->findOrFail($filters['exam_id']);
         $reportContext = $this->buildReportContext($filters);
         $tutorialSubjects = $this->getAssignedTutorialSubjects((int) $filters['class_id']);
@@ -256,7 +260,8 @@ class TutorialReportController extends Controller
 
         $studentsData = $this->rankStudentsData($studentsData);
 
-        $html = view('pages.tutorial-report.print', compact('studentsData', 'exam', 'filters', 'reportContext'))->render();
+        $resultsPerPage = $filters['results_per_page'];
+        $html = view('pages.tutorial-report.print', compact('studentsData', 'exam', 'filters', 'reportContext', 'resultsPerPage'))->render();
         $mpdf = new \Mpdf\Mpdf(['format' => 'A4', 'margin_top' => 10, 'margin_bottom' => 10, 'margin_left' => 12, 'margin_right' => 12]);
         $mpdf->WriteHTML($html);
 

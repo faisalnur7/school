@@ -310,9 +310,15 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/', [ExamRoutineController::class, 'store'])->name('exam-routines.store');
     });
     Route::middleware('permission:view_hr')->get('/hr/hub', [HrHubController::class, 'index'])->name('hr.hub');
+    Route::middleware('permission:view_hr')->prefix('hr')->name('hr.')->group(function () {
+        Route::get('/employee-id-cards', [\App\Http\Controllers\HR\EmployeeIdCardController::class, 'index'])->name('employee-id-cards');
+        Route::get('/employee-id-cards/pdf', [\App\Http\Controllers\HR\EmployeeIdCardController::class, 'pdf'])->name('employee-id-cards.pdf');
+        Route::post('/employee-id-cards/settings', [\App\Http\Controllers\HR\EmployeeIdCardController::class, 'saveSettings'])->name('employee-id-cards.settings');
+    });
     Route::middleware('permission:view_accounts')->get('/accounts/hub', [AccountsHubController::class, 'index'])->name('accounts.hub');
     Route::middleware('permission:view_assets')->get('/assets/hub', [AssetsHubController::class, 'index'])->name('assets.hub');
     Route::middleware('permission:view_institute_settings')->get('/institute/hub', [InstituteHubController::class, 'index'])->name('institute.hub');
+    Route::middleware('permission:view_institute_settings')->resource('educational-qualifications', \App\Http\Controllers\EducationalQualificationController::class)->except(['show']);
     Route::middleware('permission:view_location_settings')->get('/location/hub', [LocationHubController::class, 'index'])->name('location.hub');
     Route::middleware('permission:view_shareholders')->get('/shareholders/hub', [ShareholdersHubController::class, 'index'])->name('shareholders.hub');
     Route::middleware('permission:view_budget')->get('/budget/hub', [BudgetHubController::class, 'index'])->name('budget.hub');
