@@ -7,6 +7,9 @@ use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Department;
 use App\Models\Designation;
 use App\Models\Employee;
+use App\Models\EmployeeQualification;
+use App\Models\AcademicSession;
+use App\Models\EducationalQualification;
 use App\Models\PaymentInformation;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -44,7 +47,11 @@ class EmployeeController extends Controller
         $designations = Designation::active()->orderBy('employee_type')->orderBy('hierarchy_level')->get();
         $departments  = Department::orderBy('name')->get();
         $managers     = Employee::active()->with('designation')->get();
-        return view('hr.employees.create', compact('designations', 'departments', 'managers'));
+        $academicSessions = AcademicSession::orderByDesc('id')->get();
+        $activeAcademicSessionId = AcademicSession::where('status', 1)->latest('id')->value('id')
+            ?? AcademicSession::latest('id')->value('id');
+        $qualificationOptions = EducationalQualification::active()->orderBy('name')->get();
+        return view('hr.employees.create', compact('designations', 'departments', 'managers', 'academicSessions', 'activeAcademicSessionId', 'qualificationOptions'));
     }
 
     public function store(StoreEmployeeRequest $request)
@@ -57,6 +64,10 @@ class EmployeeController extends Controller
             ]);
 
             $data = $request->validated();
+            $academicSessionIds = $data['academic_session_ids'] ?? [];
+            $qualificationRows = $data['qualifications'] ?? [];
+            unset($data['academic_session_ids']);
+            unset($data['qualifications']);
             $data['user_id']     = $user->id;
             $data['employee_id'] = $this->generateEmployeeId($request->employee_type);
             unset($data['email'], $data['password']);
@@ -70,12 +81,14 @@ class EmployeeController extends Controller
 
             $employee = Employee::create($data);
 
+            if ($employee->employee_type === 'teacher') {
+                $employee->academicSessions()->sync($academicSessionIds);
+            }
+
+            $this->syncEmployeeQualifications($employee, $qualificationRows);
+
             $employee->paymentInformation()->create([
-                'payment_method'         => $request->payment_method ?? 'cash',
-                'bank_name'              => $request->bank_name,
-                'account_number'         => $request->account_number,
-                'mobile_wallet_provider' => $request->mobile_wallet_provider,
-                'mobile_wallet_number'   => $request->mobile_wallet_number,
+                ...$this->paymentData($request),
             ]);
         });
 
@@ -84,7 +97,15 @@ class EmployeeController extends Controller
 
     public function show(Employee $employee)
     {
-        $employee->load(['department', 'designation', 'manager', 'salaryStructures', 'leaveBalances', 'documents', 'paymentInformation']);
+        $employee->load([
+            'user',
+            'department',
+            'designation',
+            'manager',
+            'academicSessions',
+            'paymentInformation',
+            'qualifications.qualification',
+        ]);
         return view('hr.employees.show', compact('employee'));
     }
 
@@ -93,7 +114,16 @@ class EmployeeController extends Controller
         $designations = Designation::active()->orderBy('employee_type')->orderBy('hierarchy_level')->get();
         $departments  = Department::orderBy('name')->get();
         $managers     = Employee::active()->where('id', '!=', $employee->id)->with('designation')->get();
-        return view('hr.employees.edit', compact('employee', 'designations', 'departments', 'managers'));
+        $academicSessions = AcademicSession::orderByDesc('id')->get();
+        $activeAcademicSessionId = AcademicSession::where('status', 1)->latest('id')->value('id')
+            ?? AcademicSession::latest('id')->value('id');
+        $employee->load(['academicSessions', 'qualifications.qualification']);
+        $assignedQualificationIds = $employee->qualifications->pluck('qualification_id');
+        $qualificationOptions = EducationalQualification::query()
+            ->where(fn ($query) => $query->where('status', 'active')->orWhereIn('id', $assignedQualificationIds))
+            ->orderBy('name')
+            ->get();
+        return view('hr.employees.edit', compact('employee', 'designations', 'departments', 'managers', 'academicSessions', 'activeAcademicSessionId', 'qualificationOptions'));
     }
 
     public function update(UpdateEmployeeRequest $request, Employee $employee)
@@ -102,6 +132,10 @@ class EmployeeController extends Controller
             $employee->user->update(['name' => $request->name, 'email' => $request->email]);
 
             $data = $request->validated();
+            $academicSessionIds = $data['academic_session_ids'] ?? [];
+            $qualificationRows = $data['qualifications'] ?? [];
+            unset($data['academic_session_ids']);
+            unset($data['qualifications']);
             unset($data['email']);
 
             if ($request->hasFile('photo')) {
@@ -118,15 +152,17 @@ class EmployeeController extends Controller
 
             $employee->update($data);
 
+            if ($employee->employee_type === 'teacher') {
+                $employee->academicSessions()->sync($academicSessionIds);
+            } else {
+                $employee->academicSessions()->detach();
+            }
+
+            $this->syncEmployeeQualifications($employee, $qualificationRows);
+
             $employee->paymentInformation()->updateOrCreate(
                 ['employee_id' => $employee->id],
-                [
-                    'payment_method'         => $request->payment_method ?? 'cash',
-                    'bank_name'              => $request->bank_name,
-                    'account_number'         => $request->account_number,
-                    'mobile_wallet_provider' => $request->mobile_wallet_provider,
-                    'mobile_wallet_number'   => $request->mobile_wallet_number,
-                ]
+                $this->paymentData($request)
             );
         });
 
@@ -151,5 +187,76 @@ class EmployeeController extends Controller
         $count  = Employee::where('employee_type', $type)
             ->whereYear('created_at', $year)->count() + 1;
         return "{$prefix}-{$year}-" . str_pad($count, 3, '0', STR_PAD_LEFT);
+    }
+
+    private function paymentData(Request $request): array
+    {
+        $method = $request->input('payment_method', 'cash');
+
+        return [
+            'payment_method' => $method,
+            'bank_name' => $method === 'bank_transfer' ? $request->input('bank_name') : null,
+            'account_number' => $method === 'bank_transfer' ? $request->input('account_number') : null,
+            'mobile_wallet_provider' => $method === 'mobile_wallet' ? $request->input('mobile_wallet_provider') : null,
+            'mobile_wallet_number' => $method === 'mobile_wallet' ? $request->input('mobile_wallet_number') : null,
+        ];
+    }
+
+    private function syncEmployeeQualifications(Employee $employee, array $rows): void
+    {
+        $existing = $employee->qualifications()->get()->keyBy('id');
+        $keptIds = [];
+
+        foreach ($rows as $row) {
+            $rowId = (int) ($row['id'] ?? 0);
+            if ($rowId && !$existing->has($rowId)) {
+                continue;
+            }
+
+            $record = $existing->get($rowId) ?? new EmployeeQualification(['employee_id' => $employee->id]);
+            $record->fill([
+                'qualification_id' => $row['qualification_id'],
+                'institution_name' => $row['institution_name'] ?? null,
+                'passing_year' => $row['passing_year'] ?? null,
+                'result' => $row['result'] ?? null,
+            ]);
+
+            if (!empty($row['remove_document']) && empty($row['document'])) {
+                $this->deleteQualificationDocument($record);
+                $record->document_path = null;
+                $record->document_original_name = null;
+            }
+
+            if (!empty($row['document'])) {
+                $this->deleteQualificationDocument($record);
+                $file = $row['document'];
+                $directory = public_path('uploads/employees/qualifications');
+                if (!is_dir($directory)) {
+                    mkdir($directory, 0755, true);
+                }
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move($directory, $filename);
+                $record->document_path = 'uploads/employees/qualifications/' . $filename;
+                $record->document_original_name = $file->getClientOriginalName();
+            }
+
+            $record->save();
+            $keptIds[] = $record->id;
+        }
+
+        $employee->qualifications()
+            ->whereNotIn('id', $keptIds)
+            ->get()
+            ->each(function (EmployeeQualification $record) {
+                $this->deleteQualificationDocument($record);
+                $record->delete();
+            });
+    }
+
+    private function deleteQualificationDocument(EmployeeQualification $record): void
+    {
+        if ($record->document_path && file_exists(public_path($record->document_path))) {
+            unlink(public_path($record->document_path));
+        }
     }
 }

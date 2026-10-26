@@ -15,10 +15,10 @@ body {
     color: #111827;
 }
 
-@include('pages.generate-id-cards._styles', ['setting' => $setting])
+@include('pages.generate-id-cards._styles', ['setting' => $setting, 'renderForPdf' => true])
 </style>
 </head>
 <body>
-    @include('pages.generate-id-cards._cards', ['students' => $students, 'setting' => $setting, 'cardSettings' => $cardSettings ?? null, 'renderForPdf' => true, 'cardType' => $cardType ?? 'id_card', 'layout' => $layout ?? []])
+    @include('pages.generate-id-cards._cards', ['students' => $students, 'employees' => $employees ?? collect(), 'employeeMode' => $employeeMode ?? false, 'setting' => $setting, 'cardSettings' => $cardSettings ?? null, 'renderForPdf' => true, 'cardType' => $cardType ?? 'id_card', 'layout' => $layout ?? []])
 </body>
 </html>

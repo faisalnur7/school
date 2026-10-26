@@ -165,6 +165,7 @@ class PermissionSeeder extends Seeder
                 ['name' => 'manage_leave_requests', 'display_name' => 'Manage Leave Requests'],
                 ['name' => 'view_card_all_employees', 'display_name' => 'View All Employees Card'],
                 ['name' => 'view_card_add_employee', 'display_name' => 'View Add Employee Card'],
+                ['name' => 'view_card_employee_id_cards', 'display_name' => 'View Employee ID Cards'],
                 ['name' => 'view_card_departments', 'display_name' => 'View Departments Card'],
                 ['name' => 'view_card_designations', 'display_name' => 'View Designations Card'],
                 ['name' => 'view_card_salary_structures', 'display_name' => 'View Salary Structures Card'],

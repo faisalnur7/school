@@ -20,7 +20,7 @@
 
     .tutorial-report-filter-row {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+        grid-template-columns: repeat(6, minmax(0, 1fr)) auto;
         gap: 0.75rem;
         align-items: end;
     }
@@ -172,6 +172,17 @@
             <div class="tutorial-report-filter-group">
                 <label for="tutorialStudentInput">Student ID <small class="text-muted">(optional)</small></label>
                 <input type="text" name="student_id" id="tutorialStudentInput" class="form-control tutorial-report-filter-input" value="{{ $filters['student_id'] ?? '' }}" placeholder="Leave blank for all students">
+            </div>
+
+            <div class="tutorial-report-filter-group">
+                <label for="tutorialResultsPerPage">Results per page</label>
+                <select name="results_per_page" id="tutorialResultsPerPage" class="form-control tutorial-report-filter-select">
+                    @foreach([1, 2, 3] as $resultsPerPage)
+                        <option value="{{ $resultsPerPage }}" {{ (int) ($filters['results_per_page'] ?? 2) === $resultsPerPage ? 'selected' : '' }}>
+                            {{ $resultsPerPage }} {{ $resultsPerPage === 1 ? 'result' : 'results' }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
             <div class="tutorial-report-filter-actions">

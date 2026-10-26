@@ -25,7 +25,7 @@
             document.querySelectorAll('[data-hub-switcher-toggle]').forEach(function (toggle) {
                 var title = isVisible ? '{{ __('Collapse module navigation') }}' : '{{ __('Expand module navigation') }}';
 
-                if (toggle.matches(':checkbox')) {
+                if (toggle.matches('input[type="checkbox"]')) {
                     toggle.checked = isVisible;
                     toggle.title = title;
                     return;
@@ -183,7 +183,6 @@
                 overlay.removeClass('active');
                 $('html').removeClass('sidebar-open');
                 $('body').removeClass('sidebar-open');
-                $('#sidebar-overlay').remove();
             }
 
             function applyDesktopSidebarState() {
@@ -225,11 +224,11 @@
             }
 
             function openSidebar() {
+                $('body').removeClass('sidebar-collapse');
                 sidebar.addClass('mobile-open');
                 overlay.addClass('active');
                 $('html').addClass('sidebar-open');
                 $('body').addClass('sidebar-open');
-                $('#sidebar-overlay').remove();
             }
 
             // Ensure sidebar starts in correct state based on screen size
@@ -274,6 +273,14 @@
             applyHubSwitcherVisibility();
             
             // Close sidebar when overlay is clicked
+            overlay.on('click', function(e) {
+                if ($(window).width() < 992) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeSidebar();
+                }
+            });
+
             $(document).on('click', '#sidebarOverlay', function(e) {
                 if ($(window).width() < 992) {
                     e.preventDefault();
@@ -295,6 +302,8 @@
                 if ($(window).width() >= 992) {
                     closeSidebar();
                     applyDesktopSidebarState();
+                } else {
+                    $('body').removeClass('sidebar-collapse');
                 }
             }).trigger('resize'); // Trigger on load to set initial state
 

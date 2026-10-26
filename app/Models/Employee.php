@@ -8,7 +8,9 @@ class Employee extends Model
     protected $fillable = [
         'user_id', 'employee_id', 'name', 'employee_type', 'designation_id',
         'department_id', 'school_id', 'branch_id', 'reporting_manager_id',
-        'dob', 'gender', 'phone', 'address', 'photo', 'joining_date', 'status',
+        'dob', 'gender', 'phone', 'national_id', 'passport_number', 'address', 'notes',
+        'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relation',
+        'photo', 'joining_date', 'status',
     ];
 
     protected $casts = ['dob' => 'date', 'joining_date' => 'date'];
@@ -27,6 +29,8 @@ class Employee extends Model
     public function leaveRequests()    { return $this->hasMany(LeaveRequest::class); }
     public function paymentInformation(){ return $this->hasOne(PaymentInformation::class); }
     public function documents()        { return $this->hasMany(EmployeeDocument::class); }
+    public function qualifications()  { return $this->hasMany(EmployeeQualification::class); }
+    public function academicSessions() { return $this->belongsToMany(AcademicSession::class, 'employee_academic_session')->withTimestamps(); }
 
     public function getPhotoUrlAttribute(): string
     {

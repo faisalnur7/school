@@ -14,4 +14,11 @@ class AcademicSession extends Model
         'name_en',
         'status',
     ];
+
+    public function teachers()
+    {
+        return $this->belongsToMany(Employee::class, 'employee_academic_session')
+            ->where('employee_type', 'teacher')
+            ->withTimestamps();
+    }
 }

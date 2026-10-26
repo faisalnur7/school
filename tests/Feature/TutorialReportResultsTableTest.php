@@ -12,6 +12,7 @@ class TutorialReportResultsTableTest extends TestCase
     public function test_screen_tutorial_table_matches_the_pdf_marks_table(): void
     {
         $view = file_get_contents(resource_path('views/pages/tutorial-report/results.blade.php'));
+        $filter = file_get_contents(resource_path('views/pages/tutorial-report/_filter.blade.php'));
 
         $this->assertStringContainsString('>Full Marks</th>', $view);
         $this->assertStringContainsString('>Obtained Marks</th>', $view);
@@ -32,6 +33,10 @@ class TutorialReportResultsTableTest extends TestCase
         $this->assertStringContainsString('gap: 0.95rem 1rem;', $view);
         $this->assertStringContainsString('background-image: url("data:image/svg+xml', $view);
         $this->assertStringContainsString('.tutorial-report-subject-option > span', $view);
+        $this->assertStringContainsString('name="results_per_page"', $view);
+        $this->assertStringContainsString('name="results_per_page"', $filter);
+        $this->assertStringContainsString('@foreach([1, 2, 3] as $resultsPerPage)', $filter);
+        $this->assertStringContainsString("'results_per_page'", $filter);
         $this->assertStringContainsString('margin-left: 1.5rem;', $view);
         $this->assertStringContainsString('value="religion"', $view);
         $this->assertStringContainsString('>Religion</span>', $view);

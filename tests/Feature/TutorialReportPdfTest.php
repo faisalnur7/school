@@ -30,9 +30,10 @@ class TutorialReportPdfTest extends TestCase
         $this->assertStringContainsString('font-size: 14px;', $layout);
         $this->assertStringContainsString('font-size: 12px;', $layout);
         $this->assertStringContainsString('.tutorial-print-student thead th { height: 25px; background: transparent; color: #000; font-size: 14px;', $layout);
+        $this->assertStringContainsString('.tutorial-print-student th, .tutorial-print-student td { border: 1px solid #e3e8e6;', $layout);
         $this->assertStringContainsString('white-space: nowrap;', $layout);
         $this->assertStringContainsString('.tutorial-print-student tbody td { height: 24px; color: #000; font-size: 14px; font-weight: 700;', $layout);
-        $this->assertStringContainsString('.tutorial-print-total td { height: 27px; background: transparent !important; border-bottom: 0 !important; color: #000 !important; font-size: 14px;', $layout);
+        $this->assertStringContainsString('.tutorial-print-total td { height: 27px; background: transparent !important; border: 1px solid #e3e8e6 !important; color: #000 !important; font-size: 14px;', $layout);
         $this->assertStringContainsString('.tutorial-print-summary-label { color: #000; font-size: 14px;', $layout);
         $this->assertStringContainsString('.tutorial-print-summary-value { margin-top: 2px; color: #000; font-size: 14px;', $layout);
         $this->assertStringContainsString('.tutorial-print-comment { display: inline-block; padding: 9px 18px; border: 0; border-radius: 999px; background: transparent; color: #000; font-size: 14px;', $layout);
@@ -78,6 +79,13 @@ class TutorialReportPdfTest extends TestCase
         $this->assertStringNotContainsString('>#</th>', $layout);
         $this->assertStringContainsString('<tr><td colspan="4"', $layout);
         $this->assertStringContainsString('<tr class="tutorial-print-total"><td style="background: transparent; color: #000;">Total</td>', $layout);
+        $this->assertStringNotContainsString('$loop->iteration % 2 === 0', $layout);
+        $this->assertStringNotContainsString('$loop->iteration % 3 === 0', $layout);
+        $this->assertStringContainsString('tutorial-print-density-{{ $resultsPerPage }}', $layout);
+        $this->assertStringContainsString('$loop->iteration % $resultsPerPage === 0', $layout);
+        $this->assertStringContainsString("'results_per_page'", $controller);
+        $this->assertStringContainsString("'results_per_page' => ['nullable', 'integer', 'in:1,2,3']", $controller);
+        $this->assertStringContainsString("'resultsPerPage'", $controller);
         $paperFirstSort = 'sprintf(\'%d:%s\', $m->subject->is_paper ? 0 : 1';
         $this->assertSame(3, substr_count($controller, $paperFirstSort));
         $this->assertSame(2, substr_count($controller, '&& $m->subject->include_in_tutorial_exam'));

@@ -1,3 +1,4 @@
+@php($renderForPdf = $renderForPdf ?? false)
 @page {
     size: A4 landscape;
     margin: 1cm 0.8cm 0.8cm 0.8cm;
@@ -62,7 +63,7 @@
 }
 
 .id-card__header--front {
-    background: var(--card-theme-bg, linear-gradient(135deg, #1e3a5f, #2563eb));
+    background: {{ $renderForPdf ? 'var(--card-theme-accent, #1e3a5f)' : 'var(--card-theme-bg, linear-gradient(135deg, #1e3a5f, #2563eb))' }};
     flex-direction: column;
     text-align: var(--id-card-front-align, center);
     justify-content: center;
@@ -71,7 +72,7 @@
 }
 
 .id-card__header--back {
-    background: var(--card-theme-bg, linear-gradient(135deg, #1e3a5f, #2563eb));
+    background: {{ $renderForPdf ? 'var(--card-theme-accent, #1e3a5f)' : 'var(--card-theme-bg, linear-gradient(135deg, #1e3a5f, #2563eb))' }};
     justify-content: center;
     min-height: 1.3cm;
     flex-direction: column;
@@ -161,7 +162,7 @@
     height: 0.045cm;
     margin: 0.14cm 0 0.16cm;
     border-radius: 0.1cm;
-    background: linear-gradient(90deg, var(--card-theme-accent, #1e3a5f), transparent);
+    background: {{ $renderForPdf ? 'var(--card-theme-accent, #1e3a5f)' : 'linear-gradient(90deg, var(--card-theme-accent, #1e3a5f), transparent)' }};
 }
 
 .id-card__rows {
@@ -203,6 +204,7 @@
 
 .id-card__footer {
     margin-top: auto;
+    min-height: 0.25cm;
     padding: 0.13cm 0.18cm;
     font-size: 4.4pt;
     line-height: 1.05;
@@ -216,7 +218,15 @@
 
 .id-card__footer--front,
 .id-card__footer--back {
-    background: var(--card-theme-bg, linear-gradient(135deg, #1e3a5f, #2563eb));
+    background: {{ $renderForPdf ? 'var(--card-theme-accent, #1e3a5f)' : 'var(--card-theme-bg, linear-gradient(135deg, #1e3a5f, #2563eb))' }};
+}
+
+.id-card-pages[data-render-for-pdf="1"] .id-card__header--front,
+.id-card-pages[data-render-for-pdf="1"] .id-card__header--back,
+.id-card-pages[data-render-for-pdf="1"] .id-card__footer--front,
+.id-card-pages[data-render-for-pdf="1"] .id-card__footer--back,
+.id-card-pages[data-render-for-pdf="1"] .id-card__divider {
+    background: var(--card-theme-accent, #1e3a5f) !important;
 }
 
 .id-card__back-body {

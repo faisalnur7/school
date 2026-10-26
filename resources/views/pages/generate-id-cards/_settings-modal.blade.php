@@ -1,4 +1,5 @@
 @php
+    $employeeMode = $employeeMode ?? false;
     $selectedCardType = old('card_type', $cardType ?? 'id_card');
     $selectedColorType = old('card_color_type', $cardSettings?->card_color_type ?? 'gradient');
     $selectedTransparent = old('card_is_transparent', $cardSettings?->card_is_transparent ?? false);
@@ -17,9 +18,9 @@
     $currentCardPrincipalSignatureUrl = $resolveLogoUrl($cardSettings?->card_principal_signature ?? null);
     $currentCardPhotoFit = old('card_photo_fit', $cardSettings?->card_photo_fit ?? 'cover');
     $currentCardLogoFit = old('card_logo_fit', $cardSettings?->card_logo_fit ?? 'contain');
-    $previewLabel = $isLibraryCard ? 'Library Card Preview' : 'ID Card Preview';
-    $frontTitle = $isLibraryCard ? 'LIBRARY CARD' : 'STUDENT ID';
-    $cardTypeLabel = $isLibraryCard ? 'Library Card Settings' : 'ID Card Settings';
+    $previewLabel = $employeeMode ? 'Employee ID Card Preview' : ($isLibraryCard ? 'Library Card Preview' : 'ID Card Preview');
+    $frontTitle = $employeeMode ? 'EMPLOYEE ID' : ($isLibraryCard ? 'LIBRARY CARD' : 'STUDENT ID');
+    $cardTypeLabel = $employeeMode ? 'Employee ID Card Settings' : ($isLibraryCard ? 'Library Card Settings' : 'ID Card Settings');
     $visibilityRows = [
         ['name' => 'card_show_logo_front', 'id' => 'idCardShowLogoFront', 'label' => 'Front Logo'],
         ['name' => 'card_show_logo_back', 'id' => 'idCardShowLogoBack', 'label' => 'Back Logo'],
@@ -32,7 +33,7 @@
         ['name' => 'card_show_title_back', 'id' => 'idCardShowTitleBack', 'label' => 'Back Title'],
         ['name' => 'card_show_footer_front', 'id' => 'idCardShowFooterFront', 'label' => 'Front Footer'],
         ['name' => 'card_show_footer_back', 'id' => 'idCardShowFooterBack', 'label' => 'Back Footer'],
-        ['name' => 'card_show_back_student_details', 'id' => 'idCardShowBackStudentDetails', 'label' => 'Back Student Details'],
+        ['name' => 'card_show_back_student_details', 'id' => 'idCardShowBackStudentDetails', 'label' => $employeeMode ? 'Back Employee Details' : 'Back Student Details'],
         ['name' => 'card_show_back_school_contact', 'id' => 'idCardShowBackSchoolContact', 'label' => 'Back School Contact'],
         ['name' => 'card_show_back_qr', 'id' => 'idCardShowBackQr', 'label' => 'Back QR'],
         ['name' => 'card_show_back_signature', 'id' => 'idCardShowBackSignature', 'label' => 'Back Signature'],
@@ -43,15 +44,15 @@
 <div class="modal fade" id="idCardSettingsModal" tabindex="-1" role="dialog" aria-labelledby="idCardSettingsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl id-card-settings-modal-dialog card-settings-modal-dialog" role="document">
         <div class="modal-content id-card-settings-modal-content card-settings-modal-content">
-            <form method="POST" action="{{ route('students.id-cards.settings') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ $employeeMode ? route('hr.employee-id-cards.settings') : route('students.id-cards.settings') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header id-card-settings-modal-header card-settings-modal-header">
                     <div>
                         <h5 class="modal-title mb-1" id="idCardSettingsModalLabel">{{ $cardTypeLabel }}</h5>
-                        <small class="text-muted d-block" id="idCardSettingsModalTypeLabel">Switch between ID and library card presets.</small>
+                        <small class="text-muted d-block" id="idCardSettingsModalTypeLabel">{{ $employeeMode ? 'Customize the employee card layout and output.' : 'Switch between ID and library card presets.' }}</small>
                         <small class="text-muted d-block">Save one layout profile for search, print, and PDF output.</small>
                     </div>
-                    <div class="btn-group btn-group-sm id-card-settings-type-switcher card-settings-type-switcher" role="group" aria-label="Card type selector">
+                    <div class="btn-group btn-group-sm id-card-settings-type-switcher card-settings-type-switcher {{ $employeeMode ? 'd-none' : '' }}" role="group" aria-label="Card type selector">
                         <button type="button" class="btn {{ !$isLibraryCard ? 'btn-primary active' : 'btn-outline-primary' }} js-card-type-switch" data-card-type="id_card">ID Card</button>
                         <button type="button" class="btn {{ $isLibraryCard ? 'btn-primary active' : 'btn-outline-primary' }} js-card-type-switch" data-card-type="library_card">Library Card</button>
                     </div>
@@ -75,6 +76,7 @@
                             <div class="csm-preview-sticky">
                                 @include('pages.card-settings._live-preview', [
                                     'prefix' => 'idCard',
+                                    'employeeMode' => $employeeMode,
                                     'previewType' => 'id',
                                     'cardType' => $selectedCardType,
                                     'showBack' => true,
@@ -398,7 +400,7 @@
 
                                             <div class="row align-items-center mb-0">
                                                 <div class="col-12 col-md-4 mb-1 mb-md-0">
-                                                    <strong class="d-block">Student Name</strong>
+                                                    <strong class="d-block">{{ $employeeMode ? 'Employee Name' : 'Student Name' }}</strong>
                                                 </div>
                                                 <div class="col-12 col-md-3 mb-1 mb-md-0">
                                                     <input type="number" name="card_name_font_size" id="cardNameFontSize" class="form-control form-control-sm id-card-settings-control csm-input" min="1" step="0.1" value="{{ old('card_name_font_size', $cardSettings?->card_name_font_size ?? 7.2) }}">
@@ -413,7 +415,7 @@
 
                                             <div class="row align-items-center mb-0">
                                                 <div class="col-12 col-md-4 mb-1 mb-md-0">
-                                                    <strong class="d-block">Student Detail</strong>
+                                                    <strong class="d-block">{{ $employeeMode ? 'Employee Detail' : 'Student Detail' }}</strong>
                                                 </div>
                                                 <div class="col-12 col-md-3 mb-1 mb-md-0">
                                                     <input type="number" name="card_student_detail_font_size" id="cardStudentDetailFontSize" class="form-control form-control-sm id-card-settings-control csm-input" min="1" step="0.1" value="{{ old('card_student_detail_font_size', $cardSettings?->card_student_detail_font_size ?? 8.5) }}">
@@ -428,7 +430,7 @@
 
                                             <div class="row align-items-center mb-0">
                                                 <div class="col-12 col-md-4 mb-1 mb-md-0">
-                                                    <strong class="d-block">Student Detail Alignment</strong>
+                                                    <strong class="d-block">{{ $employeeMode ? 'Employee Detail Alignment' : 'Student Detail Alignment' }}</strong>
                                                 </div>
                                                 <div class="col-12 col-md-3 mb-1 mb-md-0">
                                                     <select name="card_student_detail_alignment" id="cardStudentDetailAlignment" class="form-control form-control-sm id-card-settings-control csm-select">

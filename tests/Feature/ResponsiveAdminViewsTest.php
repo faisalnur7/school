@@ -580,6 +580,40 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('margin: 0 .65rem 0;', $switcher);
     }
 
+    public function test_mobile_sidebar_overlay_closes_the_drawer_when_clicked(): void
+    {
+        $source = file_get_contents(resource_path('views/layouts/master.blade.php'));
+
+        $this->assertStringContainsString("overlay.on('click', function(e)", $source);
+        $this->assertStringContainsString("closeSidebar();", $source);
+        $this->assertStringContainsString("$('body').removeClass('sidebar-collapse');", $source);
+        $this->assertStringContainsString("toggle.matches('input[type=\"checkbox\"]')", $source);
+        $this->assertStringNotContainsString("toggle.matches(':checkbox')", $source);
+    }
+
+    public function test_routines_mobile_switcher_and_filters_use_compact_contained_layout(): void
+    {
+        $source = file_get_contents(resource_path('views/pages/routines/index.blade.php'));
+
+        $this->assertStringContainsString('routine-header-actions', $source);
+        $this->assertStringContainsString('routine-add-btn', $source);
+        $this->assertStringContainsString('overflow-x: visible;', $source);
+        $this->assertStringContainsString('flex: 0 0 auto;', $source);
+        $this->assertStringContainsString('.routines-filter-row {', $source);
+        $this->assertStringContainsString('padding: .65rem;', $source);
+        $this->assertStringContainsString(
+            "display: grid;\n            grid-template-columns: repeat(2, minmax(0, 1fr));",
+            $source
+        );
+        $this->assertStringContainsString(
+            ".routines-page .routine-view-switcher .btn {\n            width: 100%;",
+            $source
+        );
+        $this->assertStringContainsString('padding: .55rem .5rem;', $source);
+        $this->assertStringContainsString('min-height: 2.35rem;', $source);
+        $this->assertStringContainsString('margin-top: 0 !important;', $source);
+    }
+
     public function test_hub_card_browser_has_a_responsive_card_list_view(): void
     {
         $source = file_get_contents(resource_path('views/components/hub-card-browser.blade.php'));

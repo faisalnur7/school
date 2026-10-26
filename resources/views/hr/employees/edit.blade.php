@@ -1,25 +1,23 @@
 @extends('layouts.master')
 @section('contents')
-<div class="container-fluid">
-    <div class="card">
-        <div class="card-header bg-gradient-primary text-white py-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <h4 class="card-title mb-0 font-weight-bold text-white">
-                    <i class="fas fa-edit mr-2"></i>Edit Employee — {{ $employee->name }}
-                </h4>
-                <a href="{{ route('hr.employees.index') }}" class="btn btn-light btn-sm">
-                    <i class="fas fa-arrow-left mr-1"></i> Back
-                </a>
+<div class="employee-form-page">
+    <div class="employee-form-wrap">
+        <div class="employee-form-page__header">
+            <div>
+                <h1>Edit Employee</h1>
+                <p>Update {{ $employee->name }}’s staff profile. Fields marked <span class="employee-form-required">*</span> are required.</p>
             </div>
+            <a href="{{ route('hr.employees.index') }}" class="employee-form-back"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back</a>
         </div>
-        <div class="card-body">
-            @include('hr._alerts')
-            <form action="{{ route('hr.employees.update', $employee) }}" method="POST" enctype="multipart/form-data">
-                @csrf @method('PUT')
-                @include('hr.employees._form')
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update Employee</button>
-            </form>
-        </div>
+        @include('hr._alerts')
+        <form action="{{ route('hr.employees.update', $employee) }}" method="POST" enctype="multipart/form-data">
+            @csrf @method('PUT')
+            @include('hr.employees._form')
+            <div class="employee-form-actions">
+                <span>Review all sections before saving.</span>
+                <div><a href="{{ route('hr.employees.show', $employee) }}" class="employee-form-cancel">Cancel</a><button type="submit" class="employee-form-save"><i class="fas fa-save mr-1" aria-hidden="true"></i> Update Employee</button></div>
+            </div>
+        </form>
     </div>
 </div>
 @endsection

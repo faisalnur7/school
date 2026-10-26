@@ -109,7 +109,7 @@ class AdmitSeatCardSetting extends Model
 
     public static function current(int $cardType = 1): self
     {
-        $cardType = in_array($cardType, [1, 2, 3, 4], true) ? $cardType : 1;
+        $cardType = in_array($cardType, [1, 2, 3, 4, 5], true) ? $cardType : 1;
         $setting = static::firstOrNew(['card_type' => $cardType]);
 
         return $setting->fill([

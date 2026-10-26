@@ -1,5 +1,7 @@
 @php
     $renderForPdf = $renderForPdf ?? false;
+    $employeeMode = $employeeMode ?? false;
+    $employees = $employees ?? collect();
     $layout = $layout ?? [];
     $cardsPerPage = max(1, min(12, (int) ($layout['cardsPerPage'] ?? 4)));
     $cardsPerRow = max(1, min($cardsPerPage, (int) ($layout['cardsPerRow'] ?? 2)));
@@ -8,7 +10,7 @@
     $cardHeightCm = $layout['cardHeightCm'] ?? 8.4;
     $gapCm = $layout['gridGapCm'] ?? 0.5;
 
-    $studentPages = $students->chunk($cardsPerPage);
+    $studentPages = ($employeeMode ? $employees : $students)->chunk($cardsPerPage);
     $cardType = $cardType ?? 'id_card';
     $isLibraryCard = $cardType === 'library_card';
     $isAdmitOrSeatCard = in_array($cardType, ['admit_card', 'seat_card'], true);
@@ -28,6 +30,10 @@
         : ($cardColorType === 'solid'
         ? $cardSolidColor
         : "linear-gradient(135deg, {$cardGradient1}, {$cardGradient2})");
+    if ($renderForPdf) {
+        $cardThemeBackground = $cardIsTransparent ? '#ffffff' : ($cardColorType === 'solid' ? $cardSolidColor : $cardGradient1);
+        $cardThemeAccent = $cardThemeBackground;
+    }
     $cardSchoolNameColor = $cardSettings?->card_school_name_text_color ?? '#ffffff';
     $cardSchoolDetailColor = $cardSettings?->card_school_detail_text_color ?? '#e5e7eb';
     $cardSloganColor = $cardSettings?->card_slogan_text_color ?? '#e5e7eb';
@@ -50,12 +56,14 @@
     $cardSloganFontSize = $cardSettings?->card_slogan_font_size ?? 4.8;
     $cardTitleFontSize = $cardSettings?->card_title_font_size ?? 4.7;
     $cardNameFontSize = $cardSettings?->card_name_font_size ?? 7.2;
-    $frontTitle = match ($cardType) {
-        'library_card' => 'LIBRARY CARD',
-        'admit_card' => 'ADMIT CARD',
-        'seat_card' => 'SEAT CARD',
-        default => 'STUDENT ID',
-    };
+    $frontTitle = $employeeMode
+        ? 'EMPLOYEE ID'
+        : match ($cardType) {
+            'library_card' => 'LIBRARY CARD',
+            'admit_card' => 'ADMIT CARD',
+            'seat_card' => 'SEAT CARD',
+            default => 'STUDENT ID',
+        };
     $backBadge = match ($cardType) {
         'library_card' => 'LIBRARY',
         'admit_card' => 'ADMIT',
@@ -114,25 +122,28 @@
     }
 @endphp
 
-<div class="id-card-pages" style="--id-card-width: {{ $cardWidthCm }}cm; --id-card-height: {{ $cardHeightCm }}cm; --id-card-gap: {{ $gapCm }}cm; --card-theme-bg: {{ $cardThemeBackground }}; --card-theme-accent: {{ $cardThemeAccent }}; --id-card-school-name-color: {{ $cardSchoolNameColor }}; --id-card-school-detail-color: {{ $cardSchoolDetailColor }}; --id-card-slogan-color: {{ $cardSloganColor }}; --id-card-back-notice-color: {{ $cardBackNoticeColor }}; --id-card-footer-color: {{ $cardFooterColor }}; --id-card-title-color: {{ $cardTitleColor }}; --id-card-student-detail-align: {{ $cardStudentDetailAlignCss }}; --id-card-student-detail-text-align: {{ $cardStudentDetailAlignment }}; --id-card-front-align: {{ $cardFrontAlignment }}; --id-card-back-align: {{ $cardBackAlignment }}; --id-card-front-padding: {{ $cardFrontPadding }}cm; --id-card-back-padding: {{ $cardBackPadding }}cm; --id-card-photo-width: {{ $cardPhotoWidth }}cm; --id-card-photo-height: {{ $cardPhotoHeight }}cm; --id-card-photo-fit: {{ $photoFit }}; --id-card-logo-size: {{ $cardLogoSize }}cm; --id-card-logo-fit: {{ $logoFit }}; --id-card-school-name-font-size: {{ $frontSchoolNameFontSize }}pt; --id-card-school-detail-font-size: {{ $frontSchoolDetailFontSize }}pt; --id-card-slogan-font-size: {{ $frontSloganFontSize }}pt; --id-card-title-font-size: {{ $frontTitleFontSize }}pt; --id-card-back-title-font-size: {{ $backTitleFontSize }}pt; --id-card-back-value-font-size: {{ $backValueFontSize }}pt; --id-card-name-font-size: {{ $frontNameFontSize }}pt;">
+<div class="id-card-pages" data-render-for-pdf="{{ $renderForPdf ? '1' : '0' }}" style="--id-card-width: {{ $cardWidthCm }}cm; --id-card-height: {{ $cardHeightCm }}cm; --id-card-gap: {{ $gapCm }}cm; --card-theme-bg: {{ $cardThemeBackground }}; --card-theme-accent: {{ $cardThemeAccent }}; --id-card-school-name-color: {{ $cardSchoolNameColor }}; --id-card-school-detail-color: {{ $cardSchoolDetailColor }}; --id-card-slogan-color: {{ $cardSloganColor }}; --id-card-back-notice-color: {{ $cardBackNoticeColor }}; --id-card-footer-color: {{ $cardFooterColor }}; --id-card-title-color: {{ $cardTitleColor }}; --id-card-student-detail-align: {{ $cardStudentDetailAlignCss }}; --id-card-student-detail-text-align: {{ $cardStudentDetailAlignment }}; --id-card-front-align: {{ $cardFrontAlignment }}; --id-card-back-align: {{ $cardBackAlignment }}; --id-card-front-padding: {{ $cardFrontPadding }}cm; --id-card-back-padding: {{ $cardBackPadding }}cm; --id-card-photo-width: {{ $cardPhotoWidth }}cm; --id-card-photo-height: {{ $cardPhotoHeight }}cm; --id-card-photo-fit: {{ $photoFit }}; --id-card-logo-size: {{ $cardLogoSize }}cm; --id-card-logo-fit: {{ $logoFit }}; --id-card-school-name-font-size: {{ $frontSchoolNameFontSize }}pt; --id-card-school-detail-font-size: {{ $frontSchoolDetailFontSize }}pt; --id-card-slogan-font-size: {{ $frontSloganFontSize }}pt; --id-card-title-font-size: {{ $frontTitleFontSize }}pt; --id-card-back-title-font-size: {{ $backTitleFontSize }}pt; --id-card-back-value-font-size: {{ $backValueFontSize }}pt; --id-card-name-font-size: {{ $frontNameFontSize }}pt;">
     @foreach($studentPages as $pageIndex => $pageStudents)
         <div class="id-card-page" style="grid-template-columns: repeat({{ $cardsPerRow }}, max-content); gap: {{ $gapCm }}cm {{ $gapCm }}cm;">
             @foreach($pageStudents as $student)
                 @php
-                    $ai = $student->academicInformations->first();
+                    $ai = $employeeMode ? null : $student->academicInformations->first();
+                    $displayName = $employeeMode ? $student->name : $student->full_name_en;
+                    $displayId = $employeeMode ? $student->employee_id : $student->student_cid;
 
-                    $placeholder = $student->gender == \App\Models\Student::FEMALE
+                    $placeholder = !$employeeMode && $student->gender == \App\Models\Student::FEMALE
                         ? 'assets/img/female-placeholder.png'
                         : 'assets/img/male-placeholder.png';
 
                     $photoPath = null;
-                    if ($student->image && file_exists(public_path($student->image))) {
-                        $photoPath = $renderForPdf ? public_path($student->image) : asset($student->image);
+                    $photoSource = $employeeMode ? $student->photo : $student->image;
+                    if ($photoSource && file_exists(public_path($photoSource))) {
+                        $photoPath = $renderForPdf ? public_path($photoSource) : asset($photoSource);
                     } else {
                         $photoPath = $renderForPdf ? public_path($placeholder) : asset($placeholder);
                     }
 
-                    $frontNameFontSize = $fitTextSize($student->full_name_en ?? 'Student Name', (float) $cardNameFontSize, 5.4, 20, 0.08);
+                    $frontNameFontSize = $fitTextSize($displayName ?? 'Employee Name', (float) $cardNameFontSize, 5.4, 20, 0.08);
                     $frontSchoolNameFontSize = $fitTextSize($setting?->name ?? 'School Name', (float) $cardSchoolNameFontSize, 5.2, 20, 0.08);
                     $frontSchoolDetailFontSize = $fitTextSize($setting?->address ?? ($setting?->slogan ?? ''), (float) $cardSchoolDetailFontSize, 4.1, 30, 0.05);
                     $frontSloganFontSize = $fitTextSize($setting?->slogan ?? '', (float) $cardSloganFontSize, 3.8, 26, 0.04);
@@ -142,8 +153,8 @@
                     $backValues = [];
                     if ($showBackStudentDetails) {
                         $backValues = array_merge($backValues, [
-                            $student->full_name_en ?? '',
-                            $student->student_cid ?? '',
+                            $displayName,
+                            $displayId,
                             $ai?->schoolClass?->name_en ?? '',
                             $ai?->section?->name_en ?? '',
                             $ai?->roll ?? '',
@@ -182,12 +193,12 @@
 
                         <div class="id-card__front-body">
                             @if($cardSettings?->card_show_photo_front ?? true)
-                                <img src="{{ $photoPath }}" class="id-card__photo" alt="{{ $student->full_name_en }}">
+                                <img src="{{ $photoPath }}" class="id-card__photo" alt="{{ $displayName }}">
                             @endif
 
                             <div class="id-card__info">
-                                <div class="id-card__name">{{ $student->full_name_en }}</div>
-                                @if($student->full_name_bn)
+                                <div class="id-card__name">{{ $displayName }}</div>
+                                @if(!$employeeMode && $student->full_name_bn)
                                     <div class="id-card__name-bn">{{ $student->full_name_bn }}</div>
                                 @endif
 
@@ -196,9 +207,15 @@
                                 <div class="id-card__rows">
                                     <div class="id-card__row">
                                         <span class="id-card__lbl">ID</span>
-                                        <span class="id-card__val">{{ $student->student_cid }}</span>
+                                        <span class="id-card__val">{{ $displayId }}</span>
                                     </div>
-                                    @if($ai)
+                                    @if($employeeMode)
+                                        <div class="id-card__row"><span class="id-card__lbl">Role</span><span class="id-card__val">{{ $student->designation?->name ?? '—' }}</span></div>
+                                        <div class="id-card__row"><span class="id-card__lbl">Dept.</span><span class="id-card__val">{{ is_string($student->department) ? $student->department : ($student->department?->name ?? '—') }}</span></div>
+                                        <div class="id-card__row"><span class="id-card__lbl">Type</span><span class="id-card__val">{{ ucfirst($student->employee_type) }}</span></div>
+                                        @if($student->joining_date)<div class="id-card__row"><span class="id-card__lbl">Joined</span><span class="id-card__val">{{ $student->joining_date->format('d M Y') }}</span></div>@endif
+                                        @if($student->phone)<div class="id-card__row"><span class="id-card__lbl">Phone</span><span class="id-card__val">{{ $student->phone }}</span></div>@endif
+                                    @elseif($ai)
                                         <div class="id-card__row">
                                             <span class="id-card__lbl">Class</span>
                                             <span class="id-card__val">{{ $ai->schoolClass?->name_en ?? '—' }}@if($ai->section) / {{ $ai->section->name_en }}@endif</span>
@@ -220,13 +237,13 @@
                                             <span class="id-card__val">{{ $ai->academicSession?->name_en ?? '—' }}</span>
                                         </div>
                                     @endif
-                                    @if($student->date_of_birth)
+                                    @if(!$employeeMode && $student->date_of_birth)
                                         <div class="id-card__row">
                                             <span class="id-card__lbl">DOB</span>
                                             <span class="id-card__val">{{ $student->date_of_birth->format('d M Y') }}</span>
                                         </div>
                                     @endif
-                                    @if($student->blood_group)
+                                    @if(!$employeeMode && $student->blood_group)
                                         <div class="id-card__row">
                                             <span class="id-card__lbl">Blood</span>
                                             <span class="id-card__val id-card__blood">{{ $student->blood_group_text }}</span>
@@ -267,7 +284,15 @@
                             @if($showBackStudentDetails)
                             <div class="id-card__back-section id-card__back-section--student-details">
                                 <div class="id-card__back-title">{{ $backSectionTitle }}</div>
-                                @if($isLibraryCard || $isAdmitOrSeatCard)
+                                @if($employeeMode)
+                                    <div class="id-card__back-row"><span class="id-card__lbl">Name</span><span class="id-card__val">{{ $displayName }}</span></div>
+                                    <div class="id-card__back-row"><span class="id-card__lbl">ID</span><span class="id-card__val">{{ $displayId }}</span></div>
+                                    @if($student->designation)<div class="id-card__back-row"><span class="id-card__lbl">Role</span><span class="id-card__val">{{ $student->designation->name }}</span></div>@endif
+                                    @if($student->department)<div class="id-card__back-row"><span class="id-card__lbl">Dept.</span><span class="id-card__val">{{ is_string($student->department) ? $student->department : $student->department->name }}</span></div>@endif
+                                    <div class="id-card__back-row"><span class="id-card__lbl">Type</span><span class="id-card__val">{{ ucfirst($student->employee_type) }}</span></div>
+                                    @if($student->joining_date)<div class="id-card__back-row"><span class="id-card__lbl">Joined</span><span class="id-card__val">{{ $student->joining_date->format('d M Y') }}</span></div>@endif
+                                    @if($student->phone)<div class="id-card__back-row"><span class="id-card__lbl">Phone</span><span class="id-card__val">{{ $student->phone }}</span></div>@endif
+                                @elseif($isLibraryCard || $isAdmitOrSeatCard)
                                     <div class="id-card__back-row">
                                         <span class="id-card__lbl">Name</span>
                                         <span class="id-card__val">{{ $student->full_name_en }}</span>
