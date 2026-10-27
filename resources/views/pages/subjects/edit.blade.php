@@ -14,7 +14,7 @@
             $selectedGroupIds = $activeAssignments->whereNotNull('group_id')->pluck('group_id')->all();
         }
         $selectedGroupIds = array_map('strval', (array) $selectedGroupIds);
-        $allGroupsSelected = (bool) old('all_groups', $isCreate || $activeAssignments->isEmpty() || $activeAssignments->contains(fn ($assignment) => $assignment->group_id === null));
+        $allGroupsSelected = (bool) old('all_groups', $isCreate || $activeAssignments->isEmpty() || $activeAssignments->every(fn ($assignment) => $assignment->group_id === null));
         $selectedGender = old('gender', $currentAssignment?->gender ?? 'all');
         $selectedReligion = old('religion', $currentAssignment?->religion ?? 'all');
         $selectedIsOptional = old('is_optional', $currentAssignment?->is_optional);

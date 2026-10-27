@@ -334,6 +334,60 @@ class SubjectClassAssignmentSyncTest extends TestCase
             ->count());
     }
 
+    public function test_explicit_group_ids_win_when_a_conflicting_all_groups_flag_is_submitted(): void
+    {
+        $schoolClass = $this->schoolClass('Nine');
+        $science = \App\Models\Group::create(['name_en' => 'Science', 'name_bn' => 'Science']);
+        $subject = Subject::create([
+            'name' => 'Bangladesh & Global Studies',
+            'code' => 'BGS-CONFLICTING-GROUP-FLAG',
+            'type' => 'mandatory',
+            'creative_marks' => 100,
+            'pass_mark' => 33,
+            'is_active' => true,
+        ]);
+        SubjectClassAssignment::create([
+            'subject_id' => $subject->id,
+            'school_class_id' => $schoolClass->id,
+            'group_id' => null,
+            'gender' => 'all',
+            'religion' => 'all',
+            'is_optional' => false,
+            'is_compulsory' => true,
+            'is_active' => true,
+        ]);
+        $user = User::factory()->create(['is_super_admin' => true]);
+
+        $response = $this->actingAs($user)->put(route('subjects.update', $subject), [
+            'name' => $subject->name,
+            'code' => $subject->code,
+            'type' => $subject->type,
+            'is_active' => 1,
+            'creative_marks' => 100,
+            'pass_mark' => 33,
+            'assign_to_class' => 1,
+            'school_class_ids' => [$schoolClass->id],
+            'all_groups' => 1,
+            'group_ids' => [$science->id],
+            'gender' => 'all',
+            'religion' => 'all',
+        ]);
+
+        $response->assertRedirect(route('subjects.index'));
+        $this->assertDatabaseHas('subject_class_assignments', [
+            'subject_id' => $subject->id,
+            'school_class_id' => $schoolClass->id,
+            'group_id' => $science->id,
+            'is_active' => true,
+        ]);
+        $this->assertDatabaseMissing('subject_class_assignments', [
+            'subject_id' => $subject->id,
+            'school_class_id' => $schoolClass->id,
+            'group_id' => null,
+            'is_active' => true,
+        ]);
+    }
+
     public function test_sync_supports_multiple_group_assignments_for_one_class(): void
     {
         AcademicSession::create(['name_en' => '2026', 'name_bn' => '২০২৬', 'status' => 1]);

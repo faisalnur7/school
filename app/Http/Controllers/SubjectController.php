@@ -470,16 +470,22 @@ class SubjectController extends Controller
 
     private function groupScopesFromRequest(Request $request): array
     {
-        if ($request->boolean('all_groups')) {
-            return [null];
-        }
-
         $groupIds = collect($request->input('group_ids', []))
             ->filter(fn ($groupId) => $groupId !== null && $groupId !== '')
             ->map(fn ($groupId) => (int) $groupId)
             ->unique()
             ->values()
             ->all();
+
+        // Explicit group selections are authoritative if a stale client submits
+        // both the All Groups flag and one or more group IDs.
+        if (! empty($groupIds)) {
+            return $groupIds;
+        }
+
+        if ($request->boolean('all_groups')) {
+            return [null];
+        }
 
         if (empty($groupIds) && $request->filled('group_id')) {
             $groupIds = [(int) $request->input('group_id')];
