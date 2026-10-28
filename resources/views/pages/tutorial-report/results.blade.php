@@ -58,17 +58,6 @@
                     <input type="text" name="student_id" id="tutorialStudentInput" class="form-control tutorial-report-filter-input" value="{{ $filters['student_id'] ?? '' }}" placeholder="Leave blank for all students">
                 </div>
 
-                <div class="tutorial-report-filter-group">
-                    <label for="tutorialResultsPerPage">Results per page</label>
-                    <select name="results_per_page" id="tutorialResultsPerPage" class="form-control tutorial-report-filter-select">
-                        @foreach([1, 2, 3] as $resultsPerPage)
-                            <option value="{{ $resultsPerPage }}" {{ (int) ($filters['results_per_page'] ?? 2) === $resultsPerPage ? 'selected' : '' }}>
-                                {{ $resultsPerPage }} {{ $resultsPerPage === 1 ? 'result' : 'results' }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
                 <div class="tutorial-report-filter-actions">
                     <button type="submit" class="btn tutorial-report-action-btn tutorial-report-action-btn--primary" title="View Report" aria-label="View Report">
                         <i class="fas fa-eye"></i>
@@ -144,7 +133,10 @@
             </div>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('result.tutorial-report.pdf', $filters) }}" target="_blank" class="btn btn-danger btn-sm result-filter-icon-btn" title="PDF" aria-label="PDF">
+            <a href="{{ route('result.tutorial-report.settings.edit') }}" class="btn btn-outline-primary btn-sm result-filter-icon-btn" title="Report settings" aria-label="Report settings">
+                <i class="fas fa-sliders-h"></i>
+            </a>
+            <a href="{{ route('result.tutorial-report.pdf', collect($filters)->except('results_per_page')->all()) }}" target="_blank" class="btn btn-danger btn-sm result-filter-icon-btn" title="PDF" aria-label="PDF">
                 <i class="fas fa-file-pdf"></i>
             </a>
             <button onclick="window.print()" class="btn btn-info btn-sm no-print result-filter-icon-btn" title="Print" aria-label="Print">
@@ -200,6 +192,12 @@
                     <span class="tutorial-student-label" style="color: var(--tutorial-student-label-color) !important;">Roll</span>
                     <span class="tutorial-student-value tutorial-student-mono" style="color: var(--tutorial-student-value-color) !important;">{{ $academicInfo?->roll ?? '—' }}</span>
                 </div>
+                @if($academicInfo?->group)
+                    <div class="tutorial-student-field">
+                        <span class="tutorial-student-label" style="color: var(--tutorial-student-label-color) !important;">Group</span>
+                        <span class="tutorial-student-value" style="color: var(--tutorial-student-value-color) !important;">{{ $academicInfo->group->name_en ?? $academicInfo->group->name_bn }}</span>
+                    </div>
+                @endif
                 <div class="ml-auto tutorial-student-total">
                     <span class="badge badge-primary mr-1">Position: {{ $data['rank'] ?? '—' }}</span>
                     <span class="badge badge-info">Total Obtained: {{ number_format($data['total_obtained'], 1) }}</span>
@@ -749,8 +747,8 @@ html[data-theme='dark'] .tutorial-report-table .tutorial-report-total td {
 
 @media print {
     @page {
-        size: A4 landscape;
-        margin: 10mm 12mm;
+        size: {{ $reportSettings->page_width_mm ?? 210 }}mm {{ $reportSettings->page_height_mm ?? 297 }}mm;
+        margin: {{ $reportSettings->page_margin_top_mm ?? 10 }}mm {{ $reportSettings->page_margin_right_mm ?? 12 }}mm {{ $reportSettings->page_margin_bottom_mm ?? 10 }}mm {{ $reportSettings->page_margin_left_mm ?? 12 }}mm;
     }
 
     body {
@@ -763,12 +761,34 @@ html[data-theme='dark'] .tutorial-report-table .tutorial-report-total td {
         display: none !important;
     }
 
+    .tutorial-report-toolbar,
+    .tutorial-report-context,
+    .tutorial-report-page > .d-flex,
+    .tutorial-report-page > .card,
+    .tutorial-report-page > .report-header-card {
+        display: none !important;
+    }
+
     .tutorial-screen-results {
         display: none !important;
     }
 
     .tutorial-print-only {
         display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .tutorial-report-page,
+    .tutorial-report-page > * {
+        max-width: none !important;
+    }
+
+    .tutorial-print-layout {
+        width: 100% !important;
+        margin: 0 !important;
+        color: #000 !important;
     }
 
     .card,

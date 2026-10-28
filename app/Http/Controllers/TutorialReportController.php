@@ -15,6 +15,8 @@ use App\Models\Student;
 use App\Models\StudentAcademicInformation;
 use App\Models\Subject;
 use App\Models\SubjectClassAssignment;
+use App\Models\SchoolSetting;
+use App\Models\TutorialReportSetting;
 use App\Services\GradingService;
 use App\Services\ResultRankingService;
 use Carbon\Carbon;
@@ -34,6 +36,7 @@ class TutorialReportController extends Controller
             'classes'  => SchoolClass::all(),
             'exams'    => Exam::where('type', Exam::TYPE_TUTORIAL)->orderByDesc('id')->get(),
             'filters'  => $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id', 'results_per_page']),
+            'reportSettings' => TutorialReportSetting::current(),
         ]);
     }
 
@@ -49,11 +52,12 @@ class TutorialReportController extends Controller
             'subject_ids' => ['nullable', 'array'],
             'subject_ids.*' => ['integer'],
             'religion_subject' => ['nullable'],
-            'results_per_page' => ['nullable', 'integer', 'in:1,2,3'],
+            'results_per_page' => ['nullable', 'integer', 'in:1,2,3,4'],
         ]);
 
         $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id', 'subject_filter', 'subject_ids', 'religion_subject']);
-        $filters['results_per_page'] = (int) $request->input('results_per_page', 2);
+        $reportSettings = TutorialReportSetting::current((int) $filters['class_id']);
+        $filters['results_per_page'] = (int) ($reportSettings->results_per_page ?? 2);
         $exam     = Exam::with('academicSession')->findOrFail($filters['exam_id']);
         $reportContext = $this->buildReportContext($filters);
         $sections = Section::where('school_class_id', $filters['class_id'])->orderBy('name_en')->get();
@@ -69,7 +73,12 @@ class TutorialReportController extends Controller
 
         $students = $this->getStudents($filters);
         $studentSubjectIds = $students->mapWithKeys(fn ($student) => [
-            $student->id => $this->getStudentTutorialSubjectIds((int) $filters['class_id'], $student),
+            $student->id => $this->getStudentTutorialSubjectIds(
+                (int) $filters['class_id'],
+                $student,
+                (int) $filters['session_id'],
+                (int) $filters['section_id'],
+            ),
         ]);
         $attendanceData = $this->getAttendanceData($exam, (int) $filters['class_id'], $students->pluck('id'));
         $highestMarks = ExamMark::where('exam_id', $exam->id)
@@ -83,7 +92,7 @@ class TutorialReportController extends Controller
         $exams = Exam::where('type', Exam::TYPE_TUTORIAL)->orderByDesc('id')->get();
 
         $studentsData = $students->map(function ($student) use ($exam, $attendanceData, $highestMarks, $filters, $studentSubjectIds) {
-            $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession'])
+            $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession', 'group'])
                 ->where('student_id', $student->id)
                 ->where('academic_session_id', $exam->academic_session_id)
                 ->first();
@@ -157,7 +166,7 @@ class TutorialReportController extends Controller
             'studentsData', 'exam', 'filters', 'statusMap', 'reportContext', 'sections',
             'sessions', 'classes', 'exams', 'tutorialSubjects', 'regularTutorialSubjects',
             'religionSubjects', 'includedReligionSubjectIds'
-        ));
+        ))->with('reportSettings', $reportSettings);
     }
 
     public function pdf(Request $request)
@@ -172,11 +181,12 @@ class TutorialReportController extends Controller
             'subject_ids' => ['nullable', 'array'],
             'subject_ids.*' => ['integer'],
             'religion_subject' => ['nullable'],
-            'results_per_page' => ['nullable', 'integer', 'in:1,2,3'],
+            'results_per_page' => ['nullable', 'integer', 'in:1,2,3,4'],
         ]);
 
         $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id', 'subject_filter', 'subject_ids', 'religion_subject']);
-        $filters['results_per_page'] = (int) $request->input('results_per_page', 2);
+        $reportSettings = TutorialReportSetting::current((int) $filters['class_id']);
+        $filters['results_per_page'] = (int) ($reportSettings->results_per_page ?? 2);
         $exam     = Exam::with('academicSession')->findOrFail($filters['exam_id']);
         $reportContext = $this->buildReportContext($filters);
         $tutorialSubjects = $this->getAssignedTutorialSubjects((int) $filters['class_id']);
@@ -188,7 +198,12 @@ class TutorialReportController extends Controller
 
         $students = $this->getStudents($filters);
         $studentSubjectIds = $students->mapWithKeys(fn ($student) => [
-            $student->id => $this->getStudentTutorialSubjectIds((int) $filters['class_id'], $student),
+            $student->id => $this->getStudentTutorialSubjectIds(
+                (int) $filters['class_id'],
+                $student,
+                (int) $filters['session_id'],
+                (int) $filters['section_id'],
+            ),
         ]);
         $attendanceData = $this->getAttendanceData($exam, (int) $filters['class_id'], $students->pluck('id'));
         $highestMarks = ExamMark::where('exam_id', $exam->id)
@@ -199,7 +214,7 @@ class TutorialReportController extends Controller
             ->pluck('highest', 'subject_id');
 
         $studentsData = $students->map(function ($student) use ($exam, $attendanceData, $highestMarks, $filters, $studentSubjectIds) {
-            $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession'])
+            $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession', 'group'])
                 ->where('student_id', $student->id)
                 ->where('academic_session_id', $exam->academic_session_id)
                 ->first();
@@ -261,8 +276,18 @@ class TutorialReportController extends Controller
         $studentsData = $this->rankStudentsData($studentsData);
 
         $resultsPerPage = $filters['results_per_page'];
-        $html = view('pages.tutorial-report.print', compact('studentsData', 'exam', 'filters', 'reportContext', 'resultsPerPage'))->render();
-        $mpdf = new \Mpdf\Mpdf(['format' => 'A4', 'margin_top' => 10, 'margin_bottom' => 10, 'margin_left' => 12, 'margin_right' => 12]);
+        $instituteSetting = SchoolSetting::current();
+        $html = view('pages.tutorial-report.print', compact('studentsData', 'exam', 'filters', 'reportContext', 'resultsPerPage', 'reportSettings', 'instituteSetting'))->render();
+        $pageFormat = ((float) $reportSettings->page_width_mm === 210.0 && (float) $reportSettings->page_height_mm === 297.0)
+            ? 'A4'
+            : [$reportSettings->page_width_mm, $reportSettings->page_height_mm];
+        $mpdf = new \Mpdf\Mpdf([
+            'format' => $pageFormat,
+            'margin_top' => $reportSettings->page_margin_top_mm,
+            'margin_bottom' => $reportSettings->page_margin_bottom_mm,
+            'margin_left' => $reportSettings->page_margin_left_mm,
+            'margin_right' => $reportSettings->page_margin_right_mm,
+        ]);
         $mpdf->WriteHTML($html);
 
         return response($mpdf->Output('', 'S'))->header('Content-Type', 'application/pdf');
@@ -444,8 +469,18 @@ class TutorialReportController extends Controller
         return $this->isReligionSubject($subject) ? 'Religion' : $subject->name;
     }
 
-    private function getStudentTutorialSubjectIds(int $classId, Student $student): ?\Illuminate\Support\Collection
+    private function getStudentTutorialSubjectIds(int $classId, Student $student, ?int $sessionId = null, ?int $sectionId = null): ?\Illuminate\Support\Collection
     {
+        $academicInfo = StudentAcademicInformation::query()
+            ->where('student_id', $student->id)
+            ->where('school_class_id', $classId)
+            ->when($sessionId, fn ($query) => $query->where('academic_session_id', $sessionId))
+            ->when($sectionId, fn ($query) => $query->where('section_id', $sectionId))
+            ->where('is_current', true)
+            ->where('academic_status', 'active')
+            ->first();
+        $groupId = $academicInfo?->group_id;
+
         $assignments = SubjectClassAssignment::query()
             ->with('subject')
             ->where('school_class_id', $classId)
@@ -460,6 +495,8 @@ class TutorialReportController extends Controller
             ->filter(fn ($assignment) => $assignment->subject?->is_active
                 && $assignment->subject->include_in_tutorial_exam
                 && $assignment->appliesToStudent($student->gender, $student->religion))
+            ->filter(fn ($assignment) => $assignment->group_id === null
+                || ($groupId !== null && (int) $assignment->group_id === (int) $groupId))
             ->pluck('subject_id')
             ->map(fn ($id) => (int) $id)
             ->unique()

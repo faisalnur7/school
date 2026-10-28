@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\AcademicSession;
 use App\Models\Exam;
 use App\Models\ExamMark;
+use App\Models\Group;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Student;
@@ -193,5 +194,77 @@ class SubjectTutorialExamInclusionTest extends TestCase
 
         $clearedResponse->assertOk();
         $this->assertCount(0, $clearedResponse->viewData('studentsData')->first()['rows']);
+    }
+
+    public function test_tutorial_report_shows_only_subjects_assigned_to_each_students_group(): void
+    {
+        $user = User::factory()->create();
+        $session = AcademicSession::create(['name_en' => '2026', 'name_bn' => '২০২৬', 'status' => 1]);
+        $class = SchoolClass::create(['name_en' => 'Class 12', 'name_bn' => 'Class 12', 'status' => 1]);
+        $section = Section::create(['school_class_id' => $class->id, 'name_en' => 'A', 'name_bn' => 'A']);
+        $science = Group::create(['name_en' => 'Science', 'name_bn' => 'Science', 'status' => 1]);
+        $business = Group::create(['name_en' => 'Business', 'name_bn' => 'Business', 'status' => 1]);
+        $students = collect([
+            ['name' => 'Science Student', 'group_id' => $science->id],
+            ['name' => 'Business Student', 'group_id' => $business->id],
+        ])->map(function (array $data, int $index) use ($session, $class, $section) {
+            $student = Student::create([
+                'full_name_en' => $data['name'],
+                'student_cid' => 'GROUP-' . $index,
+                'status' => 1,
+            ]);
+            StudentAcademicInformation::create([
+                'student_id' => $student->id,
+                'academic_session_id' => $session->id,
+                'school_class_id' => $class->id,
+                'section_id' => $section->id,
+                'group_id' => $data['group_id'],
+                'roll' => (string) ($index + 1),
+                'academic_status' => 'active',
+                'is_current' => true,
+            ]);
+
+            return $student;
+        });
+        $exam = Exam::create([
+            'name' => 'Tutorial 1',
+            'type' => Exam::TYPE_TUTORIAL,
+            'academic_session_id' => $session->id,
+            'year' => 2026,
+            'status' => Exam::STATUS_PUBLISHED,
+        ]);
+        $scienceSubject = Subject::create(['name' => 'Physics', 'tutorial_marks' => 20]);
+        $businessSubject = Subject::create(['name' => 'Accounting', 'tutorial_marks' => 20]);
+        SubjectClassAssignment::create(['subject_id' => $scienceSubject->id, 'school_class_id' => $class->id, 'group_id' => $science->id]);
+        SubjectClassAssignment::create(['subject_id' => $businessSubject->id, 'school_class_id' => $class->id, 'group_id' => $business->id]);
+
+        foreach ($students as $student) {
+            foreach ([$scienceSubject, $businessSubject] as $subject) {
+                ExamMark::create([
+                    'exam_id' => $exam->id,
+                    'student_id' => $student->id,
+                    'subject_id' => $subject->id,
+                    'tutorial_marks' => 15,
+                    'total' => 15,
+                    'is_absent' => false,
+                ]);
+            }
+        }
+
+        $response = $this->withoutMiddleware()->actingAs($user)->get(route('result.tutorial-report.show', [
+            'session_id' => $session->id,
+            'class_id' => $class->id,
+            'section_id' => $section->id,
+            'exam_id' => $exam->id,
+            'subject_filter' => 1,
+            'subject_ids' => [$scienceSubject->id, $businessSubject->id],
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('class="tutorial-print-summary-group"', false);
+        $response->assertSee('>Science</div>', false);
+        $rowsByStudent = $response->viewData('studentsData')->keyBy(fn ($data) => $data['student']->full_name_en);
+        $this->assertSame(['Physics'], $rowsByStudent['Science Student']['rows']->pluck('subject_name')->all());
+        $this->assertSame(['Accounting'], $rowsByStudent['Business Student']['rows']->pluck('subject_name')->all());
     }
 }
