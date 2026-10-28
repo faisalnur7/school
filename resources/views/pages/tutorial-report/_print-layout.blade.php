@@ -28,6 +28,10 @@
     $marksTableHeightMm = max(20, round($cardHeightMm - $reservedMarksSpaceMm, 2));
     $contentWidth = min(100, max(60, (float) ($reportSettings->content_width_percent ?? 96)));
     $tablePaddingMm = max(0, (float) ($reportSettings->table_padding_mm ?? 1.2));
+    $marksColumnWidths = array_merge(
+        \App\Models\TutorialReportSetting::defaults()['marks_column_widths'],
+        $reportSettings->marks_column_widths ?? []
+    );
     $borderWidthMm = max(0, (float) ($reportSettings->card_border_width_mm ?? .3));
     $borderColor = $reportSettings->card_border_color ?? '#cbd6d2';
     $cardRadiusMm = max(0, (float) ($reportSettings->card_radius_mm ?? 2));
@@ -91,14 +95,17 @@
     .tutorial-print-summary-label { color: #000; font-size: 14px; letter-spacing: 1px; line-height: 1.05; text-transform: uppercase; }
     .tutorial-print-summary-value { margin-top: 2px; color: #000; font-size: 14px; font-weight: 700; line-height: 1.05; }
     .tutorial-print-marks-table { width: {{ $contentWidth }}%; margin: 8px auto 0; border: 1px solid #d5ddda; border-radius: 6px; overflow: hidden; }
-    .tutorial-print-student { width: 100%; border-collapse: collapse; table-layout: auto; }
+    .tutorial-print-student { width: 100%; border-collapse: collapse; table-layout: fixed; }
     .tutorial-print-student th, .tutorial-print-student td { border: 1px solid #e3e8e6; padding: {{ $tablePaddingMm }}mm {{ $tablePaddingMm * 1.5 }}mm; line-height: 1.05; vertical-align: middle; }
     .tutorial-print-student thead th { height: 25px; background: transparent; color: #000; font-size: 14px; font-weight: 700; letter-spacing: .6px; text-align: left; text-transform: uppercase; white-space: nowrap; }
     .tutorial-print-student tbody tr:nth-child(even) td { background: transparent; }
     .tutorial-print-student tbody td { height: 24px; color: #000; font-size: 14px; font-weight: 700; }
     .tutorial-print-student tbody tr:last-child td { border-bottom: 0; }
-    .tutorial-print-student .subject-column { width: auto; font-weight: 600; }
-    .tutorial-print-student .marks-column { width: 1%; text-align: center; white-space: nowrap; }
+    .tutorial-print-student .subject-column { width: {{ $marksColumnWidths['subject'] }}%; font-weight: 600; }
+    .tutorial-print-student .full-marks-column { width: {{ $marksColumnWidths['full_marks'] }}%; }
+    .tutorial-print-student .obtained-marks-column { width: {{ $marksColumnWidths['obtained_marks'] }}%; }
+    .tutorial-print-student .highest-marks-column { width: {{ $marksColumnWidths['highest_marks'] }}%; }
+    .tutorial-print-student .marks-column { text-align: center; white-space: nowrap; }
     .tutorial-print-student .obtained { font-weight: 700; }
     .tutorial-print-total td { height: 27px; background: transparent !important; border: 1px solid #e3e8e6 !important; color: #000 !important; font-size: 14px; font-weight: 700; }
     .tutorial-print-total .total-percent { color: #000 !important; font-weight: 600; }

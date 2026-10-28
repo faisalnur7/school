@@ -71,7 +71,19 @@ class TutorialReportSettingController extends Controller
             'signature_settings.show_name' => ['nullable', 'boolean'],
             'signature_settings.show_designation' => ['nullable', 'boolean'],
             'signature_settings.show_school_name' => ['nullable', 'boolean'],
+            'marks_column_widths' => ['required', 'array'],
+            'marks_column_widths.subject' => ['required', 'numeric', 'min:5', 'max:80'],
+            'marks_column_widths.full_marks' => ['required', 'numeric', 'min:5', 'max:80'],
+            'marks_column_widths.obtained_marks' => ['required', 'numeric', 'min:5', 'max:80'],
+            'marks_column_widths.highest_marks' => ['required', 'numeric', 'min:5', 'max:80'],
         ]);
+
+        $columnWidths = collect($data['marks_column_widths'])
+            ->map(fn ($width) => round((float) $width, 2));
+        if (abs($columnWidths->sum() - 100) > 0.01) {
+            return back()->withInput()->withErrors(['marks_column_widths' => 'Marks table column widths must total 100%.']);
+        }
+        $data['marks_column_widths'] = $columnWidths->all();
 
         $elements = TutorialReportSetting::ELEMENTS;
         $data['element_order'] = array_values(array_unique(array_intersect($data['element_order'], $elements)));
