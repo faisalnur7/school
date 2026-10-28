@@ -914,6 +914,8 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
         Route::get('/results', [\App\Http\Controllers\TutorialReportController::class, 'show'])->name('show');
         Route::get('/pdf', [\App\Http\Controllers\TutorialReportController::class, 'pdf'])->name('pdf');
         Route::post('/send-email', [\App\Http\Controllers\TutorialReportController::class, 'sendEmail'])->name('email');
+        Route::get('/settings', [\App\Http\Controllers\TutorialReportSettingController::class, 'edit'])->name('settings.edit');
+        Route::post('/settings', [\App\Http\Controllers\TutorialReportSettingController::class, 'update'])->name('settings.update');
     });
 
     Route::middleware('permission:view_results')->prefix('results')->group(function () {

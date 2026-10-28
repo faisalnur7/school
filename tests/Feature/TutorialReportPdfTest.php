@@ -10,6 +10,7 @@ use App\Models\Section;
 use App\Models\Student;
 use App\Models\StudentAcademicInformation;
 use App\Models\Subject;
+use App\Models\TutorialReportSetting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -21,11 +22,37 @@ class TutorialReportPdfTest extends TestCase
     public function test_tutorial_pdf_uses_prominent_typography_and_signature_spacing(): void
     {
         $layout = file_get_contents(resource_path('views/pages/tutorial-report/_print-layout.blade.php'));
+        $marks = file_get_contents(resource_path('views/pages/tutorial-report/_element-marks.blade.php'));
+        $student = file_get_contents(resource_path('views/pages/tutorial-report/_element-student.blade.php'));
+        $footer = file_get_contents(resource_path('views/pages/tutorial-report/_element-footer.blade.php'));
         $controller = file_get_contents(app_path('Http/Controllers/TutorialReportController.php'));
 
         $this->assertStringContainsString('border: 1px solid #cbd6d2;', $layout);
         $this->assertStringContainsString('border-radius: 8px;', $layout);
         $this->assertStringContainsString('background: transparent;', $layout);
+        $this->assertStringContainsString('$instituteSetting ?? \\App\\Models\\SchoolSetting::current()', $layout);
+        $this->assertStringContainsString('principal_signature', $layout);
+        $this->assertStringContainsString('tutorial-print-address', $layout);
+        $this->assertStringContainsString('signature_settings', $layout);
+        $this->assertStringContainsString('tutorial-print-signature-image', $layout);
+        $this->assertStringContainsString('$elementFontSizes', $layout);
+        $this->assertStringContainsString('($saved / $default)', $layout);
+        $this->assertStringContainsString("font-size: {{ \$fontSizeFor('marks') }} !important;", $layout);
+        $this->assertStringContainsString("font-size: {{ \$fontSizeFor('marks') }};", $marks);
+        $this->assertStringContainsString("font-size: {{ \$fontSizeFor('student') }};", $student);
+        $this->assertStringContainsString('.tutorial-print-header .tutorial-print-address { font-size:', $layout);
+        $this->assertStringContainsString('.tutorial-print-student { width: 100%; border-collapse: collapse; table-layout: auto; }', $layout);
+        $this->assertStringContainsString('.tutorial-print-student .subject-column { width: auto;', $layout);
+        $this->assertStringContainsString('.tutorial-print-student .marks-column { width: 1%; text-align: center; white-space: nowrap;', $layout);
+        $this->assertStringContainsString('tablePaddingMm', $layout);
+        $this->assertStringContainsString('$tablePaddingMm', $marks);
+        $this->assertStringContainsString('padding: {{ $tablePaddingMm }}mm', $marks);
+        $this->assertStringContainsString('.tutorial-print-layout .tutorial-print-student th,', $layout);
+        $this->assertStringContainsString('.tutorial-print-layout .tutorial-print-summary td { padding: {{ $tablePaddingMm }}mm', $layout);
+        $this->assertStringContainsString('min((float) data_get($elementSizes', $layout);
+        $this->assertStringContainsString("min((float) data_get(\$elementSizes, 'marks.width', \$contentWidth), \$contentWidth)", $layout);
+        $this->assertStringContainsString("width: {{ min((float) data_get(\$elementSizes, 'marks.width', \$contentWidth), \$contentWidth) }}% !important;", $layout);
+        $this->assertStringContainsString('SchoolSetting', $controller);
         $this->assertStringContainsString('font-size: 18px;', $layout);
         $this->assertStringContainsString('font-size: 14px;', $layout);
         $this->assertStringContainsString('font-size: 12px;', $layout);
@@ -43,8 +70,8 @@ class TutorialReportPdfTest extends TestCase
         $this->assertStringNotContainsString('Bar: obtained · Tick: highest', $layout);
         $this->assertStringNotContainsString('tutorial-print-legend-cell', $layout);
         $this->assertStringNotContainsString('tutorial-print-legend', $layout);
-        $this->assertMatchesRegularExpression('/\.tutorial-print-signature\s*\{[^}]*margin: 0;/s', $layout);
-        $this->assertMatchesRegularExpression('/\.tutorial-print-signature\s*\{[^}]*font-size: 12px;/s', $layout);
+        $this->assertStringContainsString('margin: 0; padding-top: 2mm;', $layout);
+        $this->assertStringContainsString('font-size: 12px;', $layout);
         $this->assertStringContainsString('border-bottom: 3px solid #c9a13b;', $layout);
         $this->assertStringContainsString('padding: 8px 12px 0;', $layout);
         $this->assertStringContainsString('.tutorial-print-summary', $layout);
@@ -61,12 +88,14 @@ class TutorialReportPdfTest extends TestCase
         $this->assertStringNotContainsString('background: #e8f0ec;', $layout);
         $this->assertStringNotContainsString('background: #f4f7f6;', $layout);
         $this->assertStringContainsString('.tutorial-print-signature-space', $layout);
-        $this->assertStringContainsString('height: 1in;', $layout);
+        $this->assertStringContainsString("signatureSettings['space_mm']", $layout);
         $this->assertStringContainsString('<div class="tutorial-print-signature-space"></div>', $layout);
         $this->assertStringContainsString('.tutorial-print-signature-row', $layout);
         $this->assertStringContainsString('colspan="3"', $layout);
         $this->assertStringContainsString('.tutorial-print-signature-table', $layout);
         $this->assertStringContainsString('<table class="tutorial-print-signature-table" align="right">', $layout);
+        $this->assertStringContainsString('.tutorial-print-signature__school { display: block; white-space: nowrap;', $layout);
+        $this->assertStringContainsString('str_replace(\' \', "\\u{00A0}",', $footer);
         $this->assertStringNotContainsString('>Performance</th>', $layout);
         $this->assertStringNotContainsString('class="performance-column"', $layout);
         $this->assertStringContainsString('>Full Marks</th>', $layout);
@@ -77,15 +106,29 @@ class TutorialReportPdfTest extends TestCase
         $this->assertStringNotContainsString('>Highest</th>', $layout);
         $this->assertStringNotContainsString('class="number-column"', $layout);
         $this->assertStringNotContainsString('>#</th>', $layout);
-        $this->assertStringContainsString('<tr><td colspan="4"', $layout);
-        $this->assertStringContainsString('<tr class="tutorial-print-total"><td style="background: transparent; color: #000;">Total</td>', $layout);
+        $this->assertStringContainsString('<tr style="height: {{ $marksRowHeightMm }}mm;"><td colspan="4"', $layout);
+        $this->assertStringContainsString('<tr class="tutorial-print-total" style="height: {{ $marksRowHeightMm }}mm;"><td style="background: transparent; color: #000;">Total</td>', $layout);
         $this->assertStringNotContainsString('$loop->iteration % 2 === 0', $layout);
         $this->assertStringNotContainsString('$loop->iteration % 3 === 0', $layout);
         $this->assertStringContainsString('tutorial-print-density-{{ $resultsPerPage }}', $layout);
-        $this->assertStringContainsString('$loop->iteration % $resultsPerPage === 0', $layout);
+        $this->assertStringContainsString('$cardHeightMm', $layout);
+        $this->assertStringContainsString('$marksTableHeightMm', $layout);
+        $this->assertStringContainsString('$marksRowHeightMm', $layout);
         $this->assertStringContainsString("'results_per_page'", $controller);
-        $this->assertStringContainsString("'results_per_page' => ['nullable', 'integer', 'in:1,2,3']", $controller);
+        $this->assertStringContainsString('TutorialReportSetting::current((int) $filters[\'class_id\'])', $controller);
         $this->assertStringContainsString("'resultsPerPage'", $controller);
+        $this->assertStringContainsString('tutorial-print-density-4', $layout);
+        $this->assertStringContainsString('.tutorial-print-layout.tutorial-print-density-1 .tutorial-print-school { font-size: 26px; }', $layout);
+        $this->assertStringContainsString('.tutorial-print-layout.tutorial-print-density-4 .tutorial-print-school { font-size: 12px; }', $layout);
+        $this->assertStringContainsString('$cardHeightMm', $layout);
+        $this->assertStringContainsString('height: {{ $cardHeightMm }}mm;', $layout);
+        $this->assertStringContainsString('tutorial-print-card--page-last', $layout);
+        $this->assertStringContainsString('.tutorial-print-card--page-last { margin-bottom: 0; }', $layout);
+        $this->assertStringContainsString('$availablePageHeightMm', $layout);
+        $this->assertStringContainsString('$cardHeightMm = round(($availablePageHeightMm - (($resultsPerPage - 1) * $cardGapMm)) / $resultsPerPage, 2);', $layout);
+        $this->assertStringNotContainsString('height: 480px;', $layout);
+        $this->assertStringNotContainsString('height: 320px;', $layout);
+        $this->assertStringNotContainsString('height: 240px;', $layout);
         $paperFirstSort = 'sprintf(\'%d:%s\', $m->subject->is_paper ? 0 : 1';
         $this->assertSame(3, substr_count($controller, $paperFirstSort));
         $this->assertSame(2, substr_count($controller, '&& $m->subject->include_in_tutorial_exam'));
@@ -193,6 +236,10 @@ class TutorialReportPdfTest extends TestCase
             ]);
         }
 
+        $reportSetting = TutorialReportSetting::current();
+        $reportSetting->results_per_page = 4;
+        $reportSetting->save();
+
         $response = $this->withoutMiddleware()
             ->actingAs($user)
             ->get(route('result.tutorial-report.pdf', [
@@ -201,6 +248,7 @@ class TutorialReportPdfTest extends TestCase
                 'section_id' => $section->id,
                 'exam_id' => $exam->id,
                 'student_id' => '',
+                'results_per_page' => 4,
             ]));
 
         $response->assertOk();
@@ -208,7 +256,7 @@ class TutorialReportPdfTest extends TestCase
 
         $this->assertStringStartsWith('%PDF-', $pdf);
         preg_match_all('/\/Type \/Page\\b/', $pdf, $pageObjects);
-        $this->assertCount(2, $pageObjects[0]);
+        $this->assertCount(1, $pageObjects[0]);
         $this->assertStringContainsString('/MediaBox [0 0 595.280 841.890]', $pdf);
         $this->assertGreaterThan(1000, strlen($pdf));
     }

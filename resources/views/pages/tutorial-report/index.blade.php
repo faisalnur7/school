@@ -15,6 +15,9 @@
             <h4 class="mb-0 font-weight-bold text-black">Tutorial Exam Report</h4>
             <small class="text-muted">Show obtained marks for tutorial exams</small>
         </div>
+        <a href="{{ route('result.tutorial-report.settings.edit') }}" class="btn btn-outline-primary btn-sm ml-auto" title="Tutorial Report Settings">
+            <i class="fas fa-sliders-h mr-1"></i>Report Settings
+        </a>
         </div>
 
         <div class="card-body tutorial-report-filter-card-body">

@@ -33,10 +33,14 @@ class TutorialReportResultsTableTest extends TestCase
         $this->assertStringContainsString('gap: 0.95rem 1rem;', $view);
         $this->assertStringContainsString('background-image: url("data:image/svg+xml', $view);
         $this->assertStringContainsString('.tutorial-report-subject-option > span', $view);
-        $this->assertStringContainsString('name="results_per_page"', $view);
-        $this->assertStringContainsString('name="results_per_page"', $filter);
-        $this->assertStringContainsString('@foreach([1, 2, 3] as $resultsPerPage)', $filter);
-        $this->assertStringContainsString("'results_per_page'", $filter);
+        $this->assertStringNotContainsString('tutorialResultsPerPage', $view);
+        $this->assertStringNotContainsString('tutorialResultsPerPage', $filter);
+        $this->assertStringContainsString("collect(\$filters)->except('results_per_page')->all()", $view);
+        $this->assertStringContainsString('size: {{ $reportSettings->page_width_mm ?? 210 }}mm {{ $reportSettings->page_height_mm ?? 297 }}mm;', $view);
+        $this->assertStringContainsString('page_width_mm', $view);
+        $this->assertStringContainsString('page_height_mm', $view);
+        $this->assertStringContainsString('.tutorial-report-context', $view);
+        $this->assertStringContainsString('.tutorial-print-layout', $view);
         $this->assertStringContainsString('margin-left: 1.5rem;', $view);
         $this->assertStringContainsString('value="religion"', $view);
         $this->assertStringContainsString('>Religion</span>', $view);

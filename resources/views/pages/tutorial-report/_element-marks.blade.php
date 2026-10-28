@@ -1,0 +1,16 @@
+<table class="tutorial-print-marks-table tutorial-print-student" style="width: {{ min((float) data_get($elementSizes, 'marks.width', $contentWidth), $contentWidth) }}%; height: {{ $marksTableHeightMm }}mm;">
+        <thead><tr><th class="subject-column" style="padding: {{ $tablePaddingMm }}mm {{ $tablePaddingMm * 1.5 }}mm; font-size: {{ $fontSizeFor('marks') }};">Subject</th><th class="marks-column" style="padding: {{ $tablePaddingMm }}mm {{ $tablePaddingMm * 1.5 }}mm; font-size: {{ $fontSizeFor('marks') }};">Full Marks</th><th class="marks-column" style="padding: {{ $tablePaddingMm }}mm {{ $tablePaddingMm * 1.5 }}mm; font-size: {{ $fontSizeFor('marks') }};">Obtained Marks</th><th class="marks-column" style="padding: {{ $tablePaddingMm }}mm {{ $tablePaddingMm * 1.5 }}mm; font-size: {{ $fontSizeFor('marks') }};">Highest Marks</th></tr></thead>
+        <tbody>
+            @forelse($rows as $row)
+                @php
+                    $fullMarks = (float) ($row['full_marks'] ?? 0);
+                    $obtainedMarks = $row['is_absent'] ? 0 : (float) ($row['obtained'] ?? 0);
+                    $highestMarks = (float) ($row['highest'] ?? 0);
+                @endphp
+                <tr><td class="subject-column" style="padding: {{ $tablePaddingMm }}mm {{ $tablePaddingMm * 1.5 }}mm; font-size: {{ $fontSizeFor('marks') }};">{{ $row['subject_name'] }}</td><td class="marks-column" style="padding: {{ $tablePaddingMm }}mm {{ $tablePaddingMm * 1.5 }}mm; font-size: {{ $fontSizeFor('marks') }};">{{ $formatMark($fullMarks) }}</td><td class="marks-column obtained" style="padding: {{ $tablePaddingMm }}mm {{ $tablePaddingMm * 1.5 }}mm; font-size: {{ $fontSizeFor('marks') }};">{{ $row['is_absent'] ? 'AB' : $formatMark($obtainedMarks) }}</td><td class="marks-column" style="padding: {{ $tablePaddingMm }}mm {{ $tablePaddingMm * 1.5 }}mm; font-size: {{ $fontSizeFor('marks') }};">{{ $formatMark($highestMarks) }}</td></tr>
+            @empty
+                <tr><td colspan="4" style="padding: {{ $tablePaddingMm }}mm {{ $tablePaddingMm * 1.5 }}mm; text-align: center; font-size: {{ $fontSizeFor('marks') }};">No marks found.</td></tr>
+            @endforelse
+            <tr class="tutorial-print-total"><td style="padding: {{ $tablePaddingMm }}mm {{ $tablePaddingMm * 1.5 }}mm; background: transparent; color: #000; font-size: {{ $fontSizeFor('marks') }};">Total</td><td class="marks-column" style="padding: {{ $tablePaddingMm }}mm {{ $tablePaddingMm * 1.5 }}mm; background: transparent; color: #000; font-size: {{ $fontSizeFor('marks') }};">{{ $formatMark($totalFullMarks) }}</td><td class="marks-column" style="padding: {{ $tablePaddingMm }}mm {{ $tablePaddingMm * 1.5 }}mm; background: transparent; color: #000; font-size: {{ $fontSizeFor('marks') }};">{{ $formatMark($totalObtained) }}</td><td class="marks-column total-percent" style="padding: {{ $tablePaddingMm }}mm {{ $tablePaddingMm * 1.5 }}mm; background: transparent; color: #000; font-size: {{ $fontSizeFor('marks') }};">{{ $formatMark($overallPercentage) }}%</td></tr>
+        </tbody>
+</table>
