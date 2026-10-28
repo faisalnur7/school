@@ -14,7 +14,7 @@ class TutorialReportSetting extends Model
         'content_width_percent', 'table_padding_mm', 'card_border_width_mm',
         'card_border_color', 'card_radius_mm', 'element_order',
         'element_positions', 'element_sizes', 'element_visibility',
-        'element_font_sizes', 'signature_settings',
+        'element_font_sizes', 'signature_settings', 'marks_column_widths',
     ];
 
     protected $casts = [
@@ -28,6 +28,7 @@ class TutorialReportSetting extends Model
         'element_visibility' => 'array',
         'element_font_sizes' => 'array',
         'signature_settings' => 'array',
+        'marks_column_widths' => 'array',
     ];
 
     public const ELEMENTS = ['header', 'student', 'marks', 'footer'];
@@ -72,6 +73,10 @@ class TutorialReportSetting extends Model
                 'visible' => true, 'width_mm' => 55, 'height_mm' => 18,
                 'space_mm' => 12, 'offset_x_percent' => 0, 'offset_y_percent' => 0,
                 'show_name' => true, 'show_designation' => true, 'show_school_name' => true,
+            ],
+            'marks_column_widths' => [
+                'subject' => 25, 'full_marks' => 15,
+                'obtained_marks' => 35, 'highest_marks' => 25,
             ],
         ];
     }

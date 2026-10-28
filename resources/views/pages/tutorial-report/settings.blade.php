@@ -55,7 +55,7 @@
                                                 <span class="tutorial-report-element__handle"><i class="fas fa-grip-vertical mr-1"></i>{{ $elementLabels[$element] }}</span>
                                                 @if($element === 'header')<div class="tutorial-print-header"><table class="tutorial-print-header-table"><tr><td class="tutorial-print-header-logo-cell">@if($schoolLogo)<img class="tutorial-print-header-logo" src="{{ $schoolLogo }}" alt="School logo">@endif</td><td class="tutorial-print-header-text-cell"><div class="tutorial-print-school">{{ $schoolName }}</div>@if($schoolAddress)<div class="tutorial-print-address">{{ $schoolAddress }}</div>@endif<div class="tutorial-print-exam">FINAL TUTORIAL EXAM · 2026</div><div class="tutorial-print-title">Result Card</div></td><td class="tutorial-print-header-spacer-cell"></td></tr></table></div>
                                                 @elseif($element === 'student')<table class="tutorial-print-summary"><tr><td><div class="tutorial-print-summary-label">Student</div><div class="tutorial-print-summary-value">Student Name</div></td><td><div class="tutorial-print-summary-label">Class</div><div class="tutorial-print-summary-value">Nursery</div></td><td><div class="tutorial-print-summary-label">ID</div><div class="tutorial-print-summary-value">0001</div></td></tr></table>
-                                                @elseif($element === 'marks')<table class="tutorial-print-marks-table tutorial-print-student"><thead><tr><th class="subject-column">Subject</th><th class="marks-column">Full Marks</th><th class="marks-column">Obtained Marks</th><th class="marks-column">Highest Marks</th></tr></thead><tbody><tr><td class="subject-column">Bangla</td><td class="marks-column">20</td><td class="marks-column">20</td><td class="marks-column">20</td></tr><tr><td class="subject-column">English</td><td class="marks-column">20</td><td class="marks-column">20</td><td class="marks-column">20</td></tr><tr class="tutorial-print-total"><td>Total</td><td class="marks-column">40</td><td class="marks-column">40</td><td class="marks-column">100%</td></tr></tbody></table>
+                                                @elseif($element === 'marks')<table class="tutorial-print-marks-table tutorial-print-student"><thead><tr><th class="subject-column">Subject</th><th class="marks-column full-marks-column">Full Marks</th><th class="marks-column obtained-marks-column">Obtained Marks</th><th class="marks-column highest-marks-column">Highest Marks</th></tr></thead><tbody><tr><td class="subject-column">Bangla</td><td class="marks-column full-marks-column">20</td><td class="marks-column obtained-marks-column">20</td><td class="marks-column highest-marks-column">20</td></tr><tr><td class="subject-column">English</td><td class="marks-column full-marks-column">20</td><td class="marks-column obtained-marks-column">20</td><td class="marks-column highest-marks-column">20</td></tr><tr class="tutorial-print-total"><td class="subject-column">Total</td><td class="marks-column full-marks-column">40</td><td class="marks-column obtained-marks-column">40</td><td class="marks-column highest-marks-column">100%</td></tr></tbody></table>
                                                 @else<table class="tutorial-print-footer"><tr><td class="tutorial-print-comment-cell"><div class="tutorial-print-comment"><span class="tutorial-print-comment-label">Comments -</span><span>Excellent</span></div></td></tr><tr class="tutorial-print-signature-row"><td><table class="tutorial-print-signature-table" align="right"><tr><td><div class="tutorial-print-signature-space"></div></td></tr><tr><td><div class="tutorial-print-signature">@if($principalSignature)<img class="tutorial-print-signature-image" src="{{ $principalSignature }}" alt="Principal signature">@endif<span class="tutorial-print-signature__name">{{ $principalName }}</span>@if($principalDesignation !== $principalName)<small class="tutorial-print-signature__details">{{ $principalDesignation }}</small>@endif<small class="tutorial-print-signature__school">{{ str_replace(' ', "\u{00A0}", $principalSchoolName) }}</small></div></td></tr></table></td></tr></table>@endif
                                             </div>
                                         @endif
@@ -107,6 +107,12 @@
                             <div class="form-group col-6"><label>Content width (%)</label><input type="number" name="content_width_percent" min="60" max="100" class="form-control" value="{{ old('content_width_percent', $settings->content_width_percent) }}"></div>
                             <div class="form-group col-6"><label>Table padding (mm)</label><input type="number" step="0.01" name="table_padding_mm" min="0" max="8" class="form-control" value="{{ old('table_padding_mm', $settings->table_padding_mm) }}"></div>
                         </div>
+                        <div class="form-row">
+                            @foreach(['subject' => 'Subject', 'full_marks' => 'Full Marks', 'obtained_marks' => 'Obtained Marks', 'highest_marks' => 'Highest Marks'] as $column => $label)
+                                <div class="form-group col-6"><label>{{ $label }} width (%)</label><input type="number" step="0.01" name="marks_column_widths[{{ $column }}]" min="5" max="80" class="form-control" value="{{ old("marks_column_widths.$column", data_get($settings->marks_column_widths, $column, data_get(\App\Models\TutorialReportSetting::defaults(), "marks_column_widths.$column"))) }}"></div>
+                            @endforeach
+                        </div>
+                        <small class="form-text text-muted mb-2">Marks table column widths must total 100%.</small>
                         <div class="form-row">
                             <div class="form-group col-6"><label>Card gap (mm)</label><input type="number" step="0.01" name="card_gap_mm" min="0" max="20" class="form-control" value="{{ old('card_gap_mm', $settings->card_gap_mm) }}"></div>
                             <div class="form-group col-6"><label>Corner radius (mm)</label><input type="number" name="card_radius_mm" min="0" max="12" class="form-control" value="{{ old('card_radius_mm', $settings->card_radius_mm) }}"></div>
@@ -204,12 +210,15 @@
     .tutorial-report-preview-card .tutorial-print-summary-label,.tutorial-report-preview-card .tutorial-print-summary-value { color:#000; font-size:var(--preview-font-size,12px) !important; line-height:1.05; }
     .tutorial-report-preview-card .tutorial-print-summary-label { letter-spacing:1px; text-transform:uppercase; }
     .tutorial-report-preview-card .tutorial-print-summary-value { margin-top:2px; font-weight:700; }
-    .tutorial-report-preview-card .tutorial-print-marks-table { width:100%; height:auto !important; margin:0 auto; border:1px solid #d5ddda; border-radius:6px; overflow:hidden; table-layout:auto; }
+    .tutorial-report-preview-card .tutorial-print-marks-table { width:100%; height:auto !important; margin:0 auto; border:1px solid #d5ddda; border-radius:6px; overflow:hidden; table-layout:fixed; }
     .tutorial-report-preview-card .tutorial-print-student th,.tutorial-report-preview-card .tutorial-print-student td { border:1px solid #e3e8e6; padding:var(--preview-table-padding,2px) calc(var(--preview-table-padding,2px) * 1.5); line-height:1.05; vertical-align:middle; }
     .tutorial-report-preview-card .tutorial-print-student th { color:#000; font-size:var(--preview-font-size,12px) !important; font-weight:700; letter-spacing:.6px; text-align:left; text-transform:uppercase; white-space:nowrap; }
     .tutorial-report-preview-card .tutorial-print-student td,.tutorial-report-preview-card .tutorial-print-total td { color:#000; font-size:var(--preview-font-size,12px) !important; font-weight:700; }
-    .tutorial-report-preview-card .tutorial-print-student .subject-column { width:auto; font-weight:600; }
-    .tutorial-report-preview-card .tutorial-print-student .marks-column { width:1%; text-align:center; white-space:nowrap; }
+    .tutorial-report-preview-card .tutorial-print-student .subject-column { width:var(--preview-subject-width,25%); font-weight:600; }
+    .tutorial-report-preview-card .tutorial-print-student .full-marks-column { width:var(--preview-full-marks-width,15%); }
+    .tutorial-report-preview-card .tutorial-print-student .obtained-marks-column { width:var(--preview-obtained-marks-width,35%); }
+    .tutorial-report-preview-card .tutorial-print-student .highest-marks-column { width:var(--preview-highest-marks-width,25%); }
+    .tutorial-report-preview-card .tutorial-print-student .marks-column { text-align:center; white-space:nowrap; }
     .tutorial-report-preview-card .tutorial-print-footer { width:100%; height:auto !important; margin:0 auto; table-layout:fixed; }
     .tutorial-report-preview-card .tutorial-report-element--footer { overflow:visible; z-index:4; }
     .tutorial-report-preview-card .tutorial-print-footer td { border:0; padding:0; vertical-align:bottom; }
@@ -275,6 +284,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const perPage = clamp(parseInt(fieldValue('results_per_page', '2'), 10) || 2, 1, 4);
         const scale = clamp(numericValue('font_scale_percent', 100), 50, 180) / 100;
         const tablePadding = clamp(numericValue('table_padding_mm', 1.2), 0, 8);
+        const marksColumnWidths = {
+            subject: clamp(numericValue('marks_column_widths[subject]', 25), 5, 80),
+            fullMarks: clamp(numericValue('marks_column_widths[full_marks]', 15), 5, 80),
+            obtainedMarks: clamp(numericValue('marks_column_widths[obtained_marks]', 35), 5, 80),
+            highestMarks: clamp(numericValue('marks_column_widths[highest_marks]', 25), 5, 80)
+        };
         const contentWidth = clamp(numericValue('content_width_percent', 96), 60, 100);
         const cardGap = Math.max(0, numericValue('card_gap_mm', 2));
         const pageWidth = Math.max(100, numericValue('page_width_mm', 210));
@@ -321,6 +336,10 @@ document.addEventListener('DOMContentLoaded', function () {
             card.style.setProperty('--preview-signature-height', signatureHeight + 'mm');
             card.style.setProperty('--preview-signature-x', signatureX + '%');
             card.style.setProperty('--preview-signature-y', signatureY + '%');
+            card.style.setProperty('--preview-subject-width', marksColumnWidths.subject + '%');
+            card.style.setProperty('--preview-full-marks-width', marksColumnWidths.fullMarks + '%');
+            card.style.setProperty('--preview-obtained-marks-width', marksColumnWidths.obtainedMarks + '%');
+            card.style.setProperty('--preview-highest-marks-width', marksColumnWidths.highestMarks + '%');
             const signatureTable = card.querySelector('.tutorial-print-signature-table');
             if (signatureTable) signatureTable.style.display = signatureVisible ? 'table' : 'none';
             const signatureName = card.querySelector('.tutorial-print-signature__name');

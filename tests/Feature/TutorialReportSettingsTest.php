@@ -37,7 +37,7 @@ class TutorialReportSettingsTest extends TestCase
         $this->assertStringContainsString('element_sizes[{{ $element }}][width]', $view);
         $this->assertStringContainsString('element_font_sizes[{{ $element }}]', $view);
         $this->assertStringContainsString('step="0.01"', $view);
-        $this->assertSame(14, substr_count($view, 'step="0.01"'));
+        $this->assertSame(15, substr_count($view, 'step="0.01"'));
         $this->assertStringContainsString('name="results_per_page"', $view);
         $this->assertStringContainsString('name="class_id"', $view);
         $this->assertStringContainsString("SchoolClass::where('status', 1)->orderBy('order')->orderBy('id')", $controller);
@@ -54,12 +54,18 @@ class TutorialReportSettingsTest extends TestCase
         $this->assertStringContainsString('name="content_width_percent"', $view);
         $this->assertStringContainsString("Math.min(configuredWidth, contentWidth)", $view);
         $this->assertStringContainsString('name="table_padding_mm"', $view);
+        $this->assertStringContainsString('name="marks_column_widths[{{ $column }}]"', $view);
+        $this->assertStringContainsString("'subject' => 'Subject'", $view);
+        $this->assertStringContainsString("'full_marks' => 'Full Marks'", $view);
+        $this->assertStringContainsString("'obtained_marks' => 'Obtained Marks'", $view);
+        $this->assertStringContainsString("'highest_marks' => 'Highest Marks'", $view);
+        $this->assertStringContainsString('marks_column_widths', $controller);
         $this->assertStringContainsString('Math.min(configuredWidth, contentWidth)', $view);
         $this->assertStringContainsString('font_scale_percent', $controller);
         $this->assertStringContainsString('(fontSize / fontDefault)', $view);
         $this->assertStringContainsString('font-size:1em !important;', $view);
         $this->assertStringContainsString('font-size:var(--preview-font-size,12px) !important;', $view);
-        $this->assertStringContainsString('table-layout:auto;', $view);
+        $this->assertStringContainsString('table-layout:fixed;', $view);
         $this->assertStringContainsString('id="tutorialReportOverflowAlert"', $view);
         $this->assertStringContainsString('overflow', $view);
         $this->assertStringContainsString('element_order', $controller);
