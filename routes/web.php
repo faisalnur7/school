@@ -240,6 +240,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/', [PlatformAdminController::class, 'index'])->name('index');
         Route::get('/create', [PlatformAdminController::class, 'create'])->name('create');
         Route::post('/', [PlatformAdminController::class, 'store'])->name('store');
+        Route::get('/mobile-app', [\App\Http\Controllers\PlatformMobileAppController::class, 'edit'])->name('mobile-app.edit');
+        Route::put('/mobile-app', [\App\Http\Controllers\PlatformMobileAppController::class, 'update'])->name('mobile-app.update');
         Route::get('/{user}/edit', [PlatformAdminController::class, 'edit'])->name('edit');
         Route::put('/{user}', [PlatformAdminController::class, 'update'])->name('update');
         Route::delete('/{user}', [PlatformAdminController::class, 'destroy'])->name('destroy');

@@ -23,12 +23,16 @@ class MobileController extends Controller
 
     public function settings()
     {
-        return view('dashboard');
+        abort_unless(auth()->user()?->isPlatformAdmin(), 403);
+
+        return redirect()->route('platform-admins.mobile-app.edit');
     }
 
     public function updateSettings(Request $request)
     {
-        return redirect()->back();
+        abort_unless(auth()->user()?->isPlatformAdmin(), 403);
+
+        return redirect()->route('platform-admins.mobile-app.edit');
     }
 
     public function socialIntegration()

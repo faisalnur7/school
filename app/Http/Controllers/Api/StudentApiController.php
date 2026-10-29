@@ -29,12 +29,16 @@ use App\Http\Controllers\PaymentController;
 use App\Services\StudentAudienceService;
 use App\Services\GradingService;
 use App\Services\ResultRankingService;
+use App\Services\MobileAppConfigurationService;
 use Illuminate\Support\Str;
 use Mpdf\Mpdf;
 
 class StudentApiController extends Controller
 {
-    public function __construct(private readonly StudentAudienceService $audience) {}
+    public function __construct(
+        private readonly StudentAudienceService $audience,
+        private readonly MobileAppConfigurationService $mobileConfiguration,
+    ) {}
 
     public function login(Request $request): JsonResponse
     {
@@ -84,6 +88,11 @@ class StudentApiController extends Controller
         return response()->json(['user' => $this->userPayload($request->user(), $student)]);
     }
 
+    public function mobileConfiguration(): JsonResponse
+    {
+        return response()->json($this->mobileConfiguration->current());
+    }
+
     public function dashboard(Request $request): JsonResponse
     {
         $student = $this->activeStudent($request);
@@ -99,18 +108,25 @@ class StudentApiController extends Controller
             ->whereHas('attendance', fn ($query) => $query->whereDate('date', today()))->first();
         $todayRoutine = $this->routineQuery($student)->where('day', now()->format('l'))->get();
 
+        $summary = [
+            'attendance_total' => $totalAttendance,
+            'attendance_absent' => $absentAttendance,
+            'attendance_percentage' => $totalAttendance ? round((($totalAttendance - $absentAttendance) / $totalAttendance) * 100, 2) : null,
+            'fee_due' => round((float) $due, 2),
+            'latest_result' => $this->latestResult($student),
+            'today_attendance' => $todayAttendance?->status,
+            'today_routine' => $todayRoutine->map(fn ($item) => $this->routinePayload($item))->values(),
+            'latest_notices' => Notice::published()->latest('published_at')->limit(3)->get(['id', 'title', 'published_at'])->map(fn ($notice) => $this->noticePayload($notice)),
+        ];
+        foreach (['attendance_total' => 'attendance', 'attendance_absent' => 'attendance', 'attendance_percentage' => 'attendance', 'today_attendance' => 'attendance', 'today_routine' => 'class_routine', 'fee_due' => 'fees', 'latest_result' => 'results', 'latest_notices' => 'notices'] as $key => $feature) {
+            if (! $this->mobileConfiguration->isFeatureEnabled($feature)) {
+                unset($summary[$key]);
+            }
+        }
+
         return response()->json([
             'student' => $this->studentPayload($student),
-            'summary' => [
-                'attendance_total' => $totalAttendance,
-                'attendance_absent' => $absentAttendance,
-                'attendance_percentage' => $totalAttendance ? round((($totalAttendance - $absentAttendance) / $totalAttendance) * 100, 2) : null,
-                'fee_due' => round((float) $due, 2),
-                'latest_result' => $this->latestResult($student),
-                'today_attendance' => $todayAttendance?->status,
-                'today_routine' => $todayRoutine->map(fn ($item) => $this->routinePayload($item))->values(),
-                'latest_notices' => Notice::published()->latest('published_at')->limit(3)->get(['id', 'title', 'published_at'])->map(fn ($notice) => $this->noticePayload($notice)),
-            ],
+            'summary' => $summary,
         ]);
     }
 
@@ -500,7 +516,21 @@ class StudentApiController extends Controller
 
     private function userPayload($user, Student $student): array
     {
-        return ['id' => $user->id, 'email' => $user->email, 'student' => $this->studentPayload($student)];
+        return ['id' => $user->id, 'email' => $user->email, 'student' => $this->studentPayload($student), 'mobile_app' => $this->mobileAppSummary()];
+    }
+
+    private function mobileAppSummary(): array
+    {
+        $configuration = $this->mobileConfiguration->current();
+
+        return [
+            'is_active' => $configuration['is_active'],
+            'enabled_features' => collect($configuration['features'])
+                ->where('is_enabled', true)
+                ->pluck('key')
+                ->values()
+                ->all(),
+        ];
     }
 
     private function studentPayload(Student $student): array
