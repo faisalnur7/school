@@ -10,6 +10,7 @@ use App\Jobs\SendStudentAbsentPushesJob;
 use App\Models\Role;
 use App\Models\Student;
 use App\Models\User;
+use App\Models\PaymentRequest;
 use Illuminate\Support\Facades\Hash;
 
 Artisan::command('inspire', function () {
@@ -27,6 +28,17 @@ Artisan::command('attendance:send-absent-pushes', function (StudentPushNotificat
     $this->info('Sent '.$service->sendAbsentAttendance().' absent-student push notification(s).');
 })->purpose('Send deduplicated FCM alerts to active students marked absent today.');
 Schedule::job(new SendStudentAbsentPushesJob)->everyTenMinutes()->withoutOverlapping();
+
+Artisan::command('payment-requests:remove-expired', function () {
+    $deleted = PaymentRequest::query()
+        ->where('status', PaymentRequest::STATUS_PENDING)
+        ->where('expires_at', '<=', now())
+        ->delete();
+
+    $this->info("Removed {$deleted} expired payment request(s).");
+})->purpose('Remove unpaid mobile payment requests after their 24-hour expiry window.');
+
+Schedule::command('payment-requests:remove-expired')->everyTenMinutes()->withoutOverlapping();
 
 Artisan::command('students:create-mobile-account {student : Student ID or CID} {--password= : Initial password; never uses a shared default}', function () {
     $student = Student::query()->whereKey($this->argument('student'))->orWhere('student_cid', $this->argument('student'))->first();

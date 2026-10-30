@@ -27,6 +27,7 @@ use App\Services\PettyCashService;
 use App\Models\InventorySale;
 use App\Models\InventorySaleItem;
 use App\Models\PaymentInventoryItem;
+use App\Models\PaymentRequest;
 use App\Models\StockMovement;
 
 class FeeCollectionController extends Controller
@@ -236,6 +237,19 @@ class FeeCollectionController extends Controller
         $groups = Group::all();
         $sessions = AcademicSession::all();
         $studentId = $request->query('student_id', $request->query('id'));
+        $paymentRequest = null;
+
+        if ($request->filled('payment_request')) {
+            abort_unless(auth()->user()?->hasPermission('collect_payment_requests'), 403);
+            abort_unless($request->hasValidSignature(), 403);
+            $paymentRequest = PaymentRequest::with('items')
+                ->whereKey($request->integer('payment_request'))
+                ->where('status', PaymentRequest::STATUS_PENDING)
+                ->where('expires_at', '>', now())
+                ->firstOrFail();
+
+            abort_unless((int) $paymentRequest->student_id === (int) $studentId, 403);
+        }
 
         if (blank($studentId)) {
             return view('pages.fees.collect_fee', [
@@ -250,6 +264,7 @@ class FeeCollectionController extends Controller
                 'groups' => $groups,
                 'sessions' => $sessions,
                 'feeCategories' => FeeCategory::where('status', 1)->where('is_transport', 0)->orderBy('name')->get(),
+                'paymentRequest' => null,
             ]);
         }
 
@@ -524,7 +539,8 @@ class FeeCollectionController extends Controller
             'sections',
             'groups',
             'sessions',
-            'feeCategories'
+            'feeCategories',
+            'paymentRequest'
         ));
 
     }
@@ -640,6 +656,7 @@ class FeeCollectionController extends Controller
             'account_type'   => 'nullable|in:App\\Models\\HandCash,App\\Models\\BankAccount,App\\Models\\MobileBankingAccount',
             'account_id'     => 'nullable|integer',
             'description'    => 'nullable|string|max:1000',
+            'payment_request_id' => 'nullable|integer|exists:payment_requests,id',
         ]);
 
         if (empty($request->fees) && empty($request->items) && empty($request->inventory_dues)) {
@@ -649,6 +666,10 @@ class FeeCollectionController extends Controller
         DB::beginTransaction();
 
         try {
+            $paymentRequest = null;
+            if ($request->filled('payment_request_id')) {
+                abort_unless(auth()->user()?->hasPermission('collect_payment_requests'), 403);
+            }
             $requestedFees = collect($request->input('fees', []))
                 ->filter(fn ($fee) => is_array($fee) && !empty($fee['fee_id']))
                 ->values();
@@ -710,6 +731,24 @@ class FeeCollectionController extends Controller
 
             if ($fees->where('student_id', '!=', $studentId)->count()) {
                 return response()->json(['message' => 'Fees must belong to the same student'], 422);
+            }
+
+            if ($request->filled('payment_request_id')) {
+                $paymentRequest = PaymentRequest::with('items')
+                    ->whereKey($request->integer('payment_request_id'))
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $paymentRequest || ! $paymentRequest->isPending() || $paymentRequest->isExpired() || (int) $paymentRequest->student_id !== (int) $studentId) {
+                    DB::rollBack();
+                    return response()->json(['message' => 'This payment request is no longer available.'], 422);
+                }
+
+                $requestError = $this->paymentRequestCartError($paymentRequest, $requestedFees, $requestedItems, $requestedInventoryDues, $request);
+                if ($requestError) {
+                    DB::rollBack();
+                    return response()->json(['message' => $requestError], 422);
+                }
             }
 
             $student = Student::with(['academicInformations.schoolClass', 'academicInformations.section', 'academicInformations.group'])->find($studentId);
@@ -1109,6 +1148,14 @@ class FeeCollectionController extends Controller
                 }
             }
 
+            if ($paymentRequest) {
+                $paymentRequest->update([
+                    'status' => PaymentRequest::STATUS_COMPLETED,
+                    'completed_at' => now(),
+                    'completed_payment_id' => $payment->id,
+                ]);
+            }
+
             DB::commit();
 
             return response()->json([
@@ -1122,6 +1169,43 @@ class FeeCollectionController extends Controller
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+
+    private function paymentRequestCartError(PaymentRequest $paymentRequest, $requestedFees, $requestedItems, $requestedInventoryDues, Request $request): ?string
+    {
+        if ((float) $request->input('discount_amount', 0) !== 0.0 || $requestedInventoryDues->isNotEmpty()) {
+            return 'A mobile payment request cannot be edited.';
+        }
+
+        $requestFees = $paymentRequest->items->where('item_type', 'fee')->keyBy('fee_id');
+        $requestItems = $paymentRequest->items->where('item_type', 'inventory')->keyBy('inventory_item_id');
+        $submittedFees = $requestedFees->keyBy(fn ($item) => (int) ($item['fee_id'] ?? 0));
+        $submittedItems = $requestedItems->keyBy(fn ($item) => (int) ($item['inventory_item_id'] ?? 0));
+
+        if ($requestFees->keys()->map(fn ($id) => (int) $id)->sort()->values()->all() !== $submittedFees->keys()->sort()->values()->all()) {
+            return 'A mobile payment request cannot be edited.';
+        }
+
+        if ($requestItems->keys()->map(fn ($id) => (int) $id)->sort()->values()->all() !== $submittedItems->keys()->sort()->values()->all()) {
+            return 'A mobile payment request cannot be edited.';
+        }
+
+        foreach ($requestFees as $feeId => $snapshot) {
+            if (round((float) ($submittedFees->get($feeId)['amount'] ?? -1), 2) !== round((float) $snapshot->requested_amount, 2)) {
+                return 'A mobile payment request cannot be edited.';
+            }
+        }
+
+        foreach ($requestItems as $itemId => $snapshot) {
+            $submitted = $submittedItems->get($itemId);
+            if ((int) ($submitted['quantity'] ?? 0) !== (int) $snapshot->quantity
+                || round((float) ($submitted['unit_price'] ?? -1), 2) !== round((float) $snapshot->unit_price, 2)
+                || round((float) ($submitted['paid_amount'] ?? -1), 2) !== round((float) $snapshot->requested_amount, 2)) {
+                return 'A mobile payment request cannot be edited.';
+            }
+        }
+
+        return null;
     }
 
 

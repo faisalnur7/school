@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'audit.trail' => \App\Http\Middleware\RecordAuditTrail::class,
             'student.api' => \App\Http\Middleware\EnsureStudentApiAccount::class,
             'platform.admin' => \App\Http\Middleware\EnsurePlatformAdmin::class,
+            'mobile.feature' => \App\Http\Middleware\EnsureMobileFeatureAvailable::class,
         ]);
 
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);

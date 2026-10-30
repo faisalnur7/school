@@ -10,14 +10,22 @@ use App\Models\Section;
 use App\Models\Student;
 use App\Models\StudentAcademicInformation;
 use App\Models\User;
+use Database\Seeders\MobileAppFeatureSeeder;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class StudentMobileApiTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Artisan::call('db:seed', ['--class' => MobileAppFeatureSeeder::class, '--quiet' => true]);
+    }
 
     public function test_student_api_requires_sanctum_authentication(): void
     {

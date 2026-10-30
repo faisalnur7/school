@@ -10,6 +10,7 @@ use App\Models\AttendanceItem;
 use App\Models\ClassRoutine;
 use App\Models\ExamMark;
 use App\Models\Fee;
+use App\Models\InventoryCategory;
 use App\Models\MobileNotificationLog;
 use App\Models\Notice;
 use App\Models\Holiday;
@@ -19,22 +20,30 @@ use App\Models\Student;
 use App\Models\ClassSchedule;
 use App\Models\StudentDevice;
 use App\Models\Payment;
+use App\Models\PaymentRequest;
 use App\Models\SubjectClassAssignment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\PaymentController;
 use App\Services\StudentAudienceService;
 use App\Services\GradingService;
 use App\Services\ResultRankingService;
+use App\Services\MobileAppConfigurationService;
+use App\Services\PaymentRequestService;
 use Illuminate\Support\Str;
 use Mpdf\Mpdf;
 
 class StudentApiController extends Controller
 {
-    public function __construct(private readonly StudentAudienceService $audience) {}
+    public function __construct(
+        private readonly StudentAudienceService $audience,
+        private readonly MobileAppConfigurationService $mobileConfiguration,
+        private readonly PaymentRequestService $paymentRequests,
+    ) {}
 
     public function login(Request $request): JsonResponse
     {
@@ -84,6 +93,11 @@ class StudentApiController extends Controller
         return response()->json(['user' => $this->userPayload($request->user(), $student)]);
     }
 
+    public function mobileConfiguration(): JsonResponse
+    {
+        return response()->json($this->mobileConfiguration->current());
+    }
+
     public function dashboard(Request $request): JsonResponse
     {
         $student = $this->activeStudent($request);
@@ -99,18 +113,25 @@ class StudentApiController extends Controller
             ->whereHas('attendance', fn ($query) => $query->whereDate('date', today()))->first();
         $todayRoutine = $this->routineQuery($student)->where('day', now()->format('l'))->get();
 
+        $summary = [
+            'attendance_total' => $totalAttendance,
+            'attendance_absent' => $absentAttendance,
+            'attendance_percentage' => $totalAttendance ? round((($totalAttendance - $absentAttendance) / $totalAttendance) * 100, 2) : null,
+            'fee_due' => round((float) $due, 2),
+            'latest_result' => $this->latestResult($student),
+            'today_attendance' => $todayAttendance?->status,
+            'today_routine' => $todayRoutine->map(fn ($item) => $this->routinePayload($item))->values(),
+            'latest_notices' => Notice::published()->latest('published_at')->limit(3)->get(['id', 'title', 'published_at'])->map(fn ($notice) => $this->noticePayload($notice)),
+        ];
+        foreach (['attendance_total' => 'attendance', 'attendance_absent' => 'attendance', 'attendance_percentage' => 'attendance', 'today_attendance' => 'attendance', 'today_routine' => 'class_routine', 'fee_due' => 'fees', 'latest_result' => 'results', 'latest_notices' => 'notices'] as $key => $feature) {
+            if (! $this->mobileConfiguration->isFeatureEnabled($feature)) {
+                unset($summary[$key]);
+            }
+        }
+
         return response()->json([
             'student' => $this->studentPayload($student),
-            'summary' => [
-                'attendance_total' => $totalAttendance,
-                'attendance_absent' => $absentAttendance,
-                'attendance_percentage' => $totalAttendance ? round((($totalAttendance - $absentAttendance) / $totalAttendance) * 100, 2) : null,
-                'fee_due' => round((float) $due, 2),
-                'latest_result' => $this->latestResult($student),
-                'today_attendance' => $todayAttendance?->status,
-                'today_routine' => $todayRoutine->map(fn ($item) => $this->routinePayload($item))->values(),
-                'latest_notices' => Notice::published()->latest('published_at')->limit(3)->get(['id', 'title', 'published_at'])->map(fn ($notice) => $this->noticePayload($notice)),
-            ],
+            'summary' => $summary,
         ]);
     }
 
@@ -380,8 +401,122 @@ class StudentApiController extends Controller
         $fees = Fee::query()->with('feeSet:id,name')->where('student_id', $student->id)->where('is_active', true)
             ->where(fn ($query) => $query->whereNull('due_date')->orWhereDate('due_date', '<=', $dueTill))
             ->latest('id')->get();
+        $payableFees = $fees->filter(fn ($fee) => (float) $fee->due_amount > 0)->values();
         $payments = $student->payments()->latest('payment_date')->latest('id')->limit(50)->get(['id', 'amount', 'payment_date', 'payment_method', 'receipt_no', 'remarks']);
-        return response()->json(['due_till' => $dueTill, 'summary' => ['total' => round((float) $fees->sum(fn ($fee) => $fee->net_amount), 2), 'paid' => round((float) $fees->sum('paid_amount'), 2), 'due' => round((float) $fees->sum(fn ($fee) => max(0, $fee->due_amount)), 2)], 'fees' => $fees->map(fn ($fee) => ['id' => $fee->id, 'name' => $fee->feeSet?->name, 'amount' => (float) $fee->amount, 'discount' => (float) $fee->scholarship_discount, 'paid_amount' => (float) $fee->paid_amount, 'due_amount' => max(0, (float) $fee->due_amount), 'due_date' => $fee->due_date]), 'payments' => $payments->map(fn ($payment) => ['id' => $payment->id, 'amount' => (float) $payment->amount, 'payment_date' => $payment->payment_date, 'payment_method' => $payment->payment_method, 'receipt_no' => $payment->receipt_no])]);
+        $paymentRequests = PaymentRequest::query()
+            ->with('items')
+            ->where('student_id', $student->id)
+            ->where('status', PaymentRequest::STATUS_PENDING)
+            ->where('expires_at', '>', now())
+            ->latest()
+            ->get()
+            ->map(fn (PaymentRequest $paymentRequest) => $this->paymentRequestPayload($paymentRequest))
+            ->values();
+        $academic = $student->latestAcademicInformation;
+        $inventory = InventoryCategory::query()
+            ->where('is_active', true)
+            ->with(['items' => function ($query) use ($academic) {
+                $query->where('is_active', true)
+                    ->where(function ($itemQuery) use ($academic) {
+                        $itemQuery->where('item_type', 'common')
+                            ->orWhere(function ($classQuery) use ($academic) {
+                                $classQuery->where('item_type', 'classwise')
+                                    ->where('school_class_id', $academic?->school_class_id);
+                            });
+                    })
+                    ->where(function ($groupQuery) use ($academic) {
+                        $groupQuery->whereNull('group_id')
+                            ->orWhere('group_id', $academic?->group_id);
+                    })
+                    ->orderBy('name');
+            }])
+            ->get()
+            ->filter(fn ($category) => $category->items->isNotEmpty())
+            ->values()
+            ->map(fn ($category) => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'items' => $category->items->map(fn ($item) => [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'description' => $item->description,
+                    'selling_price' => (float) $item->selling_price,
+                    'is_flexible_price' => (bool) $item->is_flexible_price,
+                    'stock_type' => $item->stock_type,
+                    'current_stock' => (int) $item->current_stock,
+                    'unit' => $item->unit,
+                ])->values(),
+            ]);
+
+        return response()->json([
+            'due_till' => $dueTill,
+            'summary' => ['total' => round((float) $fees->sum(fn ($fee) => $fee->net_amount), 2), 'paid' => round((float) $fees->sum('paid_amount'), 2), 'due' => round((float) $fees->sum(fn ($fee) => max(0, $fee->due_amount)), 2)],
+            'fees' => $fees->map(fn ($fee) => ['id' => $fee->id, 'name' => $fee->feeSet?->name, 'amount' => (float) $fee->amount, 'discount' => (float) $fee->scholarship_discount, 'paid_amount' => (float) $fee->paid_amount, 'due_amount' => max(0, (float) $fee->due_amount), 'due_date' => $fee->due_date]),
+            'payment_request_fees' => $payableFees->map(fn ($fee) => ['id' => $fee->id, 'name' => $fee->feeSet?->name, 'amount' => (float) $fee->amount, 'discount' => (float) $fee->scholarship_discount, 'paid_amount' => (float) $fee->paid_amount, 'due_amount' => max(0, (float) $fee->due_amount), 'due_date' => $fee->due_date]),
+            'inventory' => $inventory,
+            'payment_requests' => $paymentRequests,
+            'payments' => $payments->map(fn ($payment) => ['id' => $payment->id, 'amount' => (float) $payment->amount, 'payment_date' => $payment->payment_date, 'payment_method' => $payment->payment_method, 'receipt_no' => $payment->receipt_no]),
+        ]);
+    }
+
+    public function paymentRequests(Request $request): JsonResponse
+    {
+        $student = $this->activeStudent($request);
+        PaymentRequest::query()->where('student_id', $student->id)->where('status', PaymentRequest::STATUS_PENDING)->where('expires_at', '<=', now())->delete();
+        $requests = PaymentRequest::query()
+            ->with('items')
+            ->where('student_id', $student->id)
+            ->where('status', PaymentRequest::STATUS_PENDING)
+            ->where('expires_at', '>', now())
+            ->latest()
+            ->get();
+
+        return response()->json(['items' => $requests->map(fn (PaymentRequest $paymentRequest) => $this->paymentRequestPayload($paymentRequest))->values()]);
+    }
+
+    public function storePaymentRequest(Request $request): JsonResponse
+    {
+        $student = $this->activeStudent($request);
+        $data = $request->validate([
+            'fees' => ['nullable', 'array'],
+            'fees.*.fee_id' => ['required_with:fees', 'integer'],
+            'fees.*.amount' => ['nullable', 'numeric', 'min:0'],
+            'items' => ['nullable', 'array'],
+            'items.*.inventory_item_id' => ['required_with:items', 'integer'],
+            'items.*.quantity' => ['required_with:items', 'integer', 'min:1'],
+            'items.*.unit_price' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        $paymentRequest = $this->paymentRequests->createForStudent($student, $data);
+
+        return response()->json($this->paymentRequestPayload($paymentRequest), 201);
+    }
+
+    public function paymentRequest(Request $request, int $paymentRequest): JsonResponse
+    {
+        $student = $this->activeStudent($request);
+        PaymentRequest::query()->where('student_id', $student->id)->where('status', PaymentRequest::STATUS_PENDING)->where('expires_at', '<=', now())->delete();
+        $record = PaymentRequest::with('items')
+            ->where('student_id', $student->id)
+            ->whereKey($paymentRequest)
+            ->where('status', PaymentRequest::STATUS_PENDING)
+            ->where('expires_at', '>', now())
+            ->firstOrFail();
+
+        return response()->json($this->paymentRequestPayload($record));
+    }
+
+    public function cancelPaymentRequest(Request $request, int $paymentRequest): JsonResponse
+    {
+        $student = $this->activeStudent($request);
+        $record = DB::transaction(function () use ($student, $paymentRequest) {
+            $record = PaymentRequest::query()->lockForUpdate()->where('student_id', $student->id)->whereKey($paymentRequest)->firstOrFail();
+            abort_unless($record->isPending() && ! $record->isExpired(), 404);
+            $record->update(['status' => PaymentRequest::STATUS_CANCELLED, 'cancelled_at' => now()]);
+            return $record;
+        });
+
+        return response()->json($this->paymentRequestPayload($record->fresh('items')));
     }
 
     public function payments(Request $request): JsonResponse
@@ -500,13 +635,50 @@ class StudentApiController extends Controller
 
     private function userPayload($user, Student $student): array
     {
-        return ['id' => $user->id, 'email' => $user->email, 'student' => $this->studentPayload($student)];
+        return ['id' => $user->id, 'email' => $user->email, 'student' => $this->studentPayload($student), 'mobile_app' => $this->mobileAppSummary()];
+    }
+
+    private function mobileAppSummary(): array
+    {
+        $configuration = $this->mobileConfiguration->current();
+
+        return [
+            'is_active' => $configuration['is_active'],
+            'enabled_features' => collect($configuration['features'])
+                ->where('is_enabled', true)
+                ->pluck('key')
+                ->values()
+                ->all(),
+        ];
     }
 
     private function studentPayload(Student $student): array
     {
         $academic = $student->latestAcademicInformation;
         return ['id' => $student->id, 'cid' => $student->student_cid, 'name' => $student->full_name_en ?: $student->full_name_bn, 'photo_url' => $student->photo_url, 'class' => $academic?->schoolClass?->name_en, 'section' => $academic?->section?->name_en, 'roll' => $academic?->roll];
+    }
+
+    private function paymentRequestPayload(PaymentRequest $paymentRequest): array
+    {
+        return [
+            'id' => $paymentRequest->id,
+            'status' => $paymentRequest->status,
+            'total_amount' => (float) $paymentRequest->total_amount,
+            'created_at' => $paymentRequest->created_at,
+            'expires_at' => $paymentRequest->expires_at,
+            'items' => $paymentRequest->items->map(fn ($item) => [
+                'id' => $item->id,
+                'item_type' => $item->item_type,
+                'fee_id' => $item->fee_id,
+                'inventory_item_id' => $item->inventory_item_id,
+                'quantity' => (int) $item->quantity,
+                'requested_amount' => (float) $item->requested_amount,
+                'unit_price' => (float) $item->unit_price,
+                'subtotal' => (float) $item->subtotal,
+                'display_name' => $item->display_name,
+                'display_reference' => $item->display_reference,
+            ])->values(),
+        ];
     }
 
     private function latestResult(Student $student): ?array

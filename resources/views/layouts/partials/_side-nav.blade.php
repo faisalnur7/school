@@ -244,6 +244,18 @@
                 </li>
                 @endif
 
+                <!-- Mobile Application -->
+                @if(auth()->user()?->isPlatformAdmin())
+                <li class="nav-item-modern">
+                    <a href="{{ route('platform-admins.mobile-app.edit') }}"
+                       class="nav-link-modern {{ request()->routeIs('platform-admins.mobile-app.*') ? 'active' : '' }}">
+                        <span class="nav-icon"><i class="fas fa-mobile-alt"></i></span>
+                        <span class="nav-text">{{ __('Mobile App Settings') }}</span>
+                        @if(request()->routeIs('platform-admins.mobile-app.*'))<span class="nav-indicator"></span>@endif
+                    </a>
+                </li>
+                @endif
+
                 <!-- Users & Roles -->
                 @if(auth()->user()?->isPlatformAdmin())
                 <li class="nav-item-modern">
