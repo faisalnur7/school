@@ -815,6 +815,14 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/fees/search', [FeeCollectionController::class, 'searchStudents'])->name('fees.search');
     });
 
+    Route::middleware('permission:view_payment_requests')->prefix('fees/payment-requests')->name('payment-requests.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\PaymentRequestController::class, 'index'])->name('index');
+        Route::get('/{paymentRequest}', [\App\Http\Controllers\PaymentRequestController::class, 'show'])->whereNumber('paymentRequest')->name('show');
+    });
+
+    Route::middleware('permission:collect_payment_requests')->get('/fees/payment-requests/{paymentRequest}/collect', [\App\Http\Controllers\PaymentRequestController::class, 'collect'])->whereNumber('paymentRequest')->name('payment-requests.collect');
+    Route::middleware('permission:cancel_payment_requests')->post('/fees/payment-requests/{paymentRequest}/cancel', [\App\Http\Controllers\PaymentRequestController::class, 'cancel'])->whereNumber('paymentRequest')->name('payment-requests.cancel');
+
     Route::middleware('permission:manage_transactions')->group(function () {
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
         Route::post('/payments/store', [PaymentController::class, 'store'])->name('payments.store');
