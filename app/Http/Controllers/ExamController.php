@@ -242,7 +242,6 @@ class ExamController extends Controller
         $entryMode = $request->input('entry_mode', 'subject');
         $entryMode = in_array($entryMode, ['subject', 'student'], true) ? $entryMode : 'subject';
         $subjectId = $entryMode === 'subject' ? ($request->integer('subject_id') ?: null) : null;
-        $showAbsent = filter_var($request->input('show_absent', '1'), FILTER_VALIDATE_BOOLEAN);
         $classes = SchoolClass::where('status', 1)->orderBy('id')->get();
         $sections = collect();
         $groups = collect();
@@ -337,7 +336,7 @@ class ExamController extends Controller
             'selectedGroup', 'subjects', 'subject', 'students', 'existingMarks',
             'subjectConfig', 'classId', 'sectionId', 'groupId', 'subjectId', 'cohortReady',
             'entryMode', 'studentWiseMarks'
-            , 'studentSubjectEligibility', 'showAbsent',
+            , 'studentSubjectEligibility',
             'csvImportPreview', 'csvImportErrors'
         ));
     }
@@ -484,9 +483,16 @@ class ExamController extends Controller
     {
         $context = $this->marksCsvContext($request, $exam);
         $filename = 'marks-' . $exam->id . '-' . ($context['subject']?->id ?? 'all') . '-' . now()->format('Ymd-His') . '.csv';
-        $headers = ['student_id', 'roll', 'student_name', 'subject_id', 'subject_name', 'tutorial_marks', 'cq_marks', 'mcq_marks', 'viva_marks', 'practical_marks'];
+        $isTutorial = $exam->type === Exam::TYPE_TUTORIAL;
+        $headers = $isTutorial
+            ? ['student_id', 'roll', 'student_name', 'subject_id', 'subject_name', 'tutorial_marks', 'tutorial_full_marks']
+            : [
+                'student_id', 'roll', 'student_name', 'subject_id', 'subject_name',
+                'cq_marks', 'cq_full_marks', 'mcq_marks', 'mcq_full_marks',
+                'viva_marks', 'viva_full_marks', 'practical_marks', 'practical_full_marks',
+            ];
 
-        return response()->streamDownload(function () use ($headers, $context, $exam) {
+        return response()->streamDownload(function () use ($headers, $context, $exam, $isTutorial) {
             $output = fopen('php://output', 'w');
             fwrite($output, "\xEF\xBB\xBF");
             fputcsv($output, $headers, ',', '"', '\\');
@@ -504,15 +510,25 @@ class ExamController extends Controller
                     }
                     $mark = $marks->get($student->id . ':' . $subject->id);
                     $info = $student->academicInformations->first();
-                    fputcsv($output, [
+                    $config = $subject->getEffectiveMarksForClass($context['classId']);
+                    $row = [
                         $student->id, $info?->roll ?? '', $student->full_name_en,
                         $subject->id, $subject->name,
-                        $this->csvNumber($mark?->tutorial_marks),
-                        $this->csvNumber($mark?->cq_marks),
-                        $this->csvNumber($mark?->mcq_marks),
-                        $this->csvNumber($mark?->viva_marks),
-                        $this->csvNumber($mark?->practical_marks),
-                    ], ',', '"', '\\');
+                    ];
+                    if ($isTutorial) {
+                        $row[] = $this->csvNumber($mark?->tutorial_marks);
+                        $row[] = $this->csvNumber($config['tutorial_marks'] ?? $subject->tutorial_marks);
+                    } else {
+                        $row[] = $this->csvNumber($mark?->cq_marks);
+                        $row[] = $this->csvNumber($config['creative_marks'] ?? 0);
+                        $row[] = $this->csvNumber($mark?->mcq_marks);
+                        $row[] = $this->csvNumber($config['mcq_marks'] ?? 0);
+                        $row[] = $this->csvNumber($mark?->viva_marks);
+                        $row[] = $this->csvNumber($config['viva_marks'] ?? 0);
+                        $row[] = $this->csvNumber($mark?->practical_marks);
+                        $row[] = $this->csvNumber($config['practical_marks'] ?? 0);
+                    }
+                    fputcsv($output, $row, ',', '"', '\\');
                 }
             }
             fclose($output);
@@ -544,7 +560,13 @@ class ExamController extends Controller
             $handle = fopen($request->file('marks_csv')->getRealPath(), 'rb');
             $headers = fgetcsv($handle, 0, ',', '"', '\\');
             $headers = array_map(fn ($header) => trim(preg_replace('/^\xEF\xBB\xBF/', '', (string) $header)), $headers ?: []);
-            $requiredHeaders = ['student_id', 'subject_id', 'tutorial_marks', 'cq_marks', 'mcq_marks', 'viva_marks', 'practical_marks'];
+            $requiredHeaders = $exam->type === Exam::TYPE_TUTORIAL
+                ? ['student_id', 'subject_id', 'tutorial_marks']
+                : [
+                    'student_id', 'subject_id', 'cq_marks', 'cq_full_marks',
+                    'mcq_marks', 'mcq_full_marks', 'viva_marks', 'viva_full_marks',
+                    'practical_marks', 'practical_full_marks',
+                ];
             $missingHeaders = array_values(array_diff($requiredHeaders, $headers));
             if ($missingHeaders) {
                 fclose($handle);
@@ -587,11 +609,6 @@ class ExamController extends Controller
     {
         $allowedStudents = $context['students']->keyBy('id');
         $allowedSubjects = $context['subjects']->keyBy('id');
-        $existingMarks = $exam->marks()
-            ->whereIn('student_id', $allowedStudents->keys())
-            ->whereIn('subject_id', $allowedSubjects->keys())
-            ->get()
-            ->keyBy(fn ($mark) => $mark->student_id . ':' . $mark->subject_id);
         $rows = [];
         $errors = [];
         $seen = [];
@@ -601,19 +618,13 @@ class ExamController extends Controller
 
         foreach ($rawRows as $index => $rawRow) {
             $rowNumber = $index + 2;
-            $hasAbsentColumn = array_key_exists('is_absent', $rawRow);
             $row = array_merge([
                 'student_id' => '', 'roll' => '', 'student_name' => '', 'subject_id' => '', 'subject_name' => '',
-                'tutorial_marks' => '', 'cq_marks' => '', 'mcq_marks' => '', 'practical_marks' => '', 'viva_marks' => '', 'is_absent' => '1',
+                'tutorial_marks' => '', 'cq_marks' => '', 'mcq_marks' => '', 'practical_marks' => '', 'viva_marks' => '', 'is_absent' => '0',
             ], array_map(fn ($value) => is_scalar($value) ? trim((string) $value) : '', (array) $rawRow));
-            $row['is_absent'] = $row['is_absent'] === '' ? '1' : $row['is_absent'];
             $rowErrors = [];
             $studentId = (int) $row['student_id'];
             $subjectId = (int) $row['subject_id'];
-            if (! $hasAbsentColumn) {
-                $existingMark = $existingMarks->get($studentId . ':' . $subjectId);
-                $row['is_absent'] = $existingMark ? ($existingMark->is_absent ? '1' : '0') : '1';
-            }
             $student = $allowedStudents->get($studentId);
             $subject = $allowedSubjects->get($subjectId);
 
@@ -632,11 +643,7 @@ class ExamController extends Controller
             }
             $seen[$key] = true;
 
-            $absentValue = strtolower($row['is_absent']);
-            if (! in_array($absentValue, ['0', '1', 'yes', 'no', 'true', 'false', 'ab', 'absent', 'present'], true)) {
-                $rowErrors[] = 'is_absent must be 0 or 1.';
-            }
-            $isAbsent = in_array($absentValue, ['1', 'yes', 'true', 'ab', 'absent'], true);
+            $isAbsent = false;
             if ($subject) {
                 $config = $subject->getEffectiveMarksForClass($context['classId']);
                 $configKeys = [
@@ -662,7 +669,7 @@ class ExamController extends Controller
             if ($subject) {
                 $row['subject_name'] = $subject->name;
             }
-            $row['is_absent'] = $isAbsent ? 1 : 0;
+            $row['is_absent'] = 0;
             $row['_errors'] = $rowErrors;
             if ($rowErrors) {
                 $errors[] = 'CSV row ' . $rowNumber . ': ' . implode(' ', $rowErrors);
@@ -724,9 +731,7 @@ class ExamController extends Controller
         ?int $studentId = null
     ): void {
         $studentId ??= (int) ($row['student_id'] ?? 0);
-        $isAbsent = $isTutorial
-            ? ! empty($row['is_absent'])
-            : (array_key_exists('is_present', $row) ? empty($row['is_present']) : ! empty($row['is_absent']));
+        $isAbsent = false;
         $limits = $isTutorial
             ? ['tutorial_marks' => (float) ($config['tutorial_marks'] ?? $subject->tutorial_marks ?? 0)]
             : [

@@ -104,22 +104,6 @@
                     </a>
                 </div>
             </div>
-            @if ($entryMode === 'student')
-                <form method="GET" action="{{ route('exams.marks-entry', $exam) }}" class="card card-body py-2 mb-3 column-control-card">
-                    <input type="hidden" name="class_id" value="{{ $classId }}">
-                    <input type="hidden" name="section_id" value="{{ $sectionId }}">
-                    <input type="hidden" name="group_id" value="{{ $groupId }}">
-                    <input type="hidden" name="entry_mode" value="student">
-                    <div class="d-flex flex-wrap align-items-center">
-                        <strong class="mr-3">Column control:</strong>
-                        <label class="mb-0 mr-4">
-                            <input type="hidden" name="show_absent" value="0">
-                            <input type="checkbox" name="show_absent" value="1" {{ $showAbsent ? 'checked' : '' }} onchange="this.form.submit()">
-                            Show Absent columns
-                        </label>
-                    </div>
-                </form>
-                @endif
                 @if (!empty($csvImportPreview) || !empty($csvImportErrors))
                     <div class="card border-warning mb-3 csv-import-preview">
                         <div class="card-header bg-light d-flex justify-content-between align-items-center">
@@ -249,7 +233,7 @@
 
                                 return ['subject' => $studentWiseSubject, 'config' => $config, 'components' => $components];
                             });
-                            $studentWiseColumnCount = $studentWiseColumns->sum(fn ($column) => count($column['components']) + ($showAbsent ? 1 : 0));
+                            $studentWiseColumnCount = $studentWiseColumns->sum(fn ($column) => count($column['components']));
                         @endphp
                         <div class="card student-wise-card marks-workspace-card">
                             <div class="card-header d-flex justify-content-between align-items-center student-wise-toolbar">
@@ -299,16 +283,13 @@
                                                     <th rowspan="{{ $isTutorial ? 1 : 2 }}" class="text-center sticky-col" style="width:90px; min-width:90px;">Roll</th>
                                                     <th rowspan="{{ $isTutorial ? 1 : 2 }}" class="sticky-col student-name-col">Student Name</th>
                                                     @foreach ($studentWiseColumns as $column)
-                                                        <th colspan="{{ count($column['components']) + ($showAbsent ? 1 : 0) }}" class="text-center subject-group-header">
+                                                        <th colspan="{{ count($column['components']) }}" class="text-center subject-group-header">
                                                             {!! preg_replace('/\s+/', '<br>', e($column['subject']->name)) !!}
                                                             @if ($isTutorial)
                                                                 <small class="subject-mode-label">({{ number_format($column['components'][0]['max'], 0) }})</small>
                                                             @endif
                                                         </th>
                                                     @endforeach
-                                                    @if ($showAbsent)
-                                                        <th rowspan="{{ $isTutorial ? 1 : 2 }}" class="text-center" style="width:75px; min-width:75px;">Absent<br>All</th>
-                                                    @endif
                                                     <th rowspan="{{ $isTutorial ? 1 : 2 }}" class="text-center" style="width:80px; min-width:80px;">Overall<br>Total</th>
                                                 </tr>
                                                 @if (! $isTutorial)
@@ -317,9 +298,6 @@
                                                         @foreach ($column['components'] as $component)
                                                             <th class="text-center component-header" style="min-width:85px;">{{ $isTutorial ? 'Marks' : $component['label'] }}<br><small class="mark-full-label">{{ $component['max'] }}</small></th>
                                                         @endforeach
-                                                        @if ($showAbsent)
-                                                            <th class="text-center" style="min-width:60px;">Absent<br><input type="checkbox" class="subject-present-all" data-subject-id="{{ $column['subject']->id }}" checked aria-label="Mark all students present for {{ $column['subject']->name }}"></th>
-                                                        @endif
                                                     @endforeach
                                                 </tr>
                                                 @endif
@@ -341,32 +319,17 @@
                                                                 $studentWiseSubject = $column['subject'];
                                                                 $mark = $studentMarks[$studentWiseSubject->id] ?? null;
                                                                 $eligible = in_array($student->id, $studentSubjectEligibility[$studentWiseSubject->id] ?? [], true);
-                                                                $isAbsent = (bool) ($mark?->is_absent ?? false);
                                                             @endphp
                                                             @foreach ($column['components'] as $component)
                                                                 <td class="p-1 {{ $eligible ? '' : 'table-light' }} student-subject-group" data-subject-id="{{ $studentWiseSubject->id }}">
-                                                                    <input type="number" name="marks[{{ $student->id }}][{{ $studentWiseSubject->id }}][{{ $component['field'] }}]" class="form-control form-control-sm text-center mark-input student-component-input" value="{{ $eligible && $mark?->{$component['field']} !== null ? number_format((float) $mark->{$component['field']}, 1) : '' }}" min="0" max="{{ $component['max'] }}" step="0.5" {{ (!$eligible || $isAbsent) ? 'disabled' : '' }}>
+                                                                    <input type="number" name="marks[{{ $student->id }}][{{ $studentWiseSubject->id }}][{{ $component['field'] }}]" class="form-control form-control-sm text-center mark-input student-component-input" value="{{ $eligible && $mark?->{$component['field']} !== null ? number_format((float) $mark->{$component['field']}, 1) : '' }}" min="0" max="{{ $component['max'] }}" step="0.5" {{ !$eligible ? 'disabled' : '' }}>
                                                                 </td>
                                                             @endforeach
-                                                            @if ($showAbsent)
-                                                                <td class="text-center px-1 {{ $eligible ? '' : 'table-light' }} student-subject-group" data-subject-id="{{ $studentWiseSubject->id }}">
-                                                                    <input type="checkbox" name="marks[{{ $student->id }}][{{ $studentWiseSubject->id }}][is_present]" class="student-present-checkbox" data-subject-id="{{ $studentWiseSubject->id }}" value="1" {{ !$isAbsent ? 'checked' : '' }} {{ !$eligible ? 'disabled' : '' }}>
-                                                                </td>
-                                                            @else
-                                                                @if ($eligible)
-                                                                    <input type="hidden" name="marks[{{ $student->id }}][{{ $studentWiseSubject->id }}][is_absent]" value="{{ $isAbsent ? 1 : 0 }}">
-                                                                @endif
-                                                            @endif
                                                         @endforeach
-                                                        @if ($showAbsent)
-                                                            <td class="text-center">
-                                                                <input type="checkbox" class="row-absent-all" aria-label="Mark all subjects absent for {{ $student->full_name_en }}">
-                                                            </td>
-                                                        @endif
                                                         <td class="text-center"><strong class="overall-total-display text-success">—</strong></td>
                                                     </tr>
                                                 @empty
-                                                    <tr><td colspan="{{ $studentWiseColumnCount + ($showAbsent ? 2 : 1) }}" class="text-center text-muted py-4">No students found for this cohort.</td></tr>
+                                                    <tr><td colspan="{{ $studentWiseColumnCount + 3 }}" class="text-center text-muted py-4">No students found for this cohort.</td></tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
@@ -457,7 +420,6 @@
                                                         @endif
                                                     @endif
                                                     <th class="text-center" style="width:75px">Total</th>
-                                                    <th class="text-center" style="width:65px">Absent</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -466,10 +428,9 @@
                                                         $mark = $existingMarks[$student->id] ?? null;
                                                         $info = $student->academicInformations->first();
                                                         $roll = $info?->roll ?? '—';
-                                                        $isAbsent = $mark?->is_absent ?? false;
                                                         $rowKey = "marks.$i";
                                                     @endphp
-                                                    <tr class="mark-row {{ $isAbsent ? 'table-secondary' : '' }}" data-student="{{ $student->id }}">
+                                                    <tr class="mark-row" data-student="{{ $student->id }}">
                                                         <td class="text-center" style="width:90px; min-width:90px;">{{ $roll }}</td>
                                                         <td>
                                                             <strong>{{ $student->full_name_en }}</strong>
@@ -480,37 +441,34 @@
                                                         </td>
                                                         @if ($isTutorial)
                                                             <td class="p-1">
-                                                                <input type="number" name="marks[{{ $i }}][tutorial_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.tutorial_marks', $mark?->tutorial_marks) !== null && old($rowKey.'.tutorial_marks', $mark?->tutorial_marks) !== '' ? number_format((float) old($rowKey.'.tutorial_marks', $mark?->tutorial_marks), 1) : '' }}" min="0" max="{{ $fullMarks }}" step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
+                                                                <input type="number" name="marks[{{ $i }}][tutorial_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.tutorial_marks', $mark?->tutorial_marks) !== null && old($rowKey.'.tutorial_marks', $mark?->tutorial_marks) !== '' ? number_format((float) old($rowKey.'.tutorial_marks', $mark?->tutorial_marks), 1) : '' }}" min="0" max="{{ $fullMarks }}" step="0.5">
                                                             </td>
                                                         @else
                                                             @if ($hasCq)
                                                                 <td class="p-1">
-                                                                    <input type="number" name="marks[{{ $i }}][cq_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.cq_marks', $mark?->cq_marks) !== null && old($rowKey.'.cq_marks', $mark?->cq_marks) !== '' ? number_format((float) old($rowKey.'.cq_marks', $mark?->cq_marks), 1) : '' }}" min="0" max="{{ $subjectConfig['creative_marks'] }}" step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
+                                                                    <input type="number" name="marks[{{ $i }}][cq_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.cq_marks', $mark?->cq_marks) !== null && old($rowKey.'.cq_marks', $mark?->cq_marks) !== '' ? number_format((float) old($rowKey.'.cq_marks', $mark?->cq_marks), 1) : '' }}" min="0" max="{{ $subjectConfig['creative_marks'] }}" step="0.5">
                                                                 </td>
                                                             @endif
                                                             @if ($hasMcq)
                                                                 <td class="p-1">
-                                                                    <input type="number" name="marks[{{ $i }}][mcq_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.mcq_marks', $mark?->mcq_marks) !== null && old($rowKey.'.mcq_marks', $mark?->mcq_marks) !== '' ? number_format((float) old($rowKey.'.mcq_marks', $mark?->mcq_marks), 1) : '' }}" min="0" max="{{ $subjectConfig['mcq_marks'] }}" step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
+                                                                    <input type="number" name="marks[{{ $i }}][mcq_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.mcq_marks', $mark?->mcq_marks) !== null && old($rowKey.'.mcq_marks', $mark?->mcq_marks) !== '' ? number_format((float) old($rowKey.'.mcq_marks', $mark?->mcq_marks), 1) : '' }}" min="0" max="{{ $subjectConfig['mcq_marks'] }}" step="0.5">
                                                                 </td>
                                                             @endif
                                                             @if ($hasPractical)
                                                                 <td class="p-1">
-                                                                    <input type="number" name="marks[{{ $i }}][practical_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.practical_marks', $mark?->practical_marks) !== null && old($rowKey.'.practical_marks', $mark?->practical_marks) !== '' ? number_format((float) old($rowKey.'.practical_marks', $mark?->practical_marks), 1) : '' }}" min="0" max="{{ $subjectConfig['practical_marks'] }}" step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
+                                                                    <input type="number" name="marks[{{ $i }}][practical_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.practical_marks', $mark?->practical_marks) !== null && old($rowKey.'.practical_marks', $mark?->practical_marks) !== '' ? number_format((float) old($rowKey.'.practical_marks', $mark?->practical_marks), 1) : '' }}" min="0" max="{{ $subjectConfig['practical_marks'] }}" step="0.5">
                                                                 </td>
                                                             @endif
                                                             @if ($hasViva)
                                                                 <td class="p-1">
-                                                                    <input type="number" name="marks[{{ $i }}][viva_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.viva_marks', $mark?->viva_marks) !== null && old($rowKey.'.viva_marks', $mark?->viva_marks) !== '' ? number_format((float) old($rowKey.'.viva_marks', $mark?->viva_marks), 1) : '' }}" min="0" max="{{ $subjectConfig['viva_marks'] }}" step="0.5" {{ $isAbsent ? 'disabled' : '' }}>
+                                                                    <input type="number" name="marks[{{ $i }}][viva_marks]" class="form-control form-control-sm text-center mark-input" value="{{ old($rowKey.'.viva_marks', $mark?->viva_marks) !== null && old($rowKey.'.viva_marks', $mark?->viva_marks) !== '' ? number_format((float) old($rowKey.'.viva_marks', $mark?->viva_marks), 1) : '' }}" min="0" max="{{ $subjectConfig['viva_marks'] }}" step="0.5">
                                                                 </td>
                                                             @endif
                                                         @endif
                                                         <td class="text-center">
-                                                            <strong class="total-display {{ (! $isTutorial && $mark && ! $isAbsent && $mark->total < $passMark) ? 'text-danger' : 'text-success' }}">
-                                                                {{ $mark && ! $isAbsent ? number_format($mark->total, 1) : ($isAbsent ? 'AB' : '—') }}
+                                                            <strong class="total-display {{ (! $isTutorial && $mark && $mark->total < $passMark) ? 'text-danger' : 'text-success' }}">
+                                                                {{ $mark ? number_format($mark->total, 1) : '—' }}
                                                             </strong>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input type="checkbox" name="marks[{{ $i }}][is_absent]" class="absent-checkbox" value="1" {{ old($rowKey.'.is_absent', $isAbsent) ? 'checked' : '' }}>
                                                         </td>
                                                     </tr>
                                                 @empty
@@ -1479,11 +1437,7 @@
                     const input = cell.querySelector('.mark-input');
                     return sum + (input && !input.disabled ? (parseFloat(input.value) || 0) : 0);
                 }, 0);
-                const absent = cells.some(cell => {
-                    const presence = cell.querySelector('.student-present-checkbox');
-                    return presence && !presence.checked;
-                });
-                if (!absent) overall += total;
+                overall += total;
             });
 
             const overallEl = row.querySelector('.overall-total-display');
