@@ -16,6 +16,7 @@ class MobileAppFeatureSeeder extends Seeder
             ['key' => 'results', 'label' => 'Results', 'icon' => 'assessment_outlined', 'flutter_route' => '/results', 'api_capability' => ['results', 'result_options', 'result_detail'], 'sort_order' => 40],
             ['key' => 'attendance', 'label' => 'Attendance', 'icon' => 'calendar_month_outlined', 'flutter_route' => '/attendance', 'api_capability' => ['attendance'], 'sort_order' => 50],
             ['key' => 'fees', 'label' => 'Fees', 'icon' => 'payments_outlined', 'flutter_route' => '/feature/fees', 'api_capability' => ['fees', 'payments'], 'sort_order' => 60],
+            ['key' => 'payment_requests', 'label' => 'Payment Request', 'icon' => 'shopping_cart_outlined', 'flutter_route' => '/payment-requests', 'api_capability' => ['fees', 'payment_requests'], 'sort_order' => 65],
             ['key' => 'notices', 'label' => 'Notices', 'icon' => 'campaign_outlined', 'flutter_route' => '/feature/notices', 'api_capability' => ['notices'], 'sort_order' => 70],
             ['key' => 'homework', 'label' => 'Homework', 'icon' => 'menu_book_outlined', 'flutter_route' => '/feature/homework', 'api_capability' => ['homework'], 'sort_order' => 80],
             ['key' => 'notifications', 'label' => 'Notifications', 'icon' => 'notifications_none_outlined', 'flutter_route' => '/feature/notifications', 'api_capability' => ['notifications'], 'sort_order' => 90],

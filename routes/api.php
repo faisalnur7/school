@@ -31,6 +31,10 @@ Route::prefix('v1/student')->group(function () {
         Route::get('fees', [StudentApiController::class, 'fees'])->middleware('mobile.feature:fees');
         Route::get('payments', [StudentApiController::class, 'payments'])->middleware('mobile.feature:fees');
         Route::get('payments/{payment}/receipt', [StudentApiController::class, 'receipt'])->whereNumber('payment')->middleware('mobile.feature:fees');
+        Route::get('payment-requests', [StudentApiController::class, 'paymentRequests'])->middleware('mobile.feature:fees');
+        Route::post('payment-requests', [StudentApiController::class, 'storePaymentRequest'])->middleware('mobile.feature:fees');
+        Route::get('payment-requests/{paymentRequest}', [StudentApiController::class, 'paymentRequest'])->whereNumber('paymentRequest')->middleware('mobile.feature:fees');
+        Route::delete('payment-requests/{paymentRequest}', [StudentApiController::class, 'cancelPaymentRequest'])->whereNumber('paymentRequest')->middleware('mobile.feature:fees');
         Route::get('notices', [StudentApiController::class, 'notices'])->middleware('mobile.feature:notices');
         Route::get('homework', [StudentApiController::class, 'homework'])->middleware('mobile.feature:homework');
         Route::get('notifications', [StudentApiController::class, 'notifications'])->middleware('mobile.feature:notifications');

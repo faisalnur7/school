@@ -3474,7 +3474,22 @@
         @php
             $feeSets = $pendingFees->groupBy('fee_set_id');
             $mobileDueCount = isset($inventoryDueItems) ? $inventoryDueItems->flatten(1)->count() : 0;
+            $lockedPaymentRequestItems = ($paymentRequest?->items ?? collect())->map(fn ($item) => [
+                'item_type' => $item->item_type,
+                'fee_id' => $item->fee_id,
+                'inventory_item_id' => $item->inventory_item_id,
+                'quantity' => (int) $item->quantity,
+                'requested_amount' => (float) $item->requested_amount,
+                'unit_price' => (float) $item->unit_price,
+            ])->values();
         @endphp
+
+        @if ($paymentRequest)
+            <div class="alert alert-info d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                <span><i class="fas fa-lock mr-1"></i>{{ __('Immutable mobile payment request') }} · {{ __('The cart cannot be edited.') }}</span>
+                <a href="{{ route('payment-requests.show', $paymentRequest) }}" class="btn btn-sm btn-outline-primary">{{ __('View Request') }}</a>
+            </div>
+        @endif
 
         {{-- ── Student Banner ── --}}
         <div class="student-header-card mb-4">
@@ -4692,6 +4707,9 @@
             const isMobileViewport = () => window.matchMedia('(max-width: 1023.98px)').matches;
 
             const currentCid = @json($student?->student_cid ?? '');
+            const paymentRequestId = @json($paymentRequest?->id);
+            const lockedPaymentRequestItems = @json($lockedPaymentRequestItems);
+            let loadingPaymentRequest = false;
             const $studentCidInput = $studentCidInputs;
             const $studentCidBtn = $studentCidBtns;
 
@@ -5272,6 +5290,7 @@
 
             /* ── Add fee on card click ── */
             $feeCards.on('click', function() {
+                if (paymentRequestId && !loadingPaymentRequest) return;
                 let id = $(this).data('id');
                 let amount = parseFloat($(this).data('amount'));
                 let gross = parseFloat($(this).data('gross') || $(this).data('amount'));
@@ -5340,6 +5359,7 @@
 
             /* ── Add inventory item on card click ── */
             $(document).on('click', '.inv-item-card', function(e) {
+                if (paymentRequestId && !loadingPaymentRequest) return;
                 if ($(e.target).is('input')) return;
                 let invId = $(this).data('inv-id');
                 let stock = parseInt($(this).data('stock')) || 0;
@@ -5422,6 +5442,7 @@
 
             /* ── Remove from cart ── */
             $cartItemsEl.on('click', '.remove-btn', function() {
+                if (paymentRequestId) return;
                 let id = $(this).data('id');
                 let amount = parseFloat($(this).data('amount'));
                 let type = $(this).data('type') || 'fee';
@@ -5674,6 +5695,7 @@
                     fees: feesPayload,
                     items: itemsPayload,
                     inventory_dues: inventoryDuesPayload,
+                    payment_request_id: paymentRequestId,
                     student_id: @json($student?->id),
                     payment_amount: $('#paymentAmount').val() ?? $totalEl.text(),
                     // The shared datepicker keeps the submitted ISO date in the hidden field.
@@ -5891,6 +5913,41 @@
                     if ($link.length) $link.trigger('click');
                 }, 100);
             });
+
+            if (paymentRequestId && lockedPaymentRequestItems.length) {
+                loadingPaymentRequest = true;
+                lockedPaymentRequestItems.forEach(function (item) {
+                    if (item.item_type === 'fee') {
+                        const $card = $('.fee-card[data-id="' + item.fee_id + '"]');
+                        if ($card.length) {
+                            $card.trigger('click');
+                            const $row = $('#cart-' + item.fee_id);
+                            $row.find('.fee-paid-input').val(Number(item.requested_amount).toFixed(2)).prop('disabled', true);
+                            $row.find('.fee-paid-hidden').val(Number(item.requested_amount).toFixed(2));
+                        }
+                    }
+
+                    if (item.item_type === 'inventory') {
+                        const $card = $('.inv-item-card[data-inv-id="' + item.inventory_item_id + '"]');
+                        if ($card.length) {
+                            $card.trigger('click');
+                            const $row = $('#cart-inv_' + item.inventory_item_id);
+                            $row.find('.cart-inv-qty').val(item.quantity).prop('disabled', true);
+                            $row.find('.inv-qty-hidden').val(item.quantity);
+                            $row.find('.cart-inv-unit-price').val(Number(item.unit_price).toFixed(2)).prop('disabled', true);
+                            $row.find('.inv-unit-price-hidden').val(Number(item.unit_price).toFixed(2));
+                            $row.find('.cart-inv-paid').val(Number(item.requested_amount).toFixed(2)).prop('disabled', true);
+                            $row.find('.inv-paid-hidden').val(Number(item.requested_amount).toFixed(2));
+                            $row.data('subtotal', Number(item.requested_amount));
+                            $row.find('.inv-subtotal-display').text(Number(item.requested_amount).toFixed(2));
+                        }
+                    }
+                });
+                loadingPaymentRequest = false;
+                $('#cartItems .remove-btn, #discountInput, #btnFlat, #btnPercent').prop('disabled', true);
+                $('#discountAmountHidden').val('0');
+                $('.fee-collect-page').addClass('payment-request-locked');
+            }
 
             updateUI();
             syncMobileStickyOffsets();
