@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('contents')
-    <div class="container-fluid attendance-workspace">
+    <div class="container-fluid attendance-workspace attendance-mobile-compact">
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show">
                 <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
@@ -15,23 +15,12 @@
             </div>
         @endif
         <div class="attendance-hero">
-            <div class="attendance-hero__copy">
-                <span class="attendance-hero__eyebrow">Teacher Attendance</span>
-                <h1 class="attendance-hero__title">Mark Daily Attendance</h1>
-                <p class="attendance-hero__text">
-                    Pick a session, class, section, and date to load students and record presence in one pass.
-                </p>
+            <div class="attendance-hero__icon" aria-hidden="true">
+                <i class="fas fa-clipboard-check"></i>
             </div>
-            <div class="attendance-hero__meta">
-                <div class="attendance-hero__chip {{ $isOpenForAll ? 'is-open' : 'is-restricted' }}">
-                    <span class="attendance-hero__chip-label">Access</span>
-                    <span class="attendance-hero__chip-value">
-                        {{ $isOpenForAll ? 'Open for all users' : 'Assigned class only' }}
-                    </span>
-                </div>
-                <a href="{{ route('attendance.settings.index') }}" class="btn btn-light btn-sm attendance-hero__settings">
-                    <i class="fas fa-cog mr-1"></i>Settings
-                </a>
+            <div class="attendance-hero__copy">
+                <h1 class="attendance-hero__title">Attendance</h1>
+                <p class="attendance-hero__text">Manage student attendance records</p>
             </div>
         </div>
 
@@ -109,6 +98,38 @@
 
 @section('styles')
     <style>
+        .attendance-hero {
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1.2rem 1.3rem;
+            border-radius: 1.35rem;
+            background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+        }
+
+        .attendance-hero__icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            flex: 0 0 48px;
+            margin-right: 1rem;
+            border-radius: 0.8rem;
+            background: rgba(148, 163, 184, 0.22);
+            color: #fff;
+            font-size: 1.35rem;
+        }
+
+        .attendance-hero__title {
+            font-size: 1.35rem;
+        }
+
+        .attendance-hero__text {
+            margin-top: 0.35rem;
+            color: #d1fae5;
+            font-size: 0.9rem;
+        }
+
         .attendance-filter-control {
             min-height: 42px;
             height: 42px;
@@ -128,6 +149,279 @@
         .attendance-filter-field .select2-container--default .select2-selection--single {
             min-height: 42px;
             height: 42px;
+        }
+
+        .attendance-mark-table {
+            width: 100%;
+            table-layout: fixed;
+            font-size: 0.86rem;
+        }
+
+        .attendance-mark-table th,
+        .attendance-mark-table td {
+            padding: 0.5rem 0.65rem;
+            line-height: 1.25;
+        }
+
+        .attendance-mark-table th:first-child,
+        .attendance-mark-table td:first-child {
+            width: 120px;
+        }
+
+        .attendance-mark-table th:nth-child(2),
+        .attendance-mark-table td:nth-child(2) {
+            width: 90px;
+        }
+
+        .attendance-mark-table td:last-child {
+            overflow-wrap: anywhere;
+        }
+
+        .attendance-hero__access {
+            display: inline-flex;
+        }
+
+        .attendance-hero__pill-row {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-bottom: 0.55rem;
+        }
+
+        .attendance-hero__pill-row .attendance-hero__eyebrow {
+            margin-bottom: 0;
+        }
+
+        .attendance-hero__access .attendance-hero__chip {
+            display: inline-flex;
+            width: auto;
+            min-height: 0;
+            align-items: center;
+            padding: 0.2rem 0.55rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            gap: 0.35rem;
+            line-height: 1.1;
+        }
+
+        .attendance-hero__access .attendance-hero__chip-label {
+            font-size: 0.65rem;
+            line-height: 1.1;
+        }
+
+        .attendance-hero__access .attendance-hero__chip-value {
+            font-size: 0.72rem;
+            line-height: 1.1;
+        }
+
+        @media (min-width: 992px) {
+            .attendance-mobile-compact .attendance-filter-row {
+                grid-template-columns: minmax(150px, 1.15fr) repeat(3, minmax(150px, 1fr)) auto;
+                gap: 0.85rem;
+            }
+
+            .attendance-mobile-compact .attendance-filter-action .attendance-filter-btn {
+                min-width: 126px;
+            }
+
+            .attendance-mobile-compact .attendance-page-panel__hint {
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .attendance-mobile-compact {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+                gap: 0.55rem;
+            }
+
+            .attendance-mobile-compact .attendance-hero {
+                flex-direction: row;
+                align-items: center;
+                padding: 0.7rem;
+                border-radius: 1rem;
+            }
+
+            .attendance-mobile-compact .attendance-hero__icon {
+                width: 40px;
+                height: 40px;
+                flex-basis: 40px;
+                margin-right: 0.7rem;
+                border-radius: 0.65rem;
+                font-size: 1.1rem;
+            }
+
+            .attendance-mobile-compact .attendance-hero__eyebrow {
+                margin-bottom: 0;
+                padding: 0.2rem 0.55rem;
+                font-size: 0.65rem;
+                height: 26px;
+                box-sizing: border-box;
+            }
+
+            .attendance-mobile-compact .attendance-hero__access {
+                margin-bottom: 0;
+            }
+
+            .attendance-mobile-compact .attendance-hero__pill-row {
+                margin-bottom: 0.35rem;
+            }
+
+            .attendance-mobile-compact .attendance-hero__access .attendance-hero__chip {
+                width: auto;
+                justify-content: flex-start;
+                min-height: 26px;
+                height: 26px;
+                padding-top: 0.2rem;
+                padding-bottom: 0.2rem;
+                box-sizing: border-box;
+            }
+
+            .attendance-mobile-compact .attendance-hero__title {
+                font-size: 1.1rem;
+                white-space: nowrap;
+            }
+
+            .attendance-mobile-compact .attendance-hero__copy {
+                min-width: 0;
+            }
+
+            .attendance-mobile-compact .attendance-hero__text {
+                margin-top: 0.25rem;
+                font-size: 0.76rem;
+                line-height: 1.3;
+            }
+
+            .attendance-mobile-compact .attendance-hero__meta {
+                gap: 0.35rem;
+            }
+
+            .attendance-mobile-compact .attendance-hero__chip,
+            .attendance-mobile-compact .attendance-hero__settings {
+                width: 100%;
+                justify-content: center;
+                min-height: 34px;
+                padding-top: 0.35rem;
+                padding-bottom: 0.35rem;
+            }
+
+            .attendance-mobile-compact .attendance-page-panel {
+                border-radius: 0.9rem;
+            }
+
+            .attendance-mobile-compact .attendance-page-panel__header {
+                padding: 0.5rem 0.65rem;
+            }
+
+            .attendance-mobile-compact .attendance-page-panel__hint {
+                margin-top: 0.2rem;
+                font-size: 0.7rem;
+            }
+
+            .attendance-mobile-compact .attendance-page-panel .card-body {
+                padding: 0.45rem;
+            }
+
+            .attendance-mobile-compact .attendance-filter-panel {
+                padding: 0.4rem;
+                border-radius: 0.8rem;
+            }
+
+            .attendance-mobile-compact .attendance-filter-row {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.25rem;
+            }
+
+            .attendance-mobile-compact .attendance-filter-label {
+                margin-bottom: 0.1rem;
+                font-size: 0.66rem;
+            }
+
+            .attendance-mobile-compact .attendance-filter-control,
+            .attendance-mobile-compact .attendance-filter-field .select2-container--default .select2-selection--single,
+            .attendance-mobile-compact .attendance-filter-btn {
+                min-height: 34px;
+                height: 34px;
+                border-radius: 0.55rem !important;
+                font-size: 0.78rem;
+            }
+
+            .attendance-mobile-compact .attendance-filter-control {
+                padding: 0.3rem 0.55rem;
+            }
+
+            .attendance-mobile-compact .attendance-filter-control[type='date'] {
+                padding: 0.3rem 0.55rem;
+                line-height: 1.2;
+            }
+
+            .attendance-mobile-compact .attendance-filter-action,
+            .attendance-mobile-compact .attendance-filter-action .btn {
+                width: 100%;
+            }
+
+            .attendance-mobile-compact .attendance-filter-action {
+                grid-column: 1 / -1;
+            }
+
+            .attendance-mobile-compact .attendance-empty-state,
+            .attendance-mobile-compact .attendance-loading-state {
+                flex-direction: column;
+                padding: 0.9rem 0.7rem;
+                text-align: center;
+            }
+
+            .attendance-mobile-compact .attendance-results-slot {
+                min-height: 0;
+                gap: 0.6rem;
+            }
+
+            .attendance-mobile-compact .attendance-empty-state__icon {
+                width: 2.5rem;
+                height: 2.5rem;
+                font-size: 1rem;
+            }
+
+            .attendance-mobile-compact .attendance-empty-state h5 {
+                font-size: 0.9rem;
+            }
+
+            .attendance-mobile-compact .attendance-empty-state p {
+                max-width: 270px;
+                font-size: 0.76rem;
+            }
+
+            .attendance-mobile-compact .attendance-empty-state--results {
+                justify-content: center;
+                text-align: center;
+            }
+
+            .attendance-mobile-compact .attendance-results-card {
+                border-radius: 0.9rem;
+            }
+
+            .attendance-mobile-compact .attendance-results-card__header {
+                padding: 0.75rem;
+            }
+
+            .attendance-mobile-compact .attendance-mark-table {
+                min-width: 480px;
+                font-size: 0.8rem;
+            }
+
+            .attendance-mobile-compact .attendance-mark-table th,
+            .attendance-mobile-compact .attendance-mark-table td {
+                padding: 0.55rem 0.6rem;
+            }
+
+            .attendance-mobile-compact .attendance-results-card__footer {
+                padding: 0.75rem;
+            }
+
+            .attendance-mobile-compact .attendance-save-btn {
+                width: 100%;
+            }
         }
     </style>
 @endsection

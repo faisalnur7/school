@@ -38,6 +38,7 @@ class Exam extends Model
 
     const STATUS_DRAFT     = 'draft';
     const STATUS_PUBLISHED = 'published';
+    const STATUS_ARCHIVED   = 'archived';
 
     public function academicSession(): BelongsTo
     {
@@ -71,5 +72,10 @@ class Exam extends Model
     public function isPublished(): bool
     {
         return $this->status === self::STATUS_PUBLISHED;
+    }
+
+    public function isArchived(): bool
+    {
+        return $this->status === self::STATUS_ARCHIVED;
     }
 }

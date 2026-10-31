@@ -223,7 +223,7 @@ class AttendanceController extends Controller
         $presentIds = collect($data['present_ids'] ?? [])->map(fn ($v) => (int) $v)->unique();
 
         DB::transaction(function () use ($attendance, $postedStudentIds, $presentIds) {
-            $attendance->taken_by = auth()->id();
+            $attendance->updated_by = auth()->id();
             $attendance->save();
 
             $rows = $postedStudentIds->map(function (int $studentId) use ($attendance, $presentIds) {

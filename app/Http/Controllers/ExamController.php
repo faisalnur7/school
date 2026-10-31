@@ -99,7 +99,16 @@ class ExamController extends Controller
 
     public function index(Request $request)
     {
-        $query = Exam::with(['academicSession'])->latest();
+        $query = Exam::with(['academicSession'])
+            ->withCount('marks')
+            ->latest();
+
+        $status = $request->input('status');
+        if (in_array($status, [Exam::STATUS_DRAFT, Exam::STATUS_PUBLISHED, Exam::STATUS_ARCHIVED], true)) {
+            $query->where('status', $status);
+        } else {
+            $query->where('status', '<>', Exam::STATUS_ARCHIVED);
+        }
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);
@@ -197,11 +206,31 @@ class ExamController extends Controller
 
     public function destroy(Exam $exam)
     {
-        $exam->marks()->delete();
+        if ($exam->isPublished() || $exam->marks()->exists()) {
+            $exam->update(['status' => Exam::STATUS_ARCHIVED]);
+
+            return redirect()->route('exams.index')->with(
+                'success',
+                'Exam archived. Student marks and historical records were preserved.'
+            );
+        }
+
         $exam->examSubjects()->delete();
         $exam->delete();
 
-        return redirect()->route('exams.index')->with('success', 'Exam deleted.');
+        return redirect()->route('exams.index')->with('success', 'Draft exam deleted.');
+    }
+
+    public function restore(Exam $exam)
+    {
+        abort_unless($exam->isArchived(), 404);
+
+        $exam->update(['status' => Exam::STATUS_DRAFT]);
+
+        return redirect()->route('exams.index')->with(
+            'success',
+            'Exam restored as draft. Review the marks before publishing.'
+        );
     }
 
     private function validateExamPairConfiguration(array $data, ?Exam $exam = null): void
@@ -873,6 +902,9 @@ class ExamController extends Controller
 
         $results = [];
         $subjects = collect();
+        $availableSubjects = collect();
+        $subjectSettingsApplied = $request->boolean('subject_settings_applied');
+        $selectedSubjectIds = [];
         $totalWorkingDays = 0;
 
         if ($classId) {
@@ -900,6 +932,16 @@ class ExamController extends Controller
                         fn (SubjectClassAssignment $assignment) => (bool) $assignment->is_active
                     )
                 )->values();
+            }
+            $availableSubjects = $subjects->values();
+            $selectedSubjectIds = $subjects->pluck('id')->map(fn ($id) => (int) $id)->all();
+            if ($subjectSettingsApplied) {
+                $selectedSubjectIds = collect($request->input('subject_ids', []))
+                    ->map(fn ($id) => (int) $id)
+                    ->intersect($selectedSubjectIds)
+                    ->values()
+                    ->all();
+                $subjects = $subjects->whereIn('id', $selectedSubjectIds)->values();
             }
 
             $allMarks = ExamMark::where('exam_id', $exam->id)
@@ -994,8 +1036,8 @@ class ExamController extends Controller
 
         return view('pages.exams.terminal-result', compact(
             'exam', 'classes', 'selectedClass', 'sections', 'groups', 'selectedSection', 'selectedGroup',
-            'subjects', 'displaySubjects', 'displayResults', 'results', 'filter', 'classId', 'sectionId', 'groupId',
-            'totalWorkingDays', 'cohortReady', 'showUnassigned'
+            'subjects', 'availableSubjects', 'displaySubjects', 'displayResults', 'results', 'filter', 'classId', 'sectionId', 'groupId',
+            'totalWorkingDays', 'cohortReady', 'showUnassigned', 'subjectSettingsApplied', 'selectedSubjectIds'
         ));
     }
 
@@ -1017,14 +1059,15 @@ class ExamController extends Controller
         $marks = ExamMark::where('exam_id', $exam->id)
             ->where('subject_id', $subjectId)
             ->whereIn('student_id', $studentIds)
-            ->with('student')
+            ->with(['student.academicInformations'])
             ->get()
             ->sortByDesc('total');
 
         $selectedClass = SchoolClass::find($classId);
+        $school = SchoolSetting::current();
 
         $mpdf = new \Mpdf\Mpdf(['margin_top' => 15, 'margin_bottom' => 15]);
-        $html = view('pages.exams.pdf.preview', compact('exam', 'subject', 'marks', 'passMark', 'selectedClass'))->render();
+        $html = view('pages.exams.pdf.preview', compact('exam', 'subject', 'marks', 'passMark', 'selectedClass', 'school'))->render();
         $mpdf->WriteHTML($html);
         $mpdf->Output('marks_preview.pdf', 'D');
         exit;
@@ -1040,6 +1083,7 @@ class ExamController extends Controller
         $groupId = $request->integer('group_id') ?: null;
         $subjectId = null;
         $showUnassigned = $request->boolean('show_unassigned');
+        $subjectSettingsApplied = $request->boolean('subject_settings_applied');
         $exam->load(['academicSession']);
         $school = SchoolSetting::current();
 
@@ -1058,6 +1102,15 @@ class ExamController extends Controller
                     fn (SubjectClassAssignment $assignment) => (bool) $assignment->is_active
                 )
             )->values();
+        }
+        $selectedSubjectIds = $subjects->pluck('id')->map(fn ($id) => (int) $id)->all();
+        if ($subjectSettingsApplied) {
+            $selectedSubjectIds = collect($request->input('subject_ids', []))
+                ->map(fn ($id) => (int) $id)
+                ->intersect($selectedSubjectIds)
+                ->values()
+                ->all();
+            $subjects = $subjects->whereIn('id', $selectedSubjectIds)->values();
         }
 
         $allMarks = ExamMark::where('exam_id', $exam->id)

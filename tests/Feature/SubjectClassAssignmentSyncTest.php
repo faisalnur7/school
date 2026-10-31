@@ -167,6 +167,67 @@ class SubjectClassAssignmentSyncTest extends TestCase
         $this->assertSame('Passed', $row['status']);
     }
 
+    public function test_terminal_result_subject_settings_hide_selected_subject_from_columns_and_calculations(): void
+    {
+        $scenario = $this->scenario();
+        $secondSubject = Subject::create([
+            'name' => 'Mathematics',
+            'code' => 'MATH-TERMINAL-SETTINGS',
+            'type' => 'mandatory',
+            'creative_marks' => 100,
+            'pass_mark' => 33,
+            'is_active' => true,
+        ]);
+        SubjectClassAssignment::create([
+            'subject_id' => $secondSubject->id,
+            'school_class_id' => $scenario['markedClass']->id,
+            'group_id' => null,
+            'gender' => 'all',
+            'religion' => 'all',
+            'is_optional' => false,
+            'is_compulsory' => true,
+            'is_active' => true,
+        ]);
+        StudentSubject::create([
+            'student_id' => $scenario['student']->id,
+            'subject_id' => $secondSubject->id,
+            'school_class_id' => $scenario['markedClass']->id,
+            'academic_session_id' => $scenario['session']->id,
+            'is_optional' => false,
+            'is_mandatory' => true,
+        ]);
+        ExamMark::create([
+            'exam_id' => $scenario['exam']->id,
+            'student_id' => $scenario['student']->id,
+            'subject_id' => $secondSubject->id,
+            'total' => 20,
+            'is_absent' => false,
+            'letter_grade' => 'F',
+            'gpa' => 0,
+        ]);
+
+        $view = app(ExamController::class)->terminalResult(
+            Request::create('/results/terminal', 'GET', [
+                'class_id' => $scenario['markedClass']->id,
+                'subject_settings_applied' => 1,
+                'subject_ids' => [$scenario['subject']->id],
+            ]),
+            $scenario['exam']
+        );
+
+        $data = $view->getData();
+        $row = $data['results'][$scenario['student']->id];
+
+        $this->assertTrue($data['subjectSettingsApplied']);
+        $this->assertSame([$scenario['subject']->id], $data['selectedSubjectIds']);
+        $this->assertTrue($data['displaySubjects']->contains('id', $scenario['subject']->id));
+        $this->assertFalse($data['displaySubjects']->contains('id', $secondSubject->id));
+        $this->assertSame(78.0, $row['total_obtained']);
+        $this->assertSame(100.0, $row['total_full']);
+        $this->assertSame(0, $row['failed_subject_count']);
+        $this->assertSame('Passed', $row['status']);
+    }
+
     public function test_any_failed_terminal_subject_forces_overall_grade_f_and_gpa_zero(): void
     {
         $scenario = $this->scenario();
