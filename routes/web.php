@@ -875,6 +875,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/{exam}/edit', [\App\Http\Controllers\ExamController::class, 'edit'])->name('edit');
         Route::put('/{exam}', [\App\Http\Controllers\ExamController::class, 'update'])->name('update');
         Route::delete('/{exam}', [\App\Http\Controllers\ExamController::class, 'destroy'])->name('destroy');
+        Route::post('/{exam}/restore', [\App\Http\Controllers\ExamController::class, 'restore'])->name('restore');
         Route::get('/{exam}/marks-entry', [\App\Http\Controllers\ExamController::class, 'marksEntry'])->name('marks-entry');
         Route::post('/{exam}/marks-entry', [\App\Http\Controllers\ExamController::class, 'saveMarks'])->name('save-marks');
         Route::post('/{exam}/marks-entry/student-wise', [\App\Http\Controllers\ExamController::class, 'saveStudentWiseMarks'])->name('save-student-wise-marks');

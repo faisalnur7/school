@@ -12,6 +12,7 @@ class Attendance extends Model
         'section_id',
         'date',
         'taken_by',
+        'updated_by',
     ];
 
     protected $casts = [
@@ -19,6 +20,7 @@ class Attendance extends Model
         'class_id' => 'integer',
         'section_id' => 'integer',
         'taken_by' => 'integer',
+        'updated_by' => 'integer',
         'date' => 'date:Y-m-d',
     ];
 
@@ -40,6 +42,11 @@ class Attendance extends Model
     public function takenBy()
     {
         return $this->belongsTo(User::class, 'taken_by');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function items()

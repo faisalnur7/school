@@ -11,7 +11,7 @@
 
         <div class="card card-outline card-primary mb-3 marks-entry-hero">
             <div class="card-header d-flex justify-content-start align-items-center marks-entry-hero-header">
-                <a href="{{ route('exams.show', $exam) }}" class="btn btn-sm btn-secondary marks-entry-back">
+                <a href="{{ route('exams.index') }}" class="btn btn-sm btn-secondary marks-entry-back">
                     <i class="fas fa-arrow-left mr-1"></i>Back
                 </a>
                 <div class="marks-entry-details">

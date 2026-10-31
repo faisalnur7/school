@@ -292,6 +292,16 @@
 
                 <form method="GET" class="d-flex flex-wrap align-items-center gap-2 exams-mobile-filters">
 
+                    {{-- Status --}}
+                    <div style="min-width: 160px;">
+                        <select name="status" class="form-control form-control-sm border rounded shadow-sm">
+                            <option value="">Active Exams</option>
+                            <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Draft</option>
+                            <option value="published" {{ request('status') === 'published' ? 'selected' : '' }}>Published</option>
+                            <option value="archived" {{ request('status') === 'archived' ? 'selected' : '' }}>Archived</option>
+                        </select>
+                    </div>
+
                     {{-- Type --}}
                     <div style="min-width: 160px;">
                         <select name="type" class="form-control form-control-sm border rounded shadow-sm">
@@ -372,8 +382,7 @@
                                         @endif
                                     </td>
                                     <td class="exam-status-cell">
-                                        <span
-                                            class="badge badge-{{ $exam->status === 'published' ? 'success' : 'secondary' }}">
+                                        <span class="badge badge-{{ $exam->status === 'published' ? 'success' : 'secondary' }}">
                                             {{ ucfirst($exam->status) }}
                                         </span>
                                     </td>
@@ -383,11 +392,13 @@
                                                 class="btn btn-xs btn-info exam-action-btn" title="View" aria-label="View">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="{{ route('exams.marks-entry', $exam) }}"
-                                                class="btn btn-xs btn-success exam-action-btn" title="Enter Marks"
-                                                aria-label="Enter Marks">
-                                                <i class="fas fa-keyboard"></i>
-                                            </a>
+                                            @if (!$exam->isArchived())
+                                                <a href="{{ route('exams.marks-entry', $exam) }}"
+                                                    class="btn btn-xs btn-success exam-action-btn" title="Enter Marks"
+                                                    aria-label="Enter Marks">
+                                                    <i class="fas fa-keyboard"></i>
+                                                </a>
+                                            @endif
                                             @if ($exam->type === 'term')
                                                 <a href="{{ route('exams.terminal-result', $exam) }}"
                                                     class="btn btn-xs btn-warning exam-action-btn" title="Terminal Result"
@@ -401,22 +412,41 @@
                                                     <i class="fas fa-chart-bar"></i>
                                                 </a>
                                             @endif
+                                            @if (!$exam->isArchived())
                                             <a href="{{ route('exams.edit', $exam) }}"
                                                 class="btn btn-xs btn-secondary exam-action-btn" title="Edit"
                                                 aria-label="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <button class="btn btn-xs btn-danger exam-action-btn"
-                                                title="Delete" aria-label="Delete"
-                                                onclick="if(confirm('Delete this exam?')){this.closest('form').requestSubmit()}"
-                                                form="delete-exam-{{ $exam->id }}">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            @endif
+                                            @if ($exam->isArchived())
+                                                <button class="btn btn-xs btn-success exam-action-btn"
+                                                    title="Restore" aria-label="Restore"
+                                                    onclick="if(confirm('Restore this exam as a draft? Its marks will be preserved.')){this.closest('form').requestSubmit()}"
+                                                    form="restore-exam-{{ $exam->id }}">
+                                                    <i class="fas fa-undo"></i>
+                                                </button>
+                                            @else
+                                                @php($requiresArchive = $exam->status === 'published' || $exam->marks_count > 0)
+                                                <button class="btn btn-xs {{ $requiresArchive ? 'btn-warning' : 'btn-danger' }} exam-action-btn"
+                                                    title="{{ $requiresArchive ? 'Archive' : 'Delete' }}"
+                                                    aria-label="{{ $requiresArchive ? 'Archive' : 'Delete' }}"
+                                                    onclick="if(confirm('{{ $requiresArchive ? 'Archive this exam? Student marks and historical records will be preserved.' : 'Delete this draft exam? This cannot be undone.' }}')){this.closest('form').requestSubmit()}"
+                                                    form="delete-exam-{{ $exam->id }}">
+                                                    <i class="fas fa-{{ $requiresArchive ? 'archive' : 'trash' }}"></i>
+                                                </button>
+                                            @endif
                                         </div>
                                         <form id="delete-exam-{{ $exam->id }}" method="POST"
                                             action="{{ route('exams.destroy', $exam) }}" class="d-none">
                                             @csrf @method('DELETE')
                                         </form>
+                                        @if ($exam->isArchived())
+                                            <form id="restore-exam-{{ $exam->id }}" method="POST"
+                                                action="{{ route('exams.restore', $exam) }}" class="d-none">
+                                                @csrf
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

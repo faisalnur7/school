@@ -1,18 +1,36 @@
 @extends('layouts.master')
 
 @section('contents')
-    <div class="container-fluid">
+    <style>
+        .preview-page { padding: 12px 16px 24px; color: #1f2937; }
+        .preview-page .card { border: 1px solid #e5e7eb; border-radius: 14px; box-shadow: 0 4px 16px rgba(15, 23, 42, .05); overflow: hidden; }
+        .preview-page .card-header { padding: 12px 16px; background: #fff; border-bottom: 1px solid #eef0f3; }
+        .preview-page .card-body { padding: 14px 16px; }
+        .preview-page .card-outline.card-primary { border-top: 3px solid #2563eb; }
+        .preview-page .card-outline.card-primary > .card-header { padding: 10px 16px; }
+        .preview-page .card-outline.card-primary > .card-body { padding: 12px 16px; }
+        .preview-page h4 { font-size: 18px; letter-spacing: -.01em; }
+        .preview-page .btn { border-radius: 7px; font-weight: 600; }
+        .preview-page .btn-sm { padding: 5px 10px; }
+    </style>
+
+    <div class="container-fluid preview-page">
 
 
         {{-- Class Selector --}}
         <div class="card card-outline card-primary mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center mb-3">
-                <div>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <a href="{{ route('exams.index') }}" class="btn btn-sm btn-secondary mr-3">
+                        <i class="fas fa-arrow-left mr-1"></i>Back
+                    </a>
+                    <div>
                     <h4 class="mb-0 font-weight-bold text-dark"><i class="fas fa-chart-bar text-info mr-2"></i>Marks Preview
                     </h4>
                     <small class="text-muted">{{ $exam->name }}</small>
+                    </div>
                 </div>
-                <div>
+                <div class="ml-auto">
                     @if ($subject && $classId)
                         <a href="{{ route('exams.preview-pdf', array_filter([
                             'exam' => $exam->id,
@@ -26,19 +44,20 @@
                             <i class="fas fa-file-pdf mr-1"></i>PDF
                         </a>
                     @endif
-                    <a href="{{ route('exams.show', $exam) }}" class="btn btn-sm btn-secondary">
-                        <i class="fas fa-arrow-left mr-1"></i>Back
-                    </a>
                 </div>
             </div>
-            <div class="card-body py-2">
-                <label class="mr-2 font-weight-bold">Select Class:</label>
-                @foreach ($classes as $class)
-                    <a href="{{ route('exams.preview', ['exam' => $exam->id, 'class_id' => $class->id]) }}"
-                        class="btn btn-sm mr-1 mb-1 {{ $classId == $class->id ? 'btn-primary' : 'btn-outline-primary' }}">
-                        {{ $class->name_en }}
-                    </a>
-                @endforeach
+            <div class="card-body">
+                <div class="form-group mb-0">
+                    <label class="font-weight-bold mr-2">Select Class:</label>
+                    <div class="d-flex flex-wrap">
+                        @foreach ($classes as $class)
+                            <a href="{{ route('exams.preview', ['exam' => $exam->id, 'class_id' => $class->id]) }}"
+                                class="btn btn-sm mr-1 mb-1 {{ $classId == $class->id ? 'btn-primary' : 'btn-outline-primary' }}">
+                                {{ $class->name_en }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
 
                 @if ($classId)
                     <div class="mt-3 p-3 border rounded bg-light">

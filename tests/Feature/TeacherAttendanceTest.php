@@ -20,6 +20,17 @@ class TeacherAttendanceTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_teacher_attendance_view_has_mobile_responsive_layout_hooks(): void
+    {
+        $view = file_get_contents(resource_path('views/pages/attendance/index.blade.php'));
+
+        $this->assertStringContainsString('attendance-mobile-compact', $view);
+        $this->assertStringContainsString('.attendance-mobile-compact .attendance-filter-row', $view);
+        $this->assertStringContainsString('.attendance-mobile-compact .attendance-mark-table', $view);
+        $this->assertStringContainsString('table-layout: fixed', $view);
+        $this->assertStringContainsString('.attendance-mark-table th:first-child', $view);
+    }
+
     public function test_teacher_can_create_attendance(): void
     {
         $teacher = User::factory()->create();
@@ -86,7 +97,8 @@ class TeacherAttendanceTest extends TestCase
 
     public function test_teacher_can_edit_attendance_after_submit(): void
     {
-        $teacher = User::factory()->create();
+        $teacher = User::factory()->create(['is_super_admin' => true]);
+        $editor = User::factory()->create(['is_super_admin' => true]);
 
         $session = AcademicSession::create(['name_bn' => 'S', 'name_en' => 'S', 'status' => 1]);
         $class = SchoolClass::create(['name_bn' => 'C', 'name_en' => 'C', 'status' => 1]);
@@ -94,6 +106,12 @@ class TeacherAttendanceTest extends TestCase
 
         TeacherSectionAssignment::create([
             'user_id' => $teacher->id,
+            'session_id' => $session->id,
+            'class_id' => $class->id,
+            'section_id' => $section->id,
+        ]);
+        TeacherSectionAssignment::create([
+            'user_id' => $editor->id,
             'session_id' => $session->id,
             'class_id' => $class->id,
             'section_id' => $section->id,
@@ -126,19 +144,19 @@ class TeacherAttendanceTest extends TestCase
             'session_id' => $session->id,
             'class_id' => $class->id,
             'section_id' => $section->id,
-            'date' => '2026-05-10',
+            'date' => '2026-05-11',
             'student_ids' => [$s1->id, $s2->id],
             'present_ids' => [$s1->id, $s2->id],
         ]);
 
         $attendance = Attendance::query()->firstOrFail();
 
-        $this->actingAs($teacher)
+        $this->actingAs($editor)
             ->patch('/teacher/attendance/'.$attendance->id, [
                 'session_id' => $session->id,
                 'class_id' => $class->id,
                 'section_id' => $section->id,
-                'date' => '2026-05-10',
+                'date' => '2026-05-11',
                 'student_ids' => [$s1->id, $s2->id],
                 'present_ids' => [$s2->id],
             ])
@@ -153,6 +171,11 @@ class TeacherAttendanceTest extends TestCase
             'attendance_id' => $attendance->id,
             'student_id' => $s2->id,
             'status' => 'present',
+        ]);
+        $this->assertDatabaseHas('attendances', [
+            'id' => $attendance->id,
+            'taken_by' => $teacher->id,
+            'updated_by' => $editor->id,
         ]);
     }
 

@@ -16,17 +16,17 @@
         .terminal-result-page .terminal-result-meta { display: inline-block; margin-top: 2px; }
         .terminal-result-page .terminal-result-cohort-panel { border-color: #e5e7eb !important; }
         .terminal-result-page .info-box {
-            min-height: 82px;
-            margin-bottom: 14px;
+            min-height: 52px;
+            margin-bottom: 8px;
             border: 1px solid rgba(148, 163, 184, .18);
-            border-radius: 12px;
-            box-shadow: 0 5px 14px rgba(15, 23, 42, .07);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, .06);
             overflow: hidden;
         }
-        .terminal-result-page .info-box-icon { width: 58px; font-size: 22px; }
-        .terminal-result-page .info-box-content { padding: 10px 12px; }
-        .terminal-result-page .info-box-text { font-weight: 700; opacity: .9; }
-        .terminal-result-page .info-box-number { font-size: 20px; font-weight: 800; }
+        .terminal-result-page .info-box-icon { width: 42px; font-size: 16px; }
+        .terminal-result-page .info-box-content { padding: 6px 9px; }
+        .terminal-result-page .info-box-text { font-size: 12px; font-weight: 700; opacity: .9; }
+        .terminal-result-page .info-box-number { font-size: 16px; font-weight: 800; line-height: 1.15; }
         .terminal-result-page .terminal-result-filter,
         .terminal-result-page .terminal-result-sheet { border-color: #dfe7f1; }
         .terminal-result-page .terminal-result-filter .card-body { background: #f8fafc; }
@@ -93,6 +93,11 @@
         }
     </style>
 
+    @php
+        $subjectQuery = $subjectSettingsApplied
+            ? ['subject_settings_applied' => 1, 'subject_ids' => $selectedSubjectIds]
+            : [];
+    @endphp
     <div class="container-fluid terminal-result-page">
         <div class="card card-outline card-primary mb-3 terminal-result-hero">
             <div class="card-header d-flex justify-content-start align-items-center">
@@ -110,16 +115,22 @@
                     </small>
                 </div>
                 @if ($classId && $cohortReady)
-                    <a href="{{ route('exams.terminal-result-pdf', array_filter([
-                        'exam' => $exam->id,
-                        'class_id' => $classId,
-                        'section_id' => $sectionId,
-                        'group_id' => $groupId,
-                        'filter' => $filter,
-                        'show_unassigned' => $showUnassigned ? 1 : 0,
-                    ], fn($value) => ! is_null($value))) }}" class="btn btn-sm btn-danger ml-auto mr-2">
-                        <i class="fas fa-file-pdf mr-1"></i>PDF
-                    </a>
+                    <div class="ml-auto d-flex align-items-center">
+                        <button type="button" class="btn btn-sm btn-dark mr-2" data-toggle="modal" data-target="#terminalSubjectSettingsModal" title="Subject Settings" aria-label="Subject Settings">
+                            <i class="fas fa-sliders-h mr-1"></i>Subjects
+                        </button>
+                        <a href="{{ route('exams.terminal-result-pdf', array_filter([
+                            'exam' => $exam->id,
+                            'class_id' => $classId,
+                            'section_id' => $sectionId,
+                            'group_id' => $groupId,
+                            'filter' => $filter,
+                            'show_unassigned' => $showUnassigned ? 1 : 0,
+                            ...$subjectQuery,
+                        ], fn($value) => ! is_null($value))) }}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-file-pdf mr-1"></i>PDF
+                        </a>
+                    </div>
                 @endif
             </div>
 
@@ -132,6 +143,7 @@
                                 'exam' => $exam->id,
                                 'class_id' => $class->id,
                                 'show_unassigned' => $showUnassigned ? 1 : 0,
+                                ...$subjectQuery,
                             ], fn($value) => ! is_null($value))) }}"
                                class="btn btn-sm mr-1 mb-1 {{ $classId == $class->id ? 'btn-primary' : 'btn-outline-primary' }}">
                                 {{ $class->name_en }}
@@ -163,6 +175,7 @@
                                                 'class_id' => $classId,
                                                 'section_id' => $section->id,
                                                 'show_unassigned' => $showUnassigned ? 1 : 0,
+                                                ...$subjectQuery,
                                             ], fn($value) => ! is_null($value))) }}"
                                            class="btn btn-sm mr-1 mb-1 btn-outline-info">
                                             {{ $section->name_en }}
@@ -181,6 +194,7 @@
                                             'section_id' => $sectionId,
                                             'group_id' => $group->id,
                                             'show_unassigned' => $showUnassigned ? 1 : 0,
+                                            ...$subjectQuery,
                                         ], fn($value) => ! is_null($value))) }}"
                                            class="btn btn-sm mr-1 mb-1 btn-outline-warning">
                                             {{ $group->name_en }}
@@ -192,6 +206,54 @@
                     </div>
                 @endif
             </div>
+
+            @if ($classId && $cohortReady && $availableSubjects->isNotEmpty())
+                <div class="modal fade" id="terminalSubjectSettingsModal" tabindex="-1" role="dialog" aria-labelledby="terminalSubjectSettingsTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                        <div class="modal-content">
+                            <form method="GET" action="{{ route('exams.terminal-result', ['exam' => $exam->id]) }}">
+                                <div class="modal-header">
+                                    <div>
+                                        <h5 class="modal-title mb-1" id="terminalSubjectSettingsTitle"><i class="fas fa-sliders-h mr-2"></i>Report Subjects</h5>
+                                        <small class="text-muted">Unchecked subjects will be hidden and ignored in totals, GPA, grade, and ranking.</small>
+                                    </div>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" name="class_id" value="{{ $classId }}">
+                                    @if ($sectionId)<input type="hidden" name="section_id" value="{{ $sectionId }}">@endif
+                                    @if ($groupId)<input type="hidden" name="group_id" value="{{ $groupId }}">@endif
+                                    <input type="hidden" name="filter" value="{{ $filter }}">
+                                    <input type="hidden" name="show_unassigned" value="{{ $showUnassigned ? 1 : 0 }}">
+                                    <input type="hidden" name="subject_settings_applied" value="1">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <strong>Select subjects</strong>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-secondary" id="terminalSubjectsSelectAll">All</button>
+                                            <button type="button" class="btn btn-outline-secondary" id="terminalSubjectsClearAll">None</button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        @foreach ($availableSubjects as $subject)
+                                            <div class="col-md-6 mb-2">
+                                                <label class="d-flex align-items-center mb-0">
+                                                    <input type="checkbox" name="subject_ids[]" value="{{ $subject->id }}" class="mr-2 terminal-subject-check"
+                                                        @checked(in_array((int) $subject->id, $selectedSubjectIds, true))>
+                                                    <span>{{ $subject->name }}</span>
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-dark"><i class="fas fa-check mr-1"></i>Apply Subjects</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
 
         @if ($classId && $selectedClass && $cohortReady)
@@ -254,6 +316,7 @@
                                 'group_id' => $groupId,
                                 'filter' => $key,
                                 'show_unassigned' => $showUnassigned ? 1 : 0,
+                                ...$subjectQuery,
                             ], fn($value) => ! is_null($value))) }}"
                                 class="btn {{ $filter === $key ? 'btn-primary' : 'btn-outline-primary' }}">
                                 {{ $label }}
@@ -269,6 +332,12 @@
                             <input type="hidden" name="group_id" value="{{ $groupId }}">
                         @endif
                         <input type="hidden" name="filter" value="{{ $filter }}">
+                        @if ($subjectSettingsApplied)
+                            <input type="hidden" name="subject_settings_applied" value="1">
+                            @foreach ($selectedSubjectIds as $selectedSubjectId)
+                                <input type="hidden" name="subject_ids[]" value="{{ $selectedSubjectId }}">
+                            @endforeach
+                        @endif
                         <div class="custom-control custom-checkbox">
                         <input type="hidden" name="show_unassigned" value="0">
                         <input type="checkbox" class="custom-control-input" id="show-unassigned" name="show_unassigned" value="1"
@@ -389,4 +458,15 @@
             </div>
         @endif
     </div>
+@endsection
+
+@section('scripts')
+<script>
+document.getElementById('terminalSubjectsSelectAll')?.addEventListener('click', () => {
+    document.querySelectorAll('.terminal-subject-check').forEach((input) => input.checked = true);
+});
+document.getElementById('terminalSubjectsClearAll')?.addEventListener('click', () => {
+    document.querySelectorAll('.terminal-subject-check').forEach((input) => input.checked = false);
+});
+</script>
 @endsection
