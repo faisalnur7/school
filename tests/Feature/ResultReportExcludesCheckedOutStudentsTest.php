@@ -4,11 +4,14 @@ namespace Tests\Feature;
 
 use App\Models\AcademicSession;
 use App\Models\Exam;
+use App\Models\ExamMark;
 use App\Models\Group;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\StudentAcademicInformation;
+use App\Models\Subject;
+use App\Models\SubjectClassAssignment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -147,5 +150,75 @@ class ResultReportExcludesCheckedOutStudentsTest extends TestCase
         $response->assertOk();
         $response->assertSee('Group');
         $response->assertSee('Science Group');
+    }
+
+    public function test_progress_report_highest_marks_are_scoped_to_the_selected_section(): void
+    {
+        ['user' => $user, 'session' => $session, 'class' => $class, 'section' => $section, 'activeStudent' => $activeStudent, 'terminalExam' => $terminalExam] = $this->scaffold();
+        $otherSection = Section::create([
+            'school_class_id' => $class->id,
+            'name_en' => 'B',
+            'name_bn' => 'B',
+        ]);
+        $outsideStudent = Student::create([
+            'full_name_en' => 'Other Section Student',
+            'student_cid' => 'OUT-002',
+            'status' => 1,
+        ]);
+        StudentAcademicInformation::create([
+            'student_id' => $outsideStudent->id,
+            'academic_session_id' => $session->id,
+            'school_class_id' => $class->id,
+            'section_id' => $otherSection->id,
+            'roll' => '2',
+            'academic_status' => 'active',
+            'is_current' => true,
+        ]);
+        $subject = Subject::create([
+            'name' => 'Mathematics',
+            'creative_marks' => 100,
+            'pass_mark' => 33,
+            'is_active' => true,
+        ]);
+        SubjectClassAssignment::create([
+            'subject_id' => $subject->id,
+            'school_class_id' => $class->id,
+            'is_active' => true,
+            'gender' => 'all',
+            'religion' => 'all',
+        ]);
+        ExamMark::create([
+            'exam_id' => $terminalExam->id,
+            'student_id' => $activeStudent->id,
+            'subject_id' => $subject->id,
+            'total' => 80,
+            'is_absent' => false,
+            'letter_grade' => 'A+',
+            'gpa' => 5,
+        ]);
+        ExamMark::create([
+            'exam_id' => $terminalExam->id,
+            'student_id' => $outsideStudent->id,
+            'subject_id' => $subject->id,
+            'total' => 100,
+            'is_absent' => false,
+            'letter_grade' => 'A+',
+            'gpa' => 5,
+        ]);
+
+        $response = $this->withoutMiddleware()->actingAs($user)->get(route('result.progress-report.show', [
+            'session_id' => $session->id,
+            'class_id' => $class->id,
+            'section_id' => $section->id,
+            'exam_id' => $terminalExam->id,
+        ]));
+
+        $response->assertOk();
+        $response->assertSeeInOrder([
+            '>Mathematics</td>',
+            '>100</td>',
+            '>80</td>',
+            '>80</td>',
+        ]);
     }
 }

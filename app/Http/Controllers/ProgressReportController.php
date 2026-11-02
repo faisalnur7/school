@@ -71,9 +71,10 @@ class ProgressReportController extends Controller
         if ($isPreview) {
             $students = $students->take(1);
         }
-        $attendanceData = $this->getTerminalAttendanceData($exam, (int) $filters['class_id'], $students->pluck('id'));
+        $cohortStudentIds = $students->pluck('id');
+        $attendanceData = $this->getTerminalAttendanceData($exam, (int) $filters['class_id'], $cohortStudentIds);
         $studentsData = $this->rankProgressReports(
-            $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters, $attendanceData))
+            $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters, $attendanceData, $cohortStudentIds))
         );
 
         if (! empty($filters['student_id'])) {
@@ -122,9 +123,10 @@ class ProgressReportController extends Controller
         );
         $filters['subject_settings_applied'] = $request->boolean('subject_settings_applied');
         $filters['subject_ids'] = $this->selectedSubjectIds($request, $availableSubjects);
-        $attendanceData = $this->getTerminalAttendanceData($exam, (int) $filters['class_id'], $students->pluck('id'));
+        $cohortStudentIds = $students->pluck('id');
+        $attendanceData = $this->getTerminalAttendanceData($exam, (int) $filters['class_id'], $cohortStudentIds);
         $studentsData = $this->rankProgressReports(
-            $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters, $attendanceData))
+            $students->map(fn($s) => $this->buildStudentData($s, $exam, $filters, $attendanceData, $cohortStudentIds))
         );
 
         if (! empty($filters['student_id'])) {
@@ -360,7 +362,7 @@ class ProgressReportController extends Controller
         return Student::whereIn('id', $ids)->where('status', 1)->orderBy('full_name_en')->get();
     }
 
-    private function buildStudentData(Student $student, Exam $exam, array $filters, array $attendanceData = []): array
+    private function buildStudentData(Student $student, Exam $exam, array $filters, array $attendanceData = [], $cohortStudentIds = null): array
     {
         $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession', 'group'])
             ->where('student_id', $student->id)
@@ -394,6 +396,7 @@ class ProgressReportController extends Controller
 
         // Highest marks per subject
         $highestMarks = ExamMark::where('exam_id', $exam->id)
+            ->when($cohortStudentIds !== null, fn ($query) => $query->whereIn('student_id', $cohortStudentIds))
             ->selectRaw('subject_id, MAX(total) as highest')
             ->groupBy('subject_id')
             ->pluck('highest', 'subject_id');
