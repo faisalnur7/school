@@ -78,6 +78,19 @@
                     </div>
 
                     <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="component_pass_mode">Component Pass Mode</label>
+                                <select name="component_pass_mode" id="component_pass_mode" class="form-control">
+                                    <option value="combined" @selected(old('component_pass_mode', 'combined') === 'combined')>Combined Pass</option>
+                                    <option value="individual" @selected(old('component_pass_mode') === 'individual')>Individual Pass</option>
+                                </select>
+                                <small class="form-text text-muted">Default result rule when no class-specific setting is configured.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
                                 <div class="form-check">
@@ -197,16 +210,6 @@
                             <div class="form-group">
                                 <label>Calculated Pass Mark</label>
                                 <input type="text" class="form-control" id="calculated_pass_mark" readonly value="0.00">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="component_pass_mode">Component Pass Mode</label>
-                                <select name="component_pass_mode" id="component_pass_mode" class="form-control">
-                                    <option value="combined" @selected(old('component_pass_mode', 'combined') === 'combined')>Combined Pass</option>
-                                    <option value="individual" @selected(old('component_pass_mode') === 'individual')>Individual Pass</option>
-                                </select>
-                                <small class="form-text text-muted">Used when no class-specific pass mode is configured.</small>
                             </div>
                         </div>
                         <div class="col-md-6">

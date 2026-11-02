@@ -159,6 +159,19 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="component_pass_mode">{{ __('Component Pass Mode') }}</label>
+                                    <select name="component_pass_mode" id="component_pass_mode" class="form-control">
+                                        <option value="combined" @selected(old('component_pass_mode', $subject->component_pass_mode ?? 'combined') === 'combined')>{{ __('Combined Pass') }}</option>
+                                        <option value="individual" @selected(old('component_pass_mode', $subject->component_pass_mode ?? 'combined') === 'individual')>{{ __('Individual Pass') }}</option>
+                                    </select>
+                                    <small class="form-text text-muted">{{ __('Default result rule when no class-specific setting is configured.') }}</small>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="row subject-option-grid">
                             <div class="col-md-4">
                                 <div class="form-group subject-option-card">
@@ -359,16 +372,6 @@
                                     <label for="calculated_pass_mark">{{ __('Calculated Pass Mark') }}</label>
                                     <input type="text" class="form-control" id="calculated_pass_mark" readonly
                                         value="{{ number_format((float) $subject->pass_mark, 2) }}">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="component_pass_mode">{{ __('Component Pass Mode') }}</label>
-                                    <select name="component_pass_mode" id="component_pass_mode" class="form-control">
-                                        <option value="combined" @selected(old('component_pass_mode', $subject->component_pass_mode ?? 'combined') === 'combined')>{{ __('Combined Pass') }}</option>
-                                        <option value="individual" @selected(old('component_pass_mode', $subject->component_pass_mode ?? 'combined') === 'individual')>{{ __('Individual Pass') }}</option>
-                                    </select>
-                                    <small class="form-text text-muted">{{ __('Used when no class-specific pass mode is configured.') }}</small>
                                 </div>
                             </div>
                             <div class="col-md-3">
