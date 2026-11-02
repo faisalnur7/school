@@ -532,6 +532,7 @@
     "pass when the combined marks reach the pass mark.": "pass when the combined marks reach the pass mark.",
     "Individual Pass:": "Individual Pass:",
     "the student must reach the component pass mark in every enabled component.": "the student must reach the component pass mark in every enabled component.",
+    "For multiple-paper subjects, this mode applies to all papers in the subject.": "For multiple-paper subjects, this mode applies to all papers in the subject.",
     "Set the subject name, short code, type, and current status.": "Set the subject name, short code, type, and current status.",
     "This name appears in class lists, mark entry, and reports.": "This name appears in class lists, mark entry, and reports.",
     "Use a short unique code to identify this subject.": "Use a short unique code to identify this subject.",

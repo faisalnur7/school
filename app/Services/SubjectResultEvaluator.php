@@ -78,6 +78,7 @@ class SubjectResultEvaluator
             'components' => $components,
             'failed_components' => $failedComponents,
             'component_passed' => $individualPass && ! $isAbsent,
+            'mark_present' => $mark !== null,
             'is_absent' => $isAbsent,
             'passed' => $passed,
             'letter_grade' => $isAbsent ? 'AB' : ($passed ? $grade['letter'] : 'F'),
@@ -91,10 +92,14 @@ class SubjectResultEvaluator
             return $this->evaluatePaper($subject, $config, $marksBySubjectId->get($subject->id));
         }
 
-        $paperResults = $papers->map(function (Subject $paper) use ($config, $marksBySubjectId): array {
+        $classId = isset($config['class_id']) ? (int) $config['class_id'] : null;
+        $multiPaperMode = in_array($config['component_pass_mode'] ?? null, ['combined', 'individual'], true)
+            ? $config['component_pass_mode']
+            : $subject->getMultiPaperPassModeForClass($classId, $papers);
+        $paperResults = $papers->map(function (Subject $paper) use ($config, $marksBySubjectId, $multiPaperMode): array {
             $classId = isset($config['class_id']) ? (int) $config['class_id'] : null;
             $paperConfig = $paper->getEffectiveMarksForClass($classId);
-            $paperConfig['component_pass_mode'] = 'individual';
+            $paperConfig['component_pass_mode'] = $multiPaperMode;
 
             return $this->evaluatePaper($paper, $paperConfig, $marksBySubjectId->get($paper->id));
         })->values();
@@ -105,7 +110,9 @@ class SubjectResultEvaluator
         $fullMarks = $fullMarks > 0 ? $fullMarks : (float) $paperResults->sum('full_marks');
         $passMark = $passMark > 0 ? $passMark : (float) $paperResults->sum('pass_mark');
         $isAbsent = $paperResults->contains(fn (array $paper) => $paper['is_absent']);
-        $componentsPassed = $paperResults->every(fn (array $paper) => $paper['component_passed']);
+        $componentsPassed = $multiPaperMode === 'combined'
+            ? $paperResults->every(fn (array $paper) => $paper['mark_present'])
+            : $paperResults->every(fn (array $paper) => $paper['component_passed']);
         $totalPassed = ! $isAbsent && $obtained >= $passMark;
         $passed = $componentsPassed && $totalPassed;
         $grade = GradingService::getGrade($obtained, $fullMarks);
@@ -115,7 +122,7 @@ class SubjectResultEvaluator
             'obtained' => $obtained,
             'full_marks' => $fullMarks,
             'pass_mark' => $passMark,
-            'component_pass_mode' => 'individual',
+            'component_pass_mode' => $multiPaperMode,
             'components' => $this->aggregateComponents($paperResults),
             'failed_components' => $paperResults->flatMap(fn (array $paper) => $paper['failed_components'])->unique()->values()->all(),
             'component_passed' => $componentsPassed,

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 class Subject extends Model
@@ -103,9 +104,13 @@ class Subject extends Model
      */
     public function getEffectiveMarksForClass(?int $classId = null): array
     {
+        $papers = $this->is_parent
+            ? ($this->relationLoaded('papers') ? $this->papers : $this->papers()->get())
+            : collect();
+
         if ($classId) {
             $config = $this->classConfigs()->where('school_class_id', $classId)->first();
-            if ($config) {
+            if ($config && $papers->isEmpty()) {
                 return [
                     'creative_marks' => (float) $config->creative_marks,
                     'mcq_marks' => (float) $config->mcq_marks,
@@ -119,23 +124,19 @@ class Subject extends Model
             }
         }
 
-        if ($this->is_parent) {
-            $papers = $this->relationLoaded('papers') ? $this->papers : $this->papers()->get();
+        if ($papers->isNotEmpty()) {
+            $paperConfigs = $papers->map(fn (Subject $paper) => $paper->getEffectiveMarksForClass($classId));
 
-            if ($papers->isNotEmpty()) {
-                $paperConfigs = $papers->map(fn (Subject $paper) => $paper->getEffectiveMarksForClass($classId));
-
-                return [
-                    'creative_marks' => (float) $paperConfigs->sum('creative_marks'),
-                    'mcq_marks' => (float) $paperConfigs->sum('mcq_marks'),
-                    'practical_marks' => (float) $paperConfigs->sum('practical_marks'),
-                    'viva_marks' => (float) $paperConfigs->sum('viva_marks'),
-                    'tutorial_marks' => (float) $paperConfigs->sum('tutorial_marks'),
-                    'total_marks' => (float) $paperConfigs->sum('total_marks'),
-                    'pass_mark' => (float) $paperConfigs->sum('pass_mark'),
-                    'component_pass_mode' => 'combined',
-                ];
-            }
+            return [
+                'creative_marks' => (float) $paperConfigs->sum('creative_marks'),
+                'mcq_marks' => (float) $paperConfigs->sum('mcq_marks'),
+                'practical_marks' => (float) $paperConfigs->sum('practical_marks'),
+                'viva_marks' => (float) $paperConfigs->sum('viva_marks'),
+                'tutorial_marks' => (float) $paperConfigs->sum('tutorial_marks'),
+                'total_marks' => (float) $paperConfigs->sum('total_marks'),
+                'pass_mark' => (float) $paperConfigs->sum('pass_mark'),
+                'component_pass_mode' => $this->getMultiPaperPassModeForClass($classId, $papers),
+            ];
         }
 
         return [
@@ -148,6 +149,42 @@ class Subject extends Model
             'pass_mark' => (float) $this->pass_mark,
             'component_pass_mode' => $this->component_pass_mode ?: 'combined',
         ];
+    }
+
+    public function isMultiPaperSubject(): bool
+    {
+        return (bool) ($this->parent_id || $this->is_parent || $this->has_multiple_papers);
+    }
+
+    public function getMultiPaperPassModeForClass(?int $classId = null, ?Collection $papers = null): string
+    {
+        $root = $this->parent_id
+            ? ($this->relationLoaded('parent') ? $this->parent : $this->parent()->first())
+            : $this;
+
+        if (! $root || ! $this->isMultiPaperSubject()) {
+            return ($this->component_pass_mode ?? 'combined') === 'individual' ? 'individual' : 'combined';
+        }
+
+        $papers ??= $root->relationLoaded('papers') ? $root->papers : $root->papers()->get();
+
+        $configs = collect();
+        if ($classId) {
+            $configs = $configs->merge($root->classConfigs()->where('school_class_id', $classId)->get());
+            $configs = $configs->merge($papers->flatMap(
+                fn (Subject $paper) => $paper->classConfigs()->where('school_class_id', $classId)->get()
+            ));
+        }
+
+        $modes = $configs->pluck('component_pass_mode')->filter(fn ($value) => in_array($value, ['combined', 'individual'], true));
+        if ($modes->contains('individual')) {
+            return 'individual';
+        }
+        if ($modes->contains('combined')) {
+            return 'combined';
+        }
+
+        return ($root->component_pass_mode ?? 'combined') === 'individual' ? 'individual' : 'combined';
     }
 
     /**

@@ -58,7 +58,7 @@ class SubjectResultEvaluatorTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('paperFailureProvider')]
-    public function test_any_failed_component_in_any_paper_fails_the_combined_subject(string $failedPaper, string $failedComponent): void
+    public function test_any_failed_component_in_any_paper_fails_the_individual_subject(string $failedPaper, string $failedComponent): void
     {
         $papers = collect([
             $this->paper(1),
@@ -71,7 +71,7 @@ class SubjectResultEvaluatorTest extends TestCase
 
         $result = $this->evaluator->evaluateSubject(
             new Subject(),
-            ['creative_marks' => 140, 'mcq_marks' => 60, 'practical_marks' => 0, 'viva_marks' => 0, 'total_marks' => 200, 'pass_mark' => 66, 'component_pass_mode' => 'combined'],
+            ['creative_marks' => 140, 'mcq_marks' => 60, 'practical_marks' => 0, 'viva_marks' => 0, 'total_marks' => 200, 'pass_mark' => 66, 'component_pass_mode' => 'individual'],
             $papers,
             $marks,
         );
@@ -79,6 +79,19 @@ class SubjectResultEvaluatorTest extends TestCase
         $this->assertFalse($result['passed']);
         $this->assertSame('F', $result['letter_grade']);
         $this->assertSame(0.0, $result['gpa']);
+    }
+
+    public function test_combined_multi_paper_mode_uses_aggregate_total_only(): void
+    {
+        $result = $this->evaluator->evaluateSubject(
+            new Subject(['is_parent' => true]),
+            ['creative_marks' => 200, 'mcq_marks' => 0, 'practical_marks' => 0, 'viva_marks' => 0, 'total_marks' => 200, 'pass_mark' => 66, 'component_pass_mode' => 'combined'],
+            collect([$this->paper(1), $this->paper(2)]),
+            collect([1 => $this->mark(cq: 30, mcq: 0), 2 => $this->mark(cq: 40, mcq: 0)]),
+        );
+
+        $this->assertTrue($result['passed']);
+        $this->assertSame(70.0, $result['obtained']);
     }
 
     public static function paperFailureProvider(): array

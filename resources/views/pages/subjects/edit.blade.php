@@ -169,6 +169,7 @@
                                     </select>
                                     <small class="form-text text-muted">{{ __('Default result rule when no class-specific setting is configured.') }}</small>
                                     <small class="form-text text-muted mb-0"><strong>{{ __('Combined Pass:') }}</strong> {{ __('pass when the combined marks reach the pass mark.') }} <strong>{{ __('Individual Pass:') }}</strong> {{ __('the student must reach the component pass mark in every enabled component.') }}</small>
+                                    <small class="form-text text-muted">{{ __('For multiple-paper subjects, this mode applies to all papers in the subject.') }}</small>
                                 </div>
                             </div>
                         </div>
