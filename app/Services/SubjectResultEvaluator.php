@@ -24,6 +24,8 @@ class SubjectResultEvaluator
         $fullMarks = (float) $config['total_marks'];
         $passMark = (float) $config['pass_mark'];
         $passRate = $fullMarks > 0 ? $passMark / $fullMarks : 0.0;
+        $hasComponentData = $mark && collect(['cq_marks', 'mcq_marks', 'practical_marks', 'viva_marks'])
+            ->contains(fn (string $field) => $mark->{$field} !== null);
 
         foreach (self::COMPONENTS as $key => $definition) {
             $full = (float) $config[$definition['full']];
@@ -47,6 +49,10 @@ class SubjectResultEvaluator
                 'enabled' => $enabled,
                 'passed' => (bool) $passed,
             ];
+        }
+
+        if ($mark && ! $hasComponentData && $mark->total !== null) {
+            $obtained = (float) $mark->total;
         }
 
         $obtained = round($obtained, 2);
@@ -94,8 +100,10 @@ class SubjectResultEvaluator
         })->values();
 
         $obtained = round($paperResults->sum('obtained'), 2);
-        $fullMarks = (float) ($config['total_marks'] ?? $paperResults->sum('full_marks'));
+        $fullMarks = (float) ($config['total_marks'] ?? 0);
         $passMark = (float) ($config['pass_mark'] ?? 0);
+        $fullMarks = $fullMarks > 0 ? $fullMarks : (float) $paperResults->sum('full_marks');
+        $passMark = $passMark > 0 ? $passMark : (float) $paperResults->sum('pass_mark');
         $isAbsent = $paperResults->contains(fn (array $paper) => $paper['is_absent']);
         $componentsPassed = $paperResults->every(fn (array $paper) => $paper['component_passed']);
         $totalPassed = ! $isAbsent && $obtained >= $passMark;

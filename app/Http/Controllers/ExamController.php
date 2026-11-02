@@ -17,12 +17,15 @@ use App\Models\SubjectClassAssignment;
 use App\Models\SchoolSetting;
 use App\Services\GradingService;
 use App\Services\ResultRankingService;
+use App\Services\SubjectResultEvaluator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ExamController extends Controller
 {
+    public function __construct(private SubjectResultEvaluator $subjectResultEvaluator) {}
+
     public function resultSheets(Request $request)
     {
         $sessionId = $request->integer('session_id') ?: null;
@@ -924,7 +927,7 @@ class ExamController extends Controller
                 : collect();
             $studentIds = $students->pluck('id');
             $subjects = $cohortReady
-                ? $this->getSubjectsForClass($classId, $selectedGroup?->id, $exam, $studentIds)
+                ? $this->getSubjectsForClass($classId, $selectedGroup?->id, $exam, $studentIds, false)
                 : collect();
             if (! $showUnassigned) {
                 $subjects = $subjects->filter(
@@ -965,32 +968,28 @@ class ExamController extends Controller
                         continue;
                     }
 
-                    $config = $subject->getEffectiveMarksForClass($classId);
-                    $fullMarks = (float) ($config['total_marks'] ?: 100);
-                    $passMark = (float) ($config['pass_mark'] ?? 33);
-                    $mark = $studentMarks->firstWhere('subject_id', $subject->id);
-                    $obtained = $mark ? (float) $mark->total : 0;
-                    $isAbsent = $mark ? $mark->is_absent : false;
-                    $grade = GradingService::getGrade($obtained, $fullMarks);
-                    $passed = ! $isAbsent && $obtained >= $passMark && $grade['letter'] !== 'F';
+                    $config = [...$subject->getEffectiveMarksForClass($classId), 'class_id' => $classId];
+                    $markResults = $studentMarks->keyBy('subject_id');
+                    $subjectResult = $this->subjectResultEvaluator->evaluateSubject(
+                        $subject,
+                        $config,
+                        $subject->papers->isNotEmpty() ? $subject->papers : collect(),
+                        $markResults,
+                    );
+                    $obtained = $subjectResult['obtained'];
+                    $fullMarks = $subjectResult['full_marks'];
+                    $isAbsent = $subjectResult['is_absent'];
+                    $passed = $subjectResult['passed'];
 
                     if (! $passed) {
                         $failedSubjectCount++;
                     }
 
-                    $subjectResults[$subject->id] = [
-                        'obtained'     => $obtained,
-                        'full_marks'   => $fullMarks,
-                        'pass_mark'    => $passMark,
-                        'letter_grade' => $isAbsent ? 'AB' : $grade['letter'],
-                        'gpa'          => $isAbsent ? 0 : $grade['gpa'],
-                        'is_absent'    => $isAbsent,
-                        'passed'       => $passed,
-                    ];
+                    $subjectResults[$subject->id] = $subjectResult;
 
                     $totalObtained += $obtained;
                     $totalFull += $fullMarks;
-                    $gpas[] = $isAbsent ? 0 : $grade['gpa'];
+                    $gpas[] = $subjectResult['gpa'];
                 }
 
                 $avgGpa = GradingService::calculateGpa($gpas, $failedSubjectCount > 0);
@@ -1095,7 +1094,7 @@ class ExamController extends Controller
         $selectedGroup = $groupId ? $groups->firstWhere('id', $groupId) : null;
         $students   = $this->getStudentsForClass($exam, $classId, $sectionId, $groupId, $subjectId);
         $studentIds = $students->pluck('id');
-        $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id, $exam, $studentIds);
+        $subjects = $this->getSubjectsForClass($classId, $selectedGroup?->id, $exam, $studentIds, false);
         if (! $showUnassigned) {
             $subjects = $subjects->filter(
                 fn (Subject $subject) => $subject->resultAssignments->contains(
@@ -1135,31 +1134,27 @@ class ExamController extends Controller
                     continue;
                 }
 
-                $config    = $subject->getEffectiveMarksForClass($classId);
-                $fullMarks = (float) ($config['total_marks'] ?: 100);
-                $passMark  = (float) ($config['pass_mark'] ?? 33);
-                $mark      = $studentMarks->firstWhere('subject_id', $subject->id);
-                $obtained  = $mark ? (float) $mark->total : 0;
-                $isAbsent  = $mark ? $mark->is_absent : false;
-                $grade     = GradingService::getGrade($obtained, $fullMarks);
-                $passed    = ! $isAbsent && $obtained >= $passMark && $grade['letter'] !== 'F';
+                $config    = [...$subject->getEffectiveMarksForClass($classId), 'class_id' => $classId];
+                $subjectResult = $this->subjectResultEvaluator->evaluateSubject(
+                    $subject,
+                    $config,
+                    $subject->papers->isNotEmpty() ? $subject->papers : collect(),
+                    $studentMarks->keyBy('subject_id'),
+                );
+                $fullMarks = $subjectResult['full_marks'];
+                $obtained  = $subjectResult['obtained'];
+                $isAbsent  = $subjectResult['is_absent'];
+                $passed    = $subjectResult['passed'];
 
                 if (! $passed) {
                     $failedSubjectCount++;
                 }
 
-                $subjectResults[$subject->id] = [
-                    'obtained'     => $obtained,
-                    'full_marks'   => $fullMarks,
-                    'letter_grade' => $isAbsent ? 'AB' : $grade['letter'],
-                    'gpa'          => $isAbsent ? 0 : $grade['gpa'],
-                    'is_absent'    => $isAbsent,
-                    'passed'       => $passed,
-                ];
+                $subjectResults[$subject->id] = $subjectResult;
 
                 $totalObtained += $obtained;
                 $totalFull     += $fullMarks;
-                $gpas[]         = $isAbsent ? 0 : $grade['gpa'];
+                $gpas[]         = $subjectResult['gpa'];
             }
 
             $avgGpa = GradingService::calculateGpa($gpas, $failedSubjectCount > 0);
@@ -1310,7 +1305,8 @@ class ExamController extends Controller
         int $classId,
         ?int $groupId = null,
         ?Exam $exam = null,
-        ?\Illuminate\Support\Collection $studentIds = null
+        ?\Illuminate\Support\Collection $studentIds = null,
+        bool $expandPapers = true
     ): \Illuminate\Support\Collection
     {
         $historicalSubjectIds = collect();
@@ -1343,7 +1339,7 @@ class ExamController extends Controller
             $subject = $assignment->subject;
             if (! $subject) continue;
 
-            if ($subject->is_parent && $subject->papers->isNotEmpty()) {
+            if ($expandPapers && $subject->is_parent && $subject->papers->isNotEmpty()) {
                 // Replace parent with its individual papers
                 foreach ($subject->papers as $paper) {
                     $subjects->push($paper);
