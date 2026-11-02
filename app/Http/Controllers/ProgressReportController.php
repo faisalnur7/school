@@ -51,6 +51,8 @@ class ProgressReportController extends Controller
 
         $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id']);
         $request->validate(['subject_ids' => ['sometimes', 'array'], 'subject_ids.*' => ['integer']]);
+        $request->validate(['component_marks_mode' => ['nullable', 'in:minimal,detailed']]);
+        $filters['component_marks_mode'] = $request->input('component_marks_mode') === 'detailed' ? 'detailed' : 'minimal';
         $isPreview = $request->boolean('preview');
         $exam     = Exam::with('academicSession')
             ->where('type', Exam::TYPE_TERMINAL)
@@ -108,6 +110,8 @@ class ProgressReportController extends Controller
 
         $filters  = $request->only(['session_id', 'class_id', 'section_id', 'exam_id', 'student_id']);
         $request->validate(['subject_ids' => ['sometimes', 'array'], 'subject_ids.*' => ['integer']]);
+        $request->validate(['component_marks_mode' => ['nullable', 'in:minimal,detailed']]);
+        $filters['component_marks_mode'] = $request->input('component_marks_mode') === 'detailed' ? 'detailed' : 'minimal';
         $exam     = Exam::with('academicSession')
             ->where('type', Exam::TYPE_TERMINAL)
             ->findOrFail($filters['exam_id']);
@@ -436,6 +440,9 @@ class ProgressReportController extends Controller
                 'is_absent'    => $subjectResult['is_absent'],
                 'paper_fail'   => ! $passed,
                 'component_result' => $subjectResult,
+                'component_marks' => collect($subjectResult['components'] ?? [])
+                    ->mapWithKeys(fn (array $component, string $key) => [$key => $component['obtained']])
+                    ->all(),
             ];
 
             if ($subject->is_paper && $subject->parent_id) {

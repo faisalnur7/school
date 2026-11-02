@@ -224,6 +224,7 @@
                 <input type="hidden" name="subject_ids[]" value="{{ $subjectId }}">
             @endforeach
         @endif
+        <input type="hidden" name="component_marks_mode" value="{{ $filters['component_marks_mode'] ?? 'minimal' }}">
         <div class="progress-report-filter-row">
             <div class="progress-report-filter-group">
                 <label for="progressSessionSelect">Academic Session <span class="text-danger">*</span></label>
