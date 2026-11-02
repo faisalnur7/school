@@ -81,12 +81,7 @@ class TutorialReportController extends Controller
             ),
         ]);
         $attendanceData = $this->getAttendanceData($exam, (int) $filters['class_id'], $students->pluck('id'));
-        $highestMarks = ExamMark::where('exam_id', $exam->id)
-            ->where('is_absent', false)
-            ->when($filters['subject_filter'], fn ($query) => $query->whereIn('subject_id', $filters['subject_ids']))
-            ->selectRaw('subject_id, MAX(total) as highest')
-            ->groupBy('subject_id')
-            ->pluck('highest', 'subject_id');
+        $highestMarks = $this->getHighestMarksForStudents($exam, $students->pluck('id'), $filters);
         $sessions = AcademicSession::orderByDesc('id')->get();
         $classes = SchoolClass::all();
         $exams = Exam::where('type', Exam::TYPE_TUTORIAL)->orderByDesc('id')->get();
@@ -206,12 +201,7 @@ class TutorialReportController extends Controller
             ),
         ]);
         $attendanceData = $this->getAttendanceData($exam, (int) $filters['class_id'], $students->pluck('id'));
-        $highestMarks = ExamMark::where('exam_id', $exam->id)
-            ->where('is_absent', false)
-            ->when($filters['subject_filter'], fn ($query) => $query->whereIn('subject_id', $filters['subject_ids']))
-            ->selectRaw('subject_id, MAX(total) as highest')
-            ->groupBy('subject_id')
-            ->pluck('highest', 'subject_id');
+        $highestMarks = $this->getHighestMarksForStudents($exam, $students->pluck('id'), $filters);
 
         $studentsData = $students->map(function ($student) use ($exam, $attendanceData, $highestMarks, $filters, $studentSubjectIds) {
             $academicInfo = StudentAcademicInformation::with(['schoolClass', 'section', 'academicSession', 'group'])
@@ -584,6 +574,17 @@ class TutorialReportController extends Controller
                 ->map(fn ($days) => (int) $days)
                 ->all(),
         ];
+    }
+
+    private function getHighestMarksForStudents(Exam $exam, $studentIds, array $filters)
+    {
+        return ExamMark::where('exam_id', $exam->id)
+            ->whereIn('student_id', $studentIds)
+            ->where('is_absent', false)
+            ->when($filters['subject_filter'], fn ($query) => $query->whereIn('subject_id', $filters['subject_ids']))
+            ->selectRaw('subject_id, MAX(total) as highest')
+            ->groupBy('subject_id')
+            ->pluck('highest', 'subject_id');
     }
 
     private function getStudents(array $filters)
