@@ -23,5 +23,10 @@ class ProgressReportComponentMarksModeTest extends TestCase
         $this->assertStringContainsString('<th>MCQ</th>', $print);
         $this->assertStringContainsString('<th>Practical</th>', $print);
         $this->assertStringContainsString('<th>Viva</th>', $print);
+        $this->assertStringContainsString('($row[\'paper_fail\'] ?? false) ? \'table-danger\'', $results);
+        $this->assertStringContainsString('($row[\'paper_fail\'] ?? false) ? \'rc-row-fail\'', $results);
+        $this->assertStringContainsString('($paper[\'paper_fail\'] ?? false) ? \'report-row-fail\'', $print);
+        $this->assertStringContainsString('($row[\'paper_fail\'] ?? false) ? \'report-row-fail\'', $print);
+        $this->assertStringContainsString('.report-card__table tbody tr.report-row-fail td', $print);
     }
 }

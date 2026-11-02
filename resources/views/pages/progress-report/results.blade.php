@@ -335,7 +335,7 @@
                                         </tr>
                                     @endforeach
                                 @else
-                                    <tr>
+                                    <tr class="{{ ($row['paper_fail'] ?? false) ? 'table-danger' : '' }}">
                                         <td class="px-3 py-2  font-medium text-base">{{ $row['subject_name'] }}</td>
                                         <td class="text-center">{{ number_format($row['full_marks'], 0) }}</td>
                                         @if(($filters['component_marks_mode'] ?? 'minimal') === 'detailed')
@@ -613,7 +613,7 @@
                                         </tr>
                                     @endforeach
                                 @else
-                                    <tr>
+                                    <tr class="{{ ($row['paper_fail'] ?? false) ? 'rc-row-fail' : '' }}">
                                         <td class="rc-td-subject">{{ $row['subject_name'] }}</td>
                                         <td class="rc-td-num">{{ number_format($row['full_marks'], 0) }}</td>
                                         @if(($filters['component_marks_mode'] ?? 'minimal') === 'detailed')

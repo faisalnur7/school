@@ -279,6 +279,10 @@
             background: #f5fafd;
         }
 
+        .report-card__table tbody tr.report-row-fail td {
+            background: #fde2e2 !important;
+        }
+
         .report-card__table th,
         .report-card__table td {
             border: 1px solid #a8c8d8;
@@ -865,7 +869,7 @@
                             @foreach ($subjectRows as $row)
                                 @if (!empty($row['papers']))
                                     @foreach ($row['papers'] as $paperIndex => $paper)
-                                        <tr>
+                                        <tr class="{{ ($paper['paper_fail'] ?? false) ? 'report-row-fail' : '' }}">
                                             <td>{{ $paper['subject_name'] }}</td>
                                             <td>{{ number_format($paper['full_marks'], 0) }}</td>
                                             @if(($filters['component_marks_mode'] ?? 'minimal') === 'detailed')
@@ -887,7 +891,7 @@
                                         </tr>
                                     @endforeach
                                 @else
-                                    <tr>
+                                    <tr class="{{ ($row['paper_fail'] ?? false) ? 'report-row-fail' : '' }}">
                                         <td>{{ $row['subject_name'] }}</td>
                                         <td>{{ number_format($row['full_marks'], 0) }}</td>
                                         @if(($filters['component_marks_mode'] ?? 'minimal') === 'detailed')
