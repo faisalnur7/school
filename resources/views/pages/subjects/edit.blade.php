@@ -395,6 +395,7 @@
                                         <th scope="col">Tutorial</th>
                                         <th scope="col">Total</th>
                                         <th scope="col">Pass %</th>
+                                        <th scope="col">Component Pass</th>
                                         <th scope="col" class="text-center">Action</th>
                                     </tr>
                                 </thead>
@@ -415,6 +416,12 @@
                                         <td><input type="number" name="class_configs[{{ $configIndex }}][tutorial_marks]" class="form-control form-control-sm config-editable-field" value="{{ $config->tutorial_marks ?? 0 }}" min="0" step="0.01" readonly></td>
                                         <td><strong class="config-total-value">{{ number_format((float) $config->total_marks, 2) }}</strong></td>
                                         <td><input type="number" name="class_configs[{{ $configIndex }}][pass_mark_percentage]" class="form-control form-control-sm config-editable-field" value="{{ $config->total_marks > 0 ? round(($config->pass_mark / $config->total_marks) * 100, 2) : 33 }}" min="0" max="100" step="0.01" readonly></td>
+                                        <td>
+                                            <select name="class_configs[{{ $configIndex }}][component_pass_mode]" class="form-control form-control-sm config-editable-field">
+                                                <option value="combined" @selected(($config->component_pass_mode ?? 'combined') === 'combined')>Combined Pass</option>
+                                                <option value="individual" @selected(($config->component_pass_mode ?? 'combined') === 'individual')>Individual Pass</option>
+                                            </select>
+                                        </td>
                                         <td class="text-center">
                                             <div class="d-inline-flex gap-1">
                                                 <button type="button" class="btn btn-sm btn-outline-primary class-config-edit-btn" aria-label="Edit {{ $config->schoolClass->name_en ?? 'class configuration' }}" title="Edit class configuration">
@@ -1378,6 +1385,15 @@
                                 <label>Tutorial Marks</label>
                                 <input type="number" name="class_configs[${index}][tutorial_marks]" class="form-control"
                                     value="0" min="0" step="0.01" placeholder="Default: {{ $subject->tutorial_marks ?? 0 }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Component Pass Mode</label>
+                                <select name="class_configs[${index}][component_pass_mode]" class="form-control">
+                                    <option value="combined">Combined Pass</option>
+                                    <option value="individual">Individual Pass</option>
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-3">

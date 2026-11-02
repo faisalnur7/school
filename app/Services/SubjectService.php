@@ -956,6 +956,10 @@ class SubjectService
 
         unset($data['pass_mark_percentage']);
 
+        $data['component_pass_mode'] = in_array($data['component_pass_mode'] ?? null, ['combined', 'individual'], true)
+            ? $data['component_pass_mode']
+            : 'combined';
+
         return $data;
     }
 

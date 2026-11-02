@@ -17,6 +17,7 @@ class SubjectClassConfig extends Model
         'viva_marks',
         'tutorial_marks',
         'pass_mark',
+        'component_pass_mode',
     ];
 
     protected $casts = [
@@ -26,6 +27,7 @@ class SubjectClassConfig extends Model
         'viva_marks' => 'decimal:2',
         'tutorial_marks' => 'decimal:2',
         'pass_mark' => 'decimal:2',
+        'component_pass_mode' => 'string',
     ];
 
     /**

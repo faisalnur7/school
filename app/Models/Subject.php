@@ -113,6 +113,7 @@ class Subject extends Model
                     'tutorial_marks' => (float) ($config->tutorial_marks ?? $this->tutorial_marks),
                     'total_marks' => (float) $config->total_marks,
                     'pass_mark' => (float) $config->pass_mark,
+                    'component_pass_mode' => $config->component_pass_mode ?: 'combined',
                 ];
             }
         }
@@ -125,6 +126,7 @@ class Subject extends Model
             'tutorial_marks' => (float) $this->tutorial_marks,
             'total_marks' => (float) $this->total_marks,
             'pass_mark' => (float) $this->pass_mark,
+            'component_pass_mode' => 'combined',
         ];
     }
 

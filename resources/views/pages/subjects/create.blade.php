@@ -420,6 +420,15 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
+                                    <label>Component Pass Mode</label>
+                                    <select name="class_configs[${index}][component_pass_mode]" class="form-control">
+                                        <option value="combined">Combined Pass</option>
+                                        <option value="individual">Individual Pass</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
                                     <label>Pass Mark Percentage</label>
                                     <input type="number" name="class_configs[${index}][pass_mark_percentage]" class="form-control"
                                         value="0" min="0" step="0.01" placeholder="Override or leave empty for default">
