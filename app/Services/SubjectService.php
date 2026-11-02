@@ -152,6 +152,16 @@ class SubjectService
                         $subject->classConfigs()->create($this->normalizeClassConfigData($configData));
                     }
                 }
+
+                if ($subject->isMultiPaperSubject()) {
+                    foreach ($classConfigsData as $configData) {
+                        $classId = $configData['class_id'] ?? $configData['school_class_id'] ?? null;
+                        $mode = $configData['component_pass_mode'] ?? 'combined';
+                        if ($classId) {
+                            $this->syncMultiPaperPassMode($subject, (int) $classId, $mode);
+                        }
+                    }
+                }
             }
 
             $fresh = $subject->fresh();
@@ -917,7 +927,13 @@ class SubjectService
      */
     public function createClassConfig(array $data): SubjectClassConfig
     {
-        return SubjectClassConfig::create($this->normalizeClassConfigData($data));
+        $config = SubjectClassConfig::create($this->normalizeClassConfigData($data));
+        $subject = $config->subject;
+        if ($subject?->isMultiPaperSubject()) {
+            $this->syncMultiPaperPassMode($subject, (int) $config->school_class_id, $config->component_pass_mode);
+        }
+
+        return $config->fresh();
     }
 
     /**
@@ -926,7 +942,28 @@ class SubjectService
     public function updateClassConfig(SubjectClassConfig $config, array $data): SubjectClassConfig
     {
         $config->update($this->normalizeClassConfigData($data));
-        return $config;
+        $subject = $config->subject;
+        if ($subject?->isMultiPaperSubject()) {
+            $this->syncMultiPaperPassMode($subject, (int) $config->school_class_id, $config->component_pass_mode);
+        }
+
+        return $config->fresh();
+    }
+
+    public function syncMultiPaperPassMode(Subject $subject, int $classId, string $mode): void
+    {
+        $mode = $mode === 'individual' ? 'individual' : 'combined';
+        $root = $subject->parent_id ? $subject->parent()->first() : $subject;
+        if (! $root || ! $root->isMultiPaperSubject()) {
+            return;
+        }
+
+        $targets = collect([$root])->merge($root->papers()->get());
+        foreach ($targets as $target) {
+            $target->classConfigs()
+                ->where('school_class_id', $classId)
+                ->update(['component_pass_mode' => $mode]);
+        }
     }
 
     /**
@@ -956,11 +993,19 @@ class SubjectService
 
         unset($data['pass_mark_percentage']);
 
+        $data['component_pass_mode'] = in_array($data['component_pass_mode'] ?? null, ['combined', 'individual'], true)
+            ? $data['component_pass_mode']
+            : 'combined';
+
         return $data;
     }
 
     private function normalizeSubjectPassMarkData(array $data, ?Subject $subject = null): array
     {
+        $data['component_pass_mode'] = in_array($data['component_pass_mode'] ?? null, ['combined', 'individual'], true)
+            ? $data['component_pass_mode']
+            : ($subject?->component_pass_mode ?: 'combined');
+
         if (array_key_exists('pass_mark_percentage', $data) && $data['pass_mark_percentage'] !== '' && $data['pass_mark_percentage'] !== null) {
             $marks = collect(['creative_marks', 'mcq_marks', 'practical_marks', 'viva_marks']);
             $total = $marks->sum(function ($field) use ($data, $subject) {

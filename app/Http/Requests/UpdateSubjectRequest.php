@@ -34,6 +34,7 @@ class UpdateSubjectRequest extends FormRequest
             'include_in_tutorial_exam' => 'nullable|boolean',
             'pass_mark' => 'nullable|numeric|min:0',
             'pass_mark_percentage' => 'nullable|numeric|min:0|max:100',
+            'component_pass_mode' => 'nullable|in:combined,individual',
             'is_active' => 'nullable|boolean',
             'assign_to_class' => 'nullable|boolean',
             'confirm_unassignment_with_marks' => 'nullable|boolean',
@@ -57,6 +58,7 @@ class UpdateSubjectRequest extends FormRequest
             'class_configs.*.tutorial_marks' => 'nullable|numeric|min:0',
             'class_configs.*.pass_mark' => 'nullable|numeric|min:0',
             'class_configs.*.pass_mark_percentage' => 'nullable|numeric|min:0|max:100',
+            'class_configs.*.component_pass_mode' => 'nullable|in:combined,individual',
             // Papers
             'papers' => 'nullable|array',
             'papers.*.id' => [

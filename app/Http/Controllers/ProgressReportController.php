@@ -21,11 +21,14 @@ use App\Models\Subject;
 use App\Models\SubjectClassAssignment;
 use App\Services\GradingService;
 use App\Services\ResultRankingService;
+use App\Services\SubjectResultEvaluator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 class ProgressReportController extends Controller
 {
+    public function __construct(private SubjectResultEvaluator $subjectResultEvaluator) {}
+
     public function index(Request $request)
     {
         if ($this->hasCompleteFilters($request)) {
@@ -381,7 +384,7 @@ class ProgressReportController extends Controller
             ->map(fn ($id) => (int) $id)
             ->all();
 
-        $marks = ExamMark::with(['subject'])
+        $marks = ExamMark::with(['subject.papers'])
             ->where('exam_id', $exam->id)
             ->where('student_id', $student->id)
             ->get();
@@ -410,12 +413,14 @@ class ProgressReportController extends Controller
             if (!$subject) continue;
 
             $examSubject = $examSubjects[$subject->id] ?? null;
-            $fullMarks   = $subject ? (float) $subject->total_marks : 0;
-            $passMark    = (float) ($subject->getEffectiveMarksForClass((int) $filters['class_id'])['pass_mark'] ?? 33);
+            $config = [...$subject->getEffectiveMarksForClass((int) $filters['class_id']), 'class_id' => (int) $filters['class_id']];
+            $subjectResult = $this->subjectResultEvaluator->evaluatePaper($subject, $config, $mark);
+            $fullMarks   = $subjectResult['full_marks'];
+            $passMark    = $subjectResult['pass_mark'];
             $highest     = (float) ($highestMarks[$subject->id] ?? 0);
 
-            $obtained = $mark->is_absent ? null : (float) $mark->total;
-            $passed = ! $mark->is_absent && $obtained >= $passMark && $mark->letter_grade !== 'F';
+            $obtained = $subjectResult['is_absent'] ? null : $subjectResult['obtained'];
+            $passed = $subjectResult['passed'];
 
             $row = [
                 'subject_id'   => $subject->id,
@@ -426,10 +431,11 @@ class ProgressReportController extends Controller
                 'obtained'     => $obtained,
                 'highest'      => $highest,
                 'pass_mark'    => $passMark,
-                'grade'        => $mark->is_absent ? 'AB' : $mark->letter_grade,
-                'gpa'          => $mark->is_absent ? null : (float) $mark->gpa,
-                'is_absent'    => (bool) $mark->is_absent,
+                'grade'        => $subjectResult['letter_grade'],
+                'gpa'          => $subjectResult['is_absent'] ? null : $subjectResult['gpa'],
+                'is_absent'    => $subjectResult['is_absent'],
                 'paper_fail'   => ! $passed,
+                'component_result' => $subjectResult,
             ];
 
             if ($subject->is_paper && $subject->parent_id) {
@@ -445,17 +451,20 @@ class ProgressReportController extends Controller
             $papers     = app(\App\Services\SubjectOrderingService::class)
                 ->sortRows(collect($group['papers']), (int) $filters['class_id'], (int) ($academicInfo?->group_id ?? 0))
                 ->all();
-            $anyFail    = collect($papers)->contains(fn($p) => $p['paper_fail']);
-            $anyAbsent  = collect($papers)->contains(fn($p) => $p['is_absent']);
-            $totalFull  = collect($papers)->sum('full_marks');
-            $totalObt   = collect($papers)->sum(fn($p) => $p['obtained'] ?? 0);
+            $parentSubject = Subject::with('papers')->find($parentId);
+            $parentConfig = $parentSubject
+                ? [...$parentSubject->getEffectiveMarksForClass((int) $filters['class_id']), 'class_id' => (int) $filters['class_id']]
+                : ['class_id' => (int) $filters['class_id']];
+            $parentResult = $parentSubject
+                ? $this->subjectResultEvaluator->evaluateSubject($parentSubject, $parentConfig, $parentSubject->papers, $marks->keyBy('subject_id'))
+                : null;
+            $anyFail    = $parentResult ? ! $parentResult['passed'] : collect($papers)->contains(fn($p) => $p['paper_fail']);
+            $anyAbsent  = $parentResult ? $parentResult['is_absent'] : collect($papers)->contains(fn($p) => $p['is_absent']);
+            $totalFull  = $parentResult['full_marks'] ?? collect($papers)->sum('full_marks');
+            $totalObt   = $parentResult['obtained'] ?? collect($papers)->sum(fn($p) => $p['obtained'] ?? 0);
             $highest    = collect($papers)->max('highest');
-            $combined   = GradingService::getGrade($totalObt, $totalFull);
-            $grade      = $anyAbsent ? 'AB' : ($anyFail ? 'F' : $combined['letter']);
-            $gpa        = $anyAbsent ? 0 : ($anyFail ? 0 : $combined['gpa']);
-
-            // Get parent subject name
-            $parentSubject = \App\Models\Subject::find($parentId);
+            $grade      = $parentResult['letter_grade'] ?? ($anyAbsent ? 'AB' : 'F');
+            $gpa        = $parentResult['gpa'] ?? 0;
 
             $subjectRows[$parentId] = [
                 'subject_id'   => $parentId,
@@ -467,9 +476,10 @@ class ProgressReportController extends Controller
                 'highest'      => $highest,
                 'grade'        => $grade,
                 'gpa'          => $gpa,
-                'is_absent'    => false,
+                'is_absent'    => $anyAbsent,
                 'paper_fail'   => $anyFail || $anyAbsent,
                 'papers'       => $papers,
+                'component_result' => $parentResult,
             ];
         }
 

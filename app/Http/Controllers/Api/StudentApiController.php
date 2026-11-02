@@ -34,6 +34,7 @@ use App\Services\GradingService;
 use App\Services\ResultRankingService;
 use App\Services\MobileAppConfigurationService;
 use App\Services\PaymentRequestService;
+use App\Services\SubjectResultEvaluator;
 use Illuminate\Support\Str;
 use Mpdf\Mpdf;
 
@@ -43,6 +44,7 @@ class StudentApiController extends Controller
         private readonly StudentAudienceService $audience,
         private readonly MobileAppConfigurationService $mobileConfiguration,
         private readonly PaymentRequestService $paymentRequests,
+        private readonly SubjectResultEvaluator $subjectResultEvaluator,
     ) {}
 
     public function login(Request $request): JsonResponse
@@ -346,17 +348,18 @@ class StudentApiController extends Controller
             'exam_type' => ['nullable', 'string', 'max:30'],
             'exam_id' => ['nullable', 'integer'],
         ]);
-        $marks = ExamMark::query()->with(['exam:id,name,type,year,status,exam_category,academic_session_id', 'subject:id,name,code'])
+        $marks = ExamMark::query()->with(['exam:id,name,type,year,status,exam_category,academic_session_id', 'subject:id,name,code,parent_id,is_paper,creative_marks,mcq_marks,practical_marks,viva_marks,total_marks,pass_mark', 'subject.papers', 'subject.parent.papers'])
             ->where('student_id', $student->id)->whereHas('exam', fn ($query) => $query->where('status', 'published'))
             ->when($data['session_id'] ?? null, fn ($query, $id) => $query->whereHas('exam', fn ($exam) => $exam->where('academic_session_id', $id)))
             ->when($data['exam_type'] ?? null, fn ($query, $type) => $query->whereHas('exam', fn ($exam) => $exam->where('exam_category', $type)))
             ->when($data['exam_id'] ?? null, fn ($query, $id) => $query->where('exam_id', $id))
             ->latest('id')->get();
         $marks = $this->filterResultMarks($student, $marks);
-        $marks = $marks->groupBy('exam_id')->map(function ($examMarks) {
+        $marks = $marks->groupBy('exam_id')->map(function ($examMarks) use ($student) {
             $exam = $examMarks->first()->exam;
-            $summary = $this->resultSummary($examMarks);
-            return ['exam' => $this->examPayload($exam), 'summary' => $summary, 'subjects' => $examMarks->map(fn ($mark) => $this->markPayload($mark))->values()];
+            $subjects = $this->resultSubjectPayloads($student, $examMarks);
+            $summary = $this->resultSummaryFromPayloads($subjects);
+            return ['exam' => $this->examPayload($exam), 'summary' => $summary, 'subjects' => $subjects];
         })->values();
 
         $marks = $marks->map(function (array $result) use ($student) {
@@ -547,13 +550,14 @@ class StudentApiController extends Controller
     public function result(Request $request, int $result): JsonResponse
     {
         $student = $this->activeStudent($request);
-        $marks = ExamMark::query()->with(['exam:id,name,type,year,status,exam_category,academic_session_id', 'subject:id,name,code'])
+        $marks = ExamMark::query()->with(['exam:id,name,type,year,status,exam_category,academic_session_id', 'subject:id,name,code,parent_id,is_paper,creative_marks,mcq_marks,practical_marks,viva_marks,total_marks,pass_mark', 'subject.papers', 'subject.parent.papers'])
             ->where('student_id', $student->id)->where('exam_id', $result)
             ->whereHas('exam', fn ($query) => $query->where('status', 'published'))->get();
         $marks = $this->filterResultMarks($student, $marks);
         abort_if($marks->isEmpty(), 404);
         $exam = $marks->first()->exam;
-        return response()->json(['exam' => $this->examPayload($exam), 'summary' => $this->resultSummary($marks), 'subjects' => $marks->map(fn ($mark) => $this->markPayload($mark))->values()]);
+        $subjects = $this->resultSubjectPayloads($student, $marks);
+        return response()->json(['exam' => $this->examPayload($exam), 'summary' => $this->resultSummaryFromPayloads($subjects), 'subjects' => $subjects]);
     }
 
     public function homework(Request $request): JsonResponse
@@ -685,10 +689,10 @@ class StudentApiController extends Controller
     {
         $mark = ExamMark::query()->with('exam:id,name,type,year')->where('student_id', $student->id)->whereHas('exam', fn ($q) => $q->where('status', 'published'))->latest()->first();
         if (!$mark) return null;
-        $marks = ExamMark::query()->with('exam:id,name,type,year,academic_session_id')->where('student_id', $student->id)->where('exam_id', $mark->exam_id)->get();
+        $marks = ExamMark::query()->with(['exam:id,name,type,year,academic_session_id', 'subject:id,name,code,parent_id,is_paper,creative_marks,mcq_marks,practical_marks,viva_marks,total_marks,pass_mark', 'subject.parent.papers'])->where('student_id', $student->id)->where('exam_id', $mark->exam_id)->get();
         $marks = $this->filterResultMarks($student, $marks);
         if ($marks->isEmpty()) return null;
-        return ['exam' => $mark->exam?->name, ...$this->resultSummary($marks)];
+        return ['exam' => $mark->exam?->name, ...$this->resultSummaryFromPayloads($this->resultSubjectPayloads($student, $marks))];
     }
 
     private function filterResultMarks(Student $student, Collection $marks): Collection
@@ -706,9 +710,13 @@ class StudentApiController extends Controller
                     $query->whereNull('group_id')
                         ->orWhere('group_id', $academic->group_id);
                 })
+                ->with('subject.papers:id,parent_id')
                 ->get(['subject_id', 'gender', 'religion'])
                 ->filter(fn (SubjectClassAssignment $assignment) => $assignment->appliesToStudent($student->gender, $student->religion))
-                ->pluck('subject_id');
+                ->flatMap(fn (SubjectClassAssignment $assignment) => collect([$assignment->subject_id])
+                    ->merge($assignment->subject?->papers?->pluck('id') ?? []))
+                ->unique()
+                ->values();
 
             return $examMarks->filter(fn (ExamMark $mark) => $allowedSubjectIds->contains((int) $mark->subject_id));
         })->values();
@@ -824,6 +832,87 @@ class StudentApiController extends Controller
         return ['id' => $mark->id, 'subject' => $mark->subject ? ['id' => $mark->subject->id, 'name' => $mark->subject->name, 'code' => $mark->subject->code] : null, 'cq_marks' => $mark->cq_marks, 'mcq_marks' => $mark->mcq_marks, 'practical_marks' => $mark->practical_marks, 'viva_marks' => $mark->viva_marks, 'tutorial_marks' => $mark->tutorial_marks, 'total' => $mark->total, 'is_absent' => (bool) $mark->is_absent, 'letter_grade' => $mark->letter_grade, 'gpa' => $mark->gpa];
     }
 
+    private function resultSubjectPayloads(Student $student, Collection $marks): Collection
+    {
+        $academic = $this->academicInfoForResult($student, $marks->first()?->exam);
+        $bySubject = $marks->keyBy('subject_id');
+        $payloads = collect();
+
+        foreach ($marks->reject(fn (ExamMark $mark) => $mark->subject?->is_paper && $mark->subject?->parent_id) as $mark) {
+            $subject = $mark->subject;
+            if (! $subject) continue;
+            $config = $academic
+                ? [...$subject->getEffectiveMarksForClass((int) $academic->school_class_id), 'class_id' => (int) $academic->school_class_id]
+                : $subject->getEffectiveMarksForClass();
+            $result = $this->subjectResultEvaluator->evaluatePaper($subject, $config, $mark);
+            $payloads->push($this->resultPayload($subject, $result, $mark));
+        }
+
+        foreach ($marks->filter(fn (ExamMark $mark) => $mark->subject?->is_paper && $mark->subject?->parent_id)->groupBy(fn (ExamMark $mark) => $mark->subject->parent_id) as $paperMarks) {
+            $parent = $paperMarks->first()->subject?->parent;
+            if (! $parent) continue;
+            $config = $academic
+                ? [...$parent->getEffectiveMarksForClass((int) $academic->school_class_id), 'class_id' => (int) $academic->school_class_id]
+                : $parent->getEffectiveMarksForClass();
+            $result = $this->subjectResultEvaluator->evaluateSubject($parent, $config, $parent->papers, $bySubject);
+            $payloads->push($this->resultPayload($parent, $result));
+        }
+
+        return $payloads->values();
+    }
+
+    private function resultPayload(\App\Models\Subject $subject, array $result, ?ExamMark $mark = null): array
+    {
+        return [
+            'id' => $mark?->id ?? $subject->id,
+            'subject' => ['id' => $subject->id, 'name' => $subject->name, 'code' => $subject->code],
+            'cq_marks' => $mark?->cq_marks,
+            'mcq_marks' => $mark?->mcq_marks,
+            'practical_marks' => $mark?->practical_marks,
+            'viva_marks' => $mark?->viva_marks,
+            'tutorial_marks' => $mark?->tutorial_marks,
+            'total' => $result['obtained'],
+            'full_marks' => $result['full_marks'],
+            'pass_mark' => $result['pass_mark'],
+            'is_absent' => $result['is_absent'],
+            'passed' => $result['passed'],
+            'letter_grade' => $result['letter_grade'],
+            'gpa' => $result['gpa'],
+            'components' => $result['components'],
+            'papers' => collect($result['papers'] ?? [])->map(fn (array $paper) => [
+                'subject' => $paper['subject'] ? [
+                    'id' => $paper['subject']->id,
+                    'name' => $paper['subject']->name,
+                    'code' => $paper['subject']->code,
+                ] : null,
+                'total' => $paper['obtained'],
+                'full_marks' => $paper['full_marks'],
+                'pass_mark' => $paper['pass_mark'],
+                'is_absent' => $paper['is_absent'],
+                'passed' => $paper['passed'],
+                'letter_grade' => $paper['letter_grade'],
+                'gpa' => $paper['gpa'],
+                'components' => $paper['components'],
+            ])->values()->all(),
+        ];
+    }
+
+    private function resultSummaryFromPayloads(Collection $subjects): array
+    {
+        $failed = $subjects->filter(fn (array $subject) => ! $subject['passed'])->count();
+        $gpa = GradingService::calculateGpa(
+            $subjects->map(fn (array $subject) => $subject['passed'] ? (float) $subject['gpa'] : 0.0)->values()->all(),
+            $failed > 0,
+        );
+
+        return [
+            'total' => round((float) $subjects->sum('total'), 2),
+            'gpa' => $gpa,
+            'grade' => GradingService::getGpaLabel($gpa),
+            'failed_subjects' => $failed,
+        ];
+    }
+
     private function noticePayload(Notice $notice): array
     {
         return ['id' => $notice->id, 'title' => $notice->title, 'content' => $notice->content, 'published_at' => $notice->published_at];
@@ -855,7 +944,7 @@ class StudentApiController extends Controller
             })
             ->get();
         $allMarks = ExamMark::query()
-            ->with(['exam:id,name,type,year,status,exam_category,academic_session_id', 'subject:id,name,code'])
+            ->with(['exam:id,name,type,year,status,exam_category,academic_session_id', 'subject:id,name,code,parent_id,is_paper,creative_marks,mcq_marks,practical_marks,viva_marks,total_marks,pass_mark', 'subject.parent.papers'])
             ->where('exam_id', $exam->id)
             ->whereIn('student_id', $students->pluck('id'))
             ->get()
@@ -868,7 +957,7 @@ class StudentApiController extends Controller
                 $allMarks->get($cohortStudent->id, collect())
             );
             if ($studentMarks->isEmpty()) continue;
-            $summary = $this->resultSummary($studentMarks);
+            $summary = $this->resultSummaryFromPayloads($this->resultSubjectPayloads($cohortStudent, $studentMarks));
             $rows[$cohortStudent->id] = [
                 'student' => $cohortStudent,
                 'summary' => $summary,

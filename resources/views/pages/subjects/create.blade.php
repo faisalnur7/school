@@ -78,6 +78,21 @@
                     </div>
 
                     <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="component_pass_mode">{{ __('Component Pass Mode') }}</label>
+                                <select name="component_pass_mode" id="component_pass_mode" class="form-control">
+                                    <option value="combined" @selected(old('component_pass_mode', 'combined') === 'combined')>{{ __('Combined Pass') }}</option>
+                                    <option value="individual" @selected(old('component_pass_mode') === 'individual')>{{ __('Individual Pass') }}</option>
+                                </select>
+                                <small class="form-text text-muted">{{ __('Default result rule when no class-specific setting is configured.') }}</small>
+                                <small class="form-text text-muted mb-0"><strong>{{ __('Combined Pass:') }}</strong> {{ __('pass when the combined marks reach the pass mark.') }} <strong>{{ __('Individual Pass:') }}</strong> {{ __('the student must reach the component pass mark in every enabled component.') }}</small>
+                                <small class="form-text text-muted">{{ __('For multiple-paper subjects, this mode applies to all papers in the subject.') }}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
                                 <div class="form-check">
@@ -416,6 +431,15 @@
                                     <label>Tutorial Marks</label>
                                     <input type="number" name="class_configs[${index}][tutorial_marks]" class="form-control"
                                         value="0" min="0" step="0.01" placeholder="Override or leave empty for default">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>{{ __('Component Pass Mode') }}</label>
+                                    <select name="class_configs[${index}][component_pass_mode]" class="form-control">
+                                        <option value="combined">{{ __('Combined Pass') }}</option>
+                                        <option value="individual">{{ __('Individual Pass') }}</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-md-3">
