@@ -118,6 +118,25 @@ class Subject extends Model
             }
         }
 
+        if ($this->is_parent) {
+            $papers = $this->relationLoaded('papers') ? $this->papers : $this->papers()->get();
+
+            if ($papers->isNotEmpty()) {
+                $paperConfigs = $papers->map(fn (Subject $paper) => $paper->getEffectiveMarksForClass($classId));
+
+                return [
+                    'creative_marks' => (float) $paperConfigs->sum('creative_marks'),
+                    'mcq_marks' => (float) $paperConfigs->sum('mcq_marks'),
+                    'practical_marks' => (float) $paperConfigs->sum('practical_marks'),
+                    'viva_marks' => (float) $paperConfigs->sum('viva_marks'),
+                    'tutorial_marks' => (float) $paperConfigs->sum('tutorial_marks'),
+                    'total_marks' => (float) $paperConfigs->sum('total_marks'),
+                    'pass_mark' => (float) $paperConfigs->sum('pass_mark'),
+                    'component_pass_mode' => 'combined',
+                ];
+            }
+        }
+
         return [
             'creative_marks' => (float) $this->creative_marks,
             'mcq_marks' => (float) $this->mcq_marks,

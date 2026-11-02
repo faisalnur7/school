@@ -60,4 +60,18 @@ class SubjectComponentPassModeTest extends TestCase
 
         $this->assertSame('nullable|in:combined,individual', $rules['class_configs.*.component_pass_mode']);
     }
+
+    public function test_parent_effective_marks_aggregate_paper_totals_and_pass_marks(): void
+    {
+        $parent = Subject::create(['name' => 'Bangla', 'type' => 'mandatory', 'is_parent' => true, 'is_active' => true]);
+        $parent->papers()->createMany([
+            ['name' => 'Bangla 1st', 'type' => 'mandatory', 'creative_marks' => 70, 'mcq_marks' => 30, 'pass_mark' => 33, 'is_paper' => true, 'is_active' => true],
+            ['name' => 'Bangla 2nd', 'type' => 'mandatory', 'creative_marks' => 70, 'mcq_marks' => 30, 'pass_mark' => 33, 'is_paper' => true, 'is_active' => true],
+        ]);
+
+        $config = $parent->getEffectiveMarksForClass();
+
+        $this->assertSame(200.0, $config['total_marks']);
+        $this->assertSame(66.0, $config['pass_mark']);
+    }
 }
