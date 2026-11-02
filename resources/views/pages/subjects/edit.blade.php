@@ -363,6 +363,16 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
+                                    <label for="component_pass_mode">{{ __('Component Pass Mode') }}</label>
+                                    <select name="component_pass_mode" id="component_pass_mode" class="form-control">
+                                        <option value="combined" @selected(old('component_pass_mode', $subject->component_pass_mode ?? 'combined') === 'combined')>{{ __('Combined Pass') }}</option>
+                                        <option value="individual" @selected(old('component_pass_mode', $subject->component_pass_mode ?? 'combined') === 'individual')>{{ __('Individual Pass') }}</option>
+                                    </select>
+                                    <small class="form-text text-muted">{{ __('Used when no class-specific pass mode is configured.') }}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
                                     <label for="total_marks">{{ __('Total marks') }} <span class="field-hint">({{ __('calculated automatically') }})</span></label>
                                     <input type="text" class="form-control marks-total" id="total_marks" readonly
                                         value="{{ number_format($subject->total_marks, 2) }}" disabled>

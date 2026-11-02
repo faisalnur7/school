@@ -54,11 +54,26 @@ class SubjectComponentPassModeTest extends TestCase
         $this->assertSame('individual', $subject->fresh()->getEffectiveMarksForClass($class->id)['component_pass_mode']);
     }
 
+    public function test_subject_default_persists_individual_pass_mode_without_class_config(): void
+    {
+        $subject = app(SubjectService::class)->createSubject([
+            'name' => 'Subject default mode',
+            'type' => 'mandatory',
+            'creative_marks' => 70,
+            'mcq_marks' => 30,
+            'pass_mark_percentage' => 33,
+            'component_pass_mode' => 'individual',
+        ]);
+
+        $this->assertSame('individual', $subject->fresh()->getEffectiveMarksForClass()['component_pass_mode']);
+    }
+
     public function test_class_config_rejects_an_unknown_pass_mode(): void
     {
         $rules = (new StoreSubjectRequest())->rules();
 
         $this->assertSame('nullable|in:combined,individual', $rules['class_configs.*.component_pass_mode']);
+        $this->assertSame('nullable|in:combined,individual', $rules['component_pass_mode']);
     }
 
     public function test_parent_effective_marks_aggregate_paper_totals_and_pass_marks(): void

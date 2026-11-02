@@ -965,6 +965,10 @@ class SubjectService
 
     private function normalizeSubjectPassMarkData(array $data, ?Subject $subject = null): array
     {
+        $data['component_pass_mode'] = in_array($data['component_pass_mode'] ?? null, ['combined', 'individual'], true)
+            ? $data['component_pass_mode']
+            : ($subject?->component_pass_mode ?: 'combined');
+
         if (array_key_exists('pass_mark_percentage', $data) && $data['pass_mark_percentage'] !== '' && $data['pass_mark_percentage'] !== null) {
             $marks = collect(['creative_marks', 'mcq_marks', 'practical_marks', 'viva_marks']);
             $total = $marks->sum(function ($field) use ($data, $subject) {
