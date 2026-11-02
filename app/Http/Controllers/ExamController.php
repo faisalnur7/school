@@ -787,7 +787,20 @@ class ExamController extends Controller
         $viva = ! $isTutorial ? ($isAbsent ? 0 : (float) ($row['viva_marks'] ?? 0)) : null;
         $total = $isTutorial ? $tutorial : $cq + $mcq + $practical + $viva;
         $fullMarks = $isTutorial ? $limits['tutorial_marks'] : (float) ($config['total_marks'] ?: 100);
-        $grade = ! $isTutorial && $fullMarks > 0 ? GradingService::getGrade($total, $fullMarks) : null;
+        $evaluation = ! $isTutorial
+            ? app(\App\Services\SubjectResultEvaluator::class)->evaluatePaper(
+                $subject,
+                [...$config, 'class_id' => $classId],
+                new ExamMark([
+                    'cq_marks' => $cq,
+                    'mcq_marks' => $mcq,
+                    'practical_marks' => $practical,
+                    'viva_marks' => $viva,
+                    'total' => $total,
+                    'is_absent' => $isAbsent,
+                ])
+            )
+            : null;
 
         ExamMark::updateOrCreate(
             ['exam_id' => $exam->id, 'student_id' => $studentId, 'subject_id' => $subjectId],
@@ -799,8 +812,8 @@ class ExamController extends Controller
                 'tutorial_marks' => $tutorial,
                 'total' => $total,
                 'is_absent' => $isAbsent,
-                'letter_grade' => $isAbsent ? 'AB' : ($grade['letter'] ?? null),
-                'gpa' => $isAbsent ? 0 : ($grade['gpa'] ?? null),
+                'letter_grade' => $evaluation['letter_grade'] ?? null,
+                'gpa' => $evaluation['gpa'] ?? null,
             ]
         );
     }

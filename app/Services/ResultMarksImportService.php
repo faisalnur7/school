@@ -499,7 +499,18 @@ class ResultMarksImportService
             ));
 
         $components = $this->splitTerminalMarks($config, $targetTotal);
-        $grade = $isAbsent ? ['letter' => 'AB', 'gpa' => 0] : GradingService::getGrade($targetTotal, $fullMarks);
+        $evaluation = app(SubjectResultEvaluator::class)->evaluatePaper(
+            $subject,
+            [...$config, 'class_id' => $classId],
+            new ExamMark([
+                'cq_marks' => $components['cq_marks'],
+                'mcq_marks' => $components['mcq_marks'],
+                'practical_marks' => $components['practical_marks'],
+                'viva_marks' => $components['viva_marks'],
+                'total' => $targetTotal,
+                'is_absent' => $isAbsent,
+            ])
+        );
 
         return [
             'cq_marks' => $components['cq_marks'],
@@ -509,8 +520,8 @@ class ResultMarksImportService
             'tutorial_marks' => null,
             'total' => $targetTotal,
             'is_absent' => $isAbsent,
-            'letter_grade' => $grade['letter'] ?? null,
-            'gpa' => $grade['gpa'] ?? null,
+            'letter_grade' => $evaluation['letter_grade'],
+            'gpa' => $evaluation['gpa'],
         ];
     }
 
