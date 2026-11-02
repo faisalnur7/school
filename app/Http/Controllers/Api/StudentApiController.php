@@ -348,7 +348,7 @@ class StudentApiController extends Controller
             'exam_type' => ['nullable', 'string', 'max:30'],
             'exam_id' => ['nullable', 'integer'],
         ]);
-        $marks = ExamMark::query()->with(['exam:id,name,type,year,status,exam_category,academic_session_id', 'subject:id,name,code,parent_id,is_paper,creative_marks,mcq_marks,practical_marks,viva_marks,total_marks,pass_mark', 'subject.parent.papers'])
+        $marks = ExamMark::query()->with(['exam:id,name,type,year,status,exam_category,academic_session_id', 'subject:id,name,code,parent_id,is_paper,creative_marks,mcq_marks,practical_marks,viva_marks,total_marks,pass_mark', 'subject.papers', 'subject.parent.papers'])
             ->where('student_id', $student->id)->whereHas('exam', fn ($query) => $query->where('status', 'published'))
             ->when($data['session_id'] ?? null, fn ($query, $id) => $query->whereHas('exam', fn ($exam) => $exam->where('academic_session_id', $id)))
             ->when($data['exam_type'] ?? null, fn ($query, $type) => $query->whereHas('exam', fn ($exam) => $exam->where('exam_category', $type)))
@@ -550,7 +550,7 @@ class StudentApiController extends Controller
     public function result(Request $request, int $result): JsonResponse
     {
         $student = $this->activeStudent($request);
-        $marks = ExamMark::query()->with(['exam:id,name,type,year,status,exam_category,academic_session_id', 'subject:id,name,code,parent_id,is_paper,creative_marks,mcq_marks,practical_marks,viva_marks,total_marks,pass_mark', 'subject.parent.papers'])
+        $marks = ExamMark::query()->with(['exam:id,name,type,year,status,exam_category,academic_session_id', 'subject:id,name,code,parent_id,is_paper,creative_marks,mcq_marks,practical_marks,viva_marks,total_marks,pass_mark', 'subject.papers', 'subject.parent.papers'])
             ->where('student_id', $student->id)->where('exam_id', $result)
             ->whereHas('exam', fn ($query) => $query->where('status', 'published'))->get();
         $marks = $this->filterResultMarks($student, $marks);
@@ -710,9 +710,13 @@ class StudentApiController extends Controller
                     $query->whereNull('group_id')
                         ->orWhere('group_id', $academic->group_id);
                 })
+                ->with('subject.papers:id,parent_id')
                 ->get(['subject_id', 'gender', 'religion'])
                 ->filter(fn (SubjectClassAssignment $assignment) => $assignment->appliesToStudent($student->gender, $student->religion))
-                ->pluck('subject_id');
+                ->flatMap(fn (SubjectClassAssignment $assignment) => collect([$assignment->subject_id])
+                    ->merge($assignment->subject?->papers?->pluck('id') ?? []))
+                ->unique()
+                ->values();
 
             return $examMarks->filter(fn (ExamMark $mark) => $allowedSubjectIds->contains((int) $mark->subject_id));
         })->values();
@@ -875,7 +879,21 @@ class StudentApiController extends Controller
             'letter_grade' => $result['letter_grade'],
             'gpa' => $result['gpa'],
             'components' => $result['components'],
-            'papers' => $result['papers'] ?? [],
+            'papers' => collect($result['papers'] ?? [])->map(fn (array $paper) => [
+                'subject' => $paper['subject'] ? [
+                    'id' => $paper['subject']->id,
+                    'name' => $paper['subject']->name,
+                    'code' => $paper['subject']->code,
+                ] : null,
+                'total' => $paper['obtained'],
+                'full_marks' => $paper['full_marks'],
+                'pass_mark' => $paper['pass_mark'],
+                'is_absent' => $paper['is_absent'],
+                'passed' => $paper['passed'],
+                'letter_grade' => $paper['letter_grade'],
+                'gpa' => $paper['gpa'],
+                'components' => $paper['components'],
+            ])->values()->all(),
         ];
     }
 
