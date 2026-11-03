@@ -102,6 +102,21 @@
                                     <input type="hidden" name="{{ $filterKey }}" value="{{ $filters[$filterKey] ?? '' }}">
                                 @endforeach
                                 <input type="hidden" name="subject_settings_applied" value="1">
+                                <div class="mb-3">
+                                    <strong class="d-block mb-2">Marks columns</strong>
+                                    <div class="d-flex flex-wrap" style="gap: 1rem;">
+                                        <label class="mb-0">
+                                            <input type="radio" name="component_marks_mode" value="minimal"
+                                                @checked(($filters['component_marks_mode'] ?? 'minimal') === 'minimal')>
+                                            Minimal — hide component marks
+                                        </label>
+                                        <label class="mb-0">
+                                            <input type="radio" name="component_marks_mode" value="detailed"
+                                                @checked(($filters['component_marks_mode'] ?? 'minimal') === 'detailed')>
+                                            Detailed — show CQ, MCQ, Practical, and Viva
+                                        </label>
+                                    </div>
+                                </div>
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <strong>Select subjects</strong>
                                     <div class="btn-group btn-group-sm">
@@ -275,6 +290,12 @@
                             <tr>
                                 <th class="px-3 py-2 text-left">Subjects</th>
                                 <th class="px-3 py-2">Full Marks</th>
+                                @if(($filters['component_marks_mode'] ?? 'minimal') === 'detailed')
+                                    <th class="px-3 py-2">CQ</th>
+                                    <th class="px-3 py-2">MCQ</th>
+                                    <th class="px-3 py-2">Practical</th>
+                                    <th class="px-3 py-2">Viva</th>
+                                @endif
                                 <th class="px-3 py-2">Obtained Marks</th>
                                 <th class="px-3 py-2">Highest Marks</th>
                                 <th class="px-3 py-2">Total Marks</th>
@@ -289,6 +310,11 @@
                                         <tr class="{{ $paper['paper_fail'] ?? false ? 'table-danger' : '' }}">
                                             <td class="px-3 py-2 font-medium text-base">{{ $paper['subject_name'] }}</td>
                                             <td class="text-center">{{ number_format($paper['full_marks'], 0) }}</td>
+                                            @if(($filters['component_marks_mode'] ?? 'minimal') === 'detailed')
+                                                @foreach(['cq', 'mcq', 'practical', 'viva'] as $component)
+                                                    <td class="text-center">{{ is_null($paper['obtained']) ? '—' : number_format($paper['component_marks'][$component] ?? 0, 0) }}</td>
+                                                @endforeach
+                                            @endif
                                             <td class="text-center">
                                                 {{ $paper['obtained'] ? number_format($paper['obtained'], 0) : '—' }}</td>
                                             <td class="text-center">{{ number_format($paper['highest'], 0) }}</td>
@@ -309,9 +335,14 @@
                                         </tr>
                                     @endforeach
                                 @else
-                                    <tr>
+                                    <tr class="{{ ($row['paper_fail'] ?? false) ? 'table-danger' : '' }}">
                                         <td class="px-3 py-2  font-medium text-base">{{ $row['subject_name'] }}</td>
                                         <td class="text-center">{{ number_format($row['full_marks'], 0) }}</td>
+                                        @if(($filters['component_marks_mode'] ?? 'minimal') === 'detailed')
+                                            @foreach(['cq', 'mcq', 'practical', 'viva'] as $component)
+                                                <td class="text-center">{{ is_null($row['obtained']) ? '—' : number_format($row['component_marks'][$component] ?? 0, 0) }}</td>
+                                            @endforeach
+                                        @endif
                                         <td class="text-center">
                                             {{ $row['obtained'] ? number_format($row['obtained'], 0) : '—' }}</td>
                                         <td class="text-center">{{ number_format($row['highest'], 0) }}</td>
@@ -531,6 +562,12 @@
                             <tr>
                                 <th class="rc-th-left">Subjects</th>
                                 <th>Full Marks</th>
+                                @if(($filters['component_marks_mode'] ?? 'minimal') === 'detailed')
+                                    <th>CQ</th>
+                                    <th>MCQ</th>
+                                    <th>Practical</th>
+                                    <th>Viva</th>
+                                @endif
                                 <th>Obtained Marks</th>
                                 <th>Highest Marks</th>
                                 <th>Total Marks</th>
@@ -551,6 +588,11 @@
                                                 {{ $paper['subject_name'] }}
                                             </td>
                                             <td class="rc-td-num">{{ number_format($paper['full_marks'], 0) }}</td>
+                                            @if(($filters['component_marks_mode'] ?? 'minimal') === 'detailed')
+                                                @foreach(['cq', 'mcq', 'practical', 'viva'] as $component)
+                                                    <td class="rc-td-num">{{ is_null($paper['obtained']) ? '—' : number_format($paper['component_marks'][$component] ?? 0, 0) }}</td>
+                                                @endforeach
+                                            @endif
                                             <td class="rc-td-num rc-td-obtained">
                                                 {{ $paper['obtained'] ? number_format($paper['obtained'], 0) : '—' }}</td>
                                             <td class="rc-td-num">{{ number_format($paper['highest'], 0) }}</td>
@@ -571,9 +613,14 @@
                                         </tr>
                                     @endforeach
                                 @else
-                                    <tr>
+                                    <tr class="{{ ($row['paper_fail'] ?? false) ? 'rc-row-fail' : '' }}">
                                         <td class="rc-td-subject">{{ $row['subject_name'] }}</td>
                                         <td class="rc-td-num">{{ number_format($row['full_marks'], 0) }}</td>
+                                        @if(($filters['component_marks_mode'] ?? 'minimal') === 'detailed')
+                                            @foreach(['cq', 'mcq', 'practical', 'viva'] as $component)
+                                                <td class="rc-td-num">{{ is_null($row['obtained']) ? '—' : number_format($row['component_marks'][$component] ?? 0, 0) }}</td>
+                                            @endforeach
+                                        @endif
                                         <td class="rc-td-num rc-td-obtained">
                                             {{ $row['obtained'] ? number_format($row['obtained'], 0) : '—' }}</td>
                                         <td class="rc-td-num">{{ number_format($row['highest'], 0) }}</td>
