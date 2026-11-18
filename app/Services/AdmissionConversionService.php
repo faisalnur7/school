@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AcademicSession;
 use App\Models\AdmissionApplication;
 use App\Models\AdmissionConversion;
 use App\Models\Fee;
@@ -43,12 +44,14 @@ class AdmissionConversionService
     private function applyFeeSets(Student $student, int $classId, int $sessionId): void
     {
         $feeSets = FeeSet::with('items.category')->where('school_class_id', $classId)->where('academic_session_id', $sessionId)->get();
+        // Due dates belong to the session being joined, not the year the conversion happens in.
+        $year = AcademicSession::find($sessionId)?->year() ?? now()->year;
         foreach ($feeSets as $feeSet) {
             $amount = $feeSet->items->filter(fn ($item) => in_array($item->category->student_type ?? 'both', ['both', 'new']))->sum('amount');
             if ($amount <= 0) continue;
             $dates = match ($feeSet->frequency) {
-                'monthly' => collect(range(1, 12))->map(fn ($month) => Carbon::create(now()->year, $month, 1)->endOfMonth()),
-                'yearly' => collect([$feeSet->due_date ? Carbon::parse($feeSet->due_date) : Carbon::create(now()->year, 12, 31)]),
+                'monthly' => collect(range(1, 12))->map(fn ($month) => Carbon::create($year, $month, 1)->endOfMonth()),
+                'yearly' => collect([$feeSet->due_date ? Carbon::parse($feeSet->due_date) : Carbon::create($year, 12, 31)]),
                 default => collect([$feeSet->due_date ? Carbon::parse($feeSet->due_date) : now()->toDateString()]),
             };
             foreach ($dates as $dueDate) Fee::create(['student_id' => $student->id, 'fee_set_id' => $feeSet->id, 'amount' => $amount, 'due_date' => $dueDate, 'status' => 'pending']);

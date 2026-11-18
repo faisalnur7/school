@@ -84,7 +84,7 @@ class AttendanceController extends Controller
             ->where('academic_session_id', $sessionId)
             ->where('school_class_id', $classId)
             ->where('section_id', $sectionId)
-            ->with('student:id,full_name_en,full_name_bn')
+            ->with('student:id,full_name_en,full_name_bn,student_cid')
             ->orderByRaw('CAST(roll AS UNSIGNED) ASC')
             ->orderBy('roll')
             ->get();

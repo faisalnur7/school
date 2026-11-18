@@ -7,7 +7,7 @@ class StudentsHubController extends Controller
     public function index()
     {
         $cards = [
-            ['icon' => 'fa-user-plus',          'title' => __('New Admission'),     'subtitle' => __('Enroll a new student for current session'), 'route' => 'students.admission', 'permission' => 'view_card_new_admission', 'from' => '#0891b2', 'to' => '#0e7490'],
+            ['icon' => 'fa-user-plus',          'title' => __('Add Student'),       'subtitle' => __('Enroll a student directly into the current session'), 'route' => 'students.admission', 'permission' => 'view_card_new_admission', 'from' => '#0891b2', 'to' => '#0e7490'],
             ['icon' => 'fa-list',               'title' => __('Student List'),      'subtitle' => __('View all students'),                    'route' => 'students.index', 'permission' => 'view_card_student_list', 'from' => '#4f46e5', 'to' => '#7c3aed'],
             ['icon' => 'fa-chalkboard-teacher', 'title' => __('Assign Teacher'),    'subtitle' => __('Assign teachers to sections'),          'route' => 'teacher-section-assignments.index', 'permission' => 'view_card_assign_teacher', 'from' => '#059669', 'to' => '#047857'],
             ['icon' => 'fa-id-card',            'title' => __('Generate ID Cards'), 'subtitle' => __('Print student ID cards'),               'route' => 'students.id-cards', 'permission' => 'view_card_generate_id_cards', 'from' => '#d97706', 'to' => '#b45309'],

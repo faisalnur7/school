@@ -53,7 +53,7 @@
     <!-- jQuery UI 1.11.4 -->
     <script src="{{ asset('assets/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
     <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-    <link rel="stylesheet" href="{{ asset('assets/css/backend_style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/backend_style.css') }}?v={{ @filemtime(public_path('assets/css/backend_style.css')) }}">
     <!-- Bootstrap Datepicker CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css"
         rel="stylesheet">

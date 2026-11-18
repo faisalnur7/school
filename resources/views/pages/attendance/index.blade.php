@@ -14,31 +14,13 @@
                 <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
             </div>
         @endif
-        <div class="attendance-hero">
-            <div class="attendance-hero__icon" aria-hidden="true">
-                <i class="fas fa-clipboard-check"></i>
-            </div>
-            <div class="attendance-hero__copy">
-                <h1 class="attendance-hero__title">Attendance</h1>
-                <p class="attendance-hero__text">Manage student attendance records</p>
-            </div>
+        <div class="rep-head">
+            <div class="rep-head__title"><i class="fas fa-clipboard-check"></i> Student Attendance</div>
+            <div class="rep-head__crumb">Load the class list, mark students, then save.</div>
         </div>
 
-        <div class="card attendance-page-panel shadow-sm border-0 mb-3">
-            <div class="card-header attendance-page-panel__header">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <div>
-                        <div class="attendance-page-panel__label">Attendance Controls</div>
-                        <h4 class="card-title mb-0 attendance-page-panel__title">
-                            <i class="fas fa-clipboard-check mr-2"></i>Student Attendance
-                        </h4>
-                    </div>
-                    <div class="attendance-page-panel__hint">
-                        Load the class list, mark students, then save.
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
+        <div class="card rep-filters border-0">
+            <div class="card-body p-0">
                 <div class="attendance-filter-panel">
                     <div class="attendance-filter-row">
                         <div class="attendance-filter-field">
@@ -423,6 +405,98 @@
                 width: 100%;
             }
         }
+
+        /* ---- Design refresh ---- */
+        .attendance-hero { box-shadow: 0 10px 30px -12px rgba(15, 23, 42, .45); }
+        .attendance-results-card { border-radius: 1.1rem; overflow: hidden; }
+        .attendance-results-card__header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem; }
+        .attendance-summary { display: flex; flex-wrap: wrap; gap: .4rem; }
+        .attendance-summary__chip { display: inline-flex; align-items: center; gap: .35rem; padding: .25rem .65rem; border-radius: 999px; font-size: .75rem; font-weight: 600; background: #eff6ff; color: #1d4ed8; }
+        .attendance-summary__chip--present { background: #dcfce7; color: #15803d; }
+        .attendance-summary__chip--absent { background: #fee2e2; color: #b91c1c; }
+        .attendance-table-wrap { max-height: 65vh; overflow: auto; }
+        .attendance-mark-table thead th { position: sticky; top: 0; z-index: 2; background: #f8fafc; text-transform: uppercase; font-size: .72rem; letter-spacing: .04em; color: #475569; }
+        .attendance-mark-table th:first-child, .attendance-mark-table td:first-child { width: 130px; }
+        .attendance-row { cursor: pointer; transition: background .15s; }
+        .attendance-row.is-absent { background: #fef2f2 !important; }
+        .attendance-row.is-absent .attendance-row__name { color: #b91c1c; }
+        .attendance-mark-table input[type=checkbox] { width: 20px; height: 20px; cursor: pointer; accent-color: #16a34a; vertical-align: middle; }
+        .attendance-select-all { display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; }
+        .attendance-results-card__footer { display: flex; align-items: center; justify-content: flex-end; gap: 1rem; padding: .85rem 1rem; background: #fff; border-top: 1px solid #e2e8f0; }
+        .attendance-results-card__hint { color: #64748b; font-size: .8rem; }
+        .attendance-save-btn { min-width: 130px; font-weight: 600; border-radius: .6rem; }
+        @media (max-width: 767.98px) {
+            .attendance-mobile-compact .attendance-mark-table { min-width: 0; table-layout: auto; display: block; }
+            .attendance-mobile-compact .attendance-mark-table thead,
+            .attendance-mobile-compact .attendance-mark-table tbody { display: block; }
+            .attendance-mobile-compact .attendance-table-wrap { max-height: none; }
+            .attendance-mobile-compact .attendance-mark-table thead tr { display: block; }
+            .attendance-mobile-compact .attendance-mark-table thead th:nth-child(n+2) { display: none; }
+            .attendance-mobile-compact .attendance-mark-table thead th:first-child { display: block; width: 100%; text-align: left !important; padding: .5rem .85rem; }
+            .attendance-mobile-compact .attendance-mark-table tr.attendance-row {
+                display: grid; grid-template-columns: 1.5rem max-content max-content 1fr;
+                grid-template-areas: "check name name name" "check roll sid .";
+                align-items: center; column-gap: .45rem; row-gap: .2rem;
+                padding: .5rem .85rem; border-bottom: 1px solid #eef2f7;
+            }
+            .attendance-mobile-compact .attendance-mark-table tbody td {
+                display: block; border: 0 !important; padding: 0 !important; width: auto !important;
+                height: auto; min-height: 0; line-height: 1.25;
+            }
+            .attendance-mobile-compact .attendance-row__check { grid-area: check; align-self: center; text-align: left !important; }
+            .attendance-mobile-compact .attendance-row__check input { display: block; margin: 0; }
+            .attendance-mobile-compact .attendance-row__name { grid-area: name; font-weight: 700; font-size: .85rem; }
+            .attendance-mobile-compact .attendance-row__roll,
+            .attendance-mobile-compact .attendance-row__sid {
+                font-size: .68rem; font-weight: 600; color: #475569; background: #f1f5f9;
+                padding: .1rem .45rem !important; border-radius: 999px; white-space: nowrap;
+            }
+            .attendance-mobile-compact .attendance-row__roll { grid-area: roll; }
+            .attendance-mobile-compact .attendance-row__sid { grid-area: sid; }
+            .attendance-mobile-compact .attendance-row__roll::before { content: 'Roll '; font-weight: 500; color: #64748b; }
+            .attendance-mobile-compact .attendance-row__sid::before { content: 'CID '; font-weight: 500; color: #64748b; }
+            .attendance-mobile-compact .attendance-row.is-absent .attendance-row__roll,
+            .attendance-mobile-compact .attendance-row.is-absent .attendance-row__sid { background: #fee2e2; }
+            .attendance-mobile-compact .attendance-mark-table input[type=checkbox] { width: 20px; height: 20px; }
+            .attendance-mobile-compact .attendance-results-card__footer { position: sticky; bottom: 0; z-index: 5; box-shadow: 0 -6px 16px -8px rgba(15,23,42,.25); }
+        }
+
+        /* ---- Compact layout ---- */
+        .rep-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .15rem .9rem; margin-bottom: .6rem; }
+        .rep-head__title { font-size: 1.1rem; font-weight: 700; color: #0f172a; }
+        .rep-head__title i { color: #2563eb; margin-right: .4rem; }
+        .rep-head__crumb { font-size: .78rem; color: #64748b; }
+        .rep-filters { border-radius: .8rem; box-shadow: 0 1px 2px rgba(15,23,42,.06); margin-bottom: .75rem; }
+        .rep-filters .attendance-filter-panel { padding: .65rem .75rem; border: 0; background: transparent; box-shadow: none; }
+        .rep-filters .attendance-filter-row { gap: .6rem; align-items: end; }
+        .rep-filters .attendance-filter-label { margin-bottom: .15rem; font-size: .66rem; letter-spacing: .04em; text-transform: uppercase; color: #64748b; }
+        .attendance-filter-control, .attendance-filter-btn { min-height: 36px; height: 36px; font-size: .82rem; border-radius: .5rem; }
+        .attendance-filter-field .select2-container--default .select2-selection--single { min-height: 36px; height: 36px; }
+        .attendance-results-card { border-radius: .8rem; }
+        .attendance-results-card__header { padding: .55rem .75rem; }
+        .attendance-results-card__eyebrow { display: none; }
+        .attendance-results-card__title { font-size: .9rem; }
+        .attendance-mark-table th, .attendance-mark-table td { padding: .3rem .6rem; }
+        .attendance-mark-table { font-size: .82rem; }
+        .attendance-table-wrap { max-height: 68vh; }
+        .attendance-results-card__footer { padding: .55rem .75rem; }
+        .attendance-save-btn { min-width: 110px; padding: .3rem 1rem; font-size: .85rem; }
+        .attendance-summary__chip { padding: .15rem .55rem; font-size: .7rem; }
+        .attendance-empty-state { padding: 1.6rem 1rem; }
+        @media (min-width: 992px) {
+            .rep-filters .attendance-filter-row { grid-template-columns: repeat(3, minmax(130px, 1fr)) minmax(180px, 1fr) auto; }
+        }
+        @media (max-width: 767.98px) {
+            .rep-head__title { font-size: 1rem; }
+            .rep-head__crumb { display: none; }
+            .rep-filters .attendance-filter-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem; }
+            .rep-filters .attendance-filter-action { grid-column: 1 / -1; }
+            .rep-filters .attendance-filter-action .btn { width: 100%; }
+            .attendance-mobile-compact .attendance-mark-table tr.attendance-row { padding: .3rem .75rem; }
+        }
+        .content-wrapper .attendance-mark-table td,
+        .content-wrapper .attendance-mark-table th { padding: .3rem .75rem !important; }
+        .attendance-mark-table th:nth-child(3), .attendance-mark-table td:nth-child(3) { width: 150px; }
     </style>
 @endsection
 
@@ -442,6 +516,17 @@
             return Array.from(attendanceStudentsWrap.querySelectorAll('input[name="present_ids[]"]'));
         }
 
+        function updateAttendanceSummary(present, total) {
+            const p = document.getElementById('attPresentCount');
+            const a = document.getElementById('attAbsentCount');
+            if (p) p.textContent = present;
+            if (a) a.textContent = total - present;
+            getAttendanceCheckboxes().forEach((box) => {
+                const row = box.closest('tr');
+                if (row) row.classList.toggle('is-absent', !box.checked);
+            });
+        }
+
         function syncSelectAllCheckboxState() {
             const master = document.getElementById('attendanceSelectAll');
             if (!master) {
@@ -456,6 +541,7 @@
             }
 
             const checkedCount = boxes.filter((box) => box.checked).length;
+            updateAttendanceSummary(checkedCount, boxes.length);
             master.checked = checkedCount === boxes.length;
             master.indeterminate = checkedCount > 0 && checkedCount < boxes.length;
         }
@@ -477,6 +563,14 @@
 
             getAttendanceCheckboxes().forEach((box) => {
                 box.addEventListener('change', syncSelectAllCheckboxState);
+                const row = box.closest('tr');
+                if (row) {
+                    row.addEventListener('click', function(e) {
+                        if (e.target.tagName === 'INPUT') return;
+                        box.checked = !box.checked;
+                        syncSelectAllCheckboxState();
+                    });
+                }
             });
 
             syncSelectAllCheckboxState();

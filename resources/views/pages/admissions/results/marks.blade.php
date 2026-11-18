@@ -28,6 +28,7 @@
 @endphp
 
 <div class="container-fluid py-3 admission-marks-page">
+    @include('pages.admissions.partials.alerts')
     <div class="marks-hero d-flex flex-wrap justify-content-between align-items-center mb-3 p-4">
         <div>
             <div class="small font-weight-bold text-uppercase" style="letter-spacing:.14em;opacity:.72;">Admission exam results</div>
@@ -90,24 +91,29 @@
                 <input type="hidden" name="school_class_id" value="{{ $selectedClassId }}">
                 <div class="table-responsive">
                 <table class="table table-hover mb-0">
-                    <thead><tr><th>Application</th><th>Applicant</th><th>Total marks</th><th>Result</th><th class="text-right">Pass mark</th></tr></thead>
+                    <thead><tr><th>Application</th><th>Applicant</th><th>Total marks</th><th class="text-center">Absent</th><th>Result</th><th class="text-right">Pass mark</th></tr></thead>
                     <tbody>
                         @forelse($applications as $application)
+                            @php($isAbsent = $application->admitCard?->attendance_status === 'absent')
                             <tr>
                                 <td><span class="application-number">{{ $application->application_number }}</span></td>
                                 <td><strong>{{ $application->applicant_data['full_name_en'] ?? $application->full_name_en ?? '-' }}</strong></td>
                                 <td>
-                                    <input type="number" min="0" max="{{ (int) ($selectedSetting?->total_mark ?? 100) }}" step="1" name="marks[{{ $application->id }}]" value="{{ $application->total_marks !== null ? (int) $application->total_marks : '' }}" class="form-control form-control-sm marks-input" aria-label="Total marks for {{ $application->application_number }}">
+                                    <input type="number" min="0" max="{{ (int) ($selectedSetting?->total_mark ?? 100) }}" step="1" name="marks[{{ $application->id }}]" value="{{ $application->total_marks !== null ? (int) $application->total_marks : '' }}" class="form-control form-control-sm marks-input" aria-label="Total marks for {{ $application->application_number }}" @disabled($isAbsent)>
+                                </td>
+                                <td class="text-center">
+                                    <input type="checkbox" name="absent[]" value="{{ $application->id }}" @checked($isAbsent) class="absent-toggle" aria-label="{{ $application->application_number }} was absent">
                                 </td>
                                 <td>
-                                    @if($application->result_status === 'passed') <span class="status-badge status-passed">Passed</span>
+                                    @if($isAbsent) <span class="status-badge status-failed">Absent</span>
+                                    @elseif($application->result_status === 'passed') <span class="status-badge status-passed">Passed</span>
                                     @elseif($application->result_status === 'failed') <span class="status-badge status-failed">Failed</span>
                                     @else <span class="status-badge status-pending">Not entered</span> @endif
                                 </td>
                                 <td class="text-right text-muted">{{ $application->pass_mark_snapshot ? number_format((float) $application->pass_mark_snapshot, 0) : number_format((float) $selectedSetting?->pass_mark, 0) }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" class="text-center py-5 text-muted">No paid applications are available for this class.</td></tr>
+                            <tr><td colspan="6" class="text-center py-5 text-muted">No paid applications are available for this class.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -120,5 +126,17 @@
 <style>
     .admission-class-card { border-radius: 14px; transition: transform .18s ease, box-shadow .18s ease; }
     .admission-class-card:hover { transform: translateY(-3px); box-shadow: 0 .75rem 1.5rem rgba(30, 41, 59, .12) !important; }
+    .admission-marks-page .absent-toggle { cursor: pointer; height: 1.05rem; width: 1.05rem; }
 </style>
+<script>
+    // An absent applicant has no marks: clear and lock the row's marks input while Absent is ticked.
+    document.querySelectorAll('#batchMarksForm .absent-toggle').forEach(function (toggle) {
+        toggle.addEventListener('change', function () {
+            var marksInput = toggle.closest('tr').querySelector('.marks-input');
+            if (!marksInput) return;
+            if (toggle.checked) marksInput.value = '';
+            marksInput.disabled = toggle.checked;
+        });
+    });
+</script>
 @endsection

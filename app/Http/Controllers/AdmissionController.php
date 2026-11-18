@@ -28,9 +28,12 @@ use App\Models\StudentAcademicInformation;
 use App\Services\AdmissionConversionService;
 use App\Services\JournalService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Mpdf\Mpdf;
 use Mpdf\QrCode\Output\Png;
 use Mpdf\QrCode\QrCode;
@@ -220,14 +223,6 @@ class AdmissionController extends Controller
         return back()->with('success', 'Admission exam deleted.');
     }
 
-    public function updatePayment(Request $request, AdmissionPayment $payment)
-    {
-        $data = $request->validate(['status' => 'required|in:paid,pending_verification,rejected,refunded', 'payment_method' => 'nullable|string|max:100', 'payment_reference' => 'nullable|string|max:255', 'remarks' => 'nullable|string']);
-        $payment->update(array_merge($data, $data['status'] === 'paid' ? ['paid_at' => now(), 'verified_by' => auth()->id(), 'verified_at' => now()] : []));
-        $payment->application->update(['payment_status' => $data['status']]);
-        return back()->with('success', 'Admission payment updated.');
-    }
-
     public function collectPayment(Request $request, AdmissionApplication $application)
     {
         abort_if($application->payment_status === 'paid', 422, 'This application has already been paid.');
@@ -243,12 +238,16 @@ class AdmissionController extends Controller
         $discountAmount = (int) ($data['discount_amount'] ?? 0);
         $amount = round($grossAmount - $discountAmount, 2);
 
-        DB::transaction(function () use ($application, $data, $grossAmount, $discountAmount, $amount) {
+        $cash = HandCash::where('is_active', true)->first();
+        if (! $cash) {
+            return back()->withErrors(['payment' => 'No active Hand Cash account. Create one under Accounts → Hand Cash first.']);
+        }
+
+        DB::transaction(function () use ($application, $data, $grossAmount, $discountAmount, $amount, $cash) {
             $category = IncomeCategory::firstOrCreate(
                 ['slug' => 'admission-form'],
                 ['name' => 'Admission Form', 'is_active' => true]
             );
-            $cash = HandCash::where('is_active', true)->firstOrFail();
             $income = Income::create([
                 'income_category_id' => $category->id,
                 'title' => 'Admission form payment - ' . $application->application_number,
@@ -307,14 +306,6 @@ class AdmissionController extends Controller
         return back()->with('success', 'Admission form payment collected and recorded as income.');
     }
 
-    public function publicPayment(Request $request, AdmissionApplication $application)
-    {
-        $data = $request->validate(['payment_method' => 'required|string|max:100', 'payment_reference' => 'required|string|max:255']);
-        $application->payment()->updateOrCreate([], array_merge($data, ['status' => 'pending_verification']));
-        $application->update(['payment_status' => 'pending_verification']);
-        return back()->with('success', 'Payment reference submitted for verification.');
-    }
-
     public function marks(Request $request, AdmissionExam $exam)
     {
         $classSettings = $exam->classSettings()->with('schoolClass')->get();
@@ -322,7 +313,8 @@ class AdmissionController extends Controller
         $classStats = $exam->applications()
             ->where('payment_status', 'paid')
             ->whereIn('school_class_id', $classIds)
-            ->selectRaw('school_class_id, COUNT(*) as applicants_count, SUM(total_marks IS NOT NULL) as marked_count')
+            // Absent applicants have no marks, but they are done, so they count as marked.
+            ->selectRaw("school_class_id, COUNT(*) as applicants_count, SUM(CASE WHEN total_marks IS NOT NULL OR EXISTS (SELECT 1 FROM admission_admit_cards WHERE admission_admit_cards.admission_application_id = admission_applications.id AND admission_admit_cards.attendance_status = 'absent') THEN 1 ELSE 0 END) as marked_count")
             ->groupBy('school_class_id')
             ->get()
             ->keyBy('school_class_id');
@@ -337,7 +329,7 @@ class AdmissionController extends Controller
             $selectedSetting = $classSettings->firstWhere('school_class_id', $selectedClassId);
             $selectedClass = $selectedSetting?->schoolClass;
             $applications = $exam->applications()
-                ->with('schoolClass')
+                ->with(['schoolClass', 'admitCard'])
                 ->where('payment_status', 'paid')
                 ->where('school_class_id', $selectedClassId)
                 ->latest()
@@ -358,6 +350,7 @@ class AdmissionController extends Controller
         abort_if($passMark === null, 422, 'No pass mark is configured for this class.');
         abort_if((float) $data['total_marks'] > $totalMark, 422, 'Marks cannot exceed the configured total marks.');
         $application->update(['total_marks' => $data['total_marks'], 'pass_mark_snapshot' => $passMark, 'result_status' => (float) $data['total_marks'] >= (float) $passMark ? 'passed' : 'failed']);
+        $this->ensureAdmitCard($application)->update(['attendance_status' => 'present']);
         return back()->with('success', 'Marks saved.');
     }
 
@@ -365,29 +358,50 @@ class AdmissionController extends Controller
     {
         $data = $request->validate([
             'school_class_id' => 'required|integer',
-            'marks' => 'required|array',
+            'marks' => 'nullable|array',
             'marks.*' => 'nullable|integer|min:0',
+            'absent' => 'nullable|array',
+            'absent.*' => 'integer',
         ]);
         $setting = $exam->classSettings()->where('school_class_id', $data['school_class_id'])->firstOrFail();
         $totalMark = (int) ($setting->total_mark ?? 100);
+        $marks = $data['marks'] ?? [];
+        $absentIds = array_map('intval', $data['absent'] ?? []);
+        // The browser disables (and so does not submit) the marks input of a row ticked Absent.
+        $applicationIds = array_values(array_unique(array_merge(array_map('intval', array_keys($marks)), $absentIds)));
 
-        DB::transaction(function () use ($data, $exam, $setting, $totalMark) {
+        DB::transaction(function () use ($exam, $data, $setting, $totalMark, $marks, $absentIds, $applicationIds) {
             $applications = $exam->applications()
+                ->with('admitCard')
                 ->where('payment_status', 'paid')
                 ->where('school_class_id', $data['school_class_id'])
-                ->whereIn('id', array_keys($data['marks']))
+                ->whereIn('id', $applicationIds)
                 ->get()
                 ->keyBy('id');
+            abort_unless($applications->count() === count($applicationIds), 422, 'One or more applications do not belong to this exam class.');
 
-            foreach ($data['marks'] as $applicationId => $mark) {
+            foreach ($applicationIds as $applicationId) {
                 $application = $applications->get($applicationId);
-                abort_unless($application, 422, 'One or more applications do not belong to this exam class.');
+                $isAbsent = in_array($applicationId, $absentIds, true);
+                $mark = $isAbsent ? null : ($marks[$applicationId] ?? null);
                 abort_if($mark !== null && (int) $mark > $totalMark, 422, 'Marks cannot exceed the configured total marks.');
-                $application->update([
-                    'total_marks' => $mark,
-                    'pass_mark_snapshot' => $mark === null ? null : $setting->pass_mark,
-                    'result_status' => $mark === null ? 'pending' : ((int) $mark >= (int) $setting->pass_mark ? 'passed' : 'failed'),
-                ]);
+
+                $application->update(match (true) {
+                    // Absent applicants did not sit the exam, so they cannot pass it.
+                    $isAbsent => ['total_marks' => null, 'pass_mark_snapshot' => $setting->pass_mark, 'result_status' => 'failed'],
+                    $mark === null => ['total_marks' => null, 'pass_mark_snapshot' => null, 'result_status' => 'not_entered'],
+                    default => [
+                        'total_marks' => $mark,
+                        'pass_mark_snapshot' => $setting->pass_mark,
+                        'result_status' => (int) $mark >= (int) $setting->pass_mark ? 'passed' : 'failed',
+                    ],
+                });
+
+                $attendance = $isAbsent ? 'absent' : ($mark !== null ? 'present' : 'not_marked');
+                // Only create a card when there is attendance to record; untouched rows stay as they are.
+                if ($application->admitCard || $attendance !== 'not_marked') {
+                    $this->ensureAdmitCard($application)->update(['attendance_status' => $attendance]);
+                }
             }
         });
 
@@ -400,7 +414,7 @@ class AdmissionController extends Controller
         $sessionId = $request->integer('academic_session_id');
         $resultStatus = trim((string) $request->input('result_status', ''));
         $applications = $this->resultsQuery($request)
-            ->with(['exam', 'schoolClass', 'academicSession'])
+            ->with(['exam', 'schoolClass', 'academicSession', 'admitCard'])
             ->orderByDesc('total_marks')
             ->orderBy('id')
             ->get();
@@ -414,7 +428,7 @@ class AdmissionController extends Controller
     public function resultsPdf(Request $request)
     {
         $applications = $this->resultsQuery($request)
-            ->with(['exam', 'schoolClass', 'academicSession'])
+            ->with(['exam', 'schoolClass', 'academicSession', 'admitCard'])
             ->orderByDesc('total_marks')
             ->orderBy('id')
             ->get();
@@ -440,7 +454,10 @@ class AdmissionController extends Controller
         $resultStatus = trim((string) $request->input('result_status', ''));
 
         return AdmissionApplication::query()
-            ->whereNotNull('total_marks')
+            ->where(fn ($query) => $query
+                ->whereNotNull('total_marks')
+                // Absent applicants have no marks but still need to be reviewed.
+                ->orWhereHas('admitCard', fn ($card) => $card->where('attendance_status', 'absent')))
             ->when($classId, fn ($query) => $query->where('school_class_id', $classId))
             ->when($sessionId, fn ($query) => $query->where('academic_session_id', $sessionId))
             ->when(in_array($resultStatus, ['passed', 'failed']), fn ($query) => $query->where('result_status', $resultStatus));
@@ -471,6 +488,9 @@ class AdmissionController extends Controller
     public function review(Request $request, AdmissionApplication $application)
     {
         $data = $request->validate(['decision' => 'required|in:approved,rejected,pending', 'notes' => 'nullable|string']);
+        if ($data['decision'] === 'approved') {
+            $this->ensureApprovable(collect([$application]), $data['notes'] ?? null, bulk: false);
+        }
         $application->update(['review_status' => $data['decision'], 'approved_by' => $data['decision'] === 'approved' ? auth()->id() : null, 'approved_at' => $data['decision'] === 'approved' ? now() : null, 'admin_notes' => $data['notes'] ?? null]);
         $application->reviews()->create(['decision' => $data['decision'], 'notes' => $data['notes'] ?? null, 'reviewed_by' => auth()->id(), 'reviewed_at' => now()]);
         return back()->with('success', 'Application review updated.');
@@ -494,6 +514,10 @@ class AdmissionController extends Controller
             abort_if($applications->count() !== count(array_unique($data['application_ids'])), 422, 'One or more selected applications are outside the current result filters.');
 
             $approved = $data['decision'] === 'approved';
+            if ($approved) {
+                // Throwing here rolls back the whole batch: either every selected applicant is approved or none is.
+                $this->ensureApprovable($applications, $data['notes'] ?? null, bulk: true);
+            }
             foreach ($applications as $application) {
                 $application->update([
                     'review_status' => $data['decision'],
@@ -511,6 +535,41 @@ class AdmissionController extends Controller
         });
 
         return back()->with('success', count($data['application_ids']) . ' applications marked ' . ucfirst($data['decision']) . '.');
+    }
+
+    /**
+     * Approval rules: the form fee must be paid. An applicant who has not passed the
+     * exam (failed, absent or not yet marked) may still be approved as a special case,
+     * but only with a written reason so the exception is on record.
+     *
+     * @param  \Illuminate\Support\Collection<int, AdmissionApplication>  $applications
+     *
+     * @throws ValidationException
+     */
+    private function ensureApprovable(Collection $applications, ?string $notes, bool $bulk): void
+    {
+        $unpaid = $applications->filter(fn (AdmissionApplication $application) => $application->payment_status !== 'paid');
+        $needsReason = blank($notes)
+            ? $applications->filter(fn (AdmissionApplication $application) => $application->payment_status === 'paid' && $application->result_status !== 'passed')
+            : collect();
+
+        $numbers = fn (Collection $items) => $items->pluck('application_number')->sort()->implode(', ');
+        $messages = [];
+
+        if ($unpaid->isNotEmpty()) {
+            $messages['decision'] = $bulk
+                ? "Cannot approve: payment not received for {$numbers($unpaid)}. Untick them and try again."
+                : 'Cannot approve: payment not received. Collect the form fee first.';
+        }
+        if ($needsReason->isNotEmpty()) {
+            $messages['notes'] = $bulk
+                ? "{$numbers($needsReason)} did not pass the admission exam. Write the reason in Admin notes to approve."
+                : 'This applicant did not pass the admission exam. Write the reason in Admin notes to approve.';
+        }
+
+        if ($messages) {
+            throw ValidationException::withMessages($messages);
+        }
     }
 
     public function convert(AdmissionApplication $application, AdmissionConversionService $service)
@@ -543,7 +602,7 @@ class AdmissionController extends Controller
     public function generateAdmitCard(AdmissionApplication $application)
     {
         abort_unless($application->payment_status === 'paid', 422, 'Payment must be verified first.');
-        $card = $application->admitCard ?: $application->admitCard()->create(['admit_card_number' => 'ADM-' . now()->format('Y') . '-' . str_pad((string) $application->id, 6, '0', STR_PAD_LEFT)]);
+        $card = $this->ensureAdmitCard($application);
         $card->update(['generated_at' => now(), 'generated_by' => auth()->id()]);
         return back()->with('success', 'Admit card generated.');
     }
@@ -553,13 +612,7 @@ class AdmissionController extends Controller
         abort_unless($application->payment_status === 'paid', 403);
         $application->load(['exam', 'schoolClass', 'academicSession', 'admitCard']);
         $admitCard = DB::transaction(function () use ($application) {
-            $card = AdmissionAdmitCard::where('admission_application_id', $application->id)->lockForUpdate()->first();
-            if (! $card) {
-                $card = AdmissionAdmitCard::create([
-                    'admission_application_id' => $application->id,
-                    'admit_card_number' => 'ADM-' . now()->format('Y') . '-' . str_pad((string) $application->id, 6, '0', STR_PAD_LEFT),
-                ]);
-            }
+            $card = $this->ensureAdmitCard($application);
 
             if (! $card->roll_number || ! $card->candidate_id) {
                 $rolls = StudentAcademicInformation::where('academic_session_id', $application->academic_session_id)
@@ -590,6 +643,16 @@ class AdmissionController extends Controller
         $pdf = new Mpdf(['format' => 'A4', 'margin_top' => 12, 'margin_bottom' => 12, 'margin_left' => 12, 'margin_right' => 12]);
         $pdf->WriteHTML(view('pages.admissions.admit-cards.pdf', compact('application', 'qrDataUri'))->render());
         return response($pdf->Output('', 'S'))->header('Content-Type', 'application/pdf')->header('Content-Disposition', 'attachment; filename="admit-card-' . $application->application_number . '.pdf"');
+    }
+
+    /** Fetch the application's admit card (locked when inside a transaction), creating it if needed. */
+    private function ensureAdmitCard(AdmissionApplication $application): AdmissionAdmitCard
+    {
+        return AdmissionAdmitCard::where('admission_application_id', $application->id)->lockForUpdate()->first()
+            ?? AdmissionAdmitCard::create([
+                'admission_application_id' => $application->id,
+                'admit_card_number' => 'ADM-' . now()->format('Y') . '-' . str_pad((string) $application->id, 6, '0', STR_PAD_LEFT),
+            ]);
     }
 
     public function applicationPdf(AdmissionApplication $application)
@@ -744,6 +807,7 @@ class AdmissionController extends Controller
             'phone' => '',
             'searchErrors' => null,
             'confirmation' => true,
+            'links' => $this->publicLinks($application),
         ]);
     }
 
@@ -819,7 +883,22 @@ class AdmissionController extends Controller
             'phone' => $phone,
             'searchErrors' => $searchErrors,
             'qrDataUri' => $application ? $this->applicationQrDataUri($this->applicationQrUrl($application, $phone)) : null,
+            'links' => $application ? $this->publicLinks($application) : [],
         ]);
+    }
+
+    /**
+     * Short-lived signed download links, issued only once the applicant has proven
+     * they know the application number and a contact phone.
+     */
+    private function publicLinks(AdmissionApplication $application): array
+    {
+        $expiresAt = now()->addHours(2);
+
+        return [
+            'pdf' => URL::temporarySignedRoute('public.admission.application-pdf', $expiresAt, $application),
+            'admitCard' => URL::temporarySignedRoute('public.admission.admit-card', $expiresAt, $application),
+        ];
     }
 
     public function publicApplicationPdf(AdmissionApplication $application)

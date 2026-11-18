@@ -125,9 +125,9 @@ Route::get('/admission/preview/{token}', [AdmissionController::class, 'publicPre
 Route::post('/admission/preview/{token}/confirm', [AdmissionController::class, 'publicConfirm'])->name('public.admission.confirm');
 Route::get('/admission/confirmation', [AdmissionController::class, 'publicConfirmation'])->name('public.admission.confirmation');
 Route::get('/admission/search', [AdmissionController::class, 'publicSearch'])->middleware('throttle:30,1')->name('public.admission.search');
-Route::get('/admission/applications/{application}/pdf', [AdmissionController::class, 'publicApplicationPdf'])->name('public.admission.application-pdf');
-Route::get('/admission/applications/{application}/admit-card', [AdmissionController::class, 'admitCardPdf'])->name('public.admission.admit-card');
-Route::post('/admission/applications/{application}/payment', [AdmissionController::class, 'publicPayment'])->name('public.admission.payment');
+// Downloads are reachable only through short-lived signed links issued by the status page after the phone check.
+Route::get('/admission/applications/{application}/pdf', [AdmissionController::class, 'publicApplicationPdf'])->middleware('signed')->name('public.admission.application-pdf');
+Route::get('/admission/applications/{application}/admit-card', [AdmissionController::class, 'admitCardPdf'])->middleware('signed')->name('public.admission.admit-card');
 
 Route::get('/language/{locale}', function (Request $request, string $locale) {
     $supportedLocales = config('app.supported_locales', ['en']);
@@ -282,7 +282,6 @@ Route::group(['middleware' => ['auth']], function () {
     });
     Route::middleware('permission:delete_admission_exams')->delete('/admissions/exams/{exam}', [AdmissionController::class, 'deleteExam'])->name('admissions.exams.delete');
     Route::middleware('permission:edit_admission_exams')->post('/admissions/exams/{exam}/toggle', [AdmissionController::class, 'toggleExam'])->name('admissions.exams.toggle');
-    Route::middleware('permission:verify_admission_payments')->post('/admissions/payments/{payment}', [AdmissionController::class, 'updatePayment'])->name('admissions.payments.update');
     Route::middleware('permission:verify_admission_payments')->post('/admissions/applications/{application}/collect-payment', [AdmissionController::class, 'collectPayment'])->name('admissions.applications.collect-payment');
     Route::middleware('permission:enter_admission_marks')->get('/admissions/exams/{exam}/marks', [AdmissionController::class, 'marks'])->name('admissions.marks');
     Route::middleware('permission:enter_admission_marks')->post('/admissions/exams/{exam}/marks', [AdmissionController::class, 'storeMarksBatch'])->name('admissions.marks.batch');
@@ -290,7 +289,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:review_admission_applications')->post('/admissions/applications/{application}/review', [AdmissionController::class, 'review'])->name('admissions.applications.review');
     Route::middleware('permission:review_admission_applications')->post('/admissions/applications/bulk-review', [AdmissionController::class, 'bulkReview'])->name('admissions.applications.bulk-review');
     Route::middleware('permission:view_admission_applications')->get('/admissions/applications/{application}/download', [AdmissionController::class, 'applicationPdf'])->name('admissions.applications.download');
-    Route::middleware('permission:view_admission_applications')->get('/admissions/applications/{application}/admit-card', [AdmissionController::class, 'admitCardPdf'])->name('admissions.applications.admit-card');
+    Route::middleware('permission:view_admission_applications,manage_admission_admit_cards')->get('/admissions/applications/{application}/admit-card', [AdmissionController::class, 'admitCardPdf'])->name('admissions.applications.admit-card');
     Route::middleware('permission:proceed_admission')->post('/admissions/applications/{application}/convert', [AdmissionController::class, 'convert'])->name('admissions.applications.convert');
     Route::middleware('permission:manage_admission_admit_cards')->post('/admissions/applications/{application}/admit-card', [AdmissionController::class, 'generateAdmitCard'])->name('admissions.admit-cards.generate');
 
@@ -315,6 +314,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::middleware('permission:view_hr')->prefix('hr')->name('hr.')->group(function () {
         Route::get('/employee-id-cards', [\App\Http\Controllers\HR\EmployeeIdCardController::class, 'index'])->name('employee-id-cards');
         Route::get('/employee-id-cards/pdf', [\App\Http\Controllers\HR\EmployeeIdCardController::class, 'pdf'])->name('employee-id-cards.pdf');
+        Route::get('/employee-id-cards/settings', [\App\Http\Controllers\HR\EmployeeIdCardController::class, 'settings'])->name('employee-id-cards.settings.edit');
         Route::post('/employee-id-cards/settings', [\App\Http\Controllers\HR\EmployeeIdCardController::class, 'saveSettings'])->name('employee-id-cards.settings');
     });
     Route::middleware('permission:view_accounts')->get('/accounts/hub', [AccountsHubController::class, 'index'])->name('accounts.hub');
@@ -576,6 +576,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/students/id-cards', [\App\Http\Controllers\GenerateIdCardController::class, 'index'])->name('students.id-cards');
         Route::post('/students/id-cards/settings', [\App\Http\Controllers\GenerateIdCardController::class, 'saveSettings'])->name('students.id-cards.settings');
         Route::get('/students/id-cards/pdf', [\App\Http\Controllers\GenerateIdCardController::class, 'pdf'])->name('students.id-cards.pdf');
+        Route::get('/students/id-cards/settings', [\App\Http\Controllers\GenerateIdCardController::class, 'settings'])->name('students.id-cards.settings.edit');
         Route::get('/students', [StudentController::class, 'index'])->name('students.index');
         Route::get('/students/{id}', [StudentController::class, 'show'])->name('students.show');
         Route::get('/students/{id}/pdf', [StudentController::class, 'pdf'])->name('students.pdf');
@@ -1340,6 +1341,7 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
         Route::post('/users/{id}/update', [UserController::class, 'update'])->name('users.update');
         Route::post('/users/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
         Route::post('/users/{id}/make-super-admin', [UserController::class, 'makeSuperAdmin'])->name('users.make-super-admin');
+        Route::post('/users/{id}/revoke-super-admin', [UserController::class, 'revokeSuperAdmin'])->name('users.revoke-super-admin');
     });
 
     Route::middleware('permission:delete_users')->delete('/users/{id}/delete', [UserController::class, 'destroy'])->name('users.delete');

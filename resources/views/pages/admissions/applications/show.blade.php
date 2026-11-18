@@ -38,6 +38,7 @@
 </style>
 
 <div class="container-fluid py-3 admission-application-page">
+    @include('pages.admissions.partials.alerts')
     <div class="application-hero d-flex flex-wrap align-items-center justify-content-between mb-3 p-4">
         <div class="d-flex align-items-center">
             @if($imagePath)<img src="{{ $imagePath }}" alt="{{ $name }}" class="hero-photo mr-3">@else<span class="hero-avatar mr-3">{{ strtoupper(substr($name, 0, 1)) }}</span>@endif
@@ -71,7 +72,41 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card review-card mb-3"><div class="card-body"><h5 class="mb-1">Review application</h5><p class="small text-muted">Update the decision and keep an internal note for the admission team.</p><form method="POST" action="{{ route('admissions.applications.review', $application) }}">@csrf<div class="form-group"><label for="decision">Decision</label><select id="decision" name="decision" class="form-control"><option value="pending" @selected($application->review_status === 'pending')>Pending</option><option value="approved" @selected($application->review_status === 'approved')>Approve</option><option value="rejected" @selected($application->review_status === 'rejected')>Reject</option></select></div><div class="form-group"><label for="notes">Admin notes</label><textarea id="notes" name="notes" class="form-control" rows="3">{{ $application->admin_notes }}</textarea></div><button class="btn btn-primary btn-block"><i class="fas fa-save mr-1"></i> Save decision</button></form></div></div>
+            @php
+                $isPaid = $application->payment_status === 'paid';
+                $hasPassed = $application->result_status === 'passed';
+                $selectedDecision = old('decision', $application->review_status);
+            @endphp
+            <div class="card review-card mb-3">
+                <div class="card-body">
+                    <h5 class="mb-1">Review application</h5>
+                    <p class="small text-muted">Update the decision and keep an internal note for the admission team.</p>
+                    <form method="POST" action="{{ route('admissions.applications.review', $application) }}">
+                        @csrf
+                        <div class="form-group">
+                            <label for="decision">Decision</label>
+                            <select id="decision" name="decision" class="form-control">
+                                <option value="pending" @selected($selectedDecision === 'pending')>Pending</option>
+                                <option value="approved" @selected($selectedDecision === 'approved') @disabled(! $isPaid)>Approve{{ $isPaid ? '' : ' (payment not received)' }}</option>
+                                <option value="rejected" @selected($selectedDecision === 'rejected')>Reject</option>
+                            </select>
+                            @unless ($isPaid)
+                                <small class="form-text text-danger"><i class="fas fa-lock mr-1"></i>Payment not received. Collect the form fee before approving.</small>
+                            @endunless
+                        </div>
+                        @if ($isPaid && ! $hasPassed)
+                            <div class="alert alert-warning small py-2 mb-3">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>This applicant did not pass. Write the reason in Admin notes to approve.
+                            </div>
+                        @endif
+                        <div class="form-group">
+                            <label for="notes">Admin notes</label>
+                            <textarea id="notes" name="notes" class="form-control @error('notes') is-invalid @enderror" rows="3">{{ old('notes', $application->admin_notes) }}</textarea>
+                        </div>
+                        <button class="btn btn-primary btn-block"><i class="fas fa-save mr-1"></i> Save decision</button>
+                    </form>
+                </div>
+            </div>
             @if($application->review_status === 'approved' && $application->conversion_status !== 'converted')<div class="card border-success mb-3"><div class="card-body"><h5 class="text-success">Ready for admission</h5><p class="small text-muted">Select the section where this student will be admitted.</p><form method="POST" action="{{ route('admissions.applications.convert', $application) }}">@csrf<div class="form-group"><label for="admissionSection">Admission section</label><select id="admissionSection" name="section_id" class="form-control" required><option value="">Select section</option>@foreach($sections as $section)<option value="{{ $section->id }}">{{ $section->name_en }}</option>@endforeach</select>@if($sections->isEmpty())<small class="text-danger">No section is configured for this class.</small>@endif</div><button class="btn btn-success btn-block" @disabled($sections->isEmpty())><i class="fas fa-user-plus mr-1"></i> Proceed to Admission</button></form></div></div>@endif
             @if($application->reviews->isNotEmpty())<div class="card details-card"><div class="card-header"><h5 class="mb-0">Review history</h5></div><div class="card-body">@foreach($application->reviews->sortByDesc('reviewed_at') as $review)<div class="history-item"><strong>{{ ucfirst($review->decision) }}</strong><small class="d-block text-muted">{{ $review->reviewed_at?->format('d M Y, h:i A') ?? '-' }}</small>@if($review->notes)<span class="small text-muted">{{ $review->notes }}</span>@endif</div>@endforeach</div></div>@endif
         </div>

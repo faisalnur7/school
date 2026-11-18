@@ -76,20 +76,20 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        abort_if($user->role?->is_reserved, 404);
-        $roles = Role::assignableToInstituteUsers()->get();
+        $this->ensureCanManage($user);
+        $roles = $this->assignableRoles()->get();
         return view('pages.users.edit', compact('user', 'roles'));
     }
 
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        abort_if($user->role?->is_reserved, 404);
+        $this->ensureCanManage($user);
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
-            'role_id' => ['nullable', Rule::exists('roles', 'id')->where(fn ($query) => $query->where('is_reserved', false))],
+            'role_id' => ['nullable', Rule::in($this->assignableRoles()->pluck('id')->all())],
             'is_active' => 'nullable|boolean',
             'login_verification_enabled' => 'nullable|boolean',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -134,7 +134,7 @@ class UserController extends Controller
     public function toggleStatus($id)
     {
         $user = User::findOrFail($id);
-        abort_if($user->role?->is_reserved, 404);
+        $this->ensureCanManage($user);
         $user->is_active = ! $user->is_active;
 
         if (! $user->is_active) {
@@ -158,11 +158,59 @@ class UserController extends Controller
             ->with('success', $user->name . ' is now a Super Admin.');
     }
 
+    public function revokeSuperAdmin($id)
+    {
+        abort_unless(auth()->user()?->isPlatformAdmin(), 403);
+
+        $user = User::with('role')->findOrFail($id);
+        abort_if($user->isPlatformAdmin(), 404);
+
+        if (! $user->is_super_admin && ! $user->role?->isInstituteSuperAdmin()) {
+            return back()->with('error', $user->name . ' is not a Super Admin.');
+        }
+
+        $user->is_super_admin = false;
+
+        if ($user->role?->isInstituteSuperAdmin()) {
+            $user->role_id = null;
+        }
+
+        $user->save();
+
+        return back()->with('success', $user->name . ' is no longer a Super Admin. Assign a new role from Edit if needed.');
+    }
+
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        abort_if($user->role?->is_reserved, 404);
+        $this->ensureCanManage($user);
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User deleted successfully');
+    }
+
+    /**
+     * Reserved-role users are hidden from institute admins. The Platform Admin
+     * may manage Super Admin role users, but Platform Admin accounts stay off-limits here.
+     */
+    private function ensureCanManage(User $user): void
+    {
+        if (! $user->role?->is_reserved) {
+            return;
+        }
+
+        $canManage = auth()->user()?->isPlatformAdmin() && ! $user->role->isPlatformAdmin();
+
+        abort_unless($canManage, 404);
+    }
+
+    private function assignableRoles()
+    {
+        return Role::query()
+            ->when(
+                auth()->user()?->isPlatformAdmin(),
+                fn ($query) => $query->where(fn ($q) => $q->where('is_reserved', false)->orWhere('system_key', 'super_admin')),
+                fn ($query) => $query->assignableToInstituteUsers(),
+            )
+            ->orderBy('name');
     }
 }

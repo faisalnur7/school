@@ -24,6 +24,6 @@ class WeekendSetting extends Model
      */
     public function days(): array
     {
-        return $this->weekend_days ?? [5, 6];
+        return array_map('intval', $this->weekend_days ?? [5, 6]);
     }
 }

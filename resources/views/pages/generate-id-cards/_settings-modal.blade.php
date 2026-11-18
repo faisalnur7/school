@@ -1,5 +1,7 @@
 @php
     $employeeMode = $employeeMode ?? false;
+    $settingsOnly = $settingsOnly ?? false;
+    $settingsBackUrl = route($employeeMode ? 'hr.employee-id-cards' : 'students.id-cards', request()->query());
     $selectedCardType = old('card_type', $cardType ?? 'id_card');
     $selectedColorType = old('card_color_type', $cardSettings?->card_color_type ?? 'gradient');
     $selectedTransparent = old('card_is_transparent', $cardSettings?->card_is_transparent ?? false);
@@ -21,27 +23,28 @@
     $previewLabel = $employeeMode ? 'Employee ID Card Preview' : ($isLibraryCard ? 'Library Card Preview' : 'ID Card Preview');
     $frontTitle = $employeeMode ? 'EMPLOYEE ID' : ($isLibraryCard ? 'LIBRARY CARD' : 'STUDENT ID');
     $cardTypeLabel = $employeeMode ? 'Employee ID Card Settings' : ($isLibraryCard ? 'Library Card Settings' : 'ID Card Settings');
+    // 'side' groups the switches into the Front / Back sections; 'default' is used when nothing is saved yet.
     $visibilityRows = [
-        ['name' => 'card_show_logo_front', 'id' => 'idCardShowLogoFront', 'label' => 'Front Logo'],
-        ['name' => 'card_show_logo_back', 'id' => 'idCardShowLogoBack', 'label' => 'Back Logo'],
-        ['name' => 'card_show_photo_front', 'id' => 'idCardShowPhotoFront', 'label' => 'Photo'],
-        ['name' => 'card_show_school_detail_front', 'id' => 'idCardShowSchoolDetailFront', 'label' => 'Front School Detail'],
-        ['name' => 'card_show_school_detail_back', 'id' => 'idCardShowSchoolDetailBack', 'label' => 'Back School Detail'],
-        ['name' => 'card_show_slogan_front', 'id' => 'idCardShowSloganFront', 'label' => 'Front Slogan'],
-        ['name' => 'card_show_slogan_back', 'id' => 'idCardShowSloganBack', 'label' => 'Back Slogan'],
-        ['name' => 'card_show_title_front', 'id' => 'idCardShowTitleFront', 'label' => 'Front Title'],
-        ['name' => 'card_show_title_back', 'id' => 'idCardShowTitleBack', 'label' => 'Back Title'],
-        ['name' => 'card_show_footer_front', 'id' => 'idCardShowFooterFront', 'label' => 'Front Footer'],
-        ['name' => 'card_show_footer_back', 'id' => 'idCardShowFooterBack', 'label' => 'Back Footer'],
-        ['name' => 'card_show_back_student_details', 'id' => 'idCardShowBackStudentDetails', 'label' => $employeeMode ? 'Back Employee Details' : 'Back Student Details'],
-        ['name' => 'card_show_back_school_contact', 'id' => 'idCardShowBackSchoolContact', 'label' => 'Back School Contact'],
-        ['name' => 'card_show_back_qr', 'id' => 'idCardShowBackQr', 'label' => 'Back QR'],
-        ['name' => 'card_show_back_signature', 'id' => 'idCardShowBackSignature', 'label' => 'Back Signature'],
-        ['name' => 'card_show_back_notice', 'id' => 'idCardShowBackNotice', 'label' => 'Back Notice'],
+        ['side' => 'front', 'name' => 'card_show_logo_front', 'id' => 'idCardShowLogoFront', 'label' => 'Logo'],
+        ['side' => 'front', 'name' => 'card_show_photo_front', 'id' => 'idCardShowPhotoFront', 'label' => 'Photo'],
+        ['side' => 'front', 'name' => 'card_show_school_detail_front', 'id' => 'idCardShowSchoolDetailFront', 'label' => 'School Detail (address)', 'default' => false],
+        ['side' => 'front', 'name' => 'card_show_slogan_front', 'id' => 'idCardShowSloganFront', 'label' => 'Slogan'],
+        ['side' => 'front', 'name' => 'card_show_title_front', 'id' => 'idCardShowTitleFront', 'label' => 'Title'],
+        ['side' => 'front', 'name' => 'card_show_footer_front', 'id' => 'idCardShowFooterFront', 'label' => 'Footer'],
+        ['side' => 'back', 'name' => 'card_show_logo_back', 'id' => 'idCardShowLogoBack', 'label' => 'Logo'],
+        ['side' => 'back', 'name' => 'card_show_school_detail_back', 'id' => 'idCardShowSchoolDetailBack', 'label' => 'School Detail (address)'],
+        ['side' => 'back', 'name' => 'card_show_slogan_back', 'id' => 'idCardShowSloganBack', 'label' => 'Slogan'],
+        ['side' => 'back', 'name' => 'card_show_title_back', 'id' => 'idCardShowTitleBack', 'label' => 'Title'],
+        ['side' => 'back', 'name' => 'card_show_back_student_details', 'id' => 'idCardShowBackStudentDetails', 'label' => $employeeMode ? 'Employee Details' : 'Student Details'],
+        ['side' => 'back', 'name' => 'card_show_back_school_contact', 'id' => 'idCardShowBackSchoolContact', 'label' => 'School Contact'],
+        ['side' => 'back', 'name' => 'card_show_back_qr', 'id' => 'idCardShowBackQr', 'label' => 'QR Code'],
+        ['side' => 'back', 'name' => 'card_show_back_signature', 'id' => 'idCardShowBackSignature', 'label' => 'Signature'],
+        ['side' => 'back', 'name' => 'card_show_back_notice', 'id' => 'idCardShowBackNotice', 'label' => 'Notice'],
+        ['side' => 'back', 'name' => 'card_show_footer_back', 'id' => 'idCardShowFooterBack', 'label' => 'Footer'],
     ];
 @endphp
 
-<div class="modal fade" id="idCardSettingsModal" tabindex="-1" role="dialog" aria-labelledby="idCardSettingsModalLabel" aria-hidden="true">
+<div class="modal fade {{ $settingsOnly ? 'show' : '' }}" id="idCardSettingsModal" tabindex="-1" role="dialog" aria-labelledby="idCardSettingsModalLabel" aria-hidden="{{ $settingsOnly ? 'false' : 'true' }}">
     <div class="modal-dialog modal-dialog-centered modal-xl id-card-settings-modal-dialog card-settings-modal-dialog" role="document">
         <div class="modal-content id-card-settings-modal-content card-settings-modal-content">
             <form method="POST" action="{{ $employeeMode ? route('hr.employee-id-cards.settings') : route('students.id-cards.settings') }}" enctype="multipart/form-data">
@@ -57,13 +60,26 @@
                         <button type="button" class="btn {{ $isLibraryCard ? 'btn-primary active' : 'btn-outline-primary' }} js-card-type-switch" data-card-type="library_card">Library Card</button>
                     </div>
                     <span id="idCardSettingsDirtyBadge" class="badge badge-warning align-self-center d-none">Unsaved changes</span>
-                    <button type="button" class="close id-card-settings-modal-close card-settings-modal-close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
+                    @if($settingsOnly)
+                        <a href="{{ $settingsBackUrl }}" class="btn btn-outline-secondary btn-sm align-self-center js-id-card-settings-back">
+                            <i class="fas fa-arrow-left mr-1"></i>Back to cards
+                        </a>
+                    @else
+                        <button type="button" class="close id-card-settings-modal-close card-settings-modal-close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    @endif
                 </div>
 
                 <div class="modal-body id-card-settings-modal-body card-settings-modal-body">
                     <input type="hidden" name="card_type" value="{{ $selectedCardType }}">
+                    <div class="d-none" aria-hidden="true">
+                        @foreach(\App\Models\AdmitSeatCardSetting::ID_CARD_POSITION_KEYS as $positionKey)
+                            @foreach(['x', 'y'] as $axis)
+                                <input type="hidden" name="card_element_positions[{{ $positionKey }}][{{ $axis }}]" data-element-position-key="{{ $positionKey }}" data-element-position-axis="{{ $axis }}" value="{{ old("card_element_positions.$positionKey.$axis", data_get($cardSettings?->card_element_positions, "$positionKey.$axis", 0)) }}">
+                            @endforeach
+                        @endforeach
+                    </div>
                     <input type="hidden" name="card_exam_type_font_size" value="{{ old('card_exam_type_font_size', $cardSettings?->card_exam_type_font_size ?? 7.4) }}">
                     <input type="hidden" name="card_exam_name_font_size" value="{{ old('card_exam_name_font_size', $cardSettings?->card_exam_name_font_size ?? 6.8) }}">
                     <input type="hidden" name="card_exam_type_text_color" value="{{ old('card_exam_type_text_color', $cardSettings?->card_exam_type_text_color ?? '#ffffff') }}">
@@ -74,6 +90,32 @@
                     <div class="row align-items-stretch admit-seat-cards-modal-layout">
                         <div class="col-12 col-lg-3 mb-3 admit-seat-cards-modal-preview">
                             <div class="csm-preview-sticky">
+                                <div class="csm-preview-toolbar" role="toolbar" aria-label="Preview tools">
+                                    @if(!$employeeMode && ($allStudents ?? collect())->isNotEmpty())
+                                        <select id="idCardPreviewStudent" class="custom-select custom-select-sm csm-preview-toolbar__student" aria-label="Preview with a real student">
+                                            <option value="">Sample student</option>
+                                            @foreach($allStudents->take(300) as $pvStudent)
+                                                <option value="{{ $pvStudent->id }}">{{ $pvStudent->academicInformations->first()?->roll ?: '—' }} · {{ $pvStudent->full_name_en }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <span class="csm-preview-toolbar__student text-muted small">Sample data</span>
+                                    @endif
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Zoom">
+                                        <button type="button" class="btn btn-outline-secondary" id="idCardZoomOut" title="Zoom out" aria-label="Zoom out"><i class="fas fa-search-minus"></i></button>
+                                        <button type="button" class="btn btn-outline-secondary csm-zoom-level" id="idCardZoomLevel" title="Fit to panel" aria-label="Fit to panel">Fit</button>
+                                        <button type="button" class="btn btn-outline-secondary" id="idCardZoomIn" title="Zoom in" aria-label="Zoom in"><i class="fas fa-search-plus"></i></button>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="idCardResetPositions" title="Put every dragged element back to its default place">
+                                        <i class="fas fa-arrows-alt mr-1"></i>Reset positions
+                                    </button>
+                                    <a href="{{ $employeeMode ? route('hr.employee-id-cards.pdf', ['preview' => 1, 'inline' => 1]) : route('students.id-cards.pdf', ['preview_student_id' => 'first', 'card_type' => $selectedCardType, 'inline' => 1]) }}"
+                                       class="btn btn-outline-primary btn-sm" id="idCardPreviewPdf" @if($employeeMode) data-employee="1" @endif target="_blank" rel="noopener"
+                                       data-base-href="{{ $employeeMode ? route('hr.employee-id-cards.pdf') : route('students.id-cards.pdf') }}"
+                                       title="Open the real PDF for one card, using the last saved settings">
+                                        <i class="fas fa-file-pdf mr-1"></i>Preview PDF
+                                    </a>
+                                </div>
                                 @include('pages.card-settings._live-preview', [
                                     'prefix' => 'idCard',
                                     'employeeMode' => $employeeMode,
@@ -87,7 +129,8 @@
                                     'frontTitle' => $frontTitle,
                                     'backTitle' => 'BACK',
                                     'backNotice' => 'If found, please return to the school.',
-                                    'footerLine' => $setting?->whatsapp_number ?? $setting?->contact_number_1 ?? 'Contact',
+                                    'footerLine' => $setting?->whatsapp_number ?? '',
+                                    'previewSettings' => $cardSettings?->toArray() ?? [],
                                     'logoUrl' => $currentCardLogoUrl,
                                     'cardPhotoFit' => $currentCardPhotoFit,
                                     'cardLogoFit' => $currentCardLogoFit,
@@ -98,7 +141,7 @@
                                     'schoolEmail' => $setting?->email ?? null,
                                     'schoolWebsite' => $setting?->website ?? null,
                                     'schoolQrUrl' => $setting?->whatsapp_qr ? (file_exists(public_path($setting->whatsapp_qr)) ? asset($setting->whatsapp_qr) : null) : null,
-                                    'showSchoolDetailFront' => $cardSettings?->card_show_school_detail_front ?? true,
+                                    'showSchoolDetailFront' => $cardSettings?->card_show_school_detail_front ?? false,
                                     'showSchoolDetailBack' => $cardSettings?->card_show_school_detail_back ?? true,
                                     'showSloganFront' => $cardSettings?->card_show_slogan_front ?? true,
                                     'showSloganBack' => $cardSettings?->card_show_slogan_back ?? true,
@@ -115,7 +158,7 @@
                                     'showFooterFront' => $cardSettings?->card_show_footer_front ?? true,
                                     'showFooterBack' => $cardSettings?->card_show_footer_back ?? true,
                                     'previewCardWidthValue' => $cardSettings?->card_width_value ?? 5.4,
-                                    'previewCardHeightValue' => $cardSettings?->card_height_value ?? 8.4,
+                                    'previewCardHeightValue' => $cardSettings?->card_height_value ?? 8.56,
                                     'previewCardDimensionUnit' => $cardSettings?->card_dimension_unit ?? 'cm',
                                     'focusTargets' => [
                                         'logo' => 'cardLogoInput',
@@ -170,79 +213,77 @@
                                             </div>
                                         </div>
                                         <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-12 col-md-3 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardCardsPerPage" data-toggle="tooltip" data-placement="top" title="Total cards rendered on a page.">Cards / Page</label>
-                                                        <input type="number" name="cards_per_page" id="cardCardsPerPage" class="form-control form-control-sm id-card-settings-control csm-input" min="1" max="12" value="{{ old('cards_per_page', $cardSettings?->cards_per_page ?? 4) }}">
+                                            @php
+                                                $lv = fn ($name, $default) => old($name, $cardSettings?->{$name} ?? $default);
+                                                $num = function (string $name, string $id, string $label, string $tip, $default, array $attrs = [], string $col = 'col-6 col-xl-3') use ($lv) {
+                                                    $extra = collect($attrs)->map(fn ($v, $k) => $k . '="' . e($v) . '"')->implode(' ');
+                                                    return '<div class="' . $col . ' mb-2"><div class="id-card-settings-field">'
+                                                        . '<label class="id-card-settings-label" for="' . $id . '" data-toggle="tooltip" data-placement="top" title="' . e($tip) . '">' . e($label) . '</label>'
+                                                        . '<input type="number" name="' . $name . '" id="' . $id . '" class="form-control form-control-sm id-card-settings-control csm-input" ' . $extra . ' value="' . e($lv($name, $default)) . '">'
+                                                        . '<div class="invalid-feedback" data-feedback-for="' . $name . '"></div>'
+                                                        . '</div></div>';
+                                                };
+                                                $sel = function (string $name, string $id, string $label, string $tip, string $default, array $options, string $col = 'col-6 col-xl-3') use ($lv) {
+                                                    $current = $lv($name, $default);
+                                                    $opts = collect($options)->map(fn ($text, $value) => '<option value="' . $value . '"' . ($current === (string) $value ? ' selected' : '') . '>' . e($text) . '</option>')->implode('');
+                                                    return '<div class="' . $col . ' mb-2"><div class="id-card-settings-field">'
+                                                        . '<label class="id-card-settings-label" for="' . $id . '" data-toggle="tooltip" data-placement="top" title="' . e($tip) . '">' . e($label) . '</label>'
+                                                        . '<select name="' . $name . '" id="' . $id . '" class="form-control form-control-sm id-card-settings-control csm-select">' . $opts . '</select>'
+                                                        . '</div></div>';
+                                                };
+                                                $align = ['left' => 'Left', 'center' => 'Center', 'right' => 'Right'];
+                                            @endphp
+
+                                            <div class="csm-group">
+                                                <div class="csm-group__title"><i class="fas fa-file-alt"></i>Sheet <small>paper and how many cards print on it</small></div>
+                                                <div class="row align-items-start">
+                                                    <div class="col-12 col-lg-8">
+                                                        <div class="row">
+                                                            {!! $sel('card_page_size', 'cardPageSize', 'Paper Size', 'Paper used for print and PDF.', 'a4', ['a4' => 'A4', 'letter' => 'Letter'], 'col-6 col-md-4') !!}
+                                                            {!! $sel('card_page_orientation', 'cardPageOrientation', 'Orientation', 'Sheet orientation for print and PDF.', 'landscape', ['landscape' => 'Landscape', 'portrait' => 'Portrait'], 'col-6 col-md-4') !!}
+                                                            {!! $num('cards_per_page', 'cardCardsPerPage', 'Cards / Page', 'Total cards (front + back pairs) on a page.', 4, ['min' => 1, 'max' => 12], 'col-6 col-md-4') !!}
+                                                            {!! $num('cards_per_row', 'cardCardsPerRow', 'Cards / Row', 'How many front + back pairs sit side by side.', 2, ['min' => 1, 'max' => 10], 'col-6 col-md-4') !!}
+                                                            {!! $num('grid_gap_value', 'cardGridGap', 'Grid Gap', 'Spacing between cards on the sheet.', 0.5, ['min' => 0.1, 'step' => 0.01], 'col-6 col-md-4') !!}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardCardsPerRow" data-toggle="tooltip" data-placement="top" title="How many cards sit side by side.">Cards / Row</label>
-                                                        <input type="number" name="cards_per_row" id="cardCardsPerRow" class="form-control form-control-sm id-card-settings-control csm-input" min="1" max="10" value="{{ old('cards_per_row', $cardSettings?->cards_per_row ?? 2) }}">
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardGridGap" data-toggle="tooltip" data-placement="top" title="Spacing between cards on the sheet.">Grid Gap</label>
-                                                        <input type="number" name="grid_gap_value" id="cardGridGap" class="form-control form-control-sm id-card-settings-control csm-input" min="0.1" step="0.1" value="{{ old('grid_gap_value', $cardSettings?->grid_gap_value ?? 0.5) }}">
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardCardWidth" data-toggle="tooltip" data-placement="top" title="Width of each rendered card.">Card Width</label>
-                                                        <input type="number" name="card_width_value" id="cardCardWidth" class="form-control form-control-sm id-card-settings-control csm-input" min="0.1" step="0.1" value="{{ old('card_width_value', $cardSettings?->card_width_value ?? 5.4) }}">
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardCardHeight" data-toggle="tooltip" data-placement="top" title="Height of each rendered card.">Card Height</label>
-                                                        <input type="number" name="card_height_value" id="cardCardHeight" class="form-control form-control-sm id-card-settings-control csm-input" min="0.1" step="0.1" value="{{ old('card_height_value', $cardSettings?->card_height_value ?? 8.4) }}">
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardDimensionUnit" data-toggle="tooltip" data-placement="top" title="Controls all layout measurements.">Unit</label>
-                                                        <select name="card_dimension_unit" id="cardDimensionUnit" class="form-control form-control-sm id-card-settings-control csm-select">
-                                                            <option value="cm" {{ old('card_dimension_unit', $cardSettings?->card_dimension_unit ?? 'cm') === 'cm' ? 'selected' : '' }}>Centimeter (cm)</option>
-                                                            <option value="px" {{ old('card_dimension_unit', $cardSettings?->card_dimension_unit ?? 'cm') === 'px' ? 'selected' : '' }}>Pixel (px)</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardFrontAlignment" data-toggle="tooltip" data-placement="top" title="Controls the front card content alignment.">Front Alignment</label>
-                                                        <select name="card_front_alignment" id="cardFrontAlignment" class="form-control form-control-sm id-card-settings-control csm-select">
-                                                            <option value="left" {{ old('card_front_alignment', $cardSettings?->card_front_alignment ?? 'center') === 'left' ? 'selected' : '' }}>Left</option>
-                                                            <option value="center" {{ old('card_front_alignment', $cardSettings?->card_front_alignment ?? 'center') === 'center' ? 'selected' : '' }}>Center</option>
-                                                            <option value="right" {{ old('card_front_alignment', $cardSettings?->card_front_alignment ?? 'center') === 'right' ? 'selected' : '' }}>Right</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardBackAlignment" data-toggle="tooltip" data-placement="top" title="Controls the back card content alignment.">Back Alignment</label>
-                                                        <select name="card_back_alignment" id="cardBackAlignment" class="form-control form-control-sm id-card-settings-control csm-select">
-                                                            <option value="left" {{ old('card_back_alignment', $cardSettings?->card_back_alignment ?? 'center') === 'left' ? 'selected' : '' }}>Left</option>
-                                                            <option value="center" {{ old('card_back_alignment', $cardSettings?->card_back_alignment ?? 'center') === 'center' ? 'selected' : '' }}>Center</option>
-                                                            <option value="right" {{ old('card_back_alignment', $cardSettings?->card_back_alignment ?? 'center') === 'right' ? 'selected' : '' }}>Right</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardFrontPadding" data-toggle="tooltip" data-placement="top" title="Inner spacing inside the front card.">Front Padding</label>
-                                                        <input type="number" name="card_front_padding_value" id="cardFrontPadding" class="form-control form-control-sm id-card-settings-control csm-input" min="0" step="0.1" value="{{ old('card_front_padding_value', $cardSettings?->card_front_padding_value ?? 0.8) }}">
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardBackPadding" data-toggle="tooltip" data-placement="top" title="Inner spacing inside the back card.">Back Padding</label>
-                                                        <input type="number" name="card_back_padding_value" id="cardBackPadding" class="form-control form-control-sm id-card-settings-control csm-input" min="0" step="0.1" value="{{ old('card_back_padding_value', $cardSettings?->card_back_padding_value ?? 0.8) }}">
+                                                    <div class="col-12 col-lg-4 mb-2">
+                                                        <div class="csm-sheet" id="idCardSheetDiagram" role="img" aria-label="Sheet layout preview"></div>
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <div class="csm-group">
+                                                <div class="csm-group__title"><i class="fas fa-id-card"></i>Card size <small>one card, front and back are identical</small></div>
+                                                <div class="row">
+                                                    <div class="col-6 col-xl-3 mb-2">
+                                                        <div class="id-card-settings-field">
+                                                            <label class="id-card-settings-label" for="cardSizePreset" data-toggle="tooltip" data-placement="top" title="Standard card sizes. Picking one fills width and height.">Size Preset</label>
+                                                            <select id="cardSizePreset" class="form-control form-control-sm id-card-settings-control csm-select">
+                                                                <option value="cr80p">CR80 portrait · 54 × 85.6 mm</option>
+                                                                <option value="cr80l">CR80 landscape · 85.6 × 54 mm</option>
+                                                                <option value="custom">Custom</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    {!! $num('card_width_value', 'cardCardWidth', 'Card Width', 'Width of each rendered card.', 5.4, ['min' => 0.1, 'step' => 0.01]) !!}
+                                                    {!! $num('card_height_value', 'cardCardHeight', 'Card Height', 'Height of each rendered card.', 8.56, ['min' => 0.1, 'step' => 0.01]) !!}
+                                                    {!! $sel('card_dimension_unit', 'cardDimensionUnit', 'Unit', 'Unit for every measurement. Changing it converts the numbers.', 'cm', ['cm' => 'Centimeter (cm)', 'px' => 'Pixel (px)']) !!}
+                                                </div>
+                                            </div>
+
+                                            <div class="csm-group mb-0">
+                                                <div class="csm-group__title"><i class="fas fa-align-center"></i>Alignment &amp; spacing</div>
+                                                <div class="row">
+                                                    {!! $sel('card_front_alignment', 'cardFrontAlignment', 'Front Alignment', 'Controls the front card content alignment.', 'center', $align) !!}
+                                                    {!! $sel('card_back_alignment', 'cardBackAlignment', 'Back Alignment', 'Controls the back card content alignment.', 'center', $align) !!}
+                                                    {!! $num('card_front_padding_value', 'cardFrontPadding', 'Front Body Padding', 'Inner spacing around the front card content (photo, name, details).', 0.8, ['min' => 0, 'step' => 0.01]) !!}
+                                                    {!! $num('card_back_padding_value', 'cardBackPadding', 'Back Body Padding', 'Inner spacing around the back card content.', 0.8, ['min' => 0, 'step' => 0.01]) !!}
+                                                    {!! $num('card_front_header_padding_value', 'cardFrontHeaderPadding', 'Front Header Padding', 'Spacing inside the coloured header on the front (logo, school name, title).', 0.3, ['min' => 0, 'max' => 5, 'step' => 0.01]) !!}
+                                                    {!! $num('card_back_header_padding_value', 'cardBackHeaderPadding', 'Back Header Padding', 'Spacing inside the coloured header on the back.', 0.3, ['min' => 0, 'max' => 5, 'step' => 0.01]) !!}
+                                                </div>
+                                            </div>
+
+                                            <div id="idCardLayoutFitNotice" class="alert alert-info py-2 px-3 mt-3 mb-0" style="font-size:12px" role="status" aria-live="polite"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -256,69 +297,75 @@
                                             </div>
                                         </div>
                                         <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-12 col-md-4 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardPhotoWidth">Photo Width</label>
-                                                        <input type="number" name="card_photo_width_value" id="cardPhotoWidth" class="form-control form-control-sm id-card-settings-control csm-input" min="0.1" step="0.1" value="{{ old('card_photo_width_value', $cardSettings?->card_photo_width_value ?? 1.8) }}">
+                                            <div class="csm-group">
+                                                <div class="csm-group__title"><i class="fas fa-image"></i>Sizes &amp; fit <small>photo and logo dimensions</small></div>
+                                                <div class="row">
+                                                    <div class="col-6 col-md-4 col-xl mb-2">
+                                                        <div class="id-card-settings-field id-card-settings-field--compact">
+                                                            <label class="id-card-settings-label" for="cardPhotoWidth">Photo W <span class="id-card-settings-unit">cm</span></label>
+                                                            <input type="number" name="card_photo_width_value" id="cardPhotoWidth" class="form-control form-control-sm id-card-settings-control csm-input" min="0.1" step="0.01" value="{{ old('card_photo_width_value', $cardSettings?->card_photo_width_value ?? 1.8) }}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-md-4 col-xl mb-2">
+                                                        <div class="id-card-settings-field id-card-settings-field--compact">
+                                                            <label class="id-card-settings-label" for="cardPhotoHeight">Photo H <span class="id-card-settings-unit">cm</span></label>
+                                                            <input type="number" name="card_photo_height_value" id="cardPhotoHeight" class="form-control form-control-sm id-card-settings-control csm-input" min="0.1" step="0.01" value="{{ old('card_photo_height_value', $cardSettings?->card_photo_height_value ?? 2.7) }}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-md-4 col-xl mb-2">
+                                                        <div class="id-card-settings-field id-card-settings-field--compact">
+                                                            <label class="id-card-settings-label" for="cardPhotoFit">Photo fit</label>
+                                                            <select name="card_photo_fit" id="cardPhotoFit" class="form-control form-control-sm id-card-settings-control csm-select">
+                                                                <option value="cover" {{ $currentCardPhotoFit === 'cover' ? 'selected' : '' }}>Cover</option>
+                                                                <option value="contain" {{ $currentCardPhotoFit === 'contain' ? 'selected' : '' }}>Contain</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-md-4 col-xl mb-2">
+                                                        <div class="id-card-settings-field id-card-settings-field--compact">
+                                                            <label class="id-card-settings-label" for="cardLogoSize">Logo size <span class="id-card-settings-unit">cm</span></label>
+                                                            <input type="number" name="card_logo_size_value" id="cardLogoSize" class="form-control form-control-sm id-card-settings-control csm-input" min="0.1" step="0.01" value="{{ old('card_logo_size_value', $cardSettings?->card_logo_size_value ?? 0.8) }}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-md-4 col-xl mb-2">
+                                                        <div class="id-card-settings-field id-card-settings-field--compact">
+                                                            <label class="id-card-settings-label" for="cardLogoFit">Logo fit</label>
+                                                            <select name="card_logo_fit" id="cardLogoFit" class="form-control form-control-sm id-card-settings-control csm-select">
+                                                                <option value="contain" {{ $currentCardLogoFit === 'contain' ? 'selected' : '' }}>Contain</option>
+                                                                <option value="cover" {{ $currentCardLogoFit === 'cover' ? 'selected' : '' }}>Cover</option>
+                                                            </select>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-12 col-md-4 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardPhotoHeight">Photo Height</label>
-                                                        <input type="number" name="card_photo_height_value" id="cardPhotoHeight" class="form-control form-control-sm id-card-settings-control csm-input" min="0.1" step="0.1" value="{{ old('card_photo_height_value', $cardSettings?->card_photo_height_value ?? 2.7) }}">
+                                            </div>
+                                            <div class="csm-group mb-0">
+                                                <div class="csm-group__title"><i class="fas fa-upload"></i>Images <small>uploads replace the current file for this card preset</small></div>
+                                                <div class="row">
+                                                    <div class="col-12 col-lg-6 mb-2">
+                                                        <div class="id-card-upload-box id-card-upload-box--compact h-100">
+                                                            <div class="id-card-upload-box__main">
+                                                                <label class="id-card-settings-label d-block mb-1" for="cardLogoInput"><i class="fas fa-upload mr-1"></i>School logo</label>
+                                                                <input type="file" name="card_logo" id="cardLogoInput" class="form-control form-control-sm" accept="image/*">
+                                                                <small class="text-muted d-block mt-1">Logo shown in the card header.</small>
+                                                            </div>
+                                                            <div class="id-card-upload-preview__stage id-card-upload-preview__stage--thumb">
+                                                                <img id="cardLogoPreview" src="{{ $currentCardLogoUrl ?? '' }}" alt="Logo preview" class="{{ $currentCardLogoUrl ? '' : 'd-none' }}" style="max-width:100%; max-height:72px; object-fit: contain;">
+                                                                <div class="small text-muted text-center {{ $currentCardLogoUrl ? 'd-none' : '' }}">No logo</div>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-12 col-md-4 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardLogoSize">Logo Size</label>
-                                                        <input type="number" name="card_logo_size_value" id="cardLogoSize" class="form-control form-control-sm id-card-settings-control csm-input" min="0.1" step="0.1" value="{{ old('card_logo_size_value', $cardSettings?->card_logo_size_value ?? 0.8) }}">
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-6 mb-2">
-                                                    <div class="id-card-upload-box">
-                                                        <label class="id-card-settings-label d-block mb-2" for="cardLogoInput">School Logo</label>
-                                                        <input type="file" name="card_logo" id="cardLogoInput" class="form-control form-control-sm">
-                                                        <small class="text-muted d-block mt-2">Uploads replace the current logo for this card preset.</small>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-6 mb-2">
-                                                    <div class="id-card-upload-preview text-center">
-                                                        <label class="id-card-settings-label d-block mb-2">Logo Preview</label>
-                                                        <img id="cardLogoPreview" src="{{ $currentCardLogoUrl ?? '' }}" alt="Logo preview" class="img-fluid {{ $currentCardLogoUrl ? '' : 'd-none' }}" style="max-height: 96px; object-fit: contain;">
-                                                        <div class="small text-muted {{ $currentCardLogoUrl ? 'd-none' : '' }}">No custom logo uploaded.</div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-6 mb-2">
-                                                    <div class="id-card-upload-box">
-                                                        <label class="id-card-settings-label d-block mb-2" for="cardPrincipalSignatureInput">Principal Signature</label>
-                                                        <input type="file" name="card_principal_signature" id="cardPrincipalSignatureInput" class="form-control form-control-sm" accept="image/png,image/jpeg">
-                                                        <small class="text-muted d-block mt-2">Upload PNG, JPG, or JPEG for the principal signature image.</small>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-6 mb-2">
-                                                    <div class="id-card-upload-preview text-center">
-                                                        <label class="id-card-settings-label d-block mb-2">Signature Preview</label>
-                                                        <img id="cardPrincipalSignaturePreview" src="{{ $currentCardPrincipalSignatureUrl ?? '' }}" alt="Principal signature preview" class="img-fluid {{ $currentCardPrincipalSignatureUrl ? '' : 'd-none' }}" style="max-height: 96px; object-fit: contain;">
-                                                        <div class="small text-muted {{ $currentCardPrincipalSignatureUrl ? 'd-none' : '' }}">No principal signature uploaded.</div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-4 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardPhotoFit">Photo Fit</label>
-                                                        <select name="card_photo_fit" id="cardPhotoFit" class="form-control form-control-sm id-card-settings-control csm-select">
-                                                            <option value="cover" {{ $currentCardPhotoFit === 'cover' ? 'selected' : '' }}>Cover</option>
-                                                            <option value="contain" {{ $currentCardPhotoFit === 'contain' ? 'selected' : '' }}>Contain</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-4 mb-2">
-                                                    <div class="id-card-settings-field">
-                                                        <label class="id-card-settings-label" for="cardLogoFit">Logo Fit</label>
-                                                        <select name="card_logo_fit" id="cardLogoFit" class="form-control form-control-sm id-card-settings-control csm-select">
-                                                            <option value="contain" {{ $currentCardLogoFit === 'contain' ? 'selected' : '' }}>Contain</option>
-                                                            <option value="cover" {{ $currentCardLogoFit === 'cover' ? 'selected' : '' }}>Cover</option>
-                                                        </select>
+                                                    <div class="col-12 col-lg-6 mb-2">
+                                                        <div class="id-card-upload-box id-card-upload-box--compact h-100">
+                                                            <div class="id-card-upload-box__main">
+                                                                <label class="id-card-settings-label d-block mb-1" for="cardPrincipalSignatureInput"><i class="fas fa-upload mr-1"></i>Principal signature</label>
+                                                                <input type="file" name="card_principal_signature" id="cardPrincipalSignatureInput" class="form-control form-control-sm" accept="image/png,image/jpeg">
+                                                                <small class="text-muted d-block mt-1">PNG, JPG or JPEG.</small>
+                                                            </div>
+                                                            <div class="id-card-upload-preview__stage id-card-upload-preview__stage--thumb">
+                                                                <img id="cardPrincipalSignaturePreview" src="{{ $currentCardPrincipalSignatureUrl ?? '' }}" alt="Principal signature preview" class="{{ $currentCardPrincipalSignatureUrl ? '' : 'd-none' }}" style="max-width:100%; max-height:72px; object-fit: contain;">
+                                                                <div class="small text-muted text-center {{ $currentCardPrincipalSignatureUrl ? 'd-none' : '' }}">No signature</div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -327,143 +374,101 @@
                                 </div>
 
                                 <div class="tab-pane fade" id="idCardTypographyPane" role="tabpanel" aria-labelledby="idCardTypographyTab">
-                                    <div class="card mb-2 shadow-sm">
-                                        <div class="card-header id-card-settings-section-header">
-                                            <div class="d-flex align-items-center">
-                                                <span class="badge badge-primary mr-2" style="width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;"><i class="fas fa-font"></i></span>
-                                                <div>
-                                                    <h6 class="mb-0 font-weight-bold" style="letter-spacing:-0.01em;">Typography &amp; Colors</h6>
-                                                    <small class="text-muted d-block">Fine-tune font scale and color tone for the card face.</small>
+                                    @php
+                                        $typo = fn (string $name, $default) => old($name, $cardSettings?->{$name} ?? $default);
+                                        $who = $employeeMode ? 'Employee' : 'Student';
+                                        // [label, where it applies, size field/id/default, colour field/id/default]
+                                        $frontTypography = [
+                                            ['School Name', 'front + back header', ['card_school_name_font_size', 'cardSchoolNameFontSize', 7.2], ['card_school_name_text_color', 'cardSchoolNameColor', '#ffffff']],
+                                            ['School Detail (address)', 'front header · size also sets the back notice', ['card_school_detail_font_size', 'cardSchoolDetailFontSize', 5.4], ['card_school_detail_text_color', 'cardSchoolDetailColor', '#e5e7eb']],
+                                            ['Slogan', 'front + back header', ['card_slogan_font_size', 'cardSloganFontSize', 4.8], ['card_slogan_text_color', 'cardSloganColor', '#e5e7eb']],
+                                            ['Card Title', 'front + back badge', ['card_title_font_size', 'cardTitleFontSize', 4.7], ['card_title_text_color', 'cardTitleColor', '#ffffff']],
+                                            [$who . ' Name', 'front', ['card_name_font_size', 'cardNameFontSize', 7.2], ['card_name_text_color', 'cardNameColor', '#1e3a5f']],
+                                            [$who . ' Detail', 'front rows + back details', ['card_student_detail_font_size', 'cardStudentDetailFontSize', 4.6], ['card_student_detail_text_color', 'cardStudentDetailColor', '#111827']],
+                                        ];
+                                        $backColours = [
+                                            ['Back Notice', 'back', 'card_back_notice_text_color', 'cardBackNoticeColor', '#94a3b8'],
+                                            ['Footer', 'front + back footer', 'card_footer_text_color', 'cardFooterColor', '#e5e7eb'],
+                                        ];
+                                    @endphp
+                                    <div class="row">
+                                        <div class="col-12 col-xl-7 mb-2">
+                                            <div class="card shadow-sm h-100">
+                                                <div class="card-header id-card-settings-section-header">
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="badge badge-primary mr-2"><i class="fas fa-id-card"></i></span>
+                                                        <div>
+                                                            <h6 class="mb-0 font-weight-bold">Typography &amp; Colors — Front side</h6>
+                                                            <small class="text-muted d-block">Font size (pt) and colour. Header texts and detail rows are shared with the back.</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    @foreach($frontTypography as [$label, $where, $size, $colour])
+                                                        <div class="row align-items-center mb-3">
+                                                            <div class="col-12 col-md-5 mb-1 mb-md-0">
+                                                                <strong class="d-block">{{ $label }}</strong>
+                                                                <small class="text-muted">{{ $where }}</small>
+                                                            </div>
+                                                            <div class="col-6 col-md-3">
+                                                                <input type="number" name="{{ $size[0] }}" id="{{ $size[1] }}" class="form-control form-control-sm id-card-settings-control csm-input" min="1" max="24" step="0.1" value="{{ $typo($size[0], $size[2]) }}">
+                                                            </div>
+                                                            <div class="col-6 col-md-4">
+                                                                <div class="id-card-settings-color-row">
+                                                                    <input type="color" name="{{ $colour[0] }}" id="{{ $colour[1] }}" class="id-card-settings-color-native csm-color-native" value="{{ $typo($colour[0], $colour[2]) }}">
+                                                                    <span id="{{ $colour[1] }}Preview" class="id-card-settings-color-preview d-inline-block rounded ml-2" style="background: {{ $typo($colour[0], $colour[2]) }};"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+
+                                                    <div class="row align-items-center mb-0">
+                                                        <div class="col-12 col-md-5 mb-1 mb-md-0">
+                                                            <strong class="d-block">{{ $who }} Detail Alignment</strong>
+                                                            <small class="text-muted">front rows + back details</small>
+                                                        </div>
+                                                        <div class="col-12 col-md-7">
+                                                            <select name="card_student_detail_alignment" id="cardStudentDetailAlignment" class="form-control form-control-sm id-card-settings-control csm-select">
+                                                                @foreach(['left' => 'Left', 'center' => 'Center', 'right' => 'Right'] as $value => $text)
+                                                                    <option value="{{ $value }}" {{ $typo('card_student_detail_alignment', 'left') === $value ? 'selected' : '' }}>{{ $text }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="card-body">
-                                            <div class="row align-items-center mb-0">
-                                                <div class="col-12 col-md-4 mb-1 mb-md-0">
-                                                    <strong class="d-block">School Name</strong>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-1 mb-md-0">
-                                                    <input type="number" name="card_school_name_font_size" id="cardSchoolNameFontSize" class="form-control form-control-sm id-card-settings-control csm-input" min="1" step="0.1" value="{{ old('card_school_name_font_size', $cardSettings?->card_school_name_font_size ?? 7.2) }}">
-                                                </div>
-                                                <div class="col-12 col-md-5">
-                                                    <div class="id-card-settings-color-row">
-                                                        <input type="color" name="card_school_name_text_color" id="cardSchoolNameColor" class="id-card-settings-color-native csm-color-native" value="{{ old('card_school_name_text_color', $cardSettings?->card_school_name_text_color ?? '#ffffff') }}">
-                                                        <span id="cardSchoolNameColorPreview" class="id-card-settings-color-preview d-inline-block rounded ml-2" style="background: {{ old('card_school_name_text_color', $cardSettings?->card_school_name_text_color ?? '#ffffff') }};"></span>
+
+                                        <div class="col-12 col-xl-5 mb-2">
+                                            <div class="card shadow-sm h-100">
+                                                <div class="card-header id-card-settings-section-header">
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="badge badge-primary mr-2"><i class="fas fa-clone"></i></span>
+                                                        <div>
+                                                            <h6 class="mb-0 font-weight-bold">Typography &amp; Colors — Back side</h6>
+                                                            <small class="text-muted d-block">Colours that only the back (or both footers) use.</small>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-
-                                            <div class="row align-items-center mb-0">
-                                                <div class="col-12 col-md-4 mb-1 mb-md-0">
-                                                    <strong class="d-block">Student Details</strong>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-1 mb-md-0">
-                                                    <input type="number" name="card_school_detail_font_size" id="cardSchoolDetailFontSize" class="form-control form-control-sm id-card-settings-control csm-input" min="1" step="0.1" value="{{ old('card_school_detail_font_size', $cardSettings?->card_school_detail_font_size ?? 5.4) }}">
-                                                </div>
-                                                <div class="col-12 col-md-5">
-                                                    <div class="id-card-settings-color-row">
-                                                        <input type="color" name="card_school_detail_text_color" id="cardSchoolDetailColor" class="id-card-settings-color-native csm-color-native" value="{{ old('card_school_detail_text_color', $cardSettings?->card_school_detail_text_color ?? '#e5e7eb') }}">
-                                                        <span id="cardSchoolDetailColorPreview" class="id-card-settings-color-preview d-inline-block rounded ml-2" style="background: {{ old('card_school_detail_text_color', $cardSettings?->card_school_detail_text_color ?? '#e5e7eb') }};"></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="row align-items-center mb-0">
-                                                <div class="col-12 col-md-4 mb-1 mb-md-0">
-                                                    <strong class="d-block">Slogan</strong>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-1 mb-md-0">
-                                                    <input type="number" name="card_slogan_font_size" id="cardSloganFontSize" class="form-control form-control-sm id-card-settings-control csm-input" min="1" step="0.1" value="{{ old('card_slogan_font_size', $cardSettings?->card_slogan_font_size ?? 4.8) }}">
-                                                </div>
-                                                <div class="col-12 col-md-5">
-                                                    <div class="id-card-settings-color-row">
-                                                        <input type="color" name="card_slogan_text_color" id="cardSloganColor" class="id-card-settings-color-native csm-color-native" value="{{ old('card_slogan_text_color', $cardSettings?->card_slogan_text_color ?? '#e5e7eb') }}">
-                                                        <span id="cardSloganColorPreview" class="id-card-settings-color-preview d-inline-block rounded ml-2" style="background: {{ old('card_slogan_text_color', $cardSettings?->card_slogan_text_color ?? '#e5e7eb') }};"></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="row align-items-center mb-0">
-                                                <div class="col-12 col-md-4 mb-1 mb-md-0">
-                                                    <strong class="d-block">Card Title</strong>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-1 mb-md-0">
-                                                    <input type="number" name="card_title_font_size" id="cardTitleFontSize" class="form-control form-control-sm id-card-settings-control csm-input" min="1" step="0.1" value="{{ old('card_title_font_size', $cardSettings?->card_title_font_size ?? 4.7) }}">
-                                                </div>
-                                                <div class="col-12 col-md-5">
-                                                    <div class="id-card-settings-color-row">
-                                                        <input type="color" name="card_title_text_color" id="cardTitleColor" class="id-card-settings-color-native csm-color-native" value="{{ old('card_title_text_color', $cardSettings?->card_title_text_color ?? '#ffffff') }}">
-                                                        <span id="cardTitleColorPreview" class="id-card-settings-color-preview d-inline-block rounded ml-2" style="background: {{ old('card_title_text_color', $cardSettings?->card_title_text_color ?? '#ffffff') }};"></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="row align-items-center mb-0">
-                                                <div class="col-12 col-md-4 mb-1 mb-md-0">
-                                                    <strong class="d-block">{{ $employeeMode ? 'Employee Name' : 'Student Name' }}</strong>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-1 mb-md-0">
-                                                    <input type="number" name="card_name_font_size" id="cardNameFontSize" class="form-control form-control-sm id-card-settings-control csm-input" min="1" step="0.1" value="{{ old('card_name_font_size', $cardSettings?->card_name_font_size ?? 7.2) }}">
-                                                </div>
-                                                <div class="col-12 col-md-5">
-                                                    <div class="id-card-settings-color-row">
-                                                        <input type="color" name="card_name_text_color" id="cardNameColor" class="id-card-settings-color-native csm-color-native" value="{{ old('card_name_text_color', $cardSettings?->card_name_text_color ?? '#1e3a5f') }}">
-                                                        <span id="cardNameColorPreview" class="id-card-settings-color-preview d-inline-block rounded ml-2" style="background: {{ old('card_name_text_color', $cardSettings?->card_name_text_color ?? '#1e3a5f') }};"></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="row align-items-center mb-0">
-                                                <div class="col-12 col-md-4 mb-1 mb-md-0">
-                                                    <strong class="d-block">{{ $employeeMode ? 'Employee Detail' : 'Student Detail' }}</strong>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-1 mb-md-0">
-                                                    <input type="number" name="card_student_detail_font_size" id="cardStudentDetailFontSize" class="form-control form-control-sm id-card-settings-control csm-input" min="1" step="0.1" value="{{ old('card_student_detail_font_size', $cardSettings?->card_student_detail_font_size ?? 8.5) }}">
-                                                </div>
-                                                <div class="col-12 col-md-5">
-                                                    <div class="id-card-settings-color-row">
-                                                        <input type="color" name="card_student_detail_text_color" id="cardStudentDetailColor" class="id-card-settings-color-native csm-color-native" value="{{ old('card_student_detail_text_color', $cardSettings?->card_student_detail_text_color ?? '#111827') }}">
-                                                        <span id="cardStudentDetailColorPreview" class="id-card-settings-color-preview d-inline-block rounded ml-2" style="background: {{ old('card_student_detail_text_color', $cardSettings?->card_student_detail_text_color ?? '#111827') }};"></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="row align-items-center mb-0">
-                                                <div class="col-12 col-md-4 mb-1 mb-md-0">
-                                                    <strong class="d-block">{{ $employeeMode ? 'Employee Detail Alignment' : 'Student Detail Alignment' }}</strong>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-1 mb-md-0">
-                                                    <select name="card_student_detail_alignment" id="cardStudentDetailAlignment" class="form-control form-control-sm id-card-settings-control csm-select">
-                                                        <option value="left" {{ old('card_student_detail_alignment', $cardSettings?->card_student_detail_alignment ?? 'left') === 'left' ? 'selected' : '' }}>Left</option>
-                                                        <option value="center" {{ old('card_student_detail_alignment', $cardSettings?->card_student_detail_alignment ?? 'left') === 'center' ? 'selected' : '' }}>Center</option>
-                                                        <option value="right" {{ old('card_student_detail_alignment', $cardSettings?->card_student_detail_alignment ?? 'left') === 'right' ? 'selected' : '' }}>Right</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <hr class="my-3">
-
-                                            <div class="row align-items-center mb-0">
-                                                <div class="col-12 col-md-4 mb-1 mb-md-0">
-                                                    <strong class="d-block">Back Notice</strong>
-                                                </div>
-                                                <div class="col-12 col-md-8">
-                                                    <div class="id-card-settings-color-row">
-                                                        <input type="color" name="card_back_notice_text_color" id="cardBackNoticeColor" class="id-card-settings-color-native csm-color-native" value="{{ old('card_back_notice_text_color', $cardSettings?->card_back_notice_text_color ?? '#94a3b8') }}">
-                                                        <span id="cardBackNoticeColorPreview" class="id-card-settings-color-preview d-inline-block rounded ml-2" style="background: {{ old('card_back_notice_text_color', $cardSettings?->card_back_notice_text_color ?? '#94a3b8') }};"></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="row align-items-center mt-3 mb-0">
-                                                <div class="col-12 col-md-4 mb-1 mb-md-0">
-                                                    <strong class="d-block">Footer</strong>
-                                                </div>
-                                                <div class="col-12 col-md-8">
-                                                    <div class="id-card-settings-color-row">
-                                                        <input type="color" name="card_footer_text_color" id="cardFooterColor" class="id-card-settings-color-native csm-color-native" value="{{ old('card_footer_text_color', $cardSettings?->card_footer_text_color ?? '#e5e7eb') }}">
-                                                        <span id="cardFooterColorPreview" class="id-card-settings-color-preview d-inline-block rounded ml-2" style="background: {{ old('card_footer_text_color', $cardSettings?->card_footer_text_color ?? '#e5e7eb') }};"></span>
-                                                    </div>
+                                                <div class="card-body">
+                                                    @foreach($backColours as [$label, $where, $name, $id, $default])
+                                                        <div class="row align-items-center mb-3">
+                                                            <div class="col-12 col-md-5 mb-1 mb-md-0">
+                                                                <strong class="d-block">{{ $label }}</strong>
+                                                                <small class="text-muted">{{ $where }}</small>
+                                                            </div>
+                                                            <div class="col-12 col-md-7">
+                                                                <div class="id-card-settings-color-row">
+                                                                    <input type="color" name="{{ $name }}" id="{{ $id }}" class="id-card-settings-color-native csm-color-native" value="{{ $typo($name, $default) }}">
+                                                                    <span id="{{ $id }}Preview" class="id-card-settings-color-preview d-inline-block rounded ml-2" style="background: {{ $typo($name, $default) }};"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                    <p class="id-card-settings-note mb-0">
+                                                        The back's section titles use the card colour (Background tab). Its header, title badge and
+                                                        detail rows use the sizes and colours set on the Front side.
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -540,32 +545,33 @@
                                 </div>
 
                                 <div class="tab-pane fade" id="idCardVisibilityPane" role="tabpanel" aria-labelledby="idCardVisibilityTab">
-                                    <div class="card mb-2 shadow-sm">
-                                        <div class="card-header id-card-settings-section-header">
-                                            <div class="d-flex align-items-center">
-                                                <span class="badge badge-primary mr-2"><i class="fas fa-eye"></i></span>
-                                                <h6 class="mb-0 font-weight-bold">Visibility</h6>
+                                    @foreach(['front' => ['Front side', 'fa-id-card'], 'back' => ['Back side', 'fa-clone']] as $side => [$sideTitle, $sideIcon])
+                                        <div class="card mb-2 shadow-sm">
+                                            <div class="card-header id-card-settings-section-header">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="badge badge-primary mr-2"><i class="fas {{ $sideIcon }}"></i></span>
+                                                    <h6 class="mb-0 font-weight-bold">Visibility — {{ $sideTitle }}</h6>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                @foreach($visibilityRows as $row)
-                                                    <div class="col-12 col-sm-6 col-lg-4 mb-2">
-                                                        <div class="custom-control custom-switch">
-                                                            <input
-                                                                type="checkbox"
-                                                                class="custom-control-input"
-                                                                name="{{ $row['name'] }}"
-                                                                id="{{ $row['id'] }}"
-                                                                {{ old($row['name'], $cardSettings?->{$row['name']} ?? true) ? 'checked' : '' }}>
-                                                            <label class="custom-control-label" for="{{ $row['id'] }}">{{ $row['label'] }}</label>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    @foreach(array_filter($visibilityRows, fn ($row) => $row['side'] === $side) as $row)
+                                                        <div class="col-12 col-sm-6 col-lg-4 mb-2">
+                                                            <div class="custom-control custom-switch">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    class="custom-control-input"
+                                                                    name="{{ $row['name'] }}"
+                                                                    id="{{ $row['id'] }}"
+                                                                    {{ old($row['name'], $cardSettings?->{$row['name']} ?? ($row['default'] ?? true)) ? 'checked' : '' }}>
+                                                                <label class="custom-control-label" for="{{ $row['id'] }}">{{ $row['label'] }}</label>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                @endforeach
+                                                    @endforeach
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
+                                    @endforeach
 
                                 <p class="id-card-settings-note">These settings are saved once and used by search and PDF output.</p>
                             </div>
@@ -574,7 +580,22 @@
                 </div>
 
                 <div class="modal-footer id-card-settings-modal-footer card-settings-modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    <div class="mr-auto d-flex flex-wrap align-items-center" style="gap:8px">
+                        <button type="button" class="btn btn-outline-warning" id="idCardResetDefaults" title="Restore the standard ID card preset (then press Save Settings)">
+                            <i class="fas fa-undo mr-1"></i>Reset to defaults
+                        </button>
+                        @unless($employeeMode)
+                            <button type="button" class="btn btn-outline-secondary" id="idCardCopySettings" title="Copy layout, colours and visibility from the other card type (then press Save Settings)">
+                                <i class="fas fa-copy mr-1"></i>Copy from <span id="idCardCopySourceLabel">{{ $isLibraryCard ? 'ID card' : 'Library card' }}</span>
+                            </button>
+                        @endunless
+                    </div>
+                    <span id="idCardFooterDirty" class="csm-dirty d-none" role="status"><i class="fas fa-circle"></i>Unsaved changes</span>
+                    @if($settingsOnly)
+                        <a href="{{ $settingsBackUrl }}" class="btn btn-outline-secondary js-id-card-settings-back">Back to cards</a>
+                    @else
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    @endif
                     <button type="submit" class="btn btn-primary">Save Settings</button>
                 </div>
             </form>

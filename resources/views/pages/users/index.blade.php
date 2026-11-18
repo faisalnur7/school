@@ -51,7 +51,10 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @php($actorIsPlatformAdmin = auth()->user()?->isPlatformAdmin())
                             @foreach ($users as $user)
+                                @php($canManage = ! $user->role?->is_reserved || ($actorIsPlatformAdmin && ! $user->role->isPlatformAdmin()))
+                                @php($isSuperAdmin = $user->is_super_admin || $user->role?->isInstituteSuperAdmin())
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>
@@ -74,6 +77,7 @@
                                         @endif
                                     </td>
                                     <td>
+                                        @if ($canManage)
                                         <form action="{{ route('users.toggle-status', $user->id) }}" method="POST" class="mb-0">
                                             @csrf
                                             <div class="custom-control custom-switch">
@@ -87,11 +91,25 @@
                                                 <label class="custom-control-label" for="userStatusSwitch{{ $user->id }}"></label>
                                             </div>
                                         </form>
+                                        @else
+                                            <span class="badge {{ $user->is_active ? 'badge-success' : 'badge-secondary' }}">{{ $user->is_active ? 'Active' : 'Inactive' }}</span>
+                                        @endif
                                     </td>
                                     <td style="display: flex; justify-content: center; align-items: center; gap: 5px;">
-                                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-dark">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
+                                        @if ($canManage)
+                                            <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-dark">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        @endif
+                                        @if ($actorIsPlatformAdmin && $isSuperAdmin && $canManage)
+                                            <form action="{{ route('users.revoke-super-admin', $user->id) }}" method="POST" class="mb-0"
+                                                onsubmit="return confirm({{ Js::from('Withdraw Super Admin from '.$user->name.'?') }})">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Withdraw Super Admin">
+                                                    <i class="fas fa-user-slash"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                         @if ($selectedRole === 'make-super-admin' && auth()->user()?->is_super_admin)
                                             <form action="{{ route('users.make-super-admin', $user->id) }}" method="POST" class="mb-0">
                                                 @csrf
