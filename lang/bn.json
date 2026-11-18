@@ -586,5 +586,18 @@
     "Optional": "ঐচ্ছিক",
     "Status": "স্ট্যাটাস",
     "Active": "সক্রিয়",
-    "Inactive": "নিষ্ক্রিয়"
+    "Inactive": "নিষ্ক্রিয়",
+    "Finance": "অর্থ",
+    "Operations": "পরিচালনা",
+    "Administration": "প্রশাসন",
+    "Platform": "প্ল্যাটফর্ম",
+    "Admissions": "ভর্তি",
+    "Exams & Results": "পরীক্ষা ও ফলাফল",
+    "Income & Expense": "আয় ও ব্যয়",
+    "Assets & Facilities": "সম্পদ ও সুবিধাদি",
+    "Users & Roles": "ব্যবহারকারী ও ভূমিকা",
+    "Enroll a student directly into the current session": "চলতি সেশনে সরাসরি শিক্ষার্থী ভর্তি করুন",
+    "Platform Admins": "প্ল্যাটফর্ম অ্যাডমিন",
+    "Mobile App Settings": "মোবাইল অ্যাপ সেটিংস",
+    "Website Management": "ওয়েবসাইট ব্যবস্থাপনা"
 }

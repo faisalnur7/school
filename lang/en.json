@@ -605,5 +605,18 @@
     "Optional": "Optional",
     "Status": "Status",
     "Active": "Active",
-    "Inactive": "Inactive"
+    "Inactive": "Inactive",
+    "Finance": "Finance",
+    "Operations": "Operations",
+    "Administration": "Administration",
+    "Platform": "Platform",
+    "Admissions": "Admissions",
+    "Exams & Results": "Exams & Results",
+    "Income & Expense": "Income & Expense",
+    "Assets & Facilities": "Assets & Facilities",
+    "Users & Roles": "Users & Roles",
+    "Enroll a student directly into the current session": "Enroll a student directly into the current session",
+    "Platform Admins": "Platform Admins",
+    "Mobile App Settings": "Mobile App Settings",
+    "Website Management": "Website Management"
 }

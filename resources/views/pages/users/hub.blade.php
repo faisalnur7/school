@@ -11,7 +11,7 @@
                 <i class="fas fa-users-cog text-white text-4xl"></i>
             </div>
             <div>
-                <h3 class="text-white text-3xl font-bold m-0">{{ __('User & Roles') }}</h3>
+                <h3 class="text-white text-3xl font-bold m-0">{{ __('Users & Roles') }}</h3>
                 <p class="text-sky-100 text-base mt-1 mb-0">{{ __('Manage users, roles & permissions') }}</p>
             </div>
         </div>

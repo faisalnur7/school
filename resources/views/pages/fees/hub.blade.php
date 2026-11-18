@@ -13,7 +13,7 @@
                 <i class="fas fa-money-bill text-white text-4xl"></i>
             </div>
             <div>
-                <h3 class="text-white text-3xl font-bold m-0">{{ __('Fees Management') }}</h3>
+                <h3 class="text-white text-3xl font-bold m-0">{{ __('Fees') }}</h3>
                 <p class="text-amber-100 text-base mt-1 mb-0">{{ __('Manage fees, payments & collections') }}</p>
             </div>
         </div>

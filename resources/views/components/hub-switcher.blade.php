@@ -3,16 +3,16 @@
         ['label' => __('Academics'), 'icon' => 'fa-school', 'route' => 'academics.hub', 'permission' => 'view_academics', 'match' => ['academics.hub', 'classes.*', 'sections.*', 'groups.*', 'sessions.*', 'subjects.*', 'classrooms.*', 'routines.*', 'class-schedules.*']],
         ['label' => __('Admissions'), 'icon' => 'fa-user-plus', 'route' => 'admissions.hub', 'permission' => 'view_admission_management', 'match' => ['admissions.*']],
         ['label' => __('Students'), 'icon' => 'fa-user-graduate', 'route' => 'students.hub', 'permission' => 'view_students', 'match' => ['students.*', 'teacher-section-assignments.*']],
-        ['label' => __('Results'), 'icon' => 'fa-poll', 'route' => 'results.hub', 'permission' => 'view_results', 'match' => ['results.*', 'exams.*', 'student-subjects.*', 'result.*']],
         ['label' => __('Attendance'), 'icon' => 'fa-clipboard-check', 'route' => 'attendance.hub', 'permission' => 'view_attendance', 'match' => ['attendance.*']],
+        ['label' => __('Exams & Results'), 'icon' => 'fa-poll', 'route' => 'results.hub', 'permission' => 'view_results', 'match' => ['results.*', 'exams.*', 'student-subjects.*', 'result.*']],
         ['label' => __('Fees'), 'icon' => 'fa-coins', 'route' => 'fees.hub', 'permission' => 'view_fees', 'match' => ['fees.*', 'fee-categories.*', 'fee-sets.*', 'scholarships.*', 'free-studentships.*', 'transports.*', 'payments.*']],
+        ['label' => __('Income & Expense'), 'icon' => 'fa-chart-line', 'route' => 'financials.hub', 'permission' => 'view_financials', 'match' => ['financials.*', 'incomes.*', 'expenses.*', 'income-categories.*', 'expense-categories.*', 'shareholder-transactions.*', 'shareholders.*']],
         ['label' => __('Accounts'), 'icon' => 'fa-book', 'route' => 'accounts.hub', 'permission' => 'view_accounts', 'match' => ['accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*', 'transactions.*']],
         ['label' => __('HR'), 'icon' => 'fa-users', 'route' => 'hr.hub', 'permission' => 'view_hr', 'match' => ['hr.*']],
         ['label' => __('Inventory'), 'icon' => 'fa-boxes', 'route' => 'inventory.hub', 'permission' => 'view_inventory', 'match' => ['inventory.*']],
-        ['label' => __('Financials'), 'icon' => 'fa-chart-line', 'route' => 'financials.hub', 'permission' => 'view_financials', 'match' => ['financials.*', 'incomes.*', 'expenses.*', 'income-categories.*', 'expense-categories.*', 'shareholder-transactions.*', 'shareholders.*']],
         ['label' => __('Assets'), 'icon' => 'fa-building', 'route' => 'assets.hub', 'permission' => 'view_assets', 'match' => ['assets.*', 'asset-categories.*', 'asset-purchases.*', 'asset-issues.*', 'facilities.*']],
-        ['label' => __('Settings'), 'icon' => 'fa-cogs', 'route' => 'institute.hub', 'permission' => 'view_institute_settings', 'match' => ['institute.*', 'school-settings.*', 'certificates.*', 'id-card-templates.*', 'buildings.*', 'rooms.*', 'location.*', 'division.*', 'district.*', 'police-station.*', 'post-office.*']],
         ['label' => __('Users'), 'icon' => 'fa-user-cog', 'route' => 'users.hub', 'permission' => 'view_users', 'match' => ['users.*', 'roles.*', 'permissions.*', 'permission-categories.*']],
+        ['label' => __('Settings'), 'icon' => 'fa-cogs', 'route' => 'institute.hub', 'permission' => 'view_institute_settings', 'match' => ['institute.*', 'school-settings.*', 'certificates.*', 'id-card-templates.*', 'buildings.*', 'rooms.*', 'location.*', 'division.*', 'district.*', 'police-station.*', 'post-office.*']],
     ];
 
     $hubModules = collect($hubModules)->filter(fn ($module) => \Illuminate\Support\Facades\Route::has($module['route']) && auth()->user()?->hasPermission($module['permission']))->values();
@@ -40,7 +40,7 @@
             ['label' => __('Converted Admissions'), 'route' => 'admissions.converted', 'permission' => 'view_converted_admissions', 'match' => ['admissions.converted']],
         ],
         'students.hub' => [
-            ['label' => __('New Admission'), 'route' => 'students.admission', 'permission' => 'view_card_new_admission', 'match' => ['students.admission']],
+            ['label' => __('Add Student'), 'route' => 'students.admission', 'permission' => 'view_card_new_admission', 'match' => ['students.admission']],
             ['label' => __('Student List'), 'route' => 'students.index', 'permission' => 'view_card_student_list', 'match' => ['students.index', 'students.show']],
             ['label' => __('Assign Teacher'), 'route' => 'teacher-section-assignments.index', 'permission' => 'view_card_assign_teacher', 'match' => ['teacher-section-assignments.*']],
             ['label' => __('Generate ID Cards'), 'route' => 'students.id-cards', 'permission' => 'view_card_generate_id_cards', 'match' => ['students.id-cards']],
