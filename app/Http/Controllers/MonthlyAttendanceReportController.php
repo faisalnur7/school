@@ -13,6 +13,7 @@ use App\Models\Section;
 use App\Models\StudentAcademicInformation;
 use App\Models\TeacherSectionAssignment;
 use App\Models\WeekendSetting;
+use App\Support\CardImage;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
@@ -77,15 +78,40 @@ class MonthlyAttendanceReportController extends Controller
         $data['section']  = Section::find($sectionId);
         $data['monthLabel'] = Carbon::createFromFormat('Y-m', $month)->format('F Y');
 
+        $logoPath = $data['school']->logo ? public_path($data['school']->logo) : null;
+        // Fit the logo to a small box (cached on disk) so mPDF never has to decode a huge original.
+        $data['logoPath'] = $logoPath && is_file($logoPath) ? CardImage::fit($logoPath, 1.6, 1.6, 'contain') : null;
+
         $html = view('pages.attendance.pdf.monthly-report', $data)->render();
 
+        $tempDir = storage_path('app/mpdf');
+        if (!is_dir($tempDir)) {
+            @mkdir($tempDir, 0775, true);
+        }
+
         $mpdf = new \Mpdf\Mpdf([
-            'orientation' => 'L',
-            'margin_top'  => 8,
-            'margin_bottom' => 8,
+            'mode'          => 'utf-8',
+            'format'        => 'A4-L',
+            'margin_top'    => 8,
+            'margin_bottom' => 14,
             'margin_left'   => 8,
             'margin_right'  => 8,
+            'margin_footer' => 5,
+            'tempDir'       => $tempDir,
+            // Speed: skip per-character font/script detection and glyph substitution scans.
+            'useSubstitutions' => false,
+            'autoScriptToLang' => false,
+            'autoLangToFont'   => false,
+            'useKerning'       => false,
+            'packTableData'    => true,
+            'shrink_tables_to_fit' => 0,
         ]);
+        $mpdf->SetTitle('Monthly Attendance - ' . $data['monthLabel']);
+        $mpdf->SetHTMLFooter(
+            '<table width="100%" style="font-size:7pt;color:#94a3b8;"><tr>'
+            . '<td>Generated ' . e(now()->format('d M Y, h:i A')) . '</td>'
+            . '<td align="right">Page {PAGENO} of {nbpg}</td></tr></table>'
+        );
         $mpdf->WriteHTML($html);
         $filename = 'attendance_' . $month . '.pdf';
 
@@ -110,8 +136,22 @@ class MonthlyAttendanceReportController extends Controller
             ->map(fn ($d) => $d->toDateString())
             ->flip();
 
+        // Dates that already have saved attendance for this section always count as working days,
+        // even if they fall on a weekend/holiday (e.g. the weekend setting changed afterwards).
+        $attendances = Attendance::query()
+            ->where('session_id', $sessionId)
+            ->where('class_id', $classId)
+            ->where('section_id', $sectionId)
+            ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->get(['id', 'date']);
+
+        $attendanceIdByDate = $attendances->mapWithKeys(
+            fn ($a) => [$a->date->toDateString() => $a->id]
+        );
+
         $nonWorkingDates = $allDates
-            ->filter(fn ($d) => in_array($d->dayOfWeek, $weekendDays) || isset($holidayDates[$d->toDateString()]))
+            ->filter(fn ($d) => (in_array($d->dayOfWeek, $weekendDays, true) || isset($holidayDates[$d->toDateString()]))
+                && !isset($attendanceIdByDate[$d->toDateString()]))
             ->map(fn ($d) => $d->toDateString())
             ->flip();
 
@@ -128,19 +168,8 @@ class MonthlyAttendanceReportController extends Controller
             ->filter(fn ($i) => (bool) $i->student)
             ->values();
 
-        $attendances = Attendance::query()
-            ->where('session_id', $sessionId)
-            ->where('class_id', $classId)
-            ->where('section_id', $sectionId)
-            ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
-            ->pluck('id', 'date');
-
-        $attendanceIdByDate = $attendances->mapWithKeys(
-            fn ($id, $date) => [Carbon::parse($date)->toDateString() => $id]
-        );
-
         $items = AttendanceItem::query()
-            ->whereIn('attendance_id', $attendances->values())
+            ->whereIn('attendance_id', $attendanceIdByDate->values())
             ->get(['attendance_id', 'student_id', 'status']);
 
         $statusMap = [];

@@ -1,6 +1,6 @@
 @php($renderForPdf = $renderForPdf ?? false)
 @page {
-    size: A4 landscape;
+    size: {{ $pageCss ?? 'A4 landscape' }};
     margin: 1cm 0.8cm 0.8cm 0.8cm;
 }
 
@@ -56,6 +56,7 @@
 }
 
 .id-card__header {
+    flex-shrink: 0;
     padding: var(--id-card-front-padding, 0.22cm);
     display: flex;
     align-items: center;
@@ -63,6 +64,7 @@
 }
 
 .id-card__header--front {
+    padding: var(--id-card-front-header-padding, 0.3cm);
     background: {{ $renderForPdf ? 'var(--card-theme-accent, #1e3a5f)' : 'var(--card-theme-bg, linear-gradient(135deg, #1e3a5f, #2563eb))' }};
     flex-direction: column;
     text-align: var(--id-card-front-align, center);
@@ -72,6 +74,7 @@
 }
 
 .id-card__header--back {
+    padding: var(--id-card-back-header-padding, 0.3cm);
     background: {{ $renderForPdf ? 'var(--card-theme-accent, #1e3a5f)' : 'var(--card-theme-bg, linear-gradient(135deg, #1e3a5f, #2563eb))' }};
     justify-content: center;
     min-height: 1.3cm;
@@ -103,6 +106,14 @@
     color: var(--id-card-slogan-color, var(--id-card-school-detail-color, #e5e7eb));
 }
 
+.id-card__school-detail {
+    font-size: var(--id-card-school-detail-font-size, 5.4pt);
+    line-height: 1.12;
+    color: var(--id-card-school-detail-color, #e5e7eb);
+    text-align: center;
+    word-break: break-word;
+}
+
 .id-card__label-badge {
     display: inline-block;
     margin-top: 0.1cm;
@@ -119,6 +130,7 @@
 
 .id-card__front-body {
     flex: 1;
+    min-height: 0;
     padding: var(--id-card-front-padding, 0.2cm);
     display: flex;
     flex-direction: column;
@@ -152,7 +164,7 @@
 .id-card__name-bn {
     text-align: center;
     font-size: 5.4pt;
-    color: var(--id-card-school-detail-color, #475569);
+    color: var(--id-card-student-detail-color, var(--id-card-school-detail-color, #475569));
     line-height: 1.12;
     margin-top: 0.03cm;
     word-break: break-word;
@@ -183,18 +195,18 @@
 
 .id-card__lbl {
     min-width: 0.86cm;
-    font-size: 4.2pt;
+    font-size: var(--id-card-detail-label-font-size, 4.2pt);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: var(--id-card-school-detail-color, #94a3b8);
+    color: var(--id-card-student-detail-color, var(--id-card-school-detail-color, #94a3b8));
     flex-shrink: 0;
 }
 
 .id-card__val {
-    font-size: 4.6pt;
+    font-size: var(--id-card-detail-font-size, 4.6pt);
     font-weight: 700;
-    color: var(--id-card-school-detail-color, #1e293b);
+    color: var(--id-card-student-detail-color, var(--id-card-school-detail-color, #1e293b));
     word-break: break-word;
 }
 
@@ -203,6 +215,7 @@
 }
 
 .id-card__footer {
+    flex-shrink: 0;
     margin-top: auto;
     min-height: 0.25cm;
     padding: 0.13cm 0.18cm;
@@ -231,6 +244,7 @@
 
 .id-card__back-body {
     flex: 1;
+    min-height: 0;
     padding: var(--id-card-back-padding, 0.17cm);
     display: flex;
     flex-direction: column;
@@ -251,14 +265,14 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--id-card-title-color, var(--card-theme-accent, #1e3a5f));
-    border-bottom: 0.025cm solid var(--id-card-title-color, var(--card-theme-accent, #1e3a5f));
+    color: var(--id-card-back-title-color, var(--card-theme-accent, #1e3a5f));
+    border-bottom: 0.025cm solid var(--id-card-back-title-color, var(--card-theme-accent, #1e3a5f));
     padding-bottom: 0.08cm;
 }
 
 .id-card__back-row .id-card__lbl {
     min-width: 1cm;
-    font-size: 4.1pt;
+    font-size: var(--id-card-back-label-font-size, var(--id-card-detail-label-font-size, 4.1pt));
 }
 
 .id-card__back-row .id-card__val {

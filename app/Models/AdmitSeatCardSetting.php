@@ -33,6 +33,8 @@ class AdmitSeatCardSetting extends Model
         'card_back_alignment',
         'card_front_padding_value',
         'card_back_padding_value',
+        'card_front_header_padding_value',
+        'card_back_header_padding_value',
         'card_photo_width_value',
         'card_photo_height_value',
         'card_photo_fit',
@@ -52,6 +54,8 @@ class AdmitSeatCardSetting extends Model
         'card_footer_font_size',
         'card_student_detail_alignment',
         'card_student_detail_font_size',
+        'card_page_size',
+        'card_page_orientation',
         'card_student_detail_text_color',
         'card_text_padding_value',
         'card_text_margin_value',
@@ -107,6 +111,102 @@ class AdmitSeatCardSetting extends Model
         'card_show_back_notice',
     ];
 
+    /** Elements of the ID / library / employee card that can be dragged in the settings preview. */
+    public const ID_CARD_POSITION_KEYS = [
+        'front_logo', 'front_school_name', 'front_school_detail', 'front_slogan', 'front_title', 'front_photo',
+        'front_name', 'front_details', 'front_footer',
+        'back_logo', 'back_school_name', 'back_slogan', 'back_title', 'back_details',
+        'back_contact', 'back_qr', 'back_notice', 'back_signature', 'back_footer',
+    ];
+
+    /**
+     * Keep only known elements and clamp each offset (mm) so a bad request can never push content off the card.
+     *
+     * @return array<string, array{x: float, y: float}>
+     */
+    public static function sanitizeIdCardPositions(mixed $input): array
+    {
+        $input = is_array($input) ? $input : [];
+        $positions = [];
+
+        foreach (self::ID_CARD_POSITION_KEYS as $key) {
+            $x = max(-100, min(100, (float) data_get($input, "$key.x", 0)));
+            $y = max(-100, min(100, (float) data_get($input, "$key.y", 0)));
+            if ($x !== 0.0 || $y !== 0.0) {
+                $positions[$key] = ['x' => round($x, 2), 'y' => round($y, 2)];
+            }
+        }
+
+        return $positions;
+    }
+
+    /**
+     * Standard CR80 (credit-card size, portrait) student ID card preset.
+     * Used by "Reset to defaults" in the ID-card settings modal.
+     */
+    public static function idCardDefaults(): array
+    {
+        return [
+            'cards_per_page' => 4,
+            'cards_per_row' => 2,
+            'card_width_value' => 5.4,
+            'card_height_value' => 8.56,
+            'grid_gap_value' => 0.5,
+            'card_dimension_unit' => 'cm',
+            'card_page_size' => 'a4',
+            'card_page_orientation' => 'landscape',
+            'card_front_alignment' => 'center',
+            'card_back_alignment' => 'center',
+            'card_front_padding_value' => 0.8,
+            'card_back_padding_value' => 0.8,
+            'card_front_header_padding_value' => 0.3,
+            'card_back_header_padding_value' => 0.3,
+            'card_photo_width_value' => 1.8,
+            'card_photo_height_value' => 2.7,
+            'card_photo_fit' => 'cover',
+            'card_logo_size_value' => 0.8,
+            'card_logo_fit' => 'contain',
+            'card_school_name_font_size' => 7.2,
+            'card_school_detail_font_size' => 5.4,
+            'card_slogan_font_size' => 4.8,
+            'card_title_font_size' => 4.7,
+            'card_name_font_size' => 7.2,
+            'card_student_detail_alignment' => 'left',
+            'card_student_detail_font_size' => 4.6,
+            'card_student_detail_text_color' => '#111827',
+            'card_is_transparent' => false,
+            'card_color_type' => 'gradient',
+            'card_color_gradient_1' => '#1e3a5f',
+            'card_color_gradient_2' => '#2563eb',
+            'card_solid_color' => '#1e3a5f',
+            'card_school_name_text_color' => '#ffffff',
+            'card_school_detail_text_color' => '#e5e7eb',
+            'card_slogan_text_color' => '#e5e7eb',
+            'card_name_text_color' => '#1e3a5f',
+            'card_back_notice_text_color' => '#94a3b8',
+            'card_footer_text_color' => '#e5e7eb',
+            'card_title_text_color' => '#ffffff',
+            'card_element_positions' => [],
+            'card_show_logo_front' => true,
+            'card_show_logo_back' => true,
+            'card_show_photo_front' => true,
+            // The ID card has no front address line unless the school turns it on.
+            'card_show_school_detail_front' => false,
+            'card_show_school_detail_back' => true,
+            'card_show_slogan_front' => true,
+            'card_show_slogan_back' => true,
+            'card_show_title_front' => true,
+            'card_show_title_back' => true,
+            'card_show_footer_front' => true,
+            'card_show_footer_back' => true,
+            'card_show_back_student_details' => true,
+            'card_show_back_school_contact' => true,
+            'card_show_back_qr' => true,
+            'card_show_back_signature' => true,
+            'card_show_back_notice' => true,
+        ];
+    }
+
     public static function current(int $cardType = 1): self
     {
         $cardType = in_array($cardType, [1, 2, 3, 4, 5], true) ? $cardType : 1;
@@ -125,6 +225,8 @@ class AdmitSeatCardSetting extends Model
             'card_back_alignment' => $setting->card_back_alignment ?? 'center',
             'card_front_padding_value' => $setting->card_front_padding_value ?? 0.8,
             'card_back_padding_value' => $setting->card_back_padding_value ?? 0.8,
+            'card_front_header_padding_value' => $setting->card_front_header_padding_value ?? 0.3,
+            'card_back_header_padding_value' => $setting->card_back_header_padding_value ?? 0.3,
             'card_photo_width_value' => $setting->card_photo_width_value ?? 1.8,
             'card_photo_height_value' => $setting->card_photo_height_value ?? 2.7,
             'card_photo_fit' => $setting->card_photo_fit ?? 'cover',
@@ -143,7 +245,8 @@ class AdmitSeatCardSetting extends Model
             'card_exam_name_font_size' => $setting->card_exam_name_font_size ?? 6.8,
             'card_footer_font_size' => $setting->card_footer_font_size ?? 4.5,
             'card_student_detail_alignment' => $setting->card_student_detail_alignment ?? 'left',
-            'card_student_detail_font_size' => $setting->card_student_detail_font_size ?? 8.5,
+            // ID / library / employee cards are much smaller than admit & seat cards.
+            'card_student_detail_font_size' => $setting->card_student_detail_font_size ?? (in_array($cardType, [3, 4, 5], true) ? 4.6 : 8.5),
             'card_student_detail_text_color' => $setting->card_student_detail_text_color ?? '#111827',
             'card_text_padding_value' => $setting->card_text_padding_value ?? 0,
             'card_text_margin_value' => $setting->card_text_margin_value ?? 0,
@@ -185,7 +288,7 @@ class AdmitSeatCardSetting extends Model
             'card_show_back_school_contact' => $setting->card_show_back_school_contact ?? true,
             'card_show_back_qr' => $setting->card_show_back_qr ?? true,
             'card_show_back_signature' => $setting->card_show_back_signature ?? true,
-            'card_show_school_detail_front' => $setting->card_show_school_detail_front ?? true,
+            'card_show_school_detail_front' => $setting->card_show_school_detail_front ?? !in_array($cardType, [3, 4, 5], true),
             'card_show_school_detail_back' => $setting->card_show_school_detail_back ?? true,
             'card_show_slogan_front' => $setting->card_show_slogan_front ?? true,
             'card_show_slogan_back' => $setting->card_show_slogan_back ?? true,

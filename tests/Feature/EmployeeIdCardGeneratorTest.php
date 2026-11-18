@@ -42,15 +42,23 @@ class EmployeeIdCardGeneratorTest extends TestCase
             ->assertSee('Employee Name')
             ->assertSee('Role')
             ->assertSee('Department')
-            ->assertSee('id-card__label-badge">EMPLOYEE ID', false)
-            ->assertDontSee('id-card__label-badge">STUDENT ID', false)
+            ->assertSee('>EMPLOYEE ID</div>', false)
+            ->assertDontSee('>STUDENT ID</div>', false)
             ->assertDontSee('Student Name')
+            ->assertSee(route('hr.employee-id-cards.settings.edit', ['employee_type' => 'staff', 'employee_search' => 'EMP-001']))
+            ->assertDontSee('id="idCardSettingsModal"', false);
+
+        $this->actingAs($admin)
+            ->get(route('hr.employee-id-cards.settings.edit', ['employee_type' => 'staff', 'employee_search' => 'EMP-001']))
+            ->assertOk()
             ->assertSee('Employee ID Card Settings')
             ->assertSee('Layout &amp; Grid', false)
             ->assertSee('Photo &amp; Logo', false)
             ->assertSee('Typography &amp; Colors', false)
             ->assertSee('Background')
-            ->assertSee('Visibility');
+            ->assertSee('Visibility')
+            ->assertDontSee('Student Name')
+            ->assertSee('Back to cards');
 
         $this->assertStringContainsString(
             'btn-danger',

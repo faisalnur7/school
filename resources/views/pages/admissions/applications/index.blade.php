@@ -83,6 +83,7 @@
 @endphp
 
 <div class="container-fluid py-3 admissions-applications-page">
+    @include('pages.admissions.partials.alerts')
     <div class="applications-hero d-flex flex-wrap justify-content-between align-items-center mb-3 p-4">
         <div>
             <div class="small font-weight-bold text-uppercase" style="letter-spacing:.14em;opacity:.72;">Admission management</div>

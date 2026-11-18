@@ -13,6 +13,17 @@ class EmployeeIdCardController extends Controller
 {
     public function index(Request $request)
     {
+        return $this->renderPage($request, false);
+    }
+
+    /** Dedicated settings page (same view as index, rendered with only the settings form). */
+    public function settings(Request $request)
+    {
+        return $this->renderPage($request, true);
+    }
+
+    private function renderPage(Request $request, bool $settingsOnly)
+    {
         [$employees, $setting, $cardSettings, $layout, $schoolLogoUrl, $cardSettingsPayload] = $this->buildData($request);
 
         return view('pages.generate-id-cards.index', [
@@ -32,6 +43,7 @@ class EmployeeIdCardController extends Controller
             'currentCardLogoUrl' => $this->resolveImageUrl($cardSettings->card_logo) ?: $schoolLogoUrl,
             'currentCardPrincipalSignatureUrl' => $this->resolveImageUrl($cardSettings->card_principal_signature),
             'cardSettingsPayload' => $cardSettingsPayload,
+            'settingsOnly' => $settingsOnly,
         ]);
     }
 
@@ -63,10 +75,12 @@ class EmployeeIdCardController extends Controller
             'allow_charset_conversion' => false,
         ]);
         $mpdf->showImageErrors = true;
+        $mpdf->autoScriptToLang = true;
+        $mpdf->autoLangToFont = true;
         $mpdf->WriteHTML($html);
         return response($mpdf->Output('', 'S'), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="employee-id-cards.pdf"',
+            'Content-Disposition' => ($request->boolean('inline') ? 'inline' : 'attachment') . '; filename="employee-id-cards.pdf"',
         ]);
     }
 
@@ -80,6 +94,8 @@ class EmployeeIdCardController extends Controller
             'grid_gap_value' => ['required', 'numeric', 'min:0.1'],
             'card_dimension_unit' => ['required', 'in:cm,px'],
             'card_color_type' => ['required', 'in:gradient,solid'],
+            'card_front_header_padding_value' => ['nullable', 'numeric', 'min:0', 'max:5'],
+            'card_back_header_padding_value' => ['nullable', 'numeric', 'min:0', 'max:5'],
             'card_logo' => ['nullable', 'image', 'max:100'],
             'card_principal_signature' => ['nullable', 'file', 'mimes:png,jpg,jpeg', 'max:100'],
         ]);
@@ -87,6 +103,11 @@ class EmployeeIdCardController extends Controller
         $setting = AdmitSeatCardSetting::current(5);
         $payload = $request->only($setting->getFillable());
         $payload['card_type'] = 5;
+        $payload['card_element_positions'] = AdmitSeatCardSetting::sanitizeIdCardPositions($request->input('card_element_positions'));
+
+        foreach (['card_front_header_padding_value', 'card_back_header_padding_value'] as $headerPadding) {
+            $payload[$headerPadding] = $request->filled($headerPadding) ? $request->input($headerPadding) : 0.3;
+        }
 
         foreach ([
             'card_is_transparent', 'card_show_logo_front', 'card_show_logo_back', 'card_show_photo_front',
@@ -145,7 +166,7 @@ class EmployeeIdCardController extends Controller
 
         $employees = ($request->filled('employee_type') || $request->filled('employee_search'))
             ? $query->get()
-            : collect();
+            : ($request->boolean('preview') ? $query->limit(1)->get() : collect());
         $setting = SchoolSetting::current();
         $cardSettings = AdmitSeatCardSetting::current(5);
 
@@ -167,7 +188,7 @@ class EmployeeIdCardController extends Controller
         $unit = in_array($settings->card_dimension_unit, ['cm', 'px'], true) ? $settings->card_dimension_unit : 'cm';
         $gap = (float) ($settings->grid_gap_value ?: 0.5);
         $width = (float) ($settings->card_width_value ?: 5.4);
-        $height = (float) ($settings->card_height_value ?: 8.4);
+        $height = (float) ($settings->card_height_value ?: 8.56);
         if ($unit === 'px') {
             $gap = $gap / 96 * 2.54;
             $width = $width / 96 * 2.54;
@@ -178,7 +199,9 @@ class EmployeeIdCardController extends Controller
         $cardsPerRow = max(1, min($cardsPerPage, (int) ($settings->cards_per_row ?: 2)));
         $pageWidth = 28.1;
         $pageHeight = 19.2;
-        $maxCardsPerRow = max(1, (int) floor(($pageWidth + $gap) / ($width + $gap)));
+        // Each slot holds a front and a back card side by side.
+        $slotWidth = ($width * 2) + $gap;
+        $maxCardsPerRow = max(1, (int) floor(($pageWidth + $gap) / ($slotWidth + $gap)));
         $maxPageRows = max(1, (int) floor(($pageHeight + $gap) / ($height + $gap)));
         $cardsPerRow = min($cardsPerRow, $maxCardsPerRow);
         $pageRows = min((int) ceil($cardsPerPage / $cardsPerRow), $maxPageRows);
@@ -188,6 +211,7 @@ class EmployeeIdCardController extends Controller
             'cardsPerPage' => $cardsPerPage,
             'cardsPerRow' => $cardsPerRow,
             'pageRows' => $pageRows,
+            'cardDimensionUnit' => $unit,
             'cardWidthCm' => $width,
             'cardHeightCm' => $height,
             'gridGapCm' => $gap,

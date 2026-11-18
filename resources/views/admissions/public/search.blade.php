@@ -101,9 +101,9 @@
                     <span class="status-badge {{ $application->payment_status === 'paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">Payment: {{ ucfirst(str_replace('_', ' ', $application->payment_status)) }}</span>
                     <div class="public-print-button action-links">
                         <button type="button" onclick="window.print()" class="rounded-xl bg-slate-950 px-4 py-2 font-bold text-white">Print Application</button>
-                        <a href="{{ route('public.admission.application-pdf', $application) }}" class="rounded-xl bg-teal-700 px-4 py-2 font-bold text-white">Export as PDF</a>
+                        <a href="{{ $links['pdf'] }}" class="rounded-xl bg-teal-700 px-4 py-2 font-bold text-white">Export as PDF</a>
                         @if($application->admitCard && $application->payment_status === 'paid')
-                            <a class="rounded-xl bg-cyan-700 px-4 py-2 font-bold text-white" href="{{ route('public.admission.admit-card', $application) }}">Download Admit Card</a>
+                            <a class="rounded-xl bg-cyan-700 px-4 py-2 font-bold text-white" href="{{ $links['admitCard'] }}">Download Admit Card</a>
                         @endif
                     </div>
                 </div>
@@ -182,8 +182,13 @@
                 </div>
             </div>
 
-            @if(!$application->admitCard || $application->payment_status !== 'paid')
-                <p class="public-admit-card-note mt-6 text-sm text-slate-500">Your admit card will appear here after payment is verified and the card is generated.</p>
+            @if($application->payment_status !== 'paid')
+                <div class="public-admit-card-note mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                    Please pay the admission form fee of <strong>{{ number_format((float) ($application->payment?->amount ?? $application->exam?->form_fee ?? 0), 2) }}</strong> in cash at the school office.
+                    Bring your application number (<strong>{{ $application->application_number }}</strong>). Your admit card will be available here after the payment is received.
+                </div>
+            @elseif(!$application->admitCard)
+                <p class="public-admit-card-note mt-6 text-sm text-slate-500">Your payment has been received. Your admit card will appear here once it is generated.</p>
             @endif
         </div>
     @endif
