@@ -12,7 +12,7 @@ class EmployeeDocumentController extends Controller
     {
         $employee  = Employee::findOrFail($employeeId);
         $documents = $employee->documents()->latest()->get();
-        return view('hr.employees.partials.documents', compact('employee', 'documents'));
+        return view('hr.employees.documents', compact('employee', 'documents'));
     }
 
     public function store(Request $request, int $employeeId)

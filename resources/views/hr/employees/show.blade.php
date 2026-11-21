@@ -193,6 +193,9 @@
                 <a href="{{ route('hr.employees.edit', $employee) }}" class="btn btn-warning btn-sm">
                     <i class="fas fa-edit mr-1"></i> Edit
                 </a>
+                <a href="{{ route('hr.employees.documents', $employee->id) }}" class="btn btn-light btn-sm border">
+                    <i class="fas fa-folder-open mr-1"></i> Documents
+                </a>
                 <a href="{{ route('hr.employees.index') }}" class="btn btn-light btn-sm border">
                     <i class="fas fa-arrow-left mr-1"></i> Back
                 </a>

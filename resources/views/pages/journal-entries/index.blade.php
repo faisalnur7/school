@@ -8,9 +8,11 @@
                 <h4 class="card-title mb-0 font-weight-bold text-white">
                     <i class="fas fa-book mr-2"></i>Journal Entries
                 </h4>
-                <a href="{{ route('journal-entries.create') }}" class="btn btn-light btn-sm">
-                    <i class="fas fa-plus mr-1"></i> New Entry
-                </a>
+                @if(Route::has('journal-entries.create'))
+                    <a href="{{ route('journal-entries.create') }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus mr-1"></i> New Entry
+                    </a>
+                @endif
             </div>
         </div>
 

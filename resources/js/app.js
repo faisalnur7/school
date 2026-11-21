@@ -1977,6 +1977,15 @@ function initCommunicationsPage() {
         closeMobilePeople();
     });
 
+    // The mobile drawers sit above Bootstrap's modal layer (z-index 1085 vs 1050),
+    // so close them before the "New chat" modal opens or it renders underneath.
+    page.querySelectorAll('[data-chat-new-conversation]').forEach((button) => {
+        button.addEventListener('click', () => {
+            closeMobileInbox();
+            closeMobilePeople();
+        });
+    });
+
     if (mobileQuery) {
         const syncMobileState = () => {
             if (!mobileQuery.matches) {
