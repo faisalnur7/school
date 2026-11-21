@@ -31,24 +31,24 @@
                         <div class="profile-form-wrap">
                         <div class="row">
                             <div class="col-md-6 form-group">
-                                <label class="small font-weight-bold text-muted mb-1">Name</label>
-                                <input type="text" name="name" value="{{ old('name', $user->name) }}" class="form-control form-control-lg" required>
+                                <label for="account-profile-edit-name" class="small font-weight-bold text-muted mb-1">Name</label>
+                                <input id="account-profile-edit-name" type="text" name="name" value="{{ old('name', $user->name) }}" class="form-control form-control-lg" required>
                             </div>
                             <div class="col-md-6 form-group">
-                                <label class="small font-weight-bold text-muted mb-1">Email</label>
-                                <input type="email" name="email" value="{{ old('email', $user->email) }}" class="form-control form-control-lg" required>
+                                <label for="account-profile-edit-email" class="small font-weight-bold text-muted mb-1">Email</label>
+                                <input id="account-profile-edit-email" type="email" name="email" value="{{ old('email', $user->email) }}" class="form-control form-control-lg" required>
                             </div>
                             <div class="col-md-6 form-group">
-                                <label class="small font-weight-bold text-muted mb-1">Phone</label>
-                                <input type="text" name="phone" value="{{ old('phone', $employee?->phone) }}" class="form-control form-control-lg">
+                                <label for="account-profile-edit-phone" class="small font-weight-bold text-muted mb-1">Phone</label>
+                                <input id="account-profile-edit-phone" type="text" name="phone" value="{{ old('phone', $employee?->phone) }}" class="form-control form-control-lg">
                             </div>
                             <div class="col-md-6 form-group">
                                 <label class="small font-weight-bold text-muted mb-1">Role</label>
                                 <input type="text" value="{{ $user->role->name ?? ($employee?->employee_type ? ucfirst($employee->employee_type) : 'N/A') }}" class="form-control form-control-lg bg-light" disabled>
                             </div>
                             <div class="col-md-12 form-group">
-                                <label class="small font-weight-bold text-muted mb-1">Address</label>
-                                <textarea name="address" class="form-control form-control-lg" rows="4">{{ old('address', $employee?->address) }}</textarea>
+                                <label for="account-profile-edit-address" class="small font-weight-bold text-muted mb-1">Address</label>
+                                <textarea id="account-profile-edit-address" name="address" class="form-control form-control-lg" rows="4">{{ old('address', $employee?->address) }}</textarea>
                             </div>
                         </div>
                         <div class="d-flex justify-content-end">

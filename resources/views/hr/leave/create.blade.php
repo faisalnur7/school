@@ -41,18 +41,18 @@
                         @error('leave_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-2 form-group">
-                        <label class="font-weight-bold">From <span class="text-danger">*</span></label>
-                        <input type="date" name="date_from" class="form-control @error('date_from') is-invalid @enderror" value="{{ old('date_from') }}" required>
+                        <label for="leave-create-date-from" class="font-weight-bold">From <span class="text-danger">*</span></label>
+                        <input id="leave-create-date-from" type="date" name="date_from" class="form-control @error('date_from') is-invalid @enderror" value="{{ old('date_from') }}" required>
                         @error('date_from')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-2 form-group">
-                        <label class="font-weight-bold">To <span class="text-danger">*</span></label>
-                        <input type="date" name="date_to" class="form-control @error('date_to') is-invalid @enderror" value="{{ old('date_to') }}" required>
+                        <label for="leave-create-date-to" class="font-weight-bold">To <span class="text-danger">*</span></label>
+                        <input id="leave-create-date-to" type="date" name="date_to" class="form-control @error('date_to') is-invalid @enderror" value="{{ old('date_to') }}" required>
                         @error('date_to')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-12 form-group">
-                        <label class="font-weight-bold">Reason <span class="text-danger">*</span></label>
-                        <textarea name="reason" class="form-control @error('reason') is-invalid @enderror" rows="3" required>{{ old('reason') }}</textarea>
+                        <label for="leave-create-reason" class="font-weight-bold">Reason <span class="text-danger">*</span></label>
+                        <textarea id="leave-create-reason" name="reason" class="form-control @error('reason') is-invalid @enderror" rows="3" required>{{ old('reason') }}</textarea>
                         @error('reason')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </div>

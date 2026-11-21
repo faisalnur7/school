@@ -43,12 +43,12 @@
             <form method="GET" class="supplier-dues-filters">
                 <div class="row g-2 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label mb-1" style="font-size:12px">From</label>
-                        <input type="text" name="from" class="form-control datepicker" value="{{ request('from', $from->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
+                        <label for="reports-details-trial-balance-from" class="form-label mb-1" style="font-size:12px">From</label>
+                        <input id="reports-details-trial-balance-from" type="text" name="from" class="form-control datepicker" value="{{ request('from', $from->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label mb-1" style="font-size:12px">To</label>
-                        <input type="text" name="to" class="form-control datepicker" value="{{ request('to', $to->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
+                        <label for="reports-details-trial-balance-to" class="form-label mb-1" style="font-size:12px">To</label>
+                        <input id="reports-details-trial-balance-to" type="text" name="to" class="form-control datepicker" value="{{ request('to', $to->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
                     </div>
                     <div class="col-md-6 d-flex gap-2">
                         <button type="submit" class="btn btn-dark" title="Filter" aria-label="Filter">

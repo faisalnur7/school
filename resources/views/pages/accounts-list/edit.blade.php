@@ -35,12 +35,12 @@
                 @endif
 
 <div class="form-group">
-                            <label>Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" value="{{ old('name', $accountsList->name) }}" required>
+                            <label for="accounts-list-edit-name">Name <span class="text-danger">*</span></label>
+                            <input id="accounts-list-edit-name" type="text" name="name" class="form-control" value="{{ old('name', $accountsList->name) }}" required>
                         </div>
                         <div class="form-group">
-                            <label>Account Group</label>
-                            <select name="account_group_id" class="form-control">
+                            <label for="accounts-list-edit-account-group-id">Account Group</label>
+                            <select id="accounts-list-edit-account-group-id" name="account_group_id" class="form-control">
                                 <option value="">— None —</option>
                                 @foreach($groups as $g)
                                     <option value="{{ $g->id }}" {{ old('account_group_id', $accountsList->account_group_id) == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
@@ -57,8 +57,8 @@
                             </select>
                         </div>
                         <div class="form-group" id="refIdWrapper">
-                            <label>Select Account</label>
-                            <select name="reference_id" class="form-control">
+                            <label for="accounts-list-edit-reference-id">Select Account</label>
+                            <select id="accounts-list-edit-reference-id" name="reference_id" class="form-control">
                                 <option value="">Select</option>
                                 @foreach($bankAccounts as $b)
                                     <option value="{{ $b->id }}" data-type="App\Models\BankAccount" {{ old('reference_id', $accountsList->reference_id) == $b->id ? 'selected' : '' }}>{{ $b->bank_name }} — {{ $b->account_number }}</option>
@@ -72,8 +72,8 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Notes</label>
-                            <textarea name="notes" class="form-control" rows="2">{{ old('notes', $accountsList->notes) }}</textarea>
+                            <label for="accounts-list-edit-notes">Notes</label>
+                            <textarea id="accounts-list-edit-notes" name="notes" class="form-control" rows="2">{{ old('notes', $accountsList->notes) }}</textarea>
                         </div>
             </div>
 

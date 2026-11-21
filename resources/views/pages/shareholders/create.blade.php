@@ -34,29 +34,29 @@
                 @endif
 
 <div class="form-group">
-                            <label>Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                            <label for="shareholders-create-name">Name <span class="text-danger">*</span></label>
+                            <input id="shareholders-create-name" type="text" name="name" class="form-control @error('name') is-invalid @enderror"
                                    value="{{ old('name') }}" required>
                             @error('name') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="form-group">
-                            <label>Phone</label>
-                            <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror"
+                            <label for="shareholders-create-phone">Phone</label>
+                            <input id="shareholders-create-phone" type="text" name="phone" class="form-control @error('phone') is-invalid @enderror"
                                    value="{{ old('phone') }}">
                             @error('phone') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
+                            <label for="shareholders-create-email">Email</label>
+                            <input id="shareholders-create-email" type="email" name="email" class="form-control @error('email') is-invalid @enderror"
                                    value="{{ old('email') }}">
                             @error('email') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="form-group">
-                            <label>Address</label>
-                            <textarea name="address" class="form-control" rows="2">{{ old('address') }}</textarea>
+                            <label for="shareholders-create-address">Address</label>
+                            <textarea id="shareholders-create-address" name="address" class="form-control" rows="2">{{ old('address') }}</textarea>
                         </div>
             </div>
 

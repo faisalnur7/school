@@ -24,12 +24,12 @@
     <div class="col-md-1">
         <label class="form-label">&nbsp;</label>
         @isset($isIndex)
-            <button type="submit" class="btn btn-primary btn-block">
-                <i class="fas fa-search"></i>
+            <button type="submit" class="btn btn-primary btn-block" aria-label="{{ __('Search') }}" title="{{ __('Search') }}">
+                <i class="fas fa-search" aria-hidden="true"></i>
             </button>
         @else
-            <button type="button" id="loadAssets" class="btn btn-primary btn-block">
-                <i class="fas fa-search"></i>
+            <button type="button" id="loadAssets" class="btn btn-primary btn-block" aria-label="{{ __('Search') }}" title="{{ __('Search') }}">
+                <i class="fas fa-search" aria-hidden="true"></i>
             </button>
         @endisset
     </div>

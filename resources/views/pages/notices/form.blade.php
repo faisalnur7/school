@@ -1,16 +1,16 @@
 @csrf
 <div class="card-body row">
     <div class="form-group col-12">
-        <label>Title</label>
-        <input type="text" name="title" value="{{ old('title', $notice->title ?? '') }}" class="form-control" required>
+        <label for="notices-form-title">Title</label>
+        <input id="notices-form-title" type="text" name="title" value="{{ old('title', $notice->title ?? '') }}" class="form-control" required>
     </div>
     <div class="form-group col-12">
-        <label>Content</label>
-        <textarea name="content" rows="8" class="form-control">{{ old('content', $notice->content ?? '') }}</textarea>
+        <label for="notices-form-content">Content</label>
+        <textarea id="notices-form-content" name="content" rows="8" class="form-control">{{ old('content', $notice->content ?? '') }}</textarea>
     </div>
     <div class="form-group col-md-4">
-        <label>Publish At</label>
-        <input type="datetime-local" name="published_at" value="{{ old('published_at', isset($notice) && $notice->published_at ? $notice->published_at->format('Y-m-d\\TH:i') : '') }}" class="form-control">
+        <label for="notices-form-published-at">Publish At</label>
+        <input id="notices-form-published-at" type="datetime-local" name="published_at" value="{{ old('published_at', isset($notice) && $notice->published_at ? $notice->published_at->format('Y-m-d\\TH:i') : '') }}" class="form-control">
     </div>
     <div class="form-group col-md-4 d-flex align-items-end">
         <div class="custom-control custom-switch">

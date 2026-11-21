@@ -39,8 +39,8 @@
                             <h5 class="mb-3 text-muted border-bottom pb-2">Basic Information</h5>
                             <div class="row">
                                 <div class="col-md-6 form-group">
-                                    <label class="font-weight-bold">School Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="name"
+                                    <label for="school-settings-index-name" class="font-weight-bold">School Name <span class="text-danger">*</span></label>
+                                    <input id="school-settings-index-name" type="text" name="name"
                                         class="form-control @error('name') is-invalid @enderror"
                                         value="{{ old('name', $setting->name) }}" required>
                                     @error('name')
@@ -48,8 +48,8 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6 form-group">
-                                    <label class="font-weight-bold">School Short Name</label>
-                                    <input type="text" name="short_name"
+                                    <label for="school-settings-index-short-name" class="font-weight-bold">School Short Name</label>
+                                    <input id="school-settings-index-short-name" type="text" name="short_name"
                                         class="form-control @error('short_name') is-invalid @enderror"
                                         value="{{ old('short_name', $setting->short_name) }}"
                                         placeholder="e.g. GCSC">
@@ -58,8 +58,8 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6 form-group">
-                                    <label class="font-weight-bold">School Name in Bangla</label>
-                                    <input type="text" name="name_bn"
+                                    <label for="school-settings-index-name-bn" class="font-weight-bold">School Name in Bangla</label>
+                                    <input id="school-settings-index-name-bn" type="text" name="name_bn"
                                         class="form-control @error('name_bn') is-invalid @enderror"
                                         value="{{ old('name_bn', $setting->name_bn) }}">
                                     @error('name_bn')
@@ -67,22 +67,22 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-12 form-group">
-                                    <label class="font-weight-bold">Address <span class="text-danger">*</span></label>
-                                    <textarea name="address" rows="2" class="form-control @error('address') is-invalid @enderror" required>{{ old('address', $setting->address) }}</textarea>
+                                    <label for="school-settings-index-address" class="font-weight-bold">Address <span class="text-danger">*</span></label>
+                                    <textarea id="school-settings-index-address" name="address" rows="2" class="form-control @error('address') is-invalid @enderror" required>{{ old('address', $setting->address) }}</textarea>
                                     @error('address')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="col-md-12 form-group">
-                                    <label class="font-weight-bold">Address in Bangla</label>
-                                    <textarea name="address_bn" rows="2" class="form-control @error('address_bn') is-invalid @enderror">{{ old('address_bn', $setting->address_bn) }}</textarea>
+                                    <label for="school-settings-index-address-bn" class="font-weight-bold">Address in Bangla</label>
+                                    <textarea id="school-settings-index-address-bn" name="address_bn" rows="2" class="form-control @error('address_bn') is-invalid @enderror">{{ old('address_bn', $setting->address_bn) }}</textarea>
                                     @error('address_bn')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="col-md-6 form-group">
-                                    <label class="font-weight-bold">IPEMIS Code</label>
-                                    <input type="text" name="ipemis_code"
+                                    <label for="school-settings-index-ipemis-code" class="font-weight-bold">IPEMIS Code</label>
+                                    <input id="school-settings-index-ipemis-code" type="text" name="ipemis_code"
                                         class="form-control @error('ipemis_code') is-invalid @enderror"
                                         value="{{ old('ipemis_code', $setting->ipemis_code) }}">
                                     @error('ipemis_code')
@@ -90,8 +90,8 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6 form-group">
-                                    <label class="font-weight-bold">School Code</label>
-                                    <input type="text" name="school_code"
+                                    <label for="school-settings-index-school-code" class="font-weight-bold">School Code</label>
+                                    <input id="school-settings-index-school-code" type="text" name="school_code"
                                         class="form-control @error('school_code') is-invalid @enderror"
                                         value="{{ old('school_code', $setting->school_code) }}">
                                     @error('school_code')
@@ -99,8 +99,8 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-12 form-group">
-                                    <label>Slogan</label>
-                                    <input type="text" name="slogan"
+                                    <label for="school-settings-index-slogan">Slogan</label>
+                                    <input id="school-settings-index-slogan" type="text" name="slogan"
                                         class="form-control @error('slogan') is-invalid @enderror"
                                         value="{{ old('slogan', $setting->slogan) }}">
                                     @error('slogan')
@@ -112,8 +112,8 @@
                             <h5 class="mb-3 mt-2 text-muted border-bottom pb-2">Class Range</h5>
                             <div class="row">
                                 <div class="col-md-6 form-group">
-                                    <label>From Class</label>
-                                    <select name="from_class"
+                                    <label for="school-settings-index-from-class">From Class</label>
+                                    <select id="school-settings-index-from-class" name="from_class"
                                         class="form-control @error('from_class') is-invalid @enderror">
                                         <option value="">— Select —</option>
                                         @foreach ($classes as $c)
@@ -128,8 +128,8 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6 form-group">
-                                    <label>To Class</label>
-                                    <select name="to_class" class="form-control @error('to_class') is-invalid @enderror">
+                                    <label for="school-settings-index-to-class">To Class</label>
+                                    <select id="school-settings-index-to-class" name="to_class" class="form-control @error('to_class') is-invalid @enderror">
                                         <option value="">— Select —</option>
                                         @foreach ($classes as $c)
                                             <option value="{{ $c->id }}"
@@ -147,8 +147,8 @@
                             <h5 class="mb-3 mt-2 text-muted border-bottom pb-2">Contact & Social</h5>
                             <div class="row">
                                 <div class="col-md-4 form-group">
-                                    <label>Website</label>
-                                    <input type="url" name="website"
+                                    <label for="school-settings-index-website">Website</label>
+                                    <input id="school-settings-index-website" type="url" name="website"
                                         class="form-control @error('website') is-invalid @enderror"
                                         value="{{ old('website', $setting->website) }}" placeholder="https://...">
                                     @error('website')
@@ -156,8 +156,8 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-4 form-group">
-                                    <label>Email</label>
-                                    <input type="email" name="email"
+                                    <label for="school-settings-index-email">Email</label>
+                                    <input id="school-settings-index-email" type="email" name="email"
                                         class="form-control @error('email') is-invalid @enderror"
                                         value="{{ old('email', $setting->email) }}" placeholder="info@school.edu.bd">
                                     @error('email')
@@ -165,8 +165,8 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-4 form-group">
-                                    <label>Facebook Page</label>
-                                    <input type="url" name="facebook_page"
+                                    <label for="school-settings-index-facebook-page">Facebook Page</label>
+                                    <input id="school-settings-index-facebook-page" type="url" name="facebook_page"
                                         class="form-control @error('facebook_page') is-invalid @enderror"
                                         value="{{ old('facebook_page', $setting->facebook_page) }}"
                                         placeholder="https://facebook.com/...">
@@ -175,8 +175,8 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-4 form-group">
-                                    <label>WhatsApp Number</label>
-                                    <input type="text" name="whatsapp_number"
+                                    <label for="school-settings-index-whatsapp-number">WhatsApp Number</label>
+                                    <input id="school-settings-index-whatsapp-number" type="text" name="whatsapp_number"
                                         class="form-control @error('whatsapp_number') is-invalid @enderror"
                                         value="{{ old('whatsapp_number', $setting->whatsapp_number) }}"
                                         placeholder="+880...">
@@ -185,8 +185,8 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-4 form-group">
-                                    <label>Contact Number 1</label>
-                                    <input type="text" name="contact_number_1"
+                                    <label for="school-settings-index-contact-number-1">Contact Number 1</label>
+                                    <input id="school-settings-index-contact-number-1" type="text" name="contact_number_1"
                                         class="form-control @error('contact_number_1') is-invalid @enderror"
                                         value="{{ old('contact_number_1', $setting->contact_number_1) }}"
                                         placeholder="+880...">
@@ -195,8 +195,8 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-4 form-group">
-                                    <label>Contact Number 2</label>
-                                    <input type="text" name="contact_number_2"
+                                    <label for="school-settings-index-contact-number-2">Contact Number 2</label>
+                                    <input id="school-settings-index-contact-number-2" type="text" name="contact_number_2"
                                         class="form-control @error('contact_number_2') is-invalid @enderror"
                                         value="{{ old('contact_number_2', $setting->contact_number_2) }}"
                                         placeholder="+880...">
@@ -209,8 +209,8 @@
                             <h5 class="mb-3 mt-2 text-muted border-bottom pb-2" id="principal-signature">Principal Signature</h5>
                             <div class="row">
                                     <div class="col-md-4 form-group">
-                                        <label class="font-weight-bold">Designation</label>
-                                        <input type="text" name="principal_designation"
+                                        <label for="school-settings-index-principal-designation" class="font-weight-bold">Designation</label>
+                                        <input id="school-settings-index-principal-designation" type="text" name="principal_designation"
                                             class="form-control @error('principal_designation') is-invalid @enderror"
                                             value="{{ old('principal_designation', $setting->principal_designation ?? 'Principal') }}"
                                             placeholder="Principal">
@@ -219,8 +219,8 @@
                                         @enderror
                                     </div>
                                     <div class="col-md-4 form-group">
-                                        <label class="font-weight-bold">Name</label>
-                                        <input type="text" name="principal_name"
+                                        <label for="school-settings-index-principal-name" class="font-weight-bold">Name</label>
+                                        <input id="school-settings-index-principal-name" type="text" name="principal_name"
                                             class="form-control @error('principal_name') is-invalid @enderror"
                                             value="{{ old('principal_name', $setting->principal_name) }}"
                                             placeholder="Md. Raqib Hossain">
@@ -229,8 +229,8 @@
                                         @enderror
                                     </div>
                                     <div class="col-md-4 form-group">
-                                        <label class="font-weight-bold">School Name</label>
-                                        <input type="text" name="principal_school_name"
+                                        <label for="school-settings-index-principal-school-name" class="font-weight-bold">School Name</label>
+                                        <input id="school-settings-index-principal-school-name" type="text" name="principal_school_name"
                                             class="form-control @error('principal_school_name') is-invalid @enderror"
                                             value="{{ old('principal_school_name', $setting->principal_school_name ?? $setting->name) }}"
                                             placeholder="Green Chartered School & College">
@@ -239,8 +239,8 @@
                                         @enderror
                                     </div>
                                     <div class="col-md-4 form-group mb-0">
-                                        <label class="font-weight-bold">Phone</label>
-                                        <input type="text" name="principal_phone"
+                                        <label for="school-settings-index-principal-phone" class="font-weight-bold">Phone</label>
+                                        <input id="school-settings-index-principal-phone" type="text" name="principal_phone"
                                             class="form-control @error('principal_phone') is-invalid @enderror"
                                             value="{{ old('principal_phone', $setting->principal_phone) }}"
                                             placeholder="Phone-01886-780641, 01886-780642">
@@ -257,14 +257,14 @@
                             <h5 class="mb-3 text-muted border-bottom pb-2">Logo, Favicon, Letter Head & WhatsApp QR</h5>
 
                             <div class="form-group">
-                                <label class="font-weight-bold">Logo</label>
+                                <label for="school-settings-logo" class="font-weight-bold">Logo</label>
                                 @if ($setting->logo)
                                     <div class="mb-2">
                                         <img src="{{ asset($setting->logo) }}" alt="Logo" class="img-thumbnail"
                                             style="max-height:100px">
                                     </div>
                                 @endif
-                                <input type="file" name="logo"
+                                <input type="file" id="school-settings-logo" name="logo"
                                     class="form-control-file @error('logo') is-invalid @enderror" accept="image/*"
                                     onchange="previewImage(this,'logoPreview')">
                                 <img id="logoPreview" src="#" alt="Preview" class="img-thumbnail mt-2 d-none"
@@ -276,7 +276,7 @@
                             </div>
 
                             <div class="form-group mt-3">
-                                <label class="font-weight-bold">Favicon</label>
+                                <label for="school-settings-favicon" class="font-weight-bold">Favicon</label>
                                 @if ($setting->favicon)
                                     <div class="mb-2">
                                         @php $faviconExt = pathinfo($setting->favicon, PATHINFO_EXTENSION); @endphp
@@ -291,7 +291,7 @@
                                         @endif
                                     </div>
                                 @endif
-                                <input type="file" name="favicon"
+                                <input type="file" id="school-settings-favicon" name="favicon"
                                     class="form-control-file @error('favicon') is-invalid @enderror"
                                     accept="image/*,.ico" onchange="previewImage(this,'faviconPreview')">
                                 <img id="faviconPreview" src="#" alt="Preview" class="img-thumbnail mt-2 d-none"
@@ -303,7 +303,7 @@
                             </div>
 
                             <div class="form-group mt-3">
-                                <label class="font-weight-bold">Letter Head</label>
+                                <label for="school-settings-letter-head" class="font-weight-bold">Letter Head</label>
                                 @if ($setting->letter_head)
                                     <div class="mb-2">
                                         @php $ext = pathinfo($setting->letter_head, PATHINFO_EXTENSION); @endphp
@@ -318,7 +318,7 @@
                                         @endif
                                     </div>
                                 @endif
-                                <input type="file" name="letter_head"
+                                <input type="file" id="school-settings-letter-head" name="letter_head"
                                     class="form-control-file @error('letter_head') is-invalid @enderror"
                                     accept="image/*,.pdf" onchange="previewImage(this,'letterHeadPreview')">
                                 <img id="letterHeadPreview" src="#" alt="Preview"
@@ -330,14 +330,14 @@
                             </div>
 
                             <div class="form-group mt-3">
-                                <label class="font-weight-bold">WhatsApp QR Code</label>
+                                <label for="school-settings-whatsapp-qr" class="font-weight-bold">WhatsApp QR Code</label>
                                 @if($setting->whatsapp_qr)
                                     <div class="mb-2">
                                         <img src="{{ asset($setting->whatsapp_qr) }}" alt="WhatsApp QR"
                                             class="img-thumbnail" style="max-height:100px">
                                     </div>
                                 @endif
-                                <input type="file" name="whatsapp_qr"
+                                <input type="file" id="school-settings-whatsapp-qr" name="whatsapp_qr"
                                     class="form-control-file @error('whatsapp_qr') is-invalid @enderror"
                                     accept="image/*" onchange="previewImage(this,'whatsappQrPreview')">
                                 <img id="whatsappQrPreview" src="#" alt="Preview"
@@ -349,14 +349,14 @@
                             </div>
 
                             <div class="form-group mt-3">
-                                <label class="font-weight-bold">Principal Signature</label>
+                                <label for="school-settings-principal-signature" class="font-weight-bold">Principal Signature</label>
                                 @if ($setting->principal_signature)
                                     <div class="mb-2">
                                         <img src="{{ asset($setting->principal_signature) }}" alt="Principal Signature"
                                             class="img-thumbnail" style="max-height:100px">
                                     </div>
                                 @endif
-                                <input type="file" name="principal_signature"
+                                <input type="file" id="school-settings-principal-signature" name="principal_signature"
                                     class="form-control-file @error('principal_signature') is-invalid @enderror"
                                     accept="image/*" onchange="previewImage(this,'principalSignaturePreview')">
                                 <img id="principalSignaturePreview" src="#" alt="Preview"
@@ -370,13 +370,13 @@
                             <h5 class="mb-3 mt-3 text-muted border-bottom pb-2">Theme & ID Card Colors</h5>
                             <div class="row">
                                 <div class="col-md-12 form-group">
-                                    <label class="font-weight-bold">Primary Color</label>
+                                    <label for="primaryColor" class="font-weight-bold">Primary Color</label>
                                     <div class="d-flex align-items-center gap-2" style="gap:8px">
                                         <input type="color" name="primary_color" id="primaryColor"
                                             class="form-control form-control-color p-1"
                                             style="width:48px;height:38px;cursor:pointer"
                                             value="{{ old('primary_color', $setting->primary_color ?? '#1e3a5f') }}">
-                                        <input type="text" id="primaryColorHex" class="form-control form-control-sm"
+                                        <input type="text" id="primaryColorHex" aria-label="Primary color hex code" class="form-control form-control-sm"
                                             style="width:110px;font-family:monospace"
                                             value="{{ old('primary_color', $setting->primary_color ?? '#1e3a5f') }}"
                                             oninput="syncColor(this,'primaryColor')">
@@ -389,13 +389,13 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-12 form-group">
-                                    <label class="font-weight-bold">Secondary Color</label>
+                                    <label for="secondaryColor" class="font-weight-bold">Secondary Color</label>
                                     <div class="d-flex align-items-center gap-2" style="gap:8px">
                                         <input type="color" name="secondary_color" id="secondaryColor"
                                             class="form-control form-control-color p-1"
                                             style="width:48px;height:38px;cursor:pointer"
                                             value="{{ old('secondary_color', $setting->secondary_color ?? '#2563eb') }}">
-                                        <input type="text" id="secondaryColorHex" class="form-control form-control-sm"
+                                        <input type="text" id="secondaryColorHex" aria-label="Secondary color hex code" class="form-control form-control-sm"
                                             style="width:110px;font-family:monospace"
                                             value="{{ old('secondary_color', $setting->secondary_color ?? '#2563eb') }}"
                                             oninput="syncColor(this,'secondaryColor')">

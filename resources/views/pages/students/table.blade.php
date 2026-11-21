@@ -1,18 +1,20 @@
 <div class="card">
     <div class="card-header text-white rounded-top d-flex justify-content-between align-items-center shadow p-3 students-card-header">
         <div class="flex flex-col students-card-copy">
-            <h3 class="card-title mb-0 text-white text-lg">{{ __('Student Directory')}}</h3>
+            <h3 class="card-title mb-0 text-white text-lg">
+                {{ __('Student Directory')}}
+                <span class="ds-page-header__count ml-2 align-middle">{{ number_format($students->total()) }}</span>
+            </h3>
             <div class="students-directory-subtitle">
                 {{ __('Browse current student records and manage each profile from one place.') }}
             </div>
         </div>
 
         <div class="d-flex flex-wrap gap-2 justify-content-end ml-auto students-card-actions">
-            <a href="{{ route('students.list-pdf', request()->all()) }}" class="btn btn-sm students-pdf-action"
-                target="_blank">
+            <button type="button" class="btn btn-sm students-pdf-action" data-toggle="modal" data-target="#studentsPdfModal"
+                title="{{ __('Download PDF list') }}" aria-label="{{ __('Download PDF list') }}">
                 <i class="fas fa-file-pdf" aria-hidden="true"></i>
-                <span class="sr-only">PDF</span>
-            </a>
+            </button>
             <a href="{{ route('students.admission') }}" class="btn btn-sm btn-primary students-add-student-btn">
                 <i class="fas fa-plus mr-1"></i> {{ __('Add Student') }}
             </a>
@@ -20,12 +22,6 @@
     </div>
 
     <div class="card-body px-0 pb-4 pt-0">
-        <div class="px-3 pt-3 pb-2">
-            <span class="badge"
-                style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:12px;padding:6px 12px">
-                Total: {{ number_format($students->total()) }} Students
-            </span>
-        </div>
 
         <div class="table-responsive d-none d-md-block">
             <table class="table table-hover align-middle mb-0">
@@ -214,6 +210,7 @@
                                             @csrf
                                             <label class="student-switch" for="statusSwitch{{ $student->id }}">
                                                 <input type="checkbox" id="statusSwitch{{ $student->id }}"
+                                                    aria-label="{{ __('Active') }}: {{ $student->full_name_en }}"
                                                     onchange="this.form.submit()" {{ $student->status ? 'checked' : '' }}>
                                                 <span class="student-switch-track"></span>
                                             </label>
@@ -515,5 +512,48 @@
                 </div>
             @endif
         </div>
+    </div>
+</div>
+
+{{-- PDF export: column picker lives here instead of permanently inside the filter bar. --}}
+<div class="modal fade" id="studentsPdfModal" tabindex="-1" role="dialog" aria-labelledby="studentsPdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <form class="modal-content" method="GET" action="{{ route('students.list-pdf') }}" target="_blank" data-students-pdf-form>
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="studentsPdfModalLabel">{{ __('Download PDF list') }}</h5>
+                    <small class="text-muted">{{ __('Uses the current filters. Choose the columns to include.') }}</small>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('Close') }}"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                @foreach (request()->except(['pdf_columns', 'page']) as $key => $value)
+                    @if (is_array($value))
+                        @foreach ($value as $item)
+                            <input type="hidden" name="{{ $key }}[]" value="{{ $item }}">
+                        @endforeach
+                    @else
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endif
+                @endforeach
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="pdf-columns-toggle-all" checked>
+                    <label class="form-check-label font-weight-bold" for="pdf-columns-toggle-all">{{ __('Select all') }}</label>
+                </div>
+                <div class="students-pdf-checks">
+                    @foreach ($pdfColumnOptions as $columnKey => $columnLabel)
+                        <div class="form-check students-pdf-option">
+                            <input class="form-check-input pdf-column-checkbox" type="checkbox" name="pdf_columns[]"
+                                value="{{ $columnKey }}" id="pdf-column-{{ $columnKey }}" checked>
+                            <label class="form-check-label ml-4" for="pdf-column-{{ $columnKey }}">{{ $columnLabel }}</label>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal">{{ __('Cancel') }}</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-file-pdf mr-1" aria-hidden="true"></i>{{ __('Download PDF') }}</button>
+            </div>
+        </form>
     </div>
 </div>

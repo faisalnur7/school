@@ -2,15 +2,15 @@
 
 <div class="row">
     <div class="col-md-6 form-group">
-        <label class="font-weight-bold">Template Name <span class="text-danger">*</span></label>
-        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+        <label for="id-card-templates--form-name" class="font-weight-bold">Template Name <span class="text-danger">*</span></label>
+        <input id="id-card-templates--form-name" type="text" name="name" class="form-control @error('name') is-invalid @enderror"
             value="{{ old('name', $template?->name) }}" required>
         @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
 
     <div class="col-md-6 form-group">
-        <label class="font-weight-bold">Orientation <span class="text-danger">*</span></label>
-        <select name="orientation" class="form-control @error('orientation') is-invalid @enderror" required>
+        <label for="id-card-templates--form-orientation" class="font-weight-bold">Orientation <span class="text-danger">*</span></label>
+        <select id="id-card-templates--form-orientation" name="orientation" class="form-control @error('orientation') is-invalid @enderror" required>
             <option value="portrait"  {{ old('orientation', $template?->orientation) === 'portrait'  ? 'selected' : '' }}>Portrait</option>
             <option value="landscape" {{ old('orientation', $template?->orientation) === 'landscape' ? 'selected' : '' }}>Landscape</option>
         </select>

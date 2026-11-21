@@ -11,13 +11,13 @@
                     <div class="card-body">
                         @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
                         <div class="form-group">
-                            <label>{{ __('Name') }} <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
+                            <label for="account-groups-index-name">{{ __('Name') }} <span class="text-danger">*</span></label>
+                            <input id="account-groups-index-name" type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
                             @error('name')<span class="invalid-feedback">{{ $message }}</span>@enderror
                         </div>
                         <div class="form-group">
-                            <label>{{ __('Parent Group') }} <small class="text-muted">({{ __('optional') }})</small></label>
-                            <select name="parent_id" class="form-control">
+                            <label for="account-groups-index-parent-id">{{ __('Parent Group') }} <small class="text-muted">({{ __('optional') }})</small></label>
+                            <select id="account-groups-index-parent-id" name="parent_id" class="form-control">
                                 <option value="">{{ __('— None (Top Level) —') }}</option>
                                 @foreach($parents as $p)
                                     <option value="{{ $p->id }}" {{ old('parent_id') == $p->id ? 'selected' : '' }}>{{ $p->name }}</option>
@@ -45,10 +45,10 @@
                                 <td>{{ $g->name }}</td>
                                 <td>{{ $g->parent?->name ?? '—' }}</td>
                                 <td style="display:flex;gap:5px; justify-content: center; align-items: center;">
-                                    <button class="btn btn-sm btn-dark p-2" data-toggle="modal" data-target="#editGroup{{ $g->id }}"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-dark p-2" data-toggle="modal" data-target="#editGroup{{ $g->id }}" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></button>
                                     <form action="{{ route('account-groups.destroy', $g->id) }}" class="m-0" method="POST" onsubmit="return confirm('{{ __('Delete?') }}')">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-danger py-2"><i class="fas fa-trash"></i></button>
+                                        <button class="btn btn-sm btn-danger py-2" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

@@ -34,8 +34,8 @@
                 @endif
 
 <div class="form-group">
-                                <label>Class</label>
-                                <select name="school_class_id" class="form-control" required>
+                                <label for="sections-create-school-class-id">Class</label>
+                                <select id="sections-create-school-class-id" name="school_class_id" class="form-control" required>
                                     <option value="">Select Class</option>
                                     @foreach ($classes as $class)
                                         <option value="{{ $class->id }}">
@@ -46,13 +46,13 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Name (English)</label>
-                                <input type="text" name="name_en" class="form-control" required>
+                                <label for="sections-create-name-en">Name (English)</label>
+                                <input id="sections-create-name-en" type="text" name="name_en" class="form-control" required>
                             </div>
 
                             <div class="form-group">
-                                <label>Name (Bangla)</label>
-                                <input type="text" name="name_bn" class="form-control" required>
+                                <label for="sections-create-name-bn">Name (Bangla)</label>
+                                <input id="sections-create-name-bn" type="text" name="name_bn" class="form-control" required>
                             </div>
             </div>
 

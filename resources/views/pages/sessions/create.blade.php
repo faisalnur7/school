@@ -34,14 +34,14 @@
                 @endif
 
 <div class="form-group">
-                                <label>Name (English)</label>
-                                <input type="text" name="name_en" class="form-control"
+                                <label for="sessions-create-name-en">Name (English)</label>
+                                <input id="sessions-create-name-en" type="text" name="name_en" class="form-control"
                                     value="{{ old('name_en', $session->name_en ?? '') }}" required>
                             </div>
 
                             <div class="form-group">
-                                <label>Name (Bangla)</label>
-                                <input type="text" name="name_bn" class="form-control"
+                                <label for="sessions-create-name-bn">Name (Bangla)</label>
+                                <input id="sessions-create-name-bn" type="text" name="name_bn" class="form-control"
                                     value="{{ old('name_bn', $session->name_bn ?? '') }}" required>
                             </div>
             </div>

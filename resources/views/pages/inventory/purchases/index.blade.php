@@ -85,8 +85,8 @@
                                     <a href="{{ route('inventory.purchases.voucher', $purchase->id) }}" class="btn btn-sm btn-secondary" title="Print Voucher" target="_blank">
                                         <i class="fas fa-print"></i>
                                     </a>
-                                    <a href="{{ route('inventory.purchases.show', $purchase->id) }}" class="btn btn-sm btn-info">
-                                        <i class="fas fa-eye"></i>
+                                    <a href="{{ route('inventory.purchases.show', $purchase->id) }}" class="btn btn-sm btn-info" aria-label="{{ __('View') }}" title="{{ __('View') }}">
+                                        <i class="fas fa-eye" aria-hidden="true"></i>
                                     </a>
                                 </td>
                             </tr>

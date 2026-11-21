@@ -47,11 +47,11 @@
 
         <!-- Buttons -->
         <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary shadow-sm">
-                <i class="fas fa-filter"></i>
+            <button type="submit" class="btn btn-primary shadow-sm" aria-label="{{ __('Filters') }}" title="{{ __('Filters') }}">
+                <i class="fas fa-filter" aria-hidden="true"></i>
             </button>
-            <a href="{{ route('police-station.index') }}" class="btn btn-secondary shadow-sm">
-                <i class="fas fa-undo"></i>
+            <a href="{{ route('police-station.index') }}" class="btn btn-secondary shadow-sm" aria-label="{{ __('Reset') }}" title="{{ __('Reset') }}">
+                <i class="fas fa-undo" aria-hidden="true"></i>
             </a>
         </div>
     </div>

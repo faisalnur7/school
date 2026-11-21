@@ -35,20 +35,20 @@
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Name <span class="text-danger">*</span></label>
-                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                        <label for="users-create-name" class="form-label">Name <span class="text-danger">*</span></label>
+                        <input id="users-create-name" type="text" name="name" class="form-control @error('name') is-invalid @enderror"
                             value="{{ old('name') }}" required>
                         @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Email <span class="text-danger">*</span></label>
-                        <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
+                        <label for="users-create-email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input id="users-create-email" type="email" name="email" class="form-control @error('email') is-invalid @enderror"
                             value="{{ old('email') }}" required>
                         @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Role</label>
-                        <select name="role_id" class="form-control @error('role_id') is-invalid @enderror">
+                        <label for="users-create-role-id" class="form-label">Role</label>
+                        <select id="users-create-role-id" name="role_id" class="form-control @error('role_id') is-invalid @enderror">
                             <option value="">-- Select Role --</option>
                             @foreach($roles as $role)
                                 <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
@@ -68,7 +68,7 @@
                                    name="is_active"
                                    value="1"
                                    {{ old('is_active', true) ? 'checked' : '' }}>
-                            <label class="custom-control-label" for="is_active"></label>
+                            <label class="custom-control-label" for="is_active"><span class="sr-only">{{ __('Active') }}</span></label>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
@@ -80,13 +80,13 @@
                         @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Password <span class="text-danger">*</span></label>
-                        <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required>
+                        <label for="users-create-password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <input id="users-create-password" type="password" name="password" class="form-control @error('password') is-invalid @enderror" required>
                         @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                        <input type="password" name="password_confirmation" class="form-control" required>
+                        <label for="users-create-password-confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                        <input id="users-create-password-confirmation" type="password" name="password_confirmation" class="form-control" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label d-block">Login Email Verification</label>

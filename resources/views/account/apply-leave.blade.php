@@ -9,8 +9,8 @@
             <form action="{{ route('account.leave.store') }}" method="POST">
                 @csrf
                 <div class="form-group">
-                    <label>Leave Type</label>
-                    <select name="leave_type" class="form-control" required>
+                    <label for="account-apply-leave-leave-type">Leave Type</label>
+                    <select id="account-apply-leave-leave-type" name="leave_type" class="form-control" required>
                         @foreach(['casual','sick','annual','maternity','other'] as $t)
                             <option value="{{ $t }}" {{ old('leave_type') === $t ? 'selected' : '' }}>{{ ucfirst($t) }}</option>
                         @endforeach
@@ -18,17 +18,17 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6 form-group">
-                        <label>From Date</label>
-                        <input type="date" name="date_from" class="form-control" value="{{ old('date_from') }}" required>
+                        <label for="account-apply-leave-date-from">From Date</label>
+                        <input id="account-apply-leave-date-from" type="date" name="date_from" class="form-control" value="{{ old('date_from') }}" required>
                     </div>
                     <div class="col-md-6 form-group">
-                        <label>To Date</label>
-                        <input type="date" name="date_to" class="form-control" value="{{ old('date_to') }}" required>
+                        <label for="account-apply-leave-date-to">To Date</label>
+                        <input id="account-apply-leave-date-to" type="date" name="date_to" class="form-control" value="{{ old('date_to') }}" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Reason</label>
-                    <textarea name="reason" class="form-control" rows="3" required>{{ old('reason') }}</textarea>
+                    <label for="account-apply-leave-reason">Reason</label>
+                    <textarea id="account-apply-leave-reason" name="reason" class="form-control" rows="3" required>{{ old('reason') }}</textarea>
                 </div>
                 <button class="btn btn-success">Submit Leave Request</button>
             </form>

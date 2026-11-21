@@ -12,8 +12,8 @@
         <form method="GET" action="{{ route('expenses.index') }}" class="px-3 pt-3 pb-2">
             <div class="row g-2 align-items-end">
                 <div class="col-md-3">
-                    <label class="form-label mb-1" style="font-size:12px">Category</label>
-                    <select name="category" class="form-control form-control-sm">
+                    <label for="expenses-table-category" class="form-label mb-1" style="font-size:12px">Category</label>
+                    <select id="expenses-table-category" name="category" class="form-control form-control-sm">
                         <option value="">All Categories</option>
                         @foreach ($categories as $category)
                             <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
@@ -23,14 +23,14 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label mb-1" style="font-size:12px">From Date</label>
-                    <input type="text" name="from" datepicker datepicker-format="dd/mm/yyyy"
+                    <label for="expenses-table-from" class="form-label mb-1" style="font-size:12px">From Date</label>
+                    <input id="expenses-table-from" type="text" name="from" datepicker datepicker-format="dd/mm/yyyy"
                            class="form-control form-control-sm"
                            value="{{ request('from') }}" placeholder="dd/mm/yyyy" autocomplete="off">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label mb-1" style="font-size:12px">To Date</label>
-                    <input type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
+                    <label for="expenses-table-to" class="form-label mb-1" style="font-size:12px">To Date</label>
+                    <input id="expenses-table-to" type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
                            class="form-control form-control-sm"
                            value="{{ request('to') }}" placeholder="dd/mm/yyyy" autocomplete="off">
                 </div>
@@ -101,16 +101,16 @@
                                 <a href="{{ route('expenses.voucher', $expense->id) }}" class="btn btn-sm btn-secondary w-100 w-sm-auto" title="Print Voucher" target="_blank">
                                     <i class="fas fa-print"></i>
                                 </a>
-                                <a href="{{ route('expenses.edit', $expense->id) }}" class="btn btn-sm btn-dark w-100 w-sm-auto">
-                                    <i class="fas fa-edit"></i>
+                                <a href="{{ route('expenses.edit', $expense->id) }}" class="btn btn-sm btn-dark w-100 w-sm-auto" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                    <i class="fas fa-edit" aria-hidden="true"></i>
                                 </a>
                                 <form action="{{ route('expenses.destroy', $expense->id) }}" method="POST"
-                                      class="btn btn-sm btn-danger d-inline m-0"
+                                      class="d-inline m-0"
                                       onsubmit="return confirm('Delete this expense record?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" style="background:none;border:none;padding:0;color:inherit">
-                                        <i class="fas fa-trash"></i>
+                                    <button type="submit" class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                        <i class="fas fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </td>

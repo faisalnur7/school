@@ -112,8 +112,8 @@
                                             onsubmit="return confirm('Remove this assignment?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-xs btn-danger">
-                                                <i class="fas fa-trash"></i>
+                                            <button type="submit" class="btn btn-xs btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                                <i class="fas fa-trash" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                     </td>

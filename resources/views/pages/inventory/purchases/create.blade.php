@@ -72,8 +72,8 @@
                             </div>
                         </div>
                         <div class="order-field order-field-full">
-                            <label class="order-label">Notes</label>
-                            <textarea name="notes" class="order-textarea" rows="2" placeholder="Additional notes or remarks...">{{ old('notes') }}</textarea>
+                            <label for="purchases-create-notes" class="order-label">Notes</label>
+                            <textarea id="purchases-create-notes" name="notes" class="order-textarea" rows="2" placeholder="Additional notes or remarks...">{{ old('notes') }}</textarea>
                         </div>
                     </div>
                 </div>

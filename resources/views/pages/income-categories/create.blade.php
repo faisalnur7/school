@@ -34,22 +34,22 @@
                 @endif
 
 <div class="form-group">
-                            <label>Name</label>
-                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                            <label for="income-categories-create-name">Name</label>
+                            <input id="income-categories-create-name" type="text" name="name" class="form-control @error('name') is-invalid @enderror"
                                    value="{{ old('name') }}" required>
                             @error('name') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="form-group">
-                            <label>Slug <small class="text-muted">(auto-generated if empty)</small></label>
-                            <input type="text" name="slug" class="form-control @error('slug') is-invalid @enderror"
+                            <label for="income-categories-create-slug">Slug <small class="text-muted">(auto-generated if empty)</small></label>
+                            <input id="income-categories-create-slug" type="text" name="slug" class="form-control @error('slug') is-invalid @enderror"
                                    value="{{ old('slug') }}">
                             @error('slug') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="form-group">
-                            <label>Description</label>
-                            <textarea name="description" class="form-control @error('description') is-invalid @enderror"
+                            <label for="income-categories-create-description">Description</label>
+                            <textarea id="income-categories-create-description" name="description" class="form-control @error('description') is-invalid @enderror"
                                       rows="3">{{ old('description') }}</textarea>
                             @error('description') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>

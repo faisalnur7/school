@@ -17,14 +17,14 @@
                     <form action="{{ route('asset-categories.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label class="form-label">Name *</label>
-                            <input type="text" name="name" value="{{ old('name') }}" class="form-control @error('name') is-invalid @enderror" required>
+                            <label for="categories-index-name" class="form-label">Name *</label>
+                            <input id="categories-index-name" type="text" name="name" value="{{ old('name') }}" class="form-control @error('name') is-invalid @enderror" required>
                             @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="3">{{ old('description') }}</textarea>
+                            <label for="categories-index-description" class="form-label">Description</label>
+                            <textarea id="categories-index-description" name="description" class="form-control @error('description') is-invalid @enderror" rows="3">{{ old('description') }}</textarea>
                             @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
@@ -60,10 +60,10 @@
                                     <td class="px-4 py-3">{{ $category->description ?? '—' }}</td>
                                     <td class="px-4 py-3"><span class="badge bg-primary">{{ $category->assets_count }}</span></td>
                                     <td class="px-4 py-3 text-center">
-                                        <button class="btn btn-sm btn-warning me-1" onclick="openEdit({{ $category->id }}, '{{ addslashes($category->name) }}', '{{ addslashes($category->description) }}')"><i class="fas fa-edit"></i></button>
+                                        <button class="btn btn-sm btn-warning me-1" onclick="openEdit({{ $category->id }}, '{{ addslashes($category->name) }}', '{{ addslashes($category->description) }}')" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></button>
                                         <form action="{{ route('asset-categories.destroy', $category) }}" method="POST" class="d-inline">
                                             @csrf @method('DELETE')
-                                            <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this category?')"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this category?')" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                         </form>
                                     </td>
                                 </tr>

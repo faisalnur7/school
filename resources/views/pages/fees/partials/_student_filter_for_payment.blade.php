@@ -5,16 +5,16 @@
 
                 {{-- Student ID --}}
                 <div class="col-md-2">
-                    <label>Student ID</label>
-                    <input type="text"
+                    <label for="partials--student-filter-for-payment-student-id">Student ID</label>
+                    <input id="partials--student-filter-for-payment-student-id" type="text"
                            name="student_id"
                            class="form-control"
                            value="{{ request('student_id') }}">
                 </div>
 
                 <div class="col-md-2">
-                    <label>Session</label>
-                    <select name="academic_session_id" class="form-control">
+                    <label for="partials--student-filter-for-payment-academic-session-id">Session</label>
+                    <select id="partials--student-filter-for-payment-academic-session-id" name="academic_session_id" class="form-control">
                         <option value="">All</option>
                         @foreach($sessions as $session)
                         <option value="{{ $session->id }}"

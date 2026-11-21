@@ -23,12 +23,12 @@
             <form method="GET" action="{{ route('fees.student-ledger.index') }}">
                 <div class="row align-items-end">
                     <div class="col-md-3 mb-2">
-                        <label class="font-weight-bold">Student ID <small class="text-muted">(optional)</small></label>
-                        <input type="text" name="student_id" value="{{ request('student_id') }}" class="form-control" placeholder="All students">
+                        <label for="student-ledger-report-index-student-id" class="font-weight-bold">Student ID <small class="text-muted">(optional)</small></label>
+                        <input id="student-ledger-report-index-student-id" type="text" name="student_id" value="{{ request('student_id') }}" class="form-control" placeholder="All students">
                     </div>
                     <div class="col-md-3 mb-2">
-                        <label class="font-weight-bold">Academic Session <span class="text-danger">*</span></label>
-                        <select name="session_id" class="form-control" required>
+                        <label for="student-ledger-report-index-session-id" class="font-weight-bold">Academic Session <span class="text-danger">*</span></label>
+                        <select id="student-ledger-report-index-session-id" name="session_id" class="form-control" required>
                             <option value="">Select Session</option>
                             @foreach($sessions as $session)
                                 <option value="{{ $session->id }}" @selected(request('session_id') == $session->id)>{{ $session->name_en }}</option>

@@ -35,16 +35,16 @@
                 @endif
 
 <div class="form-group">
-                            <label>Exam Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" value="{{ old('name', $exam->name) }}" required>
+                            <label for="exams-edit-name">Exam Name <span class="text-danger">*</span></label>
+                            <input id="exams-edit-name" type="text" name="name" class="form-control" value="{{ old('name', $exam->name) }}" required>
                         </div>
 
                         <div class="row">
                             <input type="hidden" name="type" id="exam_type" value="{{ old('type', $exam->type) }}">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Exam Category <span class="text-danger">*</span></label>
-                                    <select name="exam_category" class="form-control" required>
+                                    <label for="exams-edit-exam-category">Exam Category <span class="text-danger">*</span></label>
+                                    <select id="exams-edit-exam-category" name="exam_category" class="form-control" required>
                                         <option value="tutorial" {{ old('exam_category', $exam->exam_category ?? ($exam->type === 'term' ? 'terminal' : 'tutorial')) == 'tutorial' ? 'selected' : '' }}>Tutorial Exam</option>
                                         <option value="terminal" {{ old('exam_category', $exam->exam_category ?? ($exam->type === 'term' ? 'terminal' : 'tutorial')) == 'terminal' ? 'selected' : '' }}>Terminal Exam</option>
                                     </select>
@@ -52,8 +52,8 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Pair Index <span class="text-danger">*</span></label>
-                                    <select name="pair_no" class="form-control" required>
+                                    <label for="exams-edit-pair-no">Pair Index <span class="text-danger">*</span></label>
+                                    <select id="exams-edit-pair-no" name="pair_no" class="form-control" required>
                                         <option value="1" {{ old('pair_no', $exam->pair_no) == 1 ? 'selected' : '' }}>Pair 1</option>
                                         <option value="2" {{ old('pair_no', $exam->pair_no) == 2 ? 'selected' : '' }}>Pair 2</option>
                                         <option value="3" {{ old('pair_no', $exam->pair_no) == 3 ? 'selected' : '' }}>Pair 3</option>
@@ -62,8 +62,8 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Pair Weight % <span class="text-danger">*</span></label>
-                                    <input type="number" name="pair_weight_percent" class="form-control" min="0" max="100"
+                                    <label for="exams-edit-pair-weight-percent">Pair Weight % <span class="text-danger">*</span></label>
+                                    <input id="exams-edit-pair-weight-percent" type="number" name="pair_weight_percent" class="form-control" min="0" max="100"
                                         value="{{ old('pair_weight_percent', $exam->pair_weight_percent ?? 20) }}" required>
                                 </div>
                             </div>
@@ -71,8 +71,8 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Academic Session <span class="text-danger">*</span></label>
-                                    <select name="academic_session_id" class="form-control" required>
+                                    <label for="exams-edit-academic-session-id">Academic Session <span class="text-danger">*</span></label>
+                                    <select id="exams-edit-academic-session-id" name="academic_session_id" class="form-control" required>
                                         @foreach($sessions as $session)
                                         <option value="{{ $session->id }}" {{ old('academic_session_id', $exam->academic_session_id) == $session->id ? 'selected' : '' }}>
                                             {{ $session->name_en ?? $session->name_bn }}
@@ -86,29 +86,29 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Year <span class="text-danger">*</span></label>
-                                    <input type="number" name="year" class="form-control" value="{{ old('year', $exam->year) }}" required>
+                                    <label for="exams-edit-year">Year <span class="text-danger">*</span></label>
+                                    <input id="exams-edit-year" type="number" name="year" class="form-control" value="{{ old('year', $exam->year) }}" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Start Date</label>
-                                    <input type="date" name="start_date" class="form-control"
+                                    <label for="exams-edit-start-date">Start Date</label>
+                                    <input id="exams-edit-start-date" type="date" name="start_date" class="form-control"
                                         value="{{ old('start_date', $exam->start_date?->format('Y-m-d')) }}">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>End Date</label>
-                                    <input type="date" name="end_date" class="form-control"
+                                    <label for="exams-edit-end-date">End Date</label>
+                                    <input id="exams-edit-end-date" type="date" name="end_date" class="form-control"
                                         value="{{ old('end_date', $exam->end_date?->format('Y-m-d')) }}">
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Status</label>
-                            <select name="status" class="form-control">
+                            <label for="exams-edit-status">Status</label>
+                            <select id="exams-edit-status" name="status" class="form-control">
                                 <option value="draft"     {{ old('status', $exam->status) == 'draft'     ? 'selected' : '' }}>Draft</option>
                                 <option value="published" {{ old('status', $exam->status) == 'published' ? 'selected' : '' }}>Published</option>
                             </select>

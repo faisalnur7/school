@@ -3600,12 +3600,12 @@
                         <form id="studentSearchForm">
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-2">
-                                    <label class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">STUDENT ID</label>
-                                    <input type="text" name="student_id" class="form-control" placeholder="Enter Student ID">
+                                    <label for="fees-collect-fee-student-id" class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">STUDENT ID</label>
+                                    <input id="fees-collect-fee-student-id" type="text" name="student_id" class="form-control" placeholder="Enter Student ID">
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">SESSION</label>
-                                    <select name="academic_session_id" class="form-control">
+                                    <label for="fees-collect-fee-academic-session-id" class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">SESSION</label>
+                                    <select id="fees-collect-fee-academic-session-id" name="academic_session_id" class="form-control">
                                         <option value="">All</option>
                                         @foreach($sessions ?? collect() as $session)
                                             <option value="{{ $session->id }}">{{ $session->name_en }}</option>
@@ -3628,8 +3628,8 @@
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">GROUP</label>
-                                    <select name="group_id" class="form-control">
+                                    <label for="fees-collect-fee-group-id" class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">GROUP</label>
+                                    <select id="fees-collect-fee-group-id" name="group_id" class="form-control">
                                         <option value="">All</option>
                                         @foreach($groups ?? collect() as $group)
                                             <option value="{{ $group->id }}">{{ $group->name_en }}</option>
@@ -4305,7 +4305,7 @@
                                                                                     value="{{ $fee->id }}"
                                                                                     {{ $fee->is_active ? 'checked' : '' }}
                                                                                 >
-                                                                                <label class="custom-control-label" for="assignedFeeSwitch{{ $fee->id }}"></label>
+                                                                                <label class="custom-control-label" for="assignedFeeSwitch{{ $fee->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
                                                                             </div>
                                                                         @endif
                                                                     </td>

@@ -34,23 +34,23 @@
                 @endif
 
 <div class="form-group">
-                            <label>Name (English)</label>
-                            <input type="text" name="name" class="form-control" required>
+                            <label for="fee-categories-create-name">Name (English)</label>
+                            <input id="fee-categories-create-name" type="text" name="name" class="form-control" required>
                         </div>
 
                         <div class="form-group">
-                            <label>Name (Bangla)</label>
-                            <input type="text" name="bn_name" class="form-control" required>
+                            <label for="fee-categories-create-bn-name">Name (Bangla)</label>
+                            <input id="fee-categories-create-bn-name" type="text" name="bn_name" class="form-control" required>
                         </div>
 
                         <div class="form-group">
-                            <label>Description</label>
-                            <textarea name="description" class="form-control" rows="3"></textarea>
+                            <label for="fee-categories-create-description">Description</label>
+                            <textarea id="fee-categories-create-description" name="description" class="form-control" rows="3"></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label>Applicable For</label>
-                            <select name="student_type" class="form-control" required>
+                            <label for="fee-categories-create-student-type">Applicable For</label>
+                            <select id="fee-categories-create-student-type" name="student_type" class="form-control" required>
                                 <option value="both">All Students</option>
                                 <option value="new">New Students Only</option>
                                 <option value="old">Returning Students Only</option>

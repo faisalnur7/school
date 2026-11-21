@@ -35,8 +35,7 @@
                                             <input type="checkbox" class="custom-control-input"
                                                 id="statusSwitch{{ $group->id }}" onchange="this.form.submit()"
                                                 {{ $group->status ? 'checked' : '' }}>
-                                            <label class="custom-control-label" for="statusSwitch{{ $group->id }}">
-                                            </label>
+                                            <label class="custom-control-label" for="statusSwitch{{ $group->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
                                         </div>
                                     </form>
                                 @else

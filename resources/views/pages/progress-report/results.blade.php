@@ -69,17 +69,17 @@
                     </div>
                 </div>
                 <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-dark btn-sm result-filter-icon-btn" data-toggle="modal" data-target="#progressSubjectSettingsModal" title="Subject Settings" aria-label="Subject Settings">
-                        <i class="fas fa-cog"></i>
+                    <button type="button" class="btn btn-dark btn-sm result-filter-icon-btn result-filter-btn--labelled" data-toggle="modal" data-target="#progressSubjectSettingsModal" title="Subject Settings" aria-label="Subject Settings">
+                        <i class="fas fa-cog" aria-hidden="true"></i><span class="d-none d-xl-inline">Subject Settings</span>
                     </button>
-                    <button onclick="window.print()" class="btn btn-info btn-sm no-print result-filter-icon-btn" title="Print" aria-label="Print">
-                        <i class="fas fa-print"></i>
+                    <button onclick="window.print()" class="btn btn-info btn-sm no-print result-filter-icon-btn result-filter-btn--labelled" title="Print" aria-label="Print">
+                        <i class="fas fa-print" aria-hidden="true"></i><span class="d-none d-xl-inline">Print</span>
                     </button>
-                    <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary btn-sm no-print result-filter-icon-btn" title="Back" aria-label="Back">
-                        <i class="fas fa-arrow-left"></i>
+                    <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary btn-sm no-print result-filter-icon-btn result-filter-btn--labelled" title="Back" aria-label="Back">
+                        <i class="fas fa-arrow-left" aria-hidden="true"></i><span class="d-none d-xl-inline">Back</span>
                     </a>
-                    <a href="{{ route('result.progress-report.template-settings.edit') }}" class="btn btn-outline-light btn-sm no-print result-filter-icon-btn" title="Template Settings" aria-label="Template Settings">
-                        <i class="fas fa-sliders-h"></i>
+                    <a href="{{ route('result.progress-report.template-settings.edit') }}" class="btn btn-outline-light btn-sm no-print result-filter-icon-btn result-filter-btn--labelled" title="Template Settings" aria-label="Template Settings">
+                        <i class="fas fa-sliders-h" aria-hidden="true"></i><span class="d-none d-xl-inline">Template Settings</span>
                     </a>
                 </div>
             </div>

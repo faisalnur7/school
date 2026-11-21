@@ -224,12 +224,12 @@
             <form method="GET" action="{{ route('fees.student-receive-report') }}" class="fees-report-form">
                 <div class="fees-report-grid fees-report-grid--primary">
                     <div class="fees-report-field">
-                        <label class="font-weight-bold">Student ID</label>
-                        <input type="text" name="student_id" value="{{ request('student_id') }}" class="form-control fees-report-input report-filter-control" placeholder="Search specific student">
+                        <label for="student-receive-report-index-student-id" class="font-weight-bold">Student ID</label>
+                        <input id="student-receive-report-index-student-id" type="text" name="student_id" value="{{ request('student_id') }}" class="form-control fees-report-input report-filter-control" placeholder="Search specific student">
                     </div>
                     <div class="fees-report-field">
-                        <label class="font-weight-bold">Academic Session</label>
-                        <select name="session_id" class="form-control fees-report-select report-filter-control">
+                        <label for="student-receive-report-index-session-id" class="font-weight-bold">Academic Session</label>
+                        <select id="student-receive-report-index-session-id" name="session_id" class="form-control fees-report-select report-filter-control">
                             <option value="">All Sessions</option>
                             @foreach($sessions as $session)
                                 <option value="{{ $session->id }}" {{ request('session_id') == $session->id ? 'selected' : '' }}>{{ $session->name_en }}</option>
@@ -255,12 +255,12 @@
                         </select>
                     </div>
                     <div class="fees-report-field">
-                        <label class="font-weight-bold">From Date <span class="text-danger">*</span></label>
-                        <input type="date" name="from_date" value="{{ request('from_date') }}" class="form-control fees-report-input report-filter-control" required>
+                        <label for="student-receive-report-index-from-date" class="font-weight-bold">From Date <span class="text-danger">*</span></label>
+                        <input id="student-receive-report-index-from-date" type="date" name="from_date" value="{{ request('from_date') }}" class="form-control fees-report-input report-filter-control" required>
                     </div>
                     <div class="fees-report-field">
-                        <label class="font-weight-bold">To Date <span class="text-danger">*</span></label>
-                        <input type="date" name="to_date" value="{{ request('to_date') }}" class="form-control fees-report-input report-filter-control" required>
+                        <label for="student-receive-report-index-to-date" class="font-weight-bold">To Date <span class="text-danger">*</span></label>
+                        <input id="student-receive-report-index-to-date" type="date" name="to_date" value="{{ request('to_date') }}" class="form-control fees-report-input report-filter-control" required>
                     </div>
                     <div class="fees-report-filter-actions fees-report-filter-actions--submit">
                         <button type="submit" class="btn btn-dark fees-report-action-btn" title="Generate"><i class="fas fa-search"></i></button>

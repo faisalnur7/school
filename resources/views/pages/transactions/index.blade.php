@@ -322,13 +322,13 @@
                 <div class="transactions-filter-collapse {{ $mobileFilterActive ? 'is-open' : '' }}" id="transactions-filter-collapse">
                     <div class="transactions-filter-row">
                     <div>
-                        <label class="form-label mb-1" style="font-size:12px">Search</label>
-                        <input type="text" name="search" class="form-control form-control-sm"
+                        <label for="transactions-index-search" class="form-label mb-1" style="font-size:12px">Search</label>
+                        <input id="transactions-index-search" type="text" name="search" class="form-control form-control-sm"
                                value="{{ request('search') }}" placeholder="Ref / description...">
                     </div>
                     <div>
-                        <label class="form-label mb-1" style="font-size:12px">Type</label>
-                        <select name="type" class="form-control form-control-sm">
+                        <label for="transactions-index-type" class="form-label mb-1" style="font-size:12px">Type</label>
+                        <select id="transactions-index-type" name="type" class="form-control form-control-sm">
                             <option value="">All Types</option>
                             @foreach(['income','expense','capital','withdrawal'] as $t)
                                 <option value="{{ $t }}" {{ request('type') === $t ? 'selected' : '' }}>{{ ucfirst($t) }}</option>
@@ -336,15 +336,15 @@
                         </select>
                     </div>
                     <div>
-                        <label class="form-label mb-1" style="font-size:12px">View Type</label>
-                        <select name="view_type" class="form-control form-control-sm">
+                        <label for="transactions-index-view-type" class="form-label mb-1" style="font-size:12px">View Type</label>
+                        <select id="transactions-index-view-type" name="view_type" class="form-control form-control-sm">
                             <option value="detailed" {{ request('view_type', 'detailed') === 'detailed' ? 'selected' : '' }}>Detailed</option>
                             <option value="summary" {{ request('view_type') === 'summary' ? 'selected' : '' }}>Summary</option>
                         </select>
                     </div>
                     <div>
-                        <label class="form-label mb-1" style="font-size:12px">Shareholder</label>
-                        <select name="shareholder_id" class="form-control form-control-sm">
+                        <label for="transactions-index-shareholder-id" class="form-label mb-1" style="font-size:12px">Shareholder</label>
+                        <select id="transactions-index-shareholder-id" name="shareholder_id" class="form-control form-control-sm">
                             <option value="">All</option>
                             @foreach($shareholders as $sh)
                                 <option value="{{ $sh->id }}" {{ request('shareholder_id') == $sh->id ? 'selected' : '' }}>{{ $sh->name }}</option>
@@ -352,8 +352,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="form-label mb-1" style="font-size:12px">Category</label>
-                        <select name="category_id" class="form-control form-control-sm">
+                        <label for="transactions-index-category-id" class="form-label mb-1" style="font-size:12px">Category</label>
+                        <select id="transactions-index-category-id" name="category_id" class="form-control form-control-sm">
                             <option value="">All Categories</option>
                             <optgroup label="Income">
                                 @foreach($incomeCategories as $c)
@@ -368,13 +368,13 @@
                         </select>
                     </div>
                     <div>
-                        <label class="form-label mb-1" style="font-size:12px">From</label>
-                        <input type="text" name="from" datepicker datepicker-format="dd/mm/yyyy"
+                        <label for="transactions-index-from" class="form-label mb-1" style="font-size:12px">From</label>
+                        <input id="transactions-index-from" type="text" name="from" datepicker datepicker-format="dd/mm/yyyy"
                                class="form-control form-control-sm" value="{{ request('from') }}" placeholder="dd/mm/yyyy" autocomplete="off">
                     </div>
                     <div>
-                        <label class="form-label mb-1" style="font-size:12px">To</label>
-                        <input type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
+                        <label for="transactions-index-to" class="form-label mb-1" style="font-size:12px">To</label>
+                        <input id="transactions-index-to" type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
                                class="form-control form-control-sm" value="{{ request('to') }}" placeholder="dd/mm/yyyy" autocomplete="off">
                     </div>
                     <div class="transactions-filter-actions d-flex gap-2 align-items-end">

@@ -100,12 +100,12 @@
                             <small class="form-text text-muted">Choose a class to save a separate layout for its subject count. Classes without a saved profile use the global default.</small>
                         </div>
                         <div class="form-row">
-                            <div class="form-group col-6"><label>Results per page</label><select name="results_per_page" class="form-control">@foreach([1,2,3,4] as $value)<option value="{{ $value }}" {{ (int) old('results_per_page', $settings->results_per_page) === $value ? 'selected' : '' }}>{{ $value }} {{ $value === 1 ? 'result' : 'results' }}</option>@endforeach</select></div>
-                            <div class="form-group col-6"><label>Font scale (%)</label><input type="number" name="font_scale_percent" min="50" max="180" class="form-control" value="{{ old('font_scale_percent', $settings->font_scale_percent) }}"></div>
+                            <div class="form-group col-6"><label for="tutorial-report-settings-results-per-page">Results per page</label><select id="tutorial-report-settings-results-per-page" name="results_per_page" class="form-control">@foreach([1,2,3,4] as $value)<option value="{{ $value }}" {{ (int) old('results_per_page', $settings->results_per_page) === $value ? 'selected' : '' }}>{{ $value }} {{ $value === 1 ? 'result' : 'results' }}</option>@endforeach</select></div>
+                            <div class="form-group col-6"><label for="tutorial-report-settings-font-scale-percent">Font scale (%)</label><input id="tutorial-report-settings-font-scale-percent" type="number" name="font_scale_percent" min="50" max="180" class="form-control" value="{{ old('font_scale_percent', $settings->font_scale_percent) }}"></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group col-6"><label>Content width (%)</label><input type="number" name="content_width_percent" min="60" max="100" class="form-control" value="{{ old('content_width_percent', $settings->content_width_percent) }}"></div>
-                            <div class="form-group col-6"><label>Table padding (mm)</label><input type="number" step="0.01" name="table_padding_mm" min="0" max="8" class="form-control" value="{{ old('table_padding_mm', $settings->table_padding_mm) }}"></div>
+                            <div class="form-group col-6"><label for="tutorial-report-settings-content-width-percent">Content width (%)</label><input id="tutorial-report-settings-content-width-percent" type="number" name="content_width_percent" min="60" max="100" class="form-control" value="{{ old('content_width_percent', $settings->content_width_percent) }}"></div>
+                            <div class="form-group col-6"><label for="tutorial-report-settings-table-padding-mm">Table padding (mm)</label><input id="tutorial-report-settings-table-padding-mm" type="number" step="0.01" name="table_padding_mm" min="0" max="8" class="form-control" value="{{ old('table_padding_mm', $settings->table_padding_mm) }}"></div>
                         </div>
                         <div class="form-row">
                             @foreach(['subject' => 'Subject', 'full_marks' => 'Full Marks', 'obtained_marks' => 'Obtained Marks', 'highest_marks' => 'Highest Marks'] as $column => $label)
@@ -114,12 +114,12 @@
                         </div>
                         <small class="form-text text-muted mb-2">Marks table column widths must total 100%.</small>
                         <div class="form-row">
-                            <div class="form-group col-6"><label>Card gap (mm)</label><input type="number" step="0.01" name="card_gap_mm" min="0" max="20" class="form-control" value="{{ old('card_gap_mm', $settings->card_gap_mm) }}"></div>
-                            <div class="form-group col-6"><label>Corner radius (mm)</label><input type="number" name="card_radius_mm" min="0" max="12" class="form-control" value="{{ old('card_radius_mm', $settings->card_radius_mm) }}"></div>
+                            <div class="form-group col-6"><label for="tutorial-report-settings-card-gap-mm">Card gap (mm)</label><input id="tutorial-report-settings-card-gap-mm" type="number" step="0.01" name="card_gap_mm" min="0" max="20" class="form-control" value="{{ old('card_gap_mm', $settings->card_gap_mm) }}"></div>
+                            <div class="form-group col-6"><label for="tutorial-report-settings-card-radius-mm">Corner radius (mm)</label><input id="tutorial-report-settings-card-radius-mm" type="number" name="card_radius_mm" min="0" max="12" class="form-control" value="{{ old('card_radius_mm', $settings->card_radius_mm) }}"></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group col-6"><label>Border width (mm)</label><input type="number" step="0.01" name="card_border_width_mm" min="0" max="3" class="form-control" value="{{ old('card_border_width_mm', $settings->card_border_width_mm) }}"></div>
-                            <div class="form-group col-6"><label>Border color</label><input type="color" name="card_border_color" class="form-control p-1" value="{{ old('card_border_color', $settings->card_border_color) }}"></div>
+                            <div class="form-group col-6"><label for="tutorial-report-settings-card-border-width-mm">Border width (mm)</label><input id="tutorial-report-settings-card-border-width-mm" type="number" step="0.01" name="card_border_width_mm" min="0" max="3" class="form-control" value="{{ old('card_border_width_mm', $settings->card_border_width_mm) }}"></div>
+                            <div class="form-group col-6"><label for="tutorial-report-settings-card-border-color">Border color</label><input id="tutorial-report-settings-card-border-color" type="color" name="card_border_color" class="form-control p-1" value="{{ old('card_border_color', $settings->card_border_color) }}"></div>
                         </div>
                     </div>
                 </div>

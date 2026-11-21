@@ -34,8 +34,8 @@
                 @endif
 
 <div class="form-group">
-                            <label>Asset <span class="text-danger">*</span></label>
-                            <select name="asset_id" class="form-control @error('asset_id') is-invalid @enderror" required>
+                            <label for="asset-issues-create-asset-id">Asset <span class="text-danger">*</span></label>
+                            <select id="asset-issues-create-asset-id" name="asset_id" class="form-control @error('asset_id') is-invalid @enderror" required>
                                 <option value="">Select Asset</option>
                                 @foreach($assets as $a)
                                     <option value="{{ $a->id }}" {{ old('asset_id') == $a->id ? 'selected' : '' }}>
@@ -47,8 +47,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Department <span class="text-danger">*</span></label>
-                            <select name="department_id" class="form-control @error('department_id') is-invalid @enderror" required>
+                            <label for="asset-issues-create-department-id">Department <span class="text-danger">*</span></label>
+                            <select id="asset-issues-create-department-id" name="department_id" class="form-control @error('department_id') is-invalid @enderror" required>
                                 <option value="">Select Department</option>
                                 @foreach($departments as $d)
                                     <option value="{{ $d->id }}" {{ old('department_id') == $d->id ? 'selected' : '' }}>
@@ -60,15 +60,15 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Issued To <span class="text-danger">*</span></label>
-                            <input type="text" name="issued_to" class="form-control @error('issued_to') is-invalid @enderror"
+                            <label for="asset-issues-create-issued-to">Issued To <span class="text-danger">*</span></label>
+                            <input id="asset-issues-create-issued-to" type="text" name="issued_to" class="form-control @error('issued_to') is-invalid @enderror"
                                    value="{{ old('issued_to') }}" placeholder="Name of the person" required>
                             @error('issued_to')<span class="invalid-feedback">{{ $message }}</span>@enderror
                         </div>
 
                         <div class="form-group">
-                            <label>Type <small class="text-muted">(optional)</small></label>
-                            <select name="issued_to_type" class="form-control">
+                            <label for="asset-issues-create-issued-to-type">Type <small class="text-muted">(optional)</small></label>
+                            <select id="asset-issues-create-issued-to-type" name="issued_to_type" class="form-control">
                                 <option value="">— Select —</option>
                                 @foreach(['Student','Teacher','Staff','Department','Other'] as $t)
                                     <option value="{{ $t }}" {{ old('issued_to_type') === $t ? 'selected' : '' }}>{{ $t }}</option>
@@ -77,23 +77,23 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Quantity <span class="text-danger">*</span></label>
-                            <input type="number" name="quantity" class="form-control @error('quantity') is-invalid @enderror"
+                            <label for="asset-issues-create-quantity">Quantity <span class="text-danger">*</span></label>
+                            <input id="asset-issues-create-quantity" type="number" name="quantity" class="form-control @error('quantity') is-invalid @enderror"
                                    value="{{ old('quantity', 1) }}" min="1" required>
                             @error('quantity')<span class="invalid-feedback">{{ $message }}</span>@enderror
                         </div>
 
                         <div class="form-group">
-                            <label>Issue Date <span class="text-danger">*</span></label>
-                            <input type="text" name="issue_date" datepicker datepicker-format="dd/mm/yyyy"
+                            <label for="asset-issues-create-issue-date">Issue Date <span class="text-danger">*</span></label>
+                            <input id="asset-issues-create-issue-date" type="text" name="issue_date" datepicker datepicker-format="dd/mm/yyyy"
                                    class="form-control @error('issue_date') is-invalid @enderror"
                                    value="{{ old('issue_date', now()->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
                             @error('issue_date')<span class="invalid-feedback">{{ $message }}</span>@enderror
                         </div>
 
                         <div class="form-group">
-                            <label>Notes</label>
-                            <textarea name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
+                            <label for="asset-issues-create-notes">Notes</label>
+                            <textarea id="asset-issues-create-notes" name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
                         </div>
             </div>
 

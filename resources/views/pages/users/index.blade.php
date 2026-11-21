@@ -88,7 +88,7 @@
                                                     onchange="this.form.submit()"
                                                     {{ $user->is_active ? 'checked' : '' }}
                                                 >
-                                                <label class="custom-control-label" for="userStatusSwitch{{ $user->id }}"></label>
+                                                <label class="custom-control-label" for="userStatusSwitch{{ $user->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
                                             </div>
                                         </form>
                                         @else
@@ -97,8 +97,8 @@
                                     </td>
                                     <td style="display: flex; justify-content: center; align-items: center; gap: 5px;">
                                         @if ($canManage)
-                                            <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-dark">
-                                                <i class="fas fa-edit"></i>
+                                            <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                                <i class="fas fa-edit" aria-hidden="true"></i>
                                             </a>
                                         @endif
                                         @if ($actorIsPlatformAdmin && $isSuperAdmin && $canManage)

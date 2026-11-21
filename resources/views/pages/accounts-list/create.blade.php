@@ -34,13 +34,13 @@
                 @endif
 
 <div class="form-group">
-                            <label>Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
+                            <label for="accounts-list-create-name">Name <span class="text-danger">*</span></label>
+                            <input id="accounts-list-create-name" type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
                             @error('name')<span class="invalid-feedback">{{ $message }}</span>@enderror
                         </div>
                         <div class="form-group">
-                            <label>Account Group</label>
-                            <select name="account_group_id" class="form-control">
+                            <label for="accounts-list-create-account-group-id">Account Group</label>
+                            <select id="accounts-list-create-account-group-id" name="account_group_id" class="form-control">
                                 <option value="">— None —</option>
                                 @foreach($groups as $g)
                                     <option value="{{ $g->id }}" {{ old('account_group_id') == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
@@ -57,8 +57,8 @@
                             </select>
                         </div>
                         <div class="form-group" id="refIdWrapper" style="{{ old('reference_type') ? '' : 'display:none' }}">
-                            <label>Select Account</label>
-                            <select name="reference_id" class="form-control">
+                            <label for="accounts-list-create-reference-id">Select Account</label>
+                            <select id="accounts-list-create-reference-id" name="reference_id" class="form-control">
                                 <option value="">Select</option>
                                 @foreach($bankAccounts as $b)
                                     <option value="{{ $b->id }}" data-type="App\Models\BankAccount" {{ old('reference_id') == $b->id ? 'selected' : '' }}>{{ $b->bank_name }} — {{ $b->account_number }}</option>
@@ -72,8 +72,8 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Notes</label>
-                            <textarea name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
+                            <label for="accounts-list-create-notes">Notes</label>
+                            <textarea id="accounts-list-create-notes" name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
                         </div>
             </div>
 

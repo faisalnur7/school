@@ -143,7 +143,7 @@
                 <!-- Dashboard -->
                 @if($currentUser?->hasPermission('view_dashboard'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('dashboard') }}" class="nav-link-modern {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <a aria-label="{{ __('Dashboard') }}" title="{{ __('Dashboard') }}" href="{{ route('dashboard') }}" class="nav-link-modern {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
                         <span class="nav-text">{{ __('Dashboard') }}</span>
                         @if(request()->routeIs('dashboard'))
@@ -161,7 +161,7 @@
                 <!-- Academics -->
                 @if($currentUser?->hasPermission('view_academics'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('academics.hub') }}"
+                    <a aria-label="{{ __('Academics') }}" title="{{ __('Academics') }}" href="{{ route('academics.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('academics.hub', 'classes.*', 'sections.*', 'groups.*', 'sessions.*', 'subjects.*', 'classrooms.*', 'routines.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-school"></i></span>
                         <span class="nav-text">{{ __('Academics') }}</span>
@@ -175,7 +175,7 @@
                 <!-- Admissions -->
                 @if($currentUser?->hasPermission('view_admission_management'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('admissions.hub') }}"
+                    <a aria-label="{{ __('Admissions') }}" title="{{ __('Admissions') }}" href="{{ route('admissions.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('admissions.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-user-plus"></i></span>
                         <span class="nav-text">{{ __('Admissions') }}</span>
@@ -187,7 +187,7 @@
                 <!-- Students -->
                 @if($currentUser?->hasPermission('view_students'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('students.hub') }}"
+                    <a aria-label="{{ __('Students') }}" title="{{ __('Students') }}" href="{{ route('students.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('students.hub', 'students.*', 'teacher-section-assignments.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-user-graduate"></i></span>
                         <span class="nav-text">{{ __('Students') }}</span>
@@ -201,7 +201,7 @@
                 <!-- Attendance -->
                 @if($currentUser?->hasPermission('view_attendance'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('attendance.hub') }}"
+                    <a aria-label="{{ __('Attendance') }}" title="{{ __('Attendance') }}" href="{{ route('attendance.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('attendance.hub', 'attendance.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-clipboard-check"></i></span>
                         <span class="nav-text">{{ __('Attendance') }}</span>
@@ -215,7 +215,7 @@
                 <!-- Exams & Results -->
                 @if($currentUser?->hasPermission('view_results'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('results.hub') }}"
+                    <a aria-label="{{ __('Exams & Results') }}" title="{{ __('Exams & Results') }}" href="{{ route('results.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('results.hub', 'exams.*', 'student-subjects.*','result.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-poll"></i></span>
                         <span class="nav-text">{{ __('Exams & Results') }}</span>
@@ -234,7 +234,7 @@
                 <!-- Fees -->
                 @if($currentUser?->hasPermission('view_fees'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('fees.hub') }}"
+                    <a aria-label="{{ __('Fees') }}" title="{{ __('Fees') }}" href="{{ route('fees.hub') }}"
                         class="nav-link-modern {{ request()->routeIs('fees.hub', 'fee-categories.*', 'fee-sets.*', 'scholarships.*', 'free-studentships.*', 'transports.*', 'fees.*', 'payments.*', 'fees.payment-report', 'fees.payment-report.pdf') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-coins"></i></span>
                         <span class="nav-text">{{ __('Fees') }}</span>
@@ -248,7 +248,7 @@
                 <!-- Income & Expense -->
                 @if($currentUser?->hasPermission('view_financials'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('financials.hub') }}"
+                    <a aria-label="{{ __('Income & Expense') }}" title="{{ __('Income & Expense') }}" href="{{ route('financials.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('financials.hub', 'incomes.*', 'expenses.*', 'income-categories.*', 'expense-categories.*', 'shareholder-transactions.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
                         <span class="nav-text">{{ __('Income & Expense') }}</span>
@@ -262,7 +262,7 @@
                 <!-- Accounts -->
                 @if($currentUser?->hasPermission('view_accounts'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('accounts.hub') }}"
+                    <a aria-label="{{ __('Accounts') }}" title="{{ __('Accounts') }}" href="{{ route('accounts.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('accounts.hub', 'account-groups.*', 'accounts-list.*', 'ledger.*', 'accounting-periods.*', 'journal-entries.*', 'reports.*', 'bank-accounts.*', 'mobile-banking-accounts.*', 'hand-cash.*', 'transactions.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-book"></i></span>
                         <span class="nav-text">{{ __('Accounts') }}</span>
@@ -276,7 +276,7 @@
                 <!-- Budget (disabled) -->
                 {{-- @if($currentUser?->hasPermission('view_budget'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('budget.hub') }}"
+                    <a aria-label="{{ __('Budget') }}" title="{{ __('Budget') }}" href="{{ route('budget.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('budget.hub', 'budget-allocations.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-wallet"></i></span>
                         <span class="nav-text">{{ __('Budget') }}</span>
@@ -295,7 +295,7 @@
                 <!-- HR & Payroll -->
                 @if($currentUser?->hasPermission('view_hr'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('hr.hub') }}"
+                    <a aria-label="{{ __('HR & Payroll') }}" title="{{ __('HR & Payroll') }}" href="{{ route('hr.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('hr.hub', 'hr.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-users"></i></span>
                         <span class="nav-text">{{ __('HR & Payroll') }}</span>
@@ -309,7 +309,7 @@
                 <!-- Inventory -->
                 @if($currentUser?->hasPermission('view_inventory'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('inventory.hub') }}"
+                    <a aria-label="{{ __('Inventory') }}" title="{{ __('Inventory') }}" href="{{ route('inventory.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('inventory.hub', 'inventory.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-boxes"></i></span>
                         <span class="nav-text">{{ __('Inventory') }}</span>
@@ -323,7 +323,7 @@
                 <!-- Assets & Facilities -->
                 @if($currentUser?->hasPermission('view_assets'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('assets.hub') }}"
+                    <a aria-label="{{ __('Assets & Facilities') }}" title="{{ __('Assets & Facilities') }}" href="{{ route('assets.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('assets.hub', 'assets.*', 'asset-categories.*', 'asset-purchases.*', 'asset-issues.*', 'facilities.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-building"></i></span>
                         <span class="nav-text">{{ __('Assets & Facilities') }}</span>
@@ -337,7 +337,7 @@
                 <!-- Communications -->
                 @if($currentUser?->hasPermission('view_communications'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('communications.index') }}"
+                    <a aria-label="{{ __('Communications') }}" title="{{ __('Communications') }}" href="{{ route('communications.index') }}"
                        class="nav-link-modern {{ request()->routeIs('communications.*', 'chat.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-comments"></i></span>
                         <span class="nav-text">{{ __('Communications') }}</span>
@@ -351,7 +351,7 @@
                 <!-- Website Management -->
                 {{-- @if($currentUser?->hasPermission('view_website_management'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('website.cms.hub') }}"
+                    <a aria-label="{{ __('Website Management') }}" title="{{ __('Website Management') }}" href="{{ route('website.cms.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('website.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-globe"></i></span>
                         <span class="nav-text">{{ __('Website Management') }}</span>
@@ -370,7 +370,7 @@
                 <!-- Users & Roles -->
                 @if($currentUser?->hasPermission('view_users'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('users.hub') }}"
+                    <a aria-label="{{ __('Users & Roles') }}" title="{{ __('Users & Roles') }}" href="{{ route('users.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('users.hub', 'users.*', 'roles.*', 'permissions.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-user-cog"></i></span>
                         <span class="nav-text">{{ __('Users & Roles') }}</span>
@@ -384,7 +384,7 @@
                 <!-- Settings -->
                 @if($currentUser?->hasPermission('view_institute_settings'))
                 <li class="nav-item-modern">
-                    <a href="{{ route('institute.hub') }}"
+                    <a aria-label="{{ __('Settings') }}" title="{{ __('Settings') }}" href="{{ route('institute.hub') }}"
                        class="nav-link-modern {{ request()->routeIs('institute.hub', 'school-settings.*', 'certificates.*', 'id-card-templates.*', 'buildings.*', 'rooms.*', 'location.*', 'division.*', 'district.*', 'police-station.*', 'post-office.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-cogs"></i></span>
                         <span class="nav-text">{{ __('Settings') }}</span>
@@ -402,7 +402,7 @@
 
                 <!-- Platform Admins -->
                 <li class="nav-item-modern">
-                    <a href="{{ route('platform-admins.index') }}"
+                    <a aria-label="{{ __('Platform Admins') }}" title="{{ __('Platform Admins') }}" href="{{ route('platform-admins.index') }}"
                        class="nav-link-modern {{ $platformAdminsActive ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-user-shield"></i></span>
                         <span class="nav-text">{{ __('Platform Admins') }}</span>
@@ -412,7 +412,7 @@
 
                 <!-- Mobile App Settings -->
                 <li class="nav-item-modern">
-                    <a href="{{ route('platform-admins.mobile-app.edit') }}"
+                    <a aria-label="{{ __('Mobile App Settings') }}" title="{{ __('Mobile App Settings') }}" href="{{ route('platform-admins.mobile-app.edit') }}"
                        class="nav-link-modern {{ request()->routeIs('platform-admins.mobile-app.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-mobile-alt"></i></span>
                         <span class="nav-text">{{ __('Mobile App Settings') }}</span>
@@ -422,7 +422,7 @@
 
                 <!-- Audit Trail -->
                 <li class="nav-item-modern">
-                    <a href="{{ route('audit-trails.index') }}"
+                    <a aria-label="{{ __('Audit Trail') }}" title="{{ __('Audit Trail') }}" href="{{ route('audit-trails.index') }}"
                        class="nav-link-modern {{ request()->routeIs('audit-trails.*') ? 'active' : '' }}">
                         <span class="nav-icon"><i class="fas fa-shield-alt"></i></span>
                         <span class="nav-text">{{ __('Audit Trail') }}</span>

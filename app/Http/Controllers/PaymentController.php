@@ -44,9 +44,23 @@ class PaymentController extends Controller
             $query->whereDate('payment_date', '<=', $request->to);
         }
 
-        $data['payments'] = $query->orderByDesc('payment_date')->orderByDesc('id')->get();
+        if ($request->filled('q')) {
+            $term = trim((string) $request->q);
+            $query->where(function ($q) use ($term) {
+                $q->where('receipt_no', 'like', "%{$term}%")
+                  ->orWhereHas('student', fn ($s) => $s
+                      ->where('student_cid', 'like', "%{$term}%")
+                      ->orWhere('full_name_en', 'like', "%{$term}%"));
+            });
+        }
+
+        // Paginated: the list used to load every payment ever made (1,100+ rows).
+        $data['payments'] = $query->orderByDesc('payment_date')->orderByDesc('id')
+            ->paginate(25)
+            ->withQueryString();
         $data['from']     = $request->from;
         $data['to']       = $request->to;
+        $data['q']        = $request->q;
 
         return view('pages.payments.index', $data);
     }

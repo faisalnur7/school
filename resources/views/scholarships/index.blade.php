@@ -27,8 +27,8 @@
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label class="font-weight-bold">Academic Year</label>
-                                <select name="session_id" class="form-control form-control-sm"
+                                <label for="scholarships-index-session-id" class="font-weight-bold">Academic Year</label>
+                                <select id="scholarships-index-session-id" name="session_id" class="form-control form-control-sm"
                                     onchange="this.form.submit()">
                                     <option value="">All Sessions</option>
                                     @foreach ($sessions as $s)
@@ -67,8 +67,8 @@
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Group</label>
-                                <select name="group_id" class="form-control form-control-sm">
+                                <label for="scholarships-index-group-id">Group</label>
+                                <select id="scholarships-index-group-id" name="group_id" class="form-control form-control-sm">
                                     <option value="">All Groups</option>
                                     @foreach ($groups as $g)
                                         <option value="{{ $g->id }}"

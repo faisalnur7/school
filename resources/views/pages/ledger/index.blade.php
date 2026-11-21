@@ -18,8 +18,8 @@
                 <div class="row g-2 align-items-end">
 
                     <div class="col-md-2">
-                        <label class="form-label mb-1" style="font-size:12px">{{ __('Type') }}</label>
-                        <select name="type" class="form-control form-control-sm">
+                        <label for="ledger-index-type" class="form-label mb-1" style="font-size:12px">{{ __('Type') }}</label>
+                        <select id="ledger-index-type" name="type" class="form-control form-control-sm">
                             <option value="">{{ __('All Types') }}</option>
                             @foreach (['income', 'expense', 'capital', 'withdrawal'] as $t)
                                 <option value="{{ $t }}" {{ request('type') === $t ? 'selected' : '' }}>
@@ -30,8 +30,8 @@
                     </div>
 
                     <div class="col-md-2">
-                        <label class="form-label mb-1" style="font-size:12px">{{ __('Payment Method') }}</label>
-                        <select name="payment_method" class="form-control form-control-sm">
+                        <label for="ledger-index-payment-method" class="form-label mb-1" style="font-size:12px">{{ __('Payment Method') }}</label>
+                        <select id="ledger-index-payment-method" name="payment_method" class="form-control form-control-sm">
                             <option value="">{{ __('All Methods') }}</option>
                             @foreach (['Cash', 'Bank Transfer', 'Cheque', 'Mobile Banking', 'Other'] as $m)
                                 <option value="{{ $m }}" {{ request('payment_method') === $m ? 'selected' : '' }}>
@@ -42,8 +42,8 @@
                     </div>
 
                     <div class="col-md-2">
-                        <label class="form-label mb-1" style="font-size:12px">{{ __('Shareholder') }}</label>
-                        <select name="shareholder_id" class="form-control form-control-sm">
+                        <label for="ledger-index-shareholder-id" class="form-label mb-1" style="font-size:12px">{{ __('Shareholder') }}</label>
+                        <select id="ledger-index-shareholder-id" name="shareholder_id" class="form-control form-control-sm">
                             <option value="">{{ __('All') }}</option>
                             @foreach ($shareholders as $sh)
                                 <option value="{{ $sh->id }}" {{ request('shareholder_id') == $sh->id ? 'selected' : '' }}>
@@ -54,15 +54,15 @@
                     </div>
 
                     <div class="col-md-2">
-                        <label class="form-label mb-1" style="font-size:12px">{{ __('From') }}</label>
-                        <input type="text" name="from" datepicker datepicker-format="dd/mm/yyyy"
+                        <label for="ledger-index-from" class="form-label mb-1" style="font-size:12px">{{ __('From') }}</label>
+                        <input id="ledger-index-from" type="text" name="from" datepicker datepicker-format="dd/mm/yyyy"
                                class="form-control form-control-sm datepicker"
                                value="{{ request('from') }}" placeholder="dd/mm/yyyy" autocomplete="off">
                     </div>
 
                     <div class="col-md-2">
-                        <label class="form-label mb-1" style="font-size:12px">{{ __('To') }}</label>
-                        <input type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
+                        <label for="ledger-index-to" class="form-label mb-1" style="font-size:12px">{{ __('To') }}</label>
+                        <input id="ledger-index-to" type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
                                class="form-control form-control-sm datepicker"
                                value="{{ request('to') }}" placeholder="dd/mm/yyyy" autocomplete="off">
                     </div>

@@ -36,17 +36,17 @@
 
                             <td style="display: flex; justify-content: center; align-items: self-start; gap: 5px;">
                                 <a href="{{ route('expense-categories.edit', $category->id) }}"
-                                    class="btn btn-sm btn-dark">
-                                    <i class="fas fa-edit"></i>
+                                    class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                    <i class="fas fa-edit" aria-hidden="true"></i>
                                 </a>
 
                                 <form action="{{ route('expense-categories.destroy', $category->id) }}" method="POST"
-                                    class="btn btn-sm btn-danger d-inline m-0"
+                                    class="d-inline m-0"
                                     onsubmit="return confirm('Delete this expense category?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" style="background:none;border:none;padding:0;color:inherit;">
-                                        <i class="fas fa-trash"></i>
+                                    <button type="submit" class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                        <i class="fas fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </td>

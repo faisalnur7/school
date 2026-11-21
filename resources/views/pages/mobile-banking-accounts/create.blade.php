@@ -34,8 +34,8 @@
                 @endif
 
 <div class="form-group">
-                                <label>Provider</label>
-                                <select name="provider" class="form-control @error('provider') is-invalid @enderror" required>
+                                <label for="mobile-banking-accounts-create-provider">Provider</label>
+                                <select id="mobile-banking-accounts-create-provider" name="provider" class="form-control @error('provider') is-invalid @enderror" required>
                                     <option value="">Select Provider</option>
                                     @foreach ($providers as $provider)
                                         <option value="{{ $provider }}" {{ old('provider') == $provider ? 'selected' : '' }}>
@@ -47,22 +47,22 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Account Name</label>
-                                <input type="text" name="account_name" class="form-control @error('account_name') is-invalid @enderror"
+                                <label for="mobile-banking-accounts-create-account-name">Account Name</label>
+                                <input id="mobile-banking-accounts-create-account-name" type="text" name="account_name" class="form-control @error('account_name') is-invalid @enderror"
                                        value="{{ old('account_name') }}" required>
                                 @error('account_name') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="form-group">
-                                <label>Account Number</label>
-                                <input type="text" name="account_number" class="form-control @error('account_number') is-invalid @enderror"
+                                <label for="mobile-banking-accounts-create-account-number">Account Number</label>
+                                <input id="mobile-banking-accounts-create-account-number" type="text" name="account_number" class="form-control @error('account_number') is-invalid @enderror"
                                        value="{{ old('account_number') }}" required>
                                 @error('account_number') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="form-group">
-                                <label>Account Type</label>
-                                <select name="account_type" class="form-control" required>
+                                <label for="mobile-banking-accounts-create-account-type">Account Type</label>
+                                <select id="mobile-banking-accounts-create-account-type" name="account_type" class="form-control" required>
                                     @foreach (['Personal', 'Agent', 'Merchant'] as $type)
                                         <option value="{{ $type }}" {{ old('account_type') == $type ? 'selected' : '' }}>
                                             {{ $type }}
@@ -72,24 +72,24 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Opening Balance (BDT)</label>
-                                <input type="number" name="opening_balance" step="0.01" min="0"
+                                <label for="mobile-banking-accounts-create-opening-balance">Opening Balance (BDT)</label>
+                                <input id="mobile-banking-accounts-create-opening-balance" type="number" name="opening_balance" step="0.01" min="0"
                                        class="form-control @error('opening_balance') is-invalid @enderror"
                                        value="{{ old('opening_balance', 0) }}" required>
                                 @error('opening_balance') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="form-group">
-                                <label>Opening Date</label>
-                                <input type="text" name="opening_date" datepicker datepicker-format="dd/mm/yyyy"
+                                <label for="mobile-banking-accounts-create-opening-date">Opening Date</label>
+                                <input id="mobile-banking-accounts-create-opening-date" type="text" name="opening_date" datepicker datepicker-format="dd/mm/yyyy"
                                        class="form-control @error('opening_date') is-invalid @enderror"
                                        value="{{ old('opening_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
                                 @error('opening_date') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="form-group">
-                                <label>Notes <small class="text-muted">(optional)</small></label>
-                                <textarea name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
+                                <label for="mobile-banking-accounts-create-notes">Notes <small class="text-muted">(optional)</small></label>
+                                <textarea id="mobile-banking-accounts-create-notes" name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
                             </div>
             </div>
 

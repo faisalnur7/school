@@ -9,13 +9,13 @@
             <div class="flex gap-2 pr-3 py-2 items-center justify-center ml-auto">
                 <form method="GET" class="flex gap-2 items-end">
                     <div>
-                        <label style="font-size:12px;color:#FFF">From</label>
-                        <input type="text" name="from" datepicker datepicker-format="dd/mm/yyyy"
+                        <label for="reports-headwise-transactions-from" style="font-size:12px;color:#FFF">From</label>
+                        <input id="reports-headwise-transactions-from" type="text" name="from" datepicker datepicker-format="dd/mm/yyyy"
                                class="form-control form-control-sm datepicker" value="{{ request('from', $from->format('d/m/Y')) }}" autocomplete="off">
                     </div>
                     <div>
-                        <label style="font-size:12px;color:#FFF">To</label>
-                        <input type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
+                        <label for="reports-headwise-transactions-to" style="font-size:12px;color:#FFF">To</label>
+                        <input id="reports-headwise-transactions-to" type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
                                class="form-control form-control-sm datepicker" value="{{ request('to', $to->format('d/m/Y')) }}" autocomplete="off">
                     </div>
                     <button class="btn btn-sm btn-dark" style="margin-top:10px" title="Filter" aria-label="Filter">

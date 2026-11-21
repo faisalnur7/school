@@ -35,8 +35,8 @@
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">Purchase Date <span class="text-danger">*</span></label>
-                            <input type="date" name="purchase_date"
+                            <label for="purchases-create-purchase-date" class="form-label">Purchase Date <span class="text-danger">*</span></label>
+                            <input id="purchases-create-purchase-date" type="date" name="purchase_date"
                                 class="form-control @error('purchase_date') is-invalid @enderror"
                                 value="{{ old('purchase_date', now()->format('Y-m-d')) }}" required>
                             @error('purchase_date')
@@ -73,8 +73,8 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Notes</label>
-                        <textarea name="notes" class="form-control @error('notes') is-invalid @enderror" rows="3">{{ old('notes') }}</textarea>
+                        <label for="purchases-create-notes" class="form-label">Notes</label>
+                        <textarea id="purchases-create-notes" name="notes" class="form-control @error('notes') is-invalid @enderror" rows="3">{{ old('notes') }}</textarea>
                         @error('notes')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

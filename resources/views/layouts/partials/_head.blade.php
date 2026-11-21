@@ -8,8 +8,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <!-- <title>@yield('title')</title> -->
-    <title>@yield('title')</title>
+    @php
+        $tabTitle = trim($__env->yieldContent('title'))
+            ?: (is_string($title ?? null) && trim($title) !== '' ? trim($title) : '')
+            ?: (($headPageTitle ?? '') ?: __('Dashboard'));
+        $tabSuffix = $schoolSetting->short_name ?? null ?: config('app.name');
+    @endphp
+    <title>{{ $tabTitle }} · {{ $tabSuffix }}</title>
     <link rel="icon" href="{{ $favicon }}">
     <link rel="shortcut icon" href="{{ $favicon }}">
     <script>
