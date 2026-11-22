@@ -96,12 +96,12 @@
         {{-- List --}}
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header shadow p-0 flex justify-between items-center">
+                <div class="card-header shadow p-0 flex justify-between items-center ds-header-filter">
                     <h3 class="card-title flex text-white pl-3 text-medium">Budget Allocations — {{ $year }}</h3>
-                    <div class="flex gap-2 pr-3 py-2 items-end ml-auto">
+                    <div class="flex gap-2 pr-3 py-2 items-end ml-auto ds-header-filter__controls">
                         <form method="GET" class="flex gap-2 items-end">
                             <div>
-                                <label for="budget-allocations-index-year" style="font-size:12px;color:#FFF">Year</label>
+                                <label for="budget-allocations-index-year" class="ds-header-filter__label">Year</label>
                                 <input id="budget-allocations-index-year" type="number" name="year" class="form-control form-control-sm" value="{{ $year }}" style="width:100px">
                             </div>
                             <button class="btn btn-sm btn-dark" style="margin-top:10px">Go</button>
