@@ -136,7 +136,7 @@
             <a href="{{ route('result.tutorial-report.settings.edit') }}" class="btn btn-outline-primary btn-sm result-filter-icon-btn" title="Report settings" aria-label="Report settings">
                 <i class="fas fa-sliders-h"></i>
             </a>
-            <a href="{{ route('result.tutorial-report.pdf', collect($filters)->except('results_per_page')->all()) }}" target="_blank" class="btn btn-danger btn-sm result-filter-icon-btn" title="PDF" aria-label="PDF">
+            <a href="{{ route('result.tutorial-report.pdf', collect($filters)->except('results_per_page')->all()) }}" target="_blank" class="btn btn-outline-secondary btn-sm result-filter-icon-btn" title="PDF" aria-label="PDF">
                 <i class="fas fa-file-pdf"></i>
             </a>
             <button onclick="window.print()" class="btn btn-info btn-sm no-print result-filter-icon-btn" title="Print" aria-label="Print">

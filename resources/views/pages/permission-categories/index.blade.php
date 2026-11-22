@@ -40,10 +40,10 @@
                                         <a href="{{ route('permission-categories.edit', $category->id) }}" class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
                                             <i class="fas fa-edit" aria-hidden="true"></i>
                                         </a>
-                                        <form action="{{ route('permission-categories.destroy', $category->id) }}" method="POST" class="d-inline m-0" onsubmit="return confirm('Delete this category?')">
+                                        <form action="{{ route('permission-categories.destroy', $category->id) }}" method="POST" class="d-inline m-0" data-confirm="{{ __('Delete this category?') }}" data-confirm-action="{{ __('Delete category') }}" data-confirm-cancel="{{ __('Keep category') }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                         </form>
                                     </td>
                                 </tr>

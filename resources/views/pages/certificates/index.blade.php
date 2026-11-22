@@ -69,7 +69,7 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <form action="{{ route('certificates.destroy', $certificate) }}" method="POST" class="d-inline"
-                                    onsubmit="return confirm('Delete this certificate type?')">
+                                    data-confirm="{{ __('Delete this certificate type?') }}" data-confirm-action="{{ __('Delete certificate type') }}" data-confirm-cancel="{{ __('Keep certificate type') }}">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit"

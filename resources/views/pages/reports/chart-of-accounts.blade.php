@@ -7,7 +7,7 @@
         <div class="card-header shadow p-0 flex justify-between items-center">
             <h3 class="card-title flex text-white pl-3 text-medium">Chart of Accounts</h3>
             <div class="flex gap-2 pr-3 py-2 items-center justify-center ml-auto">
-                <a href="{{ route('reports.chart-of-accounts.pdf') }}" class="btn btn-sm btn-danger"><i class="fas fa-file-pdf"></i> PDF</a>
+                <a href="{{ route('reports.chart-of-accounts.pdf') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-file-pdf"></i> PDF</a>
             </div>
         </div>
         <div class="card-body p-0">

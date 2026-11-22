@@ -88,7 +88,7 @@
                                 </td>
                                 <td class="text-center">
                                     <a href="{{ route('rooms.edit', $room) }}" class="btn btn-xs btn-warning" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></a>
-                                    <form action="{{ route('rooms.destroy', $room) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this room?')">
+                                    <form action="{{ route('rooms.destroy', $room) }}" method="POST" class="d-inline" data-confirm="{{ __('Delete this room?') }}" data-confirm-action="{{ __('Delete room') }}" data-confirm-cancel="{{ __('Keep room') }}">
                                         @csrf @method('DELETE')
                                         <button class="btn btn-xs btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>

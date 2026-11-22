@@ -176,7 +176,7 @@
                     @endif
                     <div class="flex gap-2 mt-3">
                         <button type="submit" class="btn btn-sm btn-danger"
-                            onclick="return confirm('Confirm checkout for {{ addslashes($rec->student->full_name_en) }}?')">
+                            data-confirm="{{ __('Check out :name?', ['name' => $rec->student->full_name_en]) }}" data-confirm-action="{{ __('Check out student') }}" data-confirm-cancel="{{ __('Not now') }}">
                             <i class="fas fa-check mr-1"></i> Confirm Checkout
                         </button>
                         <button type="button" class="btn btn-sm btn-secondary" onclick="toggleCheckout({{ $rec->id }})">Cancel</button>

@@ -73,7 +73,7 @@
                                     <td>{{ $document->file_size }}</td>
                                     <td>{{ $document->uploaded_at?->format('d M Y') ?? '—' }}</td>
                                     <td class="text-right">
-                                        <form method="POST" action="{{ route('hr.documents.destroy', $document) }}" class="d-inline" onsubmit="return confirm('Delete this document?')">
+                                        <form method="POST" action="{{ route('hr.documents.destroy', $document) }}" class="d-inline" data-confirm="{{ __('Delete this document?') }}" data-confirm-action="{{ __('Delete document') }}" data-confirm-cancel="{{ __('Keep document') }}">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>

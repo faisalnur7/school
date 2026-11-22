@@ -132,7 +132,7 @@
                                         <i class="fas fa-edit" aria-hidden="true"></i>
                                     </button>
                                     <form action="{{ route('website.cms.section.destroy', [$type, $section]) }}" method="POST" class="d-inline"
-                                          onsubmit="return confirm('Delete this section?')">
+                                          data-confirm="{{ __('Delete this section?') }}" data-confirm-action="{{ __('Delete section') }}" data-confirm-cancel="{{ __('Keep section') }}">
                                         @csrf @method('DELETE')
                                         <button class="btn btn-xs btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>

@@ -269,7 +269,7 @@
                         <a href="{{ route('fees.student-receivable-report') }}" class="btn btn-outline-secondary fees-report-action-btn" title="Reset"><i class="fas fa-times"></i></a>
                         @if(request('from_date') && request('to_date') && $rows->isNotEmpty())
                             <button type="button" class="btn btn-success fees-report-action-btn" onclick="window.print()" title="Print"><i class="fas fa-print"></i></button>
-                            <a href="{{ route('fees.student-receivable-report.pdf', $reportPdfQuery) }}" class="btn btn-danger fees-report-action-btn" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
+                            <a href="{{ route('fees.student-receivable-report.pdf', $reportPdfQuery) }}" class="btn btn-outline-secondary fees-report-action-btn" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
                         @endif
                     </div>
                 </div>

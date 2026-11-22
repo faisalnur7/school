@@ -17,8 +17,6 @@
 
     $hubModules = collect($hubModules)->filter(fn ($module) => \Illuminate\Support\Facades\Route::has($module['route']) && auth()->user()?->hasPermission($module['permission']))->values();
     $currentModule = $hubModules->first(fn ($module) => request()->routeIs(...$module['match']));
-    $visibleModules = $hubModules->take(9);
-    $moreModules = $hubModules->slice(9);
 
     $contextLinks = [
         'academics.hub' => [
@@ -167,55 +165,27 @@
         ->values();
 @endphp
 
-<div class="hub-switcher-shell no-print" id="hubSwitcherShell" aria-label="{{ __('Module navigation') }}">
-<div class="hub-switcher" id="hubSwitcher">
-    <div class="hub-switcher__primary">
-        <span class="hub-switcher__current">
-            <i class="fas {{ $currentModule['icon'] ?? 'fa-compass' }}" aria-hidden="true"></i>
-            <span>{{ $currentModule['label'] ?? __('Modules') }}</span>
-        </span>
-
-        <div class="hub-switcher__links" role="navigation" aria-label="{{ __('Modules') }}">
-            @foreach ($visibleModules as $module)
-                <a href="{{ route($module['route']) }}" class="hub-switcher__link {{ $currentModule && $currentModule['route'] === $module['route'] ? 'is-active' : '' }}">
-                    <i class="fas {{ $module['icon'] }}" aria-hidden="true"></i>
-                    <span>{{ $module['label'] }}</span>
-                </a>
-            @endforeach
-        </div>
-
-        @if ($moreModules->isNotEmpty())
-            <div class="dropdown hub-switcher__more">
-                <button type="button" class="hub-switcher__more-button dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {{ __('More') }}
-                </button>
-                <div class="dropdown-menu dropdown-menu-right hub-switcher__menu">
-                    @foreach ($moreModules as $module)
-                        <a href="{{ route($module['route']) }}" class="dropdown-item {{ $currentModule && $currentModule['route'] === $module['route'] ? 'active' : '' }}">
-                            <i class="fas {{ $module['icon'] }} mr-2" aria-hidden="true"></i>{{ $module['label'] }}
-                        </a>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
+@if ($currentModule && $currentContextLinks->isNotEmpty())
+<div class="hub-switcher-shell no-print" id="hubSwitcherShell">
+<nav class="hub-switcher" id="hubSwitcher" aria-label="{{ __(':module navigation', ['module' => $currentModule['label']]) }}">
+    <div class="hub-switcher__context">
+        <a href="{{ route($currentModule['route']) }}" class="hub-switcher__current">
+            <i class="fas {{ $currentModule['icon'] }}" aria-hidden="true"></i>
+            <span>{{ $currentModule['label'] }}</span>
+        </a>
+        @foreach ($currentContextLinks as $link)
+            @php $contextHref = route($link['route'], $link['params'] ?? []); @endphp
+            @if (!empty($link['anchor']))
+                @php $contextHref .= '#' . ltrim($link['anchor'], '#'); @endphp
+            @endif
+            <a href="{{ $contextHref }}" class="hub-switcher__context-link {{ request()->routeIs(...$link['match']) ? 'is-active' : '' }}" @if (request()->routeIs(...$link['match'])) aria-current="page" @endif>
+                {{ $link['label'] }}
+            </a>
+        @endforeach
     </div>
-
-    @if ($currentContextLinks->isNotEmpty())
-        <div class="hub-switcher__context" role="navigation" aria-label="{{ __($currentModule['label'] . ' navigation') }}">
-            @foreach ($currentContextLinks as $link)
-                @php $contextHref = route($link['route'], $link['params'] ?? []); @endphp
-                @if (!empty($link['anchor']))
-                    @php $contextHref .= '#' . ltrim($link['anchor'], '#'); @endphp
-                @endif
-                <a href="{{ $contextHref }}" class="hub-switcher__context-link {{ request()->routeIs(...$link['match']) ? 'is-active' : '' }}">
-                    {{ $link['label'] }}
-                </a>
-            @endforeach
-        </div>
-    @endif
+</nav>
 </div>
-</div>
+@endif
 
 @once
     <style>
@@ -251,36 +221,25 @@
             transition: max-height .22s ease, margin-top .22s ease, opacity .18s ease, transform .22s ease, visibility .22s ease;
             visibility: visible;
         }
-        .hub-switcher__primary, .hub-switcher__context { display: flex; align-items: center; gap: .35rem; min-width: 0; }
-        .hub-switcher__primary { padding: .35rem .45rem; }
-        .hub-switcher__current { display: inline-flex; align-items: center; gap: .45rem; flex: 0 0 auto; padding: .5rem .7rem; border-radius: .7rem; color: #0f172a; font-size: .8rem; font-weight: 800; }
-        .hub-switcher__current i { color: #2563eb; }
-        .hub-switcher__links { display: flex; align-items: center; gap: .15rem; min-width: 0; overflow-x: auto; scrollbar-width: none; }
-        .hub-switcher__links::-webkit-scrollbar { display: none; }
-        .hub-switcher__link, .hub-switcher__more-button { display: inline-flex; align-items: center; gap: .4rem; flex: 0 0 auto; padding: .52rem .65rem; border: 0; border-radius: .65rem; background: transparent; color: #64748b; font-size: .76rem; font-weight: 650; white-space: nowrap; text-decoration: none; }
-        .hub-switcher__link:hover, .hub-switcher__more-button:hover { background: #eff6ff; color: #1d4ed8; text-decoration: none; }
-        .hub-switcher__link.is-active { background: #2563eb; color: #fff; box-shadow: 0 5px 12px rgba(37, 99, 235, .2); }
-        .hub-switcher__more { flex: 0 0 auto; }
-        .hub-switcher__more-button::after { margin-left: .2rem; }
-        .hub-switcher__menu { min-width: 12rem; border: 0; border-radius: .8rem; box-shadow: 0 16px 35px rgba(15, 23, 42, .16); }
-        .hub-switcher__context { padding: .15rem .8rem .45rem; border-top: 1px solid rgba(148, 163, 184, .16); overflow-x: auto; scrollbar-width: none; }
+        .hub-switcher__context { display: flex; align-items: center; gap: .35rem; min-width: 0; }
+        .hub-switcher__current { display: inline-flex; align-items: center; gap: .45rem; flex: 0 0 auto; padding: .3rem .6rem .3rem 0; margin-right: .35rem; border-right: 1px solid rgba(148, 163, 184, .3); color: #0f172a; font-size: .8rem; font-weight: 800; text-decoration: none; }
+        .hub-switcher__current:hover { color: var(--c-primary, #0b6b3a); text-decoration: none; }
+        .hub-switcher__current i { color: var(--c-primary, #0b6b3a); }
+        .hub-switcher__context { padding: .3rem .8rem; overflow-x: auto; scrollbar-width: none; }
         .hub-switcher__context::-webkit-scrollbar { display: none; }
-        .hub-switcher__context-link { padding: .35rem .55rem; color: #64748b; font-size: .72rem; font-weight: 600; white-space: nowrap; text-decoration: none; border-bottom: 2px solid transparent; }
-        .hub-switcher__context-link:hover, .hub-switcher__context-link.is-active { color: #1d4ed8; border-bottom-color: #2563eb; text-decoration: none; }
+        .hub-switcher__context-link { padding: .35rem .55rem; color: #475569; font-size: .75rem; font-weight: 600; white-space: nowrap; text-decoration: none; border-bottom: 2px solid transparent; }
+        .hub-switcher__context-link:hover, .hub-switcher__context-link.is-active { color: var(--c-primary, #0b6b3a); border-bottom-color: var(--c-primary, #0b6b3a); text-decoration: none; }
         html[data-theme='dark'] .hub-switcher { background: rgba(15, 23, 42, .88); border-color: rgba(148, 163, 184, .22); }
         html[data-theme='dark'] .hub-switcher__current { color: #e2e8f0; }
-        html[data-theme='dark'] .hub-switcher__link, html[data-theme='dark'] .hub-switcher__more-button, html[data-theme='dark'] .hub-switcher__context-link { color: #94a3b8; }
-        html[data-theme='dark'] .hub-switcher__link:hover, html[data-theme='dark'] .hub-switcher__more-button:hover { background: rgba(37, 99, 235, .2); color: #bfdbfe; }
+        html[data-theme='dark'] .hub-switcher__context-link { color: #94a3b8; }
+        html[data-theme='dark'] .hub-switcher__current i { color: #4ade80; }
         @media print {
             .hub-switcher { display: none !important; }
         }
         @media (max-width: 767.98px) {
             .hub-switcher-shell { margin: 0 .65rem 0; }
             .hub-switcher { border-radius: .8rem; }
-            .hub-switcher__current { padding: .45rem .55rem; }
-            .hub-switcher__current span { display: none; }
-            .hub-switcher__link { padding: .48rem .55rem; }
-            .hub-switcher__link i { display: none; }
+            .hub-switcher__current { padding-right: .45rem; margin-right: .2rem; }
         }
     </style>
 @endonce

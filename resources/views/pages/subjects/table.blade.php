@@ -84,7 +84,7 @@
 
                                     <button type="submit"
                                         class="btn btn-danger btn-sm p-1 flex items-center justify-center" title="Delete"
-                                        onclick="return confirm('Are you sure?')">
+                                        data-confirm="{{ __('Are you sure?') }}" data-confirm-action="{{ __('Continue') }}" data-confirm-cancel="{{ __('Cancel') }}">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>

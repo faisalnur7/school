@@ -332,7 +332,7 @@
                     <i class="fas fa-print" aria-hidden="true"></i><span class="d-none d-xl-inline progress-report-action-label">Print</span>
                 </button>
                 <button type="button" id="progressReportPdfBtn"
-                    class="btn btn-danger btn-sm progress-report-action-btn"
+                    class="btn btn-outline-secondary btn-sm progress-report-action-btn"
                     title="Download PDF" aria-label="Download PDF">
                     <i class="fas fa-file-pdf" aria-hidden="true"></i><span class="d-none d-xl-inline progress-report-action-label">PDF</span>
                 </button>

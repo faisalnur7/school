@@ -58,9 +58,12 @@
             .no-print { display: none; }
             .page { box-shadow: none; margin: 0; padding: 14px 16px; max-width: 100%; }
         }
-    </style>
+        /* F-30: landmark wrapper that doesn't affect layout */
+    main { display: contents; }
+</style>
 </head>
 <body>
+<main>
 @php
     $showSummary = $showSummary ?? true;
 @endphp
@@ -180,5 +183,6 @@
     </div>
 
 </div>
+</main>
 </body>
 </html>

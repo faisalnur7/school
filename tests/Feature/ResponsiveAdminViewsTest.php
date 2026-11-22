@@ -548,28 +548,24 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertSame($sortedSwitcherPositions, $switcherPositions);
     }
 
-    public function test_module_navigation_has_an_accessible_topbar_collapse_control(): void
+    public function test_module_navigation_shows_only_the_current_module_sub_tabs(): void
     {
+        // F-24: the module row duplicated the sidebar, so only the current module's sub-tabs remain
+        // and the top-bar "hide modules" toggle is gone. School settings can still hide the row.
         $topNav = file_get_contents(resource_path('views/layouts/partials/_top-nav.blade.php'));
         $switcher = file_get_contents(resource_path('views/components/hub-switcher.blade.php'));
         $master = file_get_contents(resource_path('views/layouts/master.blade.php'));
 
-        $this->assertStringContainsString('data-hub-switcher-toggle', $topNav);
-        $this->assertStringContainsString('aria-controls="hubSwitcher"', $topNav);
-        $this->assertStringContainsString('aria-expanded="true"', $topNav);
-        $this->assertStringContainsString("onclick=\"event.preventDefault(); var hidden = document.body.classList.toggle('hub-switcher-hidden');", $topNav);
-        $this->assertStringContainsString("window.localStorage.setItem('school-hub-switcher-visible'", $topNav);
-        $this->assertStringContainsString('document.body.classList.toggle', $master);
-        $this->assertStringContainsString('hub-switcher-shell', $switcher);
+        $this->assertStringNotContainsString('data-hub-switcher-toggle', $topNav);
+        $this->assertStringNotContainsString('hub-switcher__links', $switcher);
+        $this->assertStringNotContainsString('hub-switcher__more', $switcher);
         $this->assertStringContainsString('id="hubSwitcherShell"', $switcher);
-        $this->assertStringContainsString('id="hubSwitcher"', $switcher);
-        $this->assertStringNotContainsString('class="hub-switcher__toggle"', $switcher);
+        $this->assertStringContainsString('<nav class="hub-switcher" id="hubSwitcher" aria-label=', $switcher);
+        $this->assertStringContainsString('aria-current="page"', $switcher);
         $this->assertStringContainsString('hub-switcher-hidden', $switcher);
         $this->assertStringContainsString('max-height: 0;', $switcher);
-        $this->assertStringContainsString('min-height:', $switcher);
-        $this->assertStringContainsString('transition:', $switcher);
+        $this->assertStringContainsString('document.body.classList.toggle', $master);
         $this->assertStringContainsString('data-hub-switcher-toggle', $master);
-        $this->assertStringContainsString('aria-expanded', $master);
     }
 
     public function test_module_navigation_sits_against_the_global_topbar(): void
@@ -992,12 +988,12 @@ class ResponsiveAdminViewsTest extends TestCase
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
 
-        $this->assertStringContainsString('💳 Collect', $source);
-        $this->assertStringContainsString('🧾 Fees', $source);
-        $this->assertStringContainsString('🧾 History', $source);
-        $this->assertStringNotContainsString('💳 Collect Payment', $source);
-        $this->assertStringNotContainsString('🧾 Assigned Fees', $source);
-        $this->assertStringNotContainsString('🧾 Payment History', $source);
+        // F-25: compact labels with Font Awesome icons instead of emoji
+        $this->assertStringContainsString('fa-credit-card mr-1" aria-hidden="true"></i> {{ __(\'Collect\') }}', $source);
+        $this->assertStringContainsString('fa-receipt mr-1" aria-hidden="true"></i> {{ __(\'Fees\') }}', $source);
+        $this->assertStringContainsString('fa-history mr-1" aria-hidden="true"></i> {{ __(\'History\') }}', $source);
+        $this->assertStringNotContainsString('Collect Payment</a>', $source);
+        $this->assertDoesNotMatchRegularExpression('/[\x{1F300}-\x{1FAFF}]/u', $source);
     }
 
     public function test_assigned_fee_category_names_truncate_with_ellipsis(): void

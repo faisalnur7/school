@@ -13,7 +13,7 @@
                 <a href="{{ route('fees.student-due-report', request()->only('session_id')) }}"
                    class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
                 <a href="{{ route('fees.student-ledger.pdf', ['student' => $student->id, 'session_id' => $session->id]) }}"
-                   class="btn btn-danger btn-sm ml-1"><i class="fas fa-file-pdf"></i> Export PDF</a>
+                   class="btn btn-outline-secondary btn-sm ml-1"><i class="fas fa-file-pdf"></i> Export PDF</a>
                 <button onclick="window.print()" class="btn btn-success btn-sm ml-1"><i class="fas fa-print"></i> Print</button>
             </div>
         </div>

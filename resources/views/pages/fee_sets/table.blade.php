@@ -71,10 +71,10 @@
 
                                 <form action="{{ route('fee-sets.destroy', $feeSet->id) }}" method="POST"
                                       class="d-inline"
-                                      onsubmit="return confirm('Delete this fee set?')">
+                                      data-confirm="{{ __('Delete this fee set?') }}" data-confirm-action="{{ __('Delete fee set') }}" data-confirm-cancel="{{ __('Keep fee set') }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
                                         <i class="fas fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </form>

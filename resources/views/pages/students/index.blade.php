@@ -711,6 +711,9 @@
             color: #dc2626;
         }
 
+        .students-directory .student-actions form,
+        .students-directory .student-icon-btn--danger { margin-left: .25rem; }
+
         .students-directory .student-icon-btn i {
             font-size: 0.98rem;
             line-height: 1;

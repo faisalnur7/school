@@ -228,7 +228,7 @@
                                                 <i class="fas fa-pen"></i>
                                             </a>
                                             <form action="{{ route('students.delete', $student->id) }}" method="POST"
-                                                onsubmit="return confirm('Delete this student?')">
+                                                data-confirm="{{ __('Delete student “:name”?', ['name' => $student->full_name_en]) }}" data-confirm-text="{{ __('Their profile, fees and history will be removed.') }}" data-confirm-action="{{ __('Delete student') }}" data-confirm-cancel="{{ __('Keep student') }}">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="student-icon-btn student-icon-btn--danger"
@@ -454,7 +454,7 @@
                                                     <i class="fas fa-pen"></i>
                                                 </a>
                                                 <form action="{{ route('students.delete', $student->id) }}" method="POST"
-                                                    onsubmit="return confirm('Delete this student?')">
+                                                    data-confirm="{{ __('Delete student “:name”?', ['name' => $student->full_name_en]) }}" data-confirm-text="{{ __('Their profile, fees and history will be removed.') }}" data-confirm-action="{{ __('Delete student') }}" data-confirm-cancel="{{ __('Keep student') }}">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="student-icon-btn student-icon-btn--danger"

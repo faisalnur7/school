@@ -127,7 +127,7 @@
                             'filter' => $filter,
                             'show_unassigned' => $showUnassigned ? 1 : 0,
                             ...$subjectQuery,
-                        ], fn($value) => ! is_null($value))) }}" class="btn btn-sm btn-danger">
+                        ], fn($value) => ! is_null($value))) }}" class="btn btn-sm btn-outline-secondary">
                             <i class="fas fa-file-pdf mr-1"></i>PDF
                         </a>
                     </div>

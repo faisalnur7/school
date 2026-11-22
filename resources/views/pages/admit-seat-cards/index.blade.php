@@ -1177,7 +1177,7 @@
                                     <i class="fas fa-print"></i>
                                 </button>
                                 <a href="{{ route('results.admit-seat-cards.pdf', request()->query()) }}"
-                                    class="btn btn-danger btn-sm result-filter-icon-btn" target="_blank" title="PDF"
+                                    class="btn btn-outline-secondary btn-sm result-filter-icon-btn" target="_blank" title="PDF"
                                     aria-label="Download PDF">
                                     <i class="fas fa-file-pdf"></i>
                                 </a>

@@ -4,6 +4,7 @@
 @include('layouts.partials._head')
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
+    <a href="#main" class="skip-link">{{ __('Skip to content') }}</a>
     <script>
         (function () {
             try {
@@ -54,7 +55,7 @@
         @include('layouts.partials._side-nav')
 
         <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper">
+        <main id="main" class="content-wrapper" tabindex="-1">
             <!-- Content Header (Page header) -->
             @include('layouts.partials._header')
             @auth
@@ -81,7 +82,7 @@
                 </div><!-- /.container-fluid -->
             </section>
             <!-- /.content -->
-        </div>
+        </main>
         <!-- /.content-wrapper -->
 
         @include('layouts.partials._footer')
@@ -91,6 +92,9 @@
     <!-- ./wrapper -->
 
     @include('layouts.partials._scripts')
+    @auth
+        <x-confirm-dialog />
+    @endauth
 
     <!-- Bootstrap Datepicker JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"></script>

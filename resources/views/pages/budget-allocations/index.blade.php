@@ -148,9 +148,9 @@
                                         <i class="fas fa-edit" aria-hidden="true"></i>
                                     </button>
                                     <form action="{{ route('budget-allocations.destroy', $a->id) }}" method="POST"
-                                          class="m-0" onsubmit="return confirm('Delete?')">
+                                          class="m-0" data-confirm="{{ __('Delete this record?') }}" data-confirm-action="{{ __('Delete') }}" data-confirm-cancel="{{ __('Keep it') }}">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

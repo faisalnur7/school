@@ -43,10 +43,10 @@
                                 </a>
                                 <form action="{{ route('bank-accounts.destroy', $account->id) }}" method="POST"
                                       class="d-inline m-0"
-                                      onsubmit="return confirm('Delete this bank account?')">
+                                      data-confirm="{{ __('Delete this bank account?') }}" data-confirm-action="{{ __('Delete bank account') }}" data-confirm-cancel="{{ __('Keep bank account') }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
                                         <i class="fas fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </form>

@@ -137,9 +137,9 @@
                                     </a>
                                     <form action="{{ route('shareholder-transactions.destroy', $txn->id) }}" method="POST"
                                           class="btn btn-sm btn-danger d-inline m-0 p-0"
-                                          onsubmit="return confirm('Delete this transaction?')">
+                                          data-confirm="{{ __('Delete this transaction?') }}" data-confirm-action="{{ __('Delete transaction') }}" data-confirm-cancel="{{ __('Keep transaction') }}">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
                                             <i class="fas fa-trash" aria-hidden="true"></i>
                                         </button>
                                     </form>

@@ -6,29 +6,17 @@
 @endphp
 
 <!-- Navbar -->
-<nav class="main-header navbar navbar-expand navbar-white navbar-light border-bottom admin-topnav-sticky">
+<header class="main-header navbar navbar-expand navbar-white navbar-light border-bottom admin-topnav-sticky">
     <ul class="navbar-nav align-items-center">
         <li class="nav-item">
             <a class="nav-link" data-widget="pushmenu" href="#" role="button" aria-label="{{ __('Toggle sidebar') }}">
                 <i class="fas fa-bars"></i>
             </a>
         </li>
-        <li class="nav-item">
-            <button type="button"
-                class="nav-link admin-topnav-hub-toggle"
-                data-hub-switcher-toggle
-                onclick="event.preventDefault(); var hidden = document.body.classList.toggle('hub-switcher-hidden'); this.setAttribute('aria-expanded', hidden ? 'false' : 'true'); this.setAttribute('aria-label', hidden ? 'Expand module navigation' : 'Collapse module navigation'); this.title = this.getAttribute('aria-label'); var icon = this.querySelector('i'); if (icon) { icon.classList.toggle('fa-chevron-up', !hidden); icon.classList.toggle('fa-chevron-down', hidden); } try { window.localStorage.setItem('school-hub-switcher-visible', hidden ? '0' : '1'); } catch (error) {} return false;"
-                aria-controls="hubSwitcher"
-                aria-expanded="true"
-                aria-label="{{ __('Collapse module navigation') }}"
-                title="{{ __('Collapse module navigation') }}">
-                <i class="fas fa-chevron-up" aria-hidden="true"></i>
-            </button>
-        </li>
     </ul>
 
     <div class="admin-topnav-breadcrumbs d-none d-md-flex flex-grow-1 align-items-center mx-2" style="min-width: 0;">
-        <nav aria-label="breadcrumb" class="w-100">
+        <nav aria-label="{{ __('Breadcrumb') }}" class="w-100">
             <ol class="breadcrumb bg-transparent p-0 mb-0 small admin-breadcrumb-list">
                 @foreach ($breadcrumbs ?? [] as $crumb)
                     @if ($loop->last)
@@ -135,7 +123,7 @@
             </div>
         </li>
     </ul>
-</nav>
+</header>
 
 <div class="modal fade inky-search-modal-root" id="inkySearchModal" tabindex="-1" role="dialog" aria-labelledby="inkySearchModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg inky-search-dialog" role="document">

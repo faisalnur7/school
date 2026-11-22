@@ -73,7 +73,7 @@
             <div class="card ledger-card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.75rem;">
                     <div><strong>{{ $student->full_name_en }}</strong><span class="text-muted ml-2">({{ $student->student_cid ?? '—' }})</span><div class="small text-muted">{{ $academicInfo->schoolClass?->name_en ?? '—' }} / {{ $academicInfo->section?->name_en ?? '—' }}</div></div>
-                    <a href="{{ route('fees.student-due-report.monthwise-pdf', ['student_id' => $student->id, 'session_id' => request('session_id'), 'class_id' => request('class_id'), 'section_id' => request('section_id')]) }}" class="btn btn-sm btn-danger ml-auto" style="white-space:nowrap;"><i class="fas fa-file-pdf mr-1"></i> Export PDF</a>
+                    <a href="{{ route('fees.student-due-report.monthwise-pdf', ['student_id' => $student->id, 'session_id' => request('session_id'), 'class_id' => request('class_id'), 'section_id' => request('section_id')]) }}" class="btn btn-sm btn-outline-secondary ml-auto" style="white-space:nowrap;"><i class="fas fa-file-pdf mr-1"></i> Export PDF</a>
                 </div>
                 <div class="card-body">
                     <table class="ledger-summary w-100 mb-3"><tr><td><span class="label">Student ID</span><span class="value">{{ $student->student_cid ?? '—' }}</span></td><td><span class="label">Student Name</span><span class="value">{{ $student->full_name_en ?? '—' }}</span></td><td><span class="label">Class</span><span class="value">{{ $academicInfo->schoolClass?->name_en ?? '—' }}</span></td><td><span class="label">Section</span><span class="value">{{ $academicInfo->section?->name_en ?? '—' }}</span></td></tr></table>

@@ -9,7 +9,7 @@
                     <i class="fas fa-money-bill-wave mr-2"></i>Payroll — {{ date('F', mktime(0,0,0,$month,1)) }} {{ $year }}
                 </h4>
                 <div>
-                    <form action="{{ route('hr.payroll.lock') }}" method="POST" class="d-inline" onsubmit="return confirm('Lock all payrolls for this period?')">
+                    <form action="{{ route('hr.payroll.lock') }}" method="POST" class="d-inline" data-confirm="{{ __('Lock all payrolls for this period?') }}" data-confirm-text="{{ __('Locked payrolls can no longer be edited.') }}" data-confirm-action="{{ __('Lock payrolls') }}" data-confirm-cancel="{{ __('Keep unlocked') }}">
                         @csrf
                         <input type="hidden" name="month" value="{{ $month }}">
                         <input type="hidden" name="year"  value="{{ $year }}">

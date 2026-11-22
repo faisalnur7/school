@@ -63,7 +63,7 @@
                                         <button class="btn btn-sm btn-warning me-1" onclick="openEdit({{ $category->id }}, '{{ addslashes($category->name) }}', '{{ addslashes($category->description) }}')" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></button>
                                         <form action="{{ route('asset-categories.destroy', $category) }}" method="POST" class="d-inline">
                                             @csrf @method('DELETE')
-                                            <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this category?')" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" data-confirm="{{ __('Delete this category?') }}" data-confirm-action="{{ __('Delete category') }}" data-confirm-cancel="{{ __('Keep category') }}" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                         </form>
                                     </td>
                                 </tr>

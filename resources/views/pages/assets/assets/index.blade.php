@@ -91,7 +91,7 @@
                             <a href="{{ route('assets.edit', $asset) }}" class="btn btn-sm btn-warning me-1" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></a>
                             <form action="{{ route('assets.destroy', $asset) }}" method="POST" class="d-inline">
                                 @csrf @method('DELETE')
-                                <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this asset?')" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" data-confirm="{{ __('Delete this asset?') }}" data-confirm-action="{{ __('Delete asset') }}" data-confirm-cancel="{{ __('Keep asset') }}" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                             </form>
                         </td>
                     </tr>

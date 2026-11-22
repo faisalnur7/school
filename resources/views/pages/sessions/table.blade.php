@@ -54,7 +54,7 @@
                                 @if(auth()->user()?->hasPermission('delete_sessions'))
                                     <form action="{{ route('sessions.delete', $session->id) }}" method="POST"
                                         class="btn btn-sm btn-danger" style="display:inline;"
-                                        onsubmit="return confirm('{{ __('Delete this session?') }}')">
+                                        data-confirm="{{ __('Delete this session?') }}" data-confirm-action="{{ __('Delete session') }}" data-confirm-cancel="{{ __('Keep session') }}">
                                         @csrf @method('DELETE')
                                         <i class="fas fa-trash"></i>
                                     </form>

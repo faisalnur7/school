@@ -320,9 +320,12 @@
         .hero-art { margin-bottom: 10px; }
         .footer { position: static; margin-top: 18mm; }
     }
+    /* F-30: landmark wrapper that doesn't affect layout */
+    main { display: contents; }
 </style>
 </head>
 <body>
+<main>
     <div class="toolbar">
         <div>
             <h1>Birthday Card Preview</h1>
@@ -437,5 +440,6 @@
             }
         });
     </script>
+</main>
 </body>
 </html>
