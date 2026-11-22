@@ -69,7 +69,7 @@
                 <div class="form-group col-lg-5 mb-3 mb-lg-0"><label for="convertedSearch">Name / mobile / Student ID</label><input id="convertedSearch" type="search" name="search" value="{{ $search }}" class="form-control" placeholder="Applicant name, mobile number, or Student ID"></div>
                 <div class="form-group col-lg-3 mb-3 mb-lg-0"><label for="convertedSession">Academic session</label><select id="convertedSession" name="academic_session_id" class="form-control"><option value="">All sessions</option>@foreach($sessions as $session)<option value="{{ $session->id }}" @selected($sessionId == $session->id)>{{ $session->name_en }}</option>@endforeach</select></div>
                 <div class="form-group col-lg-2 mb-3 mb-lg-0"><label for="convertedClass">Class</label><select id="convertedClass" name="school_class_id" class="form-control"><option value="">All classes</option>@foreach($classes as $class)<option value="{{ $class->id }}" @selected($classId == $class->id)>{{ $class->name_en }}</option>@endforeach</select></div>
-                <div class="form-group col-lg-2 mb-0"><button class="btn btn-primary btn-block" type="submit"><i class="fas fa-filter mr-1"></i> Apply filters</button></div>
+                <div class="form-group col-lg-2 mb-0"><button class="btn btn-primary btn-block text-nowrap" type="submit"><i class="fas fa-filter mr-1"></i> Apply filters</button></div>
             </form>
         </div>
     </div>

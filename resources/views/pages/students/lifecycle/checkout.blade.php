@@ -48,7 +48,7 @@
                         placeholder="Enter Student ID">
                 </div>
                 <div>
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg w-full font-medium">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg w-full font-medium text-nowrap">
                         <i class="fas fa-search mr-1"></i> Load Students
                     </button>
                 </div>
