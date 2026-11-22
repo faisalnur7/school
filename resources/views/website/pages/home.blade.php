@@ -4,10 +4,11 @@
 {{-- Swiper Slider --}}
 @php
 $defaultSlides = [
-    ['image' => 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1400&q=80', 'title' => 'Welcome to ' . ($site['name'] ?? 'Our School'), 'subtitle' => $site['tagline'] ?? 'Empowering minds, shaping futures.', 'cta_text' => 'Learn More', 'cta_url' => route('website.about')],
-    ['image' => 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1400&q=80', 'title' => 'Excellence in Education', 'subtitle' => 'A nurturing environment where every student thrives.', 'cta_text' => 'About Us', 'cta_url' => route('website.about')],
-    ['image' => 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=1400&q=80', 'title' => "Building Tomorrow's Leaders", 'subtitle' => 'Quality education with modern facilities and dedicated staff.', 'cta_text' => 'Contact Us', 'cta_url' => route('website.contact')],
-    ['image' => 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1400&q=80', 'title' => 'A Community of Learners', 'subtitle' => 'Fostering curiosity, creativity, and lifelong learning.', 'cta_text' => 'View Calendar', 'cta_url' => route('website.academic-calendar')],
+    // F-33: default slides describe the school and what the site does, not generic mission lines.
+    ['image' => 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1400&q=80', 'title' => 'Welcome to ' . ($site['name'] ?? 'Our School'), 'subtitle' => $site['fact_line'] ?? ($site['tagline'] ?? ''), 'cta_text' => 'About the school', 'cta_url' => route('website.about')],
+    ['image' => 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1400&q=80', 'title' => 'Admissions', 'subtitle' => 'Apply online, then check your application status with your application number.', 'cta_text' => 'Apply now', 'cta_url' => route('public.admission.form')],
+    ['image' => 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=1400&q=80', 'title' => 'Exam results', 'subtitle' => 'Look up a published result with the student ID.', 'cta_text' => 'Find a result', 'cta_url' => route('website.result.check')],
+    ['image' => 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1400&q=80', 'title' => 'Academic calendar', 'subtitle' => 'Term dates, exams and holidays for this session.', 'cta_text' => 'View calendar', 'cta_url' => route('website.academic-calendar')],
 ];
 $heroSlides = $sliders->isNotEmpty()
     ? $sliders->map(fn($s) => ['image' => $s->image_path ? asset($s->image_path) : null, 'title' => $s->title, 'subtitle' => $s->subtitle ?? '', 'cta_text' => $s->cta_text ?? '', 'cta_url' => $s->cta_url ?? ''])->toArray()

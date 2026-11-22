@@ -119,7 +119,7 @@
                         </div>
                     </a>
                     <p class="mt-4 max-w-md text-sm leading-relaxed text-slate-600">
-                        {{ $site['footer_about'] ?? 'We are committed to providing quality education that empowers students to achieve their full potential and become responsible citizens.' }}
+                        {{ $site['footer_about'] ?? ($site['name'] ?? config('app.name')) }}
                     </p>
                     {{-- Social Links --}}
                     <div class="mt-5 flex gap-3">

@@ -22,7 +22,7 @@
         <div class="student-form-header">
             <div>
                 <h3 class="student-form-title">{{ !empty($publicAdmissionMode) ? 'Application details' : (isset($student) ? 'Edit Student' : 'Create Student') }}</h3>
-                <p class="student-form-subtitle">{{ !empty($publicAdmissionMode) ? 'Fill in the required details below. You can review everything before submitting.' : 'A cleaner workspace for managing student identity, academic placement, family details, and contact information.' }}</p>
+                <p class="student-form-subtitle">{{ !empty($publicAdmissionMode) ? 'Fill in the required details below. You can review everything before submitting.' : (isset($student) ? __('Update this student\'s details.') : __('Add a student to the current session.')) }}</p>
             </div>
             <div class="student-form-header-actions">
                 @if(empty($publicAdmissionMode))

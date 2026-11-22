@@ -627,5 +627,7 @@
     "Top bar": "উপরের বার",
     ":module navigation": ":module নেভিগেশন",
     "ID": "আইডি",
-    "Collect": "সংগ্রহ"
+    "Collect": "সংগ্রহ",
+    "Add a student to the current session.": "বর্তমান সেশনে একজন শিক্ষার্থী যোগ করুন।",
+    "Update this student's details.": "এই শিক্ষার্থীর তথ্য হালনাগাদ করুন।"
 }
