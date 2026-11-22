@@ -3617,6 +3617,16 @@ html[data-theme='dark'] .ds-confirm { background: var(--c-surface); }
         min-height: 40px;
     }
 
+    /* Modal close (×) buttons: at least a 40×40 tap target (the search modal's was 29px) */
+    .modal .modal-header .close,
+    .inky-search-close {
+        min-width: 40px;
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     /* Filters placed in a card header (headwise transactions, budgets): wrap
        below the title and share the full width instead of squeezing to 37px. */
     .ds-header-filter {
