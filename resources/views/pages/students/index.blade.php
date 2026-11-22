@@ -786,6 +786,22 @@
         }
 
         @media (max-width: 767.98px) {
+            /* One 12px gutter inside the card, lined up with the card title,
+               instead of card body + list wrapper + group box padding stacked. */
+            .content-wrapper .students-directory .card .card-body.students-card-body {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            .students-directory .students-mobile-list {
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
+
+            .students-directory .students-mobile-section {
+                padding: 0.5rem !important;
+            }
+
             .students-directory .students-card-header {
                 flex-direction: column;
                 align-items: stretch;

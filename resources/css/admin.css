@@ -1096,6 +1096,13 @@ html[data-theme='dark'] .inky-shortcut {
     }
 }
 
+/* The page wrapper is `container-fluid m-1`: 100% wide plus a 4px margin on
+   each side, so it overflowed by 8px and the page sat off-centre (12px gutter
+   on the left, 4px on the right on a phone). Auto width keeps it inside. */
+.content-wrapper > .content > .container-fluid.m-1 {
+    width: auto;
+}
+
 @media (max-width: 991.98px) {
     .content-wrapper .card-header .d-flex,
     .content-wrapper .card-footer .d-flex,

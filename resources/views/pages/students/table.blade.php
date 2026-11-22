@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <div class="card-body px-0 pb-4 pt-0">
+    <div class="card-body px-0 pb-4 pt-0 students-card-body">
 
         <div class="table-responsive d-none d-md-block">
             <table class="table table-hover align-middle mb-0">
@@ -274,7 +274,7 @@
             </table>
         </div>
 
-        <div class="d-block d-md-none px-3">
+        <div class="d-block d-md-none px-3 students-mobile-list">
             @php
                 $mobileRowNumber = max(0, ($students->firstItem() ?? 1) - 1);
             @endphp
@@ -303,7 +303,7 @@
                             </div>
                         </div>
 
-                        <div class="p-3">
+                        <div class="p-3 students-mobile-section">
                             <div class="d-grid gap-3">
                                 @foreach ($sectionGroup['students'] as $student)
                                     @php
