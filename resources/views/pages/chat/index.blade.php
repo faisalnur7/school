@@ -689,6 +689,7 @@
             }
 
             .communications-panel--inbox {
+                background: #ffffff;
                 position: fixed;
                 inset: 0 auto 0 0;
                 width: min(88vw, 22rem);
@@ -831,7 +832,7 @@
         <div class="communications-hero__row">
             <h2 class="communications-hero__title">{{ __('Communications') }}</h2>
             <div class="communications-hero__actions">
-                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" data-toggle="modal" data-target="#newConversationModal">
+                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" data-toggle="modal" data-target="#newConversationModal" data-chat-new-conversation>
                     <i class="fas fa-plus mr-1"></i> {{ __('New chat') }}
                 </button>
                 <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
@@ -850,6 +851,10 @@
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <span class="conversation-card__count {{ $totalUnreadCount > 0 ? '' : 'd-none' }}" data-chat-inbox-unread-badge>{{ $totalUnreadCount > 0 ? localized_number($totalUnreadCount) : '' }}</span>
+                    {{-- On phones the inbox drawer opens over the page hero, so it needs its own "New chat" entry point. --}}
+                    <button type="button" class="btn btn-sm btn-primary rounded-pill text-nowrap d-lg-none" data-toggle="modal" data-target="#newConversationModal" data-chat-new-conversation>
+                        <i class="fas fa-plus mr-1"></i> {{ __('New chat') }}
+                    </button>
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill d-lg-none" data-chat-mobile-inbox-close>
                         {{ __('Close') }}
                     </button>

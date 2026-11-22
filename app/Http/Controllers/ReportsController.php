@@ -960,12 +960,19 @@ class ReportsController extends Controller
 
     private function inventoryReceiptTotalBefore(Carbon $date): float
     {
-        return (float) Payment::whereDate('payment_date', '<', $date->toDateString())
+        // inventory_received_amount is a model accessor (sale paid amount + valid due items),
+        // not a column, so it has to be summed in PHP rather than with SQL SUM().
+        return (float) Payment::with([
+                'inventorySale',
+                'inventoryDueItems.inventorySaleItem.inventoryItem.category',
+            ])
+            ->whereDate('payment_date', '<', $date->toDateString())
             ->where(function ($q) {
                 $q->whereNotNull('inventory_sale_id')
                   ->orWhereHas('inventoryDueItems');
             })
-            ->sum('inventory_received_amount');
+            ->get()
+            ->sum(fn (Payment $payment) => $payment->inventory_received_amount);
     }
 
     public function dayBookPdf(Request $request)

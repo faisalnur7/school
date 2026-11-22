@@ -182,7 +182,22 @@ class ProgressReportController extends Controller
             return back()->with('error', 'No parent email found for this student.');
         }
 
+        // buildStudentData only keeps marks for subjects listed in subject_ids; without
+        // this the emailed report was always empty (graded F with no subjects).
+        $filters['subject_ids'] = $this->selectedSubjectIds(
+            $request,
+            $this->availableSubjectsForSelection((int) $filters['class_id'], (int) $filters['exam_id'], collect([$student->id]))
+        );
         $studentData = $this->buildStudentData($student, $exam, $filters);
+
+        if (! $studentData['has_marks']) {
+            $message = 'No marks have been entered for this student in this exam, so there is no report to send.';
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json(['ok' => false, 'message' => $message], 422);
+            }
+            return back()->with('error', $message);
+        }
+
         $rows = collect($studentData['subjectRows'])->map(function ($row) {
             return [
                 'Subject' => $row['subject_name'],
@@ -257,11 +272,20 @@ class ProgressReportController extends Controller
             $row['status'] = $failedSubjectCount > 0 ? 'Failed' : 'Passed';
             $row['rank'] = null;
 
+            if (! ($row['has_marks'] ?? true)) {
+                $row['has_failed'] = false;
+                $row['status'] = 'No marks';
+            }
+
             return $row;
-        })->values()->all();
+        })->values();
+
+        // Students with no marks are left out of ranking so they neither take
+        // a position nor push other students down.
+        [$withMarks, $withoutMarks] = $rows->partition(fn (array $row) => $row['has_marks'] ?? true);
 
         $rows = app(ResultRankingService::class)->rank(
-            $rows,
+            $withMarks->values()->all(),
             fn (array $row) => [
                 'failed_subjects' => $row['failed_subject_count'] ?? 0,
                 'total' => data_get($row, 'summary.obtained', 0),
@@ -271,7 +295,7 @@ class ProgressReportController extends Controller
             fn (array $row) => $row['student']->student_cid ?? $row['student']->id,
         );
 
-        return collect($rows);
+        return collect($rows)->values()->concat($withoutMarks->values());
     }
 
     private function hasCompleteFilters(Request $request): bool
@@ -515,6 +539,9 @@ class ProgressReportController extends Controller
                 ->sortRows(collect($subjectRows), (int) $filters['class_id'], (int) ($academicInfo?->group_id ?? 0), true)
                 ->all(),
             'summary'           => compact('fullMarks', 'obtained', 'percentage', 'gpa', 'grade'),
+            // False when no marks are entered for any selected subject. The report must not
+            // show a grade, GPA, remarks or a position for such a student.
+            'has_marks'         => ! empty($subjectRows),
             'attendancePresent' => $attendancePresent,
             'attendanceTotal'   => $attendanceTotal,
         ];
