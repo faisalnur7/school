@@ -629,5 +629,16 @@
     "ID": "আইডি",
     "Collect": "সংগ্রহ",
     "Add a student to the current session.": "বর্তমান সেশনে একজন শিক্ষার্থী যোগ করুন।",
-    "Update this student's details.": "এই শিক্ষার্থীর তথ্য হালনাগাদ করুন।"
+    "Update this student's details.": "এই শিক্ষার্থীর তথ্য হালনাগাদ করুন।",
+    "Restore “:name” as a draft?": "“:name” খসড়া হিসেবে পুনরুদ্ধার করবেন?",
+    "Its marks will be preserved.": "এর নম্বরগুলো সংরক্ষিত থাকবে।",
+    "Restore exam": "পরীক্ষা পুনরুদ্ধার করুন",
+    "Archive “:name”?": "“:name” আর্কাইভ করবেন?",
+    "Delete draft exam “:name”?": "খসড়া পরীক্ষা “:name” মুছবেন?",
+    "Student marks and historical records will be preserved.": "শিক্ষার্থীদের নম্বর ও পুরোনো রেকর্ড সংরক্ষিত থাকবে।",
+    "This cannot be undone.": "এটি আর ফেরানো যাবে না।",
+    "Archive exam": "পরীক্ষা আর্কাইভ করুন",
+    "Delete exam": "পরীক্ষা মুছুন",
+    "Keep exam": "পরীক্ষা রাখুন",
+    "Year": "বছর"
 }
