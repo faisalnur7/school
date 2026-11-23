@@ -701,6 +701,28 @@
             background: #f8fafc;
         }
 
+        .fee-collect-page .assigned-fee-active-text {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .fee-collect-page .assigned-fees-save-count {
+            color: inherit !important;
+            margin-left: 0.25rem;
+        }
+
+        .fee-collect-page .assigned-fees-save:disabled {
+            opacity: 0.45;
+            box-shadow: none !important;
+        }
+
         .fee-collect-page .assigned-fees-pill-group {
             display: flex;
             flex-wrap: wrap;
@@ -763,7 +785,7 @@
 
             .fee-collect-page .assigned-fees-actions {
                 display: grid;
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 0.5rem;
                 margin-top: 0 !important;
                 margin-left: 0 !important;
@@ -795,6 +817,33 @@
 
             .fee-collect-page .assigned-fees-bulk-actions > .btn {
                 margin-top: 0 !important;
+            }
+
+            .fee-collect-page .assigned-fees-bulk-actions {
+                grid-column: 1 / -1;
+                order: -1;
+            }
+
+            .fee-collect-page .assigned-fees-actions > .assigned-fees-add {
+                background: transparent !important;
+                color: var(--c-primary, #0b6b3a) !important;
+                border: 1px solid var(--c-primary, #0b6b3a) !important;
+                box-shadow: none !important;
+            }
+
+            .fee-collect-page .assigned-fees-actions .btn {
+                font-size: 0.875rem;
+            }
+
+            .fee-collect-page .assigned-fees-actions > .btn,
+            .fee-collect-page .assigned-fees-bulk-actions > .btn {
+                height: 44px;
+                min-height: 44px;
+            }
+
+            .fee-collect-page .assigned-fees-summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.5rem;
             }
 
             .fee-collect-page .assigned-fees-save {
@@ -859,13 +908,14 @@
 
             .fee-collect-page .assigned-fees-tabs .nav-link {
                 min-width: 0;
-                max-width: 9rem;
-                font-size: 0.64rem;
+                max-width: 10rem;
+                min-height: 40px;
+                font-size: 0.8125rem;
             }
 
             .fee-collect-page .assigned-fees-tabs .nav-link > span:first-child {
                 min-width: 0;
-                max-width: 7.5rem;
+                max-width: 8.5rem;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
@@ -880,91 +930,270 @@
                 font-size: 1rem;
             }
 
-            .fee-collect-page .assigned-fees-table {
-                width: max-content;
-                min-width: 100%;
-                table-layout: auto;
-                font-size: 0.68rem;
+        }
+
+        /* Status / lock pills (the student-profile badge styles aren't loaded on this page) */
+        .fee-collect-page .assigned-fees-table .student-profile-badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            line-height: 1.3;
+            white-space: nowrap;
+            border: 1px solid transparent;
+        }
+
+        .fee-collect-page .assigned-fees-table .student-profile-badge--success {
+            background: #ecfdf3;
+            color: #15803d;
+            border-color: #bbf7d0;
+        }
+
+        .fee-collect-page .assigned-fees-table .student-profile-badge--warning {
+            background: #fffbeb;
+            color: #b45309;
+            border-color: #fde68a;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .assigned-fees-table .student-profile-badge--success {
+            background: rgba(34, 197, 94, 0.12);
+            color: #86efac;
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        html[data-theme='dark'] .fee-collect-page .assigned-fees-table .student-profile-badge--warning {
+            background: rgba(245, 158, 11, 0.12);
+            color: #fcd34d;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        /* Fees tab below 1024px: one card per fee instead of a 9-column table that
+           pushed Due, Status, Active and Edit off the right edge. */
+        @media (max-width: 1023.98px) {
+            .fee-collect-page .assigned-fees-table-shell {
+                border: 0;
+                border-radius: 0;
+                background: transparent;
+                box-shadow: none;
+                overflow: visible;
             }
 
             .fee-collect-page .assigned-fees-table-responsive {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
+                overflow: visible;
             }
 
-            .fee-collect-page .assigned-fees-table th,
-            .fee-collect-page .assigned-fees-table td {
-                padding: 0.45rem 0.35rem !important;
-                word-break: break-word;
+            .fee-collect-page .assigned-fees-table {
+                display: block;
+                width: 100%;
             }
 
-            .fee-collect-page .assigned-fees-table th:first-child,
-            .fee-collect-page .assigned-fees-table td:first-child {
+            .fee-collect-page .assigned-fees-table thead {
+                display: none;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: 0.625rem;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody tr {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-areas:
+                    "name name status"
+                    "date date date"
+                    "amount paid due"
+                    "active action action";
+                column-gap: 0.75rem;
+                row-gap: 0.5rem;
+                padding: 0.875rem 1rem;
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            }
+
+            .fee-collect-page .assigned-fees-table tbody tr:hover {
+                background: #fff !important;
+            }
+
+            .fee-collect-page .assigned-fees-table .assigned-fee-locked-note {
+                display: none;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td {
+                display: block;
+                min-width: 0;
+                padding: 0 !important;
+                border: 0 !important;
+                background: transparent;
+                font-size: 0.875rem;
+                text-align: left !important;
+                white-space: normal;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(1) {
                 display: none !important;
             }
 
-            .fee-collect-page .assigned-fees-table th:nth-child(4),
-            .fee-collect-page .assigned-fees-table td:nth-child(4),
-            .fee-collect-page .assigned-fees-table th:nth-child(5),
-            .fee-collect-page .assigned-fees-table td:nth-child(5),
-            .fee-collect-page .assigned-fees-table th:nth-child(6),
-            .fee-collect-page .assigned-fees-table td:nth-child(6),
-            .fee-collect-page .assigned-fees-table th:nth-child(7),
-            .fee-collect-page .assigned-fees-table td:nth-child(7) {
-                display: table-cell !important;
-                width: auto !important;
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(2) {
+                grid-area: name;
             }
 
-            .fee-collect-page .assigned-fees-table th:nth-child(1),
-            .fee-collect-page .assigned-fees-table td:nth-child(1) {
-                width: 7% !important;
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(2) .fw-semibold {
+                font-size: 0.9375rem;
+                font-weight: 700;
+                line-height: 1.3;
             }
 
-            .fee-collect-page .assigned-fees-table th:nth-child(2),
-            .fee-collect-page .assigned-fees-table td:nth-child(2) {
-                width: 55% !important;
-            }
-
-            .fee-collect-page .assigned-fees-table th:nth-child(3),
-            .fee-collect-page .assigned-fees-table td:nth-child(3) {
-                width: auto !important;
-                white-space: nowrap;
-                font-size: 0.62rem;
-            }
-
-            .fee-collect-page .assigned-fees-table th:nth-child(8),
-            .fee-collect-page .assigned-fees-table td:nth-child(8),
-            .fee-collect-page .assigned-fees-table th:nth-child(9),
-            .fee-collect-page .assigned-fees-table td:nth-child(9) {
-                width: auto !important;
-            }
-
-            .fee-collect-page .assigned-fees-table th:nth-child(2),
-            .fee-collect-page .assigned-fees-table td:nth-child(2) {
-                width: auto !important;
-            }
-
-            .fee-collect-page .assigned-fees-table .assigned-fees-pill-group {
-                gap: 0.2rem;
+            .fee-collect-page .assigned-fees-table .assigned-fees-remarks {
+                font-size: 0.8125rem;
+                margin-top: 0.125rem;
             }
 
             .fee-collect-page .assigned-fees-table .assigned-fees-pill {
-                padding: 0.2rem 0.35rem;
-                font-size: 0.58rem;
+                font-size: 0.75rem;
             }
 
-            .fee-collect-page .assigned-fees-table .js-edit-assigned-fee {
-                width: 32px;
-                height: 32px;
-                padding: 0 !important;
-                border-radius: 8px !important;
+            .fee-collect-page .assigned-fees-table .assigned-fees-pill-group--same-as-tab {
+                display: none;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(3) {
+                grid-area: date;
+                color: #64748b;
+                font-size: 0.8125rem;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(3)::before {
+                content: "Due by ";
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(4) {
+                grid-area: amount;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(5) {
+                grid-area: paid;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(6) {
+                grid-area: due;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(4),
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(5),
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(6) {
+                padding-top: 0.5rem !important;
+                border-top: 1px solid #eef2f7 !important;
+                font-weight: 700;
+                font-variant-numeric: tabular-nums;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(4)::before,
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(5)::before,
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(6)::before {
+                content: attr(data-label);
+                display: block;
+                margin-bottom: 0.125rem;
+                color: #64748b;
+                font-size: 0.6875rem;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(7) {
+                grid-area: status;
+                justify-self: end;
+                align-self: start;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(8) {
+                grid-area: active;
+                align-self: center;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(9) {
+                grid-area: action;
+                justify-self: end;
+                align-self: center;
+            }
+
+            .fee-collect-page .assigned-fees-table td:nth-child(9) > .d-flex {
+                justify-content: flex-end;
+                gap: 0.5rem !important;
+            }
+
+            .fee-collect-page .assigned-fees-table td:nth-child(9) .btn {
+                min-height: 40px !important;
+                padding: 0.4rem 0.75rem !important;
+                border-radius: 10px !important;
                 display: inline-flex;
                 align-items: center;
-                justify-content: center;
+                gap: 0.35rem;
             }
 
-            .fee-collect-page .assigned-fees-table .js-edit-assigned-fee .assigned-fee-edit-label {
-                display: none;
+            /* Switch with a visible label and a 44px tall tap area */
+            .fee-collect-page .assigned-fees-table td:nth-child(8) .custom-switch {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+
+            .fee-collect-page .assigned-fees-table td:nth-child(8) .custom-control-label {
+                padding: 10px 0;
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #334155;
+                cursor: pointer;
+            }
+
+            .fee-collect-page .assigned-fees-table td:nth-child(8) .custom-control-label::before {
+                top: calc(10px + 0.25rem);
+            }
+
+            .fee-collect-page .assigned-fees-table td:nth-child(8) .custom-control-label::after {
+                top: calc(10px + 0.25rem + 2px);
+            }
+
+            .fee-collect-page .assigned-fees-table .assigned-fee-active-text {
+                position: static;
+                width: auto;
+                height: auto;
+                margin: 0;
+                overflow: visible;
+                clip: auto;
+            }
+
+            html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody tr,
+            html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody tr:hover {
+                background: #111827 !important;
+                border-color: rgba(148, 163, 184, 0.18);
+            }
+
+            html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td:nth-child(4),
+            html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td:nth-child(5),
+            html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td:nth-child(6) {
+                border-top-color: rgba(148, 163, 184, 0.14) !important;
+            }
+
+            html[data-theme='dark'] .fee-collect-page .assigned-fees-table td:nth-child(8) .custom-control-label {
+                color: #e2e8f0;
+            }
+
+            html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td:nth-child(3) {
+                color: #94a3b8 !important;
+            }
+        }
+
+        /* Tablets: two cards per row */
+        @media (min-width: 640px) and (max-width: 1023.98px) {
+            .fee-collect-page .assigned-fees-table tbody {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
 
@@ -2813,6 +3042,20 @@
             border-top-color: rgba(148, 163, 184, 0.14) !important;
         }
 
+        /* The rule above would otherwise turn Paid/Due white */
+        html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td.text-success {
+            color: #4ade80 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td.text-danger {
+            color: #f87171 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td.text-muted,
+        html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td .text-muted {
+            color: #94a3b8 !important;
+        }
+
         html[data-theme='dark'] .fee-collect-page .assigned-fees-summary-label {
             color: #94a3b8 !important;
         }
@@ -4151,8 +4394,8 @@
                                         Deactivate All
                                     </button>
                                 </div>
-                                <button type="submit" class="btn btn-sm btn-primary assigned-fees-save" form="feeActivationForm">
-                                    Save Changes
+                                <button type="submit" class="btn btn-sm btn-primary assigned-fees-save" form="feeActivationForm" disabled>
+                                    Save Changes<span class="assigned-fees-save-count"></span>
                                 </button>
                             </div>
                         </div>
@@ -4174,8 +4417,8 @@
                                         @foreach ($assignedFeeGroups as $group)
                                             @php
                                                 $categoryLabel = preg_split('/\s+/', trim($group['label']))[0] ?? $group['label'];
-                                                $categoryLabel = mb_strlen($categoryLabel) > 10
-                                                    ? mb_substr($categoryLabel, 0, 10) . '..'
+                                                $categoryLabel = mb_strlen($categoryLabel) > 14
+                                                    ? mb_substr($categoryLabel, 0, 14) . '…'
                                                     : $categoryLabel;
                                             @endphp
                                             <li class="nav-item" role="presentation">
@@ -4223,7 +4466,7 @@
 
                                             <div class="assigned-fees-table-shell">
                                                 <div class="assigned-fees-table-responsive">
-                                                    <table class="table assigned-fees-table align-middle">
+                                                    <table class="table assigned-fees-table align-middle" data-no-stack>
                                                         <thead>
                                                             <tr>
                                                                 <th style="width:64px;">#</th>
@@ -4250,8 +4493,10 @@
                                                                     <td>{{ $loop->iteration }}</td>
                                                                     <td>
                                                                         <div class="fw-semibold">{{ $fee->feeSet->name ?? 'N/A' }}</div>
-                                                                        <div class="small text-muted">{{ $fee->remarks ?? 'Fee assigned to this student' }}</div>
-                                                                        <div class="assigned-fees-pill-group">
+                                                                        @if (filled($fee->remarks))
+                                                                            <div class="small text-muted assigned-fees-remarks">{{ $fee->remarks }}</div>
+                                                                        @endif
+                                                                        <div class="assigned-fees-pill-group {{ $feeCategoryNames->count() === 1 && $feeCategoryNames->first() === $group['label'] ? 'assigned-fees-pill-group--same-as-tab' : '' }}">
                                                                             @forelse ($feeCategoryNames as $categoryName)
                                                                                 <span class="assigned-fees-pill">{{ $categoryName }}</span>
                                                                             @empty
@@ -4259,11 +4504,14 @@
                                                                             @endforelse
                                                                         </div>
                                                                     </td>
-                                                                    <td>{{ optional($fee->due_date)->format('d M, Y') ?? 'N/A' }}</td>
-                                                                    <td class="text-end">৳{{ number_format($fee->amount ?? 0, 2) }}</td>
-                                                                    <td class="text-end text-success">৳{{ number_format($fee->paid_amount ?? 0, 2) }}</td>
-                                                                    <td class="text-end text-danger">
-                                                                        ৳{{ number_format($fee->due_amount ?? max(0, (float) ($fee->amount ?? 0) - (float) ($fee->paid_amount ?? 0)), 2) }}
+                                                                    <td data-label="Due date">{{ optional($fee->due_date)->format('d M, Y') ?? 'N/A' }}</td>
+                                                                    <td class="text-end" data-label="Amount">৳{{ number_format($fee->amount ?? 0, 2) }}</td>
+                                                                    <td class="text-end text-success" data-label="Paid">৳{{ number_format($fee->paid_amount ?? 0, 2) }}</td>
+                                                                    @php
+                                                                        $feeDue = (float) ($fee->due_amount ?? max(0, (float) ($fee->amount ?? 0) - (float) ($fee->paid_amount ?? 0)));
+                                                                    @endphp
+                                                                    <td class="text-end {{ $feeDue > 0 ? 'text-danger' : 'text-muted' }}" data-label="Due">
+                                                                        ৳{{ number_format($feeDue, 2) }}
                                                                     </td>
                                                                     <td>
                                                                         <span class="student-profile-badge {{ $fee->status === 'paid' ? 'student-profile-badge--success' : 'student-profile-badge--warning' }}">
@@ -4283,7 +4531,7 @@
                                                                                     value="{{ $fee->id }}"
                                                                                     {{ $fee->is_active ? 'checked' : '' }}
                                                                                 >
-                                                                                <label class="custom-control-label" for="assignedFeeSwitch{{ $fee->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
+                                                                                <label class="custom-control-label" for="assignedFeeSwitch{{ $fee->id }}"><span class="assigned-fee-active-text">{{ __('Active') }}</span></label>
                                                                             </div>
                                                                         @endif
                                                                     </td>
@@ -4303,7 +4551,7 @@
                                                                                     <span class="assigned-fee-edit-label">Edit</span>
                                                                                 </button>
                                                                             @else
-                                                                                <span class="text-muted small mr-1">Locked</span>
+                                                                                <span class="text-muted small mr-1 assigned-fee-locked-note">Locked</span>
                                                                             @endif
                                                                             @if ($fee->amountHistories->isNotEmpty())
                                                                                 <button
@@ -5787,9 +6035,22 @@
                 });
             });
 
+            // Save stays disabled until a switch differs from how the page loaded.
+            const $feeToggles = $('#feeActivationForm .js-fee-active-toggle');
+            $feeToggles.each(function() { $(this).data('initial', this.checked); });
+
+            function syncFeeActivationSave() {
+                const changed = $feeToggles.filter(function() { return this.checked !== $(this).data('initial'); }).length;
+                $('.assigned-fees-save').prop('disabled', changed === 0);
+                $('.assigned-fees-save-count').text(changed ? ` (${changed})` : '');
+            }
+
+            $feeToggles.on('change', syncFeeActivationSave);
+
             $(document).on('click', '.js-set-all-fees', function() {
                 const shouldActivate = String($(this).data('state')) === '1';
-                $('#feeActivationForm .js-fee-active-toggle').not(':disabled').prop('checked', shouldActivate);
+                $feeToggles.not(':disabled').prop('checked', shouldActivate);
+                syncFeeActivationSave();
             });
 
             $(document).on('click', '.js-edit-assigned-fee', function() {

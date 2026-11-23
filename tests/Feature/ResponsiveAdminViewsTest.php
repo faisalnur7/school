@@ -837,7 +837,7 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString(
             '.fee-collect-page .assigned-fees-actions {' . PHP_EOL .
             '                display: grid;' . PHP_EOL .
-            '                grid-template-columns: 1fr;' . PHP_EOL .
+            '                grid-template-columns: repeat(2, minmax(0, 1fr));' . PHP_EOL .
             '                gap: 0.5rem;' . PHP_EOL .
             '                margin-top: 0 !important;',
             $source
@@ -885,37 +885,6 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('padding-right: 0 !important;', $source);
     }
 
-    public function test_assigned_fees_table_uses_compact_mobile_columns(): void
-    {
-        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
-
-        $this->assertStringContainsString('table-layout: auto;', $source);
-        $this->assertStringContainsString('font-size: 0.68rem;', $source);
-        $this->assertStringContainsString('padding: 0.45rem 0.35rem !important;', $source);
-        $this->assertStringContainsString('.assigned-fees-table th:nth-child(2)', $source);
-        $this->assertStringContainsString('width: auto !important;', $source);
-    }
-
-    public function test_assigned_fees_table_hides_number_column_on_mobile(): void
-    {
-        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
-
-        $this->assertStringContainsString(
-            '.fee-collect-page .assigned-fees-table th:first-child,' . PHP_EOL .
-            '            .fee-collect-page .assigned-fees-table td:first-child {' . PHP_EOL .
-            '                display: none !important;',
-            $source
-        );
-    }
-
-    public function test_assigned_fees_mobile_table_prioritizes_contained_columns(): void
-    {
-        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
-
-        $this->assertStringContainsString('.fee-collect-page .assigned-fees-table th:nth-child(4),', $source);
-        $this->assertStringContainsString('display: none !important;', $source);
-    }
-
     public function test_assigned_fees_mobile_columns_use_content_sized_layout(): void
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
@@ -926,17 +895,6 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('width: auto !important;', $source);
     }
 
-    public function test_assigned_fees_mobile_edit_action_is_a_compact_icon_button(): void
-    {
-        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
-
-        $this->assertStringContainsString('assigned-fee-edit-label', $source);
-        $this->assertStringContainsString('.assigned-fees-table .js-edit-assigned-fee {', $source);
-        $this->assertStringContainsString('width: 32px;', $source);
-        $this->assertStringContainsString('height: 32px;', $source);
-        $this->assertStringContainsString('border-radius: 8px !important;', $source);
-    }
-
     public function test_assigned_fees_table_is_responsive_only_on_mobile(): void
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
@@ -944,17 +902,6 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('assigned-fees-table-responsive', $source);
         $this->assertStringContainsString('overflow: visible;', $source);
         $this->assertStringContainsString('overflow-x: auto;', $source);
-    }
-
-    public function test_assigned_fees_mobile_table_keeps_all_columns_visible(): void
-    {
-        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
-
-        $this->assertStringContainsString('th:nth-child(4)', $source);
-        $this->assertStringContainsString('th:nth-child(5)', $source);
-        $this->assertStringContainsString('th:nth-child(6)', $source);
-        $this->assertStringContainsString('th:nth-child(7)', $source);
-        $this->assertStringContainsString('display: table-cell !important;', $source);
     }
 
     public function test_payment_history_table_is_content_sized_and_scrollable_on_mobile(): void
@@ -1022,7 +969,63 @@ class ResponsiveAdminViewsTest extends TestCase
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
 
         $this->assertStringContainsString("preg_split('/\\s+/', trim(\$group['label']))", $source);
-        $this->assertStringContainsString("mb_substr(\$categoryLabel, 0, 10) . '..'", $source);
-        $this->assertStringContainsString('font-size: 0.64rem;', $source);
+        // Long enough for "Miscellaneous"; readable 13px on phones.
+        $this->assertStringContainsString("mb_substr(\$categoryLabel, 0, 14) . '…'", $source);
+        $this->assertStringContainsString('font-size: 0.8125rem;', $source);
+    }
+
+    public function test_assigned_fees_rows_become_cards_below_desktop(): void
+    {
+        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
+
+        // The 9-column table pushed Due, Status, Active and Edit off screen on phones and tablets.
+        $this->assertStringContainsString('<table class="table assigned-fees-table align-middle" data-no-stack>', $source);
+        $this->assertMatchesRegularExpression(
+            '/@media \(max-width: 1023\.98px\) \{\s*\.fee-collect-page \.assigned-fees-table-shell \{/',
+            $source
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.assigned-fees-table tbody tr \{[^}]*grid-template-areas:\s*"name name status"\s*"date date date"\s*"amount paid due"\s*"active action action";/s',
+            $source
+        );
+        $this->assertStringContainsString('data-label="Amount"', $source);
+        $this->assertStringContainsString('data-label="Paid"', $source);
+        $this->assertStringContainsString('data-label="Due"', $source);
+        $this->assertStringContainsString('content: attr(data-label);', $source);
+    }
+
+    public function test_assigned_fees_cards_have_labelled_44px_switch_and_40px_actions(): void
+    {
+        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
+
+        $this->assertStringContainsString('<span class="assigned-fee-active-text">{{ __(\'Active\') }}</span>', $source);
+        $this->assertMatchesRegularExpression(
+            '/td:nth-child\(8\) \.custom-switch \{[^}]*min-height: 44px;/s',
+            $source
+        );
+        $this->assertMatchesRegularExpression(
+            '/td:nth-child\(9\) \.btn \{[^}]*min-height: 40px !important;/s',
+            $source
+        );
+        // Paid fees: the Active slot says Locked, so the action slot doesn't repeat it.
+        $this->assertStringContainsString('assigned-fee-locked-note', $source);
+    }
+
+    public function test_assigned_fees_save_waits_for_a_change(): void
+    {
+        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
+
+        $this->assertStringContainsString('form="feeActivationForm" disabled>', $source);
+        $this->assertStringContainsString('function syncFeeActivationSave()', $source);
+        $this->assertStringContainsString('assigned-fees-save-count', $source);
+    }
+
+    public function test_assigned_fees_rows_skip_placeholder_remarks(): void
+    {
+        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
+
+        $this->assertStringNotContainsString("?? 'Fee assigned to this student'", $source);
+        $this->assertStringContainsString('@if (filled($fee->remarks))', $source);
+        $this->assertStringContainsString('assigned-fees-pill-group--same-as-tab', $source);
     }
 }
