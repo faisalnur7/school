@@ -341,15 +341,35 @@ class PublicWebsiteController extends Controller
             $logo = asset($logo);
         }
 
+        // F-33: concrete facts for default copy ("Play to Ten in Dohazari, Chattogram") instead of
+        // generic mission statements. Both come from School Settings and are null when not set.
+        $classNames = SchoolClass::query()
+            ->whereIn('id', array_filter([$schoolSetting?->from_class, $schoolSetting?->to_class]))
+            ->pluck('name_en', 'id');
+        $fromClass = $classNames[$schoolSetting?->from_class] ?? null;
+        $toClass = $classNames[$schoolSetting?->to_class] ?? null;
+        $classRange = $fromClass && $toClass ? $fromClass . ' to Class ' . $toClass : null;
+        $addressParts = array_values(array_filter(array_map('trim', explode(',', (string) $schoolSetting?->address))));
+        $locality = count($addressParts) >= 3
+            ? $addressParts[count($addressParts) - 3] . ', ' . end($addressParts)
+            : (implode(', ', $addressParts) ?: null);
+        $schoolName = $schoolSetting?->name ?: ($settings['school_name'] ?? config('app.name'));
+        $factLine = trim(($classRange ?? '') . ($locality ? ' in ' . $locality : ''));
+
         $site = [
-            'name' => $schoolSetting?->name ?: ($settings['school_name'] ?? config('app.name')),
+            'name' => $schoolName,
+            'class_range' => $classRange,
+            'locality' => $locality,
+            'fact_line' => $factLine !== '' ? $factLine . '.' : null,
             'tagline' => $schoolSetting?->slogan ?: ($settings['tagline'] ?? 'Learning for life'),
             'address' => $schoolSetting?->address ?: ($settings['address'] ?? null),
             'email' => $schoolSetting?->email ?: ($settings['contact_email'] ?? null),
             'phone_primary' => $schoolSetting?->contact_number_1 ?: ($settings['contact_phone'] ?? null),
             'phone_secondary' => $schoolSetting?->contact_number_2,
             'logo' => $logo,
-            'footer_about' => $settings['footer_about'] ?? 'We are committed to providing quality education that empowers students to achieve their full potential and become responsible citizens.',
+            'footer_about' => $settings['footer_about'] ?? ($factLine !== ''
+                ? $schoolName . ' teaches ' . $factLine . '.'
+                : $schoolName . '.'),
             'social_facebook' => $settings['social_facebook'] ?? null,
             'social_instagram' => $settings['social_instagram'] ?? null,
             'social_youtube' => $settings['social_youtube'] ?? null,
