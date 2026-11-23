@@ -16,10 +16,10 @@
             --mobile-sheet-surface: #ffffff;
             --mobile-sheet-subtle: #f8fafc;
             --mobile-sheet-border: #e2e8f0;
-            --mobile-sheet-primary: #2563eb;
+            --mobile-sheet-primary: var(--c-primary, #0b6b3a);
             --mobile-sheet-primary-text: #ffffff;
             --mobile-sheet-muted: #64748b;
-            --mobile-sheet-total: #0284c7;
+            --mobile-sheet-total: var(--c-primary, #0b6b3a);
             color: #334155;
         }
 
@@ -1129,9 +1129,9 @@
         }
 
         .fee-collect-page .mobile-selection-row.is-selected {
-            border-color: #4338ca;
-            background: #eef2ff;
-            box-shadow: inset 0 0 0 1px rgba(67, 56, 202, 0.08);
+            border-color: var(--c-primary);
+            background: var(--c-primary-soft);
+            box-shadow: none;
         }
 
         .fee-collect-page .mobile-selection-row.is-added {
@@ -1207,9 +1207,9 @@
         }
 
         .fee-collect-page .mobile-select-chip.is-active {
-            border-color: #4338ca;
-            background: #eef2ff;
-            color: #312e81;
+            border-color: var(--c-primary);
+            background: var(--c-primary-soft);
+            color: var(--c-text);
         }
 
         .fee-collect-page .mobile-summary-card {
@@ -1300,6 +1300,13 @@
         .fee-collect-page .mobile-switch-row .form-control {
             border-radius: 14px;
             font-size: 16px;
+        }
+
+        .fee-collect-page .mobile-switch-row .btn,
+        .fee-collect-page .mobile-selection-modal .mobile-selection-footer .selection-action {
+            background: var(--c-primary);
+            border-color: var(--c-primary);
+            color: var(--c-on-primary);
         }
 
         .fee-collect-page .mobile-switch-row .btn {
@@ -1435,6 +1442,7 @@
 
         .fee-collect-page .mobile-selection-modal .modal-content {
             min-height: 100vh;
+            min-height: 100dvh;
             border: 0;
             border-radius: 0;
             background: #f8fafc;
@@ -1516,9 +1524,9 @@
         }
 
         .fee-collect-page .mobile-selection-modal .mobile-selection-mark.is-selected {
-            border-color: #3b82f6;
-            background: #3b82f6;
-            color: #0f172a;
+            border-color: var(--c-primary);
+            background: var(--c-primary);
+            color: var(--c-on-primary);
         }
 
         .fee-collect-page .mobile-selection-modal .mobile-selection-mark.is-selected::before {
@@ -1765,24 +1773,21 @@
                 border-radius: 12px;
             }
 
-            .fee-collect-page .mobile-topbar .student-name {
-                font-size: 0.88rem;
-            }
-
             .fee-collect-page .mobile-meta-row {
                 display: grid;
-                grid-template-columns: repeat(4, minmax(0, 1fr));
-                gap: 0.35rem;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.4rem;
                 overflow: visible;
             }
 
             .fee-collect-page .mobile-meta-chip {
                 min-width: 0;
                 overflow: hidden;
-                padding: 0.4rem 0.2rem;
-                text-align: center;
+                padding: 0.45rem 0.6rem;
+                border-radius: 10px;
+                text-align: left;
                 text-overflow: ellipsis;
-                font-size: 0.62rem;
+                font-size: 0.75rem;
             }
 
             .fee-collect-page .mobile-summary-card {
@@ -1790,8 +1795,8 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet {
-                border: 1px solid #aeaeae;
-                padding-top: 10px;
+                border: 1px solid var(--mobile-sheet-border);
+                border-bottom: 0;
                 position: fixed;
                 left: 0;
                 right: 0;
@@ -1812,6 +1817,10 @@
             .fee-collect-page .mobile-checkout-sheet.is-open {
                 transform: translateY(0);
                 max-height: 90dvh;
+            }
+
+            body.modal-open .fee-collect-page .mobile-checkout-sheet {
+                z-index: 1030;
             }
 
             .fee-collect-page .mobile-checkout-sheet > .card,
@@ -1844,23 +1853,6 @@
                 padding: 0 !important;
                 border: 0 !important;
                 background: transparent !important;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle-wrap {
-                gap: 0.75rem;
-                margin-top: 0 !important;
-                padding: 0.5rem 0.9rem 0.9rem;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet .mobile-cart-handle {
-                margin-bottom: 0.75rem;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle {
-                min-height: 70px;
-                padding: 0;
-                border: 0;
-                background: transparent;
             }
 
             .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle strong {
@@ -1916,26 +1908,9 @@
                 display: none !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet .card-body {
-                max-height: calc(100dvh - 210px);
-                overflow-y: auto;
-                padding-bottom: 1rem !important;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .card-body .scroll-area {
-                max-height: none !important;
-            }
-
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-empty-cart {
                 min-height: 0;
                 padding: 1.15rem 0.75rem !important;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet .card-footer {
-                position: sticky;
-                bottom: 0;
-                z-index: 2;
-                padding: 0.8rem 0.9rem !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .card-header {
@@ -1945,28 +1920,12 @@
                 background: #fff !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet .card-body {
-                display: none !important;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet .card-footer {
-                display: none !important;
-            }
-
             .fee-collect-page .mobile-checkout-sheet.is-open .card-body {
                 display: flex !important;
                 flex: 1 1 auto;
                 min-height: 0;
                 max-height: none;
                 overflow: hidden;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .card-footer {
-                position: static;
-                flex: 0 0 auto;
-                min-height: 0;
-                overflow: visible;
-                display: block !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .card-body .scroll-area {
@@ -1987,23 +1946,25 @@
                 border-bottom: 1px solid #eef2f7;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-badge {
-                display: inline-flex;
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-badge,
+            .fee-collect-page .mobile-checkout-sheet.is-open #mobileCartTotal {
+                display: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #mobileCartCount {
+                color: #0f172a;
+                font-size: 1rem !important;
+                font-weight: 700;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .card-footer {
+                position: static;
+                flex: 0 0 auto;
+                min-height: 0;
+                overflow: visible;
+                display: block !important;
                 border-top: 1px solid #e2e8f0 !important;
                 box-shadow: 0 -8px 22px rgba(15, 23, 42, 0.06);
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .card-footer .collect-btn {
-                position: sticky;
-                bottom: 0;
-                z-index: 4;
-                min-height: 54px;
-                border-radius: 16px !important;
-                background: #1d4ed8 !important;
-                box-shadow: 0 -10px 20px rgba(255, 255, 255, 0.92), 0 8px 18px rgba(29, 78, 216, 0.22);
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .card-footer .collect-btn:disabled {
@@ -2012,7 +1973,9 @@
             }
 
             /* Compact mobile checkout spacing: preserve touch targets, remove excess whitespace. */
+
             .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle-wrap {
+                margin-top: 0 !important;
                 padding: 0.45rem 0.75rem 0.55rem;
                 gap: 0.45rem;
             }
@@ -2024,14 +1987,25 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle {
+                padding: 0;
+                border: 0;
+                background: transparent;
                 min-height: 58px;
             }
 
             .fee-collect-page .mobile-checkout-sheet .card-body {
+                max-height: calc(100dvh - 210px);
+                overflow-y: auto;
+                padding-bottom: 1rem !important;
+                display: none !important;
                 padding: 0.45rem 0.75rem 0.5rem !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet .card-footer {
+                position: sticky;
+                bottom: 0;
+                z-index: 2;
+                display: none !important;
                 padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom)) !important;
             }
 
@@ -2062,14 +2036,43 @@
                 gap: 0.3rem !important;
             }
 
+            /* 16px stops iOS Safari zooming the page on focus; 44px is the touch-target floor. */
+
             .fee-collect-page .mobile-checkout-sheet.is-open #feeForm .form-control,
             .fee-collect-page .mobile-checkout-sheet.is-open #feeForm .input-group-text {
-                min-height: 38px;
+                min-height: 44px;
                 padding-top: 0.35rem;
                 padding-bottom: 0.35rem;
+                font-size: 16px !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #cartItems .cart-row {
+                position: relative;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #cartItems .cart-row-main {
+                padding-right: 2.75rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #cartItems .cart-row-remove {
+                position: absolute !important;
+                top: 0 !important;
+                right: 0 !important;
+                width: 44px !important;
+                height: 44px !important;
+                display: grid !important;
+                place-items: center;
+                font-size: 15px !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .card-footer .collect-btn {
+                position: sticky;
+                bottom: 0;
+                z-index: 4;
+                border-radius: 16px !important;
+                background: var(--c-primary) !important;
+                color: var(--c-on-primary) !important;
+                box-shadow: none;
                 min-height: 46px;
                 padding-top: 0.55rem !important;
                 padding-bottom: 0.55rem !important;
@@ -2105,21 +2108,13 @@
                 letter-spacing: 0.08em;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card {
-                margin-bottom: 0.45rem !important;
-                padding: 0.55rem !important;
-                border: 1px solid #dbe4ee;
-                border-radius: 12px;
-                background: #f8fafc;
-            }
-
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card > .d-flex {
                 margin-bottom: 0.45rem !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-type-btn {
-                min-width: 42px;
-                height: 36px;
+                min-width: 44px;
+                height: 44px;
                 padding: 0.15rem 0.5rem;
                 border: 1px solid #dbe4ee;
                 border-radius: 8px;
@@ -2130,45 +2125,26 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-type-btn.active {
-                border-color: #6366f1;
-                background: #6366f1;
-                color: #fff;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-head {
-                min-width: 0;
-                margin-bottom: 0.35rem !important;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-head > span:first-child {
-                flex: 0 0 auto;
-                white-space: nowrap;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls {
-                min-width: 0;
-                margin-left: auto !important;
-                gap: 0.3rem !important;
+                border-color: var(--c-primary);
+                background: var(--c-primary);
+                color: var(--c-on-primary);
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls #discountInput {
-                width: 78px !important;
-                min-width: 78px;
-                min-height: 34px;
-                padding: 0.2rem 0.5rem;
+                width: 96px !important;
+                min-width: 96px;
+                min-height: 44px;
+                padding: 0.2rem 0.6rem;
                 text-align: right;
-                font-size: 0.72rem;
+                font-size: 16px;
                 font-weight: 700;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls .discount-type-btn {
-                min-width: 38px;
-                height: 36px;
-                padding: 0.15rem 0.4rem;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls {
-                gap: 0 !important;
+                min-width: 44px;
+                height: 44px;
+                padding: 0.15rem 0.5rem;
+                font-size: 0.8rem;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls .discount-type-btn + .discount-type-btn {
@@ -2183,16 +2159,12 @@
                 border-radius: 0 8px 8px 0;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card > .d-flex:last-child {
-                margin-top: 0.35rem !important;
-            }
-
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card #discountInput {
-                min-height: 34px;
+                min-height: 44px;
                 border: 1px solid #dbe4ee;
                 border-radius: 8px;
                 background: #fff;
-                font-size: 0.72rem;
+                font-size: 16px;
                 font-weight: 600;
             }
 
@@ -2202,24 +2174,24 @@
                 font-weight: 800;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card {
-                display: grid;
-                grid-template-columns: 1fr auto;
-                row-gap: 0.35rem;
-                align-items: center;
-            }
-
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-head {
+                min-width: 0;
+                margin-bottom: 0.35rem !important;
                 display: contents !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-head > span:first-child {
+                flex: 0 0 auto;
+                white-space: nowrap;
                 grid-column: 1;
                 align-self: start;
                 padding-top: 0.55rem;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls {
+                min-width: 0;
+                margin-left: auto !important;
+                gap: 0 !important;
                 grid-column: 2;
                 grid-row: 1;
             }
@@ -2236,14 +2208,6 @@
                 font-size: 0.78rem !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row {
-                min-height: 64px;
-                align-items: center;
-                margin: 0.65rem 0 0.75rem !important;
-                padding: 0.15rem 0.15rem 0.65rem !important;
-                border-bottom: 1px solid #e2e8f0;
-            }
-
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row > div {
                 display: flex;
                 align-items: baseline;
@@ -2252,17 +2216,6 @@
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row > div > span:first-child {
                 font-size: 0.8rem !important;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row #totalAmount {
-                color: var(--mobile-sheet-total) !important;
-                font-size: 1.8rem !important;
-                font-weight: 800 !important;
-                line-height: 0.95;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount {
-                margin-bottom: 0.75rem !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount #paymentAmount {
@@ -2274,11 +2227,6 @@
                 letter-spacing: 0.02em;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row {
-                position: relative;
-                margin-top: 1.05rem !important;
-            }
-
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount small {
                 display: block;
                 margin-top: 0.35rem;
@@ -2287,9 +2235,12 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .payment-meta-row {
-                display: grid !important;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 0.35rem;
+                display: block !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount {
+                margin-bottom: 0.75rem !important;
+                display: none !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .payment-meta-row > .mb-3,
@@ -2297,40 +2248,52 @@
                 margin-bottom: 0.35rem !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount #paymentAmount,
             .fee-collect-page .mobile-checkout-sheet.is-open .payment-meta-row #paymentDate {
-                height: 34px;
-                min-height: 34px !important;
+                height: 44px;
+                min-height: 44px !important;
                 margin-top: 0.15rem;
-                padding: 0.25rem 0.5rem;
-                font-size: 0.82rem !important;
+                padding: 0.25rem 0.6rem;
+                font-size: 16px !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card {
+                border: 1px solid #dbe4ee;
+                border-radius: 12px;
+                background: #f8fafc;
+                display: grid;
+                grid-template-columns: 1fr auto;
+                row-gap: 0.35rem;
+                align-items: center;
                 margin-bottom: 0.35rem !important;
                 padding: 0.45rem !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-amount-line,
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card > .d-flex:last-child {
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card:not(.has-discount) > .d-flex:last-child {
                 display: none !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row {
+                align-items: center;
+                border-bottom: 1px solid #e2e8f0;
+                position: relative;
+                margin-top: 1.05rem !important;
                 min-height: 48px;
                 margin: 0.35rem 0 0.45rem !important;
                 padding: 0.1rem 0.15rem 0.35rem !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row #totalAmount {
+                color: var(--mobile-sheet-total) !important;
+                font-weight: 800 !important;
+                line-height: 0.95;
                 font-size: 1.6rem !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open #descriptionInput {
-                min-height: 52px;
-                height: 52px;
-                padding: 0.45rem 0.55rem;
-                font-size: 0.82rem !important;
+                min-height: 56px;
+                height: 56px;
+                padding: 0.5rem 0.6rem;
+                font-size: 16px !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-toggle .mobile-cart-chevron {
@@ -2374,8 +2337,26 @@
                 max-width: none !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .cart-line-total {
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .gross-line-amount {
                 display: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .inv-subtotal-display,
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .due-line-amount {
+                display: block !important;
+                flex: 1 1 100%;
+                margin-left: 0;
+                text-align: right;
+                font-size: 0.9rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .inv-subtotal-display::before,
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .due-line-amount::before {
+                content: "Line total  BDT ";
+                color: #64748b;
+                font-size: 0.75rem;
+                font-weight: 600;
+                white-space: pre;
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .cart-row-remove {
@@ -2412,8 +2393,8 @@
                 position: absolute;
                 top: 0;
                 right: 0;
-                width: 24px;
-                height: 24px;
+                width: 44px;
+                height: 44px;
                 display: grid !important;
                 place-items: center;
                 color: #6b7a90 !important;
@@ -2424,7 +2405,7 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-line-title {
-                padding-right: 1.35rem;
+                padding-right: 2.5rem;
                 font-size: 0.875rem;
                 line-height: 1.35;
                 font-weight: 600;
@@ -2438,7 +2419,7 @@
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-row-controls {
                 display: flex !important;
-                flex-wrap: nowrap;
+                flex-wrap: wrap;
                 gap: 8px;
                 align-items: center;
                 width: 100%;
@@ -2463,37 +2444,42 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-qty-stepper {
-                height: 30px;
+                height: 44px;
                 border-color: #cfe7d8;
                 border-radius: 8px;
                 background: #fff;
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-qty-stepper-btn {
+                width: 40px;
+                font-size: 18px;
                 background: transparent;
                 color: #6b7a90;
                 border-radius: 7px;
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-qty-stepper-input {
-                width: 28px !important;
-                flex: 0 0 28px;
+                width: 40px !important;
+                height: auto !important;
+                min-height: 0 !important;
+                align-self: stretch;
+                flex: 0 0 40px;
                 border-left-color: #cfe7d8 !important;
                 border-right-color: #cfe7d8 !important;
                 color: #14213d;
-                font-size: 13.5px;
+                font-size: 16px !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-control-group--paid .form-control {
-                width: 74px;
-                height: 30px;
-                flex: 0 0 74px;
+                width: 84px;
+                height: 44px;
+                flex: 0 0 84px;
                 border: 1px solid #cfe7d8 !important;
                 border-radius: 8px !important;
                 background: #fff !important;
                 color: #14213d;
                 padding: 0 8px;
-                font-size: 13.5px;
+                font-size: 16px !important;
                 font-weight: 600;
                 text-align: right;
             }
@@ -2669,7 +2655,7 @@
                 width: min(100%, 860px);
                 left: 50%;
                 right: auto;
-                transform: translateX(-50%) translateY(calc(100% - 148px));
+                transform: translateX(-50%) translateY(calc(100% - var(--mobile-collapsed-sheet-height)));
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open {
@@ -2886,7 +2872,6 @@
             color: #cbd5e1 !important;
         }
 
-        html[data-theme='dark'] .fee-collect-page #subtotalAmount,
         html[data-theme='dark'] .fee-collect-page #discountInput,
         html[data-theme='dark'] .fee-collect-page #paymentAmount,
         html[data-theme='dark'] .fee-collect-page #descriptionInput {
@@ -3141,9 +3126,10 @@
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-type-btn.active {
-            background: #0284c7 !important;
-            border-color: #38bdf8 !important;
-            box-shadow: 0 0 14px rgba(14, 165, 233, 0.62) !important;
+            background: var(--c-primary) !important;
+            border-color: var(--c-primary) !important;
+            color: var(--c-on-primary) !important;
+            box-shadow: none !important;
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row {
@@ -3151,7 +3137,7 @@
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row #totalAmount {
-            color: #22b7f5 !important;
+            color: var(--c-primary) !important;
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount #paymentAmount {
@@ -3165,10 +3151,10 @@
             --mobile-sheet-surface: #0f172a;
             --mobile-sheet-subtle: #111827;
             --mobile-sheet-border: rgba(148, 163, 184, 0.24);
-            --mobile-sheet-primary: #60a5fa;
+            --mobile-sheet-primary: var(--c-primary, #22a565);
             --mobile-sheet-primary-text: #f8fafc;
             --mobile-sheet-muted: #94a3b8;
-            --mobile-sheet-total: #38bdf8;
+            --mobile-sheet-total: var(--c-primary, #22a565);
             background: var(--mobile-sheet-surface);
         }
 
@@ -3193,12 +3179,6 @@
             background: var(--mobile-sheet-subtle);
             border-color: var(--mobile-sheet-border);
             color: #cbd5e1;
-        }
-
-        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls .discount-type-btn.active {
-            background: #2563eb;
-            border-color: #60a5fa;
-            color: #ffffff;
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-subtotal-row,
@@ -3227,10 +3207,10 @@
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet .collect-btn {
-            background: #2563eb !important;
-            border: 1px solid #3b82f6 !important;
-            color: #ffffff !important;
-            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.3) !important;
+            background: var(--c-primary) !important;
+            border: 1px solid var(--c-primary) !important;
+            color: var(--c-on-primary) !important;
+            box-shadow: none !important;
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet .collect-btn:disabled {
@@ -3302,9 +3282,9 @@
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-switch-row .btn {
-            background: #2563eb !important;
-            border-color: #3b82f6 !important;
-            color: #ffffff !important;
+            background: var(--c-primary) !important;
+            border-color: var(--c-primary) !important;
+            color: var(--c-on-primary) !important;
         }
 
         html[data-theme='dark'] .fee-collect-page #mainTabs {
@@ -3339,9 +3319,9 @@
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-select-chip.is-active {
-            background: #172554 !important;
-            border-color: #60a5fa !important;
-            color: #dbeafe !important;
+            background: var(--c-primary-soft) !important;
+            border-color: var(--c-primary) !important;
+            color: var(--c-text) !important;
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .modal-header,
@@ -3373,8 +3353,8 @@
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-row.is-selected {
-            background: #172554 !important;
-            border-color: #60a5fa !important;
+            background: var(--c-primary-soft) !important;
+            border-color: var(--c-primary) !important;
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-title,
@@ -3393,9 +3373,9 @@
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-mark.is-selected {
-            border-color: #4f8df7 !important;
-            background: #4f8df7 !important;
-            color: #0f172a !important;
+            border-color: var(--c-primary) !important;
+            background: var(--c-primary) !important;
+            color: var(--c-on-primary) !important;
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .selection-count {
@@ -3721,7 +3701,7 @@
             ══════════════════════════════════════ --}}
             <div class="tab-pane fade show active" id="tabCollect">
                 <div class="mobile-quick-actions mobile-only mb-3">
-                    <div class="card mobile-summary-card mb-3">
+                    <div class="card mobile-summary-card mb-0">
                         <div class="mobile-chip-scroll">
                             @foreach ($feeSets as $feeSetId => $fees)
                                 <button type="button" class="mobile-select-chip"
@@ -3729,8 +3709,9 @@
                                     data-selection-key="{{ $feeSetId }}"
                                     data-selection-title="{{ $fees->first()->feeSet->name }}"
                                     aria-label="Open {{ $fees->first()->feeSet->name }}">
+                                    @php $feeSetDue = (float) $fees->sum('calculated_net_amount'); @endphp
                                     <strong>{{ $fees->first()->feeSet->name }}</strong>
-                                    <small>{{ $fees->count() }} fee{{ $fees->count() === 1 ? '' : 's' }}</small>
+                                    <small>{{ $fees->count() }} fee{{ $fees->count() === 1 ? '' : 's' }} · BDT {{ number_format($feeSetDue, fmod($feeSetDue, 1) ? 2 : 0) }} due</small>
                                 </button>
                             @endforeach
                             @foreach($inventoryCategories as $cat)
@@ -3756,11 +3737,6 @@
                         </div>
                     </div>
 
-                    <div class="card mobile-summary-card">
-                        <div class="mobile-summary-line" id="mobileSummaryText">
-                            Tap a category to add fees, inventory items, or dues.
-                        </div>
-                    </div>
                 </div>
 
                 <div class="desktop-collect-layout row g-4">
@@ -4036,12 +4012,12 @@
                                         <div class="mobile-cart-summary">
                                             <div class="mobile-cart-copy">
                                                 <span id="mobileCartEyebrow" class="mobile-cart-eyebrow"
-                                                    data-collapsed-label="CART" data-expanded-label="TOTAL DUE">CART</span>
+                                                    data-collapsed-label="CART" data-expanded-label="SELECTED ITEMS">CART</span>
                                                 <strong id="mobileCartTotal">BDT 0.00</strong>
                                                 <small class="d-block text-truncate" id="mobileCartCount">No items added yet</small>
                                             </div>
                                             <span id="mobileCartBadge" class="mobile-cart-badge">0 items</span>
-                                            <span class="mobile-cart-chevron" aria-hidden="true">⌄</span>
+                                            <span class="mobile-cart-chevron" aria-hidden="true"><i class="fas fa-chevron-up"></i></span>
                                         </div>
                                     </button>
                                 </div>
@@ -4071,13 +4047,14 @@
                                             <span class="mono text-muted fw-semibold"
                                                 style="font-size:11px;letter-spacing:.08em">DISCOUNT</span>
                                             <div class="mobile-discount-controls ms-auto d-flex align-items-center gap-1"
-                                                role="tablist" aria-label="Discount type">
+                                                role="group" aria-label="{{ __('Discount') }}">
                                                 <input type="number" id="discountInput" name="discount" min="0"
-                                                    step="0.01" placeholder="0.00" value="0" autocomplete="off">
+                                                    step="0.01" placeholder="0.00" value="0" autocomplete="off"
+                                                    inputmode="decimal" aria-label="{{ __('Discount amount') }}">
                                                 <button type="button" class="discount-type-btn active"
-                                                    id="btnFlat" role="tab" aria-selected="true">BDT</button>
+                                                    id="btnFlat" aria-pressed="true" aria-label="{{ __('Flat amount in BDT') }}">BDT</button>
                                                 <button type="button" class="discount-type-btn"
-                                                    id="btnPercent" role="tab" aria-selected="false">%</button>
+                                                    id="btnPercent" aria-pressed="false" aria-label="{{ __('Percentage') }}">%</button>
                                             </div>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center mt-2">
@@ -4091,7 +4068,7 @@
                                     <hr class="my-2" style="border-color:#f1f5f9">
                                     <div class="mobile-total-due-row d-flex justify-content-between align-items-baseline mb-3">
                                         <span class="mono text-muted fw-semibold"
-                                            style="font-size:11px;letter-spacing:.09em">PAYMENT SUMMARY</span>
+                                            style="font-size:11px;letter-spacing:.09em">{{ __('TOTAL TO COLLECT') }}</span>
                                         <div>
                                             <span class="mono text-muted me-1" style="font-size:13px">BDT</span>
                                             <span class="mono fw-bold" id="totalAmount"
@@ -4104,7 +4081,7 @@
                                             <label for="paymentAmount" class="form-label mono text-muted fw-semibold"
                                                 style="font-size:11px;letter-spacing:.08em">PAYMENT AMOUNT</label>
                                              <input type="number" id="paymentAmount" name="payment_amount" min="0" step="0.01"
-                                                 placeholder="Enter payment amount" class="form-control" readonly
+                                                 class="form-control" readonly aria-readonly="true"
                                                  style="font-size:16px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc">
                                         </div>
 
@@ -4119,6 +4096,7 @@
                                     </div>
 
                                     <div class="mb-3">
+                                        <label for="descriptionInput" class="sr-only">{{ __('Payment note') }}</label>
                                         <textarea name="description" id="descriptionInput" class="form-control" rows="2"
                                             placeholder="Add payment note or description" style="font-size:13px;border-radius:8px;border:1px solid #e2e8f0">{{ old('description') }}</textarea>
                                     </div>
@@ -5269,8 +5247,8 @@
                 discountType = 'flat';
                 $(this).addClass('active');
                 $('#btnPercent').removeClass('active');
-                $(this).attr('aria-selected', 'true');
-                $('#btnPercent').attr('aria-selected', 'false');
+                $(this).attr('aria-pressed', 'true');
+                $('#btnPercent').attr('aria-pressed', 'false');
                 $('#discountTypeHidden').val('flat');
                 $discountInput.attr('placeholder', '0.00');
                 updateUI();
@@ -5280,8 +5258,8 @@
                 discountType = 'percent';
                 $(this).addClass('active');
                 $('#btnFlat').removeClass('active');
-                $(this).attr('aria-selected', 'true');
-                $('#btnFlat').attr('aria-selected', 'false');
+                $(this).attr('aria-pressed', 'true');
+                $('#btnFlat').attr('aria-pressed', 'false');
                 $('#discountTypeHidden').val('percent');
                 $discountInput.attr('placeholder', '0');
                 updateUI();
@@ -5314,7 +5292,7 @@
 
                 let itemsBreakdown = '';
                 if (items.length > 0) {
-                    itemsBreakdown = '<div style="font-size:13px;color:#000;font-weight:600;padding:0;">';
+                    itemsBreakdown = '<div style="font-size:13px;color:var(--c-text, #0f172a);font-weight:600;padding:0;">';
                     items.forEach(function(item) {
                         itemsBreakdown += '<div class="d-flex justify-content-between" style="display: flex !important;"><span>' +
                             item.category + ' - ' + parseFloat(item.amount).toFixed(2) +
@@ -5630,6 +5608,7 @@
                 $subtotalEl.text(grossTotal.toFixed(2));
                 $totalEl.text(paidTotal.toFixed(2));
                 $discountLine.text(`- ${discountAmt.toFixed(2)} BDT`);
+                $('#discountSection').toggleClass('has-discount', discountAmt > 0);
                 $('#discountAmountHidden').val(discountAmt.toFixed(2));
                 let totalCount = cartIds.size + cartInvIds.size;
                 totalCount += cartDueIds.size;

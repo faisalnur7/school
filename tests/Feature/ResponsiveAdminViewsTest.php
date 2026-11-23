@@ -78,15 +78,21 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('max-width: none !important;', $source);
     }
 
-    public function test_mobile_cart_rows_hide_the_duplicate_bottom_total(): void
+    public function test_mobile_cart_rows_hide_the_duplicate_fee_total_but_show_line_totals(): void
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
 
-        $this->assertStringContainsString(
-            '.mobile-checkout-sheet #cartItems .cart-row .cart-line-total {',
+        // A fee line's total repeats its Paid amount, so it stays hidden.
+        $this->assertMatchesRegularExpression(
+            '/\.mobile-checkout-sheet #cartItems \.cart-row \.gross-line-amount \{[^}]*display: none !important;/s',
             $source
         );
-        $this->assertStringContainsString('display: none !important;', $source);
+        // Inventory and due lines (quantity x price, partial payments) show their line total.
+        $this->assertMatchesRegularExpression(
+            '/\.cart-row \.inv-subtotal-display,\s*\.fee-collect-page \.mobile-checkout-sheet #cartItems \.cart-row \.due-line-amount \{[^}]*display: block !important;/s',
+            $source
+        );
+        $this->assertStringContainsString('content: "Line total  BDT ";', $source);
     }
 
     public function test_mobile_inventory_rows_use_a_compact_two_row_layout(): void
@@ -130,7 +136,7 @@ class ResponsiveAdminViewsTest extends TestCase
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
 
         $this->assertMatchesRegularExpression(
-            '/\.fee-collect-page \.mobile-checkout-sheet #cartItems \.cart-row--inventory \.cart-qty-stepper-input \{[^}]*width: 28px !important;/s',
+            '/\.fee-collect-page \.mobile-checkout-sheet #cartItems \.cart-row--inventory \.cart-qty-stepper-input \{[^}]*width: 40px !important;/s',
             $source
         );
     }
@@ -185,8 +191,8 @@ class ResponsiveAdminViewsTest extends TestCase
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
 
-        $this->assertStringContainsString(
-            '.fee-collect-page .mobile-checkout-sheet .card-footer {' . PHP_EOL . '                display: none !important;',
+        $this->assertMatchesRegularExpression(
+            '/\.fee-collect-page \.mobile-checkout-sheet \.card-footer \{[^}]*display: none !important;/s',
             $source
         );
         $this->assertStringContainsString(
@@ -274,7 +280,7 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('id="mobileCartEyebrow"', $source);
         $this->assertStringContainsString('id="mobileCartBadge"', $source);
         $this->assertStringContainsString('data-collapsed-label="CART"', $source);
-        $this->assertStringContainsString('data-expanded-label="TOTAL DUE"', $source);
+        $this->assertStringContainsString('data-expanded-label="SELECTED ITEMS"', $source);
         $this->assertStringContainsString('.mobile-checkout-sheet.is-open .mobile-cart-badge', $source);
     }
 
@@ -382,16 +388,21 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('justify-content: space-between;', $source);
     }
 
-    public function test_mobile_payment_summary_uses_compact_side_by_side_fields(): void
+    public function test_mobile_payment_summary_shows_the_total_once(): void
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
 
-        $this->assertStringContainsString('.fee-collect-page .mobile-checkout-sheet.is-open .payment-meta-row {', $source);
-        $this->assertStringContainsString('grid-template-columns: repeat(2, minmax(0, 1fr));', $source);
-        $this->assertStringContainsString('.fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount #paymentAmount {', $source);
-        $this->assertStringContainsString('min-height: 34px !important;', $source);
+        // The read-only Payment amount repeated the total, so on mobile it is hidden and the
+        // date takes the full row.
+        $this->assertMatchesRegularExpression(
+            '/\.fee-collect-page \.mobile-checkout-sheet\.is-open \.payment-meta-row \{[^}]*display: block !important;/s',
+            $source
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.fee-collect-page \.mobile-checkout-sheet\.is-open \.mobile-payment-amount \{[^}]*display: none !important;/s',
+            $source
+        );
         $this->assertStringContainsString('.fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-amount-line {', $source);
-        $this->assertStringContainsString('display: none !important;', $source);
     }
 
     public function test_payment_amount_and_date_share_a_row_on_desktop_and_tablet(): void
@@ -444,10 +455,11 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('height: 36px;', $source);
         $this->assertStringContainsString('min-height: 34px;', $source);
         $this->assertStringContainsString('font-size: 0.72rem;', $source);
-        $this->assertStringContainsString('font-size: 1.8rem !important;', $source);
+        $this->assertStringContainsString('font-size: 1.6rem !important;', $source);
         $this->assertStringContainsString('min-height: 48px;', $source);
-        $this->assertStringContainsString('role="tablist"', $source);
-        $this->assertStringContainsString('role="tab" aria-selected="true"', $source);
+        // Flat / percent are toggle buttons, not tabs.
+        $this->assertStringContainsString('role="group" aria-label="{{ __(\'Discount\') }}"', $source);
+        $this->assertStringContainsString('id="btnFlat" aria-pressed="true"', $source);
     }
 
     public function test_mobile_checkout_collapsed_sheet_is_compact(): void
@@ -471,7 +483,7 @@ class ResponsiveAdminViewsTest extends TestCase
 
         $this->assertStringContainsString('mobile-empty-cart', $source);
         $this->assertStringContainsString('max-height: none !important;', $source);
-        $this->assertStringContainsString('PAYMENT SUMMARY', $source);
+        $this->assertStringContainsString("{{ __('TOTAL TO COLLECT') }}", $source);
     }
 
     public function test_mobile_checkout_has_theme_tokens_for_light_and_dark_modes(): void
