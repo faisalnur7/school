@@ -114,13 +114,13 @@
                         <small id="dateRangePreview" class="text-muted"></small>
                     </div>
                     <div class="col-md-3 mb-2">
-                        <label class="small font-weight-bold mb-1">Title <span class="text-muted">(optional)</span></label>
-                        <input type="text" name="title" class="form-control form-control-sm"
+                        <label for="attendance-settings-title" class="small font-weight-bold mb-1">Title <span class="text-muted">(optional)</span></label>
+                        <input id="attendance-settings-title" type="text" name="title" class="form-control form-control-sm"
                             placeholder="e.g. Eid ul-Fitr" maxlength="255" />
                     </div>
                     <div class="col-md-2 mb-2">
-                        <label class="small font-weight-bold mb-1">Description <span class="text-muted">(optional)</span></label>
-                        <input type="text" name="description" class="form-control form-control-sm"
+                        <label for="attendance-settings-description" class="small font-weight-bold mb-1">Description <span class="text-muted">(optional)</span></label>
+                        <input id="attendance-settings-description" type="text" name="description" class="form-control form-control-sm"
                             placeholder="Optional note" />
                     </div>
                     <div class="col-md-2 mb-2">
@@ -158,8 +158,8 @@
                                     onsubmit="return confirm('Delete this holiday?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-xs btn-danger">
-                                        <i class="fas fa-trash"></i>
+                                    <button type="submit" class="btn btn-xs btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                        <i class="fas fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </td>

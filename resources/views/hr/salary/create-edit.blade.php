@@ -59,8 +59,8 @@
                         @error('other_deductions')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-3 form-group">
-                        <label class="font-weight-bold">Effective From <span class="text-danger">*</span></label>
-                        <input type="date" name="effective_from" class="form-control form-control-sm @error('effective_from') is-invalid @enderror"
+                        <label for="salary-create-edit-effective-from" class="font-weight-bold">Effective From <span class="text-danger">*</span></label>
+                        <input id="salary-create-edit-effective-from" type="date" name="effective_from" class="form-control form-control-sm @error('effective_from') is-invalid @enderror"
                             value="{{ old('effective_from', $s?->effective_from?->format('Y-m-d') ?? today()->format('Y-m-d')) }}" required>
                         @error('effective_from')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>

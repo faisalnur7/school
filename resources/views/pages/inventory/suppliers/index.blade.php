@@ -80,13 +80,13 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <a href="{{ route('inventory.suppliers.edit', $supplier->id) }}" class="btn btn-sm btn-info">
-                                        <i class="fas fa-edit"></i>
+                                    <a href="{{ route('inventory.suppliers.edit', $supplier->id) }}" class="btn btn-sm btn-info" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
                                     </a>
                                     <form action="{{ route('inventory.suppliers.destroy', $supplier->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this supplier?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        <button class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

@@ -34,13 +34,13 @@
                 @endif
 
 <div class="form-group">
-                                <label>Name (English)</label>
-                                <input type="text" name="name_en" class="form-control" required>
+                                <label for="groups-create-name-en">Name (English)</label>
+                                <input id="groups-create-name-en" type="text" name="name_en" class="form-control" required>
                             </div>
 
                             <div class="form-group">
-                                <label>Name (Bangla)</label>
-                                <input type="text" name="name_bn" class="form-control" required>
+                                <label for="groups-create-name-bn">Name (Bangla)</label>
+                                <input id="groups-create-name-bn" type="text" name="name_bn" class="form-control" required>
                             </div>
             </div>
 

@@ -36,10 +36,18 @@ class DashboardController extends Controller
         
         // Today's Attendance
         $today = Carbon::today();
-        $todayAttendance = Attendance::whereDate('date', $today)->first();
-        $data['today_present'] = $todayAttendance ? AttendanceItem::where('attendance_id', $todayAttendance->id)->where('status', 'present')->count() : 0;
-        $data['today_absent'] = $todayAttendance ? AttendanceItem::where('attendance_id', $todayAttendance->id)->where('status', 'absent')->count() : 0;
-        $data['today_leave'] = $todayAttendance ? AttendanceItem::where('attendance_id', $todayAttendance->id)->where('status', 'leave')->count() : 0;
+        // Attendance is recorded per class/section, so count every record taken today
+        // (previously only the first record was read). With none, the dashboard shows
+        // "not taken yet" instead of a misleading 0% / 0 absent.
+        $todayAttendanceIds = Attendance::whereDate('date', $today)->pluck('id');
+        $data['attendance_taken_today'] = $todayAttendanceIds->isNotEmpty();
+        $todayCounts = AttendanceItem::whereIn('attendance_id', $todayAttendanceIds)
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+        $data['today_present'] = (int) ($todayCounts['present'] ?? 0);
+        $data['today_absent'] = (int) ($todayCounts['absent'] ?? 0);
+        $data['today_leave'] = (int) ($todayCounts['leave'] ?? 0);
         $data['attendance_percentage'] = $data['total_students'] > 0 ? round(($data['today_present'] / $data['total_students']) * 100, 2) : 0;
         
         // Fee Statistics
@@ -118,6 +126,7 @@ class DashboardController extends Controller
             return [
                 'class' => $class->name_en,
                 'percentage' => $percentage,
+                'taken' => $total > 0,
                 'session_id' => $currentSessionId,
                 'class_id' => $class->id,
                 'section_id' => $fallbackSectionId,

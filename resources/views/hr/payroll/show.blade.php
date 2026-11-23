@@ -45,7 +45,7 @@
                             <td><span class="badge badge-{{ $p->status === 'paid' ? 'success' : 'warning' }}">{{ ucfirst($p->status) }}</span></td>
                             <td>@if($p->is_locked)<i class="fas fa-lock text-danger"></i>@else<i class="fas fa-lock-open text-muted"></i>@endif</td>
                             <td class="text-center">
-                                <a href="{{ route('hr.payroll.slip', $p->id) }}" class="btn btn-xs btn-info" target="_blank"><i class="fas fa-file-alt"></i></a>
+                                <a href="{{ route('hr.payroll.slip', $p->id) }}" class="btn btn-xs btn-info" target="_blank" aria-label="{{ __('Salary slip') }}" title="{{ __('Salary slip') }}"><i class="fas fa-file-alt" aria-hidden="true"></i></a>
                                 @if(!$p->is_locked && $p->status === 'pending')
                                 <form action="{{ route('hr.payroll.paid', $p->id) }}" method="POST" class="d-inline">
                                     @csrf @method('PATCH')

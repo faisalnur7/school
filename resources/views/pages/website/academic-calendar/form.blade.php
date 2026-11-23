@@ -1,12 +1,12 @@
 @csrf
 <div class="card-body row">
     <div class="form-group col-md-8">
-        <label>Title</label>
-        <input name="title" value="{{ old('title', $item->title ?? '') }}" class="form-control" required>
+        <label for="academic-calendar-form-title">Title</label>
+        <input id="academic-calendar-form-title" name="title" value="{{ old('title', $item->title ?? '') }}" class="form-control" required>
     </div>
     <div class="form-group col-md-2">
-        <label>Sort</label>
-        <input type="number" min="0" name="sort_order" value="{{ old('sort_order', $item->sort_order ?? 0) }}" class="form-control">
+        <label for="academic-calendar-form-sort-order">Sort</label>
+        <input id="academic-calendar-form-sort-order" type="number" min="0" name="sort_order" value="{{ old('sort_order', $item->sort_order ?? 0) }}" class="form-control">
     </div>
     <div class="form-group col-md-2 d-flex align-items-end">
         <div class="custom-control custom-checkbox">
@@ -15,16 +15,16 @@
         </div>
     </div>
     <div class="form-group col-md-6">
-        <label>Start Date</label>
-        <input type="date" name="start_date" value="{{ old('start_date', isset($item) && $item->start_date ? $item->start_date->format('Y-m-d') : '') }}" class="form-control" required>
+        <label for="academic-calendar-form-start-date">Start Date</label>
+        <input id="academic-calendar-form-start-date" type="date" name="start_date" value="{{ old('start_date', isset($item) && $item->start_date ? $item->start_date->format('Y-m-d') : '') }}" class="form-control" required>
     </div>
     <div class="form-group col-md-6">
-        <label>End Date</label>
-        <input type="date" name="end_date" value="{{ old('end_date', isset($item) && $item->end_date ? $item->end_date->format('Y-m-d') : '') }}" class="form-control">
+        <label for="academic-calendar-form-end-date">End Date</label>
+        <input id="academic-calendar-form-end-date" type="date" name="end_date" value="{{ old('end_date', isset($item) && $item->end_date ? $item->end_date->format('Y-m-d') : '') }}" class="form-control">
     </div>
     <div class="form-group col-12">
-        <label>Description</label>
-        <textarea name="description" rows="6" class="form-control">{{ old('description', $item->description ?? '') }}</textarea>
+        <label for="academic-calendar-form-description">Description</label>
+        <textarea id="academic-calendar-form-description" name="description" rows="6" class="form-control">{{ old('description', $item->description ?? '') }}</textarea>
     </div>
 </div>
 <div class="card-footer">

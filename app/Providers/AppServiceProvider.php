@@ -34,6 +34,13 @@ class AppServiceProvider extends ServiceProvider
             $view->with('inkySearchEntries', $this->buildInkySearchEntries());
         });
 
+        // Browser-tab title fallback for every admin page that doesn't set @section('title').
+        View::composer('layouts.partials._head', function ($view) {
+            $routeName = Route::currentRouteName() ?? '';
+            $meta = $this->buildAdminNavigationMeta($routeName);
+            $view->with('headPageTitle', last($meta['breadcrumbs'])['label'] ?? '');
+        });
+
         View::composer('pages.*.hub', function ($view) {
             $user = auth()->user();
 
@@ -103,6 +110,11 @@ class AppServiceProvider extends ServiceProvider
 
     private function buildAdminNavigationMeta(string $routeName): array
     {
+        // Unnamed routes get framework names like "generated::aB3x…"; never show those.
+        if (Str::startsWith($routeName, 'generated::')) {
+            $routeName = '';
+        }
+
         $pageTitle = '';
         $hubRoute = null;
         $hubLabel = null;
@@ -249,11 +261,18 @@ class AppServiceProvider extends ServiceProvider
             ['label' => __('Home'), 'url' => route('homepage')],
         ];
 
-        if ($hubLabel && $hubRoute) {
-            $breadcrumbs[] = ['label' => $hubLabel, 'url' => route($hubRoute)];
-        }
+        $currentLabel = $pageTitle ?: $fallbackEntity;
 
-        $breadcrumbs[] = ['label' => $pageTitle ?: $fallbackEntity, 'url' => null];
+        if ($hubLabel && $hubRoute) {
+            // On the hub page itself the page title equals the hub label: show it once, as the current crumb.
+            $isHubPage = $currentLabel === $hubLabel;
+            $breadcrumbs[] = ['label' => $hubLabel, 'url' => $isHubPage ? null : route($hubRoute)];
+            if (! $isHubPage) {
+                $breadcrumbs[] = ['label' => $currentLabel, 'url' => null];
+            }
+        } else {
+            $breadcrumbs[] = ['label' => $currentLabel, 'url' => null];
+        }
 
         return compact('routeName', 'pageTitle', 'hubRoute', 'hubLabel', 'breadcrumbs');
     }

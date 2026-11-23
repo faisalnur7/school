@@ -14,8 +14,8 @@
                         @if($errors->any())<div class="alert alert-danger py-2">{{ $errors->first() }}</div>@endif
 
                         <div class="form-group">
-                            <label>Account (Budget Head) <span class="text-danger">*</span></label>
-                            <select name="account_id" class="form-control @error('account_id') is-invalid @enderror" required>
+                            <label for="budget-allocations-index-account-id">Account (Budget Head) <span class="text-danger">*</span></label>
+                            <select id="budget-allocations-index-account-id" name="account_id" class="form-control @error('account_id') is-invalid @enderror" required>
                                 <option value="">— Select Account —</option>
                                 @foreach($accountGroups as $group)
                                     @if($group->accounts->count())
@@ -33,8 +33,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Expense Category <small class="text-muted">(optional override)</small></label>
-                            <select name="expense_category_id" class="form-control">
+                            <label for="budget-allocations-index-expense-category-id">Expense Category <small class="text-muted">(optional override)</small></label>
+                            <select id="budget-allocations-index-expense-category-id" name="expense_category_id" class="form-control">
                                 <option value="">Auto from Account</option>
                                 @foreach($categories as $c)
                                     <option value="{{ $c->id }}" {{ old('expense_category_id') == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
@@ -43,8 +43,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Amount <span class="text-danger">*</span></label>
-                            <input type="number" name="amount" step="0.01" min="0.01"
+                            <label for="budget-allocations-index-amount">Amount <span class="text-danger">*</span></label>
+                            <input id="budget-allocations-index-amount" type="number" name="amount" step="0.01" min="0.01"
                                    class="form-control @error('amount') is-invalid @enderror"
                                    value="{{ old('amount') }}" required>
                             @error('amount')<span class="invalid-feedback">{{ $message }}</span>@enderror
@@ -62,16 +62,16 @@
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
-                                    <label>Fiscal Year <span class="text-danger">*</span></label>
-                                    <input type="number" name="fiscal_year" class="form-control"
+                                    <label for="budget-allocations-index-fiscal-year">Fiscal Year <span class="text-danger">*</span></label>
+                                    <input id="budget-allocations-index-fiscal-year" type="number" name="fiscal_year" class="form-control"
                                            value="{{ old('fiscal_year', now()->year) }}" min="2000" max="2100" required>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-group" id="monthWrapper" style="{{ old('period') === 'monthly' ? '' : 'display:none' }}">
-                            <label>Month</label>
-                            <select name="fiscal_month" class="form-control">
+                            <label for="budget-allocations-index-fiscal-month">Month</label>
+                            <select id="budget-allocations-index-fiscal-month" name="fiscal_month" class="form-control">
                                 <option value="">—</option>
                                 @foreach(range(1,12) as $m)
                                     <option value="{{ $m }}" {{ old('fiscal_month') == $m ? 'selected' : '' }}>
@@ -82,8 +82,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Notes</label>
-                            <textarea name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
+                            <label for="budget-allocations-index-notes">Notes</label>
+                            <textarea id="budget-allocations-index-notes" name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
                         </div>
                     </div>
                     <div class="card-footer">
@@ -101,8 +101,8 @@
                     <div class="flex gap-2 pr-3 py-2 items-end ml-auto">
                         <form method="GET" class="flex gap-2 items-end">
                             <div>
-                                <label style="font-size:12px;color:#FFF">Year</label>
-                                <input type="number" name="year" class="form-control form-control-sm" value="{{ $year }}" style="width:100px">
+                                <label for="budget-allocations-index-year" style="font-size:12px;color:#FFF">Year</label>
+                                <input id="budget-allocations-index-year" type="number" name="year" class="form-control form-control-sm" value="{{ $year }}" style="width:100px">
                             </div>
                             <button class="btn btn-sm btn-dark" style="margin-top:10px">Go</button>
                         </form>
@@ -144,13 +144,13 @@
                                 <td class="text-right fw-bold">{{ number_format($a->amount, 2) }}</td>
                                 <td style="display:flex;gap:4px">
                                     <button class="btn btn-sm btn-dark"
-                                            data-toggle="modal" data-target="#editModal{{ $a->id }}">
-                                        <i class="fas fa-edit"></i>
+                                            data-toggle="modal" data-target="#editModal{{ $a->id }}" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
                                     </button>
                                     <form action="{{ route('budget-allocations.destroy', $a->id) }}" method="POST"
                                           class="m-0" onsubmit="return confirm('Delete?')">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        <button class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

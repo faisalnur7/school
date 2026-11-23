@@ -14,8 +14,8 @@
         <form method="GET" action="{{ route('students.history') }}">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                 <div class="md:col-span-2">
-                    <label class="form-label text-sm font-medium text-slate-600">Search by Name or Student ID</label>
-                    <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Enter name or CID...">
+                    <label for="lifecycle-history-index-search" class="form-label text-sm font-medium text-slate-600">Search by Name or Student ID</label>
+                    <input id="lifecycle-history-index-search" type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Enter name or CID...">
                 </div>
                 <div>
                     <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg w-full" title="Search" aria-label="Search">

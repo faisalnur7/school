@@ -46,8 +46,8 @@
                         <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}" placeholder="To">
                     </div>
                     <div class="col-md-2 form-group mb-0" style="display:flex;gap:6px">
-                        <button type="submit" class="btn btn-primary btn-sm ml-auto"><i class="fas fa-search"></i></button>
-                        <a href="{{ route('hr.reports.leave') }}" class="btn btn-secondary btn-sm"><i class="fas fa-times"></i></a>
+                        <button type="submit" class="btn btn-primary btn-sm ml-auto" aria-label="{{ __('Search') }}" title="{{ __('Search') }}"><i class="fas fa-search" aria-hidden="true"></i></button>
+                        <a href="{{ route('hr.reports.leave') }}" class="btn btn-secondary btn-sm" aria-label="{{ __('Close') }}" title="{{ __('Close') }}"><i class="fas fa-times" aria-hidden="true"></i></a>
                     </div>
                 </div>
             </form>

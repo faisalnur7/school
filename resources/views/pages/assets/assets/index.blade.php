@@ -14,8 +14,8 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label class="form-label">Category *</label>
-                            <select name="asset_category_id" class="form-control" required>
+                            <label for="assets-index-asset-category-id" class="form-label">Category *</label>
+                            <select id="assets-index-asset-category-id" name="asset_category_id" class="form-control" required>
                                 <option value="">Select Category</option>
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat->id }}" {{ old('asset_category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
@@ -24,18 +24,18 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Name *</label>
-                            <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
+                            <label for="assets-index-name" class="form-label">Name *</label>
+                            <input id="assets-index-name" type="text" name="name" class="form-control" value="{{ old('name') }}" required>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control" rows="3">{{ old('description') }}</textarea>
+                            <label for="assets-index-description" class="form-label">Description</label>
+                            <textarea id="assets-index-description" name="description" class="form-control" rows="3">{{ old('description') }}</textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Status *</label>
-                            <select name="status" class="form-control" required>
+                            <label for="assets-index-status" class="form-label">Status *</label>
+                            <select id="assets-index-status" name="status" class="form-control" required>
                                 @foreach(['active', 'inactive', 'disposed'] as $s)
                                     <option value="{{ $s }}" {{ old('status') == $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
                                 @endforeach
@@ -88,10 +88,10 @@
                             @endif
                         </td>
                         <td class="px-4 py-3 text-center">
-                            <a href="{{ route('assets.edit', $asset) }}" class="btn btn-sm btn-warning me-1"><i class="fas fa-edit"></i></a>
+                            <a href="{{ route('assets.edit', $asset) }}" class="btn btn-sm btn-warning me-1" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></a>
                             <form action="{{ route('assets.destroy', $asset) }}" method="POST" class="d-inline">
                                 @csrf @method('DELETE')
-                                <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this asset?')"><i class="fas fa-trash"></i></button>
+                                <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this asset?')" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                             </form>
                         </td>
                     </tr>

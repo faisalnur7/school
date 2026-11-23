@@ -52,8 +52,8 @@
     </div>
 
     <div class="col-md-6 mb-3">
-        <label class="font-weight-bold">Teacher</label>
-        <select name="teacher_id" class="form-control">
+        <label for="routines--form-teacher-id" class="font-weight-bold">Teacher</label>
+        <select id="routines--form-teacher-id" name="teacher_id" class="form-control">
             <option value="">Select teacher</option>
             @foreach ($teachers as $teacher)
                 <option value="{{ $teacher->id }}" @selected((string) $selectedTeacherId === (string) $teacher->id)>
@@ -64,8 +64,8 @@
     </div>
 
     <div class="col-md-6 mb-3">
-        <label class="font-weight-bold">Classroom</label>
-        <select name="classroom_id" class="form-control">
+        <label for="routines--form-classroom-id" class="font-weight-bold">Classroom</label>
+        <select id="routines--form-classroom-id" name="classroom_id" class="form-control">
             <option value="">Select classroom</option>
             @foreach ($classrooms as $classroom)
                 <option value="{{ $classroom->id }}" @selected((string) $selectedClassroomId === (string) $classroom->id)>
@@ -76,8 +76,8 @@
     </div>
 
     <div class="col-md-6 mb-3">
-        <label class="font-weight-bold">Day <span class="text-danger">*</span></label>
-        <select name="day" class="form-control" required>
+        <label for="routines--form-day" class="font-weight-bold">Day <span class="text-danger">*</span></label>
+        <select id="routines--form-day" name="day" class="form-control" required>
             <option value="">Select day</option>
             @foreach ($days as $day)
                 <option value="{{ $day }}" @selected($selectedDay === $day)>{{ $day }}</option>
@@ -86,8 +86,8 @@
     </div>
 
     <div class="col-md-6 mb-3">
-        <label class="font-weight-bold">Time Schedule <span class="text-danger">*</span></label>
-        <select name="time_schedule_id" class="form-control" required>
+        <label for="routines--form-time-schedule-id" class="font-weight-bold">Time Schedule <span class="text-danger">*</span></label>
+        <select id="routines--form-time-schedule-id" name="time_schedule_id" class="form-control" required>
             <option value="">Select period</option>
             @foreach ($schedules as $schedule)
                 <option value="{{ $schedule->id }}" @selected((string) $selectedScheduleId === (string) $schedule->id)>

@@ -34,14 +34,14 @@
 
                 <div class="row g-2 mb-3">
                     <div class="col-md-8">
-                        <label class="form-label small font-weight-600 mb-1">Category Name <span class="text-danger">*</span></label>
-                        <input type="text" name="name" value="{{ old('name') }}" class="form-control form-control-sm @error('name') is-invalid @enderror" placeholder="Enter category name" required>
+                        <label for="categories-create-name" class="form-label small font-weight-600 mb-1">Category Name <span class="text-danger">*</span></label>
+                        <input id="categories-create-name" type="text" name="name" value="{{ old('name') }}" class="form-control form-control-sm @error('name') is-invalid @enderror" placeholder="Enter category name" required>
                         @error('name')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
 
                     <div class="col-md-4">
-                        <label class="form-label small font-weight-600 mb-1">Status</label>
-                        <select name="is_active" class="form-control form-control-sm @error('is_active') is-invalid @enderror">
+                        <label for="categories-create-is-active" class="form-label small font-weight-600 mb-1">Status</label>
+                        <select id="categories-create-is-active" name="is_active" class="form-control form-control-sm @error('is_active') is-invalid @enderror">
                             <option value="1" {{ old('is_active', '1') == '1' ? 'selected' : '' }}>Active</option>
                             <option value="0" {{ old('is_active') == '0' ? 'selected' : '' }}>Inactive</option>
                         </select>

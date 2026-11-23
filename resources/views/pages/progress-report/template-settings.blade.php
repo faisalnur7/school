@@ -117,42 +117,42 @@
                             <div class="card-body">
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
-                                        <label>Paper Orientation</label>
-                                        <select name="paper_orientation" class="form-control">
+                                        <label for="progress-report-template-settings-paper-orientation">Paper Orientation</label>
+                                        <select id="progress-report-template-settings-paper-orientation" name="paper_orientation" class="form-control">
                                             <option value="portrait" @selected(old('paper_orientation', $setting->paper_orientation) === 'portrait')>Portrait</option>
                                             <option value="landscape" @selected(old('paper_orientation', $setting->paper_orientation) === 'landscape')>Landscape</option>
                                         </select>
                                     </div>
                                     <div class="form-group col-md-2">
-                                        <label>Margin Top (cm)</label>
-                                        <input type="number" step="0.1" name="margin_top_mm" class="form-control" value="{{ old('margin_top_mm', $setting->margin_top_mm) }}">
+                                        <label for="progress-report-template-settings-margin-top-mm">Margin Top (cm)</label>
+                                        <input id="progress-report-template-settings-margin-top-mm" type="number" step="0.1" name="margin_top_mm" class="form-control" value="{{ old('margin_top_mm', $setting->margin_top_mm) }}">
                                     </div>
                                     <div class="form-group col-md-2">
-                                        <label>Margin Right (cm)</label>
-                                        <input type="number" step="0.1" name="margin_right_mm" class="form-control" value="{{ old('margin_right_mm', $setting->margin_right_mm) }}">
+                                        <label for="progress-report-template-settings-margin-right-mm">Margin Right (cm)</label>
+                                        <input id="progress-report-template-settings-margin-right-mm" type="number" step="0.1" name="margin_right_mm" class="form-control" value="{{ old('margin_right_mm', $setting->margin_right_mm) }}">
                                     </div>
                                     <div class="form-group col-md-2">
-                                        <label>Margin Bottom (cm)</label>
-                                        <input type="number" step="0.1" name="margin_bottom_mm" class="form-control" value="{{ old('margin_bottom_mm', $setting->margin_bottom_mm) }}">
+                                        <label for="progress-report-template-settings-margin-bottom-mm">Margin Bottom (cm)</label>
+                                        <input id="progress-report-template-settings-margin-bottom-mm" type="number" step="0.1" name="margin_bottom_mm" class="form-control" value="{{ old('margin_bottom_mm', $setting->margin_bottom_mm) }}">
                                     </div>
                                     <div class="form-group col-md-2">
-                                        <label>Margin Left (cm)</label>
-                                        <input type="number" step="0.1" name="margin_left_mm" class="form-control" value="{{ old('margin_left_mm', $setting->margin_left_mm) }}">
+                                        <label for="progress-report-template-settings-margin-left-mm">Margin Left (cm)</label>
+                                        <input id="progress-report-template-settings-margin-left-mm" type="number" step="0.1" name="margin_left_mm" class="form-control" value="{{ old('margin_left_mm', $setting->margin_left_mm) }}">
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                     <div class="form-group col-md-3">
-                                        <label>Watermark Opacity</label>
-                                        <input type="number" step="0.01" min="0" max="1" name="watermark_opacity" class="form-control" value="{{ old('watermark_opacity', $setting->watermark_opacity) }}">
+                                        <label for="progress-report-template-settings-watermark-opacity">Watermark Opacity</label>
+                                        <input id="progress-report-template-settings-watermark-opacity" type="number" step="0.01" min="0" max="1" name="watermark_opacity" class="form-control" value="{{ old('watermark_opacity', $setting->watermark_opacity) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Watermark Scale %</label>
-                                        <input type="number" step="0.1" min="10" max="100" name="watermark_scale" class="form-control" value="{{ old('watermark_scale', $setting->watermark_scale) }}">
+                                        <label for="progress-report-template-settings-watermark-scale">Watermark Scale %</label>
+                                        <input id="progress-report-template-settings-watermark-scale" type="number" step="0.1" min="10" max="100" name="watermark_scale" class="form-control" value="{{ old('watermark_scale', $setting->watermark_scale) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Logo Max Width (cm)</label>
-                                        <input type="number" step="0.1" min="0.8" max="4" name="school_logo_max_width_mm" class="form-control" value="{{ old('school_logo_max_width_mm', $setting->school_logo_max_width_mm) }}">
+                                        <label for="progress-report-template-settings-school-logo-max-width-mm">Logo Max Width (cm)</label>
+                                        <input id="progress-report-template-settings-school-logo-max-width-mm" type="number" step="0.1" min="0.8" max="4" name="school_logo_max_width_mm" class="form-control" value="{{ old('school_logo_max_width_mm', $setting->school_logo_max_width_mm) }}">
                                     </div>
                                     <div class="form-group col-md-3 d-flex align-items-end">
                                         <div class="custom-control custom-checkbox mr-3">
@@ -171,46 +171,46 @@
                             <div class="card-body">
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
-                                        <label>Report Title</label>
-                                        <input type="text" name="report_title_text" class="form-control" value="{{ old('report_title_text', $setting->report_title_text) }}">
+                                        <label for="progress-report-template-settings-report-title-text">Report Title</label>
+                                        <input id="progress-report-template-settings-report-title-text" type="text" name="report_title_text" class="form-control" value="{{ old('report_title_text', $setting->report_title_text) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Title Size</label>
-                                        <input type="number" step="0.1" name="report_title_font_size" class="form-control" value="{{ old('report_title_font_size', $setting->report_title_font_size) }}">
+                                        <label for="progress-report-template-settings-report-title-font-size">Title Size</label>
+                                        <input id="progress-report-template-settings-report-title-font-size" type="number" step="0.1" name="report_title_font_size" class="form-control" value="{{ old('report_title_font_size', $setting->report_title_font_size) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Title</label>
-                                        <input type="color" name="report_title_color" class="form-control form-control-color" value="{{ old('report_title_color', $setting->report_title_color) }}">
+                                        <label for="progress-report-template-settings-report-title-color">Title</label>
+                                        <input id="progress-report-template-settings-report-title-color" type="color" name="report_title_color" class="form-control form-control-color" value="{{ old('report_title_color', $setting->report_title_color) }}">
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
-                                        <label>School Name Size</label>
-                                        <input type="number" step="0.1" name="school_name_font_size" class="form-control" value="{{ old('school_name_font_size', $setting->school_name_font_size) }}">
+                                        <label for="progress-report-template-settings-school-name-font-size">School Name Size</label>
+                                        <input id="progress-report-template-settings-school-name-font-size" type="number" step="0.1" name="school_name_font_size" class="form-control" value="{{ old('school_name_font_size', $setting->school_name_font_size) }}">
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>School Name</label>
-                                        <input type="color" name="school_name_color" class="form-control form-control-color" value="{{ old('school_name_color', $setting->school_name_color) }}">
+                                        <label for="progress-report-template-settings-school-name-color">School Name</label>
+                                        <input id="progress-report-template-settings-school-name-color" type="color" name="school_name_color" class="form-control form-control-color" value="{{ old('school_name_color', $setting->school_name_color) }}">
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>School Address Size</label>
-                                        <input type="number" step="0.1" name="school_address_font_size" class="form-control" value="{{ old('school_address_font_size', $setting->school_address_font_size) }}">
+                                        <label for="progress-report-template-settings-school-address-font-size">School Address Size</label>
+                                        <input id="progress-report-template-settings-school-address-font-size" type="number" step="0.1" name="school_address_font_size" class="form-control" value="{{ old('school_address_font_size', $setting->school_address_font_size) }}">
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
-                                        <label>School Address</label>
-                                        <input type="color" name="school_address_color" class="form-control form-control-color" value="{{ old('school_address_color', $setting->school_address_color) }}">
+                                        <label for="progress-report-template-settings-school-address-color">School Address</label>
+                                        <input id="progress-report-template-settings-school-address-color" type="color" name="school_address_color" class="form-control form-control-color" value="{{ old('school_address_color', $setting->school_address_color) }}">
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>Header Border</label>
-                                        <input type="color" name="header_border_color" class="form-control form-control-color" value="{{ old('header_border_color', $setting->header_border_color) }}">
+                                        <label for="progress-report-template-settings-header-border-color">Header Border</label>
+                                        <input id="progress-report-template-settings-header-border-color" type="color" name="header_border_color" class="form-control form-control-color" value="{{ old('header_border_color', $setting->header_border_color) }}">
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>Card Border</label>
-                                        <input type="color" name="card_border_color" class="form-control form-control-color" value="{{ old('card_border_color', $setting->card_border_color) }}">
+                                        <label for="progress-report-template-settings-card-border-color">Card Border</label>
+                                        <input id="progress-report-template-settings-card-border-color" type="color" name="card_border_color" class="form-control form-control-color" value="{{ old('card_border_color', $setting->card_border_color) }}">
                                     </div>
                                 </div>
 
@@ -247,46 +247,46 @@
                             <div class="card-body">
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
-                                        <label>Header Background</label>
-                                        <input type="color" name="table_header_bg_color" class="form-control form-control-color" value="{{ old('table_header_bg_color', $setting->table_header_bg_color) }}">
+                                        <label for="progress-report-template-settings-table-header-bg-color">Header Background</label>
+                                        <input id="progress-report-template-settings-table-header-bg-color" type="color" name="table_header_bg_color" class="form-control form-control-color" value="{{ old('table_header_bg_color', $setting->table_header_bg_color) }}">
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>Header Text</label>
-                                        <input type="color" name="table_header_text_color" class="form-control form-control-color" value="{{ old('table_header_text_color', $setting->table_header_text_color) }}">
+                                        <label for="progress-report-template-settings-table-header-text-color">Header Text</label>
+                                        <input id="progress-report-template-settings-table-header-text-color" type="color" name="table_header_text_color" class="form-control form-control-color" value="{{ old('table_header_text_color', $setting->table_header_text_color) }}">
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>Table Border</label>
-                                        <input type="color" name="table_border_color" class="form-control form-control-color" value="{{ old('table_border_color', $setting->table_border_color) }}">
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group col-md-4">
-                                        <label>Alternate Row</label>
-                                        <input type="color" name="table_row_alt_bg_color" class="form-control form-control-color" value="{{ old('table_row_alt_bg_color', $setting->table_row_alt_bg_color) }}">
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label>Student Label</label>
-                                        <input type="color" name="student_label_color" class="form-control form-control-color" value="{{ old('student_label_color', $setting->student_label_color) }}">
-                                    </div>
-                                    <div class="form-group col-md-4">
-                                        <label>Student Value</label>
-                                        <input type="color" name="student_value_color" class="form-control form-control-color" value="{{ old('student_value_color', $setting->student_value_color) }}">
+                                        <label for="progress-report-template-settings-table-border-color">Table Border</label>
+                                        <input id="progress-report-template-settings-table-border-color" type="color" name="table_border_color" class="form-control form-control-color" value="{{ old('table_border_color', $setting->table_border_color) }}">
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
-                                        <label>Summary Background</label>
-                                        <input type="color" name="summary_bg_color" class="form-control form-control-color" value="{{ old('summary_bg_color', $setting->summary_bg_color) }}">
+                                        <label for="progress-report-template-settings-table-row-alt-bg-color">Alternate Row</label>
+                                        <input id="progress-report-template-settings-table-row-alt-bg-color" type="color" name="table_row_alt_bg_color" class="form-control form-control-color" value="{{ old('table_row_alt_bg_color', $setting->table_row_alt_bg_color) }}">
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>Summary Text</label>
-                                        <input type="color" name="summary_text_color" class="form-control form-control-color" value="{{ old('summary_text_color', $setting->summary_text_color) }}">
+                                        <label for="progress-report-template-settings-student-label-color">Student Label</label>
+                                        <input id="progress-report-template-settings-student-label-color" type="color" name="student_label_color" class="form-control form-control-color" value="{{ old('student_label_color', $setting->student_label_color) }}">
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>Signature Line</label>
-                                        <input type="color" name="signature_line_color" class="form-control form-control-color" value="{{ old('signature_line_color', $setting->signature_line_color) }}">
+                                        <label for="progress-report-template-settings-student-value-color">Student Value</label>
+                                        <input id="progress-report-template-settings-student-value-color" type="color" name="student_value_color" class="form-control form-control-color" value="{{ old('student_value_color', $setting->student_value_color) }}">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="progress-report-template-settings-summary-bg-color">Summary Background</label>
+                                        <input id="progress-report-template-settings-summary-bg-color" type="color" name="summary_bg_color" class="form-control form-control-color" value="{{ old('summary_bg_color', $setting->summary_bg_color) }}">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="progress-report-template-settings-summary-text-color">Summary Text</label>
+                                        <input id="progress-report-template-settings-summary-text-color" type="color" name="summary_text_color" class="form-control form-control-color" value="{{ old('summary_text_color', $setting->summary_text_color) }}">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="progress-report-template-settings-signature-line-color">Signature Line</label>
+                                        <input id="progress-report-template-settings-signature-line-color" type="color" name="signature_line_color" class="form-control form-control-color" value="{{ old('signature_line_color', $setting->signature_line_color) }}">
                                     </div>
                                 </div>
                             </div>
@@ -368,46 +368,46 @@
 
                                 <div class="form-row">
                                     <div class="form-group col-md-3">
-                                        <label>Excellent Remark</label>
-                                        <input type="text" name="remark_excellent_text" class="form-control" value="{{ old('remark_excellent_text', $setting->remark_excellent_text) }}">
+                                        <label for="progress-report-template-settings-remark-excellent-text">Excellent Remark</label>
+                                        <input id="progress-report-template-settings-remark-excellent-text" type="text" name="remark_excellent_text" class="form-control" value="{{ old('remark_excellent_text', $setting->remark_excellent_text) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Good Remark</label>
-                                        <input type="text" name="remark_good_text" class="form-control" value="{{ old('remark_good_text', $setting->remark_good_text) }}">
+                                        <label for="progress-report-template-settings-remark-good-text">Good Remark</label>
+                                        <input id="progress-report-template-settings-remark-good-text" type="text" name="remark_good_text" class="form-control" value="{{ old('remark_good_text', $setting->remark_good_text) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Satisfactory Remark</label>
-                                        <input type="text" name="remark_satisfactory_text" class="form-control" value="{{ old('remark_satisfactory_text', $setting->remark_satisfactory_text) }}">
+                                        <label for="progress-report-template-settings-remark-satisfactory-text">Satisfactory Remark</label>
+                                        <input id="progress-report-template-settings-remark-satisfactory-text" type="text" name="remark_satisfactory_text" class="form-control" value="{{ old('remark_satisfactory_text', $setting->remark_satisfactory_text) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Improve Remark</label>
-                                        <input type="text" name="remark_improve_text" class="form-control" value="{{ old('remark_improve_text', $setting->remark_improve_text) }}">
+                                        <label for="progress-report-template-settings-remark-improve-text">Improve Remark</label>
+                                        <input id="progress-report-template-settings-remark-improve-text" type="text" name="remark_improve_text" class="form-control" value="{{ old('remark_improve_text', $setting->remark_improve_text) }}">
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
-                                        <label>Remarks Title</label>
-                                        <input type="color" name="remarks_title_color" class="form-control form-control-color" value="{{ old('remarks_title_color', $setting->remarks_title_color) }}">
+                                        <label for="progress-report-template-settings-remarks-title-color">Remarks Title</label>
+                                        <input id="progress-report-template-settings-remarks-title-color" type="color" name="remarks_title_color" class="form-control form-control-color" value="{{ old('remarks_title_color', $setting->remarks_title_color) }}">
                                     </div>
                                     <div class="form-group col-md-6">
-                                        <label>Remarks Text</label>
-                                        <input type="color" name="remarks_text_color" class="form-control form-control-color" value="{{ old('remarks_text_color', $setting->remarks_text_color) }}">
+                                        <label for="progress-report-template-settings-remarks-text-color">Remarks Text</label>
+                                        <input id="progress-report-template-settings-remarks-text-color" type="color" name="remarks_text_color" class="form-control form-control-color" value="{{ old('remarks_text_color', $setting->remarks_text_color) }}">
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
-                                        <label>Excellent Comment</label>
-                                        <textarea name="comments_excellent_text" rows="2" class="form-control">{{ old('comments_excellent_text', $setting->comments_excellent_text) }}</textarea>
+                                        <label for="progress-report-template-settings-comments-excellent-text">Excellent Comment</label>
+                                        <textarea id="progress-report-template-settings-comments-excellent-text" name="comments_excellent_text" rows="2" class="form-control">{{ old('comments_excellent_text', $setting->comments_excellent_text) }}</textarea>
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>Good Comment</label>
-                                        <textarea name="comments_good_text" rows="2" class="form-control">{{ old('comments_good_text', $setting->comments_good_text) }}</textarea>
+                                        <label for="progress-report-template-settings-comments-good-text">Good Comment</label>
+                                        <textarea id="progress-report-template-settings-comments-good-text" name="comments_good_text" rows="2" class="form-control">{{ old('comments_good_text', $setting->comments_good_text) }}</textarea>
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>Default Comment</label>
-                                        <textarea name="comments_default_text" rows="2" class="form-control">{{ old('comments_default_text', $setting->comments_default_text) }}</textarea>
+                                        <label for="progress-report-template-settings-comments-default-text">Default Comment</label>
+                                        <textarea id="progress-report-template-settings-comments-default-text" name="comments_default_text" rows="2" class="form-control">{{ old('comments_default_text', $setting->comments_default_text) }}</textarea>
                                     </div>
                                 </div>
                             </div>

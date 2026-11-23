@@ -23,7 +23,7 @@
                     </div>
                     <div class="col-md-3">
                         <button class="btn btn-primary btn-sm"><i class="fas fa-search"></i> Search</button>
-                        <a href="{{ route('buildings.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-times"></i></a>
+                        <a href="{{ route('buildings.index') }}" class="btn btn-secondary btn-sm" aria-label="{{ __('Close') }}" title="{{ __('Close') }}"><i class="fas fa-times" aria-hidden="true"></i></a>
                     </div>
                 </div>
             </form>
@@ -55,10 +55,10 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route('buildings.edit', $building) }}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
+                                    <a href="{{ route('buildings.edit', $building) }}" class="btn btn-xs btn-warning" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></a>
                                     <form action="{{ route('buildings.destroy', $building) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this building?')">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
+                                        <button class="btn btn-xs btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

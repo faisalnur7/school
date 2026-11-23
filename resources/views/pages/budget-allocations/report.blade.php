@@ -7,8 +7,8 @@
             <div class="flex gap-2 pr-3 py-2 items-end ml-auto">
                 <form method="GET" class="flex gap-2 items-end">
                     <div>
-                        <label style="font-size:12px;color:#FFF">Year</label>
-                        <input type="number" name="year" class="form-control form-control-sm" value="{{ $year }}" style="width:100px">
+                        <label for="budget-allocations-report-year" style="font-size:12px;color:#FFF">Year</label>
+                        <input id="budget-allocations-report-year" type="number" name="year" class="form-control form-control-sm" value="{{ $year }}" style="width:100px">
                     </div>
                     <button class="btn btn-sm btn-dark" style="margin-top:10px">Go</button>
                 </form>

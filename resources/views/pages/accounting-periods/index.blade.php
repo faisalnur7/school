@@ -87,16 +87,16 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Name (e.g. FY-2025)</label>
-                        <input type="text" name="name" class="form-control" required placeholder="FY-2025">
+                        <label for="accounting-periods-index-name">Name (e.g. FY-2025)</label>
+                        <input id="accounting-periods-index-name" type="text" name="name" class="form-control" required placeholder="FY-2025">
                     </div>
                     <div class="form-group">
-                        <label>Start Date</label>
-                        <input type="date" name="start_date" class="form-control" required>
+                        <label for="accounting-periods-index-start-date">Start Date</label>
+                        <input id="accounting-periods-index-start-date" type="date" name="start_date" class="form-control" required>
                     </div>
                     <div class="form-group">
-                        <label>End Date</label>
-                        <input type="date" name="end_date" class="form-control" required>
+                        <label for="accounting-periods-index-end-date">End Date</label>
+                        <input id="accounting-periods-index-end-date" type="date" name="end_date" class="form-control" required>
                     </div>
                 </div>
                 <div class="modal-footer">

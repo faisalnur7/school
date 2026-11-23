@@ -35,25 +35,25 @@
                 @endif
 
 <div class="form-group">
-                            <label>Name (English)</label>
-                            <input type="text" name="name" class="form-control"
+                            <label for="fee-categories-edit-name">Name (English)</label>
+                            <input id="fee-categories-edit-name" type="text" name="name" class="form-control"
                                    value="{{ $feeCategory->name }}" required>
                         </div>
 
                         <div class="form-group">
-                            <label>Name (Bangla)</label>
-                            <input type="text" name="bn_name" class="form-control"
+                            <label for="fee-categories-edit-bn-name">Name (Bangla)</label>
+                            <input id="fee-categories-edit-bn-name" type="text" name="bn_name" class="form-control"
                                    value="{{ $feeCategory->bn_name }}" required>
                         </div>
 
                         <div class="form-group">
-                            <label>Description</label>
-                            <textarea name="description" class="form-control" rows="3">{{ $feeCategory->description }}</textarea>
+                            <label for="fee-categories-edit-description">Description</label>
+                            <textarea id="fee-categories-edit-description" name="description" class="form-control" rows="3">{{ $feeCategory->description }}</textarea>
                         </div>
 
                         <div class="form-group">
-                            <label>Applicable For</label>
-                            <select name="student_type" class="form-control" required>
+                            <label for="fee-categories-edit-student-type">Applicable For</label>
+                            <select id="fee-categories-edit-student-type" name="student_type" class="form-control" required>
                                 <option value="both" {{ $feeCategory->student_type === 'both' ? 'selected' : '' }}>All Students</option>
                                 <option value="new" {{ $feeCategory->student_type === 'new' ? 'selected' : '' }}>New Students Only</option>
                                 <option value="old" {{ $feeCategory->student_type === 'old' ? 'selected' : '' }}>Returning Students Only</option>

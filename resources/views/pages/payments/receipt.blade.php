@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Receipt {{ $payment->receipt_no }}</title>
     <style>
         :root {
@@ -386,6 +387,29 @@
 
         .school-header-meta{
             margin-top: 6px;
+        }
+
+        /* ── Phones (screen only; print layout below is unchanged): stack the two copies ── */
+        @media screen and (max-width: 767px) {
+            body {
+                padding: 16px 12px;
+                align-items: stretch;
+            }
+
+            .no-print { justify-content: center; }
+
+            .slips-row {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .slip-col { width: 100%; }
+
+            .slip-col + .v-perforation + .slip-col {
+                border-top: 1px dashed var(--line-strong);
+            }
+
+            .v-perforation { display: none; }
         }
 
         /* ══════════════════

@@ -1,6 +1,3 @@
-@php
-    $selectedPdfColumns = request()->input('pdf_columns', array_keys($pdfColumnOptions ?? []));
-@endphp
 
 <div class="students-toolbar">
     <form action="{{ route('students.index') }}" method="GET" class="students-filter-form">
@@ -10,13 +7,14 @@
                 <input
                     type="text"
                     name="search"
+                    aria-label="{{ __('Search students') }}"
                     class="form-control students-search-input"
                     placeholder="{{ __('Search by name, roll, CID, birth certificate...') }}"
                     value="{{ request('search') }}"
                 >
             </div>
 
-            <select name="academic_session_id" class="form-control students-filter-select">
+            <select name="academic_session_id" aria-label="{{ __('Academic session') }}" class="form-control students-filter-select">
                 <option value="">{{ __('All Sessions') }}</option>
                 @foreach ($academicSessions as $session)
                     <option value="{{ $session->id }}" {{ request('academic_session_id') == $session->id ? 'selected' : '' }}>
@@ -25,7 +23,7 @@
                 @endforeach
             </select>
 
-            <select name="school_class_id" id="classSelect" class="form-control students-filter-select">
+            <select name="school_class_id" id="classSelect" aria-label="{{ __('Class') }}" class="form-control students-filter-select">
                 <option value="">{{ __('All Classes') }}</option>
                 @foreach ($classes as $class)
                     <option value="{{ $class->id }}" {{ request('school_class_id') == $class->id ? 'selected' : '' }}>
@@ -34,7 +32,7 @@
                 @endforeach
             </select>
 
-            <select name="section_id" id="sectionSelect" class="form-control students-filter-select">
+            <select name="section_id" id="sectionSelect" aria-label="{{ __('Section') }}" class="form-control students-filter-select">
                 <option value="">{{ __('All Sections') }}</option>
                 @foreach ($sections as $section)
                     <option value="{{ $section->id }}" {{ request('section_id') == $section->id ? 'selected' : '' }}>
@@ -43,13 +41,13 @@
                 @endforeach
             </select>
 
-            <select name="status" class="form-control students-filter-select">
+            <select name="status" aria-label="{{ __('Status') }}" class="form-control students-filter-select">
                 <option value="">{{ __('All Status') }}</option>
                 <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>{{ __('Active') }}</option>
                 <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
             </select>
 
-            <select name="per_page" class="form-control students-filter-select" onchange="this.form.submit()">
+            <select name="per_page" aria-label="{{ __('Rows per page') }}" class="form-control students-filter-select" onchange="this.form.submit()">
                 <option value="10" {{ (int) request('per_page', 10) === 10 ? 'selected' : '' }}>{{ __('10 / page') }}</option>
                 <option value="20" {{ (int) request('per_page') === 20 ? 'selected' : '' }}>{{ __('20 / page') }}</option>
                 <option value="30" {{ (int) request('per_page') === 30 ? 'selected' : '' }}>{{ __('30 / page') }}</option>
@@ -58,7 +56,7 @@
             </select>
 
             <div class="students-filter-actions">
-                <button class="students-more-filters filter_button" type="button" title="{{ __('More Filters') }}" aria-label="{{ __('More Filters') }}">
+                <button class="students-more-filters filter_button" type="button" title="{{ __('More Filters') }}" aria-label="{{ __('More Filters') }}" aria-controls="filterCollapse" data-students-filters-toggle>
                     <i class="fas fa-sliders-h"></i>
                     <span class="students-filter-count" data-filter-count>0</span>
                 </button>
@@ -74,7 +72,7 @@
             </div>
         </div>
 
-        <div class="students-advanced-filters" id="filterCollapse">
+        <div class="students-advanced-filters hidden" id="filterCollapse">
             <div class="students-advanced-grid">
                 <div class="students-filter-group">
                     <label for="groupSelect">{{ __('Group') }}</label>
@@ -113,36 +111,6 @@
                 </div>
             </div>
 
-            <div class="students-pdf-panel">
-                <div class="students-pdf-header">
-                    <div class="students-pdf-copy">
-                        <p class="students-pdf-title">{{ __('PDF Column Selection') }}</p>
-                        <small class="students-pdf-subtitle text-muted">{{ __('Choose which columns are included in the exported PDF list.') }}</small>
-                    </div>
-                    <div class="form-check students-pdf-toggle mb-0">
-                        <input class="form-check-input" type="checkbox" id="pdf-columns-toggle-all" checked>
-                        <label class="form-check-label" for="pdf-columns-toggle-all">{{ __('Select all') }}</label>
-                    </div>
-                </div>
-
-                <div class="students-pdf-checks">
-                    @foreach ($pdfColumnOptions as $columnKey => $columnLabel)
-                        <div class="form-check students-pdf-option">
-                            <input
-                                class="form-check-input pdf-column-checkbox"
-                                type="checkbox"
-                                name="pdf_columns[]"
-                                value="{{ $columnKey }}"
-                                id="pdf-column-{{ $columnKey }}"
-                                {{ in_array($columnKey, $selectedPdfColumns, true) ? 'checked' : '' }}
-                            >
-                            <label class="form-check-label ml-4" for="pdf-column-{{ $columnKey }}">
-                                {{ $columnLabel }}
-                            </label>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
         </div>
     </form>
 </div>

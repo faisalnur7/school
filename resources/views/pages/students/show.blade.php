@@ -1052,7 +1052,7 @@
                                                                                         onchange="this.form.submit()"
                                                                                         {{ $fee->is_active ? 'checked' : '' }}
                                                                                     >
-                                                                                    <label class="custom-control-label" for="regularFeeSwitch{{ $fee->id }}"></label>
+                                                                                    <label class="custom-control-label" for="regularFeeSwitch{{ $fee->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
                                                                                 </div>
                                                                             </form>
                                                                         @else
@@ -1142,7 +1142,7 @@
                                                                                 onchange="this.form.submit()"
                                                                                 {{ $fee->is_active ? 'checked' : '' }}
                                                                             >
-                                                                            <label class="custom-control-label" for="feeSwitch{{ $fee->id }}"></label>
+                                                                            <label class="custom-control-label" for="feeSwitch{{ $fee->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
                                                                         </div>
                                                                     </form>
                                                                 @else
@@ -1152,14 +1152,14 @@
                                                             <td>{{ optional($fee->feeSet)->name ?? 'N/A' }}</td>
                                                             <td class="text-nowrap">
                                                                 @if ($fee->status !== 'paid')
-                                                                    <a href="{{ route('fees.edit', $fee->id) }}" class="btn btn-sm btn-info">
-                                                                        <i class="fas fa-edit"></i>
+                                                                    <a href="{{ route('fees.edit', $fee->id) }}" class="btn btn-sm btn-info" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                                                        <i class="fas fa-edit" aria-hidden="true"></i>
                                                                     </a>
                                                                     <form action="{{ route('fees.delete', $fee->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this fee record?');">
                                                                         @csrf
                                                                         @method('DELETE')
-                                                                        <button type="submit" class="btn btn-sm btn-danger">
-                                                                            <i class="fas fa-trash"></i>
+                                                                        <button type="submit" class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                                                            <i class="fas fa-trash" aria-hidden="true"></i>
                                                                         </button>
                                                                     </form>
                                                                 @else

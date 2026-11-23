@@ -15,10 +15,10 @@
                     <tr><td>{{ $admin->name }}</td><td>{{ $admin->email }}</td>
                         <td><span class="badge badge-{{ $admin->is_active ? 'success' : 'secondary' }}">{{ $admin->is_active ? 'Active' : 'Inactive' }}</span></td>
                         <td class="d-flex gap-1">
-                            <a href="{{ route('platform-admins.edit', $admin) }}" class="btn btn-sm btn-dark"><i class="fas fa-edit"></i></a>
+                            <a href="{{ route('platform-admins.edit', $admin) }}" class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></a>
                             @if(auth()->id() !== $admin->id)
                             <form method="POST" action="{{ route('platform-admins.destroy', $admin) }}" onsubmit="return confirm('Delete this platform admin?')">
-                                @csrf @method('DELETE') <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                @csrf @method('DELETE') <button class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                             </form>
                             @endif
                         </td>

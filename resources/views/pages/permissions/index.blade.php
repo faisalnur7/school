@@ -41,13 +41,13 @@
                                     </td>
                                     <td>{{ Str::limit($permission->description, 40) }}</td>
                                     <td style="display: flex; justify-content: center; align-items: center; gap: 5px;">
-                                        <a href="{{ route('permissions.edit', $permission->id) }}" class="btn btn-sm btn-dark">
-                                            <i class="fas fa-edit"></i>
+                                        <a href="{{ route('permissions.edit', $permission->id) }}" class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                            <i class="fas fa-edit" aria-hidden="true"></i>
                                         </a>
-                                        <form action="{{ route('permissions.destroy', $permission->id) }}" method="POST" class="btn btn-sm btn-danger d-inline m-0" onsubmit="return confirm('Delete this permission?')">
+                                        <form action="{{ route('permissions.destroy', $permission->id) }}" method="POST" class="d-inline m-0" onsubmit="return confirm('Delete this permission?')">
                                             @csrf
                                             @method('DELETE')
-                                            <i class="fas fa-trash"></i>
+                                            <button type="submit" class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                         </form>
                                     </td>
                                 </tr>

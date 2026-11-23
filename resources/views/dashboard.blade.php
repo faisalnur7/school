@@ -10,6 +10,7 @@
     $today_absent = $today_absent ?? 0;
     $today_leave = $today_leave ?? 0;
     $attendance_percentage = $attendance_percentage ?? 0;
+    $attendance_taken_today = $attendance_taken_today ?? false;
     $total_fees_due = $total_fees_due ?? 0;
     $total_fees_paid = $total_fees_paid ?? 0;
     $total_fees_pending = $total_fees_pending ?? 0;
@@ -157,6 +158,15 @@
                     <span><i class="fas fa-clipboard-check me-2"></i>{{ __("Today's Attendance") }}</span>
                 </div>
                 <div class="card-body-modern">
+                    @if(! $attendance_taken_today)
+                    <div class="dashboard-empty-state">
+                        <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+                        <p class="mb-2 fw-bold">{{ __("Attendance hasn't been taken today") }}</p>
+                        @if(auth()->user()?->hasAnyPermission(['view_attendance', 'view_card_mark_attendance']) && Route::has('attendance.index'))
+                            <a href="{{ route('attendance.index') }}" class="btn btn-primary btn-sm">{{ __('Mark attendance') }}</a>
+                        @endif
+                    </div>
+                    @else
                     <div class="attend-grid">
                         <div class="attend-item present">
                             <span class="attend-num">{{ localized_number($today_present) }}</span>
@@ -180,6 +190,7 @@
                             <div class="progress-bar-modern" style="width: {{ $attendance_percentage }}%"></div>
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -246,12 +257,17 @@
                             @forelse($classwise_attendance as $attendance)
                                     <tr @if(!empty($attendance['link'])) class="clickable-dashboard-row" data-href="{{ $attendance['link'] }}" role="link" tabindex="0" @endif>
                                         <td class="fw-bold">{{ $attendance['class'] }}</td>
+                                        @if(! ($attendance['taken'] ?? true))
+                                        <td class="text-muted">{{ __('Not taken') }}</td>
+                                        <td><div class="status-bar-wrap" aria-hidden="true"></div></td>
+                                        @else
                                         <td>{{ localized_number($attendance['percentage']) }}%</td>
                                         <td>
                                             <div class="status-bar-wrap">
                                                 <div class="status-bar" style="width: {{ $attendance['percentage'] }}%; background: {{ $attendance['percentage'] >= 80 ? 'linear-gradient(90deg, #22c55e, #16a34a)' : ($attendance['percentage'] >= 60 ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'linear-gradient(90deg, #ef4444, #dc2626)') }}"></div>
                                             </div>
                                         </td>
+                                        @endif
                                     </tr>
                                 @empty
                                 <tr><td colspan="3" class="text-center text-muted py-4">{{ __('No attendance data available') }}</td></tr>
@@ -551,6 +567,18 @@
 }
 
 /* Attendance Grid */
+.dashboard-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 160px;
+    gap: .25rem;
+    color: var(--c-text-muted, #64748b);
+}
+.dashboard-empty-state i { font-size: 1.75rem; opacity: .6; margin-bottom: .25rem; }
+.dashboard-empty-state p { color: var(--c-text, #0f172a); }
 .attend-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

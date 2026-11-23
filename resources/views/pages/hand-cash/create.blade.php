@@ -34,31 +34,31 @@
                 @endif
 
 <div class="form-group">
-                                <label>Label</label>
-                                <input type="text" name="label" class="form-control @error('label') is-invalid @enderror"
+                                <label for="hand-cash-create-label">Label</label>
+                                <input id="hand-cash-create-label" type="text" name="label" class="form-control @error('label') is-invalid @enderror"
                                        value="{{ old('label') }}" placeholder="e.g. Office Cash, Petty Cash" required>
                                 @error('label') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="form-group">
-                                <label>Opening Amount (BDT)</label>
-                                <input type="number" name="opening_amount" step="0.01" min="0"
+                                <label for="hand-cash-create-opening-amount">Opening Amount (BDT)</label>
+                                <input id="hand-cash-create-opening-amount" type="number" name="opening_amount" step="0.01" min="0"
                                        class="form-control @error('opening_amount') is-invalid @enderror"
                                        value="{{ old('opening_amount', 0) }}" required>
                                 @error('opening_amount') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="form-group">
-                                <label>Opening Date</label>
-                                <input type="text" name="opening_date" datepicker datepicker-format="dd/mm/yyyy"
+                                <label for="hand-cash-create-opening-date">Opening Date</label>
+                                <input id="hand-cash-create-opening-date" type="text" name="opening_date" datepicker datepicker-format="dd/mm/yyyy"
                                        class="form-control @error('opening_date') is-invalid @enderror"
                                        value="{{ old('opening_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
                                 @error('opening_date') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="form-group">
-                                <label>Notes <small class="text-muted">(optional)</small></label>
-                                <textarea name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
+                                <label for="hand-cash-create-notes">Notes <small class="text-muted">(optional)</small></label>
+                                <textarea id="hand-cash-create-notes" name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
                             </div>
             </div>
 

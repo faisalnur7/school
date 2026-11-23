@@ -17,7 +17,7 @@
     $autoRoll = old('roll', (isset($academicInfo) ? $academicInfo->roll : ''));
     $autoStudentCid = old('student_cid', $nextStudentCid ?? (isset($student) ? $student->student_cid : ''));
 @endphp
-<div class="student-form-page">
+<div class="student-form-page" data-public-admission="{{ !empty($publicAdmissionMode) ? '1' : '0' }}">
     <div class="student-form-shell">
         <div class="student-form-header">
             <div>
@@ -25,6 +25,7 @@
                 <p class="student-form-subtitle">{{ !empty($publicAdmissionMode) ? 'Fill in the required details below. You can review everything before submitting.' : 'A cleaner workspace for managing student identity, academic placement, family details, and contact information.' }}</p>
             </div>
             <div class="student-form-header-actions">
+                @if(empty($publicAdmissionMode))
                 <div class="student-form-view-switcher" role="group" aria-label="Form view mode">
                     <button type="button" class="student-view-toggle is-active" data-student-view-toggle="accordion" aria-pressed="true">
                         <i class="fas fa-list"></i>
@@ -35,6 +36,7 @@
                         <span>Tabbed</span>
                     </button>
                 </div>
+                @endif
                 <button type="button" id="savePresetBtn" class="btn btn-light btn-sm student-action-btn">
                     <i class="fas fa-bookmark"></i> Save Preset
                 </button>
@@ -55,11 +57,14 @@
             @endif
         @endif
         @if ($errors->any())
-            <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700 shadow-sm">
+            <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700 shadow-sm" role="alert" data-student-error-summary>
                 <p class="font-semibold">Please fix the following errors:</p>
                 <ul class="list-disc pl-5 mt-1">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
+                    @foreach ($errors->getMessages() as $field => $messages)
+                        @foreach ($messages as $message)
+                            {{-- Each error links to its field: the script opens the right section and focuses it. --}}
+                            <li><a href="#" class="underline" data-error-field="{{ $field }}">{{ $message }}</a></li>
+                        @endforeach
                     @endforeach
                 </ul>
             </div>
@@ -186,6 +191,7 @@
                     <p>Identity and personal details for the student record.</p>
                 </div>
                 <div class="flex items-center gap-2">
+                    @if(!empty($publicAdmissionMode))<span class="student-section__badge">Required</span>@endif
                     <span class="student-section__chevron"><i class="fas fa-chevron-down"></i></span>
                 </div>
             </summary>
@@ -209,14 +215,14 @@
                             @endif
 
                             <div class="relative w-full">
-                                <input type="text" name="full_name_en"
+                                <input id="full_name_en" type="text" name="full_name_en"
                                     value="{{ old('full_name_en', $student->full_name_en ?? '') }}" class="{{ $inputClasses }}"
                                     required>
                                 <label for="full_name_en" class="{{ $labelClasses }}"> Full Name (English) <span class="text-danger">*</span> </label>
                             </div>
 
                             <div class="relative w-full">
-                                <input type="text" name="full_name_bn"
+                                <input id="full_name_bn" type="text" name="full_name_bn"
                                     value="{{ old('full_name_bn', $student->full_name_bn ?? '') }}" class="{{ $inputClasses }}">
                                 <label for="full_name_bn" class="{{ $labelClasses }}">Full Name (Bangla)</label>
                             </div>
@@ -231,7 +237,7 @@
                             </div>
 
                             <div class="relative w-full">
-                                <input type="text" name="birth_certificate_number"
+                                <input id="birth_certificate_number" type="text" name="birth_certificate_number"
                                     value="{{ old('birth_certificate_number', $student->birth_certificate_number ?? '') }}"
                                     class="{{ $inputClasses }}">
                                 <label for="birth_certificate_number" class="{{ $labelClasses }}">Birth Certificate Number</label>
@@ -257,20 +263,20 @@
                                     <label for="religion" class="{{ $labelClasses }}">Religion <span class="text-danger">*</span></label>
                                 </div>
                                 <div class="relative w-full">
-                                    <select name="blood_group" class="border-gray-300 rounded-lg p-2 w-full">
+                                    <select id="blood_group" name="blood_group" class="border-gray-300 rounded-lg p-2 w-full">
                                         <option value="">Select Blood Group</option>
                                         @foreach (\App\Models\Student::BLOOD_GROUPS as $k => $v)
                                             <option value="{{ $k }}" @selected(old('blood_group', $student->blood_group ?? '') == $k)>{{ $v }}</option>
                                         @endforeach
                                     </select>
-                                    <label class="{{ $labelClasses }}">Blood Group</label>
+                                    <label for="blood_group" class="{{ $labelClasses }}">Blood Group</label>
                                 </div>
                                 <div class="relative w-full">
-                                    <select name="disable" class="border-gray-300 rounded-lg p-2 w-full">
+                                    <select id="disable" name="disable" class="border-gray-300 rounded-lg p-2 w-full">
                                         <option value="0">Not Disabled</option>
                                         <option value="1" @selected(old('disable', $student->disable ?? 0) == 1)>Disabled</option>
                                     </select>
-                                    <label class="{{ $labelClasses }}">Disability Status</label>
+                                    <label for="disable" class="{{ $labelClasses }}">Disability Status</label>
                                 </div>
                             @else
                                 <select name="gender" id="gender" class="border-gray-300 rounded-lg p-2 w-full" required>
@@ -285,13 +291,13 @@
                                         <option value="{{ $k }}" @selected(old('religion', $student->religion ?? '') == $k)>{{ $v }}</option>
                                     @endforeach
                                 </select>
-                                <select name="blood_group" class="border-gray-300 rounded-lg p-2 w-full">
+                                <select name="blood_group" aria-label="Blood group" class="border-gray-300 rounded-lg p-2 w-full">
                                     <option value="">Select Blood Group</option>
                                     @foreach (\App\Models\Student::BLOOD_GROUPS as $k => $v)
                                         <option value="{{ $k }}" @selected(old('blood_group', $student->blood_group ?? '') == $k)>{{ $v }}</option>
                                     @endforeach
                                 </select>
-                                <select name="disable" class="border-gray-300 rounded-lg p-2 w-full">
+                                <select name="disable" aria-label="Disability status" class="border-gray-300 rounded-lg p-2 w-full">
                                     <option value="0">Not Disabled</option>
                                     <option value="1" @selected(old('disable', $student->disable ?? 0) == 1)>Disabled</option>
                                 </select>
@@ -370,7 +376,7 @@
                         <h6 class="font-semibold text-gray-600 mb-2">Present Address</h6>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
-                            <select name="present_division_id" class="border-gray-300 rounded-lg p-2 w-full">
+                            <select name="present_division_id" aria-label="Present division" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">Division</option>
                                 @foreach ($divisions as $division)
                                     <option value="{{ $division->id }}" @selected(old('present_division_id', $student->present_division_id ?? '') == $division->id)>
@@ -380,7 +386,7 @@
                             </select>@if(!empty($publicAdmissionMode))<label class="{{ $labelClasses }}">Division</label></div>@endif
 
                             @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
-                            <select name="present_district_id" class="border-gray-300 rounded-lg p-2 w-full">
+                            <select name="present_district_id" aria-label="Present district" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">District</option>
                                 @foreach ($districts as $district)
                                     <option value="{{ $district->id }}" @selected(old('present_district_id', $student->present_district_id ?? '') == $district->id)>
@@ -390,7 +396,7 @@
                             </select>@if(!empty($publicAdmissionMode))<label class="{{ $labelClasses }}">District</label></div>@endif
 
                             @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
-                            <select name="present_police_station_id" class="border-gray-300 rounded-lg p-2 w-full">
+                            <select name="present_police_station_id" aria-label="Present police station" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">Police Station</option>
                                 @foreach ($policeStations as $ps)
                                     <option value="{{ $ps->id }}" @selected(old('present_police_station_id', $student->present_police_station_id ?? '') == $ps->id)>
@@ -400,7 +406,7 @@
                             </select>@if(!empty($publicAdmissionMode))<label class="{{ $labelClasses }}">Police Station</label></div>@endif
 
                             @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
-                            <select name="present_post_office_id" class="border-gray-300 rounded-lg p-2 w-full">
+                            <select name="present_post_office_id" aria-label="Present post office" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">Post Office</option>
                                 @foreach ($postOffices as $po)
                                     <option value="{{ $po->id }}" @selected(old('present_post_office_id', $student->present_post_office_id ?? '') == $po->id)>
@@ -420,7 +426,7 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
-                            <select name="permanent_division_id" class="border-gray-300 rounded-lg p-2 w-full">
+                            <select name="permanent_division_id" aria-label="Permanent division" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">Division</option>
                                 @foreach ($divisions as $division)
                                     <option value="{{ $division->id }}" @selected(old('permanent_division_id', $student->permanent_division_id ?? '') == $division->id)>
@@ -430,7 +436,7 @@
                             </select>@if(!empty($publicAdmissionMode))<label class="{{ $labelClasses }}">Division</label></div>@endif
 
                             @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
-                            <select name="permanent_district_id" class="border-gray-300 rounded-lg p-2 w-full">
+                            <select name="permanent_district_id" aria-label="Permanent district" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">District</option>
                                 @foreach ($districts as $district)
                                     <option value="{{ $district->id }}" @selected(old('permanent_district_id', $student->permanent_district_id ?? '') == $district->id)>
@@ -440,7 +446,7 @@
                             </select>@if(!empty($publicAdmissionMode))<label class="{{ $labelClasses }}">District</label></div>@endif
 
                             @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
-                            <select name="permanent_police_station_id" class="border-gray-300 rounded-lg p-2 w-full">
+                            <select name="permanent_police_station_id" aria-label="Permanent police station" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">Police Station</option>
                                 @foreach ($policeStations as $ps)
                                     <option value="{{ $ps->id }}" @selected(old('permanent_police_station_id', $student->permanent_police_station_id ?? '') == $ps->id)>
@@ -450,7 +456,7 @@
                             </select>@if(!empty($publicAdmissionMode))<label class="{{ $labelClasses }}">Police Station</label></div>@endif
 
                             @if(!empty($publicAdmissionMode))<div class="relative w-full">@endif
-                            <select name="permanent_post_office_id" class="border-gray-300 rounded-lg p-2 w-full">
+                            <select name="permanent_post_office_id" aria-label="Permanent post office" class="border-gray-300 rounded-lg p-2 w-full">
                                 <option value="">Post Office</option>
                                 @foreach ($postOffices as $po)
                                     <option value="{{ $po->id }}" @selected(old('permanent_post_office_id', $student->permanent_post_office_id ?? '') == $po->id)>
@@ -475,7 +481,10 @@
                     <h5>Parents Information</h5>
                     <p>Parent identities, jobs, and contact details.</p>
                 </div>
-                <span class="student-section__chevron"><i class="fas fa-chevron-down"></i></span>
+                <div class="flex items-center gap-2">
+                    @if(!empty($publicAdmissionMode))<span class="student-section__badge">Required</span>@endif
+                    <span class="student-section__chevron"><i class="fas fa-chevron-down"></i></span>
+                </div>
             </summary>
             <div class="student-section__body">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 student-field-grid">
@@ -698,6 +707,26 @@
     </div>
 </div>
 
+<style>
+    .student-error-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 20px;
+        margin-left: 6px;
+        padding: 0 6px;
+        border-radius: 999px;
+        background: #dc2626;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+        vertical-align: middle;
+    }
+    .student-tab-button.has-error:not(.is-active) { color: #b91c1c; }
+    .student-section.has-error { border-color: #fca5a5; }
+</style>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const root = document.querySelector('.student-form-page');
@@ -713,6 +742,9 @@
         const panelKey = 'student-form-active-panel';
         const isSmallScreen = () => window.matchMedia('(max-width: 991.98px)').matches;
         const form = root.querySelector('form');
+        // Public admission form: every section stays open (no tabs), so required fields can't be skipped.
+        const isPublicAdmission = root.dataset.publicAdmission === '1';
+        const errorFields = @json(array_keys($errors->getMessages()));
 
         let accordionState = new Map(
             panels.map((panel) => [panel.dataset.studentPanel, panel.open])
@@ -837,7 +869,7 @@
 
         panels.forEach((panel) => {
             panel.addEventListener('toggle', () => {
-                if (root.dataset.studentView !== 'accordion' || !panel.open) {
+                if (isPublicAdmission || root.dataset.studentView !== 'accordion' || !panel.open) {
                     return;
                 }
 
@@ -854,7 +886,77 @@
         });
 
         const savedMode = localStorage.getItem(accordionKey);
-        const initialMode = savedMode || (isSmallScreen() ? 'accordion' : 'tabs');
+        const initialMode = isPublicAdmission ? 'accordion' : (savedMode || (isSmallScreen() ? 'accordion' : 'tabs'));
         setView(initialMode, false);
+
+        if (isPublicAdmission) {
+            panels.forEach((panel) => { panel.open = true; });
+        }
+
+        // Server-side validation errors: mark the fields, badge the sections/tabs that contain them,
+        // open the first one and focus its first field.
+        const findField = (name) => form?.querySelector(`[name="${CSS.escape(name)}"], [name="${CSS.escape(name)}[]"]`);
+        const focusField = (field) => {
+            const panel = field.closest('[data-student-panel]');
+            if (panel) {
+                activatePanel(panel.dataset.studentPanel);
+            }
+            field.scrollIntoView({ block: 'center' });
+            field.focus({ preventScroll: true });
+        };
+
+        if (errorFields.length) {
+            const errorCounts = new Map();
+            let firstField = null;
+
+            errorFields.forEach((name) => {
+                const field = findField(name);
+                if (!field) {
+                    return;
+                }
+                field.classList.add('is-invalid');
+                field.setAttribute('aria-invalid', 'true');
+                firstField = firstField || field;
+                const panel = field.closest('[data-student-panel]');
+                if (panel) {
+                    const key = panel.dataset.studentPanel;
+                    errorCounts.set(key, (errorCounts.get(key) || 0) + 1);
+                }
+            });
+
+            const badge = (count) => {
+                const el = document.createElement('span');
+                el.className = 'student-error-badge';
+                el.textContent = count;
+                el.setAttribute('aria-label', `${count} ${count === 1 ? 'error' : 'errors'}`);
+                return el;
+            };
+
+            errorCounts.forEach((count, key) => {
+                tabButtons
+                    .filter((button) => button.dataset.studentTab === key)
+                    .forEach((button) => { button.classList.add('has-error'); button.appendChild(badge(count)); });
+                panels
+                    .filter((panel) => panel.dataset.studentPanel === key)
+                    .forEach((panel) => {
+                        panel.classList.add('has-error');
+                        panel.querySelector('.student-section__head h5')?.appendChild(badge(count));
+                    });
+            });
+
+            if (firstField) {
+                focusField(firstField);
+            }
+        }
+
+        root.querySelectorAll('[data-error-field]').forEach((link) => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                const field = findField(link.dataset.errorField);
+                if (field) {
+                    focusField(field);
+                }
+            });
+        });
     });
 </script>

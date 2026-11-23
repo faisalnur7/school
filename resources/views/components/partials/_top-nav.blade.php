@@ -9,7 +9,7 @@
     <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button" aria-label="{{ __('Menu') }}" title="{{ __('Menu') }}"><i class="fas fa-bars" aria-hidden="true"></i></a>
       </li>
     </ul>
 
@@ -48,19 +48,19 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-          <i class="fas fa-search"></i>
+        <a class="nav-link" data-widget="navbar-search" href="#" role="button" aria-label="{{ __('Search') }}" title="{{ __('Search') }}">
+          <i class="fas fa-search" aria-hidden="true"></i>
         </a>
         <div class="navbar-search-block">
           <form class="form-inline">
             <div class="input-group input-group-sm">
               <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
               <div class="input-group-append">
-                <button class="btn btn-navbar" type="submit">
-                  <i class="fas fa-search"></i>
+                <button class="btn btn-navbar" type="submit" aria-label="{{ __('Search') }}" title="{{ __('Search') }}">
+                  <i class="fas fa-search" aria-hidden="true"></i>
                 </button>
-                <button class="btn btn-navbar" type="button" data-widget="navbar-search">
-                  <i class="fas fa-times"></i>
+                <button class="btn btn-navbar" type="button" data-widget="navbar-search" aria-label="{{ __('Close') }}" title="{{ __('Close') }}">
+                  <i class="fas fa-times" aria-hidden="true"></i>
                 </button>
               </div>
             </div>
@@ -155,7 +155,7 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" data-widget="control-sidebar" data-controlsidebar-slide="true" href="#" role="button">
+        <a class="nav-link" data-widget="control-sidebar" data-controlsidebar-slide="true" href="#" role="button" aria-label="{{ __('Toggle side panel') }}" title="{{ __('Toggle side panel') }}">
           <i class="fas fa-th-large"></i>
         </a>
       </li>

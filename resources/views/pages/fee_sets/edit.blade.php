@@ -39,20 +39,20 @@
 
                         {{-- Fee Set Info --}}
                         <div class="form-group">
-                            <label class="form-label small font-weight-600 mb-1">Name (English) <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control form-control-sm @error('name') is-invalid @enderror" value="{{ old('name', $feeSet->name) }}" required>
+                            <label for="fee-sets-edit-name" class="form-label small font-weight-600 mb-1">Name (English) <span class="text-danger">*</span></label>
+                            <input id="fee-sets-edit-name" type="text" name="name" class="form-control form-control-sm @error('name') is-invalid @enderror" value="{{ old('name', $feeSet->name) }}" required>
                             @error('name')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label small font-weight-600 mb-1">Name (Bangla)</label>
-                            <input type="text" name="bn_name" class="form-control form-control-sm @error('bn_name') is-invalid @enderror" value="{{ old('bn_name', $feeSet->bn_name) }}">
+                            <label for="fee-sets-edit-bn-name" class="form-label small font-weight-600 mb-1">Name (Bangla)</label>
+                            <input id="fee-sets-edit-bn-name" type="text" name="bn_name" class="form-control form-control-sm @error('bn_name') is-invalid @enderror" value="{{ old('bn_name', $feeSet->bn_name) }}">
                             @error('bn_name')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label small font-weight-600 mb-1">Academic Session <span class="text-danger">*</span></label>
-                            <select name="academic_session_id" class="form-control form-control-sm @error('academic_session_id') is-invalid @enderror" required>
+                            <label for="fee-sets-edit-academic-session-id" class="form-label small font-weight-600 mb-1">Academic Session <span class="text-danger">*</span></label>
+                            <select id="fee-sets-edit-academic-session-id" name="academic_session_id" class="form-control form-control-sm @error('academic_session_id') is-invalid @enderror" required>
                                 <option value="">Select Session</option>
                                 @foreach ($sessions as $session)
                                     <option value="{{ $session->id }}" {{ old('academic_session_id', $feeSet->academic_session_id) == $session->id ? 'selected' : '' }}>
@@ -102,8 +102,8 @@
                         </div>
 
                         <div class="form-group" id="yearlyDueDateSelector" style="display:none;">
-                            <label class="form-label small font-weight-600 mb-1">Yearly Due Date <span class="text-danger">*</span></label>
-                            <input type="date" name="due_date" class="form-control form-control-sm @error('due_date') is-invalid @enderror" value="{{ old('due_date', optional($feeSet->due_date)->format('Y-m-d')) }}">
+                            <label for="fee-sets-edit-due-date" class="form-label small font-weight-600 mb-1">Yearly Due Date <span class="text-danger">*</span></label>
+                            <input id="fee-sets-edit-due-date" type="date" name="due_date" class="form-control form-control-sm @error('due_date') is-invalid @enderror" value="{{ old('due_date', optional($feeSet->due_date)->format('Y-m-d')) }}">
                             @error('due_date')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
 
@@ -127,8 +127,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label small font-weight-600 mb-1">Description</label>
-                            <textarea name="description" class="form-control form-control-sm @error('description') is-invalid @enderror" rows="2" placeholder="Enter description...">{{ old('description', $feeSet->description) }}</textarea>
+                            <label for="fee-sets-edit-description" class="form-label small font-weight-600 mb-1">Description</label>
+                            <textarea id="fee-sets-edit-description" name="description" class="form-control form-control-sm @error('description') is-invalid @enderror" rows="2" placeholder="Enter description...">{{ old('description', $feeSet->description) }}</textarea>
                             @error('description')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
 
@@ -168,8 +168,8 @@
                                         </td>
 
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-sm btn-danger removeRow">
-                                                <i class="fas fa-trash"></i>
+                                            <button type="button" class="btn btn-sm btn-danger removeRow" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                                <i class="fas fa-trash" aria-hidden="true"></i>
                                             </button>
                                         </td>
                                     </tr>
@@ -244,8 +244,8 @@
                         <input type="number" step="0.01" name="amount[]" class="form-control form-control-sm" required>
                     </td>
                     <td class="text-center">
-                        <button type="button" class="btn btn-sm btn-danger removeRow">
-                            <i class="fas fa-trash"></i>
+                        <button type="button" class="btn btn-sm btn-danger removeRow" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                            <i class="fas fa-trash" aria-hidden="true"></i>
                         </button>
                     </td>
                 </tr>

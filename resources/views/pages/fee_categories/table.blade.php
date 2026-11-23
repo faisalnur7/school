@@ -55,24 +55,23 @@
                                         <input type="checkbox" class="custom-control-input"
                                             id="statusSwitch{{ $feeCategory->id }}" onchange="this.form.submit()"
                                             {{ $feeCategory->status ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="statusSwitch{{ $feeCategory->id }}">
-                                        </label>
+                                        <label class="custom-control-label" for="statusSwitch{{ $feeCategory->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
                                     </div>
                                 </form>
                             </td>
 
                             <td style="display: flex; justify-content: center; align-items: self-start; gap: 5px;">
                                 <a href="{{ route('fee-categories.edit', $feeCategory->id) }}"
-                                    class="btn btn-sm btn-dark">
-                                    <i class="fas fa-edit"></i>
+                                    class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                    <i class="fas fa-edit" aria-hidden="true"></i>
                                 </a>
 
                                 <form action="{{ route('fee-categories.delete', $feeCategory->id) }}" method="POST"
-                                    class="btn btn-sm btn-danger d-inline m-0"
+                                    class="d-inline m-0"
                                     onsubmit="return confirm('Delete this fee category?')">
                                     @csrf
                                     @method('DELETE')
-                                    <i class="fas fa-trash"></i>
+                                    <button type="submit" class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                 </form>
                             </td>
                         </tr>

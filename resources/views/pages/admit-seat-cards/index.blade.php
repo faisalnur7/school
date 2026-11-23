@@ -1103,8 +1103,8 @@
                             </select>
                         </div>
                         <div class="admit-seat-cards-filter-group">
-                            <label class="font-weight-bold admit-seat-cards-filter-label">Group</label>
-                            <select name="group_id" class="form-control form-control-sm admit-seat-cards-filter-control">
+                            <label for="admit-seat-cards-index-group-id" class="font-weight-bold admit-seat-cards-filter-label">Group</label>
+                            <select id="admit-seat-cards-index-group-id" name="group_id" class="form-control form-control-sm admit-seat-cards-filter-control">
                                 <option value="">All Groups</option>
                                 @foreach ($groups as $g)
                                     <option value="{{ $g->id }}"
@@ -1141,8 +1141,8 @@
                             </select>
                         </div>
                         <div class="admit-seat-cards-filter-group">
-                            <label class="font-weight-bold admit-seat-cards-filter-label">Card Type</label>
-                            <select name="card_type" class="form-control form-control-sm admit-seat-cards-filter-control">
+                            <label for="admit-seat-cards-index-card-type" class="font-weight-bold admit-seat-cards-filter-label">Card Type</label>
+                            <select id="admit-seat-cards-index-card-type" name="card_type" class="form-control form-control-sm admit-seat-cards-filter-control">
                                 <option value="admit_card"
                                     {{ ($cardType ?? 'admit_card') === 'admit_card' ? 'selected' : '' }}>Admit Card
                                 </option>
@@ -1151,8 +1151,8 @@
                             </select>
                         </div>
                         <div class="admit-seat-cards-filter-group">
-                            <label class="font-weight-bold admit-seat-cards-filter-label">Student ID</label>
-                            <input type="text" name="student_cid"
+                            <label for="admit-seat-cards-index-student-cid" class="font-weight-bold admit-seat-cards-filter-label">Student ID</label>
+                            <input id="admit-seat-cards-index-student-cid" type="text" name="student_cid"
                                 class="form-control form-control-sm admit-seat-cards-filter-control"
                                 value="{{ request('student_cid') }}" placeholder="Enter Student ID" autocomplete="off">
                         </div>

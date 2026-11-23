@@ -24,7 +24,7 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <a href="{{ route('hr.designations.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-times"></i></a>
+                        <a href="{{ route('hr.designations.index') }}" class="btn btn-secondary btn-sm" aria-label="{{ __('Close') }}" title="{{ __('Close') }}"><i class="fas fa-times" aria-hidden="true"></i></a>
                     </div>
                 </div>
             </form>
@@ -48,10 +48,10 @@
                                 </form>
                             </td>
                             <td class="text-center">
-                                <a href="{{ route('hr.designations.edit', $d) }}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
+                                <a href="{{ route('hr.designations.edit', $d) }}" class="btn btn-xs btn-warning" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></a>
                                 <form action="{{ route('hr.designations.destroy', $d) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete?')">
                                     @csrf @method('DELETE')
-                                    <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
+                                    <button class="btn btn-xs btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                 </form>
                             </td>
                         </tr>

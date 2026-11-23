@@ -27,8 +27,8 @@
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label class="font-weight-bold">Academic Year</label>
-                                <select name="session_id" class="form-control form-control-sm"
+                                <label for="free-studentships-index-session-id" class="font-weight-bold">Academic Year</label>
+                                <select id="free-studentships-index-session-id" name="session_id" class="form-control form-control-sm"
                                     onchange="this.form.submit()">
                                     <option value="">{{ __('All Sessions') }}</option>
                                     @foreach ($sessions as $s)
@@ -67,8 +67,8 @@
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>{{ __('Group') }}</label>
-                                <select name="group_id" class="form-control form-control-sm">
+                                <label for="free-studentships-index-group-id">{{ __('Group') }}</label>
+                                <select id="free-studentships-index-group-id" name="group_id" class="form-control form-control-sm">
                                     <option value="">{{ __('All Groups') }}</option>
                                     @foreach ($groups as $g)
                                         <option value="{{ $g->id }}"
@@ -80,8 +80,8 @@
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>{{ __('Discount Category') }}</label>
-                                <select name="discount_category_id" class="form-control form-control-sm">
+                                <label for="free-studentships-index-discount-category-id">{{ __('Discount Category') }}</label>
+                                <select id="free-studentships-index-discount-category-id" name="discount_category_id" class="form-control form-control-sm">
                                     <option value="">{{ __('All Categories') }}</option>
                                     @foreach ($discountCategories as $category)
                                         <option value="{{ $category->id }}"

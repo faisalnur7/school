@@ -106,14 +106,14 @@
                                             @csrf
                                             <div class="custom-control custom-switch">
                                                 <input type="checkbox" class="custom-control-input" id="transportSwitch{{ $transport->id }}" onchange="this.form.submit()" {{ $transport->status === 'active' ? 'checked' : '' }}>
-                                                <label class="custom-control-label" for="transportSwitch{{ $transport->id }}"></label>
+                                                <label class="custom-control-label" for="transportSwitch{{ $transport->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
                                             </div>
                                         </form>
                                     </td>
                                     <td class="px-4 py-3 text-center">
                                         <div class="transport-row-actions">
-                                            <button type="button" class="btn btn-sm btn-warning me-1 transport-edit-btn {{ $isRowEditing ? 'd-none' : '' }}">
-                                                <i class="fas fa-edit"></i>
+                                            <button type="button" class="btn btn-sm btn-warning me-1 transport-edit-btn {{ $isRowEditing ? 'd-none' : '' }}" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                                <i class="fas fa-edit" aria-hidden="true"></i>
                                             </button>
                                             <button type="submit"
                                                     form="transportUpdateForm{{ $transport->id }}"

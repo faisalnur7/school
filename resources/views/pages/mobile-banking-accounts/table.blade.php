@@ -46,16 +46,16 @@
                             </td>
                             <td style="display:flex;gap:5px; justify-content: center; align-items: center;;align-items:center">
                                 <a href="{{ route('mobile-banking-accounts.edit', $account->id) }}"
-                                    class="btn btn-sm btn-dark">
-                                    <i class="fas fa-edit"></i>
+                                    class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                    <i class="fas fa-edit" aria-hidden="true"></i>
                                 </a>
                                 <form action="{{ route('mobile-banking-accounts.destroy', $account->id) }}"
-                                    method="POST" class="btn btn-sm btn-danger d-inline m-0"
+                                    method="POST" class="d-inline m-0"
                                     onsubmit="return confirm('Delete this account?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" style="background:none;border:none;padding:0;color:inherit">
-                                        <i class="fas fa-trash"></i>
+                                    <button type="submit" class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                        <i class="fas fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </td>

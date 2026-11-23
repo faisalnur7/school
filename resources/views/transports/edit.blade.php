@@ -99,8 +99,8 @@
 
                     <div class="row mt-3">
                         <div class="col-md-12">
-                            <label class="form-label">Remarks</label>
-                            <textarea name="remarks" class="form-control" rows="3" placeholder="Optional remarks">{{ old('remarks', $transport->remarks) }}</textarea>
+                            <label for="transports-edit-remarks" class="form-label">Remarks</label>
+                            <textarea id="transports-edit-remarks" name="remarks" class="form-control" rows="3" placeholder="Optional remarks">{{ old('remarks', $transport->remarks) }}</textarea>
                             @error('remarks')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror

@@ -15,16 +15,16 @@
             <form method="GET" action="{{ route('students.birthdays') }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-auto">
-                        <label class="form-label fw-semibold">From Date</label>
-                        <input type="date" name="from_date" class="form-control" value="{{ $fromDate ?? '' }}" required>
+                        <label for="students-birthdays-from-date" class="form-label fw-semibold">From Date</label>
+                        <input id="students-birthdays-from-date" type="date" name="from_date" class="form-control" value="{{ $fromDate ?? '' }}" required>
                     </div>
                     <div class="col-auto">
-                        <label class="form-label fw-semibold">To Date</label>
-                        <input type="date" name="to_date" class="form-control" value="{{ $toDate ?? '' }}" required>
+                        <label for="students-birthdays-to-date" class="form-label fw-semibold">To Date</label>
+                        <input id="students-birthdays-to-date" type="date" name="to_date" class="form-control" value="{{ $toDate ?? '' }}" required>
                     </div>
                     <div class="col-auto">
-                        <label class="form-label fw-semibold">Session</label>
-                        <select name="session_id" class="form-select">
+                        <label for="students-birthdays-session-id" class="form-label fw-semibold">Session</label>
+                        <select id="students-birthdays-session-id" name="session_id" class="form-select">
                             <option value="">All Sessions</option>
                             @foreach($sessions as $s)
                             <option value="{{ $s->id }}" {{ $sessionId == $s->id ? 'selected' : '' }}>{{ $s->name_en }}</option>
@@ -50,8 +50,8 @@
                         </select>
                     </div>
                     <div class="col-auto">
-                        <label class="form-label fw-semibold">Group</label>
-                        <select name="group_id" class="form-select">
+                        <label for="students-birthdays-group-id" class="form-label fw-semibold">Group</label>
+                        <select id="students-birthdays-group-id" name="group_id" class="form-select">
                             <option value="">All Groups</option>
                             @foreach($groups as $g)
                             <option value="{{ $g->id }}" {{ $groupId == $g->id ? 'selected' : '' }}>{{ $g->name_en }}</option>

@@ -38,8 +38,7 @@
                                                 id="statusSwitch{{ $class->id }}" onchange="this.form.submit()"
                                                 {{ $class->status ? 'checked' : '' }}>
                                             <label class="custom-control-label"
-                                                for="statusSwitch{{ $class->id }}">
-                                            </label>
+                                                for="statusSwitch{{ $class->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
                                         </div>
                                     </form>
                                 @else
@@ -49,17 +48,17 @@
                             <td style="display: flex; justify-content: center; align-items: self-start; gap: 5px;">
                                 @if(auth()->user()?->hasPermission('edit_classes'))
                                     <a href="{{ route('classes.edit', $class->id) }}"
-                                        class="btn btn-sm btn-dark">
-                                        <i class="fas fa-edit"></i>
+                                        class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
                                     </a>
                                 @endif
 
                                 @if(auth()->user()?->hasPermission('delete_classes'))
                                     <form action="{{ route('classes.delete', $class->id) }}" method="POST"
-                                        class="btn btn-sm btn-danger d-inline m-0"
+                                        class="d-inline m-0"
                                         onsubmit="return confirm('Delete this class?')">
                                         @csrf @method('DELETE')
-                                        <i class="fas fa-trash"></i>
+                                        <button type="submit" class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 @endif
                             </td>

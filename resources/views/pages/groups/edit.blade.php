@@ -34,14 +34,14 @@
                 @endif
 
 <div class="form-group">
-                                <label>Name (English)</label>
-                                <input type="text" name="name_en" class="form-control" value="{{ $group->name_en }}"
+                                <label for="groups-edit-name-en">Name (English)</label>
+                                <input id="groups-edit-name-en" type="text" name="name_en" class="form-control" value="{{ $group->name_en }}"
                                     required>
                             </div>
 
                             <div class="form-group">
-                                <label>Name (Bangla)</label>
-                                <input type="text" name="name_bn" class="form-control" value="{{ $group->name_bn }}"
+                                <label for="groups-edit-name-bn">Name (Bangla)</label>
+                                <input id="groups-edit-name-bn" type="text" name="name_bn" class="form-control" value="{{ $group->name_bn }}"
                                     required>
                             </div>
             </div>

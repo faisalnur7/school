@@ -13,8 +13,8 @@
             <form method="GET" action="{{ route('asset-issues.index') }}" class="px-3 pt-3 pb-2">
                 <div class="row g-2 align-items-end">
                     <div class="col-md-4">
-                        <label style="font-size:12px">Asset</label>
-                        <select name="asset_id" class="form-control form-control-sm">
+                        <label for="asset-issues-index-asset-id" style="font-size:12px">Asset</label>
+                        <select id="asset-issues-index-asset-id" name="asset_id" class="form-control form-control-sm">
                             <option value="">All Assets</option>
                             @foreach($assets as $a)
                                 <option value="{{ $a->id }}" {{ request('asset_id') == $a->id ? 'selected' : '' }}>{{ $a->name }}</option>
@@ -22,8 +22,8 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label style="font-size:12px">Status</label>
-                        <select name="status" class="form-control form-control-sm">
+                        <label for="asset-issues-index-status" style="font-size:12px">Status</label>
+                        <select id="asset-issues-index-status" name="status" class="form-control form-control-sm">
                             <option value="">All</option>
                             <option value="issued" {{ request('status') === 'issued' ? 'selected' : '' }}>Issued</option>
                             <option value="returned" {{ request('status') === 'returned' ? 'selected' : '' }}>Returned</option>
@@ -66,7 +66,7 @@
                                 @endif
                                 <form action="{{ route('asset-issues.destroy', $issue->id) }}"  class="m-0" method="POST" onsubmit="return confirm('Delete?')">
                                     @csrf @method('DELETE')
-                                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                    <button class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                 </form>
                             </td>
                         </tr>

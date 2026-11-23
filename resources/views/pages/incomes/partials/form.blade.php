@@ -84,8 +84,8 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group mb-2">
-                                        <label class="small mb-1">Category</label>
-                                        <select name="income_category_id" class="form-control form-control-sm @error('income_category_id') is-invalid @enderror" required>
+                                        <label for="partials-form-income-category-id" class="small mb-1">Category</label>
+                                        <select id="partials-form-income-category-id" name="income_category_id" class="form-control form-control-sm @error('income_category_id') is-invalid @enderror" required>
                                             <option value="">Select Category</option>
                                             @foreach ($categories as $category)
                                         <option value="{{ $category->id }}" {{ old('income_category_id', data_get($incomeData, 'income_category_id', '')) == $category->id ? 'selected' : '' }}>
@@ -101,8 +101,8 @@
 
                                 <div class="col-md-4">
                                     <div class="form-group mb-2">
-                                        <label class="small mb-1">Title</label>
-                                        <input type="text" name="title" class="form-control form-control-sm @error('title') is-invalid @enderror" value="{{ old('title', data_get($incomeData, 'title', '')) }}" required>
+                                        <label for="partials-form-title" class="small mb-1">Title</label>
+                                        <input id="partials-form-title" type="text" name="title" class="form-control form-control-sm @error('title') is-invalid @enderror" value="{{ old('title', data_get($incomeData, 'title', '')) }}" required>
                                         @error('title')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
@@ -111,8 +111,8 @@
 
                                 <div class="col-md-4">
                                     <div class="form-group mb-2">
-                                        <label class="small mb-1">Amount (BDT)</label>
-                                        <input type="number" name="amount" step="0.01" min="0" class="form-control form-control-sm @error('amount') is-invalid @enderror" value="{{ old('amount', data_get($incomeData, 'amount', '')) }}" required>
+                                        <label for="partials-form-amount" class="small mb-1">Amount (BDT)</label>
+                                        <input id="partials-form-amount" type="number" name="amount" step="0.01" min="0" class="form-control form-control-sm @error('amount') is-invalid @enderror" value="{{ old('amount', data_get($incomeData, 'amount', '')) }}" required>
                                         @error('amount')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
@@ -121,8 +121,8 @@
 
                                 <div class="col-md-4">
                                     <div class="form-group mb-2">
-                                        <label class="small mb-1">Income Date</label>
-                                        <input type="text" name="income_date" class="form-control form-control-sm datepicker @error('income_date') is-invalid @enderror" value="{{ $incomeDateValue }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
+                                        <label for="partials-form-income-date" class="small mb-1">Income Date</label>
+                                        <input id="partials-form-income-date" type="text" name="income_date" class="form-control form-control-sm datepicker @error('income_date') is-invalid @enderror" value="{{ $incomeDateValue }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
                                         @error('income_date')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
@@ -156,8 +156,8 @@
 
                                 <div class="col-md-4">
                                     <div class="form-group mb-2">
-                                        <label class="small mb-1">Reference No <span class="text-muted">(optional)</span></label>
-                                        <input type="text" name="reference_no" class="form-control form-control-sm @error('reference_no') is-invalid @enderror" value="{{ old('reference_no', data_get($incomeData, 'reference_no', '')) }}" placeholder="Enter reference number">
+                                        <label for="partials-form-reference-no" class="small mb-1">Reference No <span class="text-muted">(optional)</span></label>
+                                        <input id="partials-form-reference-no" type="text" name="reference_no" class="form-control form-control-sm @error('reference_no') is-invalid @enderror" value="{{ old('reference_no', data_get($incomeData, 'reference_no', '')) }}" placeholder="Enter reference number">
                                         @error('reference_no')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
@@ -175,8 +175,8 @@
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="form-group mb-2">
-                                        <label class="small mb-1">Description <span class="text-muted">(optional)</span></label>
-                                        <textarea name="description" class="form-control form-control-sm @error('description') is-invalid @enderror" rows="4" placeholder="Add any note or details">{{ old('description', data_get($incomeData, 'description', '')) }}</textarea>
+                                        <label for="partials-form-description" class="small mb-1">Description <span class="text-muted">(optional)</span></label>
+                                        <textarea id="partials-form-description" name="description" class="form-control form-control-sm @error('description') is-invalid @enderror" rows="4" placeholder="Add any note or details">{{ old('description', data_get($incomeData, 'description', '')) }}</textarea>
                                         @error('description')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror

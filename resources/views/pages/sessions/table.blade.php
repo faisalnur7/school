@@ -36,8 +36,7 @@
                                             <input type="checkbox" class="custom-control-input"
                                                 id="statusSwitch{{ $session->id }}" onchange="this.form.submit()"
                                                 {{ $session->status ? 'checked' : '' }}>
-                                            <label class="custom-control-label" for="statusSwitch{{ $session->id }}">
-                                            </label>
+                                            <label class="custom-control-label" for="statusSwitch{{ $session->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
                                         </div>
                                     </form>
                                 @else
@@ -47,8 +46,8 @@
                             <td class="d-flex flex-column flex-sm-row justify-content-center align-items-stretch align-items-sm-start gap-1">
                                 @if(auth()->user()?->hasPermission('edit_sessions'))
                                     <a href="{{ route('sessions.edit', $session->id) }}"
-                                        class="btn btn-sm btn-dark">
-                                        <i class="fas fa-edit"></i>
+                                        class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
                                     </a>
                                 @endif
 

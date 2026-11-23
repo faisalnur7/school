@@ -1,8 +1,8 @@
 <!-- Filter Section -->
 <div class="row mb-4 align-items-end">
     <div class="col-lg-2 col-md-4 mb-3">
-        <label class="form-label">{{ __('Student ID') }}</label>
-        <input type="text"
+        <label for="transports-filter-student-cid" class="form-label">{{ __('Student ID') }}</label>
+        <input id="transports-filter-student-cid" type="text"
                name="student_cid"
                class="form-control"
                value="{{ request('student_cid') }}"
@@ -57,16 +57,16 @@
         <label class="form-label">&nbsp;</label>
         @isset($isIndex)
             <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary flex-fill">
-                    <i class="fas fa-search"></i>
+                <button type="submit" class="btn btn-primary flex-fill" aria-label="{{ __('Search') }}" title="{{ __('Search') }}">
+                    <i class="fas fa-search" aria-hidden="true"></i>
                 </button>
                 <a href="{{ route('transports.index') }}" class="btn btn-secondary flex-fill" title="Reset" aria-label="Reset">
                     <i class="fas fa-times"></i>
                 </a>
             </div>
         @else
-            <button type="button" id="loadStudents" class="btn btn-primary btn-block w-100">
-                <i class="fas fa-search"></i>
+            <button type="button" id="loadStudents" class="btn btn-primary btn-block w-100" aria-label="{{ __('Search') }}" title="{{ __('Search') }}">
+                <i class="fas fa-search" aria-hidden="true"></i>
             </button>
         @endisset
     </div>

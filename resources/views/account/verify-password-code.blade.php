@@ -16,8 +16,8 @@
                 @csrf
 
                 <div class="form-group">
-                    <label>6-digit Verification Code</label>
-                    <input type="text" name="verification_code" maxlength="6" pattern="[0-9]{6}" class="form-control" required>
+                    <label for="account-verify-password-code-verification-code">6-digit Verification Code</label>
+                    <input id="account-verify-password-code-verification-code" type="text" name="verification_code" maxlength="6" pattern="[0-9]{6}" class="form-control" required>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Verify and Change Password</button>

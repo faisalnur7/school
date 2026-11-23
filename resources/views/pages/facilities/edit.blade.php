@@ -27,46 +27,46 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Title <span class="text-danger">*</span></label>
-                            <input type="text" name="title" class="form-control" value="{{ old('title', $booking->title) }}" required>
+                            <label for="facilities-edit-title">Title <span class="text-danger">*</span></label>
+                            <input id="facilities-edit-title" type="text" name="title" class="form-control" value="{{ old('title', $booking->title) }}" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Facility Name <span class="text-danger">*</span></label>
-                            <input type="text" name="facility_name" class="form-control" value="{{ old('facility_name', $booking->facility_name) }}" required>
+                            <label for="facilities-edit-facility-name">Facility Name <span class="text-danger">*</span></label>
+                            <input id="facilities-edit-facility-name" type="text" name="facility_name" class="form-control" value="{{ old('facility_name', $booking->facility_name) }}" required>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Booking Date <span class="text-danger">*</span></label>
-                            <input type="text" name="booking_date" datepicker datepicker-format="dd/mm/yyyy"
+                            <label for="facilities-edit-booking-date">Booking Date <span class="text-danger">*</span></label>
+                            <input id="facilities-edit-booking-date" type="text" name="booking_date" datepicker datepicker-format="dd/mm/yyyy"
                                    class="form-control" value="{{ old('booking_date', $booking->booking_date->format('d/m/Y')) }}"
                                    placeholder="dd/mm/yyyy" autocomplete="off" required>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Start Time</label>
-                            <input type="time" name="start_time" class="form-control" value="{{ old('start_time', $booking->start_time) }}">
+                            <label for="facilities-edit-start-time">Start Time</label>
+                            <input id="facilities-edit-start-time" type="time" name="start_time" class="form-control" value="{{ old('start_time', $booking->start_time) }}">
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>End Time</label>
-                            <input type="time" name="end_time" class="form-control" value="{{ old('end_time', $booking->end_time) }}">
+                            <label for="facilities-edit-end-time">End Time</label>
+                            <input id="facilities-edit-end-time" type="time" name="end_time" class="form-control" value="{{ old('end_time', $booking->end_time) }}">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Booked By</label>
-                            <input type="text" name="booked_by" class="form-control" value="{{ old('booked_by', $booking->booked_by) }}">
+                            <label for="facilities-edit-booked-by">Booked By</label>
+                            <input id="facilities-edit-booked-by" type="text" name="booked_by" class="form-control" value="{{ old('booked_by', $booking->booked_by) }}">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Amount (BDT) <span class="text-danger">*</span></label>
-                            <input type="number" name="amount" step="0.01" min="0" class="form-control"
+                            <label for="facilities-edit-amount">Amount (BDT) <span class="text-danger">*</span></label>
+                            <input id="facilities-edit-amount" type="number" name="amount" step="0.01" min="0" class="form-control"
                                    value="{{ old('amount', $booking->amount) }}" required>
                         </div>
                     </div>
@@ -82,8 +82,8 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Status <span class="text-danger">*</span></label>
-                            <select name="status" class="form-control" required>
+                            <label for="facilities-edit-status">Status <span class="text-danger">*</span></label>
+                            <select id="facilities-edit-status" name="status" class="form-control" required>
                                 @foreach(['pending','confirmed','cancelled'] as $s)
                                     <option value="{{ $s }}" {{ old('status', $booking->status) == $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
                                 @endforeach
@@ -92,8 +92,8 @@
                     </div>
                     <div class="col-12">
                         <div class="form-group">
-                            <label>Notes</label>
-                            <textarea name="notes" class="form-control" rows="2">{{ old('notes', $booking->notes) }}</textarea>
+                            <label for="facilities-edit-notes">Notes</label>
+                            <textarea id="facilities-edit-notes" name="notes" class="form-control" rows="2">{{ old('notes', $booking->notes) }}</textarea>
                         </div>
                     </div>
                 </div>

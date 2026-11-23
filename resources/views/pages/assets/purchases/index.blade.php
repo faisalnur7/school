@@ -39,7 +39,7 @@
                             <a href="{{ route('asset-purchases.voucher', $purchase) }}" class="btn btn-sm btn-secondary" title="Print Voucher" target="_blank">
                                 <i class="fas fa-print"></i>
                             </a>
-                            <a href="{{ route('asset-purchases.show', $purchase) }}" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
+                            <a href="{{ route('asset-purchases.show', $purchase) }}" class="btn btn-sm btn-info" aria-label="{{ __('View') }}" title="{{ __('View') }}"><i class="fas fa-eye" aria-hidden="true"></i></a>
                         </td>
                     </tr>
                     @empty

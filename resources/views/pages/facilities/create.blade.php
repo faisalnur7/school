@@ -27,24 +27,24 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Title <span class="text-danger">*</span></label>
-                            <input type="text" name="title" class="form-control @error('title') is-invalid @enderror"
+                            <label for="facilities-create-title">Title <span class="text-danger">*</span></label>
+                            <input id="facilities-create-title" type="text" name="title" class="form-control @error('title') is-invalid @enderror"
                                    value="{{ old('title') }}" required>
                             @error('title')<span class="invalid-feedback">{{ $message }}</span>@enderror
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Facility Name <span class="text-danger">*</span></label>
-                            <input type="text" name="facility_name" class="form-control @error('facility_name') is-invalid @enderror"
+                            <label for="facilities-create-facility-name">Facility Name <span class="text-danger">*</span></label>
+                            <input id="facilities-create-facility-name" type="text" name="facility_name" class="form-control @error('facility_name') is-invalid @enderror"
                                    value="{{ old('facility_name') }}" required>
                             @error('facility_name')<span class="invalid-feedback">{{ $message }}</span>@enderror
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Booking Date <span class="text-danger">*</span></label>
-                            <input type="text" name="booking_date" datepicker datepicker-format="dd/mm/yyyy"
+                            <label for="facilities-create-booking-date">Booking Date <span class="text-danger">*</span></label>
+                            <input id="facilities-create-booking-date" type="text" name="booking_date" datepicker datepicker-format="dd/mm/yyyy"
                                    class="form-control @error('booking_date') is-invalid @enderror"
                                    value="{{ old('booking_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
                             @error('booking_date')<span class="invalid-feedback">{{ $message }}</span>@enderror
@@ -52,26 +52,26 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Start Time</label>
-                            <input type="time" name="start_time" class="form-control" value="{{ old('start_time') }}">
+                            <label for="facilities-create-start-time">Start Time</label>
+                            <input id="facilities-create-start-time" type="time" name="start_time" class="form-control" value="{{ old('start_time') }}">
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>End Time</label>
-                            <input type="time" name="end_time" class="form-control" value="{{ old('end_time') }}">
+                            <label for="facilities-create-end-time">End Time</label>
+                            <input id="facilities-create-end-time" type="time" name="end_time" class="form-control" value="{{ old('end_time') }}">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Booked By</label>
-                            <input type="text" name="booked_by" class="form-control" value="{{ old('booked_by') }}">
+                            <label for="facilities-create-booked-by">Booked By</label>
+                            <input id="facilities-create-booked-by" type="text" name="booked_by" class="form-control" value="{{ old('booked_by') }}">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Amount (BDT) <span class="text-danger">*</span></label>
-                            <input type="number" name="amount" step="0.01" min="0"
+                            <label for="facilities-create-amount">Amount (BDT) <span class="text-danger">*</span></label>
+                            <input id="facilities-create-amount" type="number" name="amount" step="0.01" min="0"
                                    class="form-control @error('amount') is-invalid @enderror"
                                    value="{{ old('amount', 0) }}" required>
                             @error('amount')<span class="invalid-feedback">{{ $message }}</span>@enderror
@@ -89,8 +89,8 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Status <span class="text-danger">*</span></label>
-                            <select name="status" class="form-control" required>
+                            <label for="facilities-create-status">Status <span class="text-danger">*</span></label>
+                            <select id="facilities-create-status" name="status" class="form-control" required>
                                 @foreach(['pending','confirmed','cancelled'] as $s)
                                     <option value="{{ $s }}" {{ old('status', 'confirmed') == $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
                                 @endforeach
@@ -110,8 +110,8 @@
 
                     <div class="col-12">
                         <div class="form-group">
-                            <label>Notes</label>
-                            <textarea name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
+                            <label for="facilities-create-notes">Notes</label>
+                            <textarea id="facilities-create-notes" name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
                         </div>
                     </div>
                 </div>
