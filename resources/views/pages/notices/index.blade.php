@@ -42,7 +42,7 @@
                             <td>{{ optional($notice->published_at)->format('d M Y H:i') ?? '-' }}</td>
                             <td>
                                 <a href="{{ route('notice.edit', $notice) }}" class="btn btn-dark btn-sm">Edit</a>
-                                <form action="{{ route('notice.destroy', $notice) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this notice?')">
+                                <form action="{{ route('notice.destroy', $notice) }}" method="POST" class="d-inline" data-confirm="{{ __('Delete this notice?') }}" data-confirm-action="{{ __('Delete notice') }}" data-confirm-cancel="{{ __('Keep notice') }}">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn btn-danger btn-sm">Delete</button>

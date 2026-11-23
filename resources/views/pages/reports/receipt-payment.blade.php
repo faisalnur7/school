@@ -59,7 +59,7 @@
                     <a href="{{ route('reports.receipt-payment') }}" class="btn btn-light" title="Reset" aria-label="Reset">
                         <i class="fas fa-undo-alt"></i>
                     </a>
-                    <a href="{{ route('reports.receipt-payment.pdf', request()->query()) }}" class="btn btn-danger" title="PDF" aria-label="PDF">
+                    <a href="{{ route('reports.receipt-payment.pdf', request()->query()) }}" class="btn btn-outline-secondary" title="PDF" aria-label="PDF">
                         <i class="fas fa-file-pdf"></i> PDF
                     </a>
                 </div>

@@ -137,7 +137,7 @@
         @endphp
 
         <!-- Sidebar Menu -->
-        <nav class="mt-1">
+        <nav class="mt-1" aria-label="{{ __('Primary') }}">
             <ul class="nav-modern">
 
                 <!-- Dashboard -->

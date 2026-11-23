@@ -163,8 +163,8 @@
         }
 
         .fee-collect-page .discount-row .discount-type-btn.active {
-            border-color: #6366f1;
-            background: #6366f1;
+            border-color: #4f46e5;
+            background: #4f46e5;
             color: #fff;
         }
 
@@ -185,7 +185,7 @@
         }
 
         .fee-collect-page .discount-row .discount-amount-line {
-            color: #16a34a !important;
+            color: #15803d !important;
             font-size: 0.72rem;
             font-weight: 800;
         }
@@ -3691,12 +3691,12 @@
         <ul class="nav nav-tabs mb-4 px-2" id="mainTabs">
             <li class="nav-item">
                 <a class="nav-link active fw-semibold" href="#tabCollect">
-                    💳 Collect
+                    <i class="fas fa-credit-card mr-1" aria-hidden="true"></i> {{ __('Collect') }}
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link fw-semibold" href="#tabAssignedFees">
-                    🧾 Fees
+                    <i class="fas fa-receipt mr-1" aria-hidden="true"></i> {{ __('Fees') }}
                     <span class="badge rounded-pill ms-1"
                         style="font-size:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
                         {{ isset($assignedFees) ? $assignedFees->count() : 0 }}
@@ -3705,7 +3705,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link fw-semibold" href="#tabHistory">
-                    🧾 History
+                    <i class="fas fa-history mr-1" aria-hidden="true"></i> {{ __('History') }}
                     <span class="badge rounded-pill ms-1"
                         style="font-size:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
                         {{ $payments->count() }}
@@ -3773,7 +3773,7 @@
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="fs-5">🗂️</span>
+                                    <span class="fs-5"><i class="fas fa-folder" aria-hidden="true"></i></span>
                                     <span class="panel-eyebrow">Fee Categories</span>
                                 </div>
                             </div>
@@ -3801,7 +3801,7 @@
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="fs-5">📦</span>
+                                    <span class="fs-5"><i class="fas fa-box" aria-hidden="true"></i></span>
                                     <span class="panel-eyebrow">Inventory</span>
                                 </div>
                             </div>
@@ -3833,7 +3833,7 @@
                                 <div class="card-header bg-white border-bottom py-3 px-4"
                                     style="border-color:#f1f5f9!important">
                                     <div class="d-flex align-items-center gap-2">
-                                        <span class="fs-5">⏳</span>
+                                        <span class="fs-5"><i class="fas fa-hourglass-half" aria-hidden="true"></i></span>
                                         <span class="panel-eyebrow">Inventory Dues</span>
                                     </div>
                                 </div>
@@ -3885,14 +3885,14 @@
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="fs-5" id="middlePanelIcon">📋</span>
+                                    <span class="fs-5" id="middlePanelIcon"><i class="fas fa-clipboard-list" aria-hidden="true"></i></span>
                                     <span class="panel-eyebrow" id="middlePanelTitle">Pending Fees</span>
                                 </div>
                             </div>
                             <div class="card-body p-3">
 
                                 <div id="emptySelect" class="text-center py-5 text-muted">
-                                    <div style="font-size:44px;opacity:.2">👈</div>
+                                    <div style="font-size:44px;opacity:.2"><i class="fas fa-hand-point-left" aria-hidden="true"></i></div>
                                     <p class="mt-3 mb-0 fw-medium" style="font-size:14px">
                                         Select a category on the left<br>to view pending fees or items
                                     </p>
@@ -3926,7 +3926,7 @@
                                                             <p class="mono mb-0 mt-1" style="font-size:11px;color:#059669">
                                                                 <span class="badge rounded-pill"
                                                                     style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-size:10px">
-                                                                    🎓 {{ $catDiscount['category'] }}: -৳{{ number_format($catDiscount['discount'], 2) }}
+                                                                    <i class="fas fa-graduation-cap" aria-hidden="true"></i> {{ $catDiscount['category'] }}: -৳{{ number_format($catDiscount['discount'], 2) }}
                                                                 </span>
                                                             </p>
                                                         @endforeach
@@ -3936,7 +3936,7 @@
                                                             <p class="mono mb-0 mt-1" style="font-size:11px;color:#4338ca">
                                                                 <span class="badge rounded-pill"
                                                                     style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:10px">
-                                                                    🚌 {{ $catTransport['category'] }}: +৳{{ number_format($catTransport['amount'], 2) }}
+                                                                    <i class="fas fa-bus" aria-hidden="true"></i> {{ $catTransport['category'] }}: +৳{{ number_format($catTransport['amount'], 2) }}
                                                                 </span>
                                                             </p>
                                                         @endforeach
@@ -4021,7 +4021,7 @@
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="fs-5">🧾</span>
+                                    <span class="fs-5"><i class="fas fa-receipt" aria-hidden="true"></i></span>
                                     <span class="panel-eyebrow">Selected Items</span>
                                     <span id="cartBadge" class="mono ms-auto badge rounded-pill"
                                         style="font-size:11px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
@@ -4051,7 +4051,7 @@
                                 <div class="card-body p-3">
                                     <div class="scroll-area" style="max-height:280px">
                                         <div id="cartEmpty" class="mobile-empty-cart text-center py-5 text-muted">
-                                            <div style="font-size:40px;opacity:.18">🛒</div>
+                                            <div style="font-size:40px;opacity:.18"><i class="fas fa-shopping-cart" aria-hidden="true"></i></div>
                                             <p class="mt-3 mb-0 fw-medium" style="font-size:13px">
                                                 No items added yet.<br>Click a fee, inventory item, or due item to add it.
                                             </p>
@@ -4126,7 +4126,7 @@
                                     <button type="button" class="collect-btn btn w-100 fw-bold text-white rounded-3 py-3"
                                         id="collectBtn" disabled
                                         style="background:linear-gradient(135deg,#6366f1,#4338ca);font-size:14px">
-                                        ✓ &nbsp;Collect payment
+                                        <i class="fas fa-check mr-1" aria-hidden="true"></i> {{ __('Collect payment') }}
                                     </button>
                                 </div>
                             </form>
@@ -4149,7 +4149,7 @@
                         <div class="d-flex align-items-start gap-3 flex-wrap assigned-fees-toolbar">
                             <div class="flex-grow-1 min-w-0">
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <span class="fs-5">🧾</span>
+                                    <span class="fs-5"><i class="fas fa-receipt" aria-hidden="true"></i></span>
                                     <span class="panel-eyebrow">Assigned Fees</span>
                                     <span class="badge rounded-pill" style="font-size:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
                                         {{ $assignedFeeGroups->count() }} categories
@@ -4182,7 +4182,7 @@
                     <div class="card-body p-0">
                         @if (($assignedFees ?? collect())->isEmpty())
                             <div class="assigned-fees-empty">
-                                <div class="mb-2" style="font-size:40px;opacity:.22">🧾</div>
+                                <div class="mb-2" style="font-size:40px;opacity:.22"><i class="fas fa-receipt" aria-hidden="true"></i></div>
                                 <div class="fw-semibold text-dark">No assigned fees found for this student.</div>
                                 <div class="small text-muted mt-1">Assign fee sets to see them grouped by category here.</div>
                             </div>
@@ -4492,7 +4492,7 @@
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-header bg-white border-bottom py-3 px-4" style="border-color:#f1f5f9!important">
                         <div class="d-flex align-items-center gap-2">
-                            <span class="fs-5">📑</span>
+                            <span class="fs-5"><i class="fas fa-file-alt" aria-hidden="true"></i></span>
                             <span class="panel-eyebrow">Payment History</span>
                         </div>
                     </div>
@@ -4640,7 +4640,7 @@
                                     @empty
                                         <tr>
                                             <td colspan="11" class="text-center text-muted py-5">
-                                                <div style="font-size:36px;opacity:.2">🧾</div>
+                                                <div style="font-size:36px;opacity:.2"><i class="fas fa-receipt" aria-hidden="true"></i></div>
                                                 <p class="mt-2 mb-0" style="font-size:14px">No payments recorded yet</p>
                                             </td>
                                         </tr>
@@ -4660,6 +4660,7 @@
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        const COLLECT_LABEL = '<i class="fas fa-check mr-1" aria-hidden="true"></i>{{ __('Collect payment') }}';
         $(function() {
             let grossSubtotal = 0;
             let cartIds = new Set();       // fee IDs
@@ -4989,7 +4990,7 @@
                 if (!visibleItems.length) {
                     $mobileSelectionList.html(`
                         <div class="text-center text-muted py-5">
-                            <div style="font-size:36px;opacity:.18">🔎</div>
+                            <div style="font-size:36px;opacity:.18"><i class="fas fa-search" aria-hidden="true"></i></div>
                             <p class="mt-2 mb-0">No items matched your search.</p>
                         </div>
                     `);
@@ -5188,7 +5189,7 @@
                 const sel = $(this).data('cat');
                 $emptySelect.hide();
                 $feesContainer.removeClass('d-none');
-                $('#middlePanelIcon').text('📋');
+                $('#middlePanelIcon').html('<i class="fas fa-clipboard-list" aria-hidden="true"></i>');
                 $('#middlePanelTitle').text('PENDING FEES').css('color', '#4338ca');
                 $('.inv-item-card').hide();
                 $feeCards.each(function() {
@@ -5204,7 +5205,7 @@
                 const sel = $(this).data('inv-cat');
                 $emptySelect.hide();
                 $feesContainer.removeClass('d-none');
-                $('#middlePanelIcon').text('📦');
+                $('#middlePanelIcon').html('<i class="fas fa-box" aria-hidden="true"></i>');
                 $('#middlePanelTitle').text('INVENTORY ITEMS').css('color', '#059669');
                 $feeCards.hide();
                 $('.inv-item-card').each(function() {
@@ -5257,7 +5258,7 @@
                         <button type="button"
                                 class="remove-btn cart-row-remove btn btn-light btn-sm border rounded-2 px-2 py-1"
                                 data-id="due_${dueId}" data-due-id="${dueId}" data-amount="${dueAmount}" data-type="due"
-                                style="font-size:13px;line-height:1">✕</button>
+                                style="font-size:13px;line-height:1" aria-label="{{ __('Remove') }}" title="{{ __('Remove') }}"><i class="fas fa-times" aria-hidden="true"></i></button>
                     </div>`;
                 $cartItemsEl.append(html);
                 updateUI();
@@ -5351,7 +5352,7 @@
                          <button type="button"
                                  class="remove-btn cart-row-remove btn btn-light btn-sm border rounded-2 px-2 py-1"
                                  data-id="${id}" data-amount="${amount}" data-type="fee"
-                                 style="font-size:13px;line-height:1;position:absolute;right:0;top:0;">✕</button>
+                                 style="font-size:13px;line-height:1;position:absolute;right:0;top:0;" aria-label="{{ __('Remove') }}" title="{{ __('Remove') }}"><i class="fas fa-times" aria-hidden="true"></i></button>
                      </div>`;
                 $cartItemsEl.append(html);
                 updateUI();
@@ -5434,7 +5435,7 @@
                         <button type="button"
                                 class="remove-btn cart-row-remove btn btn-light btn-sm border rounded-2 px-2 py-1"
                                 data-id="${cartKey}" data-inv-id="${invId}" data-amount="${itemSubtotal}" data-type="item"
-                                style="font-size:13px;line-height:1">✕</button>
+                                style="font-size:13px;line-height:1" aria-label="{{ __('Remove') }}" title="{{ __('Remove') }}"><i class="fas fa-times" aria-hidden="true"></i></button>
                     </div>`;
                 $cartItemsEl.append(html);
                 updateUI();
@@ -5659,7 +5660,7 @@
                 if (cartIds.size === 0 && cartInvIds.size === 0 && cartDueIds.size === 0) return;
 
                 const $btn = $(this);
-                $btn.prop('disabled', true).html('⏳ &nbsp;Processing...');
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>{{ __('Collecting…') }}');
 
                 let feesPayload = [];
                 let itemsPayload = [];
@@ -5732,7 +5733,7 @@
                         $('#cartEmpty').show();
                         $('#discountInput').val(0);
                         $('#descriptionInput').val('');
-                        $btn.prop('disabled', true).html('✓ &nbsp;COLLECT PAYMENT');
+                        $btn.prop('disabled', true).html(COLLECT_LABEL);
                         updateUI();
                         toggleMobileCart(false);
 
@@ -5765,7 +5766,7 @@
                         // ── Error toast ──
                         const $toast = $('#paymentToast');
                         $toast.css('background', '#dc2626');
-                        $('#paymentToast span:first').text('✕');
+                        $('#paymentToast span:first').html('<i class="fas fa-times" aria-hidden="true"></i>');
                         $toast.find('.fw-800, [style*="font-weight:800"]').text(
                             'PAYMENT FAILED');
                         $('#toastReceiptNo').text(msg);
@@ -5774,13 +5775,13 @@
                             $toast.fadeOut(400, function() {
                                 // Reset toast to success style for next time
                                 $toast.css('background', '#111');
-                                $('#paymentToast span:first').text('✓');
+                                $('#paymentToast span:first').html('<i class="fas fa-check" aria-hidden="true"></i>');
                                 $toast.find('[style*="font-weight:800"]').text(
                                     'PAYMENT COLLECTED');
                             });
                         }, 4000);
 
-                        $btn.prop('disabled', false).html('✓ &nbsp;COLLECT PAYMENT');
+                        $btn.prop('disabled', false).html(COLLECT_LABEL);
                     }
                 });
             });

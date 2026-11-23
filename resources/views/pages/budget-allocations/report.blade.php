@@ -13,7 +13,7 @@
                     <button class="btn btn-sm btn-dark" style="margin-top:10px">Go</button>
                 </form>
                 <a href="{{ route('budget-allocations.report.pdf', ['year' => $year]) }}"
-                   class="btn btn-sm btn-danger" style="margin-top:10px">
+                   class="btn btn-sm btn-outline-secondary" style="margin-top:10px">
                     <i class="fas fa-file-pdf"></i> PDF
                 </a>
             </div>

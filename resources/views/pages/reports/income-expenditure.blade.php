@@ -27,7 +27,7 @@
                         <a href="{{ route('reports.income-expenditure') }}" class="btn btn-light" title="Reset" aria-label="Reset">
                             <i class="fas fa-undo-alt"></i>
                         </a>
-                        <a href="{{ route('reports.income-expenditure.pdf', array_merge(request()->query(), ['from' => $from->format('d/m/Y'), 'to' => $to->format('d/m/Y')])) }}" class="btn btn-danger">
+                        <a href="{{ route('reports.income-expenditure.pdf', array_merge(request()->query(), ['from' => $from->format('d/m/Y'), 'to' => $to->format('d/m/Y')])) }}" class="btn btn-outline-secondary">
                             <i class="fas fa-file-pdf"></i> PDF
                         </a>
                     </div>

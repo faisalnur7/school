@@ -42,10 +42,10 @@
 
                                 <form action="{{ route('income-categories.destroy', $category->id) }}" method="POST"
                                     class="d-inline m-0"
-                                    onsubmit="return confirm('Delete this income category?')">
+                                    data-confirm="{{ __('Delete this income category?') }}" data-confirm-action="{{ __('Delete income category') }}" data-confirm-cancel="{{ __('Keep income category') }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
                                         <i class="fas fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </form>

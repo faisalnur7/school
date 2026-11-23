@@ -443,9 +443,12 @@
                 background: #fff;
             }
         }
-    </style>
+        /* F-30: landmark wrapper that doesn't affect layout */
+    main { display: contents; }
+</style>
 </head>
 <body>
+<main>
 
     {{-- ── Print Controls ── --}}
     <div class="no-print">
@@ -481,5 +484,6 @@
 
     </div>
 
+</main>
 </body>
 </html>

@@ -23,7 +23,7 @@
                         <a href="{{ route('reports.trial-balance') }}" class="btn btn-light" title="Reset" aria-label="Reset">
                             <i class="fas fa-undo-alt"></i>
                         </a>
-                        <a href="{{ route('reports.trial-balance.pdf', request()->query()) }}" class="btn btn-danger">
+                        <a href="{{ route('reports.trial-balance.pdf', request()->query()) }}" class="btn btn-outline-secondary">
                             <i class="fas fa-file-pdf"></i> PDF
                         </a>
                     </div>

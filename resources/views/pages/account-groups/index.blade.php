@@ -46,7 +46,7 @@
                                 <td>{{ $g->parent?->name ?? '—' }}</td>
                                 <td style="display:flex;gap:5px; justify-content: center; align-items: center;">
                                     <button class="btn btn-sm btn-dark p-2" data-toggle="modal" data-target="#editGroup{{ $g->id }}" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></button>
-                                    <form action="{{ route('account-groups.destroy', $g->id) }}" class="m-0" method="POST" onsubmit="return confirm('{{ __('Delete?') }}')">
+                                    <form action="{{ route('account-groups.destroy', $g->id) }}" class="m-0" method="POST" data-confirm="{{ __('Delete this record?') }}" data-confirm-action="{{ __('Delete') }}" data-confirm-cancel="{{ __('Keep it') }}">
                                         @csrf @method('DELETE')
                                         <button class="btn btn-sm btn-danger py-2" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>

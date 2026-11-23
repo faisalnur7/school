@@ -59,7 +59,7 @@
                             <i class="fas fa-undo-alt"></i>
                         </a>
                         <a href="{{ route('reports.details-trial-balance.pdf', request()->query()) }}"
-                            class="btn btn-danger flex gap-1 justify-center items-center">
+                            class="btn btn-outline-secondary flex gap-1 justify-center items-center">
                             <i class="fas fa-file-pdf"></i> PDF
                         </a>
                     </div>

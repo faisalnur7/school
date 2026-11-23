@@ -68,7 +68,7 @@
                                             </button>
                                         </form>
                                         <form action="{{ route('website.cms.banner.destroy', $banner) }}" method="POST" class="d-inline"
-                                              onsubmit="return confirm('Delete this slide?')">
+                                              data-confirm="{{ __('Delete this slide?') }}" data-confirm-action="{{ __('Delete slide') }}" data-confirm-cancel="{{ __('Keep slide') }}">
                                             @csrf @method('DELETE')
                                             <button class="btn btn-xs btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                         </form>

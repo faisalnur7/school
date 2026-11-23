@@ -733,7 +733,7 @@
                             <button type="button" class="btn btn-success payment-report-action-btn" onclick="window.print()" title="Print" aria-label="Print">
                                 <i class="fas fa-print"></i>
                             </button>
-                            <a href="{{ route('fees.payment-report.pdf', $reportPdfQuery) }}" class="btn btn-danger payment-report-action-btn" title="Export PDF" aria-label="Export PDF">
+                            <a href="{{ route('fees.payment-report.pdf', $reportPdfQuery) }}" class="btn btn-outline-secondary payment-report-action-btn" title="Export PDF" aria-label="Export PDF">
                                 <i class="fas fa-file-pdf"></i>
                             </a>
                         </div>

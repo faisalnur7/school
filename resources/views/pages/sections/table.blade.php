@@ -56,10 +56,10 @@
                                 @if(auth()->user()?->hasPermission('delete_sections'))
                                     <form action="{{ route('sections.delete', $section->id) }}" method="POST"
                                         class="d-inline m-0"
-                                        onsubmit="return confirm('Delete this section?')">
+                                        data-confirm="{{ __('Delete section “:name”?', ['name' => $section->schoolClass?->name_en . ' · ' . $section->name_en]) }}" data-confirm-action="{{ __('Delete section') }}" data-confirm-cancel="{{ __('Keep section') }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 @endif
                             </td>

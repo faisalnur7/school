@@ -48,25 +48,25 @@
                 </div>
             </form>
             <div class="table-responsive">
-                <table class="table table-bordered table-hover table-sm">
+                <table class="table table-bordered table-hover table-sm ds-table--stack">
                     <thead class="thead-dark">
-                        <tr><th>#</th><th>Photo</th><th>Employee ID</th><th>Name</th><th>Type</th><th>Designation</th><th>Department</th><th>Status</th><th class="text-center">Actions</th></tr>
+                        <tr><th>#</th><th>Photo</th><th>Name</th><th>Employee ID</th><th>Type</th><th>Designation</th><th>Department</th><th>Status</th><th class="text-center">Actions</th></tr>
                     </thead>
                     <tbody>
                         @forelse($employees as $emp)
                         <tr>
-                            <td>{{ $employees->firstItem() + $loop->index }}</td>
-                            <td><img src="{{ $emp->photo_url }}" class="elevation-1" style="width:64px;height:64px;object-fit:cover;border-radius:12px;"></td>
-                            <td><code>{{ $emp->employee_id }}</code></td>
-                            <td class="font-weight-bold"><a href="{{ route('hr.employees.show', $emp) }}">{{ $emp->name }}</a></td>
-                            <td><span class="badge badge-{{ $emp->employee_type === 'teacher' ? 'primary' : 'info' }}">{{ ucfirst($emp->employee_type) }}</span></td>
-                            <td>{{ $emp->designation->name ?? '—' }}</td>
-                            <td>{{ $emp->department?->name ?? '—' }}</td>
-                            <td><span class="badge badge-{{ $emp->status === 'active' ? 'success' : 'secondary' }}">{{ ucfirst($emp->status) }}</span></td>
-                            <td class="text-center employee-actions">
+                            <td class="ds-hide-sm">{{ $employees->firstItem() + $loop->index }}</td>
+                            <td class="ds-hide-sm"><img src="{{ $emp->photo_url }}" alt="" class="elevation-1" style="width:64px;height:64px;object-fit:cover;border-radius:12px;"></td>
+                            <td class="font-weight-bold ds-stack-title"><a href="{{ route('hr.employees.show', $emp) }}">{{ $emp->name }}</a></td>
+                            <td data-label="{{ __('Employee ID') }}"><code>{{ $emp->employee_id }}</code></td>
+                            <td data-label="{{ __('Type') }}"><span class="badge badge-{{ $emp->employee_type === 'teacher' ? 'primary' : 'info' }}">{{ ucfirst($emp->employee_type) }}</span></td>
+                            <td data-label="{{ __('Designation') }}">{{ $emp->designation->name ?? '—' }}</td>
+                            <td data-label="{{ __('Department') }}" class="ds-hide-sm">{{ $emp->department?->name ?? '—' }}</td>
+                            <td data-label="{{ __('Status') }}"><span class="badge badge-{{ $emp->status === 'active' ? 'success' : 'secondary' }}">{{ ucfirst($emp->status) }}</span></td>
+                            <td class="text-center employee-actions ds-stack-actions">
                                 <a href="{{ route('hr.employees.show', $emp) }}" class="employee-action-btn employee-action-view" title="View" aria-label="View"><i class="fas fa-eye" aria-hidden="true"></i></a>
                                 <a href="{{ route('hr.employees.edit', $emp) }}" class="employee-action-btn employee-action-edit" title="Edit" aria-label="Edit"><i class="fas fa-edit" aria-hidden="true"></i></a>
-                                <form action="{{ route('hr.employees.destroy', $emp) }}" method="POST" class="employee-action-form" onsubmit="return confirm('Delete/deactivate this employee?')">
+                                <form action="{{ route('hr.employees.destroy', $emp) }}" method="POST" class="employee-action-form" data-confirm="{{ __('Delete or deactivate :name?', ['name' => $emp->name]) }}" data-confirm-action="{{ __('Delete employee') }}" data-confirm-cancel="{{ __('Keep employee') }}">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="employee-action-btn employee-action-delete" title="Delete" aria-label="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                 </form>
@@ -108,7 +108,7 @@
         .employee-action-form { display: inline-block; margin: 0; }
         .employee-action-view { background: #0f9fb3 !important; }
         .employee-action-edit { background: #334155 !important; border: 1px solid #475569; }
-        .employee-action-delete { background: #ef3340 !important; }
+        .employee-action-delete { background: transparent !important; color: #dc2626 !important; border: 1px solid #fca5a5; margin-left: .5rem; }
         .employee-action-btn:hover,
         .employee-action-btn:focus { transform: translateY(-1px); }
         .employee-action-view:hover,
@@ -116,6 +116,6 @@
         .employee-action-edit:hover,
         .employee-action-edit:focus { background: #1e293b !important; }
         .employee-action-delete:hover,
-        .employee-action-delete:focus { background: #dc2636 !important; }
+        .employee-action-delete:focus { background: #fef2f2 !important; }
     </style>
 @endsection

@@ -47,7 +47,7 @@
                             <td>
                                 <a href="{{ route('website.event.show', $event) }}" target="_blank" class="btn btn-success btn-sm">View</a>
                                 <a href="{{ route('events.edit', $event) }}" class="btn btn-dark btn-sm">Edit</a>
-                                <form action="{{ route('events.destroy', $event) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this event?')">
+                                <form action="{{ route('events.destroy', $event) }}" method="POST" class="d-inline" data-confirm="{{ __('Delete this event?') }}" data-confirm-action="{{ __('Delete event') }}" data-confirm-cancel="{{ __('Keep event') }}">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn btn-danger btn-sm">Delete</button>

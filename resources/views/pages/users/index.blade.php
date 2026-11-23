@@ -103,7 +103,7 @@
                                         @endif
                                         @if ($actorIsPlatformAdmin && $isSuperAdmin && $canManage)
                                             <form action="{{ route('users.revoke-super-admin', $user->id) }}" method="POST" class="mb-0"
-                                                onsubmit="return confirm({{ Js::from('Withdraw Super Admin from '.$user->name.'?') }})">
+                                                data-confirm="{{ __('Withdraw Super Admin from :name?', ['name' => $user->name]) }}" data-confirm-action="{{ __('Withdraw Super Admin') }}" data-confirm-cancel="{{ __('Keep Super Admin') }}">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Withdraw Super Admin">
                                                     <i class="fas fa-user-slash"></i>

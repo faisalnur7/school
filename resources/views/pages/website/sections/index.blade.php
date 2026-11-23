@@ -22,7 +22,7 @@
                         <td>{{ $section->sort_order }}</td>
                         <td>
                             <a href="{{ route('website.pages.sections.edit', [$page, $section]) }}" class="btn btn-dark btn-sm">Edit</a>
-                            <form action="{{ route('website.pages.sections.destroy', [$page, $section]) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this section?')">
+                            <form action="{{ route('website.pages.sections.destroy', [$page, $section]) }}" method="POST" class="d-inline" data-confirm="{{ __('Delete this section?') }}" data-confirm-action="{{ __('Delete section') }}" data-confirm-cancel="{{ __('Keep section') }}">
                                 @csrf @method('DELETE')
                                 <button class="btn btn-danger btn-sm">Delete</button>
                             </form>

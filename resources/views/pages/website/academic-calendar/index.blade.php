@@ -20,7 +20,7 @@
                         <td>{{ $item->sort_order }}</td>
                         <td>
                             <a href="{{ route('website.academic-calendar.edit', $item) }}" class="btn btn-dark btn-sm">Edit</a>
-                            <form action="{{ route('website.academic-calendar.destroy', $item) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this item?')">
+                            <form action="{{ route('website.academic-calendar.destroy', $item) }}" method="POST" class="d-inline" data-confirm="{{ __('Delete this item?') }}" data-confirm-action="{{ __('Delete item') }}" data-confirm-cancel="{{ __('Keep item') }}">
                                 @csrf @method('DELETE')
                                 <button class="btn btn-danger btn-sm">Delete</button>
                             </form>

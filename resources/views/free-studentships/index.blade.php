@@ -102,7 +102,7 @@
                                     <button type="button" class="btn btn-success btn-sm ml-1" onclick="window.print()"
                                         title="{{ __('Print') }}"><i class="fas fa-print"></i></button>
                                     <a href="{{ route('free-studentships.pdf', request()->query()) }}"
-                                        class="btn btn-danger btn-sm ml-1" title="{{ __('Export PDF') }}"><i
+                                        class="btn btn-outline-secondary btn-sm ml-1" title="{{ __('Export PDF') }}"><i
                                             class="fas fa-file-pdf"></i></a>
                                 @endif
                             </div>
@@ -177,7 +177,7 @@
                                     </td>
                                     <td class="text-center">
                                         <form action="{{ route('free-studentships.destroy', $freeStudentship) }}" method="POST"
-                                            class="d-inline" onsubmit="return confirm('Delete this free studentship?')">
+                                            class="d-inline" data-confirm="{{ __('Delete this free studentship?') }}" data-confirm-action="{{ __('Delete free studentship') }}" data-confirm-cancel="{{ __('Keep free studentship') }}">
                                             @csrf @method('DELETE')
                                             <button class="btn btn-xs btn-danger" title="Delete"><i
                                                     class="fas fa-trash"></i></button>

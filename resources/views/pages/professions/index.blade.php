@@ -65,9 +65,9 @@
                                     </button>
                                     <form action="{{ route('professions.destroy', $profession) }}"
                                           method="POST"
-                                          onsubmit="return confirm('Delete this profession?')">
+                                          data-confirm="{{ __('Delete this profession?') }}" data-confirm-action="{{ __('Delete profession') }}" data-confirm-cancel="{{ __('Keep profession') }}">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

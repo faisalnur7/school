@@ -178,7 +178,7 @@
                 <button type="submit" class="btn tutorial-report-action-btn tutorial-report-action-btn--primary" title="View Report" aria-label="View Report">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button type="button" id="tutorialReportPdfBtn" class="btn btn-danger tutorial-report-action-btn" title="Download PDF" aria-label="Download PDF">
+                <button type="button" id="tutorialReportPdfBtn" class="btn btn-outline-secondary tutorial-report-action-btn" title="Download PDF" aria-label="Download PDF">
                     <i class="fas fa-file-pdf"></i>
                 </button>
                 <a href="{{ route('result.tutorial-report.index') }}" class="btn tutorial-report-action-btn tutorial-report-action-btn--ghost" title="Reset" aria-label="Reset">

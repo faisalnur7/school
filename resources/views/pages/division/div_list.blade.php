@@ -51,7 +51,7 @@
                                             style="display:inline;">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger"
-                                                onclick="return confirm('Are you sure you want to delete this division?')"
+                                                data-confirm="{{ __('Delete this division?') }}" data-confirm-action="{{ __('Delete division') }}" data-confirm-cancel="{{ __('Keep division') }}"
                                                 title="Delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>

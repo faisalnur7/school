@@ -22,7 +22,7 @@
                         <i class="fas fa-search"></i>
                     </button>
                 </form>
-                <a href="{{ route('reports.headwise-transactions.pdf', request()->query()) }}" class="btn btn-sm btn-danger" style="margin-top:10px" title="PDF" aria-label="PDF">
+                <a href="{{ route('reports.headwise-transactions.pdf', request()->query()) }}" class="btn btn-sm btn-outline-secondary" style="margin-top:10px" title="PDF" aria-label="PDF">
                     <i class="fas fa-file-pdf"></i>
                 </a>
             </div>

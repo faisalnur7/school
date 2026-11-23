@@ -155,7 +155,7 @@
                             <td>{{ $holiday->description ?? '-' }}</td>
                             <td>
                                 <form method="POST" action="{{ route('attendance.settings.holidays.destroy', $holiday) }}"
-                                    onsubmit="return confirm('Delete this holiday?')">
+                                    data-confirm="{{ __('Delete this holiday?') }}" data-confirm-action="{{ __('Delete holiday') }}" data-confirm-cancel="{{ __('Keep holiday') }}">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-xs btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">

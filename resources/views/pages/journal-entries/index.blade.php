@@ -64,7 +64,7 @@
                                 <td>
                                     <a href="{{ route('journal-entries.show', $entry) }}" class="btn btn-xs btn-info">View</a>
                                     <form action="{{ route('journal-entries.destroy', $entry) }}" method="POST" class="d-inline"
-                                          onsubmit="return confirm('Delete this journal entry?')">
+                                          data-confirm="{{ __('Delete this journal entry?') }}" data-confirm-action="{{ __('Delete journal entry') }}" data-confirm-cancel="{{ __('Keep journal entry') }}">
                                         @csrf @method('DELETE')
                                         <button class="btn btn-xs btn-danger">Del</button>
                                     </form>

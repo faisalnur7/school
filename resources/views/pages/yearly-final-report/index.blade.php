@@ -88,7 +88,7 @@
                             <i class="fas fa-eye"></i>
                         </button>
                         @if(!empty($rows))
-                            <button type="button" onclick="window.print()" class="btn btn-danger progress-report-action-btn yearly-report-action-btn" title="Print" aria-label="Print">
+                            <button type="button" onclick="window.print()" class="btn btn-outline-secondary progress-report-action-btn yearly-report-action-btn" title="Print" aria-label="Print">
                                 <i class="fas fa-file-pdf"></i>
                             </button>
                         @endif

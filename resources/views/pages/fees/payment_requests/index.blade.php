@@ -101,7 +101,7 @@
                                 @if (auth()->user()?->hasPermission('cancel_payment_requests'))
                                     <form method="POST" action="{{ route('payment-requests.cancel', $paymentRequest) }}">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-danger payment-request-action" data-toggle="tooltip" data-placement="top" title="{{ __('Cancel') }}" aria-label="{{ __('Cancel') }}" onclick="return confirm('{{ __('Cancel this request and continue with normal collection?') }}')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger payment-request-action" data-toggle="tooltip" data-placement="top" title="{{ __('Cancel') }}" aria-label="{{ __('Cancel') }}" data-confirm="{{ __('Cancel this request and continue with normal collection?') }}" data-confirm-action="{{ __('Cancel request') }}" data-confirm-cancel="{{ __('Keep request') }}">
                                             <i class="fas fa-times" aria-hidden="true"></i>
                                         </button>
                                     </form>

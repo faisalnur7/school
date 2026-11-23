@@ -3131,7 +3131,7 @@ html.dark .admission-exams-page .exam-card h4 {
     --c-surface-muted: var(--c-slate-50);
     --c-border: var(--c-slate-200);
     --c-text: var(--c-slate-900);
-    --c-text-muted: var(--c-slate-500);
+    --c-text-muted: var(--c-slate-600);
     --c-focus: rgba(11, 107, 58, 0.35);
 
     --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.04);
@@ -3493,3 +3493,68 @@ html[data-theme='dark'] .ds-tag--info { color: #93c5fd; }
 @media (max-width: 767.98px) {
     .ds-table--stack .ds-show-sm { display: inline; }
 }
+
+/* F-30: skip link, visible only on keyboard focus */
+.skip-link {
+    position: fixed;
+    top: var(--sp-2, 8px);
+    left: var(--sp-2, 8px);
+    z-index: 2000;
+    padding: var(--sp-2, 8px) var(--sp-4, 16px);
+    border-radius: var(--r-md, 8px);
+    background: var(--c-primary, #0b6b3a);
+    color: #fff;
+    font-weight: 600;
+    transform: translateY(-200%);
+}
+.skip-link:focus {
+    transform: none;
+    color: #fff;
+    outline: 2px solid var(--c-accent, #b08d2b);
+    outline-offset: 2px;
+}
+main.content-wrapper:focus { outline: none; }
+
+/* F-29: shared confirm dialog */
+.ds-confirm { border: 0; border-radius: var(--r-lg, 12px); box-shadow: 0 20px 45px rgba(15, 23, 42, .25); }
+.ds-confirm .modal-body { padding: var(--sp-5, 20px) var(--sp-5, 20px) var(--sp-2, 8px); }
+.ds-confirm__title { margin: 0 0 var(--sp-2, 8px); font-size: var(--fs-lg, 16px); font-weight: 700; color: var(--c-text); line-height: 1.35; }
+.ds-confirm__text { margin: 0; font-size: var(--fs-sm, 13px); color: var(--c-text-muted); }
+.ds-confirm__actions { border-top: 0; padding: var(--sp-3, 12px) var(--sp-5, 20px) var(--sp-5, 20px); gap: var(--sp-2, 8px); }
+.ds-confirm__actions > * { margin: 0 !important; }
+html[data-theme='dark'] .ds-confirm { background: var(--c-surface); }
+
+/* F-29: destructive row actions are outlined and sit last, 8px after the others */
+.table td .btn-outline-danger[aria-label],
+.table td form:last-child .btn-outline-danger { margin-left: var(--sp-2, 8px); }
+.btn-outline-danger { background: transparent; }
+
+/* F-23: any .table can use the stacked phone layout (same rules as <x-data-table stack>) */
+@media (max-width: 767.98px) {
+    .table.ds-table--stack { margin: 0; border: 0; }
+    .table.ds-table--stack td { border: 0; padding: 2px 0; }
+    .table.ds-table--stack tr { background: var(--c-surface); }
+    .table.ds-table--stack .ds-stack-title { font-size: var(--fs-md, 15px); font-weight: 700; text-align: left; }
+    .table.ds-table--stack .ds-stack-title::before { content: none; }
+    .table.ds-table--stack td.ds-stack-actions { display: flex !important; justify-content: flex-start !important; gap: var(--sp-2, 8px); margin-top: var(--sp-2, 8px); text-align: left; }
+    .table.ds-table--stack td.ds-stack-actions::before { content: none; }
+    .table.ds-table--stack td.ds-stack-actions .btn,
+    .table.ds-table--stack td.ds-stack-actions .employee-action-btn { min-width: 40px; min-height: 40px; margin: 0 !important; }
+    .table-responsive:has(> .ds-table--stack) { overflow: visible; }
+    .table.ds-table--stack td form { margin: 0; }
+    .table.ds-table--stack td .custom-switch { min-height: 0; }
+    .table.ds-table--stack td[data-label] { align-items: center; min-height: 32px; }
+}
+
+/* F-28: contrast floor (WCAG AA 4.5:1). Bootstrap's greys and outline blue fall just short on the
+   app's light panels (#f8fafc), so they're darkened once here instead of per view. */
+.text-muted, .text-secondary { color: #5c636a !important; }
+.main-footer, .main-footer a, .main-footer b, .main-footer strong { color: #475569; }
+.btn-outline-primary { color: #0062cc; border-color: #0062cc; }
+.btn-outline-primary:hover, .btn-outline-primary:focus { background-color: #0062cc; border-color: #0062cc; color: #fff; }
+html[data-theme='dark'] .text-muted, html[data-theme='dark'] .text-secondary { color: #a3adba !important; }
+html[data-theme='dark'] .main-footer, html[data-theme='dark'] .main-footer a, html[data-theme='dark'] .main-footer b, html[data-theme='dark'] .main-footer strong { color: #a3adba; }
+html[data-theme='dark'] .btn-outline-primary { color: #8ab4ff; border-color: #8ab4ff; }
+.select2-container--default .select2-selection--single .select2-selection__placeholder,
+.select2-container--default .select2-selection--multiple .select2-selection__placeholder { color: #5c636a; }
+html[data-theme='dark'] .select2-container--default .select2-selection__placeholder { color: #a3adba; }

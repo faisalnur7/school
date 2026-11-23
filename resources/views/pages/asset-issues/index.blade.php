@@ -64,9 +64,9 @@
                                 @if($issue->status === 'issued')
                                 <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#returnModal{{ $issue->id }}">Return</button>
                                 @endif
-                                <form action="{{ route('asset-issues.destroy', $issue->id) }}"  class="m-0" method="POST" onsubmit="return confirm('Delete?')">
+                                <form action="{{ route('asset-issues.destroy', $issue->id) }}"  class="m-0" method="POST" data-confirm="{{ __('Delete this record?') }}" data-confirm-action="{{ __('Delete') }}" data-confirm-cancel="{{ __('Keep it') }}">
                                     @csrf @method('DELETE')
-                                    <button class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                 </form>
                             </td>
                         </tr>

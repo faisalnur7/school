@@ -88,7 +88,7 @@
         <form action="{{ route('shareholders.destroy', $sh->id) }}"
             method="POST"
             class="m-0 p-0 d-inline"
-            onsubmit="return confirm('Delete this shareholder?')">
+            data-confirm="{{ __('Delete this shareholder?') }}" data-confirm-action="{{ __('Delete shareholder') }}" data-confirm-cancel="{{ __('Keep shareholder') }}">
 
             @csrf
             @method('DELETE')

@@ -298,7 +298,7 @@
                         <a href="{{ route('fees.discount-list') }}" class="btn btn-outline-secondary fees-report-action-btn" title="Reset"><i class="fas fa-times"></i></a>
                         @if(request('session_id') && $rows->isNotEmpty())
                             <button type="button" class="btn btn-success fees-report-action-btn" onclick="window.print()" title="Print"><i class="fas fa-print"></i></button>
-                            <a href="{{ route('fees.discount-list.pdf', request()->query()) }}" class="btn btn-danger fees-report-action-btn" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
+                            <a href="{{ route('fees.discount-list.pdf', request()->query()) }}" class="btn btn-outline-secondary fees-report-action-btn" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
                         @endif
                     </div>
                 </div>

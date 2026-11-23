@@ -32,7 +32,7 @@
                             <td>{{ $s->effective_from->format('d M Y') }}</td>
                             <td class="text-center">
                                 <a href="{{ route('hr.salary-structures.edit', $s) }}" class="btn btn-xs btn-warning" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></a>
-                                <form action="{{ route('hr.salary-structures.destroy', $s) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete?')">
+                                <form action="{{ route('hr.salary-structures.destroy', $s) }}" method="POST" class="d-inline" data-confirm="{{ __('Delete this record?') }}" data-confirm-action="{{ __('Delete') }}" data-confirm-cancel="{{ __('Keep it') }}">
                                     @csrf @method('DELETE')
                                     <button class="btn btn-xs btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                 </form>

@@ -124,7 +124,7 @@
                             <button type="button" class="btn btn-success btn-sm id-card-filter-btn" onclick="window.print()" title="Print">
                                 <i class="fas fa-print"></i>
                             </button>
-                            <a href="{{ route($employeeMode ? 'hr.employee-id-cards.pdf' : 'students.id-cards.pdf', request()->query()) }}" class="btn btn-danger btn-sm id-card-filter-btn" title="PDF">
+                            <a href="{{ route($employeeMode ? 'hr.employee-id-cards.pdf' : 'students.id-cards.pdf', request()->query()) }}" class="btn btn-outline-secondary btn-sm id-card-filter-btn" title="PDF">
                                 <i class="fas fa-file-pdf"></i>
                             </a>
                         @endif

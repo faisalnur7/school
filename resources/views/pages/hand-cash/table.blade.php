@@ -57,10 +57,10 @@
                                 </a>
                                 <form action="{{ route('hand-cash.destroy', $cash->id) }}" method="POST"
                                       class="d-inline m-0"
-                                      onsubmit="return confirm('Delete this hand cash entry?')">
+                                      data-confirm="{{ __('Delete this hand cash entry?') }}" data-confirm-action="{{ __('Delete hand cash entry') }}" data-confirm-cancel="{{ __('Keep hand cash entry') }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
                                         <i class="fas fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </form>

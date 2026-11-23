@@ -34,7 +34,7 @@
                             <a href="{{ $liveUrl }}" target="_blank" class="btn btn-success btn-sm {{ $liveUrl === '#' ? 'disabled' : '' }}">View Live</a>
                             <a href="{{ route('website.pages.sections.index', $page) }}" class="btn btn-info btn-sm">Sections</a>
                             <a href="{{ route('website.pages.edit', $page) }}" class="btn btn-dark btn-sm">Edit</a>
-                            <form action="{{ route('website.pages.destroy', $page) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this page?')">
+                            <form action="{{ route('website.pages.destroy', $page) }}" method="POST" class="d-inline" data-confirm="{{ __('Delete this page?') }}" data-confirm-action="{{ __('Delete page') }}" data-confirm-cancel="{{ __('Keep page') }}">
                                 @csrf @method('DELETE')
                                 <button class="btn btn-danger btn-sm">Delete</button>
                             </form>
