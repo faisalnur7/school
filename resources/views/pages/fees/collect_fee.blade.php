@@ -5528,12 +5528,15 @@
 
             $cartItemsEl.on('input', '.fee-paid-input', function() {
                 let $row = $(this).closest('.cart-row');
-                let maxDue = parseFloat($row.find('.gross-line-amount').text()) || 0;
+                const payable = $row.data('payable');
+                let maxDue = payable !== undefined ? payable : (parseFloat($row.find('.gross-line-amount').text()) || 0);
                 let paid = Math.max(0, parseFloat($(this).val()) || 0);
                 if (paid > maxDue) {
                     paid = maxDue;
                     $(this).val(paid.toFixed(2));
                 }
+                // A line paid in full keeps following the discount; a part-payment stays as typed.
+                $row.data('paidFull', paid >= maxDue);
                 $row.find('input.fee-paid-hidden').val(paid.toFixed(2));
                 updateUI();
             });
@@ -5563,10 +5566,12 @@
             });
 
             /* ── Compute discount ── */
-            function computeDiscount() {
+            // The cart discount applies to fees only (FeeCollectionController::pay spreads it over the
+            // fee lines), so its base is the fee total, not the whole cart.
+            function computeDiscount(feeTotal) {
                 let raw = Math.max(0, parseFloat($discountInput.val()) || 0);
-                if (discountType === 'flat') return Math.min(raw, grossSubtotal);
-                if (discountType === 'percent') return (grossSubtotal * Math.min(raw, 100)) / 100;
+                if (discountType === 'flat') return roundTo2(Math.min(raw, feeTotal));
+                if (discountType === 'percent') return roundTo2((feeTotal * Math.min(raw, 100)) / 100);
                 return 0;
             }
 
@@ -5578,14 +5583,16 @@
             function updateUI() {
                 let grossTotal = 0;
                 let paidTotal = 0;
+                let feeTotal = 0;
+                const feeRows = [];
 
                 $cartItemsEl.find('.cart-row').each(function() {
                     const $row = $(this);
                     if ($row.find('input.fee-paid-hidden').length) {
                         const gross = parseFloat($row.find('.gross-line-amount').text()) || 0;
-                        const paid = parseFloat($row.find('input.fee-paid-hidden').val()) || 0;
                         grossTotal += gross;
-                        paidTotal += paid;
+                        feeTotal += gross;
+                        feeRows.push({ $row, gross });
                     }
 
                     if ($row.find('input[name^="items"][name$="[inventory_item_id]"]').length) {
@@ -5604,7 +5611,22 @@
                 });
 
                 grossSubtotal = grossTotal;
-                const discountAmt = computeDiscount();
+                const discountAmt = computeDiscount(feeTotal);
+
+                // Same split as the server: each fee takes a share of the discount in proportion to
+                // its amount, and can't be paid beyond what is left after that share.
+                feeRows.forEach(function({ $row, gross }) {
+                    const share = feeTotal > 0 ? roundTo2(discountAmt * (gross / feeTotal)) : 0;
+                    const payable = roundTo2(Math.max(0, gross - share));
+                    const $hidden = $row.find('input.fee-paid-hidden');
+                    const $input = $row.find('.fee-paid-input');
+                    let paid = parseFloat($hidden.val()) || 0;
+                    if ($row.data('paidFull') !== false || paid > payable) paid = payable;
+                    $row.data('payable', payable);
+                    $hidden.val(paid.toFixed(2));
+                    if ((parseFloat($input.val()) || 0) !== paid) $input.val(paid.toFixed(2));
+                    paidTotal += paid;
+                });
                 $subtotalEl.text(grossTotal.toFixed(2));
                 $totalEl.text(paidTotal.toFixed(2));
                 $discountLine.text(`- ${discountAmt.toFixed(2)} BDT`);
@@ -5902,6 +5924,7 @@
                         if ($card.length) {
                             $card.trigger('click');
                             const $row = $('#cart-' + item.fee_id);
+                            $row.data('paidFull', false);
                             $row.find('.fee-paid-input').val(Number(item.requested_amount).toFixed(2)).prop('disabled', true);
                             $row.find('.fee-paid-hidden').val(Number(item.requested_amount).toFixed(2));
                         }
