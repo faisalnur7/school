@@ -94,6 +94,7 @@
     @include('layouts.partials._scripts')
     @auth
         <x-confirm-dialog />
+        <x-mobile-table-stack />
     @endauth
 
     <!-- Bootstrap Datepicker JS -->
