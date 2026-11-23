@@ -3689,3 +3689,72 @@ html[data-theme='dark'] .btn-outline-primary { color: #8ab4ff; border-color: #8a
 .select2-container--default .select2-selection--single .select2-selection__placeholder,
 .select2-container--default .select2-selection--multiple .select2-selection__placeholder { color: #5c636a; }
 html[data-theme='dark'] .select2-container--default .select2-selection__placeholder { color: #a3adba; }
+
+/* Dropdowns and date pickers on phones.
+   - Select2 options: 40px rows and 16px text (were 32px and 13px).
+   - bootstrap-datepicker: 40px-tall day cells, about 40px wide (were 20×26), in a
+     300px calendar, so dates can be tapped accurately.
+   - Bootstrap dropdown menus: 40px items. */
+@media (max-width: 767.98px) {
+    /* .select2-results adds specificity over the inline 0.82rem rule in layouts/partials/_head */
+    .select2-container--default .select2-results .select2-results__option {
+        min-height: 40px;
+        padding-top: 0.55rem;
+        padding-bottom: 0.55rem;
+        font-size: 16px;
+        line-height: 1.4;
+    }
+
+    .select2-container--default .select2-results > .select2-results__options {
+        max-height: min(320px, 45vh);
+    }
+
+    /* A list opened from a narrow field (two-column forms: 56–192px) is at least
+       240px wide; master.blade.php slides it left if it would pass the screen edge. */
+    .select2-container--open .select2-dropdown {
+        min-width: min(240px, calc(100vw - 16px));
+    }
+
+    .datepicker.datepicker-dropdown {
+        padding: 6px;
+        width: min(300px, calc(100vw - 24px));
+        font-size: 16px;
+    }
+
+    .datepicker.datepicker-dropdown table {
+        width: 100%;
+    }
+
+    .datepicker.datepicker-dropdown table tr td,
+    .datepicker.datepicker-dropdown table tr th {
+        width: 14.28%;
+        height: 40px;
+        font-size: 16px;
+        border-radius: 8px;
+    }
+
+    .datepicker.datepicker-dropdown table tr td span {
+        height: 48px;
+        line-height: 48px;
+        font-size: 16px;
+    }
+
+    .dropdown-menu .dropdown-item {
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Rich-text editor (Summernote): the editor is also a .card, whose overflow:hidden
+       cut off the right edge of the Paragraph (alignment) menu. */
+    .note-editor.note-frame.card {
+        overflow: visible;
+    }
+
+    /* Its menus get 40px rows too; cap the height so a long one (Style: 9 headings)
+       scrolls inside instead of running past the section card. */
+    .note-editor .note-dropdown-menu {
+        max-height: 280px;
+        overflow-y: auto;
+    }
+}
