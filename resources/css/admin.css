@@ -1105,22 +1105,23 @@ html[data-theme='dark'] .inky-shortcut {
     .content-wrapper .d-flex.gap-2,
     .content-wrapper .d-flex.flex-wrap {
         flex-direction: row !important;
-        align-items: stretch !important;
     }
 
+    /* Buttons keep their natural size: never stretched to the height of the
+       title block next to them, never forced to full width. */
     .content-wrapper .card-header .btn,
     .content-wrapper .card-footer .btn,
-    .content-wrapper .card-header a.btn,
-    .content-wrapper .card-footer a.btn,
-    .content-wrapper .card-header button.btn,
-    .content-wrapper .card-footer button.btn {
-        width: 100%;
+    .content-wrapper .d-flex > .btn,
+    .content-wrapper .d-flex > form > .btn {
+        width: auto;
+        height: auto;
+        align-self: center;
+        white-space: nowrap;
     }
 
     .content-wrapper .card-header .btn + .btn,
     .content-wrapper .card-footer .btn + .btn {
-        margin-top: 0.5rem;
-        margin-left: 0 !important;
+        margin-top: 0;
     }
 
     .content-wrapper .table {

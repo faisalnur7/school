@@ -124,7 +124,7 @@
                             placeholder="Optional note" />
                     </div>
                     <div class="col-md-2 mb-2">
-                        <button type="submit" class="btn btn-sm btn-warning btn-block">
+                        <button type="submit" class="btn btn-sm btn-warning btn-block text-nowrap">
                             <i class="fas fa-plus mr-1"></i>Add Holiday
                         </button>
                     </div>

@@ -124,7 +124,7 @@
                     </select>
                 </div>
                 <div class="form-group col-lg-2 mb-0">
-                    <button class="btn btn-primary btn-block" type="submit">
+                    <button class="btn btn-primary btn-block text-nowrap" type="submit">
                         <i class="fas fa-filter mr-1"></i> Apply filters
                     </button>
                 </div>
