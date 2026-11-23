@@ -323,8 +323,8 @@
             .attendance-mobile-compact .attendance-filter-control,
             .attendance-mobile-compact .attendance-filter-field .select2-container--default .select2-selection--single,
             .attendance-mobile-compact .attendance-filter-btn {
-                min-height: 34px;
-                height: 34px;
+                min-height: 40px;
+                height: 40px;
                 border-radius: 0.55rem !important;
                 font-size: 0.78rem;
             }

@@ -4,17 +4,17 @@
     @include('partials.report-header')
 
     <div class="card">
-        <div class="card-header shadow p-0 flex justify-between items-center">
+        <div class="card-header shadow p-0 flex justify-between items-center ds-header-filter">
             <h3 class="card-title flex text-white pl-3 text-medium">Headwise Transaction List</h3>
-            <div class="flex gap-2 pr-3 py-2 items-center justify-center ml-auto">
+            <div class="flex gap-2 pr-3 py-2 items-center justify-center ml-auto ds-header-filter__controls">
                 <form method="GET" class="flex gap-2 items-end">
                     <div>
-                        <label for="reports-headwise-transactions-from" style="font-size:12px;color:#FFF">From</label>
+                        <label for="reports-headwise-transactions-from" class="ds-header-filter__label">From</label>
                         <input id="reports-headwise-transactions-from" type="text" name="from" datepicker datepicker-format="dd/mm/yyyy"
                                class="form-control form-control-sm datepicker" value="{{ request('from', $from->format('d/m/Y')) }}" autocomplete="off">
                     </div>
                     <div>
-                        <label for="reports-headwise-transactions-to" style="font-size:12px;color:#FFF">To</label>
+                        <label for="reports-headwise-transactions-to" class="ds-header-filter__label">To</label>
                         <input id="reports-headwise-transactions-to" type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
                                class="form-control form-control-sm datepicker" value="{{ request('to', $to->format('d/m/Y')) }}" autocomplete="off">
                     </div>

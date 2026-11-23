@@ -3577,6 +3577,96 @@ html[data-theme='dark'] .ds-confirm { background: var(--c-surface); }
     .content-wrapper table.table[data-auto-stack] > tbody > tr > td.ds-stack-actions { flex-wrap: wrap; }
 }
 
+/* Forms on phones.
+   - 16px text: iOS Safari zooms the page into any field whose text is under
+     16px when it is tapped, and doesn't zoom back out (685 fields were 12.8–14px).
+   - 40px fields and form buttons: form-control-sm (31–34px) and btn-sm/xs
+     (25–30px) are too small to tap reliably. */
+@media (max-width: 767.98px) {
+    input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),
+    select,
+    textarea,
+    .form-control,
+    .custom-select,
+    .select2-container .select2-selection__rendered,
+    .select2-container .select2-search__field {
+        font-size: 16px !important;
+    }
+
+    .content-wrapper .form-control:not(textarea),
+    .content-wrapper .custom-select {
+        min-height: 40px;
+    }
+
+    .content-wrapper .select2-container--default .select2-selection--single {
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+    }
+
+    .content-wrapper .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 100%;
+    }
+
+    .content-wrapper .select2-container--default .select2-selection--multiple {
+        min-height: 40px;
+    }
+
+    .content-wrapper form .btn,
+    .content-wrapper form button:not(.close):not(.select2-selection__choice__remove) {
+        min-height: 40px;
+    }
+
+    /* Filters placed in a card header (headwise transactions, budgets): wrap
+       below the title and share the full width instead of squeezing to 37px. */
+    .ds-header-filter {
+        flex-wrap: wrap;
+    }
+
+    .ds-header-filter > .ds-header-filter__controls {
+        width: 100%;
+        flex-wrap: wrap;
+        margin-left: 0 !important;
+        padding: 0 0.75rem 0.75rem !important;
+        justify-content: flex-start !important;
+        align-items: flex-end !important;
+    }
+
+    /* Fields and buttons flow as one row set: fields two per row, buttons after */
+    .ds-header-filter__controls > form {
+        display: contents;
+    }
+
+    .ds-header-filter__controls > form > div {
+        flex: 1 1 calc(50% - 0.5rem);
+        min-width: 0;
+    }
+
+    .ds-header-filter__controls .btn {
+        margin-top: 0 !important;
+    }
+
+    .ds-header-filter__controls > form > div > .form-control {
+        width: 100% !important;
+    }
+}
+
+.ds-header-filter__controls {
+    align-items: flex-end !important;
+}
+
+.ds-header-filter__controls .btn {
+    margin-top: 0 !important;
+}
+
+.ds-header-filter__label {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--c-text-muted, #475569);
+}
+
 /* F-28: contrast floor (WCAG AA 4.5:1). Bootstrap's greys and outline blue fall just short on the
    app's light panels (#f8fafc), so they're darkened once here instead of per view. */
 .text-muted, .text-secondary { color: #5c636a !important; }
