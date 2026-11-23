@@ -52,21 +52,176 @@
             white-space: nowrap;
         }
 
-        @media (max-width: 767.98px) {
-            .exam-table th,
-            .exam-table td {
-                padding: 0.35rem 0.5rem;
+        /* Fixed layout split the width evenly: "#" got 130px while the five
+           36px action buttons (plus gaps) overflowed their column. */
+        .exam-table thead th:first-child {
+            width: 48px;
+        }
+
+        .exam-table thead th:nth-child(5) {
+            width: 72px;
+        }
+
+        .exam-table thead th:last-child {
+            width: 236px;
+        }
+
+        /* Fit the table to its box instead of a 980px minimum that hid the Actions
+           column off to the right. A container query, not a viewport one, so it
+           also works at laptop widths with the sidebar open. */
+        .exam-table-responsive {
+            container: exam-list / inline-size;
+        }
+
+        @container exam-list (max-width: 999px) {
+            .exam-table {
+                min-width: 0;
+                table-layout: auto;
             }
 
-            .exam-actions {
+            /* A global table rule gives every cell 16px + 24px side padding */
+            .exam-table th,
+            .exam-table td {
+                padding-left: 0.5rem !important;
+                padding-right: 0.5rem !important;
+            }
+
+            .exam-table th:first-child,
+            .exam-table td:first-child {
+                display: none;
+            }
+
+            .exam-table .exam-name-cell {
+                width: auto;
+                white-space: normal;
+                min-width: 120px;
+            }
+
+            .exam-table .exam-date-cell {
+                white-space: normal;
+                min-width: 96px;
+            }
+
+            .exam-table .exam-session-cell {
+                width: auto;
+            }
+
+            .exam-table .badge {
+                white-space: nowrap;
+            }
+
+            .exam-table thead th:last-child {
+                width: auto;
+            }
+
+            .exam-table .exam-actions {
                 gap: 0.25rem;
+            }
+
+            .exam-table td.exam-actions-cell,
+            .exam-table thead th:last-child {
+                padding-left: 0.5rem !important;
+                padding-right: 0.75rem !important;
+            }
+
+            .exam-table .exam-actions .exam-action-btn {
+                width: 32px;
+                min-width: 32px;
+                height: 32px;
+                min-height: 32px;
+            }
+        }
+
+        /* Narrow boxes: Year is already in the Date column ("01 Oct – 31 Oct 2026") */
+        @container exam-list (max-width: 819px) {
+            .exam-table th:nth-child(5),
+            .exam-table td.exam-year-cell {
+                display: none !important;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1099.98px) {
+            .exams-mobile-filters > div {
+                flex: 1 1 130px;
+                min-width: 0 !important;
+            }
+
+            .exams-mobile-filters > div:nth-child(n+4) {
+                flex: 0 0 auto;
+            }
+        }
+
+        /* Phone: one card per exam (shared .ds-table--stack layout) instead of a
+           980px table that scrolled sideways and hid the exam name. */
+        @media (max-width: 767.98px) {
+            .exam-table-responsive {
+                overflow: visible;
+            }
+
+            .exam-table {
+                min-width: 0;
+                table-layout: auto;
+            }
+
+            /* Same 12px page gutter as other pages, one 12px gutter inside the card */
+            .exams-page {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .content-wrapper .exams-page .card .card-body.exams-list-body {
+                padding: 0 !important;
+            }
+
+            .exams-page .exam-table.ds-table--stack tr {
+                padding: 0.75rem;
+            }
+
+            .exams-page .exam-table.ds-table--stack td {
+                padding: 2px 0 !important;
+                font-size: 0.875rem;
+            }
+
+            .exams-page .exam-table.ds-table--stack td[data-label] {
+                min-height: 26px;
+            }
+
+            .exams-page .exam-table.ds-table--stack td.ds-stack-title {
+                padding-bottom: 4px !important;
+            }
+
+            .exam-table.ds-table--stack .exam-name-cell {
+                width: auto;
+                white-space: normal;
+                overflow: visible;
+            }
+
+            .exam-table.ds-table--stack .exam-session-cell {
+                width: auto;
+            }
+
+            .exam-table.ds-table--stack td.ds-stack-actions {
+                margin-top: 0.5rem;
+            }
+
+            .exam-table.ds-table--stack .exam-actions {
+                justify-content: flex-start !important;
+                flex-wrap: wrap !important;
+                gap: 0.5rem;
+            }
+
+            .exam-table.ds-table--stack .exam-actions .exam-action-btn {
+                width: 40px;
+                min-width: 40px;
+                height: 40px;
+                min-height: 40px;
             }
         }
 
         @media (max-width: 575px) {
             .exams-mobile-header {
                 display: grid !important;
-                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                grid-template-columns: minmax(0, 1fr) auto;
                 gap: 8px;
                 padding: 10px 12px;
             }
@@ -116,30 +271,21 @@
                 min-width: 0 !important;
             }
 
-            .exams-mobile-filters > div:nth-child(1) {
-                grid-column: 1;
-                grid-row: 1;
-            }
-
-            .exams-mobile-filters > div:nth-child(2) {
-                grid-column: 1;
-                grid-row: 2;
-            }
-
+            /* Status | Type, then Session full width, then Filter | Reset */
             .exams-mobile-filters > div:nth-child(3) {
-                grid-column: 2;
-                grid-row: 2;
-            }
-
-            .exams-mobile-filters > div:nth-child(4) {
-                grid-column: 1;
-                grid-row: 3;
+                grid-column: 1 / -1;
             }
 
             .exams-mobile-filters select,
             .exams-mobile-filters .btn {
                 width: 100%;
                 min-height: 40px;
+            }
+
+            .exams-mobile-filters .btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
             }
         }
 
@@ -326,15 +472,15 @@
 
                     {{-- Filter Button --}}
                     <div>
-                        <button class="btn btn-sm btn-secondary shadow-sm px-3">
-                            Filter
+                        <button type="submit" class="btn btn-sm btn-primary px-3">
+                            <i class="fas fa-filter mr-1" aria-hidden="true"></i>Filter
                         </button>
                     </div>
 
                     {{-- Reset Button --}}
                     <div>
-                        <a href="{{ route('exams.index') }}" class="btn btn-sm btn-light border shadow-sm px-3">
-                            Reset
+                        <a href="{{ route('exams.index') }}" class="btn btn-sm btn-outline-secondary px-3">
+                            <i class="fas fa-undo mr-1" aria-hidden="true"></i>Reset
                         </a>
                     </div>
 
@@ -344,9 +490,9 @@
         </div>
 
         <div class="card">
-            <div class="card-body p-0">
+            <div class="card-body p-0 exams-list-body">
                 <div class="exam-table-responsive">
-                    <table class="table table-hover table-sm mb-0 exam-table">
+                    <table class="table table-hover table-sm mb-0 exam-table ds-table--stack">
                         <thead class="thead-light">
                             <tr>
                                 <th>#</th>
@@ -362,16 +508,16 @@
                         <tbody>
                             @forelse($exams as $exam)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td class="exam-name-cell"><strong>{{ $exam->name }}</strong></td>
-                                    <td class="exam-type-cell">
+                                    <td class="ds-hide-sm">{{ $loop->iteration }}</td>
+                                    <td class="exam-name-cell ds-stack-title"><strong>{{ $exam->name }}</strong></td>
+                                    <td class="exam-type-cell" data-label="{{ __('Type') }}">
                                         <span class="badge badge-{{ $exam->type === 'term' ? 'danger' : 'info' }}">
                                             {{ $exam->type_label }}
                                         </span>
                                     </td>
-                                    <td class="exam-session-cell">{{ $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? '-') }}</td>
-                                    <td class="exam-year-cell">{{ $exam->year }}</td>
-                                    <td class="exam-date-cell">
+                                    <td class="exam-session-cell" data-label="{{ __('Session') }}">{{ $exam->academicSession->name_en ?? ($exam->academicSession->name_bn ?? '-') }}</td>
+                                    <td class="exam-year-cell" data-label="{{ __('Year') }}">{{ $exam->year }}</td>
+                                    <td class="exam-date-cell" data-label="{{ __('Date') }}">
                                         @if ($exam->start_date)
                                             {{ $exam->start_date->format('d M') }}
                                             @if ($exam->end_date)
@@ -381,57 +527,65 @@
                                             <span class="text-muted">—</span>
                                         @endif
                                     </td>
-                                    <td class="exam-status-cell">
+                                    <td class="exam-status-cell" data-label="{{ __('Status') }}">
                                         <span class="badge badge-{{ $exam->status === 'published' ? 'success' : 'secondary' }}">
                                             {{ ucfirst($exam->status) }}
                                         </span>
                                     </td>
-                                    <td class="exam-actions-cell">
+                                    <td class="exam-actions-cell ds-stack-actions">
                                         <div class="exam-actions d-flex justify-content-center align-items-center flex-nowrap">
                                             <a href="{{ route('exams.show', $exam) }}"
-                                                class="btn btn-xs btn-info exam-action-btn" title="View" aria-label="View">
+                                                class="btn btn-xs btn-outline-secondary exam-action-btn" title="View" aria-label="View">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             @if (!$exam->isArchived())
                                                 <a href="{{ route('exams.marks-entry', $exam) }}"
-                                                    class="btn btn-xs btn-success exam-action-btn" title="Enter Marks"
+                                                    class="btn btn-xs btn-outline-secondary exam-action-btn" title="Enter Marks"
                                                     aria-label="Enter Marks">
                                                     <i class="fas fa-keyboard"></i>
                                                 </a>
                                             @endif
                                             @if ($exam->type === 'term')
                                                 <a href="{{ route('exams.terminal-result', $exam) }}"
-                                                    class="btn btn-xs btn-warning exam-action-btn" title="Terminal Result"
+                                                    class="btn btn-xs btn-outline-secondary exam-action-btn" title="Terminal Result"
                                                     aria-label="Terminal Result">
                                                     <i class="fas fa-trophy"></i>
                                                 </a>
                                             @else
                                                 <a href="{{ route('exams.preview', $exam) }}"
-                                                    class="btn btn-xs btn-info exam-action-btn" title="Preview"
+                                                    class="btn btn-xs btn-outline-secondary exam-action-btn" title="Preview"
                                                     aria-label="Preview">
                                                     <i class="fas fa-chart-bar"></i>
                                                 </a>
                                             @endif
                                             @if (!$exam->isArchived())
                                             <a href="{{ route('exams.edit', $exam) }}"
-                                                class="btn btn-xs btn-secondary exam-action-btn" title="Edit"
+                                                class="btn btn-xs btn-outline-secondary exam-action-btn" title="Edit"
                                                 aria-label="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             @endif
                                             @if ($exam->isArchived())
-                                                <button class="btn btn-xs btn-success exam-action-btn"
+                                                <button type="submit" class="btn btn-xs btn-outline-secondary exam-action-btn"
                                                     title="Restore" aria-label="Restore"
-                                                    onclick="if(confirm('Restore this exam as a draft? Its marks will be preserved.')){this.closest('form').requestSubmit()}"
+                                                    data-confirm="{{ __('Restore “:name” as a draft?', ['name' => $exam->name]) }}"
+                                                    data-confirm-text="{{ __('Its marks will be preserved.') }}"
+                                                    data-confirm-action="{{ __('Restore exam') }}"
+                                                    data-confirm-cancel="{{ __('Cancel') }}"
+                                                    data-confirm-tone="primary"
                                                     form="restore-exam-{{ $exam->id }}">
                                                     <i class="fas fa-undo"></i>
                                                 </button>
                                             @else
                                                 @php($requiresArchive = $exam->status === 'published' || $exam->marks_count > 0)
-                                                <button class="btn btn-xs {{ $requiresArchive ? 'btn-warning' : 'btn-danger' }} exam-action-btn"
+                                                <button type="submit" class="btn btn-xs {{ $requiresArchive ? 'btn-outline-secondary' : 'btn-outline-danger' }} exam-action-btn"
                                                     title="{{ $requiresArchive ? 'Archive' : 'Delete' }}"
                                                     aria-label="{{ $requiresArchive ? 'Archive' : 'Delete' }}"
-                                                    onclick="if(confirm('{{ $requiresArchive ? 'Archive this exam? Student marks and historical records will be preserved.' : 'Delete this draft exam? This cannot be undone.' }}')){this.closest('form').requestSubmit()}"
+                                                    data-confirm="{{ $requiresArchive ? __('Archive “:name”?', ['name' => $exam->name]) : __('Delete draft exam “:name”?', ['name' => $exam->name]) }}"
+                                                    data-confirm-text="{{ $requiresArchive ? __('Student marks and historical records will be preserved.') : __('This cannot be undone.') }}"
+                                                    data-confirm-action="{{ $requiresArchive ? __('Archive exam') : __('Delete exam') }}"
+                                                    data-confirm-cancel="{{ __('Keep exam') }}"
+                                                    @if ($requiresArchive) data-confirm-tone="primary" @endif
                                                     form="delete-exam-{{ $exam->id }}">
                                                     <i class="fas fa-{{ $requiresArchive ? 'archive' : 'trash' }}"></i>
                                                 </button>
