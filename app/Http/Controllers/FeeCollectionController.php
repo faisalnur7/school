@@ -651,6 +651,7 @@ class FeeCollectionController extends Controller
             'inventory_dues.*.paid_amount'            => 'nullable|numeric|min:0',
             'student_id'     => 'nullable|exists:students,id',
             'payment_amount' => 'nullable|numeric|min:0',
+            'discount_amount' => 'nullable|numeric|min:0',
             'payment_date'   => 'required|date',
             'payment_method' => 'nullable|string|in:Cash,Bank Transfer,Cheque,Mobile Banking,Other,cash,bank,mobile_wallet',
             'account_type'   => 'nullable|in:App\\Models\\HandCash,App\\Models\\BankAccount,App\\Models\\MobileBankingAccount',
@@ -903,7 +904,9 @@ class FeeCollectionController extends Controller
             }
 
             $totalAfterScholarship = $grossAmount - $totalScholarshipDiscount;
-            $cartDiscount          = (float)($request->discount_amount ?? 0);
+            // The cart discount only applies to fees, so it can never exceed what is still owed on
+            // them. Without fees (an inventory-only cart) there is nothing to discount.
+            $cartDiscount          = round(min(max(0, (float) ($request->discount_amount ?? 0)), max(0, $totalAfterScholarship)), 2);
             $feePaymentDefault = max(0, $totalAfterScholarship - $cartDiscount);
             $finalAmount       = $feePaymentDefault + $inventoryPaidTotal + $inventoryDuePaidTotal;
 
