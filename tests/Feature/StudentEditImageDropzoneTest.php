@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,7 +18,9 @@ class StudentEditImageDropzoneTest extends TestCase
             'image' => 'uploads/students/existing.jpg',
         ]);
 
-        $response = $this->withoutMiddleware()->get(route('students.edit', $student->id));
+        $user = $this->grantPermissions(User::factory()->create(), 'edit_students');
+
+        $response = $this->actingAs($user)->get(route('students.edit', $student->id));
 
         $response->assertOk();
         $response->assertSee('studentImageDropzone');

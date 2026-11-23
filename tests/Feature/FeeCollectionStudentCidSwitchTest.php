@@ -19,7 +19,7 @@ class FeeCollectionStudentCidSwitchTest extends TestCase
 
     public function test_authenticated_user_can_switch_student_by_cid(): void
     {
-        $user = User::factory()->create();
+        $user = $this->grantPermissions(User::factory()->create(), 'view_fees');
 
         $s1 = Student::create([
             'full_name_en' => 'Alice',
@@ -40,13 +40,13 @@ class FeeCollectionStudentCidSwitchTest extends TestCase
                 'success' => true,
                 'student_id' => $s2->id,
                 'student_name' => 'Bob',
-                'redirect_url' => route('fees.collect_payment', $s2->id),
+                'redirect_url' => route('fees.collect_payment', ['student_id' => $s2->id]),
             ]);
     }
 
     public function test_empty_cid_returns_validation_message(): void
     {
-        $user = User::factory()->create();
+        $user = $this->grantPermissions(User::factory()->create(), 'view_fees');
 
         $this->actingAs($user)
             ->postJson('/fees/switch-student', ['student_cid' => ''])
@@ -59,7 +59,7 @@ class FeeCollectionStudentCidSwitchTest extends TestCase
 
     public function test_non_existent_cid_returns_not_found_message(): void
     {
-        $user = User::factory()->create();
+        $user = $this->grantPermissions(User::factory()->create(), 'view_fees');
 
         $this->actingAs($user)
             ->postJson('/fees/switch-student', ['student_cid' => 'STU-NOT-EXISTS'])
