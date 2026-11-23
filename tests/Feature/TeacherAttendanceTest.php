@@ -33,7 +33,7 @@ class TeacherAttendanceTest extends TestCase
 
     public function test_teacher_can_create_attendance(): void
     {
-        $teacher = User::factory()->create();
+        $teacher = $this->grantPermissions(User::factory()->create(), 'view_attendance');
 
         $session = AcademicSession::create(['name_bn' => 'S', 'name_en' => 'S', 'status' => 1]);
         $class = SchoolClass::create(['name_bn' => 'C', 'name_en' => 'C', 'status' => 1]);
@@ -181,7 +181,7 @@ class TeacherAttendanceTest extends TestCase
 
     public function test_unique_per_date_enforced(): void
     {
-        $teacher = User::factory()->create();
+        $teacher = $this->grantPermissions(User::factory()->create(), 'view_attendance');
 
         $session = AcademicSession::create(['name_bn' => 'S', 'name_en' => 'S', 'status' => 1]);
         $class = SchoolClass::create(['name_bn' => 'C', 'name_en' => 'C', 'status' => 1]);
@@ -226,8 +226,8 @@ class TeacherAttendanceTest extends TestCase
 
     public function test_unauthorized_teacher_forbidden(): void
     {
-        $teacher = User::factory()->create();
-        $otherTeacher = User::factory()->create();
+        $teacher = $this->grantPermissions(User::factory()->create(), 'view_attendance');
+        $otherTeacher = $this->grantPermissions(User::factory()->create(), 'view_attendance');
 
         $session = AcademicSession::create(['name_bn' => 'S', 'name_en' => 'S', 'status' => 1]);
         $class = SchoolClass::create(['name_bn' => 'C', 'name_en' => 'C', 'status' => 1]);
@@ -267,7 +267,7 @@ class TeacherAttendanceTest extends TestCase
 
     public function test_attendance_cannot_be_taken_on_weekends(): void
     {
-        $teacher = User::factory()->create();
+        $teacher = $this->grantPermissions(User::factory()->create(), 'view_attendance');
 
         $session = AcademicSession::create(['name_bn' => 'S', 'name_en' => 'S', 'status' => 1]);
         $class = SchoolClass::create(['name_bn' => 'C', 'name_en' => 'C', 'status' => 1]);
@@ -320,7 +320,7 @@ class TeacherAttendanceTest extends TestCase
 
     public function test_attendance_cannot_be_taken_on_holidays(): void
     {
-        $teacher = User::factory()->create();
+        $teacher = $this->grantPermissions(User::factory()->create(), 'view_attendance');
 
         $session = AcademicSession::create(['name_bn' => 'S', 'name_en' => 'S', 'status' => 1]);
         $class = SchoolClass::create(['name_bn' => 'C', 'name_en' => 'C', 'status' => 1]);

@@ -14,8 +14,8 @@ class CommunicationsMessageDeleteTest extends TestCase
 
     public function test_chat_message_owner_can_delete_message_via_ajax(): void
     {
-        $sender = User::factory()->create();
-        $recipient = User::factory()->create();
+        $sender = $this->grantPermissions(User::factory()->create(), 'view_communications');
+        $recipient = $this->grantPermissions(User::factory()->create(), 'view_communications');
 
         $conversation = ChatConversation::create([
             'name' => null,
@@ -58,8 +58,8 @@ class CommunicationsMessageDeleteTest extends TestCase
 
     public function test_chat_message_cannot_be_deleted_by_other_participant(): void
     {
-        $sender = User::factory()->create();
-        $recipient = User::factory()->create();
+        $sender = $this->grantPermissions(User::factory()->create(), 'view_communications');
+        $recipient = $this->grantPermissions(User::factory()->create(), 'view_communications');
 
         $conversation = ChatConversation::create([
             'name' => null,
