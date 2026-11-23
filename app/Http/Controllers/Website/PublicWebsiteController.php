@@ -131,7 +131,7 @@ class PublicWebsiteController extends Controller
 
     public function resultCheck()
     {
-        $sessions = AcademicSession::query()->where('is_active', true)->orderBy('name')->get();
+        $sessions = AcademicSession::query()->where('status', 1)->orderByDesc('name_en')->get();
         $examTypes = [
             Exam::TYPE_TERMINAL => 'Terminal Exam',
             Exam::TYPE_TUTORIAL => 'Tutorial Exam',

@@ -29,7 +29,7 @@
                             <select class="form-select" id="session_id" name="session_id" required>
                                 <option value="">-- Select Session --</option>
                                 @foreach($sessions as $session)
-                                    <option value="{{ $session->id }}">{{ $session->name }}</option>
+                                    <option value="{{ $session->id }}">{{ $session->name_en }}</option>
                                 @endforeach
                             </select>
                         </div>

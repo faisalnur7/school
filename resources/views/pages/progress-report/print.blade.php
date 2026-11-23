@@ -748,6 +748,7 @@
             $subjectRows = $data['subjectRows'];
             $summary = $data['summary'];
             $rank = $data['rank'] ?? null;
+            $hasMarks = $data['has_marks'] ?? true;
             $attendancePresent = $data['attendancePresent'];
             $attendanceTotal = $data['attendanceTotal'];
         @endphp
@@ -911,7 +912,9 @@
                     </table>
                 </div>
 
-                @if ($templateSettings->show_summary)
+                @if (! $hasMarks)
+                    <div class="progress-no-marks" style="margin: 1rem 0; padding: .9rem 1.1rem; border: 1px dashed #94a3b8; border-radius: 8px; background: #f8fafc; color: #334155; font-weight: 600; text-align: center;">No marks have been entered for this exam yet.</div>
+                @elseif ($templateSettings->show_summary)
                     <div class="report-card__section">
                         <table class="report-card__summary-table">
                             <thead>
@@ -937,7 +940,7 @@
                     </div>
                 @endif
 
-                @if ($templateSettings->show_remarks || !is_null($rank))
+                @if ($hasMarks && ($templateSettings->show_remarks || !is_null($rank)))
                     <table class="report-card__remarks-row">
                         <tr>
                         <td class="report-card__remarks-col">
@@ -983,7 +986,9 @@
                         <ul>
                             <li>{{ $student->full_name_en }} was present {{ $attendancePresent }} days out of
                                 {{ $attendanceTotal }} days.</li>
-                            @if ($summary['gpa'] >= 4.0)
+                            @if (! $hasMarks)
+                                <li>No marks have been entered for this exam yet.</li>
+                            @elseif ($summary['gpa'] >= 4.0)
                                 <li>{{ $templateSettings->comments_excellent_text }}</li>
                             @elseif($summary['gpa'] >= 3.0)
                                 <li>{{ $templateSettings->comments_good_text }}</li>

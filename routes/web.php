@@ -705,9 +705,6 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::middleware('auth')->prefix('fees')->group(function () {
-        Route::get('/', [FeeController::class, 'index'])->name('fees.index');
-        Route::get('/create', [FeeController::class, 'create'])->name('fees.create');
-        Route::post('/store', [FeeController::class, 'store'])->name('fees.store');
         Route::get('/{id}/edit', [FeeController::class, 'edit'])->name('fees.edit');
         Route::post('/{id}/update', [FeeController::class, 'update'])->name('fees.update');
         Route::post('/{id}/toggle-status', [FeeController::class, 'toggleStatus'])->name('fees.toggle-status');
@@ -1370,9 +1367,9 @@ Route::middleware('permission:view_results')->prefix('result/progress-report')->
     Route::middleware('permission:edit_permissions')->group(function () {
         Route::get('/permissions/create', [PermissionController::class, 'create'])->name('permissions.create');
         Route::post('/permissions/store', [PermissionController::class, 'store'])->name('permissions.store');
-        Route::get('/permissions/{id}/edit', [PermissionController::class, 'edit'])->name('permissions.edit');
-        Route::post('/permissions/{id}/update', [PermissionController::class, 'update'])->name('permissions.update');
-        Route::delete('/permissions/{id}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
+        Route::get('/permissions/{permission}/edit', [PermissionController::class, 'edit'])->name('permissions.edit');
+        Route::post('/permissions/{permission}/update', [PermissionController::class, 'update'])->name('permissions.update');
+        Route::delete('/permissions/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
         Route::get('/permission-categories/create', [PermissionCategoryController::class, 'create'])->name('permission-categories.create');
         Route::post('/permission-categories/store', [PermissionCategoryController::class, 'store'])->name('permission-categories.store');
         Route::get('/permission-categories/{permissionCategory}/edit', [PermissionCategoryController::class, 'edit'])->name('permission-categories.edit');
