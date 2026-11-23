@@ -112,12 +112,12 @@ class ResultReportExcludesCheckedOutStudentsTest extends TestCase
 
         $response = $this->withoutMiddleware()
             ->actingAs($user)
-            ->post(route('result.progress-report.show'), [
+            ->get(route('result.progress-report.show', [
                 'session_id' => $session->id,
                 'class_id'   => $class->id,
                 'section_id' => $section->id,
                 'exam_id'    => $terminalExam->id,
-            ]);
+            ]));
 
         $response->assertOk();
         $response->assertSee($activeStudent->full_name_en);

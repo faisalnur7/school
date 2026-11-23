@@ -61,7 +61,7 @@ class StudentMobileConfigurationApiTest extends TestCase
             ->assertJsonPath('features.0.key', 'dashboard')
             ->assertJsonPath('features.0.route', '/dashboard')
             ->assertJsonPath('features.0.is_enabled', true)
-            ->assertJsonCount(10, 'features');
+            ->assertJsonCount(11, 'features');
     }
 
     public function test_inactive_app_blocks_feature_data_but_keeps_configuration_and_me_available(): void

@@ -22,7 +22,7 @@ class MonthlyAttendanceReportTest extends TestCase
 
     private function scaffold(): array
     {
-        $teacher = User::factory()->create();
+        $teacher = $this->grantPermissions(User::factory()->create(), 'view_attendance');
         $session = AcademicSession::create(['name_bn' => 'S', 'name_en' => 'S', 'status' => 1]);
         $class   = SchoolClass::create(['name_bn' => 'C', 'name_en' => 'C', 'status' => 1]);
         $section = Section::create(['school_class_id' => $class->id, 'name_bn' => 'A', 'name_en' => 'A']);
@@ -81,7 +81,7 @@ class MonthlyAttendanceReportTest extends TestCase
     public function test_unauthorized_teacher_gets_403_on_report(): void
     {
         ['session' => $session, 'class' => $class, 'section' => $section] = $this->scaffold();
-        $other = User::factory()->create();
+        $other = $this->grantPermissions(User::factory()->create(), 'view_attendance');
 
         $qs = http_build_query([
             'session_id' => $session->id,
@@ -156,7 +156,7 @@ class MonthlyAttendanceReportTest extends TestCase
 
     public function test_admin_can_access_settings(): void
     {
-        $user = User::factory()->create();
+        $user = $this->grantPermissions(User::factory()->create(), 'view_attendance');
 
         WeekendSetting::create(['weekend_days' => [5, 6]]);
 
@@ -167,7 +167,7 @@ class MonthlyAttendanceReportTest extends TestCase
 
     public function test_holiday_crud_forbidden_for_non_admin(): void
     {
-        $user = User::factory()->create();
+        $user = $this->grantPermissions(User::factory()->create(), 'view_attendance');
 
         $this->actingAs($user)
             ->post('/attendance/settings/holidays', [

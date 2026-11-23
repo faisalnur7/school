@@ -14,8 +14,8 @@ class CommunicationsPollingTest extends TestCase
 
     public function test_chat_show_returns_only_messages_after_the_given_id_for_polling(): void
     {
-        $viewer = User::factory()->create();
-        $sender = User::factory()->create();
+        $viewer = $this->grantPermissions(User::factory()->create(), 'view_communications');
+        $sender = $this->grantPermissions(User::factory()->create(), 'view_communications');
 
         $conversation = ChatConversation::create([
             'name' => null,

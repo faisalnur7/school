@@ -36,6 +36,7 @@ class MobileAppConfigurationTest extends TestCase
                 'results',
                 'attendance',
                 'fees',
+                'payment_requests',
                 'notices',
                 'homework',
                 'notifications',
@@ -66,7 +67,7 @@ class MobileAppConfigurationTest extends TestCase
         $this->assertSame('payments_rounded', $feature->icon);
         $this->assertSame(90, $feature->sort_order);
         $this->assertFalse($feature->is_enabled);
-        $this->assertCount(10, MobileAppFeature::all());
+        $this->assertCount(11, MobileAppFeature::all());
     }
 
     public function test_configuration_service_keeps_dashboard_enabled_and_updates_global_settings_atomically(): void
