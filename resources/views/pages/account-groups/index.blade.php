@@ -55,7 +55,7 @@
                             {{-- Edit Modal --}}
                             <div class="modal fade" id="editGroup{{ $g->id }}">
                                 <div class="modal-dialog"><div class="modal-content">
-                                    <div class="modal-header"><h5 class="modal-title">{{ __('Edit Group') }}</h5></div>
+                                    <div class="modal-header"><h5 class="modal-title">{{ __('Edit Group') }}</h5><button type="button" class="close" data-dismiss="modal" aria-label="{{ __('Close') }}"><span aria-hidden="true">&times;</span></button></div>
                                     <form method="POST" action="{{ route('account-groups.update', $g->id) }}">
                                         @csrf @method('PUT')
                                         <div class="modal-body">

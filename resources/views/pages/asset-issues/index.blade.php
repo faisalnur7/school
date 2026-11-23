@@ -74,7 +74,7 @@
                         @if($issue->status === 'issued')
                         <div class="modal fade" id="returnModal{{ $issue->id }}">
                             <div class="modal-dialog"><div class="modal-content">
-                                <div class="modal-header"><h5 class="modal-title">Record Return — {{ $issue->asset->name }}</h5></div>
+                                <div class="modal-header"><h5 class="modal-title">Record Return — {{ $issue->asset->name }}</h5><button type="button" class="close" data-dismiss="modal" aria-label="{{ __('Close') }}"><span aria-hidden="true">&times;</span></button></div>
                                 <form method="POST" action="{{ route('asset-issues.return', $issue->id) }}">
                                     @csrf @method('PATCH')
                                     <div class="modal-body">

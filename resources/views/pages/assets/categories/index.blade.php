@@ -11,7 +11,7 @@
                 </div>
                 <div class="card-body">
                     @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+                        <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="close" data-dismiss="alert" aria-label="{{ __('Close') }}"><span aria-hidden="true">&times;</span></button></div>
                     @endif
 
                     <form action="{{ route('asset-categories.store') }}" method="POST">
@@ -87,7 +87,7 @@
             @csrf @method('PUT')
             <div class="modal-header">
                 <h5 class="modal-title">Edit Asset Category</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('Close') }}"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
@@ -100,7 +100,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <button type="submit" class="btn btn-primary">Update</button>
             </div>
         </form>
@@ -115,7 +115,7 @@ function openEdit(id, name, description) {
     document.getElementById('editName').value = name;
     document.getElementById('editDescription').value = description;
     document.getElementById('editForm').action = '/asset-categories/' + id;
-    new bootstrap.Modal(document.getElementById('editModal')).show();
+    $('#editModal').modal('show');
 }
 </script>
 @endsection

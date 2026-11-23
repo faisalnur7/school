@@ -127,9 +127,9 @@
 <div class="modal fade" id="txnModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header card-header" id="txnModalHeader">
+            <div class="modal-header" id="txnModalHeader">
                 <h5 class="modal-title" id="txnModalTitle">Add Transaction</h5>
-                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('Close') }}"><span aria-hidden="true">&times;</span></button>
             </div>
             <form method="POST" action="{{ route('shareholder-transactions.store') }}">
                 @csrf
@@ -240,6 +240,7 @@ function openTxnModal(shareholderId, shareholderName, type) {
     const isCapital = type === 'capital';
     $('#txnModalTitle').text((isCapital ? '+ Add Capital' : '− Withdraw') + ' — ' + shareholderName);
     $('#txnModalHeader').css('background', isCapital ? '#16a34a' : '#e11d48').addClass('text-white');
+    $('#txnModalHeader .close').addClass('text-white');
     $('#modalSubmitBtn').removeClass('btn-success btn-danger').addClass(isCapital ? 'btn-success' : 'btn-danger')
                         .text(isCapital ? 'Add Capital' : 'Withdraw');
     $('#modalDescription').attr('placeholder', isCapital ? 'e.g. Initial investment, Q1 contribution...' : 'e.g. Monthly drawing, Personal withdrawal...');
