@@ -885,14 +885,19 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('padding-right: 0 !important;', $source);
     }
 
-    public function test_assigned_fees_mobile_columns_use_content_sized_layout(): void
+    public function test_assigned_fees_mobile_cards_fit_the_screen_width(): void
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
 
-        $this->assertStringContainsString('table-layout: auto;', $source);
-        $this->assertStringContainsString('width: max-content;', $source);
-        $this->assertStringContainsString('min-width: 100%;', $source);
-        $this->assertStringContainsString('width: auto !important;', $source);
+        // Cards shrink with the screen instead of a max-content table that scrolled sideways.
+        $this->assertMatchesRegularExpression(
+            '/\.fee-collect-page \.assigned-fees-table tbody \{\s*display: grid;\s*grid-template-columns: minmax\(0, 1fr\);/',
+            $source
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.fee-collect-page \.assigned-fees-table tbody td \{[^}]*min-width: 0;/s',
+            $source
+        );
     }
 
     public function test_assigned_fees_table_is_responsive_only_on_mobile(): void
@@ -904,15 +909,29 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('overflow-x: auto;', $source);
     }
 
-    public function test_payment_history_table_is_content_sized_and_scrollable_on_mobile(): void
+    public function test_payment_history_fits_its_panel_as_a_table_or_cards(): void
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
 
-        $this->assertStringContainsString('payment-history-table-responsive', $source);
-        $this->assertStringContainsString('overflow-x: auto;', $source);
-        $this->assertStringContainsString('.payment-history-table {', $source);
-        $this->assertStringContainsString('table-layout: auto;', $source);
-        $this->assertStringContainsString('width: max-content;', $source);
+        // The old fixed column widths added up to 1272px and pushed Paid / Action out of the card.
+        $this->assertStringNotContainsString('payment-history-table-wrap > .payment-history-table td:nth-child(11)', $source);
+        $this->assertStringContainsString('<table class="table table-hover align-middle mb-0 payment-history-table" data-no-stack>', $source);
+        $this->assertMatchesRegularExpression(
+            '/\.payment-history-table-wrap \{[^}]*overflow-x: auto;[^}]*container-type: inline-size;[^}]*container-name: payment-history;/s',
+            $source
+        );
+        $this->assertStringContainsString('@container payment-history (max-width: 919.98px) {', $source);
+        $this->assertMatchesRegularExpression(
+            '/\.payment-history-table tbody tr \{[^}]*grid-template-areas:\s*"receipt actions"\s*"date date"\s*"items items"\s*"gross paid"\s*"deductions deductions"\s*"collector collector";/s',
+            $source
+        );
+        $this->assertStringContainsString('<th class="mono px-3 py-3 text-muted">DEDUCTIONS</th>', $source);
+        // Print first; Delete is outlined and last.
+        $this->assertLessThan(
+            strpos($source, 'title="Delete payment"'),
+            strpos($source, 'title="Print receipt"')
+        );
+        $this->assertStringContainsString('btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center payment-history-action-btn', $source);
     }
 
     public function test_payment_history_header_does_not_render_totals_summary(): void

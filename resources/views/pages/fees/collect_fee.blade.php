@@ -1229,72 +1229,79 @@
             white-space: nowrap;
         }
 
-        .fee-collect-page .payment-history-table thead th {
-            white-space: nowrap;
-            vertical-align: middle;
-        }
-
-        .fee-collect-page .payment-history-table tbody td {
-            vertical-align: middle;
-        }
-
+        /* Payment history. Desktop: 8 content-sized columns (the old fixed widths added up
+           to 1272px and pushed Paid, Collected by and Action out of the card). */
         .fee-collect-page .payment-history-table-wrap {
-            overflow: visible;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            container-type: inline-size;
+            container-name: payment-history;
         }
 
         .fee-collect-page .payment-history-table-wrap > .payment-history-table {
             width: 100%;
             min-width: 0 !important;
-            table-layout: fixed;
+            table-layout: auto;
         }
 
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table th,
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table td {
+        .fee-collect-page .payment-history-table thead th {
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .fee-collect-page .payment-history-table th,
+        .fee-collect-page .payment-history-table td {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+
+        /* Two-word headers wrap at the space, never mid-word */
+        .fee-collect-page .payment-history-table thead th:nth-child(7) {
             white-space: normal;
-            word-break: break-word;
+            word-break: normal;
+            min-width: 6rem;
         }
 
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table th:nth-child(1),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table td:nth-child(1) {
-            width: 48px;
+        .fee-collect-page .payment-history-table tbody td {
+            vertical-align: middle;
+            font-size: 13px;
         }
 
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table th:nth-child(2),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table td:nth-child(2) {
-            width: 132px;
+        .fee-collect-page .payment-history-table td.payment-history-receipt,
+        .fee-collect-page .payment-history-table td.payment-history-date,
+        .fee-collect-page .payment-history-table td.payment-history-gross,
+        .fee-collect-page .payment-history-table td.payment-history-paid,
+        .fee-collect-page .payment-history-table td.payment-history-actions {
+            white-space: nowrap;
         }
 
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table th:nth-child(3),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table td:nth-child(3) {
-            width: 108px;
+        .fee-collect-page .payment-history-table .payment-history-receipt-no {
+            font-size: 12px;
+            background: #f1f5f9;
+            padding: 3px 8px;
+            border-radius: 6px;
+            color: #4338ca;
+            white-space: nowrap;
         }
 
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table th:nth-child(4),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table td:nth-child(4) {
-            width: 200px;
+        .fee-collect-page .payment-history-amount {
+            font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+            font-weight: 700;
+            font-size: 14px;
+            font-variant-numeric: tabular-nums;
         }
 
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table th:nth-child(5),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table td:nth-child(5),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table th:nth-child(6),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table td:nth-child(6),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table th:nth-child(7),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table td:nth-child(7),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table th:nth-child(8),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table td:nth-child(8),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table th:nth-child(9),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table td:nth-child(9),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table th:nth-child(10),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table td:nth-child(10),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table th:nth-child(11),
-        .fee-collect-page .payment-history-table-wrap > .payment-history-table td:nth-child(11) {
-            width: 112px;
+        /* The panel header says "Amounts in BDT"; cards repeat the unit */
+        .fee-collect-page .payment-history-unit {
+            display: none;
+            margin-left: 0.2rem;
+            color: #64748b;
+            font-size: 11px;
         }
 
         .fee-collect-page .payment-history-table td.payment-history-items {
             white-space: normal !important;
-            min-width: 0;
-            max-width: none;
+            min-width: 140px;
         }
 
         .fee-collect-page .payment-history-tags {
@@ -1311,14 +1318,230 @@
             white-space: nowrap;
             line-height: 1.1;
             padding: 0.38rem 0.58rem;
+            font-size: 11px;
         }
 
-        .fee-collect-page .payment-history-table td.payment-history-actions {
-            min-width: 180px;
+        .fee-collect-page .payment-history-deduction {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .fee-collect-page .payment-history-deduction-label {
+            color: #64748b;
+        }
+
+        .fee-collect-page .payment-history-deduction-amount {
+            font-weight: 700;
+            color: #059669;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .fee-collect-page .payment-history-deduction-amount.is-discount {
+            color: #b45309;
+        }
+
+        .fee-collect-page .payment-history-action-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .fee-collect-page .payment-history-action-group form {
+            margin: 0;
         }
 
         .fee-collect-page .payment-history-table .payment-history-action-btn {
-            white-space: nowrap;
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border-radius: 8px;
+        }
+
+        /* Cards when the history panel is narrower than the table needs, whether
+           because of a phone, a tablet or the open sidebar. */
+        @container payment-history (max-width: 919.98px) {
+            .fee-collect-page .payment-history-table {
+                padding: 0.75rem;
+            }
+
+            .fee-collect-page .payment-history-unit {
+                display: inline;
+            }
+
+            .fee-collect-page .payment-history-table,
+            .fee-collect-page .payment-history-table tbody {
+                display: block;
+                width: 100%;
+            }
+
+            .fee-collect-page .payment-history-table thead {
+                display: none;
+            }
+
+            .fee-collect-page .payment-history-table tbody {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: 0.625rem;
+            }
+
+            .fee-collect-page .payment-history-table tbody tr {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                grid-template-areas:
+                    "receipt actions"
+                    "date date"
+                    "items items"
+                    "gross paid"
+                    "deductions deductions"
+                    "collector collector";
+                column-gap: 0.75rem;
+                row-gap: 0.5rem;
+                padding: 0.875rem 1rem;
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            }
+
+            .fee-collect-page .payment-history-table tbody tr:hover {
+                background: #fff !important;
+            }
+
+            .fee-collect-page .payment-history-table tbody td {
+                display: block;
+                min-width: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
+                background: transparent;
+                font-size: 0.875rem;
+                text-align: left !important;
+                white-space: normal;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-receipt {
+                grid-area: receipt;
+                align-self: center;
+            }
+
+            .fee-collect-page .payment-history-table .payment-history-receipt-no {
+                font-size: 0.8125rem;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-actions {
+                grid-area: actions;
+                justify-self: end;
+                align-self: center;
+            }
+
+            .fee-collect-page .payment-history-table .payment-history-action-btn {
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-date {
+                grid-area: date;
+                font-size: 0.8125rem;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-items {
+                grid-area: items;
+            }
+
+            .fee-collect-page .payment-history-tag {
+                font-size: 0.75rem;
+                white-space: normal;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-gross {
+                grid-area: gross;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-paid {
+                grid-area: paid;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-gross,
+            .fee-collect-page .payment-history-table td.payment-history-paid {
+                padding-top: 0.5rem !important;
+                border-top: 1px solid #eef2f7 !important;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-deductions {
+                grid-area: deductions;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-deductions.is-empty {
+                display: none;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-collector {
+                grid-area: collector;
+                font-size: 0.8125rem;
+            }
+
+            .fee-collect-page .payment-history-table td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                margin-bottom: 0.125rem;
+                color: #64748b;
+                font-size: 0.6875rem;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-collector::before {
+                display: inline;
+                margin-right: 0.35rem;
+            }
+
+            .fee-collect-page .payment-history-table td.payment-history-empty {
+                grid-column: 1 / -1;
+                text-align: center !important;
+            }
+
+            .fee-collect-page .payment-history-table tbody tr:has(> .payment-history-empty) {
+                display: block;
+            }
+
+            html[data-theme='dark'] .fee-collect-page .payment-history-table tbody tr,
+            html[data-theme='dark'] .fee-collect-page .payment-history-table tbody tr:hover {
+                background: #111827 !important;
+                border-color: rgba(148, 163, 184, 0.18);
+            }
+
+            html[data-theme='dark'] .fee-collect-page .payment-history-table td.payment-history-gross,
+            html[data-theme='dark'] .fee-collect-page .payment-history-table td.payment-history-paid {
+                border-top-color: rgba(148, 163, 184, 0.14) !important;
+            }
+        }
+
+        /* Wider panels: two cards per row */
+        @container payment-history (min-width: 600px) and (max-width: 919.98px) {
+            .fee-collect-page .payment-history-table tbody {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        /* The header's inline #f1f5f9 border drew a bright line in dark mode */
+        html[data-theme='dark'] .fee-collect-page #tabHistory .card-header {
+            border-color: rgba(148, 163, 184, 0.18) !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .payment-history-table .payment-history-receipt-no {
+            background: #1e293b;
+            color: #a5b4fc;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .payment-history-table .payment-history-amount[style*="#4338ca"] {
+            color: #a5b4fc !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .payment-history-table .payment-history-amount[style*="#64748b"] {
+            color: #cbd5e1 !important;
         }
 
         .fee-collect-page .mobile-collect-shell,
@@ -1827,46 +2050,6 @@
             .fee-collect-page .mobile-checkout-sheet .card-footer {
                 display: block !important;
                 max-height: none !important;
-            }
-        }
-
-        @media (max-width: 991.98px) {
-            .fee-collect-page .payment-history-table td.payment-history-items {
-                min-width: 260px;
-                max-width: 360px;
-            }
-
-            .fee-collect-page .payment-history-table td.payment-history-actions {
-                min-width: 150px;
-            }
-        }
-
-        @media (max-width: 575.98px) {
-            .fee-collect-page .payment-history-table-responsive {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .fee-collect-page .payment-history-table {
-                width: max-content;
-                min-width: 100%;
-                table-layout: auto;
-                font-size: 0.68rem;
-            }
-
-            .fee-collect-page .payment-history-table th,
-            .fee-collect-page .payment-history-table td {
-                padding: 0.45rem 0.5rem !important;
-                white-space: nowrap;
-            }
-
-            .fee-collect-page .payment-history-table td.payment-history-items {
-                white-space: normal;
-                min-width: 150px;
-            }
-
-            .fee-collect-page .payment-history-table td.payment-history-actions {
-                min-width: 72px;
             }
         }
 
@@ -4720,109 +4903,95 @@
                         <div class="d-flex align-items-center gap-2">
                             <span class="fs-5"><i class="fas fa-file-alt" aria-hidden="true"></i></span>
                             <span class="panel-eyebrow">Payment History</span>
+                            <span class="ml-auto ms-auto small text-muted payment-history-currency">Amounts in BDT</span>
                         </div>
                     </div>
                     <div class="card-body p-0">
                         <div class="payment-history-table-responsive payment-history-table-wrap">
-                            <table class="table table-hover align-middle mb-0 payment-history-table">
+                            <table class="table table-hover align-middle mb-0 payment-history-table" data-no-stack>
                                 <thead style="background:#f8fafc;font-size:11px;letter-spacing:.07em">
                                     <tr>
-                                        <th class="mono px-4 py-3 text-muted">#</th>
-                                        <th class="mono px-4 py-3 text-muted">RECEIPT NO</th>
-                                        <th class="mono px-4 py-3 text-muted">DATE</th>
-                                        <th class="mono px-4 py-3 text-muted">ITEMS</th>
-                                        <th class="mono px-4 py-3 text-muted">GROSS</th>
-                                        <th class="mono px-4 py-3 text-muted">SCHOLARSHIP</th>
-                                        <th class="mono px-4 py-3 text-muted">FREE STUDENTSHIP</th>
-                                        <th class="mono px-4 py-3 text-muted">DISCOUNT</th>
-                                        <th class="mono px-4 py-3 text-muted">PAID</th>
-                                        <th class="mono px-4 py-3 text-muted">COLLECTED BY</th>
-                                        <th class="mono px-4 py-3 text-muted text-center">ACTION</th>
+                                        <th class="mono px-3 py-3 text-muted">RECEIPT NO</th>
+                                        <th class="mono px-3 py-3 text-muted">DATE</th>
+                                        <th class="mono px-3 py-3 text-muted">ITEMS</th>
+                                        <th class="mono px-3 py-3 text-muted text-end">GROSS</th>
+                                        <th class="mono px-3 py-3 text-muted">DEDUCTIONS</th>
+                                        <th class="mono px-3 py-3 text-muted text-end">PAID</th>
+                                        <th class="mono px-3 py-3 text-muted">COLLECTED BY</th>
+                                        <th class="mono px-3 py-3 text-muted text-center">ACTION</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse ($payments as $payment)
+                                        @php
+                                            // Discount is stored in BDT even when it was entered as a percentage.
+                                            $paymentDeductions = array_filter([
+                                                'Scholarship' => (float) $payment->scholarship_received_amount,
+                                                'Free studentship' => (float) $payment->free_studentship_received_amount,
+                                                'Discount' => (float) $payment->discount_amount,
+                                            ], fn ($amount) => $amount > 0);
+                                        @endphp
                                         <tr>
-                                            <td class="px-4 py-3 text-muted mono" style="font-size:13px">
-                                                {{ $loop->iteration }}
+                                            <td class="px-3 py-3 payment-history-receipt">
+                                                <code class="payment-history-receipt-no">{{ $payment->receipt_no }}</code>
                                             </td>
-                                            <td class="px-4 py-3">
-                                                <code
-                                                    style="font-size:12px;background:#f1f5f9;padding:3px 8px;border-radius:6px;color:#4338ca">
-                                                    {{ $payment->receipt_no }}
-                                                </code>
-                                            </td>
-                                            <td class="px-4 py-3 mono text-muted" style="font-size:13px">
+                                            <td class="px-3 py-3 mono text-muted payment-history-date">
                                                 {{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}
                                             </td>
-                                            <td class="px-4 py-3 payment-history-items" style="font-size:13px">
+                                            <td class="px-3 py-3 payment-history-items">
                                                 <div class="payment-history-tags">
                                                     @foreach ($payment->items as $item)
                                                         <span class="badge rounded-pill payment-history-tag"
-                                                            style="font-size:10px;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0">
+                                                            style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0">
                                                             {{ $item->fee->feeSet->name ?? 'Fee' }}
                                                         </span>
                                                     @endforeach
                                                     @if ($payment->inventorySale?->items?->isNotEmpty())
                                                         @foreach ($payment->inventorySale->items as $saleItem)
                                                             <span class="badge rounded-pill payment-history-tag"
-                                                                style="font-size:10px;background:#ecfdf5;color:#059669;border:1px solid #a7f3d0">
+                                                                style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0">
                                                                 {{ $saleItem->inventoryItem->name ?? 'Inventory' }}
                                                             </span>
                                                         @endforeach
                                                     @endif
                                                 </div>
                                             </td>
-
-                                            <td class="px-4 py-3 payment-history-gross">
-                                                <span class="mono fw-bold" style="font-size:15px;color:#64748b">
-                                                    {{ number_format($payment->calculated_gross_amount ?: $payment->gross_amount ?: $payment->calculated_amount, 2) }}
-                                                </span>
-                                                <span class="text-muted mono" style="font-size:11px"> BDT</span>
+                                            <td class="px-3 py-3 text-end payment-history-gross" data-label="Gross">
+                                                <span class="payment-history-amount" style="color:#64748b">{{ number_format($payment->calculated_gross_amount ?: $payment->gross_amount ?: $payment->calculated_amount, 2) }}</span>
+                                                <span class="payment-history-unit">BDT</span>
                                             </td>
-                                            <td class="px-4 py-3 payment-history-scholarship">
-                                                @if ($payment->scholarship_received_amount > 0)
-                                                    <span class="mono fw-bold" style="font-size:13px;color:#059669">
-                                                        -{{ number_format($payment->scholarship_received_amount, 2) }}
-                                                    </span>
-                                                    <span class="text-muted mono" style="font-size:10px"> BDT</span>
-                                                @else
-                                                    <span class="text-muted mono" style="font-size:12px">—</span>
-                                                @endif
+                                            <td class="px-3 py-3 payment-history-deductions {{ $paymentDeductions ? '' : 'is-empty' }}" data-label="Deductions">
+                                                @forelse ($paymentDeductions as $deductionLabel => $deductionAmount)
+                                                    <div class="payment-history-deduction">
+                                                        <span class="payment-history-deduction-label">{{ $deductionLabel }}</span>
+                                                        <span class="payment-history-deduction-amount {{ $deductionLabel === 'Discount' ? 'is-discount' : '' }}">-{{ number_format($deductionAmount, 2) }}</span>
+                                                    </div>
+                                                @empty
+                                                    <span class="text-muted">—</span>
+                                                @endforelse
                                             </td>
-                                            <td class="px-4 py-3 payment-history-free-studentship">
-                                                @if ($payment->free_studentship_received_amount > 0)
-                                                    <span class="mono fw-bold" style="font-size:13px;color:#059669">
-                                                        -{{ number_format($payment->free_studentship_received_amount, 2) }}
-                                                    </span>
-                                                    <span class="text-muted mono" style="font-size:10px"> BDT</span>
-                                                @else
-                                                    <span class="text-muted mono" style="font-size:12px">—</span>
-                                                @endif
+                                            <td class="px-3 py-3 text-end payment-history-paid" data-label="Paid">
+                                                <span class="payment-history-amount" style="color:#4338ca">{{ number_format($payment->calculated_amount, 2) }}</span>
+                                                <span class="payment-history-unit">BDT</span>
                                             </td>
-                                            <td class="px-4 py-3 payment-history-discount">
-                                                @if ($payment->discount_amount > 0)
-                                                    <span class="mono fw-bold" style="font-size:13px;color:#b45309">
-                                                        -{{ number_format($payment->discount_amount, 2) }}
-                                                    </span>
-                                                    <span class="text-muted mono" style="font-size:10px">
-                                                        {{ $payment->discount_type === 'percent' ? '%' : 'BDT' }}
-                                                    </span>
-                                                @else
-                                                    <span class="text-muted mono" style="font-size:12px">—</span>
-                                                @endif
-                                            </td>
-                                            <td class="px-4 py-3 payment-history-paid">
-                                                <span class="mono fw-bold" style="font-size:15px;color:#4338ca">
-                                                    {{ number_format($payment->calculated_amount, 2) }}
-                                                </span>
-                                                <span class="text-muted mono" style="font-size:11px"> BDT</span>
-                                            </td>
-                                            <td class="px-4 py-3 text-muted payment-history-collector" style="font-size:13px">
+                                            <td class="px-3 py-3 text-muted payment-history-collector" data-label="Collected by">
                                                 {{ $payment->collector->name ?? '—' }}
                                             </td>
-                                            <td class="px-4 py-3 text-center payment-history-actions">
-                                                <div class="d-flex gap-1 justify-content-center align-items-center flex-wrap">
+                                            <td class="px-3 py-3 text-center payment-history-actions">
+                                                <div class="payment-history-action-group">
+                                                    <a href="{{ route('payments.receipt', $payment->id) }}" target="_blank"
+                                                        class="btn btn-sm btn-secondary d-inline-flex align-items-center justify-content-center payment-history-action-btn"
+                                                        title="Print receipt"
+                                                        aria-label="Print receipt {{ $payment->receipt_no }}">
+                                                                <svg width="13" height="13" viewBox="0 0 24 24"
+                                                                    fill="none" stroke="currentColor" stroke-width="2.2"
+                                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                                    <polyline points="6 9 6 2 18 2 18 9" />
+                                                                    <path
+                                                                    d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                                                                    <rect x="6" y="14" width="12" height="8" />
+                                                                </svg>
+                                                    </a>
                                                     <form action="{{ route('payments.destroy', $payment->id) }}"
                                                         method="POST"
                                                         class="d-inline js-payment-delete-form"
@@ -4831,41 +5000,26 @@
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit"
-                                                            class="btn btn-sm btn-danger d-inline-flex align-items-center justify-content-center payment-history-action-btn"
+                                                            class="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center payment-history-action-btn"
                                                             title="Delete payment"
-                                                            aria-label="Delete payment"
-                                                            style="width:32px;height:32px;padding:0">
-                                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-                                                                stroke-linejoin="round">
-                                                                <path d="M3 6h18" />
-                                                                <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
-                                                                <path d="M10 11v6" />
-                                                                <path d="M14 11v6" />
-                                                                <path d="M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14" />
-                                                            </svg>
+                                                            aria-label="Delete payment {{ $payment->receipt_no }}">
+                                                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                                                        stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                                                                        stroke-linejoin="round">
+                                                                        <path d="M3 6h18" />
+                                                                        <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
+                                                                        <path d="M10 11v6" />
+                                                                        <path d="M14 11v6" />
+                                                                        <path d="M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14" />
+                                                                    </svg>
                                                         </button>
                                                     </form>
-                                                    <a href="{{ route('payments.receipt', $payment->id) }}" target="_blank"
-                                                        class="btn btn-sm btn-secondary d-inline-flex align-items-center justify-content-center payment-history-action-btn"
-                                                        title="Print Receipt"
-                                                        aria-label="Print Receipt"
-                                                        style="width:32px;height:32px;padding:0">
-                                                        <svg width="13" height="13" viewBox="0 0 24 24"
-                                                            fill="none" stroke="currentColor" stroke-width="2.2"
-                                                            stroke-linecap="round" stroke-linejoin="round">
-                                                            <polyline points="6 9 6 2 18 2 18 9" />
-                                                            <path
-                                                                d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-                                                            <rect x="6" y="14" width="12" height="8" />
-                                                        </svg>
-                                                    </a>
                                                 </div>
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="11" class="text-center text-muted py-5">
+                                            <td colspan="8" class="text-center text-muted py-5 payment-history-empty">
                                                 <div style="font-size:36px;opacity:.2"><i class="fas fa-receipt" aria-hidden="true"></i></div>
                                                 <p class="mt-2 mb-0" style="font-size:14px">No payments recorded yet</p>
                                             </td>
