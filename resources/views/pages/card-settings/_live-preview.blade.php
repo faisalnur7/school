@@ -301,6 +301,13 @@
             @if($previewLabel)
                 <span id="{{ $prefix }}PreviewLabel" class="card-preview-shell__badge">{{ $previewLabel }}</span>
             @endif
+            @if($isAdmitOrSeatCard)
+                <div class="btn-group btn-group-sm card-preview-zoom-controls" role="group" aria-label="{{ __('Zoom') }}">
+                    <button type="button" class="btn btn-outline-secondary" id="{{ $prefix }}ZoomOut" title="{{ __('Zoom out') }}" aria-label="{{ __('Zoom out') }}"><i class="fas fa-search-minus"></i></button>
+                    <button type="button" class="btn btn-outline-secondary card-preview-zoom-level" id="{{ $prefix }}ZoomLevel" title="{{ __('Fit to panel') }}" aria-label="{{ __('Fit to panel') }}">{{ __('Fit') }}</button>
+                    <button type="button" class="btn btn-outline-secondary" id="{{ $prefix }}ZoomIn" title="{{ __('Zoom in') }}" aria-label="{{ __('Zoom in') }}"><i class="fas fa-search-plus"></i></button>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -537,6 +544,7 @@
         @else
             <div class="card-preview-stage card-preview-stage--admit">
                 <div class="card-preview-card card-preview-card--admit">
+                    <div class="card-preview-zoom card-preview-zoom--scale">
                     @include('pages.admit-seat-cards._card', [
                         'cardWidthStyle' => 'var(--admit-card-preview-width, ' . $previewCardWidthCss . ')',
                         'cardHeightStyle' => 'var(--admit-card-preview-height, ' . $previewCardHeightCss . ')',
@@ -587,6 +595,7 @@
                         'focusTargets' => $focusTargets,
                         'frontTitleId' => $frontTitleId,
                     ])
+                    </div>
                 </div>
             </div>
         @endif
@@ -758,6 +767,37 @@
 
 .card-preview-stage--admit {
     width: 100%;
+}
+
+/*
+    Admit / seat card: scale the drawing instead of using `zoom`. `zoom` lays the card out again at the
+    smaller size, text snaps to whole pixels and the header grows, which pushes the photo and signature
+    out of the card and shows false print warnings. A transform keeps the true-size layout; the script
+    sizes this wrapper to the scaled card so nothing overflows.
+*/
+.card-preview-zoom.card-preview-zoom--scale {
+    zoom: 1;
+    flex: 0 0 auto;
+}
+
+.card-preview-zoom--scale > .admit-card {
+    transform: scale(var(--preview-zoom, 1));
+    transform-origin: top left;
+}
+
+.card-preview-zoom-controls {
+    flex-wrap: nowrap;
+}
+
+.card-preview-zoom-controls > .btn {
+    width: auto;
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.card-preview-zoom-level {
+    min-width: 4.6rem;
+    font-variant-numeric: tabular-nums;
 }
 
 .card-preview-card {
