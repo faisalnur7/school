@@ -1435,6 +1435,7 @@
 
         .fee-collect-page .mobile-selection-modal .modal-content {
             min-height: 100vh;
+            min-height: 100dvh;
             border: 0;
             border-radius: 0;
             background: #f8fafc;
@@ -1814,6 +1815,10 @@
                 max-height: 90dvh;
             }
 
+            body.modal-open .fee-collect-page .mobile-checkout-sheet {
+                z-index: 1030;
+            }
+
             .fee-collect-page .mobile-checkout-sheet > .card,
             .fee-collect-page .mobile-checkout-sheet #feeForm {
                 min-height: 0;
@@ -1987,8 +1992,15 @@
                 border-bottom: 1px solid #eef2f7;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-badge {
-                display: inline-flex;
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-badge,
+            .fee-collect-page .mobile-checkout-sheet.is-open #mobileCartTotal {
+                display: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #mobileCartCount {
+                color: #0f172a;
+                font-size: 1rem !important;
+                font-weight: 700;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .card-footer {
@@ -2062,11 +2074,32 @@
                 gap: 0.3rem !important;
             }
 
+            /* 16px stops iOS Safari zooming the page on focus; 44px is the touch-target floor. */
             .fee-collect-page .mobile-checkout-sheet.is-open #feeForm .form-control,
             .fee-collect-page .mobile-checkout-sheet.is-open #feeForm .input-group-text {
-                min-height: 38px;
+                min-height: 44px;
                 padding-top: 0.35rem;
                 padding-bottom: 0.35rem;
+                font-size: 16px !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #cartItems .cart-row {
+                position: relative;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #cartItems .cart-row-main {
+                padding-right: 2.75rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #cartItems .cart-row-remove {
+                position: absolute !important;
+                top: 0 !important;
+                right: 0 !important;
+                width: 44px !important;
+                height: 44px !important;
+                display: grid !important;
+                place-items: center;
+                font-size: 15px !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .card-footer .collect-btn {
@@ -2118,8 +2151,8 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-type-btn {
-                min-width: 42px;
-                height: 36px;
+                min-width: 44px;
+                height: 44px;
                 padding: 0.15rem 0.5rem;
                 border: 1px solid #dbe4ee;
                 border-radius: 8px;
@@ -2152,19 +2185,20 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls #discountInput {
-                width: 78px !important;
-                min-width: 78px;
-                min-height: 34px;
-                padding: 0.2rem 0.5rem;
+                width: 96px !important;
+                min-width: 96px;
+                min-height: 44px;
+                padding: 0.2rem 0.6rem;
                 text-align: right;
-                font-size: 0.72rem;
+                font-size: 16px;
                 font-weight: 700;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls .discount-type-btn {
-                min-width: 38px;
-                height: 36px;
-                padding: 0.15rem 0.4rem;
+                min-width: 44px;
+                height: 44px;
+                padding: 0.15rem 0.5rem;
+                font-size: 0.8rem;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls {
@@ -2188,11 +2222,11 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card #discountInput {
-                min-height: 34px;
+                min-height: 44px;
                 border: 1px solid #dbe4ee;
                 border-radius: 8px;
                 background: #fff;
-                font-size: 0.72rem;
+                font-size: 16px;
                 font-weight: 600;
             }
 
@@ -2287,9 +2321,11 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .payment-meta-row {
-                display: grid !important;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 0.35rem;
+                display: block !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount {
+                display: none !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .payment-meta-row > .mb-3,
@@ -2297,13 +2333,12 @@
                 margin-bottom: 0.35rem !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount #paymentAmount,
             .fee-collect-page .mobile-checkout-sheet.is-open .payment-meta-row #paymentDate {
-                height: 34px;
-                min-height: 34px !important;
+                height: 44px;
+                min-height: 44px !important;
                 margin-top: 0.15rem;
-                padding: 0.25rem 0.5rem;
-                font-size: 0.82rem !important;
+                padding: 0.25rem 0.6rem;
+                font-size: 16px !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card {
@@ -2311,8 +2346,7 @@
                 padding: 0.45rem !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-amount-line,
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card > .d-flex:last-child {
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card:not(.has-discount) > .d-flex:last-child {
                 display: none !important;
             }
 
@@ -2327,10 +2361,10 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open #descriptionInput {
-                min-height: 52px;
-                height: 52px;
-                padding: 0.45rem 0.55rem;
-                font-size: 0.82rem !important;
+                min-height: 56px;
+                height: 56px;
+                padding: 0.5rem 0.6rem;
+                font-size: 16px !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-toggle .mobile-cart-chevron {
@@ -2374,8 +2408,26 @@
                 max-width: none !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .cart-line-total {
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .gross-line-amount {
                 display: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .inv-subtotal-display,
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .due-line-amount {
+                display: block !important;
+                flex: 1 1 100%;
+                margin-left: 0;
+                text-align: right;
+                font-size: 0.9rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .inv-subtotal-display::before,
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .due-line-amount::before {
+                content: "Line total  BDT ";
+                color: #64748b;
+                font-size: 0.75rem;
+                font-weight: 600;
+                white-space: pre;
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .cart-row-remove {
@@ -2412,8 +2464,8 @@
                 position: absolute;
                 top: 0;
                 right: 0;
-                width: 24px;
-                height: 24px;
+                width: 44px;
+                height: 44px;
                 display: grid !important;
                 place-items: center;
                 color: #6b7a90 !important;
@@ -2424,7 +2476,7 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-line-title {
-                padding-right: 1.35rem;
+                padding-right: 2.5rem;
                 font-size: 0.875rem;
                 line-height: 1.35;
                 font-weight: 600;
@@ -2438,7 +2490,7 @@
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-row-controls {
                 display: flex !important;
-                flex-wrap: nowrap;
+                flex-wrap: wrap;
                 gap: 8px;
                 align-items: center;
                 width: 100%;
@@ -2463,37 +2515,42 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-qty-stepper {
-                height: 30px;
+                height: 44px;
                 border-color: #cfe7d8;
                 border-radius: 8px;
                 background: #fff;
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-qty-stepper-btn {
+                width: 40px;
+                font-size: 18px;
                 background: transparent;
                 color: #6b7a90;
                 border-radius: 7px;
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-qty-stepper-input {
-                width: 28px !important;
-                flex: 0 0 28px;
+                width: 40px !important;
+                height: auto !important;
+                min-height: 0 !important;
+                align-self: stretch;
+                flex: 0 0 40px;
                 border-left-color: #cfe7d8 !important;
                 border-right-color: #cfe7d8 !important;
                 color: #14213d;
-                font-size: 13.5px;
+                font-size: 16px !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-control-group--paid .form-control {
-                width: 74px;
-                height: 30px;
-                flex: 0 0 74px;
+                width: 84px;
+                height: 44px;
+                flex: 0 0 84px;
                 border: 1px solid #cfe7d8 !important;
                 border-radius: 8px !important;
                 background: #fff !important;
                 color: #14213d;
                 padding: 0 8px;
-                font-size: 13.5px;
+                font-size: 16px !important;
                 font-weight: 600;
                 text-align: right;
             }
@@ -4036,7 +4093,7 @@
                                         <div class="mobile-cart-summary">
                                             <div class="mobile-cart-copy">
                                                 <span id="mobileCartEyebrow" class="mobile-cart-eyebrow"
-                                                    data-collapsed-label="CART" data-expanded-label="TOTAL DUE">CART</span>
+                                                    data-collapsed-label="CART" data-expanded-label="SELECTED ITEMS">CART</span>
                                                 <strong id="mobileCartTotal">BDT 0.00</strong>
                                                 <small class="d-block text-truncate" id="mobileCartCount">No items added yet</small>
                                             </div>
@@ -4091,7 +4148,7 @@
                                     <hr class="my-2" style="border-color:#f1f5f9">
                                     <div class="mobile-total-due-row d-flex justify-content-between align-items-baseline mb-3">
                                         <span class="mono text-muted fw-semibold"
-                                            style="font-size:11px;letter-spacing:.09em">PAYMENT SUMMARY</span>
+                                            style="font-size:11px;letter-spacing:.09em">{{ __('TOTAL TO COLLECT') }}</span>
                                         <div>
                                             <span class="mono text-muted me-1" style="font-size:13px">BDT</span>
                                             <span class="mono fw-bold" id="totalAmount"
@@ -4104,7 +4161,7 @@
                                             <label for="paymentAmount" class="form-label mono text-muted fw-semibold"
                                                 style="font-size:11px;letter-spacing:.08em">PAYMENT AMOUNT</label>
                                              <input type="number" id="paymentAmount" name="payment_amount" min="0" step="0.01"
-                                                 placeholder="Enter payment amount" class="form-control" readonly
+                                                 class="form-control" readonly aria-readonly="true"
                                                  style="font-size:16px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc">
                                         </div>
 
@@ -5630,6 +5687,7 @@
                 $subtotalEl.text(grossTotal.toFixed(2));
                 $totalEl.text(paidTotal.toFixed(2));
                 $discountLine.text(`- ${discountAmt.toFixed(2)} BDT`);
+                $('#discountSection').toggleClass('has-discount', discountAmt > 0);
                 $('#discountAmountHidden').val(discountAmt.toFixed(2));
                 let totalCount = cartIds.size + cartInvIds.size;
                 totalCount += cartDueIds.size;
