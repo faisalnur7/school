@@ -55,6 +55,7 @@ class FeeCollectionDescriptionTest extends TestCase
                 'discount' => 0,
                 'discount_type' => 'flat',
                 'discount_amount' => 0,
+                'payment_date' => now()->toDateString(),
                 'description' => 'Test payment description',
             ])
             ->assertOk()
@@ -100,9 +101,12 @@ class FeeCollectionDescriptionTest extends TestCase
                 'discount' => 0,
                 'discount_type' => 'flat',
                 'discount_amount' => 0,
+                'payment_date' => now()->toDateString(),
                 'description' => str_repeat('a', 1001),
             ])
-            ->assertStatus(422);
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['description'])
+            ->assertJsonMissingValidationErrors(['payment_date']);
     }
 
     public function test_description_is_optional(): void
@@ -141,6 +145,7 @@ class FeeCollectionDescriptionTest extends TestCase
                 'discount' => 0,
                 'discount_type' => 'flat',
                 'discount_amount' => 0,
+                'payment_date' => now()->toDateString(),
             ])
             ->assertOk();
 
@@ -192,6 +197,7 @@ class FeeCollectionDescriptionTest extends TestCase
                 'discount' => 0,
                 'discount_type' => 'flat',
                 'discount_amount' => 0,
+                'payment_date' => now()->toDateString(),
             ])
             ->assertOk()
             ->assertJsonPath('message', 'Payment collected successfully');
