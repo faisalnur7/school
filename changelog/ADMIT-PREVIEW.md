@@ -80,6 +80,7 @@ holder.style.height = `${card.offsetHeight * zoom}px`;
 
 - `resources/views/pages/card-settings/_live-preview.blade.php`: Fit / zoom controls in the preview header (admit and seat cards only), the scale wrapper around the card, and their styles
 - `resources/views/pages/admit-seat-cards/index.blade.php`: the zoom script, the card size handle corrected for zoom, and the tab sizing
+- `lang/bn.json`: Bangla for Zoom, Zoom in, Zoom out, Fit and Fit to panel
 
 The ID card preview shares `_live-preview.blade.php`. Its markup and zoom are unchanged, because the new controls and wrapper only render for admit and seat cards.
 
