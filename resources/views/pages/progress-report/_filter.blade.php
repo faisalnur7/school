@@ -124,6 +124,14 @@
         min-width: 42px;
         min-height: 42px;
         border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .4rem;
+    }
+
+    @media (min-width: 1200px) {
+        .progress-report-action-btn { padding: 0 .75rem; }
     }
 
     .progress-report-action-btn--primary {
@@ -316,27 +324,27 @@
                 <button type="button" class="btn btn-dark btn-sm progress-report-action-btn"
                     data-toggle="modal" data-target="#progressSubjectSettingsModal"
                     title="Subject Settings" aria-label="Subject Settings">
-                    <i class="fas fa-cog"></i>
+                    <i class="fas fa-cog" aria-hidden="true"></i><span class="d-none d-xl-inline progress-report-action-label">Subject settings</span>
                 </button>
                 <button type="button" onclick="window.print()"
                     class="btn btn-info btn-sm progress-report-action-btn"
                     title="Print" aria-label="Print">
-                    <i class="fas fa-print"></i>
+                    <i class="fas fa-print" aria-hidden="true"></i><span class="d-none d-xl-inline progress-report-action-label">Print</span>
                 </button>
                 <button type="button" id="progressReportPdfBtn"
-                    class="btn btn-danger btn-sm progress-report-action-btn"
+                    class="btn btn-outline-secondary btn-sm progress-report-action-btn"
                     title="Download PDF" aria-label="Download PDF">
-                    <i class="fas fa-file-pdf"></i>
+                    <i class="fas fa-file-pdf" aria-hidden="true"></i><span class="d-none d-xl-inline progress-report-action-label">PDF</span>
                 </button>
                 <a href="{{ route('result.progress-report.index') }}"
                     class="btn btn-secondary btn-sm progress-report-action-btn"
                     title="Back" aria-label="Back">
-                    <i class="fas fa-arrow-left"></i>
+                    <i class="fas fa-arrow-left" aria-hidden="true"></i><span class="d-none d-xl-inline progress-report-action-label">Back</span>
                 </a>
                 <a href="{{ route('result.progress-report.template-settings.edit') }}"
                     class="btn btn-outline-secondary btn-sm progress-report-action-btn"
                     title="Template Settings" aria-label="Template Settings">
-                    <i class="fas fa-sliders-h"></i>
+                    <i class="fas fa-sliders-h" aria-hidden="true"></i><span class="d-none d-xl-inline progress-report-action-label">Template</span>
                 </a>
             </div>
         </div>

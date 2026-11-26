@@ -27,20 +27,20 @@
             @csrf
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div>
-                    <label class="form-label">Type Name</label>
-                    <input type="text" name="name" value="{{ old('name') }}" class="form-control" required>
+                    <label for="certificates-create-name" class="form-label">Type Name</label>
+                    <input id="certificates-create-name" type="text" name="name" value="{{ old('name') }}" class="form-control" required>
                 </div>
                 <div>
-                    <label class="form-label">Slug</label>
-                    <input type="text" name="slug" value="{{ old('slug') }}" class="form-control" placeholder="optional-custom-slug">
+                    <label for="certificates-create-slug" class="form-label">Slug</label>
+                    <input id="certificates-create-slug" type="text" name="slug" value="{{ old('slug') }}" class="form-control" placeholder="optional-custom-slug">
                 </div>
                 <div class="lg:col-span-2">
-                    <label class="form-label">Description</label>
-                    <textarea name="description" rows="3" class="form-control">{{ old('description') }}</textarea>
+                    <label for="certificates-create-description" class="form-label">Description</label>
+                    <textarea id="certificates-create-description" name="description" rows="3" class="form-control">{{ old('description') }}</textarea>
                 </div>
                 <div>
-                    <label class="form-label">Initial Template Name</label>
-                    <input type="text" name="template_name" value="{{ old('template_name', 'Default Template') }}" class="form-control" required>
+                    <label for="certificates-create-template-name" class="form-label">Initial Template Name</label>
+                    <input id="certificates-create-template-name" type="text" name="template_name" value="{{ old('template_name', 'Default Template') }}" class="form-control" required>
                 </div>
                 <div class="lg:col-span-2">
                     <label class="form-label">Initial Template Body</label>

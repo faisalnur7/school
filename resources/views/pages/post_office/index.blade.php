@@ -71,7 +71,7 @@
                                             style="display:inline;">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger"
-                                                onclick="return confirm('Are you sure you want to delete this post office?')"
+                                                data-confirm="{{ __('Delete this post office?') }}" data-confirm-action="{{ __('Delete post office') }}" data-confirm-cancel="{{ __('Keep post office') }}"
                                                 title="Delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>

@@ -26,7 +26,7 @@
                         <input type="number" name="year" class="form-control form-control-sm" value="{{ $year }}" min="2000">
                     </div>
                     <div class="col-md-2 form-group mb-0">
-                        <button type="submit" class="btn btn-primary btn-sm ml-auto"><i class="fas fa-search"></i></button>
+                        <button type="submit" class="btn btn-primary btn-sm ml-auto" aria-label="{{ __('Search') }}" title="{{ __('Search') }}"><i class="fas fa-search" aria-hidden="true"></i></button>
                     </div>
                 </div>
             </form>

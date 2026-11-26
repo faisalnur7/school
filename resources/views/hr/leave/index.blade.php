@@ -33,8 +33,8 @@
                         </select>
                     </div>
                     <div class="col-md-2 form-group mb-0" style="gap:6px;display:flex">
-                        <button type="submit" class="btn btn-primary btn-sm ml-auto"><i class="fas fa-search"></i></button>
-                        <a href="{{ route('hr.leave.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-times"></i></a>
+                        <button type="submit" class="btn btn-primary btn-sm ml-auto" aria-label="{{ __('Search') }}" title="{{ __('Search') }}"><i class="fas fa-search" aria-hidden="true"></i></button>
+                        <a href="{{ route('hr.leave.index') }}" class="btn btn-secondary btn-sm" aria-label="{{ __('Close') }}" title="{{ __('Close') }}"><i class="fas fa-times" aria-hidden="true"></i></a>
                     </div>
                 </div>
             </form>
@@ -59,8 +59,8 @@
                             <td>{{ $r->approver?->name ?? '—' }}</td>
                             <td class="text-center">
                                 @if($r->status === 'pending')
-                                <button class="btn btn-xs btn-success" data-toggle="modal" data-target="#approveModal{{ $r->id }}"><i class="fas fa-check"></i></button>
-                                <button class="btn btn-xs btn-danger"  data-toggle="modal" data-target="#rejectModal{{ $r->id }}"><i class="fas fa-times"></i></button>
+                                <button class="btn btn-xs btn-success" data-toggle="modal" data-target="#approveModal{{ $r->id }}" aria-label="{{ __('Confirm') }}" title="{{ __('Confirm') }}"><i class="fas fa-check" aria-hidden="true"></i></button>
+                                <button class="btn btn-xs btn-danger"  data-toggle="modal" data-target="#rejectModal{{ $r->id }}" aria-label="{{ __('Close') }}" title="{{ __('Close') }}"><i class="fas fa-times" aria-hidden="true"></i></button>
 
                                 {{-- Approve Modal --}}
                                 <div class="modal fade" id="approveModal{{ $r->id }}" tabindex="-1">

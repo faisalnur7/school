@@ -16,10 +16,10 @@
             --mobile-sheet-surface: #ffffff;
             --mobile-sheet-subtle: #f8fafc;
             --mobile-sheet-border: #e2e8f0;
-            --mobile-sheet-primary: #2563eb;
+            --mobile-sheet-primary: var(--c-primary, #0b6b3a);
             --mobile-sheet-primary-text: #ffffff;
             --mobile-sheet-muted: #64748b;
-            --mobile-sheet-total: #0284c7;
+            --mobile-sheet-total: var(--c-primary, #0b6b3a);
             color: #334155;
         }
 
@@ -163,8 +163,8 @@
         }
 
         .fee-collect-page .discount-row .discount-type-btn.active {
-            border-color: #6366f1;
-            background: #6366f1;
+            border-color: #4f46e5;
+            background: #4f46e5;
             color: #fff;
         }
 
@@ -185,7 +185,7 @@
         }
 
         .fee-collect-page .discount-row .discount-amount-line {
-            color: #16a34a !important;
+            color: #15803d !important;
             font-size: 0.72rem;
             font-weight: 800;
         }
@@ -701,6 +701,28 @@
             background: #f8fafc;
         }
 
+        .fee-collect-page .assigned-fee-active-text {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .fee-collect-page .assigned-fees-save-count {
+            color: inherit !important;
+            margin-left: 0.25rem;
+        }
+
+        .fee-collect-page .assigned-fees-save:disabled {
+            opacity: 0.45;
+            box-shadow: none !important;
+        }
+
         .fee-collect-page .assigned-fees-pill-group {
             display: flex;
             flex-wrap: wrap;
@@ -763,7 +785,7 @@
 
             .fee-collect-page .assigned-fees-actions {
                 display: grid;
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 0.5rem;
                 margin-top: 0 !important;
                 margin-left: 0 !important;
@@ -795,6 +817,33 @@
 
             .fee-collect-page .assigned-fees-bulk-actions > .btn {
                 margin-top: 0 !important;
+            }
+
+            .fee-collect-page .assigned-fees-bulk-actions {
+                grid-column: 1 / -1;
+                order: -1;
+            }
+
+            .fee-collect-page .assigned-fees-actions > .assigned-fees-add {
+                background: transparent !important;
+                color: var(--c-primary, #0b6b3a) !important;
+                border: 1px solid var(--c-primary, #0b6b3a) !important;
+                box-shadow: none !important;
+            }
+
+            .fee-collect-page .assigned-fees-actions .btn {
+                font-size: 0.875rem;
+            }
+
+            .fee-collect-page .assigned-fees-actions > .btn,
+            .fee-collect-page .assigned-fees-bulk-actions > .btn {
+                height: 44px;
+                min-height: 44px;
+            }
+
+            .fee-collect-page .assigned-fees-summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.5rem;
             }
 
             .fee-collect-page .assigned-fees-save {
@@ -859,13 +908,14 @@
 
             .fee-collect-page .assigned-fees-tabs .nav-link {
                 min-width: 0;
-                max-width: 9rem;
-                font-size: 0.64rem;
+                max-width: 10rem;
+                min-height: 40px;
+                font-size: 0.8125rem;
             }
 
             .fee-collect-page .assigned-fees-tabs .nav-link > span:first-child {
                 min-width: 0;
-                max-width: 7.5rem;
+                max-width: 8.5rem;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
@@ -880,91 +930,270 @@
                 font-size: 1rem;
             }
 
-            .fee-collect-page .assigned-fees-table {
-                width: max-content;
-                min-width: 100%;
-                table-layout: auto;
-                font-size: 0.68rem;
+        }
+
+        /* Status / lock pills (the student-profile badge styles aren't loaded on this page) */
+        .fee-collect-page .assigned-fees-table .student-profile-badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            line-height: 1.3;
+            white-space: nowrap;
+            border: 1px solid transparent;
+        }
+
+        .fee-collect-page .assigned-fees-table .student-profile-badge--success {
+            background: #ecfdf3;
+            color: #15803d;
+            border-color: #bbf7d0;
+        }
+
+        .fee-collect-page .assigned-fees-table .student-profile-badge--warning {
+            background: #fffbeb;
+            color: #b45309;
+            border-color: #fde68a;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .assigned-fees-table .student-profile-badge--success {
+            background: rgba(34, 197, 94, 0.12);
+            color: #86efac;
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        html[data-theme='dark'] .fee-collect-page .assigned-fees-table .student-profile-badge--warning {
+            background: rgba(245, 158, 11, 0.12);
+            color: #fcd34d;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        /* Fees tab below 1024px: one card per fee instead of a 9-column table that
+           pushed Due, Status, Active and Edit off the right edge. */
+        @media (max-width: 1023.98px) {
+            .fee-collect-page .assigned-fees-table-shell {
+                border: 0;
+                border-radius: 0;
+                background: transparent;
+                box-shadow: none;
+                overflow: visible;
             }
 
             .fee-collect-page .assigned-fees-table-responsive {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
+                overflow: visible;
             }
 
-            .fee-collect-page .assigned-fees-table th,
-            .fee-collect-page .assigned-fees-table td {
-                padding: 0.45rem 0.35rem !important;
-                word-break: break-word;
+            .fee-collect-page .assigned-fees-table {
+                display: block;
+                width: 100%;
             }
 
-            .fee-collect-page .assigned-fees-table th:first-child,
-            .fee-collect-page .assigned-fees-table td:first-child {
+            .fee-collect-page .assigned-fees-table thead {
+                display: none;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: 0.625rem;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody tr {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-areas:
+                    "name name status"
+                    "date date date"
+                    "amount paid due"
+                    "active action action";
+                column-gap: 0.75rem;
+                row-gap: 0.5rem;
+                padding: 0.875rem 1rem;
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            }
+
+            .fee-collect-page .assigned-fees-table tbody tr:hover {
+                background: #fff !important;
+            }
+
+            .fee-collect-page .assigned-fees-table .assigned-fee-locked-note {
+                display: none;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td {
+                display: block;
+                min-width: 0;
+                padding: 0 !important;
+                border: 0 !important;
+                background: transparent;
+                font-size: 0.875rem;
+                text-align: left !important;
+                white-space: normal;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(1) {
                 display: none !important;
             }
 
-            .fee-collect-page .assigned-fees-table th:nth-child(4),
-            .fee-collect-page .assigned-fees-table td:nth-child(4),
-            .fee-collect-page .assigned-fees-table th:nth-child(5),
-            .fee-collect-page .assigned-fees-table td:nth-child(5),
-            .fee-collect-page .assigned-fees-table th:nth-child(6),
-            .fee-collect-page .assigned-fees-table td:nth-child(6),
-            .fee-collect-page .assigned-fees-table th:nth-child(7),
-            .fee-collect-page .assigned-fees-table td:nth-child(7) {
-                display: table-cell !important;
-                width: auto !important;
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(2) {
+                grid-area: name;
             }
 
-            .fee-collect-page .assigned-fees-table th:nth-child(1),
-            .fee-collect-page .assigned-fees-table td:nth-child(1) {
-                width: 7% !important;
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(2) .fw-semibold {
+                font-size: 0.9375rem;
+                font-weight: 700;
+                line-height: 1.3;
             }
 
-            .fee-collect-page .assigned-fees-table th:nth-child(2),
-            .fee-collect-page .assigned-fees-table td:nth-child(2) {
-                width: 55% !important;
-            }
-
-            .fee-collect-page .assigned-fees-table th:nth-child(3),
-            .fee-collect-page .assigned-fees-table td:nth-child(3) {
-                width: auto !important;
-                white-space: nowrap;
-                font-size: 0.62rem;
-            }
-
-            .fee-collect-page .assigned-fees-table th:nth-child(8),
-            .fee-collect-page .assigned-fees-table td:nth-child(8),
-            .fee-collect-page .assigned-fees-table th:nth-child(9),
-            .fee-collect-page .assigned-fees-table td:nth-child(9) {
-                width: auto !important;
-            }
-
-            .fee-collect-page .assigned-fees-table th:nth-child(2),
-            .fee-collect-page .assigned-fees-table td:nth-child(2) {
-                width: auto !important;
-            }
-
-            .fee-collect-page .assigned-fees-table .assigned-fees-pill-group {
-                gap: 0.2rem;
+            .fee-collect-page .assigned-fees-table .assigned-fees-remarks {
+                font-size: 0.8125rem;
+                margin-top: 0.125rem;
             }
 
             .fee-collect-page .assigned-fees-table .assigned-fees-pill {
-                padding: 0.2rem 0.35rem;
-                font-size: 0.58rem;
+                font-size: 0.75rem;
             }
 
-            .fee-collect-page .assigned-fees-table .js-edit-assigned-fee {
-                width: 32px;
-                height: 32px;
-                padding: 0 !important;
-                border-radius: 8px !important;
+            .fee-collect-page .assigned-fees-table .assigned-fees-pill-group--same-as-tab {
+                display: none;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(3) {
+                grid-area: date;
+                color: #64748b;
+                font-size: 0.8125rem;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(3)::before {
+                content: "Due by ";
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(4) {
+                grid-area: amount;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(5) {
+                grid-area: paid;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(6) {
+                grid-area: due;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(4),
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(5),
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(6) {
+                padding-top: 0.5rem !important;
+                border-top: 1px solid #eef2f7 !important;
+                font-weight: 700;
+                font-variant-numeric: tabular-nums;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(4)::before,
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(5)::before,
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(6)::before {
+                content: attr(data-label);
+                display: block;
+                margin-bottom: 0.125rem;
+                color: #64748b;
+                font-size: 0.6875rem;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(7) {
+                grid-area: status;
+                justify-self: end;
+                align-self: start;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(8) {
+                grid-area: active;
+                align-self: center;
+            }
+
+            .fee-collect-page .assigned-fees-table tbody td:nth-child(9) {
+                grid-area: action;
+                justify-self: end;
+                align-self: center;
+            }
+
+            .fee-collect-page .assigned-fees-table td:nth-child(9) > .d-flex {
+                justify-content: flex-end;
+                gap: 0.5rem !important;
+            }
+
+            .fee-collect-page .assigned-fees-table td:nth-child(9) .btn {
+                min-height: 40px !important;
+                padding: 0.4rem 0.75rem !important;
+                border-radius: 10px !important;
                 display: inline-flex;
                 align-items: center;
-                justify-content: center;
+                gap: 0.35rem;
             }
 
-            .fee-collect-page .assigned-fees-table .js-edit-assigned-fee .assigned-fee-edit-label {
-                display: none;
+            /* Switch with a visible label and a 44px tall tap area */
+            .fee-collect-page .assigned-fees-table td:nth-child(8) .custom-switch {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+
+            .fee-collect-page .assigned-fees-table td:nth-child(8) .custom-control-label {
+                padding: 10px 0;
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #334155;
+                cursor: pointer;
+            }
+
+            .fee-collect-page .assigned-fees-table td:nth-child(8) .custom-control-label::before {
+                top: calc(10px + 0.25rem);
+            }
+
+            .fee-collect-page .assigned-fees-table td:nth-child(8) .custom-control-label::after {
+                top: calc(10px + 0.25rem + 2px);
+            }
+
+            .fee-collect-page .assigned-fees-table .assigned-fee-active-text {
+                position: static;
+                width: auto;
+                height: auto;
+                margin: 0;
+                overflow: visible;
+                clip: auto;
+            }
+
+            html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody tr,
+            html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody tr:hover {
+                background: #111827 !important;
+                border-color: rgba(148, 163, 184, 0.18);
+            }
+
+            html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td:nth-child(4),
+            html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td:nth-child(5),
+            html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td:nth-child(6) {
+                border-top-color: rgba(148, 163, 184, 0.14) !important;
+            }
+
+            html[data-theme='dark'] .fee-collect-page .assigned-fees-table td:nth-child(8) .custom-control-label {
+                color: #e2e8f0;
+            }
+
+            html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td:nth-child(3) {
+                color: #94a3b8 !important;
+            }
+        }
+
+        /* Tablets: two cards per row */
+        @media (min-width: 640px) and (max-width: 1023.98px) {
+            .fee-collect-page .assigned-fees-table tbody {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
 
@@ -1129,9 +1358,9 @@
         }
 
         .fee-collect-page .mobile-selection-row.is-selected {
-            border-color: #4338ca;
-            background: #eef2ff;
-            box-shadow: inset 0 0 0 1px rgba(67, 56, 202, 0.08);
+            border-color: var(--c-primary);
+            background: var(--c-primary-soft);
+            box-shadow: none;
         }
 
         .fee-collect-page .mobile-selection-row.is-added {
@@ -1207,9 +1436,9 @@
         }
 
         .fee-collect-page .mobile-select-chip.is-active {
-            border-color: #4338ca;
-            background: #eef2ff;
-            color: #312e81;
+            border-color: var(--c-primary);
+            background: var(--c-primary-soft);
+            color: var(--c-text);
         }
 
         .fee-collect-page .mobile-summary-card {
@@ -1300,6 +1529,13 @@
         .fee-collect-page .mobile-switch-row .form-control {
             border-radius: 14px;
             font-size: 16px;
+        }
+
+        .fee-collect-page .mobile-switch-row .btn,
+        .fee-collect-page .mobile-selection-modal .mobile-selection-footer .selection-action {
+            background: var(--c-primary);
+            border-color: var(--c-primary);
+            color: var(--c-on-primary);
         }
 
         .fee-collect-page .mobile-switch-row .btn {
@@ -1435,6 +1671,7 @@
 
         .fee-collect-page .mobile-selection-modal .modal-content {
             min-height: 100vh;
+            min-height: 100dvh;
             border: 0;
             border-radius: 0;
             background: #f8fafc;
@@ -1516,9 +1753,9 @@
         }
 
         .fee-collect-page .mobile-selection-modal .mobile-selection-mark.is-selected {
-            border-color: #3b82f6;
-            background: #3b82f6;
-            color: #0f172a;
+            border-color: var(--c-primary);
+            background: var(--c-primary);
+            color: var(--c-on-primary);
         }
 
         .fee-collect-page .mobile-selection-modal .mobile-selection-mark.is-selected::before {
@@ -1765,24 +2002,21 @@
                 border-radius: 12px;
             }
 
-            .fee-collect-page .mobile-topbar .student-name {
-                font-size: 0.88rem;
-            }
-
             .fee-collect-page .mobile-meta-row {
                 display: grid;
-                grid-template-columns: repeat(4, minmax(0, 1fr));
-                gap: 0.35rem;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.4rem;
                 overflow: visible;
             }
 
             .fee-collect-page .mobile-meta-chip {
                 min-width: 0;
                 overflow: hidden;
-                padding: 0.4rem 0.2rem;
-                text-align: center;
+                padding: 0.45rem 0.6rem;
+                border-radius: 10px;
+                text-align: left;
                 text-overflow: ellipsis;
-                font-size: 0.62rem;
+                font-size: 0.75rem;
             }
 
             .fee-collect-page .mobile-summary-card {
@@ -1790,8 +2024,8 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet {
-                border: 1px solid #aeaeae;
-                padding-top: 10px;
+                border: 1px solid var(--mobile-sheet-border);
+                border-bottom: 0;
                 position: fixed;
                 left: 0;
                 right: 0;
@@ -1812,6 +2046,10 @@
             .fee-collect-page .mobile-checkout-sheet.is-open {
                 transform: translateY(0);
                 max-height: 90dvh;
+            }
+
+            body.modal-open .fee-collect-page .mobile-checkout-sheet {
+                z-index: 1030;
             }
 
             .fee-collect-page .mobile-checkout-sheet > .card,
@@ -1844,23 +2082,6 @@
                 padding: 0 !important;
                 border: 0 !important;
                 background: transparent !important;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle-wrap {
-                gap: 0.75rem;
-                margin-top: 0 !important;
-                padding: 0.5rem 0.9rem 0.9rem;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet .mobile-cart-handle {
-                margin-bottom: 0.75rem;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle {
-                min-height: 70px;
-                padding: 0;
-                border: 0;
-                background: transparent;
             }
 
             .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle strong {
@@ -1916,26 +2137,9 @@
                 display: none !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet .card-body {
-                max-height: calc(100dvh - 210px);
-                overflow-y: auto;
-                padding-bottom: 1rem !important;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .card-body .scroll-area {
-                max-height: none !important;
-            }
-
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-empty-cart {
                 min-height: 0;
                 padding: 1.15rem 0.75rem !important;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet .card-footer {
-                position: sticky;
-                bottom: 0;
-                z-index: 2;
-                padding: 0.8rem 0.9rem !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .card-header {
@@ -1945,28 +2149,12 @@
                 background: #fff !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet .card-body {
-                display: none !important;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet .card-footer {
-                display: none !important;
-            }
-
             .fee-collect-page .mobile-checkout-sheet.is-open .card-body {
                 display: flex !important;
                 flex: 1 1 auto;
                 min-height: 0;
                 max-height: none;
                 overflow: hidden;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .card-footer {
-                position: static;
-                flex: 0 0 auto;
-                min-height: 0;
-                overflow: visible;
-                display: block !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .card-body .scroll-area {
@@ -1987,23 +2175,25 @@
                 border-bottom: 1px solid #eef2f7;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-badge {
-                display: inline-flex;
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-badge,
+            .fee-collect-page .mobile-checkout-sheet.is-open #mobileCartTotal {
+                display: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #mobileCartCount {
+                color: #0f172a;
+                font-size: 1rem !important;
+                font-weight: 700;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .card-footer {
+                position: static;
+                flex: 0 0 auto;
+                min-height: 0;
+                overflow: visible;
+                display: block !important;
                 border-top: 1px solid #e2e8f0 !important;
                 box-shadow: 0 -8px 22px rgba(15, 23, 42, 0.06);
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .card-footer .collect-btn {
-                position: sticky;
-                bottom: 0;
-                z-index: 4;
-                min-height: 54px;
-                border-radius: 16px !important;
-                background: #1d4ed8 !important;
-                box-shadow: 0 -10px 20px rgba(255, 255, 255, 0.92), 0 8px 18px rgba(29, 78, 216, 0.22);
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .card-footer .collect-btn:disabled {
@@ -2012,7 +2202,9 @@
             }
 
             /* Compact mobile checkout spacing: preserve touch targets, remove excess whitespace. */
+
             .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle-wrap {
+                margin-top: 0 !important;
                 padding: 0.45rem 0.75rem 0.55rem;
                 gap: 0.45rem;
             }
@@ -2024,14 +2216,25 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet .mobile-cart-toggle {
+                padding: 0;
+                border: 0;
+                background: transparent;
                 min-height: 58px;
             }
 
             .fee-collect-page .mobile-checkout-sheet .card-body {
+                max-height: calc(100dvh - 210px);
+                overflow-y: auto;
+                padding-bottom: 1rem !important;
+                display: none !important;
                 padding: 0.45rem 0.75rem 0.5rem !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet .card-footer {
+                position: sticky;
+                bottom: 0;
+                z-index: 2;
+                display: none !important;
                 padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom)) !important;
             }
 
@@ -2062,14 +2265,43 @@
                 gap: 0.3rem !important;
             }
 
+            /* 16px stops iOS Safari zooming the page on focus; 44px is the touch-target floor. */
+
             .fee-collect-page .mobile-checkout-sheet.is-open #feeForm .form-control,
             .fee-collect-page .mobile-checkout-sheet.is-open #feeForm .input-group-text {
-                min-height: 38px;
+                min-height: 44px;
                 padding-top: 0.35rem;
                 padding-bottom: 0.35rem;
+                font-size: 16px !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #cartItems .cart-row {
+                position: relative;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #cartItems .cart-row-main {
+                padding-right: 2.75rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open #cartItems .cart-row-remove {
+                position: absolute !important;
+                top: 0 !important;
+                right: 0 !important;
+                width: 44px !important;
+                height: 44px !important;
+                display: grid !important;
+                place-items: center;
+                font-size: 15px !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .card-footer .collect-btn {
+                position: sticky;
+                bottom: 0;
+                z-index: 4;
+                border-radius: 16px !important;
+                background: var(--c-primary) !important;
+                color: var(--c-on-primary) !important;
+                box-shadow: none;
                 min-height: 46px;
                 padding-top: 0.55rem !important;
                 padding-bottom: 0.55rem !important;
@@ -2105,21 +2337,13 @@
                 letter-spacing: 0.08em;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card {
-                margin-bottom: 0.45rem !important;
-                padding: 0.55rem !important;
-                border: 1px solid #dbe4ee;
-                border-radius: 12px;
-                background: #f8fafc;
-            }
-
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card > .d-flex {
                 margin-bottom: 0.45rem !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-type-btn {
-                min-width: 42px;
-                height: 36px;
+                min-width: 44px;
+                height: 44px;
                 padding: 0.15rem 0.5rem;
                 border: 1px solid #dbe4ee;
                 border-radius: 8px;
@@ -2130,45 +2354,26 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-type-btn.active {
-                border-color: #6366f1;
-                background: #6366f1;
-                color: #fff;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-head {
-                min-width: 0;
-                margin-bottom: 0.35rem !important;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-head > span:first-child {
-                flex: 0 0 auto;
-                white-space: nowrap;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls {
-                min-width: 0;
-                margin-left: auto !important;
-                gap: 0.3rem !important;
+                border-color: var(--c-primary);
+                background: var(--c-primary);
+                color: var(--c-on-primary);
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls #discountInput {
-                width: 78px !important;
-                min-width: 78px;
-                min-height: 34px;
-                padding: 0.2rem 0.5rem;
+                width: 96px !important;
+                min-width: 96px;
+                min-height: 44px;
+                padding: 0.2rem 0.6rem;
                 text-align: right;
-                font-size: 0.72rem;
+                font-size: 16px;
                 font-weight: 700;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls .discount-type-btn {
-                min-width: 38px;
-                height: 36px;
-                padding: 0.15rem 0.4rem;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls {
-                gap: 0 !important;
+                min-width: 44px;
+                height: 44px;
+                padding: 0.15rem 0.5rem;
+                font-size: 0.8rem;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls .discount-type-btn + .discount-type-btn {
@@ -2183,16 +2388,12 @@
                 border-radius: 0 8px 8px 0;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card > .d-flex:last-child {
-                margin-top: 0.35rem !important;
-            }
-
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card #discountInput {
-                min-height: 34px;
+                min-height: 44px;
                 border: 1px solid #dbe4ee;
                 border-radius: 8px;
                 background: #fff;
-                font-size: 0.72rem;
+                font-size: 16px;
                 font-weight: 600;
             }
 
@@ -2202,24 +2403,24 @@
                 font-weight: 800;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card {
-                display: grid;
-                grid-template-columns: 1fr auto;
-                row-gap: 0.35rem;
-                align-items: center;
-            }
-
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-head {
+                min-width: 0;
+                margin-bottom: 0.35rem !important;
                 display: contents !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-head > span:first-child {
+                flex: 0 0 auto;
+                white-space: nowrap;
                 grid-column: 1;
                 align-self: start;
                 padding-top: 0.55rem;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls {
+                min-width: 0;
+                margin-left: auto !important;
+                gap: 0 !important;
                 grid-column: 2;
                 grid-row: 1;
             }
@@ -2236,14 +2437,6 @@
                 font-size: 0.78rem !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row {
-                min-height: 64px;
-                align-items: center;
-                margin: 0.65rem 0 0.75rem !important;
-                padding: 0.15rem 0.15rem 0.65rem !important;
-                border-bottom: 1px solid #e2e8f0;
-            }
-
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row > div {
                 display: flex;
                 align-items: baseline;
@@ -2252,17 +2445,6 @@
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row > div > span:first-child {
                 font-size: 0.8rem !important;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row #totalAmount {
-                color: var(--mobile-sheet-total) !important;
-                font-size: 1.8rem !important;
-                font-weight: 800 !important;
-                line-height: 0.95;
-            }
-
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount {
-                margin-bottom: 0.75rem !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount #paymentAmount {
@@ -2274,11 +2456,6 @@
                 letter-spacing: 0.02em;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row {
-                position: relative;
-                margin-top: 1.05rem !important;
-            }
-
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount small {
                 display: block;
                 margin-top: 0.35rem;
@@ -2287,9 +2464,12 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .payment-meta-row {
-                display: grid !important;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 0.35rem;
+                display: block !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount {
+                margin-bottom: 0.75rem !important;
+                display: none !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .payment-meta-row > .mb-3,
@@ -2297,40 +2477,52 @@
                 margin-bottom: 0.35rem !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount #paymentAmount,
             .fee-collect-page .mobile-checkout-sheet.is-open .payment-meta-row #paymentDate {
-                height: 34px;
-                min-height: 34px !important;
+                height: 44px;
+                min-height: 44px !important;
                 margin-top: 0.15rem;
-                padding: 0.25rem 0.5rem;
-                font-size: 0.82rem !important;
+                padding: 0.25rem 0.6rem;
+                font-size: 16px !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card {
+                border: 1px solid #dbe4ee;
+                border-radius: 12px;
+                background: #f8fafc;
+                display: grid;
+                grid-template-columns: 1fr auto;
+                row-gap: 0.35rem;
+                align-items: center;
                 margin-bottom: 0.35rem !important;
                 padding: 0.45rem !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-amount-line,
-            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card > .d-flex:last-child {
+            .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card:not(.has-discount) > .d-flex:last-child {
                 display: none !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row {
+                align-items: center;
+                border-bottom: 1px solid #e2e8f0;
+                position: relative;
+                margin-top: 1.05rem !important;
                 min-height: 48px;
                 margin: 0.35rem 0 0.45rem !important;
                 padding: 0.1rem 0.15rem 0.35rem !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row #totalAmount {
+                color: var(--mobile-sheet-total) !important;
+                font-weight: 800 !important;
+                line-height: 0.95;
                 font-size: 1.6rem !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open #descriptionInput {
-                min-height: 52px;
-                height: 52px;
-                padding: 0.45rem 0.55rem;
-                font-size: 0.82rem !important;
+                min-height: 56px;
+                height: 56px;
+                padding: 0.5rem 0.6rem;
+                font-size: 16px !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open .mobile-cart-toggle .mobile-cart-chevron {
@@ -2374,8 +2566,26 @@
                 max-width: none !important;
             }
 
-            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .cart-line-total {
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .gross-line-amount {
                 display: none !important;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .inv-subtotal-display,
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .due-line-amount {
+                display: block !important;
+                flex: 1 1 100%;
+                margin-left: 0;
+                text-align: right;
+                font-size: 0.9rem;
+            }
+
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .inv-subtotal-display::before,
+            .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .due-line-amount::before {
+                content: "Line total  BDT ";
+                color: #64748b;
+                font-size: 0.75rem;
+                font-weight: 600;
+                white-space: pre;
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row .cart-row-remove {
@@ -2412,8 +2622,8 @@
                 position: absolute;
                 top: 0;
                 right: 0;
-                width: 24px;
-                height: 24px;
+                width: 44px;
+                height: 44px;
                 display: grid !important;
                 place-items: center;
                 color: #6b7a90 !important;
@@ -2424,7 +2634,7 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-line-title {
-                padding-right: 1.35rem;
+                padding-right: 2.5rem;
                 font-size: 0.875rem;
                 line-height: 1.35;
                 font-weight: 600;
@@ -2438,7 +2648,7 @@
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-row-controls {
                 display: flex !important;
-                flex-wrap: nowrap;
+                flex-wrap: wrap;
                 gap: 8px;
                 align-items: center;
                 width: 100%;
@@ -2463,37 +2673,42 @@
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-qty-stepper {
-                height: 30px;
+                height: 44px;
                 border-color: #cfe7d8;
                 border-radius: 8px;
                 background: #fff;
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-qty-stepper-btn {
+                width: 40px;
+                font-size: 18px;
                 background: transparent;
                 color: #6b7a90;
                 border-radius: 7px;
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-qty-stepper-input {
-                width: 28px !important;
-                flex: 0 0 28px;
+                width: 40px !important;
+                height: auto !important;
+                min-height: 0 !important;
+                align-self: stretch;
+                flex: 0 0 40px;
                 border-left-color: #cfe7d8 !important;
                 border-right-color: #cfe7d8 !important;
                 color: #14213d;
-                font-size: 13.5px;
+                font-size: 16px !important;
             }
 
             .fee-collect-page .mobile-checkout-sheet #cartItems .cart-row--inventory .cart-control-group--paid .form-control {
-                width: 74px;
-                height: 30px;
-                flex: 0 0 74px;
+                width: 84px;
+                height: 44px;
+                flex: 0 0 84px;
                 border: 1px solid #cfe7d8 !important;
                 border-radius: 8px !important;
                 background: #fff !important;
                 color: #14213d;
                 padding: 0 8px;
-                font-size: 13.5px;
+                font-size: 16px !important;
                 font-weight: 600;
                 text-align: right;
             }
@@ -2669,7 +2884,7 @@
                 width: min(100%, 860px);
                 left: 50%;
                 right: auto;
-                transform: translateX(-50%) translateY(calc(100% - 148px));
+                transform: translateX(-50%) translateY(calc(100% - var(--mobile-collapsed-sheet-height)));
             }
 
             .fee-collect-page .mobile-checkout-sheet.is-open {
@@ -2827,6 +3042,20 @@
             border-top-color: rgba(148, 163, 184, 0.14) !important;
         }
 
+        /* The rule above would otherwise turn Paid/Due white */
+        html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td.text-success {
+            color: #4ade80 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td.text-danger {
+            color: #f87171 !important;
+        }
+
+        html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td.text-muted,
+        html[data-theme='dark'] .fee-collect-page .assigned-fees-table tbody td .text-muted {
+            color: #94a3b8 !important;
+        }
+
         html[data-theme='dark'] .fee-collect-page .assigned-fees-summary-label {
             color: #94a3b8 !important;
         }
@@ -2886,7 +3115,6 @@
             color: #cbd5e1 !important;
         }
 
-        html[data-theme='dark'] .fee-collect-page #subtotalAmount,
         html[data-theme='dark'] .fee-collect-page #discountInput,
         html[data-theme='dark'] .fee-collect-page #paymentAmount,
         html[data-theme='dark'] .fee-collect-page #descriptionInput {
@@ -3141,9 +3369,10 @@
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-type-btn.active {
-            background: #0284c7 !important;
-            border-color: #38bdf8 !important;
-            box-shadow: 0 0 14px rgba(14, 165, 233, 0.62) !important;
+            background: var(--c-primary) !important;
+            border-color: var(--c-primary) !important;
+            color: var(--c-on-primary) !important;
+            box-shadow: none !important;
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row {
@@ -3151,7 +3380,7 @@
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-total-due-row #totalAmount {
-            color: #22b7f5 !important;
+            color: var(--c-primary) !important;
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount #paymentAmount {
@@ -3165,10 +3394,10 @@
             --mobile-sheet-surface: #0f172a;
             --mobile-sheet-subtle: #111827;
             --mobile-sheet-border: rgba(148, 163, 184, 0.24);
-            --mobile-sheet-primary: #60a5fa;
+            --mobile-sheet-primary: var(--c-primary, #22a565);
             --mobile-sheet-primary-text: #f8fafc;
             --mobile-sheet-muted: #94a3b8;
-            --mobile-sheet-total: #38bdf8;
+            --mobile-sheet-total: var(--c-primary, #22a565);
             background: var(--mobile-sheet-surface);
         }
 
@@ -3193,12 +3422,6 @@
             background: var(--mobile-sheet-subtle);
             border-color: var(--mobile-sheet-border);
             color: #cbd5e1;
-        }
-
-        html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-controls .discount-type-btn.active {
-            background: #2563eb;
-            border-color: #60a5fa;
-            color: #ffffff;
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet.is-open .mobile-subtotal-row,
@@ -3227,10 +3450,10 @@
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet .collect-btn {
-            background: #2563eb !important;
-            border: 1px solid #3b82f6 !important;
-            color: #ffffff !important;
-            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.3) !important;
+            background: var(--c-primary) !important;
+            border: 1px solid var(--c-primary) !important;
+            color: var(--c-on-primary) !important;
+            box-shadow: none !important;
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-checkout-sheet .collect-btn:disabled {
@@ -3302,9 +3525,9 @@
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-switch-row .btn {
-            background: #2563eb !important;
-            border-color: #3b82f6 !important;
-            color: #ffffff !important;
+            background: var(--c-primary) !important;
+            border-color: var(--c-primary) !important;
+            color: var(--c-on-primary) !important;
         }
 
         html[data-theme='dark'] .fee-collect-page #mainTabs {
@@ -3339,9 +3562,9 @@
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-select-chip.is-active {
-            background: #172554 !important;
-            border-color: #60a5fa !important;
-            color: #dbeafe !important;
+            background: var(--c-primary-soft) !important;
+            border-color: var(--c-primary) !important;
+            color: var(--c-text) !important;
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .modal-header,
@@ -3373,8 +3596,8 @@
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-row.is-selected {
-            background: #172554 !important;
-            border-color: #60a5fa !important;
+            background: var(--c-primary-soft) !important;
+            border-color: var(--c-primary) !important;
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-title,
@@ -3393,9 +3616,9 @@
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .mobile-selection-mark.is-selected {
-            border-color: #4f8df7 !important;
-            background: #4f8df7 !important;
-            color: #0f172a !important;
+            border-color: var(--c-primary) !important;
+            background: var(--c-primary) !important;
+            color: var(--c-on-primary) !important;
         }
 
         html[data-theme='dark'] .fee-collect-page .mobile-selection-modal .selection-count {
@@ -3600,12 +3823,12 @@
                         <form id="studentSearchForm">
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-2">
-                                    <label class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">STUDENT ID</label>
-                                    <input type="text" name="student_id" class="form-control" placeholder="Enter Student ID">
+                                    <label for="fees-collect-fee-student-id" class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">STUDENT ID</label>
+                                    <input id="fees-collect-fee-student-id" type="text" name="student_id" class="form-control" placeholder="Enter Student ID">
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">SESSION</label>
-                                    <select name="academic_session_id" class="form-control">
+                                    <label for="fees-collect-fee-academic-session-id" class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">SESSION</label>
+                                    <select id="fees-collect-fee-academic-session-id" name="academic_session_id" class="form-control">
                                         <option value="">All</option>
                                         @foreach($sessions ?? collect() as $session)
                                             <option value="{{ $session->id }}">{{ $session->name_en }}</option>
@@ -3628,8 +3851,8 @@
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">GROUP</label>
-                                    <select name="group_id" class="form-control">
+                                    <label for="fees-collect-fee-group-id" class="form-label mono text-muted fw-semibold" style="font-size:11px;letter-spacing:.08em">GROUP</label>
+                                    <select id="fees-collect-fee-group-id" name="group_id" class="form-control">
                                         <option value="">All</option>
                                         @foreach($groups ?? collect() as $group)
                                             <option value="{{ $group->id }}">{{ $group->name_en }}</option>
@@ -3691,12 +3914,12 @@
         <ul class="nav nav-tabs mb-4 px-2" id="mainTabs">
             <li class="nav-item">
                 <a class="nav-link active fw-semibold" href="#tabCollect">
-                    💳 Collect
+                    <i class="fas fa-credit-card mr-1" aria-hidden="true"></i> {{ __('Collect') }}
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link fw-semibold" href="#tabAssignedFees">
-                    🧾 Fees
+                    <i class="fas fa-receipt mr-1" aria-hidden="true"></i> {{ __('Fees') }}
                     <span class="badge rounded-pill ms-1"
                         style="font-size:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
                         {{ isset($assignedFees) ? $assignedFees->count() : 0 }}
@@ -3705,7 +3928,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link fw-semibold" href="#tabHistory">
-                    🧾 History
+                    <i class="fas fa-history mr-1" aria-hidden="true"></i> {{ __('History') }}
                     <span class="badge rounded-pill ms-1"
                         style="font-size:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
                         {{ $payments->count() }}
@@ -3721,7 +3944,7 @@
             ══════════════════════════════════════ --}}
             <div class="tab-pane fade show active" id="tabCollect">
                 <div class="mobile-quick-actions mobile-only mb-3">
-                    <div class="card mobile-summary-card mb-3">
+                    <div class="card mobile-summary-card mb-0">
                         <div class="mobile-chip-scroll">
                             @foreach ($feeSets as $feeSetId => $fees)
                                 <button type="button" class="mobile-select-chip"
@@ -3729,8 +3952,9 @@
                                     data-selection-key="{{ $feeSetId }}"
                                     data-selection-title="{{ $fees->first()->feeSet->name }}"
                                     aria-label="Open {{ $fees->first()->feeSet->name }}">
+                                    @php $feeSetDue = (float) $fees->sum('calculated_net_amount'); @endphp
                                     <strong>{{ $fees->first()->feeSet->name }}</strong>
-                                    <small>{{ $fees->count() }} fee{{ $fees->count() === 1 ? '' : 's' }}</small>
+                                    <small>{{ $fees->count() }} fee{{ $fees->count() === 1 ? '' : 's' }} · BDT {{ number_format($feeSetDue, fmod($feeSetDue, 1) ? 2 : 0) }} due</small>
                                 </button>
                             @endforeach
                             @foreach($inventoryCategories as $cat)
@@ -3756,11 +3980,6 @@
                         </div>
                     </div>
 
-                    <div class="card mobile-summary-card">
-                        <div class="mobile-summary-line" id="mobileSummaryText">
-                            Tap a category to add fees, inventory items, or dues.
-                        </div>
-                    </div>
                 </div>
 
                 <div class="desktop-collect-layout row g-4">
@@ -3773,7 +3992,7 @@
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="fs-5">🗂️</span>
+                                    <span class="fs-5"><i class="fas fa-folder" aria-hidden="true"></i></span>
                                     <span class="panel-eyebrow">Fee Categories</span>
                                 </div>
                             </div>
@@ -3801,7 +4020,7 @@
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="fs-5">📦</span>
+                                    <span class="fs-5"><i class="fas fa-box" aria-hidden="true"></i></span>
                                     <span class="panel-eyebrow">Inventory</span>
                                 </div>
                             </div>
@@ -3833,7 +4052,7 @@
                                 <div class="card-header bg-white border-bottom py-3 px-4"
                                     style="border-color:#f1f5f9!important">
                                     <div class="d-flex align-items-center gap-2">
-                                        <span class="fs-5">⏳</span>
+                                        <span class="fs-5"><i class="fas fa-hourglass-half" aria-hidden="true"></i></span>
                                         <span class="panel-eyebrow">Inventory Dues</span>
                                     </div>
                                 </div>
@@ -3885,14 +4104,14 @@
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="fs-5" id="middlePanelIcon">📋</span>
+                                    <span class="fs-5" id="middlePanelIcon"><i class="fas fa-clipboard-list" aria-hidden="true"></i></span>
                                     <span class="panel-eyebrow" id="middlePanelTitle">Pending Fees</span>
                                 </div>
                             </div>
                             <div class="card-body p-3">
 
                                 <div id="emptySelect" class="text-center py-5 text-muted">
-                                    <div style="font-size:44px;opacity:.2">👈</div>
+                                    <div style="font-size:44px;opacity:.2"><i class="fas fa-hand-point-left" aria-hidden="true"></i></div>
                                     <p class="mt-3 mb-0 fw-medium" style="font-size:14px">
                                         Select a category on the left<br>to view pending fees or items
                                     </p>
@@ -3926,7 +4145,7 @@
                                                             <p class="mono mb-0 mt-1" style="font-size:11px;color:#059669">
                                                                 <span class="badge rounded-pill"
                                                                     style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-size:10px">
-                                                                    🎓 {{ $catDiscount['category'] }}: -৳{{ number_format($catDiscount['discount'], 2) }}
+                                                                    <i class="fas fa-graduation-cap" aria-hidden="true"></i> {{ $catDiscount['category'] }}: -৳{{ number_format($catDiscount['discount'], 2) }}
                                                                 </span>
                                                             </p>
                                                         @endforeach
@@ -3936,7 +4155,7 @@
                                                             <p class="mono mb-0 mt-1" style="font-size:11px;color:#4338ca">
                                                                 <span class="badge rounded-pill"
                                                                     style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:10px">
-                                                                    🚌 {{ $catTransport['category'] }}: +৳{{ number_format($catTransport['amount'], 2) }}
+                                                                    <i class="fas fa-bus" aria-hidden="true"></i> {{ $catTransport['category'] }}: +৳{{ number_format($catTransport['amount'], 2) }}
                                                                 </span>
                                                             </p>
                                                         @endforeach
@@ -4021,7 +4240,7 @@
                             <div class="card-header bg-white border-bottom py-3 px-4"
                                 style="border-color:#f1f5f9!important">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="fs-5">🧾</span>
+                                    <span class="fs-5"><i class="fas fa-receipt" aria-hidden="true"></i></span>
                                     <span class="panel-eyebrow">Selected Items</span>
                                     <span id="cartBadge" class="mono ms-auto badge rounded-pill"
                                         style="font-size:11px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
@@ -4036,12 +4255,12 @@
                                         <div class="mobile-cart-summary">
                                             <div class="mobile-cart-copy">
                                                 <span id="mobileCartEyebrow" class="mobile-cart-eyebrow"
-                                                    data-collapsed-label="CART" data-expanded-label="TOTAL DUE">CART</span>
+                                                    data-collapsed-label="CART" data-expanded-label="SELECTED ITEMS">CART</span>
                                                 <strong id="mobileCartTotal">BDT 0.00</strong>
                                                 <small class="d-block text-truncate" id="mobileCartCount">No items added yet</small>
                                             </div>
                                             <span id="mobileCartBadge" class="mobile-cart-badge">0 items</span>
-                                            <span class="mobile-cart-chevron" aria-hidden="true">⌄</span>
+                                            <span class="mobile-cart-chevron" aria-hidden="true"><i class="fas fa-chevron-up"></i></span>
                                         </div>
                                     </button>
                                 </div>
@@ -4051,7 +4270,7 @@
                                 <div class="card-body p-3">
                                     <div class="scroll-area" style="max-height:280px">
                                         <div id="cartEmpty" class="mobile-empty-cart text-center py-5 text-muted">
-                                            <div style="font-size:40px;opacity:.18">🛒</div>
+                                            <div style="font-size:40px;opacity:.18"><i class="fas fa-shopping-cart" aria-hidden="true"></i></div>
                                             <p class="mt-3 mb-0 fw-medium" style="font-size:13px">
                                                 No items added yet.<br>Click a fee, inventory item, or due item to add it.
                                             </p>
@@ -4071,13 +4290,14 @@
                                             <span class="mono text-muted fw-semibold"
                                                 style="font-size:11px;letter-spacing:.08em">DISCOUNT</span>
                                             <div class="mobile-discount-controls ms-auto d-flex align-items-center gap-1"
-                                                role="tablist" aria-label="Discount type">
+                                                role="group" aria-label="{{ __('Discount') }}">
                                                 <input type="number" id="discountInput" name="discount" min="0"
-                                                    step="0.01" placeholder="0.00" value="0" autocomplete="off">
+                                                    step="0.01" placeholder="0.00" value="0" autocomplete="off"
+                                                    inputmode="decimal" aria-label="{{ __('Discount amount') }}">
                                                 <button type="button" class="discount-type-btn active"
-                                                    id="btnFlat" role="tab" aria-selected="true">BDT</button>
+                                                    id="btnFlat" aria-pressed="true" aria-label="{{ __('Flat amount in BDT') }}">BDT</button>
                                                 <button type="button" class="discount-type-btn"
-                                                    id="btnPercent" role="tab" aria-selected="false">%</button>
+                                                    id="btnPercent" aria-pressed="false" aria-label="{{ __('Percentage') }}">%</button>
                                             </div>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center mt-2">
@@ -4091,7 +4311,7 @@
                                     <hr class="my-2" style="border-color:#f1f5f9">
                                     <div class="mobile-total-due-row d-flex justify-content-between align-items-baseline mb-3">
                                         <span class="mono text-muted fw-semibold"
-                                            style="font-size:11px;letter-spacing:.09em">PAYMENT SUMMARY</span>
+                                            style="font-size:11px;letter-spacing:.09em">{{ __('TOTAL TO COLLECT') }}</span>
                                         <div>
                                             <span class="mono text-muted me-1" style="font-size:13px">BDT</span>
                                             <span class="mono fw-bold" id="totalAmount"
@@ -4104,7 +4324,7 @@
                                             <label for="paymentAmount" class="form-label mono text-muted fw-semibold"
                                                 style="font-size:11px;letter-spacing:.08em">PAYMENT AMOUNT</label>
                                              <input type="number" id="paymentAmount" name="payment_amount" min="0" step="0.01"
-                                                 placeholder="Enter payment amount" class="form-control" readonly
+                                                 class="form-control" readonly aria-readonly="true"
                                                  style="font-size:16px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc">
                                         </div>
 
@@ -4119,6 +4339,7 @@
                                     </div>
 
                                     <div class="mb-3">
+                                        <label for="descriptionInput" class="sr-only">{{ __('Payment note') }}</label>
                                         <textarea name="description" id="descriptionInput" class="form-control" rows="2"
                                             placeholder="Add payment note or description" style="font-size:13px;border-radius:8px;border:1px solid #e2e8f0">{{ old('description') }}</textarea>
                                     </div>
@@ -4126,7 +4347,7 @@
                                     <button type="button" class="collect-btn btn w-100 fw-bold text-white rounded-3 py-3"
                                         id="collectBtn" disabled
                                         style="background:linear-gradient(135deg,#6366f1,#4338ca);font-size:14px">
-                                        ✓ &nbsp;Collect payment
+                                        <i class="fas fa-check mr-1" aria-hidden="true"></i> {{ __('Collect payment') }}
                                     </button>
                                 </div>
                             </form>
@@ -4149,7 +4370,7 @@
                         <div class="d-flex align-items-start gap-3 flex-wrap assigned-fees-toolbar">
                             <div class="flex-grow-1 min-w-0">
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <span class="fs-5">🧾</span>
+                                    <span class="fs-5"><i class="fas fa-receipt" aria-hidden="true"></i></span>
                                     <span class="panel-eyebrow">Assigned Fees</span>
                                     <span class="badge rounded-pill" style="font-size:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
                                         {{ $assignedFeeGroups->count() }} categories
@@ -4173,8 +4394,8 @@
                                         Deactivate All
                                     </button>
                                 </div>
-                                <button type="submit" class="btn btn-sm btn-primary assigned-fees-save" form="feeActivationForm">
-                                    Save Changes
+                                <button type="submit" class="btn btn-sm btn-primary assigned-fees-save" form="feeActivationForm" disabled>
+                                    Save Changes<span class="assigned-fees-save-count"></span>
                                 </button>
                             </div>
                         </div>
@@ -4182,7 +4403,7 @@
                     <div class="card-body p-0">
                         @if (($assignedFees ?? collect())->isEmpty())
                             <div class="assigned-fees-empty">
-                                <div class="mb-2" style="font-size:40px;opacity:.22">🧾</div>
+                                <div class="mb-2" style="font-size:40px;opacity:.22"><i class="fas fa-receipt" aria-hidden="true"></i></div>
                                 <div class="fw-semibold text-dark">No assigned fees found for this student.</div>
                                 <div class="small text-muted mt-1">Assign fee sets to see them grouped by category here.</div>
                             </div>
@@ -4196,8 +4417,8 @@
                                         @foreach ($assignedFeeGroups as $group)
                                             @php
                                                 $categoryLabel = preg_split('/\s+/', trim($group['label']))[0] ?? $group['label'];
-                                                $categoryLabel = mb_strlen($categoryLabel) > 10
-                                                    ? mb_substr($categoryLabel, 0, 10) . '..'
+                                                $categoryLabel = mb_strlen($categoryLabel) > 14
+                                                    ? mb_substr($categoryLabel, 0, 14) . '…'
                                                     : $categoryLabel;
                                             @endphp
                                             <li class="nav-item" role="presentation">
@@ -4245,7 +4466,7 @@
 
                                             <div class="assigned-fees-table-shell">
                                                 <div class="assigned-fees-table-responsive">
-                                                    <table class="table assigned-fees-table align-middle">
+                                                    <table class="table assigned-fees-table align-middle" data-no-stack>
                                                         <thead>
                                                             <tr>
                                                                 <th style="width:64px;">#</th>
@@ -4272,8 +4493,10 @@
                                                                     <td>{{ $loop->iteration }}</td>
                                                                     <td>
                                                                         <div class="fw-semibold">{{ $fee->feeSet->name ?? 'N/A' }}</div>
-                                                                        <div class="small text-muted">{{ $fee->remarks ?? 'Fee assigned to this student' }}</div>
-                                                                        <div class="assigned-fees-pill-group">
+                                                                        @if (filled($fee->remarks))
+                                                                            <div class="small text-muted assigned-fees-remarks">{{ $fee->remarks }}</div>
+                                                                        @endif
+                                                                        <div class="assigned-fees-pill-group {{ $feeCategoryNames->count() === 1 && $feeCategoryNames->first() === $group['label'] ? 'assigned-fees-pill-group--same-as-tab' : '' }}">
                                                                             @forelse ($feeCategoryNames as $categoryName)
                                                                                 <span class="assigned-fees-pill">{{ $categoryName }}</span>
                                                                             @empty
@@ -4281,11 +4504,14 @@
                                                                             @endforelse
                                                                         </div>
                                                                     </td>
-                                                                    <td>{{ optional($fee->due_date)->format('d M, Y') ?? 'N/A' }}</td>
-                                                                    <td class="text-end">৳{{ number_format($fee->amount ?? 0, 2) }}</td>
-                                                                    <td class="text-end text-success">৳{{ number_format($fee->paid_amount ?? 0, 2) }}</td>
-                                                                    <td class="text-end text-danger">
-                                                                        ৳{{ number_format($fee->due_amount ?? max(0, (float) ($fee->amount ?? 0) - (float) ($fee->paid_amount ?? 0)), 2) }}
+                                                                    <td data-label="Due date">{{ optional($fee->due_date)->format('d M, Y') ?? 'N/A' }}</td>
+                                                                    <td class="text-end" data-label="Amount">৳{{ number_format($fee->amount ?? 0, 2) }}</td>
+                                                                    <td class="text-end text-success" data-label="Paid">৳{{ number_format($fee->paid_amount ?? 0, 2) }}</td>
+                                                                    @php
+                                                                        $feeDue = (float) ($fee->due_amount ?? max(0, (float) ($fee->amount ?? 0) - (float) ($fee->paid_amount ?? 0)));
+                                                                    @endphp
+                                                                    <td class="text-end {{ $feeDue > 0 ? 'text-danger' : 'text-muted' }}" data-label="Due">
+                                                                        ৳{{ number_format($feeDue, 2) }}
                                                                     </td>
                                                                     <td>
                                                                         <span class="student-profile-badge {{ $fee->status === 'paid' ? 'student-profile-badge--success' : 'student-profile-badge--warning' }}">
@@ -4305,7 +4531,7 @@
                                                                                     value="{{ $fee->id }}"
                                                                                     {{ $fee->is_active ? 'checked' : '' }}
                                                                                 >
-                                                                                <label class="custom-control-label" for="assignedFeeSwitch{{ $fee->id }}"></label>
+                                                                                <label class="custom-control-label" for="assignedFeeSwitch{{ $fee->id }}"><span class="assigned-fee-active-text">{{ __('Active') }}</span></label>
                                                                             </div>
                                                                         @endif
                                                                     </td>
@@ -4325,7 +4551,7 @@
                                                                                     <span class="assigned-fee-edit-label">Edit</span>
                                                                                 </button>
                                                                             @else
-                                                                                <span class="text-muted small mr-1">Locked</span>
+                                                                                <span class="text-muted small mr-1 assigned-fee-locked-note">Locked</span>
                                                                             @endif
                                                                             @if ($fee->amountHistories->isNotEmpty())
                                                                                 <button
@@ -4492,7 +4718,7 @@
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-header bg-white border-bottom py-3 px-4" style="border-color:#f1f5f9!important">
                         <div class="d-flex align-items-center gap-2">
-                            <span class="fs-5">📑</span>
+                            <span class="fs-5"><i class="fas fa-file-alt" aria-hidden="true"></i></span>
                             <span class="panel-eyebrow">Payment History</span>
                         </div>
                     </div>
@@ -4640,7 +4866,7 @@
                                     @empty
                                         <tr>
                                             <td colspan="11" class="text-center text-muted py-5">
-                                                <div style="font-size:36px;opacity:.2">🧾</div>
+                                                <div style="font-size:36px;opacity:.2"><i class="fas fa-receipt" aria-hidden="true"></i></div>
                                                 <p class="mt-2 mb-0" style="font-size:14px">No payments recorded yet</p>
                                             </td>
                                         </tr>
@@ -4660,6 +4886,7 @@
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        const COLLECT_LABEL = '<i class="fas fa-check mr-1" aria-hidden="true"></i>{{ __('Collect payment') }}';
         $(function() {
             let grossSubtotal = 0;
             let cartIds = new Set();       // fee IDs
@@ -4989,7 +5216,7 @@
                 if (!visibleItems.length) {
                     $mobileSelectionList.html(`
                         <div class="text-center text-muted py-5">
-                            <div style="font-size:36px;opacity:.18">🔎</div>
+                            <div style="font-size:36px;opacity:.18"><i class="fas fa-search" aria-hidden="true"></i></div>
                             <p class="mt-2 mb-0">No items matched your search.</p>
                         </div>
                     `);
@@ -5188,7 +5415,7 @@
                 const sel = $(this).data('cat');
                 $emptySelect.hide();
                 $feesContainer.removeClass('d-none');
-                $('#middlePanelIcon').text('📋');
+                $('#middlePanelIcon').html('<i class="fas fa-clipboard-list" aria-hidden="true"></i>');
                 $('#middlePanelTitle').text('PENDING FEES').css('color', '#4338ca');
                 $('.inv-item-card').hide();
                 $feeCards.each(function() {
@@ -5204,7 +5431,7 @@
                 const sel = $(this).data('inv-cat');
                 $emptySelect.hide();
                 $feesContainer.removeClass('d-none');
-                $('#middlePanelIcon').text('📦');
+                $('#middlePanelIcon').html('<i class="fas fa-box" aria-hidden="true"></i>');
                 $('#middlePanelTitle').text('INVENTORY ITEMS').css('color', '#059669');
                 $feeCards.hide();
                 $('.inv-item-card').each(function() {
@@ -5257,7 +5484,7 @@
                         <button type="button"
                                 class="remove-btn cart-row-remove btn btn-light btn-sm border rounded-2 px-2 py-1"
                                 data-id="due_${dueId}" data-due-id="${dueId}" data-amount="${dueAmount}" data-type="due"
-                                style="font-size:13px;line-height:1">✕</button>
+                                style="font-size:13px;line-height:1" aria-label="{{ __('Remove') }}" title="{{ __('Remove') }}"><i class="fas fa-times" aria-hidden="true"></i></button>
                     </div>`;
                 $cartItemsEl.append(html);
                 updateUI();
@@ -5268,8 +5495,8 @@
                 discountType = 'flat';
                 $(this).addClass('active');
                 $('#btnPercent').removeClass('active');
-                $(this).attr('aria-selected', 'true');
-                $('#btnPercent').attr('aria-selected', 'false');
+                $(this).attr('aria-pressed', 'true');
+                $('#btnPercent').attr('aria-pressed', 'false');
                 $('#discountTypeHidden').val('flat');
                 $discountInput.attr('placeholder', '0.00');
                 updateUI();
@@ -5279,8 +5506,8 @@
                 discountType = 'percent';
                 $(this).addClass('active');
                 $('#btnFlat').removeClass('active');
-                $(this).attr('aria-selected', 'true');
-                $('#btnFlat').attr('aria-selected', 'false');
+                $(this).attr('aria-pressed', 'true');
+                $('#btnFlat').attr('aria-pressed', 'false');
                 $('#discountTypeHidden').val('percent');
                 $discountInput.attr('placeholder', '0');
                 updateUI();
@@ -5313,7 +5540,7 @@
 
                 let itemsBreakdown = '';
                 if (items.length > 0) {
-                    itemsBreakdown = '<div style="font-size:13px;color:#000;font-weight:600;padding:0;">';
+                    itemsBreakdown = '<div style="font-size:13px;color:var(--c-text, #0f172a);font-weight:600;padding:0;">';
                     items.forEach(function(item) {
                         itemsBreakdown += '<div class="d-flex justify-content-between" style="display: flex !important;"><span>' +
                             item.category + ' - ' + parseFloat(item.amount).toFixed(2) +
@@ -5351,7 +5578,7 @@
                          <button type="button"
                                  class="remove-btn cart-row-remove btn btn-light btn-sm border rounded-2 px-2 py-1"
                                  data-id="${id}" data-amount="${amount}" data-type="fee"
-                                 style="font-size:13px;line-height:1;position:absolute;right:0;top:0;">✕</button>
+                                 style="font-size:13px;line-height:1;position:absolute;right:0;top:0;" aria-label="{{ __('Remove') }}" title="{{ __('Remove') }}"><i class="fas fa-times" aria-hidden="true"></i></button>
                      </div>`;
                 $cartItemsEl.append(html);
                 updateUI();
@@ -5434,7 +5661,7 @@
                         <button type="button"
                                 class="remove-btn cart-row-remove btn btn-light btn-sm border rounded-2 px-2 py-1"
                                 data-id="${cartKey}" data-inv-id="${invId}" data-amount="${itemSubtotal}" data-type="item"
-                                style="font-size:13px;line-height:1">✕</button>
+                                style="font-size:13px;line-height:1" aria-label="{{ __('Remove') }}" title="{{ __('Remove') }}"><i class="fas fa-times" aria-hidden="true"></i></button>
                     </div>`;
                 $cartItemsEl.append(html);
                 updateUI();
@@ -5549,12 +5776,15 @@
 
             $cartItemsEl.on('input', '.fee-paid-input', function() {
                 let $row = $(this).closest('.cart-row');
-                let maxDue = parseFloat($row.find('.gross-line-amount').text()) || 0;
+                const payable = $row.data('payable');
+                let maxDue = payable !== undefined ? payable : (parseFloat($row.find('.gross-line-amount').text()) || 0);
                 let paid = Math.max(0, parseFloat($(this).val()) || 0);
                 if (paid > maxDue) {
                     paid = maxDue;
                     $(this).val(paid.toFixed(2));
                 }
+                // A line paid in full keeps following the discount; a part-payment stays as typed.
+                $row.data('paidFull', paid >= maxDue);
                 $row.find('input.fee-paid-hidden').val(paid.toFixed(2));
                 updateUI();
             });
@@ -5584,10 +5814,12 @@
             });
 
             /* ── Compute discount ── */
-            function computeDiscount() {
+            // The cart discount applies to fees only (FeeCollectionController::pay spreads it over the
+            // fee lines), so its base is the fee total, not the whole cart.
+            function computeDiscount(feeTotal) {
                 let raw = Math.max(0, parseFloat($discountInput.val()) || 0);
-                if (discountType === 'flat') return Math.min(raw, grossSubtotal);
-                if (discountType === 'percent') return (grossSubtotal * Math.min(raw, 100)) / 100;
+                if (discountType === 'flat') return roundTo2(Math.min(raw, feeTotal));
+                if (discountType === 'percent') return roundTo2((feeTotal * Math.min(raw, 100)) / 100);
                 return 0;
             }
 
@@ -5599,14 +5831,16 @@
             function updateUI() {
                 let grossTotal = 0;
                 let paidTotal = 0;
+                let feeTotal = 0;
+                const feeRows = [];
 
                 $cartItemsEl.find('.cart-row').each(function() {
                     const $row = $(this);
                     if ($row.find('input.fee-paid-hidden').length) {
                         const gross = parseFloat($row.find('.gross-line-amount').text()) || 0;
-                        const paid = parseFloat($row.find('input.fee-paid-hidden').val()) || 0;
                         grossTotal += gross;
-                        paidTotal += paid;
+                        feeTotal += gross;
+                        feeRows.push({ $row, gross });
                     }
 
                     if ($row.find('input[name^="items"][name$="[inventory_item_id]"]').length) {
@@ -5625,10 +5859,26 @@
                 });
 
                 grossSubtotal = grossTotal;
-                const discountAmt = computeDiscount();
+                const discountAmt = computeDiscount(feeTotal);
+
+                // Same split as the server: each fee takes a share of the discount in proportion to
+                // its amount, and can't be paid beyond what is left after that share.
+                feeRows.forEach(function({ $row, gross }) {
+                    const share = feeTotal > 0 ? roundTo2(discountAmt * (gross / feeTotal)) : 0;
+                    const payable = roundTo2(Math.max(0, gross - share));
+                    const $hidden = $row.find('input.fee-paid-hidden');
+                    const $input = $row.find('.fee-paid-input');
+                    let paid = parseFloat($hidden.val()) || 0;
+                    if ($row.data('paidFull') !== false || paid > payable) paid = payable;
+                    $row.data('payable', payable);
+                    $hidden.val(paid.toFixed(2));
+                    if ((parseFloat($input.val()) || 0) !== paid) $input.val(paid.toFixed(2));
+                    paidTotal += paid;
+                });
                 $subtotalEl.text(grossTotal.toFixed(2));
                 $totalEl.text(paidTotal.toFixed(2));
                 $discountLine.text(`- ${discountAmt.toFixed(2)} BDT`);
+                $('#discountSection').toggleClass('has-discount', discountAmt > 0);
                 $('#discountAmountHidden').val(discountAmt.toFixed(2));
                 let totalCount = cartIds.size + cartInvIds.size;
                 totalCount += cartDueIds.size;
@@ -5659,7 +5909,7 @@
                 if (cartIds.size === 0 && cartInvIds.size === 0 && cartDueIds.size === 0) return;
 
                 const $btn = $(this);
-                $btn.prop('disabled', true).html('⏳ &nbsp;Processing...');
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>{{ __('Collecting…') }}');
 
                 let feesPayload = [];
                 let itemsPayload = [];
@@ -5732,7 +5982,7 @@
                         $('#cartEmpty').show();
                         $('#discountInput').val(0);
                         $('#descriptionInput').val('');
-                        $btn.prop('disabled', true).html('✓ &nbsp;COLLECT PAYMENT');
+                        $btn.prop('disabled', true).html(COLLECT_LABEL);
                         updateUI();
                         toggleMobileCart(false);
 
@@ -5765,7 +6015,7 @@
                         // ── Error toast ──
                         const $toast = $('#paymentToast');
                         $toast.css('background', '#dc2626');
-                        $('#paymentToast span:first').text('✕');
+                        $('#paymentToast span:first').html('<i class="fas fa-times" aria-hidden="true"></i>');
                         $toast.find('.fw-800, [style*="font-weight:800"]').text(
                             'PAYMENT FAILED');
                         $('#toastReceiptNo').text(msg);
@@ -5774,20 +6024,33 @@
                             $toast.fadeOut(400, function() {
                                 // Reset toast to success style for next time
                                 $toast.css('background', '#111');
-                                $('#paymentToast span:first').text('✓');
+                                $('#paymentToast span:first').html('<i class="fas fa-check" aria-hidden="true"></i>');
                                 $toast.find('[style*="font-weight:800"]').text(
                                     'PAYMENT COLLECTED');
                             });
                         }, 4000);
 
-                        $btn.prop('disabled', false).html('✓ &nbsp;COLLECT PAYMENT');
+                        $btn.prop('disabled', false).html(COLLECT_LABEL);
                     }
                 });
             });
 
+            // Save stays disabled until a switch differs from how the page loaded.
+            const $feeToggles = $('#feeActivationForm .js-fee-active-toggle');
+            $feeToggles.each(function() { $(this).data('initial', this.checked); });
+
+            function syncFeeActivationSave() {
+                const changed = $feeToggles.filter(function() { return this.checked !== $(this).data('initial'); }).length;
+                $('.assigned-fees-save').prop('disabled', changed === 0);
+                $('.assigned-fees-save-count').text(changed ? ` (${changed})` : '');
+            }
+
+            $feeToggles.on('change', syncFeeActivationSave);
+
             $(document).on('click', '.js-set-all-fees', function() {
                 const shouldActivate = String($(this).data('state')) === '1';
-                $('#feeActivationForm .js-fee-active-toggle').not(':disabled').prop('checked', shouldActivate);
+                $feeToggles.not(':disabled').prop('checked', shouldActivate);
+                syncFeeActivationSave();
             });
 
             $(document).on('click', '.js-edit-assigned-fee', function() {
@@ -5922,6 +6185,7 @@
                         if ($card.length) {
                             $card.trigger('click');
                             const $row = $('#cart-' + item.fee_id);
+                            $row.data('paidFull', false);
                             $row.find('.fee-paid-input').val(Number(item.requested_amount).toFixed(2)).prop('disabled', true);
                             $row.find('.fee-paid-hidden').val(Number(item.requested_amount).toFixed(2));
                         }

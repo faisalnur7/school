@@ -32,7 +32,7 @@
                             </td>
                             @endforeach
                             <td>
-                                <button class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#setModal{{ $emp->id }}"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-xs btn-outline-primary" data-toggle="modal" data-target="#setModal{{ $emp->id }}" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></button>
                                 <div class="modal fade" id="setModal{{ $emp->id }}" tabindex="-1">
                                     <div class="modal-dialog"><div class="modal-content">
                                         <div class="modal-header"><h5 class="modal-title">Set Leave Balance — {{ $emp->name }}</h5><button type="button" class="close" data-dismiss="modal">&times;</button></div>

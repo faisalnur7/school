@@ -36,14 +36,14 @@
                 <!-- Row 1: Name & Company -->
                 <div class="row g-2 mb-3">
                     <div class="col-md-6">
-                        <label class="form-label small font-weight-600 mb-1">Name <span class="text-danger">*</span></label>
-                        <input type="text" name="name" value="{{ old('name', $supplier->name) }}" class="form-control form-control-sm @error('name') is-invalid @enderror" placeholder="Supplier name" required>
+                        <label for="suppliers-edit-name" class="form-label small font-weight-600 mb-1">Name <span class="text-danger">*</span></label>
+                        <input id="suppliers-edit-name" type="text" name="name" value="{{ old('name', $supplier->name) }}" class="form-control form-control-sm @error('name') is-invalid @enderror" placeholder="Supplier name" required>
                         @error('name')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label small font-weight-600 mb-1">Company Name</label>
-                        <input type="text" name="company_name" value="{{ old('company_name', $supplier->company_name) }}" class="form-control form-control-sm @error('company_name') is-invalid @enderror" placeholder="Company name">
+                        <label for="suppliers-edit-company-name" class="form-label small font-weight-600 mb-1">Company Name</label>
+                        <input id="suppliers-edit-company-name" type="text" name="company_name" value="{{ old('company_name', $supplier->company_name) }}" class="form-control form-control-sm @error('company_name') is-invalid @enderror" placeholder="Company name">
                         @error('company_name')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
                 </div>
@@ -51,14 +51,14 @@
                 <!-- Row 2: Phone & Email -->
                 <div class="row g-2 mb-3">
                     <div class="col-md-6">
-                        <label class="form-label small font-weight-600 mb-1">Phone</label>
-                        <input type="text" name="phone" value="{{ old('phone', $supplier->phone) }}" class="form-control form-control-sm @error('phone') is-invalid @enderror" placeholder="Phone number">
+                        <label for="suppliers-edit-phone" class="form-label small font-weight-600 mb-1">Phone</label>
+                        <input id="suppliers-edit-phone" type="text" name="phone" value="{{ old('phone', $supplier->phone) }}" class="form-control form-control-sm @error('phone') is-invalid @enderror" placeholder="Phone number">
                         @error('phone')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label small font-weight-600 mb-1">Email</label>
-                        <input type="email" name="email" value="{{ old('email', $supplier->email) }}" class="form-control form-control-sm @error('email') is-invalid @enderror" placeholder="Email address">
+                        <label for="suppliers-edit-email" class="form-label small font-weight-600 mb-1">Email</label>
+                        <input id="suppliers-edit-email" type="email" name="email" value="{{ old('email', $supplier->email) }}" class="form-control form-control-sm @error('email') is-invalid @enderror" placeholder="Email address">
                         @error('email')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
                 </div>
@@ -66,8 +66,8 @@
                 <!-- Row 3: Address -->
                 <div class="row g-2 mb-3">
                     <div class="col-12">
-                        <label class="form-label small font-weight-600 mb-1">Address</label>
-                        <textarea name="address" class="form-control form-control-sm @error('address') is-invalid @enderror" rows="2" placeholder="Enter address...">{{ old('address', $supplier->address) }}</textarea>
+                        <label for="suppliers-edit-address" class="form-label small font-weight-600 mb-1">Address</label>
+                        <textarea id="suppliers-edit-address" name="address" class="form-control form-control-sm @error('address') is-invalid @enderror" rows="2" placeholder="Enter address...">{{ old('address', $supplier->address) }}</textarea>
                         @error('address')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
                 </div>
@@ -75,8 +75,8 @@
                 <!-- Row 4: Status -->
                 <div class="row g-2 mb-3">
                     <div class="col-md-4">
-                        <label class="form-label small font-weight-600 mb-1">Status</label>
-                        <select name="status" class="form-control form-control-sm @error('status') is-invalid @enderror">
+                        <label for="suppliers-edit-status" class="form-label small font-weight-600 mb-1">Status</label>
+                        <select id="suppliers-edit-status" name="status" class="form-control form-control-sm @error('status') is-invalid @enderror">
                             <option value="1" {{ old('status', $supplier->status ? '1' : '0') == '1' ? 'selected' : '' }}>Active</option>
                             <option value="0" {{ old('status', $supplier->status ? '1' : '0') == '0' ? 'selected' : '' }}>Inactive</option>
                         </select>

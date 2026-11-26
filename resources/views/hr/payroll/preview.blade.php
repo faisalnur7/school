@@ -57,7 +57,7 @@
             </div>
 
             @if($valid->count())
-            <form action="{{ route('hr.payroll.generate') }}" method="POST" onsubmit="return confirm('Generate payroll for {{ $valid->count() }} employees?')">
+            <form action="{{ route('hr.payroll.generate') }}" method="POST" data-confirm="{{ __('Generate payroll for :count employees?', ['count' => $valid->count()]) }}" data-confirm-action="{{ __('Generate payroll') }}" data-confirm-cancel="{{ __('Not now') }}" data-confirm-tone="primary">
                 @csrf
                 <input type="hidden" name="month" value="{{ $month }}">
                 <input type="hidden" name="year"  value="{{ $year }}">

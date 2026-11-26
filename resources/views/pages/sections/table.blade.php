@@ -38,8 +38,7 @@
                                             <input type="checkbox" class="custom-control-input"
                                                 id="statusSwitch{{ $section->id }}" onchange="this.form.submit()"
                                                 {{ $section->status ? 'checked' : '' }}>
-                                            <label class="custom-control-label" for="statusSwitch{{ $section->id }}">
-                                            </label>
+                                            <label class="custom-control-label" for="statusSwitch{{ $section->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
                                         </div>
                                     </form>
                                 @else
@@ -49,18 +48,18 @@
                             </td>
                             <td style="display: flex; justify-content: center; align-items: self-start; gap: 5px;">
                                 @if(auth()->user()?->hasPermission('edit_sections'))
-                                    <a href="{{ route('sections.edit', $section->id) }}" class="btn btn-sm btn-dark">
-                                        <i class="fas fa-edit"></i>
+                                    <a href="{{ route('sections.edit', $section->id) }}" class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
                                     </a>
                                 @endif
 
                                 @if(auth()->user()?->hasPermission('delete_sections'))
                                     <form action="{{ route('sections.delete', $section->id) }}" method="POST"
-                                        class="btn btn-sm btn-danger d-inline m-0"
-                                        onsubmit="return confirm('Delete this section?')">
+                                        class="d-inline m-0"
+                                        data-confirm="{{ __('Delete section “:name”?', ['name' => $section->schoolClass?->name_en . ' · ' . $section->name_en]) }}" data-confirm-action="{{ __('Delete section') }}" data-confirm-cancel="{{ __('Keep section') }}">
                                         @csrf
                                         @method('DELETE')
-                                        <i class="fas fa-trash"></i>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 @endif
                             </td>

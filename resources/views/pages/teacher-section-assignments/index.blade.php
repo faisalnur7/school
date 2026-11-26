@@ -109,11 +109,11 @@
                                     <td class="text-right">
                                         <form method="POST"
                                             action="{{ route('teacher-section-assignments.destroy', $a) }}"
-                                            onsubmit="return confirm('Remove this assignment?')">
+                                            data-confirm="{{ __('Remove this assignment?') }}" data-confirm-action="{{ __('Remove assignment') }}" data-confirm-cancel="{{ __('Keep assignment') }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-xs btn-danger">
-                                                <i class="fas fa-trash"></i>
+                                            <button type="submit" class="btn btn-xs btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                                <i class="fas fa-trash" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                     </td>

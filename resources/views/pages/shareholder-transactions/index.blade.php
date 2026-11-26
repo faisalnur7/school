@@ -35,8 +35,8 @@
                         @endif
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label mb-1" style="font-size:12px">Shareholder</label>
-                        <select name="shareholder_id" class="form-control form-control-sm">
+                        <label for="shareholder-transactions-index-shareholder-id" class="form-label mb-1" style="font-size:12px">Shareholder</label>
+                        <select id="shareholder-transactions-index-shareholder-id" name="shareholder_id" class="form-control form-control-sm">
                             <option value="">All Shareholders</option>
                             @foreach ($shareholders as $sh)
                                 <option value="{{ $sh->id }}" {{ request('shareholder_id') == $sh->id ? 'selected' : '' }}>
@@ -132,15 +132,15 @@
                                     <a href="{{ route('shareholder-transactions.voucher', $txn->id) }}" class="btn btn-sm btn-secondary" title="Print Voucher" target="_blank">
                                         <i class="fas fa-print"></i>
                                     </a>
-                                    <a href="{{ route('shareholder-transactions.edit', $txn->id) }}" class="btn btn-sm btn-dark">
-                                        <i class="fas fa-edit"></i>
+                                    <a href="{{ route('shareholder-transactions.edit', $txn->id) }}" class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
                                     </a>
                                     <form action="{{ route('shareholder-transactions.destroy', $txn->id) }}" method="POST"
                                           class="btn btn-sm btn-danger d-inline m-0 p-0"
-                                          onsubmit="return confirm('Delete this transaction?')">
+                                          data-confirm="{{ __('Delete this transaction?') }}" data-confirm-action="{{ __('Delete transaction') }}" data-confirm-cancel="{{ __('Keep transaction') }}">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger">
-                                            <i class="fas fa-trash"></i>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                            <i class="fas fa-trash" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 </td>

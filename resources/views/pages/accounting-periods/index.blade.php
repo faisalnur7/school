@@ -53,12 +53,12 @@
                             <td style="display:flex;gap:5px; justify-content: center; align-items: center;">
                                 @if(!$period->is_closed)
                                     <form action="{{ route('accounting-periods.close', $period) }}" method="POST"
-                                          onsubmit="return confirm('Close period {{ $period->name }}? This cannot be undone.')">
+                                          data-confirm="{{ __('Close period :name?', ['name' => $period->name]) }}" data-confirm-text="{{ __('This cannot be undone.') }}" data-confirm-action="{{ __('Close period') }}" data-confirm-cancel="{{ __('Keep open') }}">
                                         @csrf
                                         <button class="btn btn-sm btn-warning">Lock Period</button>
                                     </form>
                                     <form action="{{ route('accounting-periods.destroy', $period) }}" method="POST"
-                                          onsubmit="return confirm('Delete this period?')">
+                                          data-confirm="{{ __('Delete this period?') }}" data-confirm-action="{{ __('Delete period') }}" data-confirm-cancel="{{ __('Keep period') }}">
                                         @csrf @method('DELETE')
                                         <button class="btn btn-sm btn-danger">Del</button>
                                     </form>
@@ -87,16 +87,16 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Name (e.g. FY-2025)</label>
-                        <input type="text" name="name" class="form-control" required placeholder="FY-2025">
+                        <label for="accounting-periods-index-name">Name (e.g. FY-2025)</label>
+                        <input id="accounting-periods-index-name" type="text" name="name" class="form-control" required placeholder="FY-2025">
                     </div>
                     <div class="form-group">
-                        <label>Start Date</label>
-                        <input type="date" name="start_date" class="form-control" required>
+                        <label for="accounting-periods-index-start-date">Start Date</label>
+                        <input id="accounting-periods-index-start-date" type="date" name="start_date" class="form-control" required>
                     </div>
                     <div class="form-group">
-                        <label>End Date</label>
-                        <input type="date" name="end_date" class="form-control" required>
+                        <label for="accounting-periods-index-end-date">End Date</label>
+                        <input id="accounting-periods-index-end-date" type="date" name="end_date" class="form-control" required>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -35,22 +35,22 @@
                 @endif
 
 <div class="form-group">
-                            <label>Name</label>
-                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                            <label for="income-categories-edit-name">Name</label>
+                            <input id="income-categories-edit-name" type="text" name="name" class="form-control @error('name') is-invalid @enderror"
                                    value="{{ old('name', $incomeCategory->name) }}" required>
                             @error('name') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="form-group">
-                            <label>Slug</label>
-                            <input type="text" name="slug" class="form-control @error('slug') is-invalid @enderror"
+                            <label for="income-categories-edit-slug">Slug</label>
+                            <input id="income-categories-edit-slug" type="text" name="slug" class="form-control @error('slug') is-invalid @enderror"
                                    value="{{ old('slug', $incomeCategory->slug) }}">
                             @error('slug') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="form-group">
-                            <label>Description</label>
-                            <textarea name="description" class="form-control @error('description') is-invalid @enderror"
+                            <label for="income-categories-edit-description">Description</label>
+                            <textarea id="income-categories-edit-description" name="description" class="form-control @error('description') is-invalid @enderror"
                                       rows="3">{{ old('description', $incomeCategory->description) }}</textarea>
                             @error('description') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>

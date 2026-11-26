@@ -17,14 +17,14 @@
                             <div class="alert alert-danger">{{ $errors->first() }}</div>
                         @endif
                         <div class="form-group">
-                            <label>Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                            <label for="professions-index-name">Name <span class="text-danger">*</span></label>
+                            <input id="professions-index-name" type="text" name="name" class="form-control @error('name') is-invalid @enderror"
                                    value="{{ old('name') }}" placeholder="e.g. Doctor" required>
                             @error('name')<span class="invalid-feedback">{{ $message }}</span>@enderror
                         </div>
                         <div class="form-group">
-                            <label>Bangla Name <span class="text-danger">*</span></label>
-                            <input type="text" name="bn_name" class="form-control @error('bn_name') is-invalid @enderror"
+                            <label for="professions-index-bn-name">Bangla Name <span class="text-danger">*</span></label>
+                            <input id="professions-index-bn-name" type="text" name="bn_name" class="form-control @error('bn_name') is-invalid @enderror"
                                    value="{{ old('bn_name') }}" placeholder="e.g. ডাক্তার" required>
                             @error('bn_name')<span class="invalid-feedback">{{ $message }}</span>@enderror
                         </div>
@@ -60,14 +60,14 @@
                                 <td style="display:flex;gap:5px">
                                     <button class="btn btn-sm btn-dark"
                                             data-toggle="modal"
-                                            data-target="#editProfession{{ $profession->id }}">
-                                        <i class="fas fa-edit"></i>
+                                            data-target="#editProfession{{ $profession->id }}" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
                                     </button>
                                     <form action="{{ route('professions.destroy', $profession) }}"
                                           method="POST"
-                                          onsubmit="return confirm('Delete this profession?')">
+                                          data-confirm="{{ __('Delete this profession?') }}" data-confirm-action="{{ __('Delete profession') }}" data-confirm-cancel="{{ __('Keep profession') }}">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

@@ -17,9 +17,9 @@ class PaymentInformationController extends Controller
 
     public function createOrEdit(int $employeeId)
     {
+        // Payment details are edited in the main employee form (Employment Information section).
         $employee = Employee::findOrFail($employeeId);
-        $info     = $employee->paymentInformation;
-        return view('hr.employees.partials.payment-form', compact('employee', 'info'));
+        return redirect()->to(route('hr.employees.edit', $employee) . '#paymentMethod');
     }
 
     public function store(Request $request, int $employeeId)

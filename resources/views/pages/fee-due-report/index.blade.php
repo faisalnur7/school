@@ -276,8 +276,8 @@
             <form method="GET" action="{{ route('fees.due-report') }}" class="fees-report-form">
                 <div class="fees-report-grid fees-report-grid--primary">
                     <div class="fees-report-field">
-                        <label class="font-weight-bold">Academic Year</label>
-                        <select name="session_id" class="form-control fees-report-select report-filter-control">
+                        <label for="fee-due-report-index-session-id" class="font-weight-bold">Academic Year</label>
+                        <select id="fee-due-report-index-session-id" name="session_id" class="form-control fees-report-select report-filter-control">
                             <option value="">— Select Year —</option>
                             @foreach($sessions as $s)
                                 <option value="{{ $s->id }}" {{ request('session_id') == $s->id ? 'selected' : '' }}>{{ $s->name_en }}</option>
@@ -285,8 +285,8 @@
                         </select>
                     </div>
                     <div class="fees-report-field">
-                        <label>Month <small class="text-muted">(leave blank for full year)</small></label>
-                        <select name="month" class="form-control fees-report-select report-filter-control">
+                        <label for="fee-due-report-index-month">Month <small class="text-muted">(leave blank for full year)</small></label>
+                        <select id="fee-due-report-index-month" name="month" class="form-control fees-report-select report-filter-control">
                             <option value="">All Year</option>
                             @foreach(range(1,12) as $m)
                                 <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>{{ date('F', mktime(0,0,0,$m,1)) }}</option>
@@ -294,19 +294,19 @@
                         </select>
                     </div>
                     <div class="fees-report-field">
-                        <label class="font-weight-bold">From Date</label>
-                        <input type="date" name="from_date" value="{{ request('from_date') }}" class="form-control fees-report-input report-filter-control">
+                        <label for="fee-due-report-index-from-date" class="font-weight-bold">From Date</label>
+                        <input id="fee-due-report-index-from-date" type="date" name="from_date" value="{{ request('from_date') }}" class="form-control fees-report-input report-filter-control">
                     </div>
                     <div class="fees-report-field">
-                        <label class="font-weight-bold">To Date</label>
-                        <input type="date" name="to_date" value="{{ request('to_date') }}" class="form-control fees-report-input report-filter-control">
+                        <label for="fee-due-report-index-to-date" class="font-weight-bold">To Date</label>
+                        <input id="fee-due-report-index-to-date" type="date" name="to_date" value="{{ request('to_date') }}" class="form-control fees-report-input report-filter-control">
                     </div>
                     <div class="fees-report-filter-actions fees-report-filter-actions--submit">
                         <button type="submit" class="btn btn-dark fees-report-action-btn" title="Generate"><i class="fas fa-search"></i></button>
                         <a href="{{ route('fees.due-report') }}" class="btn btn-outline-secondary fees-report-action-btn" title="Reset"><i class="fas fa-times"></i></a>
                         @if((request('session_id') || (request('from_date') && request('to_date'))) && $classSections->isNotEmpty())
                             <button type="button" class="btn btn-success fees-report-action-btn" onclick="window.print()" title="Print"><i class="fas fa-print"></i></button>
-                            <a href="{{ route('fees.due-report.pdf', request()->query()) }}" class="btn btn-danger fees-report-action-btn" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
+                            <a href="{{ route('fees.due-report.pdf', request()->query()) }}" class="btn btn-outline-secondary fees-report-action-btn" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
                         @endif
                     </div>
                 </div>

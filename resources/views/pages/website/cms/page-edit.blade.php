@@ -65,20 +65,20 @@
                     <div class="card-body">
 
                         <div class="form-group">
-                            <label class="font-weight-bold">Page Title <span class="text-danger">*</span></label>
-                            <input type="text" name="title" class="form-control @error('title') is-invalid @enderror"
+                            <label for="cms-page-edit-title" class="font-weight-bold">Page Title <span class="text-danger">*</span></label>
+                            <input id="cms-page-edit-title" type="text" name="title" class="form-control @error('title') is-invalid @enderror"
                                    value="{{ old('title', $page->title ?? ucfirst($type)) }}" required>
                             @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="form-group">
-                            <label class="font-weight-bold">Short Description / Subtitle</label>
-                            <textarea name="excerpt" rows="2" class="form-control" placeholder="Shown as subtitle on the page header...">{{ old('excerpt', $page->excerpt ?? '') }}</textarea>
+                            <label for="cms-page-edit-excerpt" class="font-weight-bold">Short Description / Subtitle</label>
+                            <textarea id="cms-page-edit-excerpt" name="excerpt" rows="2" class="form-control" placeholder="Shown as subtitle on the page header...">{{ old('excerpt', $page->excerpt ?? '') }}</textarea>
                         </div>
 
                         <div class="form-group">
-                            <label class="font-weight-bold">Main Content</label>
-                            <textarea name="content" rows="6" class="form-control" placeholder="Main body text for this page...">{{ old('content', $page->content ?? '') }}</textarea>
+                            <label for="cms-page-edit-content" class="font-weight-bold">Main Content</label>
+                            <textarea id="cms-page-edit-content" name="content" rows="6" class="form-control" placeholder="Main body text for this page...">{{ old('content', $page->content ?? '') }}</textarea>
                         </div>
 
                         <div class="form-group">
@@ -96,8 +96,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="font-weight-bold">Status</label>
-                            <select name="status" class="form-control">
+                            <label for="cms-page-edit-status" class="font-weight-bold">Status</label>
+                            <select id="cms-page-edit-status" name="status" class="form-control">
                                 <option value="published" @selected(old('status', $page->status ?? 'published') === 'published')>Published</option>
                                 <option value="draft" @selected(old('status', $page->status ?? '') === 'draft')>Draft</option>
                             </select>
@@ -128,13 +128,13 @@
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <strong class="text-sm">{{ $section->title }}</strong>
                                 <div class="d-flex gap-1">
-                                    <button type="button" class="btn btn-xs btn-outline-secondary" onclick="toggleSection({{ $section->id }})">
-                                        <i class="fas fa-edit"></i>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary" onclick="toggleSection({{ $section->id }})" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
                                     </button>
                                     <form action="{{ route('website.cms.section.destroy', [$type, $section]) }}" method="POST" class="d-inline"
-                                          onsubmit="return confirm('Delete this section?')">
+                                          data-confirm="{{ __('Delete this section?') }}" data-confirm-action="{{ __('Delete section') }}" data-confirm-cancel="{{ __('Keep section') }}">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-xs btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                        <button class="btn btn-xs btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </div>
                             </div>
@@ -196,12 +196,12 @@
                     @csrf
                     <div class="card-body">
                         <div class="form-group">
-                            <label class="font-weight-bold">Section Title <span class="text-danger">*</span></label>
-                            <input type="text" name="title" class="form-control" placeholder="e.g. Our Mission, Vision, History..." required>
+                            <label for="cms-page-edit-title-2" class="font-weight-bold">Section Title <span class="text-danger">*</span></label>
+                            <input id="cms-page-edit-title-2" type="text" name="title" class="form-control" placeholder="e.g. Our Mission, Vision, History..." required>
                         </div>
                         <div class="form-group">
-                            <label class="font-weight-bold">Content</label>
-                            <textarea name="content" rows="4" class="form-control" placeholder="Section body text..."></textarea>
+                            <label for="cms-page-edit-content-2" class="font-weight-bold">Content</label>
+                            <textarea id="cms-page-edit-content-2" name="content" rows="4" class="form-control" placeholder="Section body text..."></textarea>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
@@ -215,8 +215,8 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label class="font-weight-bold">Image Position</label>
-                                    <select name="image_position" class="form-control">
+                                    <label for="cms-page-edit-image-position" class="font-weight-bold">Image Position</label>
+                                    <select id="cms-page-edit-image-position" name="image_position" class="form-control">
                                         <option value="right">Right</option>
                                         <option value="left">Left</option>
                                         <option value="top">Top</option>
@@ -226,8 +226,8 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label class="font-weight-bold">Sort Order</label>
-                                    <input type="number" name="sort_order" class="form-control" value="{{ $sections->count() }}" min="0">
+                                    <label for="cms-page-edit-sort-order" class="font-weight-bold">Sort Order</label>
+                                    <input id="cms-page-edit-sort-order" type="number" name="sort_order" class="form-control" value="{{ $sections->count() }}" min="0">
                                 </div>
                             </div>
                         </div>

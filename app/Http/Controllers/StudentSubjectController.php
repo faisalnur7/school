@@ -129,8 +129,11 @@ class StudentSubjectController extends Controller
         $religion = Student::religionTokenFromId($student->religion);
 
         // Get all assignments for this class
+        // whereHas('subject') skips assignments whose subject was soft-deleted;
+        // without it the view reads ->name on a null subject and crashes.
         $assignments = SubjectClassAssignment::where('school_class_id', $classId)
             ->where('is_active', true)
+            ->whereHas('subject')
             ->where(function ($q) use ($groupId) {
                 $q->whereNull('group_id')->orWhere('group_id', $groupId);
             })
@@ -191,6 +194,7 @@ class StudentSubjectController extends Controller
             $applicableSubjectIds = SubjectClassAssignment::where('school_class_id', $classId)
                 ->whereIn('subject_id', $subjectIds)
                 ->where('is_active', true)
+                ->whereHas('subject')
                 ->with('subject')
                 ->get()
                 ->filter(fn (SubjectClassAssignment $assignment) => $assignment->appliesToStudent($gender, $religion))
@@ -238,6 +242,7 @@ class StudentSubjectController extends Controller
         $compulsoryAssignments = SubjectClassAssignment::where('school_class_id', $classId)
             ->where('is_compulsory', true)
             ->where('is_active', true)
+            ->whereHas('subject')
             ->get();
 
         $students = Student::where('status', 1)

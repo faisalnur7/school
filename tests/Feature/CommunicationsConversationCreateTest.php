@@ -13,8 +13,8 @@ class CommunicationsConversationCreateTest extends TestCase
 
     public function test_force_new_creates_a_new_direct_conversation_even_if_one_exists(): void
     {
-        $sender = User::factory()->create();
-        $recipient = User::factory()->create();
+        $sender = $this->grantPermissions(User::factory()->create(), 'view_communications');
+        $recipient = $this->grantPermissions(User::factory()->create(), 'view_communications');
 
         $existingConversation = ChatConversation::create([
             'name' => null,

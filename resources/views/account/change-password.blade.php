@@ -15,8 +15,8 @@
                 @method('PUT')
 
                 <div class="form-group">
-                    <label>Current Password</label>
-                    <input type="password" name="current_password" class="form-control" required>
+                    <label for="account-change-password-current-password">Current Password</label>
+                    <input id="account-change-password-current-password" type="password" name="current_password" class="form-control" required>
                 </div>
 
                 <div class="form-group">
@@ -30,8 +30,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Confirm New Password</label>
-                    <input type="password" name="password_confirmation" class="form-control" required>
+                    <label for="account-change-password-password-confirmation">Confirm New Password</label>
+                    <input id="account-change-password-password-confirmation" type="password" name="password_confirmation" class="form-control" required>
                 </div>
                 <small class="text-muted d-block mb-3">After submit, a 6-digit code will be sent to your email and you will verify on next page.</small>
                 <button type="submit" class="btn btn-primary">Continue</button>

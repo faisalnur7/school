@@ -38,7 +38,7 @@
                                     <td><span class="badge badge-pill badge-{{ $qualification->status === 'active' ? 'success' : 'secondary' }}">{{ ucfirst($qualification->status) }}</span></td>
                                     <td class="text-center">
                                         <a href="{{ route('educational-qualifications.edit', $qualification) }}" class="qualifications-action-btn qualifications-action-edit" title="{{ __('Edit') }}" aria-label="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></a>
-                                        <form action="{{ route('educational-qualifications.destroy', $qualification) }}" method="POST" class="qualifications-action-form" onsubmit="return confirm('{{ __('Delete this qualification?') }}')">
+                                        <form action="{{ route('educational-qualifications.destroy', $qualification) }}" method="POST" class="qualifications-action-form" data-confirm="{{ __('Delete this qualification?') }}" data-confirm-action="{{ __('Delete qualification') }}" data-confirm-cancel="{{ __('Keep qualification') }}">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="qualifications-action-btn qualifications-action-delete" title="{{ __('Delete') }}" aria-label="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                         </form>

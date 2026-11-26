@@ -57,7 +57,7 @@
                     <a href="{{ route('reports.supplier-dues') }}" class="btn btn-light" title="Reset" aria-label="Reset">
                         <i class="fas fa-undo-alt"></i>
                     </a>
-                    <a href="{{ route('reports.supplier-dues.pdf', request()->query()) }}" class="btn btn-danger" target="_blank">
+                    <a href="{{ route('reports.supplier-dues.pdf', request()->query()) }}" class="btn btn-outline-secondary" target="_blank">
                         <i class="fas fa-file-pdf"></i> PDF
                     </a>
                 </div>

@@ -50,20 +50,20 @@
 
                         {{-- Fee Set Info --}}
                         <div class="form-group">
-                            <label class="form-label small font-weight-600 mb-1">Name (English) <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control form-control-sm @error('name') is-invalid @enderror" required>
+                            <label for="fee-sets-create-name" class="form-label small font-weight-600 mb-1">Name (English) <span class="text-danger">*</span></label>
+                            <input id="fee-sets-create-name" type="text" name="name" class="form-control form-control-sm @error('name') is-invalid @enderror" required>
                             @error('name')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label small font-weight-600 mb-1">Name (Bangla)</label>
-                            <input type="text" name="bn_name" class="form-control form-control-sm @error('bn_name') is-invalid @enderror">
+                            <label for="fee-sets-create-bn-name" class="form-label small font-weight-600 mb-1">Name (Bangla)</label>
+                            <input id="fee-sets-create-bn-name" type="text" name="bn_name" class="form-control form-control-sm @error('bn_name') is-invalid @enderror">
                             @error('bn_name')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label small font-weight-600 mb-1">Academic Session <span class="text-danger">*</span></label>
-                            <select name="academic_session_id" class="form-control form-control-sm @error('academic_session_id') is-invalid @enderror" required>
+                            <label for="fee-sets-create-academic-session-id" class="form-label small font-weight-600 mb-1">Academic Session <span class="text-danger">*</span></label>
+                            <select id="fee-sets-create-academic-session-id" name="academic_session_id" class="form-control form-control-sm @error('academic_session_id') is-invalid @enderror" required>
                                 <option value="">Select Session</option>
                                 @foreach ($sessions as $session)
                                     <option value="{{ $session->id }}" {{ old('academic_session_id') == $session->id ? 'selected' : '' }}>
@@ -112,8 +112,8 @@
                         </div>
 
                         <div class="form-group" id="yearlyDueDateSelector" style="display:none;">
-                            <label class="form-label small font-weight-600 mb-1">Yearly Due Date <span class="text-danger">*</span></label>
-                            <input type="date" name="due_date" class="form-control form-control-sm @error('due_date') is-invalid @enderror" value="{{ old('due_date') }}">
+                            <label for="fee-sets-create-due-date" class="form-label small font-weight-600 mb-1">Yearly Due Date <span class="text-danger">*</span></label>
+                            <input id="fee-sets-create-due-date" type="date" name="due_date" class="form-control form-control-sm @error('due_date') is-invalid @enderror" value="{{ old('due_date') }}">
                             @error('due_date')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
 
@@ -135,8 +135,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label small font-weight-600 mb-1">Description</label>
-                            <textarea name="description" class="form-control form-control-sm @error('description') is-invalid @enderror" rows="2" placeholder="Enter description...">{{ old('description') }}</textarea>
+                            <label for="fee-sets-create-description" class="form-label small font-weight-600 mb-1">Description</label>
+                            <textarea id="fee-sets-create-description" name="description" class="form-control form-control-sm @error('description') is-invalid @enderror" rows="2" placeholder="Enter description...">{{ old('description') }}</textarea>
                             @error('description')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
 
@@ -173,8 +173,8 @@
                                         </td>
 
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-sm btn-success addRow">
-                                                <i class="fas fa-plus"></i>
+                                            <button type="button" class="btn btn-sm btn-success addRow" aria-label="{{ __('Add') }}" title="{{ __('Add') }}">
+                                                <i class="fas fa-plus" aria-hidden="true"></i>
                                             </button>
                                         </td>
                                     </tr>
@@ -219,8 +219,8 @@
                                     </div>
                                 </div>
                                 <div class="form-group duplicate-fee-sets-field">
-                                    <label class="small font-weight-bold">Copy from session <span class="text-danger">*</span></label>
-                                    <select name="source_session_id" class="form-control form-control-sm" required>
+                                    <label for="fee-sets-create-source-session-id" class="small font-weight-bold">Copy from session <span class="text-danger">*</span></label>
+                                    <select id="fee-sets-create-source-session-id" name="source_session_id" class="form-control form-control-sm" required>
                                         <option value="">Select source session</option>
                                         @foreach ($sessions as $session)
                                             <option value="{{ $session->id }}">{{ $session->name_en }}</option>
@@ -229,8 +229,8 @@
                                 </div>
                                 <div class="duplicate-fee-sets-transfer-arrow"><i class="fas fa-arrow-down"></i></div>
                                 <div class="form-group duplicate-fee-sets-field mb-0">
-                                    <label class="small font-weight-bold">Copy to session <span class="text-danger">*</span></label>
-                                    <select name="target_session_id" class="form-control form-control-sm" required>
+                                    <label for="fee-sets-create-target-session-id" class="small font-weight-bold">Copy to session <span class="text-danger">*</span></label>
+                                    <select id="fee-sets-create-target-session-id" name="target_session_id" class="form-control form-control-sm" required>
                                         <option value="">Select target session</option>
                                         @foreach ($sessions as $session)
                                             <option value="{{ $session->id }}">{{ $session->name_en }}</option>
@@ -597,8 +597,8 @@
                         <input type="number" step="0.01" name="amount[]" class="form-control form-control-sm" required>
                     </td>
                     <td class="text-center">
-                        <button type="button" class="btn btn-sm btn-danger removeRow">
-                            <i class="fas fa-trash"></i>
+                        <button type="button" class="btn btn-sm btn-danger removeRow" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                            <i class="fas fa-trash" aria-hidden="true"></i>
                         </button>
                     </td>
                 </tr>

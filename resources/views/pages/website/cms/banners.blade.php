@@ -57,8 +57,8 @@
                                         @endif
                                     </div>
                                     <div class="d-flex gap-1 ml-2 flex-shrink-0">
-                                        <button class="btn btn-xs btn-outline-secondary" onclick="toggleBannerForm({{ $banner->id }})">
-                                            <i class="fas fa-edit"></i>
+                                        <button class="btn btn-xs btn-outline-secondary" onclick="toggleBannerForm({{ $banner->id }})" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                            <i class="fas fa-edit" aria-hidden="true"></i>
                                         </button>
                                         <form action="{{ route('website.cms.banner.toggle', $banner) }}" method="POST" class="d-inline">
                                             @csrf @method('PATCH')
@@ -68,9 +68,9 @@
                                             </button>
                                         </form>
                                         <form action="{{ route('website.cms.banner.destroy', $banner) }}" method="POST" class="d-inline"
-                                              onsubmit="return confirm('Delete this slide?')">
+                                              data-confirm="{{ __('Delete this slide?') }}" data-confirm-action="{{ __('Delete slide') }}" data-confirm-cancel="{{ __('Keep slide') }}">
                                             @csrf @method('DELETE')
-                                            <button class="btn btn-xs btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-xs btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                         </form>
                                     </div>
                                 </div>
@@ -150,12 +150,12 @@
                     @csrf
                     <div class="card-body">
                         <div class="form-group">
-                            <label class="font-weight-bold">Title <span class="text-danger">*</span></label>
-                            <input type="text" name="title" class="form-control" placeholder="Welcome to Our School" required>
+                            <label for="cms-banners-title" class="font-weight-bold">Title <span class="text-danger">*</span></label>
+                            <input id="cms-banners-title" type="text" name="title" class="form-control" placeholder="Welcome to Our School" required>
                         </div>
                         <div class="form-group">
-                            <label class="font-weight-bold">Subtitle</label>
-                            <textarea name="subtitle" rows="2" class="form-control" placeholder="A short tagline for this slide..."></textarea>
+                            <label for="cms-banners-subtitle" class="font-weight-bold">Subtitle</label>
+                            <textarea id="cms-banners-subtitle" name="subtitle" rows="2" class="form-control" placeholder="A short tagline for this slide..."></textarea>
                         </div>
                         <div class="form-group">
                             <label class="font-weight-bold">Image <small class="text-muted">(max 3MB, 1440×560px recommended)</small></label>
@@ -167,14 +167,14 @@
                         <div class="row">
                             <div class="col-7">
                                 <div class="form-group">
-                                    <label class="font-weight-bold">CTA Button Text</label>
-                                    <input type="text" name="cta_text" class="form-control" placeholder="Learn More">
+                                    <label for="cms-banners-cta-text" class="font-weight-bold">CTA Button Text</label>
+                                    <input id="cms-banners-cta-text" type="text" name="cta_text" class="form-control" placeholder="Learn More">
                                 </div>
                             </div>
                             <div class="col-5">
                                 <div class="form-group">
-                                    <label class="font-weight-bold">Button Style</label>
-                                    <select name="button_style" class="form-control">
+                                    <label for="cms-banners-button-style" class="font-weight-bold">Button Style</label>
+                                    <select id="cms-banners-button-style" name="button_style" class="form-control">
                                         <option value="white">White</option>
                                         <option value="outline">Outline</option>
                                     </select>
@@ -182,14 +182,14 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="font-weight-bold">CTA URL</label>
-                            <input type="text" name="cta_url" class="form-control" placeholder="/about">
+                            <label for="cms-banners-cta-url" class="font-weight-bold">CTA URL</label>
+                            <input id="cms-banners-cta-url" type="text" name="cta_url" class="form-control" placeholder="/about">
                         </div>
                         <div class="row">
                             <div class="col-6">
                                 <div class="form-group">
-                                    <label class="font-weight-bold">Sort Order</label>
-                                    <input type="number" name="sort_order" class="form-control" value="{{ $banners->count() }}" min="0">
+                                    <label for="cms-banners-sort-order" class="font-weight-bold">Sort Order</label>
+                                    <input id="cms-banners-sort-order" type="number" name="sort_order" class="form-control" value="{{ $banners->count() }}" min="0">
                                 </div>
                             </div>
                             <div class="col-6 d-flex align-items-end pb-3">

@@ -88,7 +88,7 @@
                                                     onchange="this.form.submit()"
                                                     {{ $user->is_active ? 'checked' : '' }}
                                                 >
-                                                <label class="custom-control-label" for="userStatusSwitch{{ $user->id }}"></label>
+                                                <label class="custom-control-label" for="userStatusSwitch{{ $user->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
                                             </div>
                                         </form>
                                         @else
@@ -97,13 +97,13 @@
                                     </td>
                                     <td style="display: flex; justify-content: center; align-items: center; gap: 5px;">
                                         @if ($canManage)
-                                            <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-dark">
-                                                <i class="fas fa-edit"></i>
+                                            <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                                <i class="fas fa-edit" aria-hidden="true"></i>
                                             </a>
                                         @endif
                                         @if ($actorIsPlatformAdmin && $isSuperAdmin && $canManage)
                                             <form action="{{ route('users.revoke-super-admin', $user->id) }}" method="POST" class="mb-0"
-                                                onsubmit="return confirm({{ Js::from('Withdraw Super Admin from '.$user->name.'?') }})">
+                                                data-confirm="{{ __('Withdraw Super Admin from :name?', ['name' => $user->name]) }}" data-confirm-action="{{ __('Withdraw Super Admin') }}" data-confirm-cancel="{{ __('Keep Super Admin') }}">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Withdraw Super Admin">
                                                     <i class="fas fa-user-slash"></i>

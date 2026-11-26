@@ -104,7 +104,7 @@
                 <div class="form-group col-lg-4 mb-3 mb-lg-0"><label for="resultClass">Class</label><select id="resultClass" name="school_class_id" class="form-control"><option value="">All classes</option>@foreach($classes as $class)<option value="{{ $class->id }}" @selected($classId == $class->id)>{{ $class->name_en }}</option>@endforeach</select></div>
                 <div class="form-group col-lg-4 mb-3 mb-lg-0"><label for="resultSession">Academic session</label><select id="resultSession" name="academic_session_id" class="form-control"><option value="">All sessions</option>@foreach($sessions as $session)<option value="{{ $session->id }}" @selected($sessionId == $session->id)>{{ $session->name_en }}</option>@endforeach</select></div>
                 <div class="form-group col-lg-2 mb-3 mb-lg-0"><label for="resultStatus">Result status</label><select id="resultStatus" name="result_status" class="form-control"><option value="">All results</option><option value="passed" @selected($resultStatus === 'passed')>Passed</option><option value="failed" @selected($resultStatus === 'failed')>Failed</option></select></div>
-                <div class="form-group col-lg-2 mb-0"><button class="btn btn-primary btn-block" type="submit"><i class="fas fa-filter mr-1"></i> Apply filters</button></div>
+                <div class="form-group col-lg-2 mb-0"><button class="btn btn-primary btn-block text-nowrap" type="submit"><i class="fas fa-filter mr-1"></i> Apply filters</button></div>
             </form>
         </div>
     </div>

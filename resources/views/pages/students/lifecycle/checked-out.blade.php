@@ -13,8 +13,8 @@
     <div class="bg-white rounded-2xl shadow p-4 mb-4">
         <form method="GET" action="{{ route('students.checked-out') }}" class="d-flex flex-wrap gap-2 align-items-end">
             <div>
-                <label class="form-label text-sm font-medium text-slate-600">Search</label>
-                <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm"
+                <label for="lifecycle-checked-out-search" class="form-label text-sm font-medium text-slate-600">Search</label>
+                <input id="lifecycle-checked-out-search" type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm"
                     placeholder="Name or CID">
             </div>
             <div class="mb-1">

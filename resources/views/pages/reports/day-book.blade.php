@@ -12,12 +12,12 @@
         <form method="GET" class="supplier-dues-filters">
             <div class="row g-2 align-items-end">
                 <div class="col-md-3">
-                    <label class="form-label mb-1" style="font-size:12px">Date</label>
-                    <input type="text" name="date" class="form-control datepicker" value="{{ request('date', $date->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
+                    <label for="reports-day-book-date" class="form-label mb-1" style="font-size:12px">Date</label>
+                    <input id="reports-day-book-date" type="text" name="date" class="form-control datepicker" value="{{ request('date', $date->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label mb-1" style="font-size:12px">Report Type</label>
-                    <select name="report_type" class="form-control">
+                    <label for="reports-day-book-report-type" class="form-label mb-1" style="font-size:12px">Report Type</label>
+                    <select id="reports-day-book-report-type" name="report_type" class="form-control">
                         <option value="summary" {{ request('report_type', 'summary') === 'summary' ? 'selected' : '' }}>Summary</option>
                         <option value="detailed" {{ request('report_type') === 'detailed' ? 'selected' : '' }}>Detailed</option>
                     </select>
@@ -30,7 +30,7 @@
                     <a href="{{ route('reports.day-book') }}" class="btn btn-light" title="Reset" aria-label="Reset">
                         <i class="fas fa-undo-alt"></i>
                     </a>
-                    <a href="{{ route('reports.day-book.pdf', request()->query()) }}" class="btn btn-danger">
+                    <a href="{{ route('reports.day-book.pdf', request()->query()) }}" class="btn btn-outline-secondary">
                         <i class="fas fa-file-pdf"></i> PDF
                     </a>
                 </div>

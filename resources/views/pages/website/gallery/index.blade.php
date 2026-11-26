@@ -38,7 +38,7 @@
                                 <td><span class="badge {{ $item->is_active ? 'badge-success' : 'badge-secondary' }}">{{ $item->is_active ? 'Active' : 'Hidden' }}</span></td>
                                 <td class="text-right">
                                     <a href="{{ route('website.gallery.edit', $item) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
-                                    <form action="{{ route('website.gallery.destroy', $item) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this gallery item?')">
+                                    <form action="{{ route('website.gallery.destroy', $item) }}" method="POST" class="d-inline" data-confirm="{{ __('Delete this gallery item?') }}" data-confirm-action="{{ __('Delete gallery item') }}" data-confirm-cancel="{{ __('Keep gallery item') }}">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn btn-sm btn-outline-danger">Delete</button>

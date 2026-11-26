@@ -78,15 +78,21 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('max-width: none !important;', $source);
     }
 
-    public function test_mobile_cart_rows_hide_the_duplicate_bottom_total(): void
+    public function test_mobile_cart_rows_hide_the_duplicate_fee_total_but_show_line_totals(): void
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
 
-        $this->assertStringContainsString(
-            '.mobile-checkout-sheet #cartItems .cart-row .cart-line-total {',
+        // A fee line's total repeats its Paid amount, so it stays hidden.
+        $this->assertMatchesRegularExpression(
+            '/\.mobile-checkout-sheet #cartItems \.cart-row \.gross-line-amount \{[^}]*display: none !important;/s',
             $source
         );
-        $this->assertStringContainsString('display: none !important;', $source);
+        // Inventory and due lines (quantity x price, partial payments) show their line total.
+        $this->assertMatchesRegularExpression(
+            '/\.cart-row \.inv-subtotal-display,\s*\.fee-collect-page \.mobile-checkout-sheet #cartItems \.cart-row \.due-line-amount \{[^}]*display: block !important;/s',
+            $source
+        );
+        $this->assertStringContainsString('content: "Line total  BDT ";', $source);
     }
 
     public function test_mobile_inventory_rows_use_a_compact_two_row_layout(): void
@@ -130,7 +136,7 @@ class ResponsiveAdminViewsTest extends TestCase
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
 
         $this->assertMatchesRegularExpression(
-            '/\.fee-collect-page \.mobile-checkout-sheet #cartItems \.cart-row--inventory \.cart-qty-stepper-input \{[^}]*width: 28px !important;/s',
+            '/\.fee-collect-page \.mobile-checkout-sheet #cartItems \.cart-row--inventory \.cart-qty-stepper-input \{[^}]*width: 40px !important;/s',
             $source
         );
     }
@@ -185,8 +191,8 @@ class ResponsiveAdminViewsTest extends TestCase
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
 
-        $this->assertStringContainsString(
-            '.fee-collect-page .mobile-checkout-sheet .card-footer {' . PHP_EOL . '                display: none !important;',
+        $this->assertMatchesRegularExpression(
+            '/\.fee-collect-page \.mobile-checkout-sheet \.card-footer \{[^}]*display: none !important;/s',
             $source
         );
         $this->assertStringContainsString(
@@ -274,7 +280,7 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('id="mobileCartEyebrow"', $source);
         $this->assertStringContainsString('id="mobileCartBadge"', $source);
         $this->assertStringContainsString('data-collapsed-label="CART"', $source);
-        $this->assertStringContainsString('data-expanded-label="TOTAL DUE"', $source);
+        $this->assertStringContainsString('data-expanded-label="SELECTED ITEMS"', $source);
         $this->assertStringContainsString('.mobile-checkout-sheet.is-open .mobile-cart-badge', $source);
     }
 
@@ -382,16 +388,21 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('justify-content: space-between;', $source);
     }
 
-    public function test_mobile_payment_summary_uses_compact_side_by_side_fields(): void
+    public function test_mobile_payment_summary_shows_the_total_once(): void
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
 
-        $this->assertStringContainsString('.fee-collect-page .mobile-checkout-sheet.is-open .payment-meta-row {', $source);
-        $this->assertStringContainsString('grid-template-columns: repeat(2, minmax(0, 1fr));', $source);
-        $this->assertStringContainsString('.fee-collect-page .mobile-checkout-sheet.is-open .mobile-payment-amount #paymentAmount {', $source);
-        $this->assertStringContainsString('min-height: 34px !important;', $source);
+        // The read-only Payment amount repeated the total, so on mobile it is hidden and the
+        // date takes the full row.
+        $this->assertMatchesRegularExpression(
+            '/\.fee-collect-page \.mobile-checkout-sheet\.is-open \.payment-meta-row \{[^}]*display: block !important;/s',
+            $source
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.fee-collect-page \.mobile-checkout-sheet\.is-open \.mobile-payment-amount \{[^}]*display: none !important;/s',
+            $source
+        );
         $this->assertStringContainsString('.fee-collect-page .mobile-checkout-sheet.is-open .mobile-discount-card .discount-amount-line {', $source);
-        $this->assertStringContainsString('display: none !important;', $source);
     }
 
     public function test_payment_amount_and_date_share_a_row_on_desktop_and_tablet(): void
@@ -444,10 +455,11 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('height: 36px;', $source);
         $this->assertStringContainsString('min-height: 34px;', $source);
         $this->assertStringContainsString('font-size: 0.72rem;', $source);
-        $this->assertStringContainsString('font-size: 1.8rem !important;', $source);
+        $this->assertStringContainsString('font-size: 1.6rem !important;', $source);
         $this->assertStringContainsString('min-height: 48px;', $source);
-        $this->assertStringContainsString('role="tablist"', $source);
-        $this->assertStringContainsString('role="tab" aria-selected="true"', $source);
+        // Flat / percent are toggle buttons, not tabs.
+        $this->assertStringContainsString('role="group" aria-label="{{ __(\'Discount\') }}"', $source);
+        $this->assertStringContainsString('id="btnFlat" aria-pressed="true"', $source);
     }
 
     public function test_mobile_checkout_collapsed_sheet_is_compact(): void
@@ -471,7 +483,7 @@ class ResponsiveAdminViewsTest extends TestCase
 
         $this->assertStringContainsString('mobile-empty-cart', $source);
         $this->assertStringContainsString('max-height: none !important;', $source);
-        $this->assertStringContainsString('PAYMENT SUMMARY', $source);
+        $this->assertStringContainsString("{{ __('TOTAL TO COLLECT') }}", $source);
     }
 
     public function test_mobile_checkout_has_theme_tokens_for_light_and_dark_modes(): void
@@ -548,28 +560,24 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertSame($sortedSwitcherPositions, $switcherPositions);
     }
 
-    public function test_module_navigation_has_an_accessible_topbar_collapse_control(): void
+    public function test_module_navigation_shows_only_the_current_module_sub_tabs(): void
     {
+        // F-24: the module row duplicated the sidebar, so only the current module's sub-tabs remain
+        // and the top-bar "hide modules" toggle is gone. School settings can still hide the row.
         $topNav = file_get_contents(resource_path('views/layouts/partials/_top-nav.blade.php'));
         $switcher = file_get_contents(resource_path('views/components/hub-switcher.blade.php'));
         $master = file_get_contents(resource_path('views/layouts/master.blade.php'));
 
-        $this->assertStringContainsString('data-hub-switcher-toggle', $topNav);
-        $this->assertStringContainsString('aria-controls="hubSwitcher"', $topNav);
-        $this->assertStringContainsString('aria-expanded="true"', $topNav);
-        $this->assertStringContainsString("onclick=\"event.preventDefault(); var hidden = document.body.classList.toggle('hub-switcher-hidden');", $topNav);
-        $this->assertStringContainsString("window.localStorage.setItem('school-hub-switcher-visible'", $topNav);
-        $this->assertStringContainsString('document.body.classList.toggle', $master);
-        $this->assertStringContainsString('hub-switcher-shell', $switcher);
+        $this->assertStringNotContainsString('data-hub-switcher-toggle', $topNav);
+        $this->assertStringNotContainsString('hub-switcher__links', $switcher);
+        $this->assertStringNotContainsString('hub-switcher__more', $switcher);
         $this->assertStringContainsString('id="hubSwitcherShell"', $switcher);
-        $this->assertStringContainsString('id="hubSwitcher"', $switcher);
-        $this->assertStringNotContainsString('class="hub-switcher__toggle"', $switcher);
+        $this->assertStringContainsString('<nav class="hub-switcher" id="hubSwitcher" aria-label=', $switcher);
+        $this->assertStringContainsString('aria-current="page"', $switcher);
         $this->assertStringContainsString('hub-switcher-hidden', $switcher);
         $this->assertStringContainsString('max-height: 0;', $switcher);
-        $this->assertStringContainsString('min-height:', $switcher);
-        $this->assertStringContainsString('transition:', $switcher);
+        $this->assertStringContainsString('document.body.classList.toggle', $master);
         $this->assertStringContainsString('data-hub-switcher-toggle', $master);
-        $this->assertStringContainsString('aria-expanded', $master);
     }
 
     public function test_module_navigation_sits_against_the_global_topbar(): void
@@ -829,7 +837,7 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString(
             '.fee-collect-page .assigned-fees-actions {' . PHP_EOL .
             '                display: grid;' . PHP_EOL .
-            '                grid-template-columns: 1fr;' . PHP_EOL .
+            '                grid-template-columns: repeat(2, minmax(0, 1fr));' . PHP_EOL .
             '                gap: 0.5rem;' . PHP_EOL .
             '                margin-top: 0 !important;',
             $source
@@ -877,37 +885,6 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('padding-right: 0 !important;', $source);
     }
 
-    public function test_assigned_fees_table_uses_compact_mobile_columns(): void
-    {
-        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
-
-        $this->assertStringContainsString('table-layout: auto;', $source);
-        $this->assertStringContainsString('font-size: 0.68rem;', $source);
-        $this->assertStringContainsString('padding: 0.45rem 0.35rem !important;', $source);
-        $this->assertStringContainsString('.assigned-fees-table th:nth-child(2)', $source);
-        $this->assertStringContainsString('width: auto !important;', $source);
-    }
-
-    public function test_assigned_fees_table_hides_number_column_on_mobile(): void
-    {
-        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
-
-        $this->assertStringContainsString(
-            '.fee-collect-page .assigned-fees-table th:first-child,' . PHP_EOL .
-            '            .fee-collect-page .assigned-fees-table td:first-child {' . PHP_EOL .
-            '                display: none !important;',
-            $source
-        );
-    }
-
-    public function test_assigned_fees_mobile_table_prioritizes_contained_columns(): void
-    {
-        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
-
-        $this->assertStringContainsString('.fee-collect-page .assigned-fees-table th:nth-child(4),', $source);
-        $this->assertStringContainsString('display: none !important;', $source);
-    }
-
     public function test_assigned_fees_mobile_columns_use_content_sized_layout(): void
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
@@ -918,17 +895,6 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('width: auto !important;', $source);
     }
 
-    public function test_assigned_fees_mobile_edit_action_is_a_compact_icon_button(): void
-    {
-        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
-
-        $this->assertStringContainsString('assigned-fee-edit-label', $source);
-        $this->assertStringContainsString('.assigned-fees-table .js-edit-assigned-fee {', $source);
-        $this->assertStringContainsString('width: 32px;', $source);
-        $this->assertStringContainsString('height: 32px;', $source);
-        $this->assertStringContainsString('border-radius: 8px !important;', $source);
-    }
-
     public function test_assigned_fees_table_is_responsive_only_on_mobile(): void
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
@@ -936,17 +902,6 @@ class ResponsiveAdminViewsTest extends TestCase
         $this->assertStringContainsString('assigned-fees-table-responsive', $source);
         $this->assertStringContainsString('overflow: visible;', $source);
         $this->assertStringContainsString('overflow-x: auto;', $source);
-    }
-
-    public function test_assigned_fees_mobile_table_keeps_all_columns_visible(): void
-    {
-        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
-
-        $this->assertStringContainsString('th:nth-child(4)', $source);
-        $this->assertStringContainsString('th:nth-child(5)', $source);
-        $this->assertStringContainsString('th:nth-child(6)', $source);
-        $this->assertStringContainsString('th:nth-child(7)', $source);
-        $this->assertStringContainsString('display: table-cell !important;', $source);
     }
 
     public function test_payment_history_table_is_content_sized_and_scrollable_on_mobile(): void
@@ -992,12 +947,12 @@ class ResponsiveAdminViewsTest extends TestCase
     {
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
 
-        $this->assertStringContainsString('💳 Collect', $source);
-        $this->assertStringContainsString('🧾 Fees', $source);
-        $this->assertStringContainsString('🧾 History', $source);
-        $this->assertStringNotContainsString('💳 Collect Payment', $source);
-        $this->assertStringNotContainsString('🧾 Assigned Fees', $source);
-        $this->assertStringNotContainsString('🧾 Payment History', $source);
+        // F-25: compact labels with Font Awesome icons instead of emoji
+        $this->assertStringContainsString('fa-credit-card mr-1" aria-hidden="true"></i> {{ __(\'Collect\') }}', $source);
+        $this->assertStringContainsString('fa-receipt mr-1" aria-hidden="true"></i> {{ __(\'Fees\') }}', $source);
+        $this->assertStringContainsString('fa-history mr-1" aria-hidden="true"></i> {{ __(\'History\') }}', $source);
+        $this->assertStringNotContainsString('Collect Payment</a>', $source);
+        $this->assertDoesNotMatchRegularExpression('/[\x{1F300}-\x{1FAFF}]/u', $source);
     }
 
     public function test_assigned_fee_category_names_truncate_with_ellipsis(): void
@@ -1014,7 +969,63 @@ class ResponsiveAdminViewsTest extends TestCase
         $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
 
         $this->assertStringContainsString("preg_split('/\\s+/', trim(\$group['label']))", $source);
-        $this->assertStringContainsString("mb_substr(\$categoryLabel, 0, 10) . '..'", $source);
-        $this->assertStringContainsString('font-size: 0.64rem;', $source);
+        // Long enough for "Miscellaneous"; readable 13px on phones.
+        $this->assertStringContainsString("mb_substr(\$categoryLabel, 0, 14) . '…'", $source);
+        $this->assertStringContainsString('font-size: 0.8125rem;', $source);
+    }
+
+    public function test_assigned_fees_rows_become_cards_below_desktop(): void
+    {
+        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
+
+        // The 9-column table pushed Due, Status, Active and Edit off screen on phones and tablets.
+        $this->assertStringContainsString('<table class="table assigned-fees-table align-middle" data-no-stack>', $source);
+        $this->assertMatchesRegularExpression(
+            '/@media \(max-width: 1023\.98px\) \{\s*\.fee-collect-page \.assigned-fees-table-shell \{/',
+            $source
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.assigned-fees-table tbody tr \{[^}]*grid-template-areas:\s*"name name status"\s*"date date date"\s*"amount paid due"\s*"active action action";/s',
+            $source
+        );
+        $this->assertStringContainsString('data-label="Amount"', $source);
+        $this->assertStringContainsString('data-label="Paid"', $source);
+        $this->assertStringContainsString('data-label="Due"', $source);
+        $this->assertStringContainsString('content: attr(data-label);', $source);
+    }
+
+    public function test_assigned_fees_cards_have_labelled_44px_switch_and_40px_actions(): void
+    {
+        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
+
+        $this->assertStringContainsString('<span class="assigned-fee-active-text">{{ __(\'Active\') }}</span>', $source);
+        $this->assertMatchesRegularExpression(
+            '/td:nth-child\(8\) \.custom-switch \{[^}]*min-height: 44px;/s',
+            $source
+        );
+        $this->assertMatchesRegularExpression(
+            '/td:nth-child\(9\) \.btn \{[^}]*min-height: 40px !important;/s',
+            $source
+        );
+        // Paid fees: the Active slot says Locked, so the action slot doesn't repeat it.
+        $this->assertStringContainsString('assigned-fee-locked-note', $source);
+    }
+
+    public function test_assigned_fees_save_waits_for_a_change(): void
+    {
+        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
+
+        $this->assertStringContainsString('form="feeActivationForm" disabled>', $source);
+        $this->assertStringContainsString('function syncFeeActivationSave()', $source);
+        $this->assertStringContainsString('assigned-fees-save-count', $source);
+    }
+
+    public function test_assigned_fees_rows_skip_placeholder_remarks(): void
+    {
+        $source = file_get_contents(resource_path('views/pages/fees/collect_fee.blade.php'));
+
+        $this->assertStringNotContainsString("?? 'Fee assigned to this student'", $source);
+        $this->assertStringContainsString('@if (filled($fee->remarks))', $source);
+        $this->assertStringContainsString('assigned-fees-pill-group--same-as-tab', $source);
     }
 }

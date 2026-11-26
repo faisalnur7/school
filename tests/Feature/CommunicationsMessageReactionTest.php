@@ -14,8 +14,8 @@ class CommunicationsMessageReactionTest extends TestCase
 
     public function test_chat_message_reaction_can_be_added_and_removed_via_ajax(): void
     {
-        $sender = User::factory()->create();
-        $recipient = User::factory()->create();
+        $sender = $this->grantPermissions(User::factory()->create(), 'view_communications');
+        $recipient = $this->grantPermissions(User::factory()->create(), 'view_communications');
 
         $conversation = ChatConversation::create([
             'name' => null,

@@ -46,8 +46,8 @@
                         </select>
                     </div>
                     <div class="col-md-1">
-                        <button class="btn btn-primary btn-sm"><i class="fas fa-search"></i></button>
-                        <a href="{{ route('rooms.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-times"></i></a>
+                        <button class="btn btn-primary btn-sm" aria-label="{{ __('Search') }}" title="{{ __('Search') }}"><i class="fas fa-search" aria-hidden="true"></i></button>
+                        <a href="{{ route('rooms.index') }}" class="btn btn-secondary btn-sm" aria-label="{{ __('Close') }}" title="{{ __('Close') }}"><i class="fas fa-times" aria-hidden="true"></i></a>
                     </div>
                 </div>
             </form>
@@ -87,10 +87,10 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route('rooms.edit', $room) }}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
-                                    <form action="{{ route('rooms.destroy', $room) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this room?')">
+                                    <a href="{{ route('rooms.edit', $room) }}" class="btn btn-xs btn-warning" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></a>
+                                    <form action="{{ route('rooms.destroy', $room) }}" method="POST" class="d-inline" data-confirm="{{ __('Delete this room?') }}" data-confirm-action="{{ __('Delete room') }}" data-confirm-cancel="{{ __('Keep room') }}">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
+                                        <button class="btn btn-xs btn-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

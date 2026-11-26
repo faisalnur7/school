@@ -5,17 +5,17 @@
 
                 {{-- Student ID --}}
                 <div class="col-md-2">
-                    <label>Student ID</label>
-                    <input type="text"
+                    <label for="partials--student-filter-for-payment-student-id">{{ __('Student ID') }}</label>
+                    <input id="partials--student-filter-for-payment-student-id" type="text"
                            name="student_id"
                            class="form-control"
                            value="{{ request('student_id') }}">
                 </div>
 
                 <div class="col-md-2">
-                    <label>Session</label>
-                    <select name="academic_session_id" class="form-control">
-                        <option value="">All</option>
+                    <label for="partials--student-filter-for-payment-academic-session-id">{{ __('Session') }}</label>
+                    <select id="partials--student-filter-for-payment-academic-session-id" name="academic_session_id" class="form-control">
+                        <option value="">{{ __('All') }}</option>
                         @foreach($sessions as $session)
                         <option value="{{ $session->id }}"
                             {{ request('academic_session_id')==$session->id ? 'selected':'' }}>
@@ -27,9 +27,9 @@
 
                 {{-- Class --}}
                 <div class="col-md-2">
-                    <label>Class</label>
+                    <label for="classSelect">{{ __('Class') }}</label>
                     <select name="school_class_id" id="classSelect" class="form-control school_class_id">
-                        <option value="">All</option>
+                        <option value="">{{ __('All') }}</option>
                         @foreach($classes as $class)
                         <option value="{{ $class->id }}"
                           {{ request('school_class_id')==$class->id ? 'selected':'' }}>
@@ -41,9 +41,9 @@
 
                 {{-- Section --}}
                 <div class="col-md-2">
-                    <label>Section</label>
+                    <label for="sectionSelect">{{ __('Section') }}</label>
                     <select name="section_id" id="sectionSelect" class="form-control section_id" >
-                        <option value="">All</option>
+                        <option value="">{{ __('All') }}</option>
                         @foreach($sections as $section)
                         <option value="{{ $section->id }}"
                           {{ request('section_id')==$section->id ? 'selected':'' }}>
@@ -55,9 +55,9 @@
 
                 {{-- Group --}}
                 <div class="col-md-2">
-                    <label>Group</label>
+                    <label for="groupSelect">{{ __('Group') }}</label>
                     <select name="group_id" id="groupSelect" class="form-control group_id">
-                        <option value="">All</option>
+                        <option value="">{{ __('All') }}</option>
                         @foreach($groups as $group)
                         <option value="{{ $group->id }}"
                           {{ request('group_id')==$group->id ? 'selected':'' }}>

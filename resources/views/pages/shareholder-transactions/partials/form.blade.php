@@ -79,8 +79,8 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group mb-2">
-                                        <label class="small mb-1">Shareholder <span class="text-danger">*</span></label>
-                                        <select name="shareholder_id" class="form-control form-control-sm @error('shareholder_id') is-invalid @enderror" required>
+                                        <label for="partials-form-shareholder-id" class="small mb-1">Shareholder <span class="text-danger">*</span></label>
+                                        <select id="partials-form-shareholder-id" name="shareholder_id" class="form-control form-control-sm @error('shareholder_id') is-invalid @enderror" required>
                                             <option value="">Select Shareholder</option>
                                             @foreach ($shareholders as $sh)
                                                 <option value="{{ $sh->id }}" {{ old('shareholder_id', data_get($transactionData, 'shareholder_id', '')) == $sh->id ? 'selected' : '' }}>
@@ -96,8 +96,8 @@
 
                                 <div class="col-md-4">
                                     <div class="form-group mb-2">
-                                        <label class="small mb-1">Type <span class="text-danger">*</span></label>
-                                        <select name="type" class="form-control form-control-sm @error('type') is-invalid @enderror" required>
+                                        <label for="partials-form-type" class="small mb-1">Type <span class="text-danger">*</span></label>
+                                        <select id="partials-form-type" name="type" class="form-control form-control-sm @error('type') is-invalid @enderror" required>
                                             <option value="">Select Type</option>
                                             <option value="capital" {{ $typeValue === 'capital' ? 'selected' : '' }}>Capital (Investment)</option>
                                             <option value="withdrawal" {{ $typeValue === 'withdrawal' ? 'selected' : '' }}>Withdrawal (Drawing)</option>
@@ -110,8 +110,8 @@
 
                                 <div class="col-md-4">
                                     <div class="form-group mb-2">
-                                        <label class="small mb-1">Amount <span class="text-danger">*</span></label>
-                                        <input type="number" name="amount" step="0.01" min="0.01" class="form-control form-control-sm @error('amount') is-invalid @enderror" value="{{ old('amount', data_get($transactionData, 'amount', '')) }}" required>
+                                        <label for="partials-form-amount" class="small mb-1">Amount <span class="text-danger">*</span></label>
+                                        <input id="partials-form-amount" type="number" name="amount" step="0.01" min="0.01" class="form-control form-control-sm @error('amount') is-invalid @enderror" value="{{ old('amount', data_get($transactionData, 'amount', '')) }}" required>
                                         @error('amount')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
@@ -120,8 +120,8 @@
 
                                 <div class="col-md-4">
                                     <div class="form-group mb-2">
-                                        <label class="small mb-1">Transaction Date <span class="text-danger">*</span></label>
-                                        <input type="text" name="transaction_date" class="form-control form-control-sm datepicker @error('transaction_date') is-invalid @enderror" value="{{ $transactionDateValue }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
+                                        <label for="partials-form-transaction-date" class="small mb-1">Transaction Date <span class="text-danger">*</span></label>
+                                        <input id="partials-form-transaction-date" type="text" name="transaction_date" class="form-control form-control-sm datepicker @error('transaction_date') is-invalid @enderror" value="{{ $transactionDateValue }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
                                         @error('transaction_date')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
@@ -173,8 +173,8 @@
 
                                 <div class="col-md-8">
                                     <div class="form-group mb-2">
-                                        <label class="small mb-1">Description <span class="text-muted">(optional)</span></label>
-                                        <textarea name="description" class="form-control form-control-sm @error('description') is-invalid @enderror" rows="4" placeholder="e.g. Initial investment, Monthly drawing...">{{ old('description', data_get($transactionData, 'description', '')) }}</textarea>
+                                        <label for="partials-form-description" class="small mb-1">Description <span class="text-muted">(optional)</span></label>
+                                        <textarea id="partials-form-description" name="description" class="form-control form-control-sm @error('description') is-invalid @enderror" rows="4" placeholder="e.g. Initial investment, Monthly drawing...">{{ old('description', data_get($transactionData, 'description', '')) }}</textarea>
                                         @error('description')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror

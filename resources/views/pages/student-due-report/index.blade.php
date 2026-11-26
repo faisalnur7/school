@@ -276,12 +276,12 @@
             <form method="GET" action="{{ route('fees.student-due-report') }}" id="filterForm" class="fees-report-form">
                 <div class="fees-report-grid fees-report-grid--primary">
                     <div class="fees-report-field">
-                        <label>Student ID</label>
-                        <input type="text" name="student_id" class="form-control fees-report-input report-filter-control" value="{{ request('student_id') }}" placeholder="Search specific student">
+                        <label for="student-due-report-index-student-id">Student ID</label>
+                        <input id="student-due-report-index-student-id" type="text" name="student_id" class="form-control fees-report-input report-filter-control" value="{{ request('student_id') }}" placeholder="Search specific student">
                     </div>
                     <div class="fees-report-field">
-                        <label class="font-weight-bold">Academic Year <span class="text-danger">*</span></label>
-                        <select name="session_id" class="form-control fees-report-select report-filter-control">
+                        <label for="student-due-report-index-session-id" class="font-weight-bold">Academic Year <span class="text-danger">*</span></label>
+                        <select id="student-due-report-index-session-id" name="session_id" class="form-control fees-report-select report-filter-control">
                             <option value="">— Select Year —</option>
                             @foreach($sessions as $s)
                                 <option value="{{ $s->id }}" {{ request('session_id') == $s->id ? 'selected' : '' }}>{{ $s->name_en }}</option>
@@ -311,7 +311,7 @@
                         <a href="{{ route('fees.student-due-report') }}" class="btn btn-outline-secondary fees-report-action-btn" title="Reset"><i class="fas fa-times"></i></a>
                         @if(request('session_id') && $rows->isNotEmpty())
                             <button type="button" class="btn btn-success fees-report-action-btn" onclick="window.print()" title="Print"><i class="fas fa-print"></i></button>
-                            <a href="{{ route('fees.student-due-report.pdf', request()->query()) }}" class="btn btn-danger fees-report-action-btn" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
+                            <a href="{{ route('fees.student-due-report.pdf', request()->query()) }}" class="btn btn-outline-secondary fees-report-action-btn" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
                         @endif
                     </div>
                 </div>
@@ -420,7 +420,7 @@
                                                         'session_id' => request('session_id'),
                                                         'class_id' => request('class_id'),
                                                         'section_id' => request('section_id'),
-                                                    ]) }}" class="btn btn-sm btn-danger" title="Download monthwise payment report">
+                                                    ]) }}" class="btn btn-sm btn-outline-secondary" title="Download monthwise payment report">
                                                         <i class="fas fa-file-pdf"></i>
                                                     </a>
                                                 @endif

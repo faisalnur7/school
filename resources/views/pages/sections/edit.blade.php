@@ -34,8 +34,8 @@
                 @endif
 
 <div class="form-group">
-                                <label>Class</label>
-                                <select name="school_class_id" class="form-control" required>
+                                <label for="sections-edit-school-class-id">Class</label>
+                                <select id="sections-edit-school-class-id" name="school_class_id" class="form-control" required>
                                     @foreach ($classes as $class)
                                         <option value="{{ $class->id }}"
                                             {{ $section->school_class_id == $class->id ? 'selected' : '' }}>
@@ -46,14 +46,14 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Name (English)</label>
-                                <input type="text" name="name_en" class="form-control" value="{{ $section->name_en }}"
+                                <label for="sections-edit-name-en">Name (English)</label>
+                                <input id="sections-edit-name-en" type="text" name="name_en" class="form-control" value="{{ $section->name_en }}"
                                     required>
                             </div>
 
                             <div class="form-group">
-                                <label>Name (Bangla)</label>
-                                <input type="text" name="name_bn" class="form-control" value="{{ $section->name_bn }}"
+                                <label for="sections-edit-name-bn">Name (Bangla)</label>
+                                <input id="sections-edit-name-bn" type="text" name="name_bn" class="form-control" value="{{ $section->name_bn }}"
                                     required>
                             </div>
             </div>

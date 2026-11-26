@@ -16,16 +16,16 @@
             <form action="{{ route('hr.payroll.preview') }}" method="POST" class="row align-items-end">
                 @csrf
                 <div class="col-md-2 form-group mb-0">
-                    <label class="font-weight-bold">Month</label>
-                    <select name="month" class="form-control form-control-sm" required>
+                    <label for="payroll-index-month" class="font-weight-bold">Month</label>
+                    <select id="payroll-index-month" name="month" class="form-control form-control-sm" required>
                         @foreach(range(1,12) as $m)
                             <option value="{{ $m }}" {{ now()->month == $m ? 'selected' : '' }}>{{ date('F', mktime(0,0,0,$m,1)) }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-2 form-group mb-0">
-                    <label class="font-weight-bold">Year</label>
-                    <input type="number" name="year" class="form-control form-control-sm" value="{{ now()->year }}" min="2000" required>
+                    <label for="payroll-index-year" class="font-weight-bold">Year</label>
+                    <input id="payroll-index-year" type="number" name="year" class="form-control form-control-sm" value="{{ now()->year }}" min="2000" required>
                 </div>
                 <div class="col-md-2 form-group mb-0">
                     <button type="submit" class="btn btn-primary btn-sm ml-auto"><i class="fas fa-eye"></i> Preview</button>

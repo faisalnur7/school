@@ -30,7 +30,7 @@
                     <ul class="mb-0 mt-1 ps-3">
                         @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
                     </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="{{ __('Close') }}"><span aria-hidden="true">&times;</span></button>
                 </div>
                 @endif
 
@@ -72,8 +72,8 @@
                             </div>
                         </div>
                         <div class="order-field order-field-full">
-                            <label class="order-label">Notes</label>
-                            <textarea name="notes" class="order-textarea" rows="2" placeholder="Additional notes or remarks...">{{ old('notes') }}</textarea>
+                            <label for="purchases-create-notes" class="order-label">Notes</label>
+                            <textarea id="purchases-create-notes" name="notes" class="order-textarea" rows="2" placeholder="Additional notes or remarks...">{{ old('notes') }}</textarea>
                         </div>
                     </div>
                 </div>

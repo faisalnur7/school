@@ -711,6 +711,9 @@
             color: #dc2626;
         }
 
+        .students-directory .student-actions form,
+        .students-directory .student-icon-btn--danger { margin-left: .25rem; }
+
         .students-directory .student-icon-btn i {
             font-size: 0.98rem;
             line-height: 1;
@@ -783,6 +786,22 @@
         }
 
         @media (max-width: 767.98px) {
+            /* One 12px gutter inside the card, lined up with the card title,
+               instead of card body + list wrapper + group box padding stacked. */
+            .content-wrapper .students-directory .card .card-body.students-card-body {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            .students-directory .students-mobile-list {
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
+
+            .students-directory .students-mobile-section {
+                padding: 0.5rem !important;
+            }
+
             .students-directory .students-card-header {
                 flex-direction: column;
                 align-items: stretch;
@@ -832,6 +851,38 @@
             .students-directory .students-filter-row,
             .students-directory .students-advanced-grid {
                 grid-template-columns: 1fr;
+            }
+
+            /* Phones: keep search + actions visible; the selects open with the Filters button. */
+            .students-directory .students-filter-form:not(.is-mobile-filters-open) .students-filter-row > .students-filter-select,
+            .students-directory .students-filter-form:not(.is-mobile-filters-open) .students-filter-row > .students-filter-select + .select2-container {
+                display: none !important;
+            }
+
+            .students-directory .students-filter-actions--submit {
+                flex-direction: row;
+            }
+
+            .students-directory .students-filter-actions--submit > * {
+                flex: 1 1 0;
+            }
+
+            .students-directory .students-filter-form:not(.is-mobile-filters-open) .students-advanced-filters {
+                display: none !important;
+            }
+
+            .students-directory .students-filter-row {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .students-directory .students-filter-row > .students-search-field {
+                grid-column: 1 / -1;
+            }
+
+            .students-directory .students-filter-form.is-mobile-filters-open .students-filter-row > .students-filter-select,
+            .students-directory .students-filter-form.is-mobile-filters-open .students-filter-row > .select2-container {
+                grid-column: 1 / -1;
+                width: 100% !important;
             }
 
             .students-directory .students-pdf-checks {
@@ -1151,12 +1202,36 @@
     @include('scripts.common.load_academic_information')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Phones: the filter selects sit behind the "Filters" button (see .is-mobile-filters-open CSS).
+            const filterForm = document.querySelector('.students-filter-form');
+            document.querySelectorAll('[data-students-filters-toggle]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    filterForm?.classList.toggle('is-mobile-filters-open');
+                    button.setAttribute('aria-expanded', filterForm?.classList.contains('is-mobile-filters-open') ? 'true' : 'false');
+                });
+            });
+
+            // PDF column picker (modal). The selection is remembered per browser.
+            const storageKey = 'students-pdf-columns';
             const toggleAll = document.getElementById('pdf-columns-toggle-all');
             const checkboxes = Array.from(document.querySelectorAll('.pdf-column-checkbox'));
 
             if (!toggleAll || !checkboxes.length) {
                 return;
             }
+
+            try {
+                const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+                if (Array.isArray(saved) && saved.length) {
+                    checkboxes.forEach((checkbox) => { checkbox.checked = saved.includes(checkbox.value); });
+                }
+            } catch (error) { /* storage unavailable: keep defaults */ }
+
+            const persist = () => {
+                try {
+                    localStorage.setItem(storageKey, JSON.stringify(checkboxes.filter((c) => c.checked).map((c) => c.value)));
+                } catch (error) { /* ignore */ }
+            };
 
             const syncToggleState = () => {
                 toggleAll.checked = checkboxes.every((checkbox) => checkbox.checked);
@@ -1166,10 +1241,20 @@
                 checkboxes.forEach((checkbox) => {
                     checkbox.checked = toggleAll.checked;
                 });
+                persist();
             });
 
             checkboxes.forEach((checkbox) => {
-                checkbox.addEventListener('change', syncToggleState);
+                checkbox.addEventListener('change', function () {
+                    syncToggleState();
+                    persist();
+                });
+            });
+
+            document.querySelector('[data-students-pdf-form]')?.addEventListener('submit', function () {
+                if (window.jQuery) {
+                    window.jQuery('#studentsPdfModal').modal('hide');
+                }
             });
 
             syncToggleState();

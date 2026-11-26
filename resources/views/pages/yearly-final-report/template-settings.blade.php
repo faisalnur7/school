@@ -149,39 +149,39 @@
                             <div class="card-body">
                                 <div class="form-row">
                                     <div class="form-group col-md-3">
-                                        <label>Margin Top (cm)</label>
-                                        <input type="number" step="0.1" min="0" max="5" name="margin_top_mm" class="form-control" value="{{ old('margin_top_mm', $setting->margin_top_mm) }}">
+                                        <label for="yearly-final-report-template-settings-margin-top-mm">Margin Top (cm)</label>
+                                        <input id="yearly-final-report-template-settings-margin-top-mm" type="number" step="0.1" min="0" max="5" name="margin_top_mm" class="form-control" value="{{ old('margin_top_mm', $setting->margin_top_mm) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Margin Right (cm)</label>
-                                        <input type="number" step="0.1" min="0" max="5" name="margin_right_mm" class="form-control" value="{{ old('margin_right_mm', $setting->margin_right_mm) }}">
+                                        <label for="yearly-final-report-template-settings-margin-right-mm">Margin Right (cm)</label>
+                                        <input id="yearly-final-report-template-settings-margin-right-mm" type="number" step="0.1" min="0" max="5" name="margin_right_mm" class="form-control" value="{{ old('margin_right_mm', $setting->margin_right_mm) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Margin Bottom (cm)</label>
-                                        <input type="number" step="0.1" min="0" max="5" name="margin_bottom_mm" class="form-control" value="{{ old('margin_bottom_mm', $setting->margin_bottom_mm) }}">
+                                        <label for="yearly-final-report-template-settings-margin-bottom-mm">Margin Bottom (cm)</label>
+                                        <input id="yearly-final-report-template-settings-margin-bottom-mm" type="number" step="0.1" min="0" max="5" name="margin_bottom_mm" class="form-control" value="{{ old('margin_bottom_mm', $setting->margin_bottom_mm) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Margin Left (cm)</label>
-                                        <input type="number" step="0.1" min="0" max="5" name="margin_left_mm" class="form-control" value="{{ old('margin_left_mm', $setting->margin_left_mm) }}">
+                                        <label for="yearly-final-report-template-settings-margin-left-mm">Margin Left (cm)</label>
+                                        <input id="yearly-final-report-template-settings-margin-left-mm" type="number" step="0.1" min="0" max="5" name="margin_left_mm" class="form-control" value="{{ old('margin_left_mm', $setting->margin_left_mm) }}">
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                     <div class="form-group col-md-3">
-                                        <label>Watermark Opacity</label>
-                                        <input type="number" step="0.01" min="0" max="1" name="watermark_opacity" class="form-control" value="{{ old('watermark_opacity', $setting->watermark_opacity) }}">
+                                        <label for="yearly-final-report-template-settings-watermark-opacity">Watermark Opacity</label>
+                                        <input id="yearly-final-report-template-settings-watermark-opacity" type="number" step="0.01" min="0" max="1" name="watermark_opacity" class="form-control" value="{{ old('watermark_opacity', $setting->watermark_opacity) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Watermark Scale %</label>
-                                        <input type="number" step="0.1" min="10" max="100" name="watermark_scale" class="form-control" value="{{ old('watermark_scale', $setting->watermark_scale) }}">
+                                        <label for="yearly-final-report-template-settings-watermark-scale">Watermark Scale %</label>
+                                        <input id="yearly-final-report-template-settings-watermark-scale" type="number" step="0.1" min="10" max="100" name="watermark_scale" class="form-control" value="{{ old('watermark_scale', $setting->watermark_scale) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>School Name Size</label>
-                                        <input type="number" step="0.1" min="8" max="40" name="school_name_font_size" class="form-control" value="{{ old('school_name_font_size', $setting->school_name_font_size) }}">
+                                        <label for="yearly-final-report-template-settings-school-name-font-size">School Name Size</label>
+                                        <input id="yearly-final-report-template-settings-school-name-font-size" type="number" step="0.1" min="8" max="40" name="school_name_font_size" class="form-control" value="{{ old('school_name_font_size', $setting->school_name_font_size) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>School Address Size</label>
-                                        <input type="number" step="0.1" min="6" max="28" name="school_address_font_size" class="form-control" value="{{ old('school_address_font_size', $setting->school_address_font_size) }}">
+                                        <label for="yearly-final-report-template-settings-school-address-font-size">School Address Size</label>
+                                        <input id="yearly-final-report-template-settings-school-address-font-size" type="number" step="0.1" min="6" max="28" name="school_address_font_size" class="form-control" value="{{ old('school_address_font_size', $setting->school_address_font_size) }}">
                                     </div>
                                 </div>
                             </div>
@@ -194,39 +194,39 @@
                             <div class="card-body">
                                 <div class="form-row">
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Report Title</label>
-                                        <input type="text" name="report_title_text" class="form-control" value="{{ old('report_title_text', $setting->report_title_text) }}">
+                                        <label for="yearly-final-report-template-settings-report-title-text">Report Title</label>
+                                        <input id="yearly-final-report-template-settings-report-title-text" type="text" name="report_title_text" class="form-control" value="{{ old('report_title_text', $setting->report_title_text) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Title Size</label>
-                                        <input type="number" step="0.1" min="8" max="40" name="report_title_font_size" class="form-control" value="{{ old('report_title_font_size', $setting->report_title_font_size) }}">
+                                        <label for="yearly-final-report-template-settings-report-title-font-size">Title Size</label>
+                                        <input id="yearly-final-report-template-settings-report-title-font-size" type="number" step="0.1" min="8" max="40" name="report_title_font_size" class="form-control" value="{{ old('report_title_font_size', $setting->report_title_font_size) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Grade Scale Title</label>
-                                        <input type="text" name="grade_scale_title" class="form-control" value="{{ old('grade_scale_title', $setting->grade_scale_title) }}">
+                                        <label for="yearly-final-report-template-settings-grade-scale-title">Grade Scale Title</label>
+                                        <input id="yearly-final-report-template-settings-grade-scale-title" type="text" name="grade_scale_title" class="form-control" value="{{ old('grade_scale_title', $setting->grade_scale_title) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Annual Label</label>
-                                        <input type="text" name="annual_report_label" class="form-control" value="{{ old('annual_report_label', $setting->annual_report_label) }}">
+                                        <label for="yearly-final-report-template-settings-annual-report-label">Annual Label</label>
+                                        <input id="yearly-final-report-template-settings-annual-report-label" type="text" name="annual_report_label" class="form-control" value="{{ old('annual_report_label', $setting->annual_report_label) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>School Name</label>
-                                        <input type="color" name="school_name_color" class="form-control form-control-color" value="{{ old('school_name_color', $setting->school_name_color) }}">
+                                        <label for="yearly-final-report-template-settings-school-name-color">School Name</label>
+                                        <input id="yearly-final-report-template-settings-school-name-color" type="color" name="school_name_color" class="form-control form-control-color" value="{{ old('school_name_color', $setting->school_name_color) }}">
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                     <div class="form-group yearly-col-md-20">
-                                        <label>School Address</label>
-                                        <input type="color" name="school_address_color" class="form-control form-control-color" value="{{ old('school_address_color', $setting->school_address_color) }}">
+                                        <label for="yearly-final-report-template-settings-school-address-color">School Address</label>
+                                        <input id="yearly-final-report-template-settings-school-address-color" type="color" name="school_address_color" class="form-control form-control-color" value="{{ old('school_address_color', $setting->school_address_color) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Title</label>
-                                        <input type="color" name="report_title_color" class="form-control form-control-color" value="{{ old('report_title_color', $setting->report_title_color) }}">
+                                        <label for="yearly-final-report-template-settings-report-title-color">Title</label>
+                                        <input id="yearly-final-report-template-settings-report-title-color" type="color" name="report_title_color" class="form-control form-control-color" value="{{ old('report_title_color', $setting->report_title_color) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Annual Label</label>
-                                        <input type="color" name="annual_report_color" class="form-control form-control-color" value="{{ old('annual_report_color', $setting->annual_report_color) }}">
+                                        <label for="yearly-final-report-template-settings-annual-report-color">Annual Label</label>
+                                        <input id="yearly-final-report-template-settings-annual-report-color" type="color" name="annual_report_color" class="form-control form-control-color" value="{{ old('annual_report_color', $setting->annual_report_color) }}">
                                     </div>
                                 </div>
                             </div>
@@ -239,31 +239,31 @@
                             <div class="card-body">
                                 <div class="form-row">
                                     <div class="form-group col-md-3">
-                                        <label>Table Border</label>
-                                        <input type="color" name="table_border_color" class="form-control form-control-color" value="{{ old('table_border_color', $setting->table_border_color) }}">
+                                        <label for="yearly-final-report-template-settings-table-border-color">Table Border</label>
+                                        <input id="yearly-final-report-template-settings-table-border-color" type="color" name="table_border_color" class="form-control form-control-color" value="{{ old('table_border_color', $setting->table_border_color) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Header Background</label>
-                                        <input type="color" name="table_header_bg_color" class="form-control form-control-color" value="{{ old('table_header_bg_color', $setting->table_header_bg_color) }}">
+                                        <label for="yearly-final-report-template-settings-table-header-bg-color">Header Background</label>
+                                        <input id="yearly-final-report-template-settings-table-header-bg-color" type="color" name="table_header_bg_color" class="form-control form-control-color" value="{{ old('table_header_bg_color', $setting->table_header_bg_color) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Header Text</label>
-                                        <input type="color" name="table_header_text_color" class="form-control form-control-color" value="{{ old('table_header_text_color', $setting->table_header_text_color) }}">
+                                        <label for="yearly-final-report-template-settings-table-header-text-color">Header Text</label>
+                                        <input id="yearly-final-report-template-settings-table-header-text-color" type="color" name="table_header_text_color" class="form-control form-control-color" value="{{ old('table_header_text_color', $setting->table_header_text_color) }}">
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label>Body Background</label>
-                                        <input type="color" name="table_body_bg_color" class="form-control form-control-color" value="{{ old('table_body_bg_color', $setting->table_body_bg_color) }}">
+                                        <label for="yearly-final-report-template-settings-table-body-bg-color">Body Background</label>
+                                        <input id="yearly-final-report-template-settings-table-body-bg-color" type="color" name="table_body_bg_color" class="form-control form-control-color" value="{{ old('table_body_bg_color', $setting->table_body_bg_color) }}">
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
-                                        <label>Body Text</label>
-                                        <input type="color" name="table_body_text_color" class="form-control form-control-color" value="{{ old('table_body_text_color', $setting->table_body_text_color) }}">
+                                        <label for="yearly-final-report-template-settings-table-body-text-color">Body Text</label>
+                                        <input id="yearly-final-report-template-settings-table-body-text-color" type="color" name="table_body_text_color" class="form-control form-control-color" value="{{ old('table_body_text_color', $setting->table_body_text_color) }}">
                                     </div>
                                     <div class="form-group col-md-6">
-                                        <label>Position Border</label>
-                                        <input type="color" name="position_border_color" class="form-control form-control-color" value="{{ old('position_border_color', $setting->position_border_color) }}">
+                                        <label for="yearly-final-report-template-settings-position-border-color">Position Border</label>
+                                        <input id="yearly-final-report-template-settings-position-border-color" type="color" name="position_border_color" class="form-control form-control-color" value="{{ old('position_border_color', $setting->position_border_color) }}">
                                     </div>
                                 </div>
                             </div>
@@ -352,77 +352,77 @@
                             <div class="card-body">
                                 <div class="form-row">
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Pair Heading 1</label>
-                                        <input type="text" name="pair_heading_1" class="form-control" value="{{ old('pair_heading_1', $setting->pair_heading_1) }}">
+                                        <label for="yearly-final-report-template-settings-pair-heading-1">Pair Heading 1</label>
+                                        <input id="yearly-final-report-template-settings-pair-heading-1" type="text" name="pair_heading_1" class="form-control" value="{{ old('pair_heading_1', $setting->pair_heading_1) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Pair Heading 2</label>
-                                        <input type="text" name="pair_heading_2" class="form-control" value="{{ old('pair_heading_2', $setting->pair_heading_2) }}">
+                                        <label for="yearly-final-report-template-settings-pair-heading-2">Pair Heading 2</label>
+                                        <input id="yearly-final-report-template-settings-pair-heading-2" type="text" name="pair_heading_2" class="form-control" value="{{ old('pair_heading_2', $setting->pair_heading_2) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Pair Heading 3</label>
-                                        <input type="text" name="pair_heading_3" class="form-control" value="{{ old('pair_heading_3', $setting->pair_heading_3) }}">
+                                        <label for="yearly-final-report-template-settings-pair-heading-3">Pair Heading 3</label>
+                                        <input id="yearly-final-report-template-settings-pair-heading-3" type="text" name="pair_heading_3" class="form-control" value="{{ old('pair_heading_3', $setting->pair_heading_3) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Grand Total Label</label>
-                                        <input type="text" name="grand_total_label" class="form-control" value="{{ old('grand_total_label', $setting->grand_total_label) }}">
+                                        <label for="yearly-final-report-template-settings-grand-total-label">Grand Total Label</label>
+                                        <input id="yearly-final-report-template-settings-grand-total-label" type="text" name="grand_total_label" class="form-control" value="{{ old('grand_total_label', $setting->grand_total_label) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Highest Total Label</label>
-                                        <input type="text" name="highest_total_label" class="form-control" value="{{ old('highest_total_label', $setting->highest_total_label) }}">
+                                        <label for="yearly-final-report-template-settings-highest-total-label">Highest Total Label</label>
+                                        <input id="yearly-final-report-template-settings-highest-total-label" type="text" name="highest_total_label" class="form-control" value="{{ old('highest_total_label', $setting->highest_total_label) }}">
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Position Label</label>
-                                        <input type="text" name="position_label_text" class="form-control" value="{{ old('position_label_text', $setting->position_label_text) }}">
+                                        <label for="yearly-final-report-template-settings-position-label-text">Position Label</label>
+                                        <input id="yearly-final-report-template-settings-position-label-text" type="text" name="position_label_text" class="form-control" value="{{ old('position_label_text', $setting->position_label_text) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Promoted Text</label>
-                                        <input type="text" name="promoted_text" class="form-control" value="{{ old('promoted_text', $setting->promoted_text) }}">
+                                        <label for="yearly-final-report-template-settings-promoted-text">Promoted Text</label>
+                                        <input id="yearly-final-report-template-settings-promoted-text" type="text" name="promoted_text" class="form-control" value="{{ old('promoted_text', $setting->promoted_text) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Class Teacher Label</label>
-                                        <input type="text" name="class_teacher_label" class="form-control" value="{{ old('class_teacher_label', $setting->class_teacher_label) }}">
+                                        <label for="yearly-final-report-template-settings-class-teacher-label">Class Teacher Label</label>
+                                        <input id="yearly-final-report-template-settings-class-teacher-label" type="text" name="class_teacher_label" class="form-control" value="{{ old('class_teacher_label', $setting->class_teacher_label) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Principal Label</label>
-                                        <input type="text" name="principal_label" class="form-control" value="{{ old('principal_label', $setting->principal_label) }}">
+                                        <label for="yearly-final-report-template-settings-principal-label">Principal Label</label>
+                                        <input id="yearly-final-report-template-settings-principal-label" type="text" name="principal_label" class="form-control" value="{{ old('principal_label', $setting->principal_label) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Excellent Remark</label>
-                                        <input type="text" name="remark_excellent_text" class="form-control" value="{{ old('remark_excellent_text', $setting->remark_excellent_text) }}">
+                                        <label for="yearly-final-report-template-settings-remark-excellent-text">Excellent Remark</label>
+                                        <input id="yearly-final-report-template-settings-remark-excellent-text" type="text" name="remark_excellent_text" class="form-control" value="{{ old('remark_excellent_text', $setting->remark_excellent_text) }}">
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Good Remark</label>
-                                        <input type="text" name="remark_good_text" class="form-control" value="{{ old('remark_good_text', $setting->remark_good_text) }}">
+                                        <label for="yearly-final-report-template-settings-remark-good-text">Good Remark</label>
+                                        <input id="yearly-final-report-template-settings-remark-good-text" type="text" name="remark_good_text" class="form-control" value="{{ old('remark_good_text', $setting->remark_good_text) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Satisfactory Remark</label>
-                                        <input type="text" name="remark_satisfactory_text" class="form-control" value="{{ old('remark_satisfactory_text', $setting->remark_satisfactory_text) }}">
+                                        <label for="yearly-final-report-template-settings-remark-satisfactory-text">Satisfactory Remark</label>
+                                        <input id="yearly-final-report-template-settings-remark-satisfactory-text" type="text" name="remark_satisfactory_text" class="form-control" value="{{ old('remark_satisfactory_text', $setting->remark_satisfactory_text) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-20">
-                                        <label>Improve Remark</label>
-                                        <input type="text" name="remark_improve_text" class="form-control" value="{{ old('remark_improve_text', $setting->remark_improve_text) }}">
+                                        <label for="yearly-final-report-template-settings-remark-improve-text">Improve Remark</label>
+                                        <input id="yearly-final-report-template-settings-remark-improve-text" type="text" name="remark_improve_text" class="form-control" value="{{ old('remark_improve_text', $setting->remark_improve_text) }}">
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
-                                        <label>Excellent Comment</label>
-                                        <textarea name="comments_excellent_text" rows="2" class="form-control">{{ old('comments_excellent_text', $setting->comments_excellent_text) }}</textarea>
+                                        <label for="yearly-final-report-template-settings-comments-excellent-text">Excellent Comment</label>
+                                        <textarea id="yearly-final-report-template-settings-comments-excellent-text" name="comments_excellent_text" rows="2" class="form-control">{{ old('comments_excellent_text', $setting->comments_excellent_text) }}</textarea>
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>Good Comment</label>
-                                        <textarea name="comments_good_text" rows="2" class="form-control">{{ old('comments_good_text', $setting->comments_good_text) }}</textarea>
+                                        <label for="yearly-final-report-template-settings-comments-good-text">Good Comment</label>
+                                        <textarea id="yearly-final-report-template-settings-comments-good-text" name="comments_good_text" rows="2" class="form-control">{{ old('comments_good_text', $setting->comments_good_text) }}</textarea>
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label>Default Comment</label>
-                                        <textarea name="comments_default_text" rows="2" class="form-control">{{ old('comments_default_text', $setting->comments_default_text) }}</textarea>
+                                        <label for="yearly-final-report-template-settings-comments-default-text">Default Comment</label>
+                                        <textarea id="yearly-final-report-template-settings-comments-default-text" name="comments_default_text" rows="2" class="form-control">{{ old('comments_default_text', $setting->comments_default_text) }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -435,55 +435,55 @@
                             <div class="card-body">
                                 <div class="form-row">
                                     <div class="form-group yearly-col-md-16">
-                                        <label>Position Label Bg</label>
-                                        <input type="color" name="position_label_bg_color" class="form-control form-control-color" value="{{ old('position_label_bg_color', $setting->position_label_bg_color) }}">
+                                        <label for="yearly-final-report-template-settings-position-label-bg-color">Position Label Bg</label>
+                                        <input id="yearly-final-report-template-settings-position-label-bg-color" type="color" name="position_label_bg_color" class="form-control form-control-color" value="{{ old('position_label_bg_color', $setting->position_label_bg_color) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-16">
-                                        <label>Position Label Text</label>
-                                        <input type="color" name="position_label_text_color" class="form-control form-control-color" value="{{ old('position_label_text_color', $setting->position_label_text_color) }}">
+                                        <label for="yearly-final-report-template-settings-position-label-text-color">Position Label Text</label>
+                                        <input id="yearly-final-report-template-settings-position-label-text-color" type="color" name="position_label_text_color" class="form-control form-control-color" value="{{ old('position_label_text_color', $setting->position_label_text_color) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-16">
-                                        <label>Position Value Text</label>
-                                        <input type="color" name="position_value_text_color" class="form-control form-control-color" value="{{ old('position_value_text_color', $setting->position_value_text_color) }}">
+                                        <label for="yearly-final-report-template-settings-position-value-text-color">Position Value Text</label>
+                                        <input id="yearly-final-report-template-settings-position-value-text-color" type="color" name="position_value_text_color" class="form-control form-control-color" value="{{ old('position_value_text_color', $setting->position_value_text_color) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-16">
-                                        <label>Promo Box Bg</label>
-                                        <input type="color" name="promo_box_bg_color" class="form-control form-control-color" value="{{ old('promo_box_bg_color', $setting->promo_box_bg_color) }}">
+                                        <label for="yearly-final-report-template-settings-promo-box-bg-color">Promo Box Bg</label>
+                                        <input id="yearly-final-report-template-settings-promo-box-bg-color" type="color" name="promo_box_bg_color" class="form-control form-control-color" value="{{ old('promo_box_bg_color', $setting->promo_box_bg_color) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-16">
-                                        <label>Promo Box Text</label>
-                                        <input type="color" name="promo_box_text_color" class="form-control form-control-color" value="{{ old('promo_box_text_color', $setting->promo_box_text_color) }}">
+                                        <label for="yearly-final-report-template-settings-promo-box-text-color">Promo Box Text</label>
+                                        <input id="yearly-final-report-template-settings-promo-box-text-color" type="color" name="promo_box_text_color" class="form-control form-control-color" value="{{ old('promo_box_text_color', $setting->promo_box_text_color) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-16">
-                                        <label>Signature Line</label>
-                                        <input type="color" name="signature_line_color" class="form-control form-control-color" value="{{ old('signature_line_color', $setting->signature_line_color) }}">
+                                        <label for="yearly-final-report-template-settings-signature-line-color">Signature Line</label>
+                                        <input id="yearly-final-report-template-settings-signature-line-color" type="color" name="signature_line_color" class="form-control form-control-color" value="{{ old('signature_line_color', $setting->signature_line_color) }}">
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                     <div class="form-group yearly-col-md-16">
-                                        <label>Remarks Title</label>
-                                        <input type="color" name="remarks_title_color" class="form-control form-control-color" value="{{ old('remarks_title_color', $setting->remarks_title_color) }}">
+                                        <label for="yearly-final-report-template-settings-remarks-title-color">Remarks Title</label>
+                                        <input id="yearly-final-report-template-settings-remarks-title-color" type="color" name="remarks_title_color" class="form-control form-control-color" value="{{ old('remarks_title_color', $setting->remarks_title_color) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-16">
-                                        <label>Remarks Text</label>
-                                        <input type="color" name="remarks_text_color" class="form-control form-control-color" value="{{ old('remarks_text_color', $setting->remarks_text_color) }}">
+                                        <label for="yearly-final-report-template-settings-remarks-text-color">Remarks Text</label>
+                                        <input id="yearly-final-report-template-settings-remarks-text-color" type="color" name="remarks_text_color" class="form-control form-control-color" value="{{ old('remarks_text_color', $setting->remarks_text_color) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-16">
-                                        <label>Remarks Note</label>
-                                        <input type="color" name="remarks_note_color" class="form-control form-control-color" value="{{ old('remarks_note_color', $setting->remarks_note_color) }}">
+                                        <label for="yearly-final-report-template-settings-remarks-note-color">Remarks Note</label>
+                                        <input id="yearly-final-report-template-settings-remarks-note-color" type="color" name="remarks_note_color" class="form-control form-control-color" value="{{ old('remarks_note_color', $setting->remarks_note_color) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-16">
-                                        <label>Comments Border</label>
-                                        <input type="color" name="comments_border_color" class="form-control form-control-color" value="{{ old('comments_border_color', $setting->comments_border_color) }}">
+                                        <label for="yearly-final-report-template-settings-comments-border-color">Comments Border</label>
+                                        <input id="yearly-final-report-template-settings-comments-border-color" type="color" name="comments_border_color" class="form-control form-control-color" value="{{ old('comments_border_color', $setting->comments_border_color) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-16">
-                                        <label>Comments Text</label>
-                                        <input type="color" name="comments_text_color" class="form-control form-control-color" value="{{ old('comments_text_color', $setting->comments_text_color) }}">
+                                        <label for="yearly-final-report-template-settings-comments-text-color">Comments Text</label>
+                                        <input id="yearly-final-report-template-settings-comments-text-color" type="color" name="comments_text_color" class="form-control form-control-color" value="{{ old('comments_text_color', $setting->comments_text_color) }}">
                                     </div>
                                     <div class="form-group yearly-col-md-16">
-                                        <label>Grade Border</label>
-                                        <input type="color" name="grade_border_color" class="form-control form-control-color" value="{{ old('grade_border_color', $setting->grade_border_color) }}">
+                                        <label for="yearly-final-report-template-settings-grade-border-color">Grade Border</label>
+                                        <input id="yearly-final-report-template-settings-grade-border-color" type="color" name="grade_border_color" class="form-control form-control-color" value="{{ old('grade_border_color', $setting->grade_border_color) }}">
                                     </div>
                                 </div>
                             </div>

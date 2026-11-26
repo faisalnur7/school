@@ -33,8 +33,8 @@
         <form method="GET" action="{{ route('students.certificates') }}">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                 <div class="md:col-span-2">
-                    <label class="form-label text-sm font-medium text-slate-600">Search student by name or CID</label>
-                    <input type="text" name="search" value="{{ request('search') }}"
+                    <label for="lifecycle-certificates-search" class="form-label text-sm font-medium text-slate-600">Search student by name or CID</label>
+                    <input id="lifecycle-certificates-search" type="text" name="search" value="{{ request('search') }}"
                         class="form-control form-control-sm" placeholder="Enter name or student ID...">
                 </div>
                 <div>

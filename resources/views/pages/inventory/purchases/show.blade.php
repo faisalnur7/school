@@ -35,20 +35,20 @@
                     <form method="POST" action="{{ route('inventory.purchases.payments.store', $purchase->id) }}" class="row g-2">
                         @csrf
                         <div class="col-md-3">
-                            <label class="form-label">Amount</label>
-                            <input type="number" min="0.01" step="0.01" name="amount" value="{{ old('amount', $purchase->balance) }}" class="form-control">
+                            <label for="purchases-show-amount" class="form-label">Amount</label>
+                            <input id="purchases-show-amount" type="number" min="0.01" step="0.01" name="amount" value="{{ old('amount', $purchase->balance) }}" class="form-control">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Payment Date</label>
-                            <input type="date" name="payment_date" value="{{ old('payment_date', now()->toDateString()) }}" class="form-control">
+                            <label for="purchases-show-payment-date" class="form-label">Payment Date</label>
+                            <input id="purchases-show-payment-date" type="date" name="payment_date" value="{{ old('payment_date', now()->toDateString()) }}" class="form-control">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Reference No</label>
-                            <input type="text" name="reference_no" value="{{ old('reference_no') }}" class="form-control" placeholder="Optional">
+                            <label for="purchases-show-reference-no" class="form-label">Reference No</label>
+                            <input id="purchases-show-reference-no" type="text" name="reference_no" value="{{ old('reference_no') }}" class="form-control" placeholder="Optional">
                         </div>
                         <div class="col-md-12 mt-2">
-                            <label class="form-label">Notes</label>
-                            <textarea name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
+                            <label for="purchases-show-notes" class="form-label">Notes</label>
+                            <textarea id="purchases-show-notes" name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
                         </div>
                         <div class="col-md-12 mt-3">
                             <button class="btn btn-primary"><i class="fas fa-save"></i> Save Payment</button>

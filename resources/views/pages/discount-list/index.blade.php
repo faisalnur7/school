@@ -245,12 +245,12 @@
             <form method="GET" action="{{ route('fees.discount-list') }}" id="filterForm" class="fees-report-form">
                 <div class="fees-report-grid fees-report-grid--primary">
                     <div class="fees-report-field">
-                        <label class="font-weight-bold">Student ID</label>
-                        <input type="text" name="student_id" class="form-control fees-report-input report-filter-control" value="{{ request('student_id') }}" placeholder="Search specific student">
+                        <label for="discount-list-index-student-id" class="font-weight-bold">Student ID</label>
+                        <input id="discount-list-index-student-id" type="text" name="student_id" class="form-control fees-report-input report-filter-control" value="{{ request('student_id') }}" placeholder="Search specific student">
                     </div>
                     <div class="fees-report-field">
-                        <label class="font-weight-bold">Academic Year <span class="text-danger">*</span></label>
-                        <select name="session_id" class="form-control fees-report-select report-filter-control">
+                        <label for="discount-list-index-session-id" class="font-weight-bold">Academic Year <span class="text-danger">*</span></label>
+                        <select id="discount-list-index-session-id" name="session_id" class="form-control fees-report-select report-filter-control">
                             <option value="">— Select Year —</option>
                             @foreach($sessions as $s)
                                 <option value="{{ $s->id }}" {{ request('session_id') == $s->id ? 'selected' : '' }}>{{ $s->name_en }}</option>
@@ -258,8 +258,8 @@
                         </select>
                     </div>
                     <div class="fees-report-field">
-                        <label>Month</label>
-                        <select name="month" class="form-control fees-report-select report-filter-control">
+                        <label for="discount-list-index-month">Month</label>
+                        <select id="discount-list-index-month" name="month" class="form-control fees-report-select report-filter-control">
                             <option value="">All Months</option>
                             @foreach(range(1,12) as $m)
                                 <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>{{ date('F', mktime(0,0,0,$m,1)) }}</option>
@@ -285,8 +285,8 @@
                         </select>
                     </div>
                     <div class="fees-report-field">
-                        <label>Group</label>
-                        <select name="group_id" class="form-control fees-report-select report-filter-control">
+                        <label for="discount-list-index-group-id">Group</label>
+                        <select id="discount-list-index-group-id" name="group_id" class="form-control fees-report-select report-filter-control">
                             <option value="">All Groups</option>
                             @foreach($groups as $g)
                                 <option value="{{ $g->id }}" {{ request('group_id') == $g->id ? 'selected' : '' }}>{{ $g->name_en }}</option>
@@ -298,7 +298,7 @@
                         <a href="{{ route('fees.discount-list') }}" class="btn btn-outline-secondary fees-report-action-btn" title="Reset"><i class="fas fa-times"></i></a>
                         @if(request('session_id') && $rows->isNotEmpty())
                             <button type="button" class="btn btn-success fees-report-action-btn" onclick="window.print()" title="Print"><i class="fas fa-print"></i></button>
-                            <a href="{{ route('fees.discount-list.pdf', request()->query()) }}" class="btn btn-danger fees-report-action-btn" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
+                            <a href="{{ route('fees.discount-list.pdf', request()->query()) }}" class="btn btn-outline-secondary fees-report-action-btn" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
                         @endif
                     </div>
                 </div>

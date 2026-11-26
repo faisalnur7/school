@@ -12,8 +12,8 @@
             <form method="GET" class="supplier-dues-filters">
                 <div class="row g-2 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label mb-1" style="font-size:12px">Year</label>
-                        <input type="number" name="year" class="form-control" value="{{ $year }}" placeholder="Year">
+                        <label for="reports-trial-balance-year" class="form-label mb-1" style="font-size:12px">Year</label>
+                        <input id="reports-trial-balance-year" type="number" name="year" class="form-control" value="{{ $year }}" placeholder="Year">
                     </div>
                     <div class="col-md-3 d-flex gap-2">
                         <button type="submit" class="btn btn-dark" title="Filter" aria-label="Filter">
@@ -23,7 +23,7 @@
                         <a href="{{ route('reports.trial-balance') }}" class="btn btn-light" title="Reset" aria-label="Reset">
                             <i class="fas fa-undo-alt"></i>
                         </a>
-                        <a href="{{ route('reports.trial-balance.pdf', request()->query()) }}" class="btn btn-danger">
+                        <a href="{{ route('reports.trial-balance.pdf', request()->query()) }}" class="btn btn-outline-secondary">
                             <i class="fas fa-file-pdf"></i> PDF
                         </a>
                     </div>

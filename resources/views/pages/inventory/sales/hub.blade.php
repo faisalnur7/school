@@ -103,12 +103,12 @@
         >
             <form method="GET" action="{{ route('inventory.sales.hub') }}" class="row g-3 align-items-end inventory-sales-filter">
                 <div class="col-md-4 col-lg-3">
-                    <label class="form-label fw-semibold text-muted small">Search</label>
-                    <input type="text" name="q" value="{{ request('q') }}" class="form-control rounded-3" placeholder="Receipt, student, item...">
+                    <label for="sales-hub-q" class="form-label fw-semibold text-muted small">Search</label>
+                    <input id="sales-hub-q" type="text" name="q" value="{{ request('q') }}" class="form-control rounded-3" placeholder="Receipt, student, item...">
                 </div>
                 <div class="col-md-4 col-lg-3">
-                    <label class="form-label fw-semibold text-muted small">Purchase Source</label>
-                    <select name="purchase_id" class="form-select rounded-3">
+                    <label for="sales-hub-purchase-id" class="form-label fw-semibold text-muted small">Purchase Source</label>
+                    <select id="sales-hub-purchase-id" name="purchase_id" class="form-select rounded-3">
                         <option value="">All purchases</option>
                         @foreach($purchases as $purchase)
                             <option value="{{ $purchase->id }}" @selected((string) request('purchase_id') === (string) $purchase->id)>
@@ -118,8 +118,8 @@
                     </select>
                 </div>
                 <div class="col-md-4 col-lg-3">
-                    <label class="form-label fw-semibold text-muted small">Item</label>
-                    <select name="inventory_item_id" class="form-select rounded-3">
+                    <label for="sales-hub-inventory-item-id" class="form-label fw-semibold text-muted small">Item</label>
+                    <select id="sales-hub-inventory-item-id" name="inventory_item_id" class="form-select rounded-3">
                         <option value="">All items</option>
                         @foreach($allItems as $item)
                             <option value="{{ $item->id }}" @selected((string) request('inventory_item_id') === (string) $item->id)>
@@ -129,12 +129,12 @@
                     </select>
                 </div>
                 <div class="col-md-3 col-lg-2">
-                    <label class="form-label fw-semibold text-muted small">From</label>
-                    <input type="date" name="from" value="{{ request('from') }}" class="form-control rounded-3">
+                    <label for="sales-hub-from" class="form-label fw-semibold text-muted small">From</label>
+                    <input id="sales-hub-from" type="date" name="from" value="{{ request('from') }}" class="form-control rounded-3">
                 </div>
                 <div class="col-md-3 col-lg-2">
-                    <label class="form-label fw-semibold text-muted small">To</label>
-                    <input type="date" name="to" value="{{ request('to') }}" class="form-control rounded-3">
+                    <label for="sales-hub-to" class="form-label fw-semibold text-muted small">To</label>
+                    <input id="sales-hub-to" type="date" name="to" value="{{ request('to') }}" class="form-control rounded-3">
                 </div>
                 <div class="col-md-12 col-lg-1 d-grid">
                     <button class="btn btn-dark rounded-3 fw-semibold" title="Filter" aria-label="Filter">

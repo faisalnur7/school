@@ -112,7 +112,7 @@
                             @csrf
                             <input type="hidden" name="class_id" value="{{ $selectedClass->id }}">
                             <input type="hidden" name="session_id" value="{{ $selectedSessionId }}">
-                            <button class="btn btn-sm btn-warning" onclick="return confirm('Bulk assign all compulsory subjects to all students in this class?')">
+                            <button class="btn btn-sm btn-warning" data-confirm="{{ __('Assign all compulsory subjects to every student in this class?') }}" data-confirm-action="{{ __('Assign subjects') }}" data-confirm-cancel="{{ __('Not now') }}" data-confirm-tone="primary">
                                 <i class="fas fa-magic mr-1"></i>Bulk Assign Compulsory
                             </button>
                         </form>

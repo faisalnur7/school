@@ -643,7 +643,7 @@
                     <a href="{{ route('students.index') }}" class="btn btn-light">
                         <i class="fas fa-arrow-left mr-1"></i> Back
                     </a>
-                    <a href="{{ route('students.pdf', $student->id) }}" class="btn btn-danger">
+                    <a href="{{ route('students.pdf', $student->id) }}" class="btn btn-outline-secondary">
                         <i class="fas fa-file-pdf mr-1"></i> PDF
                     </a>
                     <a href="{{ route('students.edit', $student->id) }}" class="btn btn-primary">
@@ -1052,7 +1052,7 @@
                                                                                         onchange="this.form.submit()"
                                                                                         {{ $fee->is_active ? 'checked' : '' }}
                                                                                     >
-                                                                                    <label class="custom-control-label" for="regularFeeSwitch{{ $fee->id }}"></label>
+                                                                                    <label class="custom-control-label" for="regularFeeSwitch{{ $fee->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
                                                                                 </div>
                                                                             </form>
                                                                         @else
@@ -1142,7 +1142,7 @@
                                                                                 onchange="this.form.submit()"
                                                                                 {{ $fee->is_active ? 'checked' : '' }}
                                                                             >
-                                                                            <label class="custom-control-label" for="feeSwitch{{ $fee->id }}"></label>
+                                                                            <label class="custom-control-label" for="feeSwitch{{ $fee->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
                                                                         </div>
                                                                     </form>
                                                                 @else
@@ -1152,14 +1152,14 @@
                                                             <td>{{ optional($fee->feeSet)->name ?? 'N/A' }}</td>
                                                             <td class="text-nowrap">
                                                                 @if ($fee->status !== 'paid')
-                                                                    <a href="{{ route('fees.edit', $fee->id) }}" class="btn btn-sm btn-info">
-                                                                        <i class="fas fa-edit"></i>
+                                                                    <a href="{{ route('fees.edit', $fee->id) }}" class="btn btn-sm btn-info" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                                                        <i class="fas fa-edit" aria-hidden="true"></i>
                                                                     </a>
-                                                                    <form action="{{ route('fees.delete', $fee->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this fee record?');">
+                                                                    <form action="{{ route('fees.delete', $fee->id) }}" method="POST" class="d-inline" data-confirm="{{ __('Delete this fee record?') }}" data-confirm-action="{{ __('Delete fee record') }}" data-confirm-cancel="{{ __('Keep fee record') }}">
                                                                         @csrf
                                                                         @method('DELETE')
-                                                                        <button type="submit" class="btn btn-sm btn-danger">
-                                                                            <i class="fas fa-trash"></i>
+                                                                        <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                                                            <i class="fas fa-trash" aria-hidden="true"></i>
                                                                         </button>
                                                                     </form>
                                                                 @else

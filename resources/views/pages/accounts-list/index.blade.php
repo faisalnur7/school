@@ -13,12 +13,12 @@
             <form method="GET" action="{{ route('accounts-list.index') }}" class="px-3 pt-3 pb-2">
                 <div class="row g-2 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label mb-1" style="font-size:12px">{{ __('Name') }}</label>
-                        <input type="text" name="name" class="form-control form-control-sm" value="{{ request('name') }}" placeholder="{{ __('Search by name') }}">
+                        <label for="accounts-list-index-name" class="form-label mb-1" style="font-size:12px">{{ __('Name') }}</label>
+                        <input id="accounts-list-index-name" type="text" name="name" class="form-control form-control-sm" value="{{ request('name') }}" placeholder="{{ __('Search by name') }}">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label mb-1" style="font-size:12px">{{ __('Group') }}</label>
-                        <select name="group" class="form-control form-control-sm">
+                        <label for="accounts-list-index-group" class="form-label mb-1" style="font-size:12px">{{ __('Group') }}</label>
+                        <select id="accounts-list-index-group" name="group" class="form-control form-control-sm">
                             <option value="">{{ __('All Groups') }}</option>
                             @foreach ($groups as $group)
                                 <option value="{{ $group->id }}" {{ request('group') == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
@@ -26,8 +26,8 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label mb-1" style="font-size:12px">{{ __('Linked Account') }}</label>
-                        <select name="linked" class="form-control form-control-sm">
+                        <label for="accounts-list-index-linked" class="form-label mb-1" style="font-size:12px">{{ __('Linked Account') }}</label>
+                        <select id="accounts-list-index-linked" name="linked" class="form-control form-control-sm">
                             <option value="">{{ __('All') }}</option>
                             <option value="App\Models\BankAccount" {{ request('linked') == 'App\Models\BankAccount' ? 'selected' : '' }}>{{ __('Bank Account') }}</option>
                             <option value="App\Models\HandCash" {{ request('linked') == 'App\Models\HandCash' ? 'selected' : '' }}>{{ __('Hand Cash') }}</option>
@@ -57,10 +57,10 @@
                         <td style="font-size:12px;color:#475569">{{ $a->reference_label }}</td>
                         <td style="font-size:12px">{{ $a->notes ?? '—' }}</td>
                         <td style="display:flex;gap:5px; justify-content: center; align-items: center;">
-                            <a href="{{ route('accounts-list.edit', $a->id) }}" class="btn btn-sm btn-dark"><i class="fas fa-edit"></i></a>
-                            <form action="{{ route('accounts-list.destroy', $a->id) }}"  class="m-0" method="POST" onsubmit="return confirm('{{ __('Delete?') }}')">
+                            <a href="{{ route('accounts-list.edit', $a->id) }}" class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></a>
+                            <form action="{{ route('accounts-list.destroy', $a->id) }}"  class="m-0" method="POST" data-confirm="{{ __('Delete this record?') }}" data-confirm-action="{{ __('Delete') }}" data-confirm-cancel="{{ __('Keep it') }}">
                                 @csrf @method('DELETE')
-                                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                             </form>
                         </td>
                     </tr>

@@ -33,12 +33,12 @@
             <form method="GET" action="{{ route('inventory.opening-stock.create') }}" class="mb-3">
                 <div class="d-flex flex-wrap align-items-end gap-2">
                     <div style="min-width: 260px; flex: 1 1 320px;">
-                        <label class="form-label">Product Name</label>
-                        <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Search product name">
+                        <label for="opening-stock-create-q" class="form-label">Product Name</label>
+                        <input id="opening-stock-create-q" type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Search product name">
                     </div>
                     <div style="min-width: 240px; flex: 0 1 280px;">
-                        <label class="form-label">Category</label>
-                        <select name="category_id" class="form-control">
+                        <label for="opening-stock-create-category-id" class="form-label">Category</label>
+                        <select id="opening-stock-create-category-id" name="category_id" class="form-control">
                             <option value="">All Categories</option>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}" {{ (string) request('category_id') === (string) $category->id ? 'selected' : '' }}>
@@ -62,18 +62,18 @@
                 @csrf
                 <div class="row g-3 mb-3">
                     <div class="col-md-4">
-                        <label class="form-label">Opening Date <span class="text-danger">*</span></label>
-                        <input type="date" name="opening_date" value="{{ old('opening_date', date('Y-m-d')) }}" class="form-control @error('opening_date') is-invalid @enderror" required>
+                        <label for="opening-stock-create-opening-date" class="form-label">Opening Date <span class="text-danger">*</span></label>
+                        <input id="opening-stock-create-opening-date" type="date" name="opening_date" value="{{ old('opening_date', date('Y-m-d')) }}" class="form-control @error('opening_date') is-invalid @enderror" required>
                         @error('opening_date')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Reference No</label>
-                        <input type="text" name="reference_no" value="{{ old('reference_no') }}" class="form-control @error('reference_no') is-invalid @enderror" placeholder="Optional reference">
+                        <label for="opening-stock-create-reference-no" class="form-label">Reference No</label>
+                        <input id="opening-stock-create-reference-no" type="text" name="reference_no" value="{{ old('reference_no') }}" class="form-control @error('reference_no') is-invalid @enderror" placeholder="Optional reference">
                         @error('reference_no')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Note</label>
-                        <input type="text" name="notes" value="{{ old('notes') }}" class="form-control @error('notes') is-invalid @enderror" placeholder="Optional note">
+                        <label for="opening-stock-create-notes" class="form-label">Note</label>
+                        <input id="opening-stock-create-notes" type="text" name="notes" value="{{ old('notes') }}" class="form-control @error('notes') is-invalid @enderror" placeholder="Optional note">
                         @error('notes')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
                 </div>
@@ -105,11 +105,11 @@
                                     </td>
                                     <td>
                                         <input type="hidden" name="items[{{ $item->id }}][inventory_item_id]" value="{{ $item->id }}">
-                                        <input type="number" min="0" step="1" name="items[{{ $item->id }}][quantity]" value="{{ old('items.' . $item->id . '.quantity') }}" class="form-control text-right js-opening-qty @error('items.' . $item->id . '.quantity') is-invalid @enderror" placeholder="0">
+                                        <input type="number" min="0" step="1" aria-label="{{ __('Opening quantity for') }} {{ $item->name }}" name="items[{{ $item->id }}][quantity]" value="{{ old('items.' . $item->id . '.quantity') }}" class="form-control text-right js-opening-qty @error('items.' . $item->id . '.quantity') is-invalid @enderror" placeholder="0">
                                         @error('items.' . $item->id . '.quantity')<small class="text-danger">{{ $message }}</small>@enderror
                                     </td>
                                     <td>
-                                        <input type="number" min="0" step="0.01" name="items[{{ $item->id }}][unit_cost]" value="{{ old('items.' . $item->id . '.unit_cost', $item->average_cost ?: $item->purchase_price) }}" class="form-control text-right js-opening-cost @error('items.' . $item->id . '.unit_cost') is-invalid @enderror" placeholder="0.00">
+                                        <input type="number" min="0" step="0.01" aria-label="{{ __('Unit cost for') }} {{ $item->name }}" name="items[{{ $item->id }}][unit_cost]" value="{{ old('items.' . $item->id . '.unit_cost', $item->average_cost ?: $item->purchase_price) }}" class="form-control text-right js-opening-cost @error('items.' . $item->id . '.unit_cost') is-invalid @enderror" placeholder="0.00">
                                         @error('items.' . $item->id . '.unit_cost')<small class="text-danger">{{ $message }}</small>@enderror
                                     </td>
                                     <td class="text-right text-muted">

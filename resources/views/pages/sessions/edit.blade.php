@@ -34,8 +34,8 @@
                 @endif
 
 <div class="form-group">
-                                <label>Name (English)</label>
-                                <input type="text" name="name_en"
+                                <label for="sessions-edit-name-en">Name (English)</label>
+                                <input id="sessions-edit-name-en" type="text" name="name_en"
                                     class="form-control @error('name_en') is-invalid @enderror"
                                     value="{{ old('name_en', $session->name_en) }}" required>
                                 @error('name_en')
@@ -44,8 +44,8 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Name (Bangla)</label>
-                                <input type="text" name="name_bn"
+                                <label for="sessions-edit-name-bn">Name (Bangla)</label>
+                                <input id="sessions-edit-name-bn" type="text" name="name_bn"
                                     class="form-control @error('name_bn') is-invalid @enderror"
                                     value="{{ old('name_bn', $session->name_bn) }}" required>
                                 @error('name_bn')

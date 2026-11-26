@@ -34,19 +34,19 @@
                 @endif
 
                 <div class="form-group">
-                    <label>Order</label>
-                    <input type="number" name="order" class="form-control" min="0" step="1" value="{{ old('order', $class->order ?? 0) }}" required>
+                    <label for="classes-edit-order">Order</label>
+                    <input id="classes-edit-order" type="number" name="order" class="form-control" min="0" step="1" value="{{ old('order', $class->order ?? 0) }}" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Name (English)</label>
-                    <input type="text" name="name_en" class="form-control" value="{{ $class->name_en }}"
+                    <label for="classes-edit-name-en">Name (English)</label>
+                    <input id="classes-edit-name-en" type="text" name="name_en" class="form-control" value="{{ $class->name_en }}"
                         required>
                 </div>
 
                 <div class="form-group">
-                    <label>Name (Bangla)</label>
-                    <input type="text" name="name_bn" class="form-control" value="{{ $class->name_bn }}"
+                    <label for="classes-edit-name-bn">Name (Bangla)</label>
+                    <input id="classes-edit-name-bn" type="text" name="name_bn" class="form-control" value="{{ $class->name_bn }}"
                         required>
                 </div>
 

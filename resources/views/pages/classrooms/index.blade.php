@@ -77,7 +77,7 @@
                                     </a>
                                 @endif
                                 @if(auth()->user()?->hasPermission('delete_classrooms'))
-                                    <form action="{{ route('classrooms.delete', $classroom->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this classroom?')">
+                                    <form action="{{ route('classrooms.delete', $classroom->id) }}" method="POST" class="d-inline" data-confirm="{{ __('Delete this classroom?') }}" data-confirm-action="{{ __('Delete classroom') }}" data-confirm-cancel="{{ __('Keep classroom') }}">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn btn-xs classroom-action-btn classroom-action-delete" title="Delete" aria-label="Delete">

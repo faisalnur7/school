@@ -687,8 +687,8 @@
 
         .admit-seat-tabs .nav-item {
             margin-bottom: 0;
-            flex: 1 1 0;
-            min-width: 0;
+            /* Share spare width, but never shrink below the label: the bar scrolls instead of labels overlapping. */
+            flex: 1 0 auto;
         }
 
         .admit-seat-tabs .nav-link {
@@ -1103,8 +1103,8 @@
                             </select>
                         </div>
                         <div class="admit-seat-cards-filter-group">
-                            <label class="font-weight-bold admit-seat-cards-filter-label">Group</label>
-                            <select name="group_id" class="form-control form-control-sm admit-seat-cards-filter-control">
+                            <label for="admit-seat-cards-index-group-id" class="font-weight-bold admit-seat-cards-filter-label">Group</label>
+                            <select id="admit-seat-cards-index-group-id" name="group_id" class="form-control form-control-sm admit-seat-cards-filter-control">
                                 <option value="">All Groups</option>
                                 @foreach ($groups as $g)
                                     <option value="{{ $g->id }}"
@@ -1141,8 +1141,8 @@
                             </select>
                         </div>
                         <div class="admit-seat-cards-filter-group">
-                            <label class="font-weight-bold admit-seat-cards-filter-label">Card Type</label>
-                            <select name="card_type" class="form-control form-control-sm admit-seat-cards-filter-control">
+                            <label for="admit-seat-cards-index-card-type" class="font-weight-bold admit-seat-cards-filter-label">Card Type</label>
+                            <select id="admit-seat-cards-index-card-type" name="card_type" class="form-control form-control-sm admit-seat-cards-filter-control">
                                 <option value="admit_card"
                                     {{ ($cardType ?? 'admit_card') === 'admit_card' ? 'selected' : '' }}>Admit Card
                                 </option>
@@ -1151,8 +1151,8 @@
                             </select>
                         </div>
                         <div class="admit-seat-cards-filter-group">
-                            <label class="font-weight-bold admit-seat-cards-filter-label">Student ID</label>
-                            <input type="text" name="student_cid"
+                            <label for="admit-seat-cards-index-student-cid" class="font-weight-bold admit-seat-cards-filter-label">Student ID</label>
+                            <input id="admit-seat-cards-index-student-cid" type="text" name="student_cid"
                                 class="form-control form-control-sm admit-seat-cards-filter-control"
                                 value="{{ request('student_cid') }}" placeholder="Enter Student ID" autocomplete="off">
                         </div>
@@ -1177,7 +1177,7 @@
                                     <i class="fas fa-print"></i>
                                 </button>
                                 <a href="{{ route('results.admit-seat-cards.pdf', request()->query()) }}"
-                                    class="btn btn-danger btn-sm result-filter-icon-btn" target="_blank" title="PDF"
+                                    class="btn btn-outline-secondary btn-sm result-filter-icon-btn" target="_blank" title="PDF"
                                     aria-label="Download PDF">
                                     <i class="fas fa-file-pdf"></i>
                                 </a>
@@ -3241,6 +3241,73 @@
                 notice.classList.toggle('d-none', issues.length === 0);
             }
 
+            // ---- Zoom: "Fit" shrinks the card to the panel width (never above true size); +/- switch to manual steps ----
+            const PREVIEW_ZOOM_STEPS = [0.25, 0.35, 0.5, 0.65, 0.8, 1, 1.25, 1.5, 2];
+            let manualPreviewZoom = null;
+            let previewZoomFrame = null;
+
+            function currentPreviewZoom() {
+                return parseFloat(admitSeatLivePreview?.style.getPropertyValue('--preview-zoom')) || 1;
+            }
+
+            function applyPreviewZoom() {
+                const holder = admitSeatLivePreview?.querySelector('.card-preview-zoom--scale');
+                const card = holder?.querySelector('.admit-card');
+                const label = document.getElementById('admitSeatZoomLevel');
+                if (!holder || !card || !admitSeatLivePreview.clientWidth) return;
+
+                // Measure the shell's content box: the stage would otherwise grow with the card.
+                const shellStyle = getComputedStyle(admitSeatLivePreview);
+                const available = admitSeatLivePreview.clientWidth - parseFloat(shellStyle.paddingLeft) -
+                    parseFloat(shellStyle.paddingRight);
+                // offsetWidth/Height are the true-size layout box; the transform doesn't change them.
+                const naturalWidth = card.offsetWidth || 1;
+                const naturalHeight = card.offsetHeight || 1;
+                const fit = Math.max(0.2, Math.min(1, (available - 4) / naturalWidth));
+                const zoom = manualPreviewZoom ?? fit;
+                admitSeatLivePreview.style.setProperty('--preview-zoom', String(zoom));
+                holder.style.width = `${naturalWidth * zoom}px`;
+                holder.style.height = `${naturalHeight * zoom}px`;
+                if (label) {
+                    label.textContent = manualPreviewZoom === null ? `Fit ${Math.round(fit * 100)}%` : `${Math.round(zoom * 100)}%`;
+                    label.title = manualPreviewZoom === null ? 'Fitting to the panel width' : 'Click to fit the panel again';
+                }
+                refreshPreviewSafetyNotice();
+            }
+
+            function schedulePreviewZoom() {
+                if (previewZoomFrame) cancelAnimationFrame(previewZoomFrame);
+                previewZoomFrame = requestAnimationFrame(applyPreviewZoom);
+            }
+
+            function stepPreviewZoom(direction) {
+                const current = currentPreviewZoom();
+                const next = direction > 0
+                    ? PREVIEW_ZOOM_STEPS.find((step) => step > current + 0.01)
+                    : [...PREVIEW_ZOOM_STEPS].reverse().find((step) => step < current - 0.01);
+                if (next) {
+                    manualPreviewZoom = next;
+                    applyPreviewZoom();
+                }
+            }
+
+            document.getElementById('admitSeatZoomIn')?.addEventListener('click', () => stepPreviewZoom(1));
+            document.getElementById('admitSeatZoomOut')?.addEventListener('click', () => stepPreviewZoom(-1));
+            document.getElementById('admitSeatZoomLevel')?.addEventListener('click', function() {
+                manualPreviewZoom = null;
+                applyPreviewZoom();
+            });
+            if (window.ResizeObserver && admitSeatLivePreview) {
+                const previewZoomObserver = new ResizeObserver(schedulePreviewZoom);
+                previewZoomObserver.observe(admitSeatLivePreview);
+                const previewCard = admitSeatLivePreview.querySelector('.card-preview-zoom--scale > .admit-card');
+                if (previewCard) previewZoomObserver.observe(previewCard); // card width/height settings
+            }
+            window.addEventListener('resize', schedulePreviewZoom);
+            cardSettingsForm?.addEventListener('input', schedulePreviewZoom);
+            cardSettingsForm?.addEventListener('change', schedulePreviewZoom);
+            $('#cardSettingsModal').on('shown.bs.modal', schedulePreviewZoom);
+
             function previewPixelsToMillimetres(delta, cardRect) {
                 const cardWidthMm = parseFloat(getComputedStyle(admitSeatLivePreview).getPropertyValue(
                     '--admit-card-preview-width')) || 94;
@@ -3253,6 +3320,7 @@
                 if (!input) return;
 
                 const currentValue = parseFloat(input.value || '0');
+                deltaPx /= currentPreviewZoom(); // pointer pixels are on-screen; the card is drawn at the zoom level
                 const deltaValue = unit === 'px' ? deltaPx : (deltaPx * 2.54) / 96;
                 const nextValue = Math.max(0.1, (Number.isFinite(currentValue) ? currentValue : 0) + deltaValue);
                 input.value = nextValue.toFixed(2).replace(/\.00$/, '');

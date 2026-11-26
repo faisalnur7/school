@@ -56,8 +56,8 @@
                             @error('category_id')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label product-form-label">Product Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" value="{{ old('name') }}" class="form-control product-form-control @error('name') is-invalid @enderror" placeholder="Enter product name" required>
+                            <label for="products-create-name" class="form-label product-form-label">Product Name <span class="text-danger">*</span></label>
+                            <input id="products-create-name" type="text" name="name" value="{{ old('name') }}" class="form-control product-form-control @error('name') is-invalid @enderror" placeholder="Enter product name" required>
                             @error('name')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
                         <div class="col-md-3">
@@ -87,8 +87,8 @@
                     </div>
                     <div class="row g-3">
                         <div class="col-md-3">
-                            <label class="form-label product-form-label">Unit</label>
-                            <input type="text" name="unit" value="{{ old('unit') }}" class="form-control product-form-control @error('unit') is-invalid @enderror" placeholder="pcs, box, kg">
+                            <label for="products-create-unit" class="form-label product-form-label">Unit</label>
+                            <input id="products-create-unit" type="text" name="unit" value="{{ old('unit') }}" class="form-control product-form-control @error('unit') is-invalid @enderror" placeholder="pcs, box, kg">
                             @error('unit')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
                         <div class="col-md-3">
@@ -108,8 +108,8 @@
                             @error('selling_price')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label product-form-label">Stock Type</label>
-                            <select name="stock_type" class="form-control product-form-control @error('stock_type') is-invalid @enderror">
+                            <label for="products-create-stock-type" class="form-label product-form-label">Stock Type</label>
+                            <select id="products-create-stock-type" name="stock_type" class="form-control product-form-control @error('stock_type') is-invalid @enderror">
                                 <option value="stocked" {{ old('stock_type', 'stocked') === 'stocked' ? 'selected' : '' }}>Stocked</option>
                                 <option value="made_to_order" {{ old('stock_type') === 'made_to_order' ? 'selected' : '' }}>Made to order</option>
                             </select>
@@ -137,8 +137,8 @@
                             @error('minimum_stock_alert')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label product-form-label">Status</label>
-                            <select name="is_active" class="form-control product-form-control @error('is_active') is-invalid @enderror">
+                            <label for="products-create-is-active" class="form-label product-form-label">Status</label>
+                            <select id="products-create-is-active" name="is_active" class="form-control product-form-control @error('is_active') is-invalid @enderror">
                                 <option value="1" {{ old('is_active', '1') == '1' ? 'selected' : '' }}>Active</option>
                                 <option value="0" {{ old('is_active') == '0' ? 'selected' : '' }}>Inactive</option>
                             </select>
@@ -165,8 +165,8 @@
                     </div>
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label product-form-label">Description</label>
-                            <textarea name="description" class="form-control product-form-control @error('description') is-invalid @enderror" rows="3" placeholder="Enter product description...">{{ old('description') }}</textarea>
+                            <label for="products-create-description" class="form-label product-form-label">Description</label>
+                            <textarea id="products-create-description" name="description" class="form-control product-form-control @error('description') is-invalid @enderror" rows="3" placeholder="Enter product description...">{{ old('description') }}</textarea>
                             @error('description')<small class="text-danger">{{ $message }}</small>@enderror
                         </div>
                     </div>
@@ -183,8 +183,8 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label product-form-label">Class</label>
-                                <select name="school_class_id" class="form-control product-form-control @error('school_class_id') is-invalid @enderror">
+                                <label for="products-create-school-class-id" class="form-label product-form-label">Class</label>
+                                <select id="products-create-school-class-id" name="school_class_id" class="form-control product-form-control @error('school_class_id') is-invalid @enderror">
                                     <option value="">Select class</option>
                                     @foreach($classes as $c)
                                         <option value="{{ $c->id }}" {{ old('school_class_id') == $c->id ? 'selected' : '' }}>
@@ -196,8 +196,8 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label product-form-label">Group</label>
-                                <select name="group_id" class="form-control product-form-control @error('group_id') is-invalid @enderror">
+                                <label for="products-create-group-id" class="form-label product-form-label">Group</label>
+                                <select id="products-create-group-id" name="group_id" class="form-control product-form-control @error('group_id') is-invalid @enderror">
                                     <option value="">Select group</option>
                                     @foreach($groups as $g)
                                         <option value="{{ $g->id }}" {{ old('group_id') == $g->id ? 'selected' : '' }}>

@@ -1096,6 +1096,13 @@ html[data-theme='dark'] .inky-shortcut {
     }
 }
 
+/* The page wrapper is `container-fluid m-1`: 100% wide plus a 4px margin on
+   each side, so it overflowed by 8px and the page sat off-centre (12px gutter
+   on the left, 4px on the right on a phone). Auto width keeps it inside. */
+.content-wrapper > .content > .container-fluid.m-1 {
+    width: auto;
+}
+
 @media (max-width: 991.98px) {
     .content-wrapper .card-header .d-flex,
     .content-wrapper .card-footer .d-flex,
@@ -1105,22 +1112,23 @@ html[data-theme='dark'] .inky-shortcut {
     .content-wrapper .d-flex.gap-2,
     .content-wrapper .d-flex.flex-wrap {
         flex-direction: row !important;
-        align-items: stretch !important;
     }
 
+    /* Buttons keep their natural size: never stretched to the height of the
+       title block next to them, never forced to full width. */
     .content-wrapper .card-header .btn,
     .content-wrapper .card-footer .btn,
-    .content-wrapper .card-header a.btn,
-    .content-wrapper .card-footer a.btn,
-    .content-wrapper .card-header button.btn,
-    .content-wrapper .card-footer button.btn {
-        width: 100%;
+    .content-wrapper .d-flex > .btn,
+    .content-wrapper .d-flex > form > .btn {
+        width: auto;
+        height: auto;
+        align-self: center;
+        white-space: nowrap;
     }
 
     .content-wrapper .card-header .btn + .btn,
     .content-wrapper .card-footer .btn + .btn {
-        margin-top: 0.5rem;
-        margin-left: 0 !important;
+        margin-top: 0;
     }
 
     .content-wrapper .table {
@@ -3056,5 +3064,697 @@ html.dark .admission-exams-page .exam-card h4 {
     html[data-theme='dark'] .certificate-editor-page .certificate-confirm-dialog :is(h5, p),
     html.dark .certificate-editor-page .certificate-confirm-dialog :is(h5, p) {
         color: #e2e8f0 !important;
+    }
+}
+
+/* =====================================================================
+   Design system (F-20)
+   Tokens + the .ds-* classes used by the shared Blade components in
+   resources/views/components/{page-header,card,btn,data-table,filter-bar,kpi}.blade.php.
+   New and migrated screens should use these instead of per-view <style> blocks.
+   ===================================================================== */
+:root {
+    /* Type scale: nothing below 12px */
+    --fs-xs: 12px;
+    --fs-sm: 13px;
+    --fs-md: 14px;
+    --fs-lg: 16px;
+    --fs-xl: 20px;
+    --fs-2xl: 24px;
+    --fs-3xl: 30px;
+    --fw-regular: 400;
+    --fw-medium: 500;
+    --fw-semibold: 600;
+    --fw-bold: 700;
+
+    /* Spacing (4px grid) */
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 12px;
+    --sp-4: 16px;
+    --sp-5: 20px;
+    --sp-6: 24px;
+    --sp-7: 28px;
+    --sp-8: 32px;
+
+    /* Radius: cards = lg, buttons/inputs = sm */
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-lg: 14px;
+
+    /* Brand, from the school crest */
+    --c-primary: #0b6b3a;
+    --c-primary-hover: #095a31;
+    --c-primary-soft: #e7f3ec;
+    --c-on-primary: #ffffff;
+    --c-accent: #b08d2b;
+    --c-accent-soft: #f7f0dc;
+
+    /* Neutrals (slate) */
+    --c-slate-50: #f8fafc;
+    --c-slate-100: #f1f5f9;
+    --c-slate-200: #e2e8f0;
+    --c-slate-300: #cbd5e1;
+    --c-slate-400: #94a3b8;
+    --c-slate-500: #64748b;
+    --c-slate-600: #475569;
+    --c-slate-700: #334155;
+    --c-slate-800: #1e293b;
+    --c-slate-900: #0f172a;
+
+    /* Semantic */
+    --c-success: #16a34a;
+    --c-success-soft: #dcfce7;
+    --c-warning: #d97706;
+    --c-warning-soft: #fef3c7;
+    --c-danger: #dc2626;
+    --c-danger-hover: #b91c1c;
+    --c-danger-soft: #fee2e2;
+    --c-info: #2563eb;
+    --c-info-soft: #dbeafe;
+
+    /* Surfaces & text */
+    --c-bg: var(--c-slate-100);
+    --c-surface: #ffffff;
+    --c-surface-muted: var(--c-slate-50);
+    --c-border: var(--c-slate-200);
+    --c-text: var(--c-slate-900);
+    --c-text-muted: var(--c-slate-600);
+    --c-focus: rgba(11, 107, 58, 0.35);
+
+    --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.04);
+    --tap-min: 44px;
+}
+
+html[data-theme='dark'] {
+    --c-primary: #22a565;
+    --c-primary-hover: #2bbd75;
+    --c-primary-soft: rgba(34, 165, 101, 0.16);
+    --c-on-primary: #04150c;
+    --c-accent: #d4af4a;
+    --c-accent-soft: rgba(212, 175, 74, 0.16);
+    --c-success-soft: rgba(22, 163, 74, 0.18);
+    --c-warning-soft: rgba(217, 119, 6, 0.18);
+    --c-danger: #ef4444;
+    --c-danger-hover: #f87171;
+    --c-danger-soft: rgba(239, 68, 68, 0.18);
+    --c-info-soft: rgba(37, 99, 235, 0.2);
+    --c-bg: #0b1220;
+    --c-surface: #111827;
+    --c-surface-muted: #0f172a;
+    --c-border: rgba(148, 163, 184, 0.22);
+    --c-text: #e2e8f0;
+    --c-text-muted: #94a3b8;
+    --c-focus: rgba(34, 165, 101, 0.45);
+    --shadow-card: 0 1px 2px rgba(2, 6, 23, 0.4);
+}
+
+/* Page header */
+.ds-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-4);
+}
+.ds-page-header__title {
+    margin: 0;
+    color: var(--c-text);
+    font-size: var(--fs-xl);
+    font-weight: var(--fw-bold);
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+}
+.ds-page-header__count {
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    color: var(--c-text-muted);
+    background: var(--c-slate-100);
+    border: 1px solid var(--c-border);
+    border-radius: 999px;
+    padding: 2px var(--sp-2);
+}
+html[data-theme='dark'] .ds-page-header__count { background: var(--c-surface-muted); }
+.ds-page-header__subtitle {
+    margin: var(--sp-1) 0 0;
+    color: var(--c-text-muted);
+    font-size: var(--fs-sm);
+}
+.ds-page-header__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+}
+
+/* Card */
+.ds-card {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-card);
+    color: var(--c-text);
+    margin-bottom: var(--sp-4);
+    overflow: hidden;
+}
+.ds-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    padding: var(--sp-3) var(--sp-4);
+    border-bottom: 1px solid var(--c-border);
+}
+.ds-card__title {
+    margin: 0;
+    font-size: var(--fs-lg);
+    font-weight: var(--fw-semibold);
+    color: var(--c-text);
+}
+.ds-card__body { padding: var(--sp-4); }
+.ds-card__body--flush { padding: 0; }
+.ds-card__footer {
+    padding: var(--sp-3) var(--sp-4);
+    border-top: 1px solid var(--c-border);
+}
+
+/* Buttons */
+.ds-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-2);
+    min-height: 36px;
+    padding: 0 var(--sp-4);
+    border: 1px solid transparent;
+    border-radius: var(--r-sm);
+    font-size: var(--fs-md);
+    font-weight: var(--fw-semibold);
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.ds-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--c-focus); }
+.ds-btn--sm { min-height: 32px; padding: 0 var(--sp-3); font-size: var(--fs-sm); }
+.ds-btn--icon { width: 36px; padding: 0; }
+.ds-btn--sm.ds-btn--icon { width: 32px; }
+.ds-btn--primary { background: var(--c-primary); color: var(--c-on-primary) !important; }
+.ds-btn--primary:hover { background: var(--c-primary-hover); }
+.ds-btn--secondary { background: var(--c-surface); color: var(--c-text) !important; border-color: var(--c-border); }
+.ds-btn--secondary:hover { background: var(--c-surface-muted); border-color: var(--c-slate-300); }
+.ds-btn--danger { background: var(--c-danger); color: #fff !important; }
+.ds-btn--danger:hover { background: var(--c-danger-hover); }
+.ds-btn--ghost { background: transparent; color: var(--c-primary) !important; }
+.ds-btn--ghost:hover { background: var(--c-primary-soft); }
+
+/* Data table */
+.ds-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.ds-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-md);
+    color: var(--c-text);
+}
+.ds-table th {
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--c-surface-muted);
+    border-bottom: 1px solid var(--c-border);
+    color: var(--c-text-muted);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    text-align: left;
+    white-space: nowrap;
+}
+.ds-table td {
+    padding: var(--sp-3) var(--sp-4);
+    border-bottom: 1px solid var(--c-border);
+    vertical-align: top;
+}
+.ds-table tbody tr:hover td { background: var(--c-surface-muted); }
+.ds-table .ds-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ds-table .ds-nowrap { white-space: nowrap; }
+.ds-table .ds-muted { color: var(--c-text-muted); font-size: var(--fs-sm); }
+.ds-table__empty { padding: var(--sp-8) var(--sp-4); text-align: center; color: var(--c-text-muted); }
+.ds-table__footer { padding: var(--sp-3) var(--sp-4); }
+
+/* Badges / tags */
+.ds-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px var(--sp-2);
+    margin: 0 var(--sp-1) var(--sp-1) 0;
+    border-radius: 999px;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-medium);
+    background: var(--c-slate-100);
+    color: var(--c-slate-700);
+}
+html[data-theme='dark'] .ds-tag { background: var(--c-surface-muted); color: var(--c-text); }
+.ds-tag--primary { background: var(--c-primary-soft); color: var(--c-primary); }
+.ds-tag--accent { background: var(--c-accent-soft); color: #7a5f12; }
+.ds-tag--warning { background: var(--c-warning-soft); color: #92400e; }
+.ds-tag--info { background: var(--c-info-soft); color: #1e40af; }
+html[data-theme='dark'] .ds-tag--accent { color: var(--c-accent); }
+html[data-theme='dark'] .ds-tag--warning { color: #fbbf24; }
+html[data-theme='dark'] .ds-tag--info { color: #93c5fd; }
+
+/* Filter bar */
+.ds-filter-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--sp-3);
+    align-items: end;
+}
+.ds-filter-bar__actions { display: flex; gap: var(--sp-2); }
+.ds-field { display: flex; flex-direction: column; gap: var(--sp-1); min-width: 0; }
+.ds-field__label {
+    margin: 0;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    color: var(--c-text-muted);
+}
+.ds-input {
+    min-height: 36px;
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--c-border);
+    border-radius: var(--r-sm);
+    background: var(--c-surface);
+    color: var(--c-text);
+    font-size: var(--fs-md);
+}
+.ds-input:focus { outline: none; border-color: var(--c-primary); box-shadow: 0 0 0 3px var(--c-focus); }
+
+/* KPI tile */
+.ds-kpi {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--r-lg);
+    padding: var(--sp-4);
+    box-shadow: var(--shadow-card);
+}
+.ds-kpi__label { font-size: var(--fs-sm); color: var(--c-text-muted); font-weight: var(--fw-medium); }
+.ds-kpi__value { font-size: var(--fs-2xl); font-weight: var(--fw-bold); color: var(--c-text); line-height: 1.2; margin-top: var(--sp-1); font-variant-numeric: tabular-nums; }
+.ds-kpi__hint { font-size: var(--fs-xs); color: var(--c-text-muted); margin-top: var(--sp-1); }
+.ds-kpi--success .ds-kpi__value { color: var(--c-success); }
+.ds-kpi--danger .ds-kpi__value { color: var(--c-danger); }
+.ds-kpi--warning .ds-kpi__value { color: var(--c-warning); }
+
+@media (max-width: 767.98px) {
+    .ds-page-header__actions { width: 100%; }
+    .ds-page-header__actions > .ds-btn { flex: 1 1 auto; }
+    .ds-btn { min-height: var(--tap-min); }
+    .ds-btn--icon, .ds-btn--sm.ds-btn--icon { width: var(--tap-min); }
+    .ds-input { min-height: var(--tap-min); }
+    .ds-filter-bar__actions > .ds-btn { flex: 1 1 auto; }
+}
+
+/* =====================================================================
+   F-21: tap targets on phones. Interactive controls are at least 44px
+   (WCAG 2.5.5 / platform guidance), checkboxes at least 24px.
+   ===================================================================== */
+@media (max-width: 767.98px) {
+    .content-wrapper .btn-sm,
+    .content-wrapper .btn-xs,
+    .content-wrapper .btn-group-sm > .btn {
+        min-height: var(--tap-min);
+        min-width: var(--tap-min);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Action buttons in table cells: keep an 8px gap between neighbours */
+    .content-wrapper td .btn-sm + .btn-sm,
+    .content-wrapper td .btn-xs + .btn-xs,
+    .content-wrapper td .btn + form,
+    .content-wrapper td form + .btn,
+    .content-wrapper td form + form {
+        margin-left: var(--sp-2);
+    }
+
+    /* Bootstrap and Laravel (Tailwind) pagination */
+    .content-wrapper .page-link,
+    .content-wrapper nav[role="navigation"] a,
+    .content-wrapper nav[role="navigation"] span[aria-current="page"] > span,
+    .content-wrapper nav[role="navigation"] span[aria-disabled="true"] > span {
+        min-width: var(--tap-min);
+        min-height: var(--tap-min);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Bootstrap custom switches: the (invisible) input and its label become 44px targets */
+    .content-wrapper .custom-switch {
+        min-height: var(--tap-min);
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .content-wrapper .custom-switch .custom-control-input {
+        width: var(--tap-min);
+        height: var(--tap-min);
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .content-wrapper .custom-switch .custom-control-label {
+        min-height: var(--tap-min);
+        min-width: var(--sp-6);
+    }
+
+    .content-wrapper .custom-switch .custom-control-label::before {
+        top: calc(50% - .5rem);
+    }
+
+    .content-wrapper .custom-switch .custom-control-label::after {
+        top: calc(50% - .5rem + 2px);
+    }
+
+    /* Native checkboxes and radios */
+    .content-wrapper input[type="checkbox"]:not(.custom-control-input),
+    .content-wrapper input[type="radio"]:not(.custom-control-input) {
+        min-width: 24px;
+        min-height: 24px;
+    }
+}
+
+/* F-19: progress-report toolbar shows text labels next to its icons on wide screens */
+@media (min-width: 1200px) {
+    .result-filter-icon-btn.result-filter-btn--labelled {
+        padding: 0 var(--sp-3);
+        gap: var(--sp-2);
+    }
+}
+
+/* Data table, stacked variant: on phones each row becomes a card with labelled values */
+@media (max-width: 767.98px) {
+    .ds-table--stack thead { display: none; }
+    .ds-table--stack,
+    .ds-table--stack tbody,
+    .ds-table--stack tr,
+    .ds-table--stack td { display: block; width: 100%; }
+    .ds-table--stack tr { padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--c-border); }
+    .ds-table--stack tbody tr:hover td { background: transparent; }
+    .ds-table--stack td { border: 0; padding: 2px 0; }
+    .ds-table--stack td[data-label] {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: var(--sp-3);
+        text-align: right;
+    }
+    .ds-table--stack td[data-label]::before {
+        content: attr(data-label);
+        flex: 0 0 auto;
+        color: var(--c-text-muted);
+        font-size: var(--fs-xs);
+        font-weight: var(--fw-semibold);
+        text-align: left;
+    }
+    .ds-table--stack td:first-child { margin-bottom: var(--sp-1); }
+    .ds-table--stack .ds-table__actions { margin-top: var(--sp-2); }
+    .ds-table--stack .ds-table__actions .ds-btn { min-height: 36px; }
+    .ds-table--stack .ds-tag { margin: 0 var(--sp-1) var(--sp-1) 0; white-space: nowrap; }
+    .ds-table--stack .ds-table__tags { margin-top: var(--sp-1); }
+    /* Rows that use the tags + actions cells: actions sit to the right of the tags */
+    .ds-table--stack tr:has(> .ds-table__tags) {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        column-gap: var(--sp-3);
+        align-items: end;
+    }
+    .ds-table--stack tr:has(> .ds-table__tags) > td { grid-column: 1 / -1; }
+    .ds-table--stack tr:has(> .ds-table__tags) > .ds-table__tags { grid-column: 1; }
+    .ds-table--stack tr:has(> .ds-table__tags) > .ds-table__actions { grid-column: 2; margin-top: 0; }
+    .ds-table--stack td.ds-hide-sm,
+    .ds-table--stack .ds-hide-sm { display: none !important; }
+}
+/* Shown only in the stacked phone layout */
+.ds-show-sm { display: none; }
+@media (max-width: 767.98px) {
+    .ds-table--stack .ds-show-sm { display: inline; }
+}
+
+/* F-30: skip link, visible only on keyboard focus */
+.skip-link {
+    position: fixed;
+    top: var(--sp-2, 8px);
+    left: var(--sp-2, 8px);
+    z-index: 2000;
+    padding: var(--sp-2, 8px) var(--sp-4, 16px);
+    border-radius: var(--r-md, 8px);
+    background: var(--c-primary, #0b6b3a);
+    color: #fff;
+    font-weight: 600;
+    transform: translateY(-200%);
+}
+.skip-link:focus {
+    transform: none;
+    color: #fff;
+    outline: 2px solid var(--c-accent, #b08d2b);
+    outline-offset: 2px;
+}
+main.content-wrapper:focus { outline: none; }
+
+/* F-29: shared confirm dialog */
+.ds-confirm { border: 0; border-radius: var(--r-lg, 12px); box-shadow: 0 20px 45px rgba(15, 23, 42, .25); }
+.ds-confirm .modal-body { padding: var(--sp-5, 20px) var(--sp-5, 20px) var(--sp-2, 8px); }
+.ds-confirm__title { margin: 0 0 var(--sp-2, 8px); font-size: var(--fs-lg, 16px); font-weight: 700; color: var(--c-text); line-height: 1.35; }
+.ds-confirm__text { margin: 0; font-size: var(--fs-sm, 13px); color: var(--c-text-muted); }
+.ds-confirm__actions { border-top: 0; padding: var(--sp-3, 12px) var(--sp-5, 20px) var(--sp-5, 20px); gap: var(--sp-2, 8px); }
+.ds-confirm__actions > * { margin: 0 !important; }
+html[data-theme='dark'] .ds-confirm { background: var(--c-surface); }
+
+/* F-29: destructive row actions are outlined and sit last, 8px after the others */
+.table td .btn-outline-danger[aria-label],
+.table td form:last-child .btn-outline-danger { margin-left: var(--sp-2, 8px); }
+.btn-outline-danger { background: transparent; }
+
+/* F-23: any .table can use the stacked phone layout (same rules as <x-data-table stack>) */
+@media (max-width: 767.98px) {
+    .table.ds-table--stack { margin: 0; border: 0; }
+    .table.ds-table--stack td { border: 0; padding: 2px 0; }
+    .table.ds-table--stack tr { background: var(--c-surface); }
+    .table.ds-table--stack .ds-stack-title { font-size: var(--fs-md, 15px); font-weight: 700; text-align: left; }
+    .table.ds-table--stack .ds-stack-title::before { content: none; }
+    .table.ds-table--stack td.ds-stack-actions { display: flex !important; justify-content: flex-start !important; gap: var(--sp-2, 8px); margin-top: var(--sp-2, 8px); text-align: left; }
+    .table.ds-table--stack td.ds-stack-actions::before { content: none; }
+    .table.ds-table--stack td.ds-stack-actions .btn,
+    .table.ds-table--stack td.ds-stack-actions .employee-action-btn { min-width: 40px; min-height: 40px; margin: 0 !important; }
+    .table-responsive:has(> .ds-table--stack) { overflow: visible; }
+    .table.ds-table--stack td form { margin: 0; }
+    .table.ds-table--stack td .custom-switch { min-height: 0; }
+    .table.ds-table--stack td[data-label] { align-items: center; min-height: 32px; }
+
+    /* Tables turned into cards by <x-mobile-table-stack>: compact rows (a global
+       table rule pads every cell 0.8rem), name first, ordered top to bottom. */
+    .content-wrapper table.table[data-auto-stack] > tbody > tr {
+        display: flex;
+        flex-direction: column;
+        padding: var(--sp-3, 12px);
+    }
+    .content-wrapper table.table[data-auto-stack] > tbody > tr > td {
+        padding: 2px 0;
+        min-height: 28px;
+        border: 0;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+    .content-wrapper table.table[data-auto-stack] > tbody > tr > td.ds-stack-title {
+        order: -1;
+        min-height: 0;
+        padding-bottom: var(--sp-1, 4px);
+    }
+    .content-wrapper table.table[data-auto-stack] > tbody > tr > td.ds-hide-sm { display: none !important; }
+    .content-wrapper table.table[data-auto-stack] > tbody > tr > td[data-label] > * { text-align: right; }
+    .content-wrapper table.table[data-auto-stack] > tbody > tr > td.ds-stack-actions { flex-wrap: wrap; }
+}
+
+/* Forms on phones.
+   - 16px text: iOS Safari zooms the page into any field whose text is under
+     16px when it is tapped, and doesn't zoom back out (685 fields were 12.8–14px).
+   - 40px fields and form buttons: form-control-sm (31–34px) and btn-sm/xs
+     (25–30px) are too small to tap reliably. */
+@media (max-width: 767.98px) {
+    input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),
+    select,
+    textarea,
+    .form-control,
+    .custom-select,
+    .select2-container .select2-selection__rendered,
+    .select2-container .select2-search__field {
+        font-size: 16px !important;
+    }
+
+    .content-wrapper .form-control:not(textarea),
+    .content-wrapper .custom-select {
+        min-height: 40px;
+    }
+
+    .content-wrapper .select2-container--default .select2-selection--single {
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+    }
+
+    .content-wrapper .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 100%;
+    }
+
+    .content-wrapper .select2-container--default .select2-selection--multiple {
+        min-height: 40px;
+    }
+
+    .content-wrapper form .btn,
+    .content-wrapper form button:not(.close):not(.select2-selection__choice__remove) {
+        min-height: 40px;
+    }
+
+    /* Modal close (×) buttons: at least a 40×40 tap target (the search modal's was 29px) */
+    .modal .modal-header .close,
+    .inky-search-close {
+        min-width: 40px;
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Filters placed in a card header (headwise transactions, budgets): wrap
+       below the title and share the full width instead of squeezing to 37px. */
+    .ds-header-filter {
+        flex-wrap: wrap;
+    }
+
+    .ds-header-filter > .ds-header-filter__controls {
+        width: 100%;
+        flex-wrap: wrap;
+        margin-left: 0 !important;
+        padding: 0 0.75rem 0.75rem !important;
+        justify-content: flex-start !important;
+        align-items: flex-end !important;
+    }
+
+    /* Fields and buttons flow as one row set: fields two per row, buttons after */
+    .ds-header-filter__controls > form {
+        display: contents;
+    }
+
+    .ds-header-filter__controls > form > div {
+        flex: 1 1 calc(50% - 0.5rem);
+        min-width: 0;
+    }
+
+    .ds-header-filter__controls .btn {
+        margin-top: 0 !important;
+    }
+
+    .ds-header-filter__controls > form > div > .form-control {
+        width: 100% !important;
+    }
+}
+
+.ds-header-filter__controls {
+    align-items: flex-end !important;
+}
+
+.ds-header-filter__controls .btn {
+    margin-top: 0 !important;
+}
+
+.ds-header-filter__label {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--c-text-muted, #475569);
+}
+
+/* F-28: contrast floor (WCAG AA 4.5:1). Bootstrap's greys and outline blue fall just short on the
+   app's light panels (#f8fafc), so they're darkened once here instead of per view. */
+.text-muted, .text-secondary { color: #5c636a !important; }
+.main-footer, .main-footer a, .main-footer b, .main-footer strong { color: #475569; }
+.btn-outline-primary { color: #0062cc; border-color: #0062cc; }
+.btn-outline-primary:hover, .btn-outline-primary:focus { background-color: #0062cc; border-color: #0062cc; color: #fff; }
+html[data-theme='dark'] .text-muted, html[data-theme='dark'] .text-secondary { color: #a3adba !important; }
+html[data-theme='dark'] .main-footer, html[data-theme='dark'] .main-footer a, html[data-theme='dark'] .main-footer b, html[data-theme='dark'] .main-footer strong { color: #a3adba; }
+html[data-theme='dark'] .btn-outline-primary { color: #8ab4ff; border-color: #8ab4ff; }
+.select2-container--default .select2-selection--single .select2-selection__placeholder,
+.select2-container--default .select2-selection--multiple .select2-selection__placeholder { color: #5c636a; }
+html[data-theme='dark'] .select2-container--default .select2-selection__placeholder { color: #a3adba; }
+
+/* Dropdowns and date pickers on phones.
+   - Select2 options: 40px rows and 16px text (were 32px and 13px).
+   - bootstrap-datepicker: 40px-tall day cells, about 40px wide (were 20×26), in a
+     300px calendar, so dates can be tapped accurately.
+   - Bootstrap dropdown menus: 40px items. */
+@media (max-width: 767.98px) {
+    /* .select2-results adds specificity over the inline 0.82rem rule in layouts/partials/_head */
+    .select2-container--default .select2-results .select2-results__option {
+        min-height: 40px;
+        padding-top: 0.55rem;
+        padding-bottom: 0.55rem;
+        font-size: 16px;
+        line-height: 1.4;
+    }
+
+    .select2-container--default .select2-results > .select2-results__options {
+        max-height: min(320px, 45vh);
+    }
+
+    /* A list opened from a narrow field (two-column forms: 56–192px) is at least
+       240px wide; master.blade.php slides it left if it would pass the screen edge. */
+    .select2-container--open .select2-dropdown {
+        min-width: min(240px, calc(100vw - 16px));
+    }
+
+    .datepicker.datepicker-dropdown {
+        padding: 6px;
+        width: min(300px, calc(100vw - 24px));
+        font-size: 16px;
+    }
+
+    .datepicker.datepicker-dropdown table {
+        width: 100%;
+    }
+
+    .datepicker.datepicker-dropdown table tr td,
+    .datepicker.datepicker-dropdown table tr th {
+        width: 14.28%;
+        height: 40px;
+        font-size: 16px;
+        border-radius: 8px;
+    }
+
+    .datepicker.datepicker-dropdown table tr td span {
+        height: 48px;
+        line-height: 48px;
+        font-size: 16px;
+    }
+
+    .dropdown-menu .dropdown-item {
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Rich-text editor (Summernote): the editor is also a .card, whose overflow:hidden
+       cut off the right edge of the Paragraph (alignment) menu. */
+    .note-editor.note-frame.card {
+        overflow: visible;
+    }
+
+    /* Its menus get 40px rows too; cap the height so a long one (Style: 9 headings)
+       scrolls inside instead of running past the section card. */
+    .note-editor .note-dropdown-menu {
+        max-height: 280px;
+        overflow-y: auto;
     }
 }

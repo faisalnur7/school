@@ -12,7 +12,7 @@
 
 <div class="card mb-3">
     <div class="card-header">
-        Student List
+        {{ __('Student List') }}
     </div>
 
     <div class="card-body p-0">
@@ -20,12 +20,12 @@
             <table class="table table-bordered mb-0">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Class</th>
-                    <th>Section</th>
-                    <th>Group</th>
-                    <th width="120">Action</th>
+                    <th>{{ __('ID') }}</th>
+                    <th>{{ __('Name') }}</th>
+                    <th>{{ __('Class') }}</th>
+                    <th>{{ __('Section') }}</th>
+                    <th>{{ __('Group') }}</th>
+                    <th width="120">{{ __('Action') }}</th>
                 </tr>
                 </thead>
 

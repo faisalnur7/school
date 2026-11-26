@@ -37,9 +37,26 @@
         padding: 1rem;
     }
 
-    .supplier-dues-filters .btn {
-        min-width: 108px;
+    /* F-31: fields and buttons share one baseline; the button group never wraps under the inputs */
+    .supplier-dues-filters .row { align-items: flex-end; }
+    .supplier-dues-filters .row > .d-flex {
+        flex: 0 0 auto;
+        width: auto;
+        max-width: none;
+        flex-wrap: nowrap;
+        align-items: flex-end;
+        gap: 0.5rem;
     }
+    .supplier-dues-filters .btn {
+        min-width: 0;
+        height: calc(1.5em + 0.75rem + 2px);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        white-space: nowrap;
+    }
+    .supplier-dues-filters .btn-light { width: calc(1.5em + 0.75rem + 2px); padding: 0; }
 
     html[data-theme='dark'] .supplier-dues-filters {
         background: #0f172a;

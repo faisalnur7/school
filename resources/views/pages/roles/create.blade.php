@@ -33,8 +33,8 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group mb-2">
-                                <label class="small mb-1">Role Name <span class="text-danger">*</span></label>
-                                <input type="text" name="name"
+                                <label for="roles-create-name" class="small mb-1">Role Name <span class="text-danger">*</span></label>
+                                <input id="roles-create-name" type="text" name="name"
                                     class="form-control form-control-sm @error('name') is-invalid @enderror"
                                     value="{{ old('name') }}" required placeholder="e.g. Teacher, Accountant">
                                 @error('name')
@@ -44,8 +44,8 @@
                         </div>
                         <div class="col-md-8">
                             <div class="form-group mb-2">
-                                <label class="small mb-1">Description</label>
-                                <input type="text" name="description"
+                                <label for="roles-create-description" class="small mb-1">Description</label>
+                                <input id="roles-create-description" type="text" name="description"
                                     class="form-control form-control-sm @error('description') is-invalid @enderror"
                                     value="{{ old('description') }}" placeholder="Optional description">
                                 @error('description')

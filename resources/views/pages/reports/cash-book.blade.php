@@ -12,8 +12,8 @@
             <form method="GET" class="supplier-dues-filters">
                 <div class="row g-2 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label mb-1" style="font-size:12px">Category</label>
-                        <select name="category_id" class="form-control">
+                        <label for="reports-cash-book-category-id" class="form-label mb-1" style="font-size:12px">Category</label>
+                        <select id="reports-cash-book-category-id" name="category_id" class="form-control">
                             <option value="">All Categories</option>
                             <optgroup label="Income Categories">
                                 @foreach($incomeCategories as $category)
@@ -32,19 +32,19 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label mb-1" style="font-size:12px">Report Type</label>
-                        <select name="report_type" class="form-control">
+                        <label for="reports-cash-book-report-type" class="form-label mb-1" style="font-size:12px">Report Type</label>
+                        <select id="reports-cash-book-report-type" name="report_type" class="form-control">
                             <option value="summary" {{ request('report_type', 'summary') === 'summary' ? 'selected' : '' }}>Summary</option>
                             <option value="detailed" {{ request('report_type') === 'detailed' ? 'selected' : '' }}>Detailed</option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label mb-1" style="font-size:12px">From</label>
-                        <input type="text" name="from" class="form-control datepicker" value="{{ request('from', $from->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
+                        <label for="reports-cash-book-from" class="form-label mb-1" style="font-size:12px">From</label>
+                        <input id="reports-cash-book-from" type="text" name="from" class="form-control datepicker" value="{{ request('from', $from->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label mb-1" style="font-size:12px">To</label>
-                        <input type="text" name="to" class="form-control datepicker" value="{{ request('to', $to->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
+                        <label for="reports-cash-book-to" class="form-label mb-1" style="font-size:12px">To</label>
+                        <input id="reports-cash-book-to" type="text" name="to" class="form-control datepicker" value="{{ request('to', $to->format('d/m/Y')) }}" placeholder="dd/mm/yyyy" autocomplete="off">
                     </div>
                     <div class="col-md-3 d-flex gap-2">
                         <button type="submit" class="btn btn-dark" title="Filter" aria-label="Filter">
@@ -54,7 +54,7 @@
                         <a href="{{ route('reports.cash-book') }}" class="btn btn-light" title="Reset" aria-label="Reset">
                             <i class="fas fa-undo-alt"></i>
                         </a>
-                        <a href="{{ route('reports.cash-book.pdf', request()->query()) }}" class="btn btn-danger" title="PDF" aria-label="PDF">
+                        <a href="{{ route('reports.cash-book.pdf', request()->query()) }}" class="btn btn-outline-secondary" title="PDF" aria-label="PDF">
                             <i class="fas fa-file-pdf"></i> PDF
                         </a>
                     </div>

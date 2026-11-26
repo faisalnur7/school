@@ -65,7 +65,7 @@
             <span class="mar-stat mar-stat--good">Avg. attendance <b>{{ $avgPct }}%</b></span>
             <span class="mar-stat mar-stat--bad">Below 75% <b>{{ $lowCount }}</b></span>
         </div>
-        <button type="button" id="btnDownloadPdf" class="btn btn-sm btn-danger py-1">
+        <button type="button" id="btnDownloadPdf" class="btn btn-sm btn-outline-secondary py-1">
             <i class="fas fa-file-pdf mr-1"></i>Export PDF
         </button>
     </div>

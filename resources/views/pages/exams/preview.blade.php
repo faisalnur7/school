@@ -40,7 +40,7 @@
                             'subject_id' => $subject->id,
                             'filter' => $filter,
                         ], fn($value) => ! is_null($value))) }}"
-                            class="btn btn-sm btn-danger mr-2">
+                            class="btn btn-sm btn-outline-secondary mr-2">
                             <i class="fas fa-file-pdf mr-1"></i>PDF
                         </a>
                     @endif

@@ -82,7 +82,7 @@ class FeeCollectionPaymentHistoryOrderTest extends TestCase
 
         $response = $this->withoutMiddleware()
             ->actingAs($user)
-            ->get(route('fees.collect_payment', $student->id));
+            ->get(route('fees.collect_payment', ['student_id' => $student->id]));
 
         $response->assertOk();
         $response->assertSeeInOrder(['RCPT-NEW', 'RCPT-OLD']);

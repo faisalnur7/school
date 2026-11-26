@@ -894,9 +894,11 @@ body.sidebar-collapse .nav-icon {
         padding: 0.8rem 0.75rem;
     }
 
+    /* No per-column minimum: a 120px floor made every table with 3+ columns
+       wider than a phone screen. Wide tables become cards instead
+       (components/mobile-table-stack). */
     .content-wrapper table.table thead th {
         white-space: normal;
-        min-width: 120px;
     }
 
     .content-wrapper table.table td,

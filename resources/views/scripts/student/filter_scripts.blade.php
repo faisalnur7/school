@@ -21,10 +21,14 @@ $(document).ready(function() {
     }
 
     function refreshFilterPanelState() {
+        // Only the advanced fields live in #filterCollapse; open it when one of those is in use.
         const panel = $('#filterCollapse');
-        const activeCount = Number($('[data-filter-count]').text() || 0);
+        const advancedActive = $('#filterCollapse').find('input, select').filter(function () {
+            const value = $(this).val();
+            return Array.isArray(value) ? value.length : value !== null && value !== '';
+        }).length;
 
-        if (activeCount > 0) {
+        if (advancedActive > 0) {
             panel.removeClass('hidden');
         }
     }

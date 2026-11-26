@@ -19,8 +19,8 @@
                 <div class="row id-card-filter-grid">
                     <div class="col-md-3 id-card-filter-field">
                         <div class="form-group">
-                            <label class="font-weight-bold id-card-filter-label">Employee Type</label>
-                            <select name="employee_type" class="form-control form-control-sm">
+                            <label for="generate-id-cards-index-employee-type" class="font-weight-bold id-card-filter-label">Employee Type</label>
+                            <select id="generate-id-cards-index-employee-type" name="employee_type" class="form-control form-control-sm">
                                 <option value="all" {{ request('employee_type') === 'all' ? 'selected' : '' }}>All Employees</option>
                                 <option value="teacher" {{ request('employee_type') === 'teacher' ? 'selected' : '' }}>Teachers</option>
                                 <option value="staff" {{ request('employee_type') === 'staff' ? 'selected' : '' }}>Staff</option>
@@ -29,8 +29,8 @@
                     </div>
                     <div class="col-md-5 id-card-filter-field">
                         <div class="form-group">
-                            <label class="id-card-filter-label">Employee Name or ID</label>
-                            <input type="text" name="employee_search" class="form-control form-control-sm id-card-filter-input" value="{{ request('employee_search') }}" placeholder="Search employee name or ID" autocomplete="off">
+                            <label for="generate-id-cards-index-employee-search" class="id-card-filter-label">Employee Name or ID</label>
+                            <input id="generate-id-cards-index-employee-search" type="text" name="employee_search" class="form-control form-control-sm id-card-filter-input" value="{{ request('employee_search') }}" placeholder="Search employee name or ID" autocomplete="off">
                         </div>
                     </div>
                     <div class="col-md-4 id-card-filter-field d-flex align-items-end">
@@ -44,8 +44,8 @@
                 <div class="row id-card-filter-grid">
                     <div class="col-md-2 id-card-filter-field">
                         <div class="form-group">
-                            <label class="font-weight-bold id-card-filter-label">Academic Year <span class="text-danger">*</span></label>
-                            <select name="session_id" class="form-control form-control-sm" required>
+                            <label for="generate-id-cards-index-session-id" class="font-weight-bold id-card-filter-label">Academic Year <span class="text-danger">*</span></label>
+                            <select id="generate-id-cards-index-session-id" name="session_id" class="form-control form-control-sm" required>
                                 <option value="">— Select Year —</option>
                                 @foreach($sessions as $s)
                                     <option value="{{ $s->id }}" {{ request('session_id') == $s->id ? 'selected' : '' }}>{{ $s->name_en }}</option>
@@ -77,8 +77,8 @@
                     </div>
                     <div class="col-md-2 id-card-filter-field">
                         <div class="form-group">
-                            <label class="id-card-filter-label">Group</label>
-                            <select name="group_id" class="form-control form-control-sm">
+                            <label for="generate-id-cards-index-group-id" class="id-card-filter-label">Group</label>
+                            <select id="generate-id-cards-index-group-id" name="group_id" class="form-control form-control-sm">
                                 <option value="">All Groups</option>
                                 @foreach($groups as $g)
                                     <option value="{{ $g->id }}" {{ request('group_id') == $g->id ? 'selected' : '' }}>{{ $g->name_en }}</option>
@@ -88,8 +88,8 @@
                     </div>
                     <div class="col-md-2 id-card-filter-field">
                         <div class="form-group">
-                            <label class="id-card-filter-label">Card Type</label>
-                            <select name="card_type" class="form-control form-control-sm">
+                            <label for="generate-id-cards-index-card-type" class="id-card-filter-label">Card Type</label>
+                            <select id="generate-id-cards-index-card-type" name="card_type" class="form-control form-control-sm">
                                 <option value="id_card" {{ ($cardType ?? 'id_card') === 'id_card' ? 'selected' : '' }}>ID Card</option>
                                 <option value="library_card" {{ ($cardType ?? 'id_card') === 'library_card' ? 'selected' : '' }}>Library Card</option>
                             </select>
@@ -97,8 +97,8 @@
                     </div>
                     <div class="col-md-2 id-card-filter-field">
                         <div class="form-group">
-                            <label class="id-card-filter-label">Student ID</label>
-                            <input
+                            <label for="generate-id-cards-index-student-cid" class="id-card-filter-label">Student ID</label>
+                            <input id="generate-id-cards-index-student-cid"
                                 type="text"
                                 name="student_cid"
                                 class="form-control form-control-sm id-card-filter-input"
@@ -124,7 +124,7 @@
                             <button type="button" class="btn btn-success btn-sm id-card-filter-btn" onclick="window.print()" title="Print">
                                 <i class="fas fa-print"></i>
                             </button>
-                            <a href="{{ route($employeeMode ? 'hr.employee-id-cards.pdf' : 'students.id-cards.pdf', request()->query()) }}" class="btn btn-danger btn-sm id-card-filter-btn" title="PDF">
+                            <a href="{{ route($employeeMode ? 'hr.employee-id-cards.pdf' : 'students.id-cards.pdf', request()->query()) }}" class="btn btn-outline-secondary btn-sm id-card-filter-btn" title="PDF">
                                 <i class="fas fa-file-pdf"></i>
                             </a>
                         @endif

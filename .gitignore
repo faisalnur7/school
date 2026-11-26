@@ -17,6 +17,7 @@
 !/bootstrap/cache/.gitignore
 /public/uploads/school_settings/
 /public/uploads/card_settings/
+/audit
 
 # Composer
 /vendor

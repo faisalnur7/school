@@ -69,17 +69,17 @@
                     </div>
                 </div>
                 <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-dark btn-sm result-filter-icon-btn" data-toggle="modal" data-target="#progressSubjectSettingsModal" title="Subject Settings" aria-label="Subject Settings">
-                        <i class="fas fa-cog"></i>
+                    <button type="button" class="btn btn-dark btn-sm result-filter-icon-btn result-filter-btn--labelled" data-toggle="modal" data-target="#progressSubjectSettingsModal" title="Subject Settings" aria-label="Subject Settings">
+                        <i class="fas fa-cog" aria-hidden="true"></i><span class="d-none d-xl-inline">Subject Settings</span>
                     </button>
-                    <button onclick="window.print()" class="btn btn-info btn-sm no-print result-filter-icon-btn" title="Print" aria-label="Print">
-                        <i class="fas fa-print"></i>
+                    <button onclick="window.print()" class="btn btn-info btn-sm no-print result-filter-icon-btn result-filter-btn--labelled" title="Print" aria-label="Print">
+                        <i class="fas fa-print" aria-hidden="true"></i><span class="d-none d-xl-inline">Print</span>
                     </button>
-                    <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary btn-sm no-print result-filter-icon-btn" title="Back" aria-label="Back">
-                        <i class="fas fa-arrow-left"></i>
+                    <a href="{{ route('result.progress-report.index') }}" class="btn btn-secondary btn-sm no-print result-filter-icon-btn result-filter-btn--labelled" title="Back" aria-label="Back">
+                        <i class="fas fa-arrow-left" aria-hidden="true"></i><span class="d-none d-xl-inline">Back</span>
                     </a>
-                    <a href="{{ route('result.progress-report.template-settings.edit') }}" class="btn btn-outline-light btn-sm no-print result-filter-icon-btn" title="Template Settings" aria-label="Template Settings">
-                        <i class="fas fa-sliders-h"></i>
+                    <a href="{{ route('result.progress-report.template-settings.edit') }}" class="btn btn-outline-light btn-sm no-print result-filter-icon-btn result-filter-btn--labelled" title="Template Settings" aria-label="Template Settings">
+                        <i class="fas fa-sliders-h" aria-hidden="true"></i><span class="d-none d-xl-inline">Template Settings</span>
                     </a>
                 </div>
             </div>
@@ -182,6 +182,7 @@
                 $subjectRows = $data['subjectRows'];
                 $summary = $data['summary'];
                 $rank = $data['rank'] ?? null;
+                $hasMarks = $data['has_marks'] ?? true;
                 $attendancePresent = $data['attendancePresent'];
                 $attendanceTotal = $data['attendanceTotal'];
             @endphp
@@ -357,7 +358,9 @@
                     </table>
                 </div>
 
-                @if($templateSettings->show_summary)
+                @if(! $hasMarks)
+                <div class="progress-no-marks" style="margin: 1rem 0; padding: .9rem 1.1rem; border: 1px dashed #94a3b8; border-radius: 8px; background: #f8fafc; color: #334155; font-weight: 600; text-align: center;">No marks have been entered for this exam yet.</div>
+                @elseif($templateSettings->show_summary)
                 <div class="mt-6">
                     <table class="w-full text-sm border border-gray-700" style="border-color: {{ $templateSettings->table_border_color }};">
                         <thead style="background: {{ $templateSettings->summary_bg_color }}; color: {{ $templateSettings->summary_text_color }};">
@@ -383,7 +386,7 @@
                 </div>
                 @endif
 
-                @if($templateSettings->show_remarks || !is_null($rank))
+                @if($hasMarks && ($templateSettings->show_remarks || !is_null($rank)))
                 <div class="classic-results-meta">
                     @if($templateSettings->show_remarks)
                     <div class="classic-remarks">
@@ -415,7 +418,9 @@
                     <ul class="list-disc pl-5 space-y-2">
                         <li>{{ $student->full_name_en }} was present {{ $attendancePresent }} days out of
                             {{ $attendanceTotal }} days.</li>
-                        @if ($summary['gpa'] >= 4.0)
+                        @if (! $hasMarks)
+                            <li>No marks have been entered for this exam yet.</li>
+                        @elseif ($summary['gpa'] >= 4.0)
                             <li>{{ $templateSettings->comments_excellent_text }}</li>
                         @elseif($summary['gpa'] >= 3.0)
                             <li>{{ $templateSettings->comments_good_text }}</li>
@@ -640,6 +645,7 @@
                     </table>
                 </div>
 
+                @if($hasMarks)
                 <div class="rc-summary-bar">
                     <div class="rc-summary-label">Summary</div>
                     <div class="rc-summary-stats">
@@ -669,6 +675,9 @@
                         </div>
                     </div>
                 </div>
+                @else
+                <div class="progress-no-marks" style="margin: 1rem 0; padding: .9rem 1.1rem; border: 1px dashed #94a3b8; border-radius: 8px; background: #f8fafc; color: #334155; font-weight: 600; text-align: center;">No marks have been entered for this exam yet.</div>
+                @endif
 
                 @if(!is_null($rank))
                     <div class="rc-position-strip" style="margin: 0 0 1rem; padding: 0.9rem 1.1rem; border: 1px solid var(--rc-border, #d1d5db); border-radius: 14px; background: #f8fafc; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
@@ -680,7 +689,9 @@
                 <div class="rc-bottom-row">
                     <div class="rc-remarks-block">
                         <div class="rc-block-label">Remarks</div>
-                        @if ($summary['gpa'] >= 4.0)
+                        @if (! $hasMarks)
+                            <p class="rc-remark-desc">No marks have been entered for this exam yet.</p>
+                        @elseif ($summary['gpa'] >= 4.0)
                             <div class="rc-remark-tag rc-remark-excellent"><span class="rc-remark-icon">★</span> Excellent
                             </div>
                             <p class="rc-remark-desc">Outstanding academic performance. Keep it up!</p>
@@ -706,7 +717,9 @@
                                 <strong>{{ $attendancePresent }}</strong> out of <strong>{{ $attendanceTotal }}</strong>
                                 school days.
                             </li>
-                            @if ($summary['gpa'] >= 4.0)
+                            @if (! $hasMarks)
+                                <li><span class=\"rc-comment-bullet\">◉</span> No marks have been entered for this exam yet.</li>
+                            @elseif ($summary['gpa'] >= 4.0)
                                 <li><span class="rc-comment-bullet">◉</span> Excellent results! Faithfully performing all
                                     classroom tasks.</li>
                             @elseif($summary['gpa'] >= 3.0)

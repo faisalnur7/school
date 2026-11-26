@@ -92,6 +92,9 @@
                             </select>
                             @unless ($isPaid)
                                 <small class="form-text text-danger"><i class="fas fa-lock mr-1"></i>Payment not received. Collect the form fee before approving.</small>
+                                <button type="button" class="btn btn-success btn-sm mt-2" data-toggle="modal" data-target="#paymentModal{{ $application->id }}">
+                                    <i class="fas fa-money-bill-wave mr-1" aria-hidden="true"></i>Collect form fee (৳{{ number_format((float) $application->exam?->form_fee, 0) }})
+                                </button>
                             @endunless
                         </div>
                         @if ($isPaid && ! $hasPassed)
@@ -112,4 +115,7 @@
         </div>
     </div>
 </div>
+@unless ($isPaid)
+    @include('pages.admissions.applications._payment-modal', ['application' => $application])
+@endunless
 @endsection

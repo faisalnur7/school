@@ -29,17 +29,27 @@ class DashboardController extends Controller
         $data['title'] = $data['page_title'] = "Dashboard";
         
         // Quick Stats
-        $data['total_students'] = Student::count();
+        // Active students, matching the student list's default total. Inactive ones are shown separately.
+        $data['total_students'] = Student::where('status', 1)->count();
+        $data['inactive_students'] = Student::where('status', '!=', 1)->count();
         $data['total_teachers'] = Employee::where('employee_type','teacher')->count();
         $data['total_staff'] = Employee::where('employee_type','staff')->count();
         $data['total_classes'] = SchoolClass::count();
         
         // Today's Attendance
         $today = Carbon::today();
-        $todayAttendance = Attendance::whereDate('date', $today)->first();
-        $data['today_present'] = $todayAttendance ? AttendanceItem::where('attendance_id', $todayAttendance->id)->where('status', 'present')->count() : 0;
-        $data['today_absent'] = $todayAttendance ? AttendanceItem::where('attendance_id', $todayAttendance->id)->where('status', 'absent')->count() : 0;
-        $data['today_leave'] = $todayAttendance ? AttendanceItem::where('attendance_id', $todayAttendance->id)->where('status', 'leave')->count() : 0;
+        // Attendance is recorded per class/section, so count every record taken today
+        // (previously only the first record was read). With none, the dashboard shows
+        // "not taken yet" instead of a misleading 0% / 0 absent.
+        $todayAttendanceIds = Attendance::whereDate('date', $today)->pluck('id');
+        $data['attendance_taken_today'] = $todayAttendanceIds->isNotEmpty();
+        $todayCounts = AttendanceItem::whereIn('attendance_id', $todayAttendanceIds)
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+        $data['today_present'] = (int) ($todayCounts['present'] ?? 0);
+        $data['today_absent'] = (int) ($todayCounts['absent'] ?? 0);
+        $data['today_leave'] = (int) ($todayCounts['leave'] ?? 0);
         $data['attendance_percentage'] = $data['total_students'] > 0 ? round(($data['today_present'] / $data['total_students']) * 100, 2) : 0;
         
         // Fee Statistics
@@ -49,9 +59,23 @@ class DashboardController extends Controller
         $data['fee_collection_rate'] = $data['total_fees_due'] > 0 ? round(($data['total_fees_paid'] / $data['total_fees_due']) * 100, 2) : 0;
         
         // Financial Overview
-        $data['total_income'] = Income::sum('amount');
-        $data['total_expense'] = Expense::sum('amount');
+        // Money KPIs cover the current month, with the previous month for comparison
+        // and the all-time figure (what this card used to show) as a secondary line.
+        $monthStart = $today->copy()->startOfMonth();
+        $prevStart = $monthStart->copy()->subMonth();
+        $prevEnd = $prevStart->copy()->endOfMonth();
+        $sumBetween = fn ($model, $column, $from, $to) => (float) $model::whereBetween($column, [$from->toDateString(), $to->toDateString()])->sum('amount');
+        $data['period_label'] = $monthStart->translatedFormat('M Y');
+        $data['prev_period_label'] = $prevStart->translatedFormat('M');
+        $data['total_income'] = $sumBetween(Income::class, 'income_date', $monthStart, $today);
+        $data['total_expense'] = $sumBetween(Expense::class, 'expense_date', $monthStart, $today);
         $data['net_balance'] = $data['total_income'] - $data['total_expense'];
+        $data['prev_income'] = $sumBetween(Income::class, 'income_date', $prevStart, $prevEnd);
+        $data['prev_expense'] = $sumBetween(Expense::class, 'expense_date', $prevStart, $prevEnd);
+        $data['prev_net_balance'] = $data['prev_income'] - $data['prev_expense'];
+        $data['alltime_income'] = (float) Income::sum('amount');
+        $data['alltime_expense'] = (float) Expense::sum('amount');
+        $data['alltime_net_balance'] = $data['alltime_income'] - $data['alltime_expense'];
         
         // Classwise Attendance (Last 7 days)
         $data['classwise_attendance'] = $this->getClasswiseAttendance();
@@ -118,6 +142,7 @@ class DashboardController extends Controller
             return [
                 'class' => $class->name_en,
                 'percentage' => $percentage,
+                'taken' => $total > 0,
                 'session_id' => $currentSessionId,
                 'class_id' => $class->id,
                 'section_id' => $fallbackSectionId,
@@ -278,7 +303,7 @@ class DashboardController extends Controller
                     'image_url' => $student->photo_url,
                     'date' => $birthDate,
                     'days_until' => $daysUntil,
-                    'label' => (int) $daysUntil === 0 ? __('Today is birthday') : __('In :days days', ['days' => $daysUntil]),
+                    'label' => (int) $daysUntil === 0 ? __('Today is birthday') : ((int) $daysUntil === 1 ? __('Tomorrow') : __('In :days days', ['days' => $daysUntil])),
                     'link' => route('students.birthdays.card.preview', $student),
                     'class' => $academicInfo?->schoolClass?->name_en,
                     'section' => $academicInfo?->section?->name_en,

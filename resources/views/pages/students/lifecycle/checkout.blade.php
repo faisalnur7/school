@@ -21,8 +21,8 @@
         <form method="GET" action="{{ route('students.checkout') }}">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div>
-                    <label class="form-label text-sm font-medium text-slate-600">Session</label>
-                    <select name="academic_session_id" class="form-control form-control-sm">
+                    <label for="lifecycle-checkout-academic-session-id" class="form-label text-sm font-medium text-slate-600">Session</label>
+                    <select id="lifecycle-checkout-academic-session-id" name="academic_session_id" class="form-control form-control-sm">
                         <option value="">Select Session</option>
                         @foreach($sessions as $s)
                         <option value="{{ $s->id }}" @selected(request('academic_session_id') == $s->id)>{{ $s->name_en }}</option>
@@ -30,8 +30,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="form-label text-sm font-medium text-slate-600">Class</label>
-                    <select name="school_class_id" class="form-control form-control-sm">
+                    <label for="lifecycle-checkout-school-class-id" class="form-label text-sm font-medium text-slate-600">Class</label>
+                    <select id="lifecycle-checkout-school-class-id" name="school_class_id" class="form-control form-control-sm">
                         <option value="">Select Class</option>
                         @foreach($classes as $c)
                         <option value="{{ $c->id }}" @selected(request('school_class_id') == $c->id)>{{ $c->name_en }}</option>
@@ -39,8 +39,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="form-label text-sm font-medium text-slate-600">Student ID</label>
-                    <input
+                    <label for="lifecycle-checkout-student-cid" class="form-label text-sm font-medium text-slate-600">Student ID</label>
+                    <input id="lifecycle-checkout-student-cid"
                         type="text"
                         name="student_cid"
                         value="{{ request('student_cid') }}"
@@ -48,7 +48,7 @@
                         placeholder="Enter Student ID">
                 </div>
                 <div>
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg w-full font-medium">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg w-full font-medium text-nowrap">
                         <i class="fas fa-search mr-1"></i> Load Students
                     </button>
                 </div>
@@ -176,7 +176,7 @@
                     @endif
                     <div class="flex gap-2 mt-3">
                         <button type="submit" class="btn btn-sm btn-danger"
-                            onclick="return confirm('Confirm checkout for {{ addslashes($rec->student->full_name_en) }}?')">
+                            data-confirm="{{ __('Check out :name?', ['name' => $rec->student->full_name_en]) }}" data-confirm-action="{{ __('Check out student') }}" data-confirm-cancel="{{ __('Not now') }}">
                             <i class="fas fa-check mr-1"></i> Confirm Checkout
                         </button>
                         <button type="button" class="btn btn-sm btn-secondary" onclick="toggleCheckout({{ $rec->id }})">Cancel</button>

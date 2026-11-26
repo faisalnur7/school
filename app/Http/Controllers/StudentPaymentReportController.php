@@ -136,7 +136,8 @@ class StudentPaymentReportController extends Controller
                     }
                 });
             })
-            ->whereBetween('payment_date', [$fromDate->toDateString(), $toDate->toDateString()])
+            ->whereDate('payment_date', '>=', $fromDate->toDateString())
+            ->whereDate('payment_date', '<=', $toDate->toDateString())
             ->orderBy('payment_date')
             ->orderBy('id')
             ->get();

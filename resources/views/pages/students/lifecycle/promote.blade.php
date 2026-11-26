@@ -53,8 +53,8 @@
             @endif
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label class="form-label text-sm font-medium text-slate-600">Source Session <span class="text-red-500">*</span></label>
-                    <select name="source_session_id" class="form-control form-control-sm" required>
+                    <label for="lifecycle-promote-source-session-id" class="form-label text-sm font-medium text-slate-600">Source Session <span class="text-red-500">*</span></label>
+                    <select id="lifecycle-promote-source-session-id" name="source_session_id" class="form-control form-control-sm" required>
                         <option value="">Select Session</option>
                         @foreach($sessions as $session)
                             <option value="{{ $session->id }}" @selected((string) $sourceSession === (string) $session->id)>{{ $session->name_en }}</option>
@@ -63,8 +63,8 @@
                 </div>
 
                 <div>
-                    <label class="form-label text-sm font-medium text-slate-600">Source Class <span class="text-red-500">*</span></label>
-                    <select name="source_class_id" class="form-control form-control-sm" required>
+                    <label for="lifecycle-promote-source-class-id" class="form-label text-sm font-medium text-slate-600">Source Class <span class="text-red-500">*</span></label>
+                    <select id="lifecycle-promote-source-class-id" name="source_class_id" class="form-control form-control-sm" required>
                         <option value="">Select Class</option>
                         @foreach($classes as $class)
                             <option value="{{ $class->id }}" @selected((string) $sourceClass === (string) $class->id)>{{ $class->name_en }}</option>
@@ -73,8 +73,8 @@
                 </div>
 
                 <div>
-                    <label class="form-label text-sm font-medium text-slate-600">Target Session</label>
-                    <select name="target_session_id" class="form-control form-control-sm">
+                    <label for="lifecycle-promote-target-session-id" class="form-label text-sm font-medium text-slate-600">Target Session</label>
+                    <select id="lifecycle-promote-target-session-id" name="target_session_id" class="form-control form-control-sm">
                         <option value="">Select Target Session</option>
                         @foreach($sessions as $session)
                             <option value="{{ $session->id }}" @selected((string) $targetSession === (string) $session->id)>{{ $session->name_en }}</option>
@@ -83,8 +83,8 @@
                 </div>
 
                 <div>
-                    <label class="form-label text-sm font-medium text-slate-600">Target Class</label>
-                    <select name="target_class_id" class="form-control form-control-sm">
+                    <label for="lifecycle-promote-target-class-id" class="form-label text-sm font-medium text-slate-600">Target Class</label>
+                    <select id="lifecycle-promote-target-class-id" name="target_class_id" class="form-control form-control-sm">
                         <option value="">Select Target Class</option>
                         @foreach($classes as $class)
                             <option value="{{ $class->id }}" @selected((string) $targetClass === (string) $class->id)>{{ $class->name_en }}</option>
@@ -93,8 +93,8 @@
                 </div>
 
                 <div>
-                    <label class="form-label text-sm font-medium text-slate-600">Student ID</label>
-                    <input type="text" name="student_id" value="{{ $studentId }}" class="form-control form-control-sm" placeholder="CID or numeric ID">
+                    <label for="lifecycle-promote-student-id" class="form-label text-sm font-medium text-slate-600">Student ID</label>
+                    <input id="lifecycle-promote-student-id" type="text" name="student_id" value="{{ $studentId }}" class="form-control form-control-sm" placeholder="CID or numeric ID">
                 </div>
 
                 <div>
@@ -107,8 +107,8 @@
                 </div>
 
                 <div id="fail-threshold-wrap" class="{{ $mode === 'n_subjects_fail' ? '' : 'hidden' }}">
-                    <label class="form-label text-sm font-medium text-slate-600">Fail Threshold</label>
-                    <input type="number" min="1" step="1" name="fail_threshold" value="{{ $failThreshold }}" class="form-control form-control-sm">
+                    <label for="lifecycle-promote-fail-threshold" class="form-label text-sm font-medium text-slate-600">Fail Threshold</label>
+                    <input id="lifecycle-promote-fail-threshold" type="number" min="1" step="1" name="fail_threshold" value="{{ $failThreshold }}" class="form-control form-control-sm">
                     <small class="text-slate-500">Example: 2 means failed in 2 or more subjects.</small>
                 </div>
 

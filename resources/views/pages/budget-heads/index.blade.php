@@ -10,13 +10,13 @@
                     <div class="card-body">
                         @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
                         <div class="form-group">
-                            <label>Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
+                            <label for="budget-heads-index-name">Name <span class="text-danger">*</span></label>
+                            <input id="budget-heads-index-name" type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
                             @error('name')<span class="invalid-feedback">{{ $message }}</span>@enderror
                         </div>
                         <div class="form-group">
-                            <label>Parent Head <small class="text-muted">(optional)</small></label>
-                            <select name="parent_id" class="form-control">
+                            <label for="budget-heads-index-parent-id">Parent Head <small class="text-muted">(optional)</small></label>
+                            <select id="budget-heads-index-parent-id" name="parent_id" class="form-control">
                                 <option value="">— Top Level —</option>
                                 @foreach($parents as $p)
                                     <option value="{{ $p->id }}" {{ old('parent_id') == $p->id ? 'selected' : '' }}>{{ $p->name }}</option>
@@ -24,8 +24,8 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Description</label>
-                            <textarea name="description" class="form-control" rows="2">{{ old('description') }}</textarea>
+                            <label for="budget-heads-index-description">Description</label>
+                            <textarea id="budget-heads-index-description" name="description" class="form-control" rows="2">{{ old('description') }}</textarea>
                         </div>
                     </div>
                     <div class="card-footer"><button class="btn btn-success">Save</button></div>
@@ -47,10 +47,10 @@
                                 <td>{{ $h->parent?->name ?? '—' }}</td>
                                 <td style="font-size:12px">{{ $h->description ?? '—' }}</td>
                                 <td style="display:flex;gap:5px; justify-content: center; align-items: center;">
-                                    <button class="btn btn-sm btn-dark" data-toggle="modal" data-target="#editHead{{ $h->id }}"><i class="fas fa-edit"></i></button>
-                                    <form action="{{ route('budget-heads.destroy', $h->id) }}"  class="m-0" method="POST" onsubmit="return confirm('Delete?')">
+                                    <button class="btn btn-sm btn-dark" data-toggle="modal" data-target="#editHead{{ $h->id }}" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}"><i class="fas fa-edit" aria-hidden="true"></i></button>
+                                    <form action="{{ route('budget-heads.destroy', $h->id) }}"  class="m-0" method="POST" data-confirm="{{ __('Delete this record?') }}" data-confirm-action="{{ __('Delete') }}" data-confirm-cancel="{{ __('Keep it') }}">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

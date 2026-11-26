@@ -4,6 +4,7 @@
 @include('layouts.partials._head')
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
+    <a href="#main" class="skip-link">{{ __('Skip to content') }}</a>
     <script>
         (function () {
             try {
@@ -54,7 +55,7 @@
         @include('layouts.partials._side-nav')
 
         <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper">
+        <main id="main" class="content-wrapper" tabindex="-1">
             <!-- Content Header (Page header) -->
             @include('layouts.partials._header')
             @auth
@@ -81,7 +82,7 @@
                 </div><!-- /.container-fluid -->
             </section>
             <!-- /.content -->
-        </div>
+        </main>
         <!-- /.content-wrapper -->
 
         @include('layouts.partials._footer')
@@ -91,6 +92,10 @@
     <!-- ./wrapper -->
 
     @include('layouts.partials._scripts')
+    @auth
+        <x-confirm-dialog />
+        <x-mobile-table-stack />
+    @endauth
 
     <!-- Bootstrap Datepicker JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"></script>
@@ -315,6 +320,53 @@
                 orientation: 'bottom'
             });
 
+            // Touch screens: tapping a datepicker field focuses a text box, so the phone keyboard
+            // opened on top of the calendar. inputmode="none" keeps the keyboard closed (typing on a
+            // hardware keyboard still works). Set on touchstart, before focus, so it also covers
+            // datepickers that pages create later.
+            document.addEventListener('touchstart', function(event) {
+                const input = event.target.closest ? event.target.closest('input') : null;
+                if (input && !input.hasAttribute('inputmode') && window.jQuery && jQuery(input).data('datepicker')) {
+                    input.setAttribute('inputmode', 'none');
+                }
+            }, { capture: true, passive: true });
+
+            // Phones: the bigger calendar (admin.css) can open past the bottom of the screen for a
+            // field low on the page. Scroll the field up just enough to show all of it, then re-place it.
+            // ('show' is also fired by Bootstrap modals, so check it came from a datepicker field.)
+            $(document).on('show', function(event) {
+                const input = event.target;
+                const picker = window.jQuery && jQuery(input).data('datepicker');
+                if (!picker || !window.matchMedia('(max-width: 767.98px)').matches) return;
+                setTimeout(function() {
+                    const over = picker.picker[0].getBoundingClientRect().bottom - (window.innerHeight - 8);
+                    if (over <= 0) return;
+                    let scroller = input.parentElement;
+                    while (scroller && scroller !== document.body) {
+                        const overflowY = getComputedStyle(scroller).overflowY;
+                        if (/(auto|scroll)/.test(overflowY) && scroller.scrollHeight > scroller.clientHeight) break;
+                        scroller = scroller.parentElement;
+                    }
+                    if (scroller && scroller !== document.body) scroller.scrollBy(0, over);
+                    else window.scrollBy(0, over);
+                    picker.place();
+                }, 0);
+            });
+
+            // Phones: a Select2 list from a narrow field gets a 240px minimum width (admin.css).
+            // Select2 lines it up with the field's left edge, so slide it back if it passes the right edge.
+            function fitOpenSelect2() {
+                const dropdown = document.querySelector('.select2-container--open .select2-dropdown');
+                if (!dropdown) return;
+                dropdown.style.transform = '';
+                if (!window.matchMedia('(max-width: 767.98px)').matches) return;
+                const rect = dropdown.getBoundingClientRect();
+                const over = rect.right - (window.innerWidth - 8);
+                if (over > 0) dropdown.style.transform = `translateX(${-Math.min(over, Math.max(0, rect.left - 8))}px)`;
+            }
+            $(document).on('select2:open', function() { setTimeout(fitOpenSelect2, 0); });
+            $(window).on('resize', fitOpenSelect2);
+
             // Select2 init
             function initSelect2(context) {
                 function formatCheckboxOption(data) {
@@ -390,6 +442,10 @@
                         dropdownParent: $modal.length ? $modal : $(document.body),
                         placeholder: placeholder
                     };
+                    // Phones: no search box on short lists (it took a row and, when focused, opened the keyboard)
+                    if (!isMultiple && window.matchMedia('(max-width: 767.98px)').matches) {
+                        select2Options.minimumResultsForSearch = 8;
+                    }
                     if (useCheckboxes) {
                         select2Options.closeOnSelect = false;
                         select2Options.templateResult = formatCheckboxOption;

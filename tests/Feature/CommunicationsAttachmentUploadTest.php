@@ -18,8 +18,8 @@ class CommunicationsAttachmentUploadTest extends TestCase
     {
         Carbon::setTestNow(Carbon::parse('2026-07-27 10:15:30', 'UTC'));
 
-        $sender = User::factory()->create();
-        $recipient = User::factory()->create();
+        $sender = $this->grantPermissions(User::factory()->create(), 'view_communications');
+        $recipient = $this->grantPermissions(User::factory()->create(), 'view_communications');
 
         $conversation = ChatConversation::create([
             'name' => null,
@@ -57,8 +57,8 @@ class CommunicationsAttachmentUploadTest extends TestCase
 
     public function test_missing_chat_attachment_is_hidden_from_the_response_payload(): void
     {
-        $sender = User::factory()->create();
-        $recipient = User::factory()->create();
+        $sender = $this->grantPermissions(User::factory()->create(), 'view_communications');
+        $recipient = $this->grantPermissions(User::factory()->create(), 'view_communications');
 
         $conversation = ChatConversation::create([
             'name' => null,

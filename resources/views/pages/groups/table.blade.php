@@ -35,8 +35,7 @@
                                             <input type="checkbox" class="custom-control-input"
                                                 id="statusSwitch{{ $group->id }}" onchange="this.form.submit()"
                                                 {{ $group->status ? 'checked' : '' }}>
-                                            <label class="custom-control-label" for="statusSwitch{{ $group->id }}">
-                                            </label>
+                                            <label class="custom-control-label" for="statusSwitch{{ $group->id }}"><span class="sr-only">{{ __('Active') }}</span></label>
                                         </div>
                                     </form>
                                 @else
@@ -53,7 +52,7 @@
                                 @if(auth()->user()?->hasPermission('delete_groups'))
                                     <form action="{{ route('groups.delete', $group->id) }}" method="POST"
                                         class="groups-action-form d-inline m-0"
-                                        onsubmit="return confirm('Delete this group?')">
+                                        data-confirm="{{ __('Delete this group?') }}" data-confirm-action="{{ __('Delete group') }}" data-confirm-cancel="{{ __('Keep group') }}">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="groups-action-btn groups-action-delete" title="Delete" aria-label="Delete">

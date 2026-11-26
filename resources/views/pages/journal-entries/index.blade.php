@@ -8,9 +8,11 @@
                 <h4 class="card-title mb-0 font-weight-bold text-white">
                     <i class="fas fa-book mr-2"></i>Journal Entries
                 </h4>
-                <a href="{{ route('journal-entries.create') }}" class="btn btn-light btn-sm">
-                    <i class="fas fa-plus mr-1"></i> New Entry
-                </a>
+                @if(Route::has('journal-entries.create'))
+                    <a href="{{ route('journal-entries.create') }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus mr-1"></i> New Entry
+                    </a>
+                @endif
             </div>
         </div>
 
@@ -62,7 +64,7 @@
                                 <td>
                                     <a href="{{ route('journal-entries.show', $entry) }}" class="btn btn-xs btn-info">View</a>
                                     <form action="{{ route('journal-entries.destroy', $entry) }}" method="POST" class="d-inline"
-                                          onsubmit="return confirm('Delete this journal entry?')">
+                                          data-confirm="{{ __('Delete this journal entry?') }}" data-confirm-action="{{ __('Delete journal entry') }}" data-confirm-cancel="{{ __('Keep journal entry') }}">
                                         @csrf @method('DELETE')
                                         <button class="btn btn-xs btn-danger">Del</button>
                                     </form>

@@ -52,16 +52,16 @@
                             </td>
                             <td class="text-muted" style="font-size:13px">{{ Str::limit($cash->notes, 40) ?? '—' }}</td>
                             <td class="d-flex flex-column flex-sm-row justify-content-center align-items-stretch align-items-sm-center gap-1">
-                                <a href="{{ route('hand-cash.edit', $cash->id) }}" class="btn btn-sm btn-dark">
-                                    <i class="fas fa-edit"></i>
+                                <a href="{{ route('hand-cash.edit', $cash->id) }}" class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                    <i class="fas fa-edit" aria-hidden="true"></i>
                                 </a>
                                 <form action="{{ route('hand-cash.destroy', $cash->id) }}" method="POST"
-                                      class="btn btn-sm btn-danger d-inline m-0"
-                                      onsubmit="return confirm('Delete this hand cash entry?')">
+                                      class="d-inline m-0"
+                                      data-confirm="{{ __('Delete this hand cash entry?') }}" data-confirm-action="{{ __('Delete hand cash entry') }}" data-confirm-cancel="{{ __('Keep hand cash entry') }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" style="background:none;border:none;padding:0;color:inherit">
-                                        <i class="fas fa-trash"></i>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                        <i class="fas fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </td>
@@ -92,8 +92,8 @@
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Bank Account</label>
-                        <select name="bank_account_id" class="form-control" required>
+                        <label for="hand-cash-table-bank-account-id">Bank Account</label>
+                        <select id="hand-cash-table-bank-account-id" name="bank_account_id" class="form-control" required>
                             <option value="">— Select Bank —</option>
                             @foreach($bankAccounts as $bank)
                             <option value="{{ $bank->id }}">{{ $bank->bank_name }} — {{ $bank->account_number }}</option>
@@ -101,12 +101,12 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Amount <small class="text-muted">(Available: {{ number_format($pettyCash->balance, 2) }})</small></label>
-                        <input type="number" name="amount" class="form-control" step="0.01" min="0.01" max="{{ $pettyCash->balance }}" required>
+                        <label for="hand-cash-table-amount">Amount <small class="text-muted">(Available: {{ number_format($pettyCash->balance, 2) }})</small></label>
+                        <input id="hand-cash-table-amount" type="number" name="amount" class="form-control" step="0.01" min="0.01" max="{{ $pettyCash->balance }}" required>
                     </div>
                     <div class="form-group">
-                        <label>Description <small class="text-muted">(optional)</small></label>
-                        <input type="text" name="description" class="form-control" maxlength="255">
+                        <label for="hand-cash-table-description">Description <small class="text-muted">(optional)</small></label>
+                        <input id="hand-cash-table-description" type="text" name="description" class="form-control" maxlength="255">
                     </div>
                 </div>
                 <div class="modal-footer flex-column flex-sm-row">

@@ -12,8 +12,8 @@
         <form method="GET" action="{{ route('incomes.index') }}" class="px-3 pt-3 pb-2">
             <div class="row g-2 align-items-end">
                 <div class="col-md-3">
-                    <label class="form-label mb-1" style="font-size:12px">Category</label>
-                    <select name="category" class="form-control form-control-sm">
+                    <label for="incomes-table-category" class="form-label mb-1" style="font-size:12px">Category</label>
+                    <select id="incomes-table-category" name="category" class="form-control form-control-sm">
                         <option value="">All Categories</option>
                         @foreach ($categories as $category)
                             <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
@@ -23,14 +23,14 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label mb-1" style="font-size:12px">From Date</label>
-                    <input type="text" name="from" datepicker datepicker-format="dd/mm/yyyy"
+                    <label for="incomes-table-from" class="form-label mb-1" style="font-size:12px">From Date</label>
+                    <input id="incomes-table-from" type="text" name="from" datepicker datepicker-format="dd/mm/yyyy"
                            class="form-control form-control-sm datepicker"
                            value="{{ request('from') }}" placeholder="dd/mm/yyyy" autocomplete="off">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label mb-1" style="font-size:12px">To Date</label>
-                    <input type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
+                    <label for="incomes-table-to" class="form-label mb-1" style="font-size:12px">To Date</label>
+                    <input id="incomes-table-to" type="text" name="to" datepicker datepicker-format="dd/mm/yyyy"
                            class="form-control form-control-sm datepicker"
                            value="{{ request('to') }}" placeholder="dd/mm/yyyy" autocomplete="off">
                 </div>
@@ -101,16 +101,16 @@
                                 <a href="{{ route('incomes.voucher', $income->id) }}" class="btn btn-sm btn-secondary" title="Print Voucher" target="_blank">
                                     <i class="fas fa-print"></i>
                                 </a>
-                                <a href="{{ route('incomes.edit', $income->id) }}" class="btn btn-sm btn-dark">
-                                    <i class="fas fa-edit"></i>
+                                <a href="{{ route('incomes.edit', $income->id) }}" class="btn btn-sm btn-dark" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
+                                    <i class="fas fa-edit" aria-hidden="true"></i>
                                 </a>
                                 <form action="{{ route('incomes.destroy', $income->id) }}" method="POST"
-                                      class="btn btn-sm btn-danger d-inline m-0"
-                                      onsubmit="return confirm('Delete this income record?')">
+                                      class="d-inline m-0"
+                                      data-confirm="{{ __('Delete this income record?') }}" data-confirm-action="{{ __('Delete income record') }}" data-confirm-cancel="{{ __('Keep income record') }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" style="background:none;border:none;padding:0;color:inherit">
-                                        <i class="fas fa-trash"></i>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
+                                        <i class="fas fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </td>

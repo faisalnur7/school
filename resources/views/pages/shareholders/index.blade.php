@@ -79,25 +79,25 @@
         {{-- Edit --}}
         <a href="{{ route('shareholders.edit', $sh->id) }}"
             class="d-flex align-items-center justify-content-center text-gray-700 bg-gray-100 border border-gray-200 rounded-lg shadow-sm hover:bg-gray-200 transition"
-            style="width:36px; height:36px;">
+            style="width:36px; height:36px;" aria-label="{{ __('Edit') }}" title="{{ __('Edit') }}">
 
-            <i class="fas fa-edit text-sm"></i>
+            <i class="fas fa-edit text-sm" aria-hidden="true"></i>
         </a>
 
         {{-- Delete --}}
         <form action="{{ route('shareholders.destroy', $sh->id) }}"
             method="POST"
             class="m-0 p-0 d-inline"
-            onsubmit="return confirm('Delete this shareholder?')">
+            data-confirm="{{ __('Delete this shareholder?') }}" data-confirm-action="{{ __('Delete shareholder') }}" data-confirm-cancel="{{ __('Keep shareholder') }}">
 
             @csrf
             @method('DELETE')
 
             <button type="submit"
                 class="d-flex align-items-center justify-content-center text-white bg-red-500 border border-red-500 rounded-lg shadow-sm hover:bg-red-600 transition"
-                style="width:36px; height:36px;">
+                style="width:36px; height:36px;" aria-label="{{ __('Delete') }}" title="{{ __('Delete') }}">
 
-                <i class="fas fa-trash text-sm"></i>
+                <i class="fas fa-trash text-sm" aria-hidden="true"></i>
             </button>
 
         </form>
@@ -127,9 +127,9 @@
 <div class="modal fade" id="txnModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header card-header" id="txnModalHeader">
+            <div class="modal-header" id="txnModalHeader">
                 <h5 class="modal-title" id="txnModalTitle">Add Transaction</h5>
-                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('Close') }}"><span aria-hidden="true">&times;</span></button>
             </div>
             <form method="POST" action="{{ route('shareholder-transactions.store') }}">
                 @csrf
@@ -145,14 +145,14 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Amount <span class="text-danger">*</span></label>
-                        <input type="number" name="amount" step="0.01" min="0.01"
+                        <label for="shareholders-index-amount">Amount <span class="text-danger">*</span></label>
+                        <input id="shareholders-index-amount" type="number" name="amount" step="0.01" min="0.01"
                                class="form-control" required placeholder="0.00">
                     </div>
 
                     <div class="form-group">
-                        <label>Date <span class="text-danger">*</span></label>
-                        <input type="text" name="transaction_date" datepicker datepicker-format="dd/mm/yyyy"
+                        <label for="shareholders-index-transaction-date">Date <span class="text-danger">*</span></label>
+                        <input id="shareholders-index-transaction-date" type="text" name="transaction_date" datepicker datepicker-format="dd/mm/yyyy"
                                class="form-control"
                                value="{{ now()->format('d/m/Y') }}"
                                placeholder="dd/mm/yyyy" autocomplete="off" required>
@@ -240,6 +240,7 @@ function openTxnModal(shareholderId, shareholderName, type) {
     const isCapital = type === 'capital';
     $('#txnModalTitle').text((isCapital ? '+ Add Capital' : '− Withdraw') + ' — ' + shareholderName);
     $('#txnModalHeader').css('background', isCapital ? '#16a34a' : '#e11d48').addClass('text-white');
+    $('#txnModalHeader .close').addClass('text-white');
     $('#modalSubmitBtn').removeClass('btn-success btn-danger').addClass(isCapital ? 'btn-success' : 'btn-danger')
                         .text(isCapital ? 'Add Capital' : 'Withdraw');
     $('#modalDescription').attr('placeholder', isCapital ? 'e.g. Initial investment, Q1 contribution...' : 'e.g. Monthly drawing, Personal withdrawal...');

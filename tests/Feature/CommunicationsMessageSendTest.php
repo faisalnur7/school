@@ -14,8 +14,8 @@ class CommunicationsMessageSendTest extends TestCase
 
     public function test_chat_message_store_returns_json_payload_for_ajax_sends(): void
     {
-        $sender = User::factory()->create();
-        $recipient = User::factory()->create();
+        $sender = $this->grantPermissions(User::factory()->create(), 'view_communications');
+        $recipient = $this->grantPermissions(User::factory()->create(), 'view_communications');
 
         $conversation = ChatConversation::create([
             'name' => null,

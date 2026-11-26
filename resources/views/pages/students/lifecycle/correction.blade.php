@@ -24,8 +24,8 @@
         <form method="GET" action="{{ route('students.correction') }}">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                 <div>
-                    <label class="form-label text-sm font-medium text-slate-600">Session</label>
-                    <select name="academic_session_id" class="form-control form-control-sm">
+                    <label for="lifecycle-correction-academic-session-id" class="form-label text-sm font-medium text-slate-600">Session</label>
+                    <select id="lifecycle-correction-academic-session-id" name="academic_session_id" class="form-control form-control-sm">
                         <option value="">Select Session</option>
                         @foreach($sessions as $s)
                         <option value="{{ $s->id }}" @selected(request('academic_session_id') == $s->id)>{{ $s->name_en }}</option>
@@ -33,8 +33,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="form-label text-sm font-medium text-slate-600">Class</label>
-                    <select name="school_class_id" class="form-control form-control-sm">
+                    <label for="lifecycle-correction-school-class-id" class="form-label text-sm font-medium text-slate-600">Class</label>
+                    <select id="lifecycle-correction-school-class-id" name="school_class_id" class="form-control form-control-sm">
                         <option value="">Select Class</option>
                         @foreach($classes as $c)
                         <option value="{{ $c->id }}" @selected(request('school_class_id') == $c->id)>{{ $c->name_en }}</option>

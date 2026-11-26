@@ -34,57 +34,57 @@
                 @endif
 
 <div class="form-group">
-                                <label>Bank Name</label>
-                                <input type="text" name="bank_name" class="form-control @error('bank_name') is-invalid @enderror"
+                                <label for="bank-accounts-create-bank-name">Bank Name</label>
+                                <input id="bank-accounts-create-bank-name" type="text" name="bank_name" class="form-control @error('bank_name') is-invalid @enderror"
                                        value="{{ old('bank_name') }}" required>
                                 @error('bank_name') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="form-group">
-                                <label>Account Name</label>
-                                <input type="text" name="account_name" class="form-control @error('account_name') is-invalid @enderror"
+                                <label for="bank-accounts-create-account-name">Account Name</label>
+                                <input id="bank-accounts-create-account-name" type="text" name="account_name" class="form-control @error('account_name') is-invalid @enderror"
                                        value="{{ old('account_name') }}" required>
                                 @error('account_name') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="form-group">
-                                <label>Account Number</label>
-                                <input type="text" name="account_number" class="form-control @error('account_number') is-invalid @enderror"
+                                <label for="bank-accounts-create-account-number">Account Number</label>
+                                <input id="bank-accounts-create-account-number" type="text" name="account_number" class="form-control @error('account_number') is-invalid @enderror"
                                        value="{{ old('account_number') }}" required>
                                 @error('account_number') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="form-group">
-                                <label>Branch Name <small class="text-muted">(optional)</small></label>
-                                <input type="text" name="branch_name" class="form-control"
+                                <label for="bank-accounts-create-branch-name">Branch Name <small class="text-muted">(optional)</small></label>
+                                <input id="bank-accounts-create-branch-name" type="text" name="branch_name" class="form-control"
                                        value="{{ old('branch_name') }}">
                             </div>
 
                             <div class="form-group">
-                                <label>Routing Number <small class="text-muted">(optional)</small></label>
-                                <input type="text" name="routing_number" class="form-control"
+                                <label for="bank-accounts-create-routing-number">Routing Number <small class="text-muted">(optional)</small></label>
+                                <input id="bank-accounts-create-routing-number" type="text" name="routing_number" class="form-control"
                                        value="{{ old('routing_number') }}">
                             </div>
 
                             <div class="form-group">
-                                <label>Opening Balance (BDT)</label>
-                                <input type="number" name="opening_balance" step="0.01" min="0"
+                                <label for="bank-accounts-create-opening-balance">Opening Balance (BDT)</label>
+                                <input id="bank-accounts-create-opening-balance" type="number" name="opening_balance" step="0.01" min="0"
                                        class="form-control @error('opening_balance') is-invalid @enderror"
                                        value="{{ old('opening_balance', 0) }}" required>
                                 @error('opening_balance') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="form-group">
-                                <label>Opening Date</label>
-                                <input type="text" name="opening_date" datepicker datepicker-format="dd/mm/yyyy"
+                                <label for="bank-accounts-create-opening-date">Opening Date</label>
+                                <input id="bank-accounts-create-opening-date" type="text" name="opening_date" datepicker datepicker-format="dd/mm/yyyy"
                                        class="form-control @error('opening_date') is-invalid @enderror"
                                        value="{{ old('opening_date') }}" placeholder="dd/mm/yyyy" autocomplete="off" required>
                                 @error('opening_date') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="form-group">
-                                <label>Notes <small class="text-muted">(optional)</small></label>
-                                <textarea name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
+                                <label for="bank-accounts-create-notes">Notes <small class="text-muted">(optional)</small></label>
+                                <textarea id="bank-accounts-create-notes" name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
                             </div>
             </div>
 

@@ -61,7 +61,7 @@
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <form action="{{ route('id-card-templates.destroy', $t) }}" method="POST" class="d-inline"
-                                        onsubmit="return confirm('Delete this template?')">
+                                        data-confirm="{{ __('Delete this template?') }}" data-confirm-action="{{ __('Delete template') }}" data-confirm-cancel="{{ __('Keep template') }}">
                                         @csrf @method('DELETE')
                                         <button class="btn btn-xs btn-danger" title="Delete"><i class="fas fa-trash"></i></button>
                                     </form>
